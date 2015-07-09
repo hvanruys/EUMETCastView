@@ -1,5 +1,5 @@
-EUMETCastViewer
-===============
+EUMETCastView
+=============
 
 A viewer for the Eumetcast transmissions,EUMETSAT’s primary dissemination mechanism for the near real-time delivery of satellite images.
 
