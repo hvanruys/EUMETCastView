@@ -1,0 +1,8 @@
+[Icon Theme]
+Name=Oxygen
+Comment=Oxygen Team
+Inherits=default
+Directories=16x16
+
+[16x16]
+Size=16

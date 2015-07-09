@@ -1,0 +1,760 @@
+#include "segmentimage.h"
+
+#include <QDebug>
+#define uiNR_OF_GREY (4096)
+
+const unsigned int uiMAX_REG_X = 16;	  /* max. # contextual regions in x-direction */
+const unsigned int uiMAX_REG_Y = 16;	  /* max. # contextual regions in y-direction */
+
+extern Options opts;
+
+SegmentImage::SegmentImage()
+{
+
+    for(int k = 0; k < 5; k++)
+    {
+        this->ptrimagecomp_ch[k] = new QImage();
+    }
+
+    ptrimagecomp_col = new QImage();
+    ptrexpand_col = new QImage();
+    ptrimageGeostationary = new QImage(3712, 3712, QImage::Format_ARGB32);
+    ptrimageGeostationary->fill(Qt::black);
+    ptrimageProjection = new QImage();
+    ptrimageViirs = new QImage();
+
+    CalcSatAngles();
+
+    for( int i = 0; i < 10; i++)
+    {
+        ptrRed[i] = NULL;
+        ptrGreen[i] = NULL;
+        ptrBlue[i] = NULL;
+    }
+
+    for( int i = 0; i < 24; i++)
+    {
+        ptrHRV[i] = NULL;
+    }
+
+}
+
+void SegmentImage::CalcSatAngles()
+{
+    double swath = 55.3*PI/180.0;
+    double deltaphi = swath/1024;
+    Sigmadist[1024] = 0.0;
+    double phi, beta, d;
+    double satheight = 830;
+    double save = 0;
+    double delta, totdelta;
+
+    for(int i = 1; i < 1024; i++)
+    {
+        phi= deltaphi*(double)i;
+        beta=PI-ArcSin((XKMPER_WGS84 + satheight)*sin(phi)/XKMPER_WGS84);
+        Sigmadist[1024 - i] = Sigmadist[1024 + i] = PI - beta - phi;
+        save = PI - beta - phi;
+    }
+
+    Sigmadist[0] = Sigmadist[1];
+
+    for(int i = 1; i < 2048; i++)
+    {
+        fraction[i] = 0;
+    }
+
+    for(int i = 0; i < 102; i++)
+    {
+        totdelta = fabs(Sigmadist[5 + i*20] - Sigmadist[5 + (i+1)*20]);
+        for(int j = 0; j < 20; j++)
+        {
+            delta=fabs(Sigmadist[5 + i*20] - Sigmadist[5 + i*20 + j]);
+            fraction[5 + i*20 + j] = delta/totdelta;
+        }
+    }
+
+/*    for(int i = 0; i < 2048; i++)
+    {
+        qDebug() << QString("Sigmadist[%1] = %2  fraction = %3").arg(i).arg(Sigmadist[i]).arg(fraction[i]);
+
+    }
+*/
+}
+
+
+void SegmentImage::DeleteImagePtrs()
+{
+
+    qDebug() << "in DeleteImagePointers";
+
+    for(int k = 0; k < 5; k++)
+    {
+        if(ptrimagecomp_ch[k] != NULL)
+        {
+            delete ptrimagecomp_ch[k];
+            ptrimagecomp_ch[k] = NULL;
+        }
+    }
+
+        if(ptrimagecomp_col != NULL)
+    {
+        delete ptrimagecomp_col;
+        ptrimagecomp_col = NULL;
+    }
+
+    if(ptrexpand_col != NULL)
+    {
+        delete ptrexpand_col;
+        ptrexpand_col = NULL;
+    }
+
+    if(ptrimageGeostationary != NULL)
+    {
+        delete ptrimageGeostationary;
+        ptrimageGeostationary = NULL;
+    }
+
+    if(ptrimageProjection != NULL)
+    {
+        delete ptrimageProjection;
+        ptrimageProjection = NULL;
+    }
+
+    if(ptrimageViirs != NULL)
+    {
+        delete ptrimageViirs;
+        ptrimageViirs = NULL;
+    }
+
+    ResetPtrImage();
+}
+
+void SegmentImage::ResetPtrImage()
+{
+
+    for( int i = 0; i < 10; i++)
+    {
+        if (ptrRed[i] != NULL)
+        {
+            delete ptrRed[i];
+            ptrRed[i] = NULL;
+        }
+        if (ptrGreen[i] != NULL)
+        {
+            delete ptrGreen[i];
+            ptrGreen[i] = NULL;
+        }
+        if (ptrBlue[i] != NULL)
+        {
+            delete ptrBlue[i];
+            ptrBlue[i] = NULL;
+        }
+    }
+
+    for( int i = 0; i < 24; i++)
+    {
+        if (ptrHRV[i] != NULL)
+        {
+            delete ptrHRV[i];
+            ptrHRV[i] = NULL;
+        }
+    }
+}
+
+void SegmentImage::InitializeAVHRRImages( int imagewidth, int imageheight) // , long stat_min_ch[], long stat_max_ch[] )
+{
+    qDebug() << "voor initializeimages";
+
+    for(int k = 0; k < 5; k++)
+    {
+        if(ptrimagecomp_ch[k] != NULL)
+            delete ptrimagecomp_ch[k];
+    }
+
+    if(ptrimagecomp_col != NULL)
+        delete ptrimagecomp_col;
+
+    qDebug() << QString("Total nbr of pixels = %1").arg(imagewidth*imageheight);
+
+    for(int k = 0; k < 5; k++)
+    {
+        ptrimagecomp_ch[k] = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
+    }
+
+    ptrimagecomp_col = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
+
+
+}
+
+void SegmentImage::InitializeImageGeostationary( int imagewidth, int imageheight) // , long stat_min_ch[], long stat_max_ch[] )
+{
+
+    if(ptrimageGeostationary != NULL)
+        delete ptrimageGeostationary;
+
+    qDebug() << QString("Total nbr of pixels = %1").arg(imagewidth*imageheight);
+    qDebug() << QString("width %1  height %2").arg(imagewidth).arg(imageheight);
+
+    ptrimageGeostationary = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
+    ptrimageGeostationary->fill(Qt::black);
+
+}
+
+
+
+void SegmentImage::ReverseImage()
+{
+    ptrimagecomp_col = ReverseImageChannel(ptrimagecomp_col);
+
+    for(int k = 0; k < 5; k++)
+    {
+       ptrimagecomp_ch[k] = ReverseImageChannel(ptrimagecomp_ch[k]);
+    }
+
+}
+
+
+QImage *SegmentImage::ReverseImageChannel(QImage *ptr)
+{
+
+    QRgb *row_ch;
+    QRgb *row_result;
+
+    int TotalLines = ptr->size().height();
+    //qDebug() << QString("TotalLines = %1").arg(TotalLines);
+
+
+    QImage *ptrimage = new QImage(ptr->size().width(), ptr->size().height(), QImage::Format_ARGB32);
+
+    for( int j = TotalLines - 1, k = 0;  k < TotalLines ; j--, k++)
+    {
+        row_ch = (QRgb*)ptr->scanLine(j);
+        row_result = (QRgb *)ptrimage->scanLine(k);
+        for (int l=0, m=ptr->size().width()-1; l < ptr->size().width(); l++, m--)
+        {
+            row_result[l] = row_ch[m];
+        }
+    }
+
+    delete ptr;
+
+    return ptrimage;
+}
+
+void SegmentImage::ExpandImage(int channelshown)
+{
+    QRgb *row_col;
+
+    QRgb *row_result;
+
+    if(channelshown == 7)
+        return;
+
+    int TotalLines = ptrimagecomp_col->size().height();
+    if (TotalLines == 0)
+        return;
+
+    qDebug() << QString("=============  in expand image ; totallines = %1").arg(TotalLines);
+    qDebug() << QString("=============  in expand image ; width = %1").arg(ptrimagecomp_col->size().width());
+    qDebug() << QString("=============  in expand image ; channelshown = %1").arg(channelshown);
+
+    int nbrwidth = ptrimagecomp_col->size().width()/2;
+
+    double theta_p = Radians(55.37) /nbrwidth;
+
+    int *p = new int[nbrwidth];
+    p[0] = 1;
+
+    int totalline = 1;
+
+    for (int j = 1; j < nbrwidth; j++)
+    {
+        p[j] = floor((tan(j*theta_p)-tan((j-1)*theta_p))/tan(theta_p));
+        totalline += p[j];
+    }
+
+    qDebug() << QString("totalline = %1").arg(totalline);
+
+    delete ptrexpand_col;
+
+    ptrexpand_col = new QImage(2 * totalline, TotalLines, QImage::Format_ARGB32);
+
+    int inp = 0, outp = 0;
+
+    for( int j = 0;  j < TotalLines ; j++)
+    {
+        switch (channelshown)
+        {
+            case 1:
+                row_col = (QRgb*)ptrimagecomp_ch[0]->scanLine(j);
+                row_result = (QRgb *)ptrexpand_col->scanLine(j);
+                break;
+            case 2:
+                row_col = (QRgb*)ptrimagecomp_ch[1]->scanLine(j);
+                row_result = (QRgb *)ptrexpand_col->scanLine(j);
+                break;
+            case 3:
+                row_col = (QRgb*)ptrimagecomp_ch[2]->scanLine(j);
+                row_result = (QRgb *)ptrexpand_col->scanLine(j);
+                break;
+            case 4:
+                row_col = (QRgb*)ptrimagecomp_ch[3]->scanLine(j);
+                row_result = (QRgb *)ptrexpand_col->scanLine(j);
+                break;
+            case 5:
+                row_col = (QRgb*)ptrimagecomp_ch[4]->scanLine(j);
+                row_result = (QRgb *)ptrexpand_col->scanLine(j);
+                break;
+            case 6:
+                row_col = (QRgb*)ptrimagecomp_col->scanLine(j);
+                row_result = (QRgb *)ptrexpand_col->scanLine(j);
+                break;
+
+        }
+        inp = nbrwidth-1;
+        outp = totalline-1;
+
+        while( inp >=0)
+        {
+
+            for( int rep=0; rep < p[nbrwidth-1-inp]; rep++)
+            {
+                row_result[outp] = row_col[inp];
+                outp--;
+            }
+            inp--;
+        }
+
+        inp = nbrwidth;
+        outp = totalline;
+
+        while( inp < nbrwidth*2)
+        {
+
+            for( int rep=0; rep < p[inp - nbrwidth]; rep++)
+            {
+                row_result[outp] = row_col[inp];
+                outp++;
+            }
+            inp++;
+        }
+    }
+
+    delete [] p;
+}
+
+
+void SegmentImage::RotateImage()
+{
+    ptrimagecomp_col = ReverseImageChannel(ptrimagecomp_col);
+
+    for(int k = 0; k < 5; k++)
+    {
+       ptrimagecomp_ch[k] = ReverseImageChannel(ptrimagecomp_ch[k]);
+    }
+
+}
+
+
+QImage *SegmentImage::RotateImageChannel(QImage *ptr)
+{
+
+    QRgb *row_ch;
+    QRgb *row_result;
+
+    int TotalLines = ptr->size().height();
+    //qDebug() << QString("TotalLines = %1").arg(TotalLines);
+
+
+    QImage *ptrimage = new QImage(ptr->size().width(), ptr->size().height(), QImage::Format_ARGB32);
+
+    for( int j = TotalLines - 1, k = 0;  k < TotalLines ; j--, k++)
+    {
+        row_ch = (QRgb*)ptr->scanLine(j);
+        row_result = (QRgb *)ptrimage->scanLine(k);
+        for (int l=0, m=ptr->size().width()-1; l < ptr->size().width(); l++, m--)
+        {
+            row_result[l] = row_ch[m];
+        }
+    }
+
+    delete ptr;
+
+    return ptrimage;
+}
+
+void SegmentImage::showHistogram(QImage *ptr)
+{
+    QRgb *row_ch;
+     int TotalLines = ptr->size().height();
+    //qDebug() << QString("TotalLines = %1").arg(TotalLines);
+
+ /*   const CImg<unsigned char>
+
+
+    for( int j = 0;  j < TotalLines ; j++)
+    {
+        row_ch = (QRgb*)ptr->scanLine(j);
+        for (int m=0; m < ptr->size().width(); m++)
+        {
+            row_result[l] = row_ch[m];
+        }
+    }
+
+*/
+}
+
+// Contrast Limited Adaptive Histogram Equalization
+int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned int uiYRes,
+     unsigned short Min, unsigned short Max, unsigned int uiNrX, unsigned int uiNrY,
+          unsigned int uiNrBins, float fCliplimit)
+/*   pImage - Pointer to the input/output image
+ *   uiXRes - Image resolution in the X direction
+ *   uiYRes - Image resolution in the Y direction
+ *   Min - Minimum greyvalue of input image (also becomes minimum of output image)
+ *   Max - Maximum greyvalue of input image (also becomes maximum of output image)
+ *   uiNrX - Number of contextial regions in the X direction (min 2, max uiMAX_REG_X)
+ *   uiNrY - Number of contextial regions in the Y direction (min 2, max uiMAX_REG_Y)
+ *   uiNrBins - Number of greybins for histogram ("dynamic range")
+ *   float fCliplimit - Normalized cliplimit (higher values give more contrast)
+ * The number of "effective" greylevels in the output image is set by uiNrBins; selecting
+ * a small value (eg. 128) speeds up processing and still produce an output image of
+ * good quality. The output image will have the same minimum and maximum value as the input
+ * image. A clip limit smaller than 1 results in standard (non-contrast limited) AHE.
+ */
+{
+    unsigned int uiX, uiY;		  /* counters */
+    unsigned int uiXSize, uiYSize, uiSubX, uiSubY; /* size of context. reg. and subimages */
+    unsigned int uiXL, uiXR, uiYU, uiYB;  /* auxiliary variables interpolation routine */
+    unsigned long ulClipLimit, ulNrPixels;/* clip limit and region pixel count */
+    unsigned short* pImPointer;		   /* pointer to image */
+    unsigned short aLUT[uiNR_OF_GREY];	    /* lookup table used for scaling of input image */
+    unsigned long* pulHist, *pulMapArray; /* pointer to histogram and mappings*/
+    unsigned long* pulLU, *pulLB, *pulRU, *pulRB; /* auxiliary pointers interpolation */
+
+    if (uiNrX > uiMAX_REG_X) return -1;	   /* # of regions x-direction too large */
+    if (uiNrY > uiMAX_REG_Y) return -2;	   /* # of regions y-direction too large */
+    if (uiXRes % uiNrX) return -3;	  /* x-resolution no multiple of uiNrX */
+    if (uiYRes % uiNrY) return -4;	  /* y-resolution no multiple of uiNrY */
+    if (Max >= uiNR_OF_GREY) return -5;	   /* maximum too large */
+    if (Min >= Max) return -6;		  /* minimum equal or larger than maximum */
+    if (uiNrX < 2 || uiNrY < 2) return -7;/* at least 4 contextual regions required */
+    if (fCliplimit == 1.0) return 0;	  /* is OK, immediately returns original image. */
+    if (uiNrBins == 0) uiNrBins = 128;	  /* default value when not specified */
+
+    pulMapArray=(unsigned long *)malloc(sizeof(unsigned long)*uiNrX*uiNrY*uiNrBins);
+    if (pulMapArray == 0) return -8;	  /* Not enough memory! (try reducing uiNrBins) */
+
+    uiXSize = uiXRes/uiNrX; uiYSize = uiYRes/uiNrY;  /* Actual size of contextual regions */
+    ulNrPixels = (unsigned long)uiXSize * (unsigned long)uiYSize;
+
+    if(fCliplimit > 0.0) {		  /* Calculate actual cliplimit	 */
+       ulClipLimit = (unsigned long) (fCliplimit * (uiXSize * uiYSize) / uiNrBins);
+       ulClipLimit = (ulClipLimit < 1UL) ? 1UL : ulClipLimit;
+    }
+    else ulClipLimit = 1UL<<14;		  /* Large value, do not clip (AHE) */
+    MakeLut(aLUT, Min, Max, uiNrBins);	  /* Make lookup table for mapping of greyvalues */
+    qDebug() << "Calculate greylevel mappings for each contextual region";
+    for (uiY = 0, pImPointer = pImage; uiY < uiNrY; uiY++)
+    {
+        for (uiX = 0; uiX < uiNrX; uiX++, pImPointer += uiXSize)
+        {
+            pulHist = &pulMapArray[uiNrBins * (uiY * uiNrX + uiX)];
+            MakeHistogram(pImPointer,uiXRes,uiXSize,uiYSize,pulHist,uiNrBins,aLUT);
+            ClipHistogram(pulHist, uiNrBins, ulClipLimit);
+            MapHistogram(pulHist, Min, Max, uiNrBins, ulNrPixels);
+        }
+        pImPointer += (uiYSize - 1) * uiXRes;		  /* skip lines, set pointer */
+    }
+
+    qDebug() << "Interpolate greylevel mappings to get CLAHE image";
+    for (pImPointer = pImage, uiY = 0; uiY <= uiNrY; uiY++)
+    {
+        if (uiY == 0)       /* special case: top row */
+        {
+            uiSubY = uiYSize >> 1;  uiYU = 0; uiYB = 0;
+        }
+        else
+        {
+            if (uiY == uiNrY)				  /* special case: bottom row */
+            {
+                uiSubY = uiYSize >> 1;	uiYU = uiNrY-1;	 uiYB = uiYU;
+            }
+            else
+                {					  /* default values */
+                    uiSubY = uiYSize; uiYU = uiY - 1; uiYB = uiYU + 1;
+                }
+        }
+
+        for (uiX = 0; uiX <= uiNrX; uiX++)
+        {
+            if (uiX == 0)				  /* special case: left column */
+            {
+                uiSubX = uiXSize >> 1; uiXL = 0; uiXR = 0;
+            }
+            else
+                {
+                    if (uiX == uiNrX)			  /* special case: right column */
+                    {
+                        uiSubX = uiXSize >> 1;  uiXL = uiNrX - 1; uiXR = uiXL;
+                    }
+                    else
+                        {					  /* default values */
+                            uiSubX = uiXSize; uiXL = uiX - 1; uiXR = uiXL + 1;
+                        }
+                }
+
+            pulLU = &pulMapArray[uiNrBins * (uiYU * uiNrX + uiXL)];
+            pulRU = &pulMapArray[uiNrBins * (uiYU * uiNrX + uiXR)];
+            pulLB = &pulMapArray[uiNrBins * (uiYB * uiNrX + uiXL)];
+            pulRB = &pulMapArray[uiNrBins * (uiYB * uiNrX + uiXR)];
+            Interpolate(pImPointer,uiXRes,pulLU,pulRU,pulLB,pulRB,uiSubX,uiSubY,aLUT);
+            pImPointer += uiSubX;			  /* set pointer on next matrix */
+        }
+        pImPointer += (uiSubY - 1) * uiXRes;
+    }
+
+    free(pulMapArray);					  /* free space for histograms */
+    return 0;						  /* return status OK */
+}
+
+void  SegmentImage::ClipHistogram (unsigned long* pulHistogram, unsigned int
+             uiNrGreylevels, unsigned long ulClipLimit)
+/* This function performs clipping of the histogram and redistribution of bins.
+ * The histogram is clipped and the number of excess pixels is counted. Afterwards
+ * the excess pixels are equally redistributed across the whole histogram (providing
+ * the bin count is smaller than the cliplimit).
+ */
+{
+    unsigned long* pulBinPointer, *pulEndPointer, *pulHisto;
+    unsigned long ulNrExcess, ulUpper, ulBinIncr, ulStepSize, i;
+    long lBinExcess;
+
+    ulNrExcess = 0;  pulBinPointer = pulHistogram;
+    for (i = 0; i < uiNrGreylevels; i++) { /* calculate total number of excess pixels */
+    lBinExcess = (long) pulBinPointer[i] - (long) ulClipLimit;
+    if (lBinExcess > 0) ulNrExcess += lBinExcess;	  /* excess in current bin */
+    };
+
+    /* Second part: clip histogram and redistribute excess pixels in each bin */
+    ulBinIncr = ulNrExcess / uiNrGreylevels;		  /* average binincrement */
+    ulUpper =  ulClipLimit - ulBinIncr;	 /* Bins larger than ulUpper set to cliplimit */
+
+    for (i = 0; i < uiNrGreylevels; i++)
+    {
+        if (pulHistogram[i] > ulClipLimit) pulHistogram[i] = ulClipLimit; /* clip bin */
+        else
+        {
+            if (pulHistogram[i] > ulUpper)		/* high bin count */
+            {
+                ulNrExcess -= pulHistogram[i] - ulUpper; pulHistogram[i]=ulClipLimit;
+            }
+            else
+            {					/* low bin count */
+                ulNrExcess -= ulBinIncr; pulHistogram[i] += ulBinIncr;
+            }
+        }
+    }
+
+    while (ulNrExcess)       /* Redistribute remaining excess  */
+    {
+        pulEndPointer = &pulHistogram[uiNrGreylevels]; pulHisto = pulHistogram;
+
+        while (ulNrExcess && pulHisto < pulEndPointer)
+        {
+            ulStepSize = uiNrGreylevels / ulNrExcess;
+            if (ulStepSize < 1) ulStepSize = 1;		  /* stepsize at least 1 */
+            for (pulBinPointer=pulHisto; pulBinPointer < pulEndPointer && ulNrExcess; pulBinPointer += ulStepSize)
+            {
+                if (*pulBinPointer < ulClipLimit)
+                {
+                    (*pulBinPointer)++;	 ulNrExcess--;	  /* reduce excess */
+                }
+            }
+            pulHisto++;		  /* restart redistributing on other bin location */
+        }
+    }
+}
+
+void  SegmentImage::MakeHistogram (unsigned short* pImage, unsigned int uiXRes,
+        unsigned int uiSizeX, unsigned int uiSizeY,
+        unsigned long* pulHistogram,
+        unsigned int uiNrGreylevels, unsigned short* pLookupTable)
+/* This function classifies the greylevels present in the array image into
+ * a greylevel histogram. The pLookupTable specifies the relationship
+ * between the greyvalue of the pixel (typically between 0 and 4095) and
+ * the corresponding bin in the histogram (usually containing only 128 bins).
+ */
+{
+    //qDebug() << QString("MakeHistogram uiXRes = %1 uiSizeX = %2 uiSizeY = %3 uiNrGreylevels = %4").arg(uiXRes).arg(uiSizeX).arg(uiSizeY).arg(uiNrGreylevels);
+
+    unsigned short* pImagePointer;
+    unsigned int i;
+
+    for (i = 0; i < uiNrGreylevels; i++) pulHistogram[i] = 0L; /* clear histogram */
+
+    for (i = 0; i < uiSizeY; i++)
+    {
+        pImagePointer = &pImage[uiSizeX];
+        while (pImage < pImagePointer) pulHistogram[pLookupTable[*pImage++]]++;
+        pImagePointer += uiXRes;
+        pImage = pImagePointer-uiSizeX;
+    }
+}
+
+void  SegmentImage::MapHistogram (unsigned long* pulHistogram, unsigned short Min, unsigned short Max,
+           unsigned int uiNrGreylevels, unsigned long ulNrOfPixels)
+/* This function calculates the equalized lookup table (mapping) by
+ * cumulating the input histogram. Note: lookup table is rescaled in range [Min..Max].
+ */
+{
+    unsigned int i;  unsigned long ulSum = 0;
+    const float fScale = ((float)(Max - Min)) / ulNrOfPixels;
+    const unsigned long ulMin = (unsigned long) Min;
+
+    for (i = 0; i < uiNrGreylevels; i++) {
+    ulSum += pulHistogram[i]; pulHistogram[i]=(unsigned long)(ulMin+ulSum*fScale);
+    if (pulHistogram[i] > Max) pulHistogram[i] = Max;
+    }
+}
+
+void  SegmentImage::MakeLut (unsigned short * pLUT, unsigned short Min, unsigned short Max, unsigned int uiNrBins)
+/* To speed up histogram clipping, the input image [Min,Max] is scaled down to
+ * [0,uiNrBins-1]. This function calculates the LUT.
+ */
+{
+    int i;
+    const unsigned short BinSize = (unsigned short) (1 + (Max - Min) / uiNrBins);
+
+    for (i = Min; i <= Max; i++)  pLUT[i] = (i - Min) / BinSize;
+}
+
+void  SegmentImage::Interpolate (unsigned short *pImage, int uiXRes, unsigned long * pulMapLU,
+     unsigned long * pulMapRU, unsigned long * pulMapLB,  unsigned long * pulMapRB,
+     unsigned int uiXSize, unsigned int uiYSize, unsigned short *pLUT)
+/* pImage      - pointer to input/output image
+ * uiXRes      - resolution of image in x-direction
+ * pulMap*     - mappings of greylevels from histograms
+ * uiXSize     - uiXSize of image submatrix
+ * uiYSize     - uiYSize of image submatrix
+ * pLUT	       - lookup table containing mapping greyvalues to bins
+ * This function calculates the new greylevel assignments of pixels within a submatrix
+ * of the image with size uiXSize and uiYSize. This is done by a bilinear interpolation
+ * between four different mappings in order to eliminate boundary artifacts.
+ * It uses a division; since division is often an expensive operation, I added code to
+ * perform a logical shift instead when feasible.
+ */
+{
+    const unsigned int uiIncr = uiXRes-uiXSize; /* Pointer increment after processing row */
+    unsigned short GreyValue; unsigned int uiNum = uiXSize*uiYSize; /* Normalization factor */
+
+    unsigned int uiXCoef, uiYCoef, uiXInvCoef, uiYInvCoef, uiShift = 0;
+
+    if (uiNum & (uiNum - 1))   /* If uiNum is not a power of two, use division */
+        for (uiYCoef = 0, uiYInvCoef = uiYSize; uiYCoef < uiYSize;  uiYCoef++, uiYInvCoef--,pImage+=uiIncr)
+        {
+            for (uiXCoef = 0, uiXInvCoef = uiXSize; uiXCoef < uiXSize; uiXCoef++, uiXInvCoef--)
+            {
+                GreyValue = pLUT[*pImage];		   /* get histogram bin value */
+                *pImage++ = (unsigned short ) ((uiYInvCoef * (uiXInvCoef*pulMapLU[GreyValue] + uiXCoef * pulMapRU[GreyValue])
+                    + uiYCoef * (uiXInvCoef * pulMapLB[GreyValue] + uiXCoef * pulMapRB[GreyValue])) / uiNum);
+            }
+        }
+    else
+    {			   /* avoid the division and use a right shift instead */
+        while (uiNum >>= 1) uiShift++;		   /* Calculate 2log of uiNum */
+        for (uiYCoef = 0, uiYInvCoef = uiYSize; uiYCoef < uiYSize; uiYCoef++, uiYInvCoef--,pImage+=uiIncr)
+        {
+            for (uiXCoef = 0, uiXInvCoef = uiXSize; uiXCoef < uiXSize; uiXCoef++, uiXInvCoef--)
+            {
+                GreyValue = pLUT[*pImage];	  /* get histogram bin value */
+                *pImage++ = (unsigned short)((uiYInvCoef* (uiXInvCoef * pulMapLU[GreyValue] + uiXCoef * pulMapRU[GreyValue])
+                    + uiYCoef * (uiXInvCoef * pulMapLB[GreyValue] + uiXCoef * pulMapRB[GreyValue])) >> uiShift);
+            }
+        }
+    }
+}
+
+void  SegmentImage::SmoothProjectionImage()
+{
+    QRgb *row;
+    QRgb val;
+    QRgb savepixelfirst;
+    quint32 count = 0;
+    bool first = true;
+    bool hole = false;
+    int firstholeindex;
+    int reddiff, greendiff, bluediff;
+    int diff;
+
+
+    for( int h = 0; h < ptrimageProjection->height(); h++)
+    {
+        first = true;
+        hole = false;
+        row = (QRgb*)ptrimageProjection->scanLine(h);
+        for( int w = 0; w < ptrimageProjection->width(); w++)
+        {
+            val = *(row + w);
+            if (qAlpha(val) == 250 && first)
+                continue;
+            else
+            {
+                if (qAlpha(val) == 255 && first)
+                {
+                    first = false;
+                    savepixelfirst = row[w];
+                }
+                else if (qAlpha(val) == 250 && !first && !hole)
+                {
+                    hole = true;
+                    firstholeindex = w;
+                }
+                else if (qAlpha(val) == 250 && !first && hole)
+                {
+                    hole = true;
+                }
+                else if (qAlpha(val) == 255 && !first && !hole)
+                {
+                    savepixelfirst = row[w];
+                }
+                else if (qAlpha(val) == 255 && !first && hole)
+                {
+                    diff = w - firstholeindex;
+                    if (diff < 25)
+                    {
+                        reddiff = (qRed(row[w]) - qRed(row[firstholeindex - 1]))/diff;
+                        greendiff = (qGreen(row[w]) - qGreen(row[firstholeindex - 1]))/diff;
+                        bluediff = (qBlue(row[w]) - qBlue(row[firstholeindex - 1]))/diff;
+
+                        for(int ind = firstholeindex; ind < w; ind++)
+                        {
+                            row[ind] = qRgba(qRed(row[firstholeindex-1])+reddiff, qGreen(row[firstholeindex-1])+greendiff, qBlue(row[firstholeindex-1])+bluediff, 255);
+                        }
+                    }
+                    hole = false;
+                }
+
+            }
+        }
+    }
+
+    qDebug() << QString("count = %1").arg(count);
+
+}
+
+void SegmentImage::boundaryFill4 (int x, int y)
+{
+    QRgb currentrgb;
+    currentrgb = ptrimageProjection->pixel(x, y);
+    if (qAlpha(currentrgb) != 255)
+    {
+        ptrimageProjection->setPixel(x, y, currentrgb);
+
+        boundaryFill4 (x+1, y);
+        boundaryFill4 (x-1, y);
+        boundaryFill4 (x, y+1);
+        boundaryFill4 (x, y-1);
+    }
+}

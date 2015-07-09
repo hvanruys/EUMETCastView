@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>shader/earthshader.frag</file>
+        <file>shader/earthshader.vert</file>
+        <file>shader/gshhs.frag</file>
+        <file>shader/gshhs.vert</file>
+        <file>shader/skybox.frag</file>
+        <file>shader/skybox.vert</file>
+        <file>shader/draw.frag</file>
+        <file>shader/draw.vert</file>
+        <file>shader/sats.frag</file>
+        <file>shader/sats.vert</file>
+        <file>shader/texturewriter.frag</file>
+        <file>shader/texturewriter.vert</file>
+    </qresource>
+</RCC>
