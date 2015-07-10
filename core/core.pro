@@ -138,7 +138,7 @@ else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.14\include" ../bz
 CONFIG(release, debug|release) {
     #This is a release build
     unix:LIBS += -lpthread -lbz2 -L/usr/ \
-        -L$$PWD/../../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
+        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
         -L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += \
         -L$$PWD/../../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL -lbz2 \
@@ -147,7 +147,7 @@ CONFIG(release, debug|release) {
 } else {
     #This is a debug build
 unix:LIBS += -lpthread -lbz2 -L/usr/ \
-    -L$$PWD/../../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
+    -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
     -L/usr/local/hdf5/lib -lhdf5
 else:win32:LIBS += \
     -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL -lbz2 \
