@@ -34,12 +34,12 @@ HEADERS += qsgp4.h \
 
 CONFIG(release, debug|release) {
     #This is a release build
-    unix:TARGET = ../../EUMETCastView/libs/linux_gplusplus/release/qsgp4
-    else:win32:TARGET = ../../../EUMETCastView/libs/win64_MSVC2012/release/qsgp4
+    unix:TARGET = ../../libs/linux_gplusplus/release/qsgp4
+    else:win32:TARGET = ../../../libs/win64_MSVC2012/release/qsgp4
 } else {
     #This is a debug build
-    unix:TARGET = ../../EUMETCastView/libs/linux_gplusplus/debug/qsgp4
-    else:win32:TARGET = ../../../EUMETCastView/libs/win64_MSVC2012/debug/qsgp4
+    unix:TARGET = ../../libs/linux_gplusplus/debug/qsgp4
+    else:win32:TARGET = ../../../libs/win64_MSVC2012/debug/qsgp4
 }
 
 

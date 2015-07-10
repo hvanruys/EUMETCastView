@@ -113,7 +113,8 @@ HEADERS  += mainwindow.h \
     segmentlistgeostationary.h \
     formgeostationary.h \
     texturewriter.h \
-    sgp4sdp4.h
+    sgp4sdp4.h \
+    stdafx.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
@@ -137,21 +138,30 @@ else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.14\include" ../bz
 CONFIG(release, debug|release) {
     #This is a release build
     unix:LIBS += -lpthread -lbz2 -L/usr/ \
-        -L$$PWD/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
+        -L$$PWD/../../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
         -L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += \
-        -L$$PWD/../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL -lbz2 \
+        -L$$PWD/../../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL -lbz2 \
         -L"C:\Program Files\HDF_Group\HDF5\1.8.14\lib" -lhdf5
 
 } else {
     #This is a debug build
 unix:LIBS += -lpthread -lbz2 -L/usr/ \
-    -L$$PWD/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
+    -L$$PWD/../../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
     -L/usr/local/hdf5/lib -lhdf5
 else:win32:LIBS += \
-    -L$$PWD/../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL -lbz2 \
+    -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL -lbz2 \
     -L"C:\Program Files\HDF_Group\HDF5\1.8.14\lib" -lhdf5
 }
 
 DISTFILES += \
-    EUMETCastView.ini
+    EUMETCastView.ini \
+    images/NE2_50M_SR_W_4096.jpg \
+    images/Topography.jpg \
+    images/ulukai/corona_bk.png \
+    images/ulukai/corona_dn.png \
+    images/ulukai/corona_ft.png \
+    images/ulukai/corona_lf.png \
+    images/ulukai/corona_rt.png \
+    images/ulukai/corona_up.png \
+    images/ulukai/readme.txt
