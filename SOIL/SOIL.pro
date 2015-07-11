@@ -28,10 +28,10 @@ HEADERS += \
 CONFIG(release, debug|release) {
     #This is a release build
     unix:TARGET = $$_PRO_FILE_PWD_/../libs/linux_gplusplus/release/SOIL
-    else:win32:TARGET = ../../../libs/win64_MSVC2012/release/SOIL
+    else:win32:TARGET = ../../../EUMETCastView-master/libs/win64_MSVC2012/release/SOIL
 } else {
     #This is a debug build
     unix:TARGET = $$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug/SOIL
-    else:win32:TARGET = ../../../libs/win64_MSVC2012/debug/SOIL
+    else:win32:TARGET = ../../../EUMETCastView-master/libs/win64_MSVC2012/debug/SOIL
 }
 

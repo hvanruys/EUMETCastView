@@ -89,11 +89,11 @@ HEADERS += \
 CONFIG(release, debug|release) {
     #This is a release build
     unix:TARGET = $$_PRO_FILE_PWD_/../libs/linux_gplusplus/release/meteosat
-    else:win32:TARGET = ../../../libs/win64_MSVC2012/release/meteosat
+    else:win32:TARGET = ../../../EUMETCastView-master/libs/win64_MSVC2012/release/meteosat
 } else {
     #This is a debug build
     unix:TARGET = $$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug/meteosat
-    else:win32:TARGET = ../../../libs/win64_MSVC2012/debug/meteosat
+    else:win32:TARGET = ../../../EUMETCastView-master/libs/win64_MSVC2012/debug/meteosat
 }
 
 INCLUDEPATH += ../PublicDecompWT_2.06_qt/2.06/DISE \
