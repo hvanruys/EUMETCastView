@@ -1,10 +1,11 @@
 #ifndef SKYBOX_H
 #define SKYBOX_H
 #include <QOpenGLFunctions_3_2_Core>
-#include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
+//#include <QOpenGLVertexArrayObject>
+//#include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
+//#include <QOpenGLTexture>
+
 
 class SkyBox : protected  QOpenGLFunctions_3_2_Core
 {
@@ -18,7 +19,7 @@ private:
 
     QOpenGLShaderProgram *program;
     GLuint uniformViewMatrix;
-    GLuint loadCubemap(QVector<QString> faces);
+    void loadCubemap(QVector<QString> faces);
     GLuint skyboxVAO, skyboxVBO;
     GLuint cubemapTexture;
 

@@ -1,6 +1,7 @@
 #include "skybox.h"
-#include "SOIL.h"
 #include "options.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 extern Options opts;
 
@@ -63,7 +64,8 @@ SkyBox::SkyBox(QOpenGLShaderProgram *prog)
     faces.push_back(opts.skyboxdown);
     faces.push_back(opts.skyboxback);
     faces.push_back(opts.skyboxfront);
-    cubemapTexture = loadCubemap(faces);
+
+    loadCubemap(faces);
 
     qDebug() << QString("ID cubemapTexture = %1").arg(cubemapTexture);
 
@@ -110,117 +112,47 @@ void SkyBox::render(QMatrix4x4 projection, QMatrix4x4 rot)
 
 }
 
-GLuint SkyBox::loadCubemap(QVector<QString> faces)
+void SkyBox::loadCubemap(QVector<QString> faces)
 {
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glActiveTexture(GL_TEXTURE0);
-
-//    int width,height;
-//    unsigned char* image;
-
-//    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-//    for(GLuint i = 0; i < faces.size(); i++)
-//    {
-//        image = SOIL_load_image(faces.at(i).toLatin1(), &width, &height, 0, SOIL_LOAD_RGB);
-//        glTexImage2D(
-//            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
-//            GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image
-//        );
-//    }
 
 
-    /**
-        Loads 6 images from memory into an OpenGL cubemap texture.
-        \param x_pos_buffer the image data in RAM to upload as the +x cube face
-        \param x_pos_buffer_length the size of the above buffer
-        \param x_neg_buffer the image data in RAM to upload as the +x cube face
-        \param x_neg_buffer_length the size of the above buffer
-        \param y_pos_buffer the image data in RAM to upload as the +x cube face
-        \param y_pos_buffer_length the size of the above buffer
-        \param y_neg_buffer the image data in RAM to upload as the +x cube face
-        \param y_neg_buffer_length the size of the above buffer
-        \param z_pos_buffer the image data in RAM to upload as the +x cube face
-        \param z_pos_buffer_length the size of the above buffer
-        \param z_neg_buffer the image data in RAM to upload as the +x cube face
-        \param z_neg_buffer_length the size of the above buffer
-        \param force_channels 0-image format, 1-luminous, 2-luminous/alpha, 3-RGB, 4-RGBA
-        \param reuse_texture_ID 0-generate a new texture ID, otherwise reuse the texture ID (overwriting the old texture)
-        \param flags can be any of SOIL_FLAG_POWER_OF_TWO | SOIL_FLAG_MIPMAPS | SOIL_FLAG_TEXTURE_REPEATS | SOIL_FLAG_MULTIPLY_ALPHA | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT | SOIL_FLAG_DDS_LOAD_DIRECT
-        \return 0-failed, otherwise returns the OpenGL texture handle
-    **/
+    int w, h, n;
+
+    unsigned char *x = stbi_load(faces.at(0).toLatin1(), &w, &h, &n, 4);
+    unsigned char *_x = stbi_load(faces.at(1).toLatin1(), &w, &h, &n, 4);
+    unsigned char *y = stbi_load(faces.at(2).toLatin1(), &w, &h, &n, 4);
+    unsigned char *_y = stbi_load(faces.at(3).toLatin1(), &w, &h, &n, 4);
+    unsigned char *z = stbi_load(faces.at(4).toLatin1(), &w, &h, &n, 4);
+    unsigned char *_z = stbi_load(faces.at(5).toLatin1(), &w, &h, &n, 4);
 
 
-//    QImage x_pos_buffer(faces.at(0));
-//    QImage x_neg_buffer(faces.at(1));
-//    QImage y_pos_buffer(faces.at(2));
-//    QImage y_neg_buffer(faces.at(3));
-//    QImage z_neg_buffer(faces.at(4));
-//    QImage z_pos_buffer(faces.at(5));
+    glGenTextures(1, &cubemapTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*) x);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*) y);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*) z);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*) _x);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*) _y);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*) _z);
 
-//    GLuint tex_cube = SOIL_load_OGL_cubemap_from_memory
-//            (
-//                x_pos_buffer.bits(),
-//                x_pos_buffer.byteCount(),
-//                x_neg_buffer.bits(),
-//                x_neg_buffer.byteCount(),
-
-//                y_pos_buffer.bits(),
-//                y_pos_buffer.byteCount(),
-//                y_neg_buffer.bits(),
-//                y_neg_buffer.byteCount(),
-
-//                z_pos_buffer.bits(),
-//                z_pos_buffer.byteCount(),
-//                z_neg_buffer.bits(),
-//                z_neg_buffer.byteCount(),
-//                4,
-//                0,
-//                SOIL_FLAG_MIPMAPS
-//            );
-
-
-
-//            const unsigned char *const x_pos_buffer,
-//            int x_pos_buffer_length,
-//            const unsigned char *const x_neg_buffer,
-//            int x_neg_buffer_length,
-//            const unsigned char *const y_pos_buffer,
-//            int y_pos_buffer_length,
-//            const unsigned char *const y_neg_buffer,
-//            int y_neg_buffer_length,
-//            const unsigned char *const z_pos_buffer,
-//            int z_pos_buffer_length,
-//            const unsigned char *const z_neg_buffer,
-//            int z_neg_buffer_length,
-
-//            int force_channels,
-//            unsigned int reuse_texture_ID,
-//            unsigned int flags
-//        );
-
-
-    GLuint tex_cube = SOIL_load_OGL_cubemap
-        (
-            faces.at(0).toLatin1(),
-            faces.at(1).toLatin1(),
-            faces.at(2).toLatin1(),
-            faces.at(3).toLatin1(),
-            faces.at(4).toLatin1(),
-            faces.at(5).toLatin1(),
-            SOIL_LOAD_RGB,
-            SOIL_CREATE_NEW_ID,
-            SOIL_FLAG_MIPMAPS
-        );
-
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+
+    free(x);
+    free(_x);
+    free(y);
+    free(_y);
+    free(z);
+    free(_z);
+
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    return tex_cube;
+
 }
+

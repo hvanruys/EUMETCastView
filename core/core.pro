@@ -114,7 +114,8 @@ HEADERS  += mainwindow.h \
     formgeostationary.h \
     texturewriter.h \
     sgp4sdp4.h \
-    stdafx.h
+    stdafx.h \
+    stb_image.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
@@ -132,25 +133,25 @@ RESOURCES += \
 
 CONFIG += c++11
 
-unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2/ ../meteosatlib  ../QSgp4 ../SOIL
-else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.14\include" ../bz2/ ../meteosatlib ../QSgp4 ../SOIL
+unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2/ ../meteosatlib  ../QSgp4
+else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.14\include" ../bz2/ ../meteosatlib ../QSgp4
 
 CONFIG(release, debug|release) {
     #This is a release build
     unix:LIBS += -lpthread -lbz2 -L/usr/ \
-        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
+        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 \
         -L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += \
-        -L$$PWD/../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL -lbz2 \
+        -L$$PWD/../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
         -L"C:\Program Files\HDF_Group\HDF5\1.8.14\lib" -lhdf5
 
 } else {
     #This is a debug build
 unix:LIBS += -lpthread -lbz2 -L/usr/ \
-    -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL \
+    -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 \
     -L/usr/local/hdf5/lib -lhdf5
 else:win32:LIBS += \
-    -L$$PWD/../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lSOIL -lbz2 \
+    -L$$PWD/../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
     -L"C:\Program Files\HDF_Group\HDF5\1.8.14\lib" -lhdf5
 }
 
