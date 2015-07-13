@@ -26,7 +26,6 @@ public:
 
     explicit SegmentList(QObject *parent = 0);
     void CalculateSunPosition(double first_julian, double last_julian, QVector3D *sunPosition);
-    void drawCircle(float cx, float cy, float r, int num_segments);
     void SetNbrOfVisibleSegments(int nbr);
     int GetNbrOfVisibleSegments();
     void SetIndexFirstVisible(int cnt) { indexfirstvisible = cnt; }

@@ -118,12 +118,24 @@ void SkyBox::loadCubemap(QVector<QString> faces)
 
     int w, h, n;
 
+    // right
     unsigned char *x = stbi_load(faces.at(0).toLatin1(), &w, &h, &n, 4);
+    if(x) qDebug() << "SkyBox::loadCubemap x loaded" ; else qDebug() << "---> x not loaded !";
+    // left
     unsigned char *_x = stbi_load(faces.at(1).toLatin1(), &w, &h, &n, 4);
+    if(_x) qDebug() << "SkyBox::loadCubemap _x loaded" ; else qDebug() << "---> _x not loaded !";
+    // up
     unsigned char *y = stbi_load(faces.at(2).toLatin1(), &w, &h, &n, 4);
+    if(y) qDebug() << "SkyBox::loadCubemap y loaded" ; else qDebug() << "---> y not loaded !";
+    // down
     unsigned char *_y = stbi_load(faces.at(3).toLatin1(), &w, &h, &n, 4);
+    if(_y) qDebug() << "SkyBox::loadCubemap _y loaded" ; else qDebug() << "---> _y not loaded !";
+    // back
     unsigned char *z = stbi_load(faces.at(4).toLatin1(), &w, &h, &n, 4);
+    if(z) qDebug() << "SkyBox::loadCubemap z loaded" ; else qDebug() << "---> z not loaded !";
+    // front
     unsigned char *_z = stbi_load(faces.at(5).toLatin1(), &w, &h, &n, 4);
+    if(_z) qDebug() << "SkyBox::loadCubemap _z loaded" ; else qDebug() << "---> _z not loaded !";
 
 
     glGenTextures(1, &cubemapTexture);
@@ -144,12 +156,12 @@ void SkyBox::loadCubemap(QVector<QString> faces)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
 
-    free(x);
-    free(_x);
-    free(y);
-    free(_y);
-    free(z);
-    free(_z);
+    if (x) free(x);
+    if (_x) free(_x);
+    if (y) free(y);
+    if (_y) free(_y);
+    if (z) free(z);
+    if (_z) free(_z);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 

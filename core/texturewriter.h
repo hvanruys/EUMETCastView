@@ -1,13 +1,13 @@
 #ifndef TEXTUREWRITER_H
 #define TEXTUREWRITER_H
 
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 
 
-class TextureWriter  : protected QOpenGLFunctions
+class TextureWriter  : protected QOpenGLFunctions_4_3_Core
 {
 public:
     TextureWriter(QOpenGLShaderProgram *prog);

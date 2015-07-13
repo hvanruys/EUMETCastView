@@ -263,31 +263,6 @@ void SegmentList::CalculateSunPosition(double first_julian, double last_julian, 
 
 }
 
-void SegmentList::drawCircle(float cx, float cy, float r, int num_segments)
-{
-        float theta = 2 * PI / float(num_segments);
-        float c = cosf(theta);//precalculate the sine and cosine
-        float s = sinf(theta);
-        float t;
-
-        float x = r;//we start at angle = 0
-        float y = 0;
-
-        glBegin(GL_LINE_LOOP);
-        for(int ii = 0; ii < num_segments; ii++)
-        {
-                glVertex2f(x + cx, y + cy);//output vertex
-
-                //apply the rotation matrix
-                t = x;
-                x = c * x - s * y;
-                y = s * t + c * y;
-        }
-        glEnd();
-}
-
-
-
 void SegmentList::SetNbrOfVisibleSegments(int val)
 {
     // qDebug() << QString("nbrofvisiblesegments = %1").arg(val);
