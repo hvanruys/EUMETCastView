@@ -30,7 +30,7 @@ public:
 
     explicit Segment(QObject *parent = 0);
     ~Segment();
-    virtual Segment *ReadSegmentInMemory() = 0;
+    virtual Segment *ReadSegmentInMemory();
     virtual Segment *ReadDatasetsInMemory();
     virtual void ComposeSegmentImage();
 
@@ -54,6 +54,8 @@ public:
     virtual void ComposeSegmentLCCProjection(int inputchannel);
     virtual void ComposeSegmentGVProjection(int inputchannel);
     virtual void ComposeSegmentSGProjection(int inputchannel);
+
+    virtual bool lookupLonLat(double lon_rad, double lat_rad, int &col, int &row);
 
     //void RenderSegmentContourline(float lat_first, float lon_first, float lat_last, float lon_last);
     void RenderSegmentlineInTextureRad(int channel, double earth_loc_lat_first,double earth_loc_lon_first, double earth_loc_lat_last,

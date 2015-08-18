@@ -63,6 +63,12 @@ public:
     void ComposeLCCProjection(int inputchannel);
     void ComposeSGProjection(int inputchannel);
 
+    bool lookupLonLat(double lon_rad, double lat_rad, int &col, int &row);
+
+    static void doReadSegmentInMemory(Segment *t);
+    static void doComposeSegmentImage(Segment *t);
+    static void doComposeGVProjection(Segment *t);
+
 protected:
     int nbrofvisiblesegments;
     int indexfirstvisible;
@@ -76,7 +82,7 @@ protected:
 
     quint16 lut_ch[5][256];
     int progressresultready; // for progresscounter
-
+    int projectioninputchannel;
 
 signals:
     void segmentlistfinished();
@@ -87,9 +93,9 @@ public slots:
 protected:
     QList<Segment *> segmentlist;
     QList<Segment *> segsselected;
-    QFutureWatcher<Segment*> *watcherread;
-    QFutureWatcher<Segment*> *watchercompose;
-    //QFutureWatcher<Segment*> *watchercomposegvprojection;
+    QFutureWatcher<void> *watcherread;
+    QFutureWatcher<void> *watchercompose;
+    QFutureWatcher<void> *watchercomposeprojection;
 
     double factor_ch[5];
     float scale;
@@ -99,8 +105,8 @@ protected slots:
     void composefinished();
     void resultisready(int segmentnbr);
     void resultcomposeisready(int segmentnbr);
-//    void composegvpfinished();
-//    void composegvpreadyat(int segmentnbr);
+    void composeprojectionfinished();
+    void composeprojectionreadyat(int segmentnbr);
 
 signals:
     void progressCounter(int);

@@ -1,4 +1,4 @@
-#include <QtConcurrent/QtConcurrent>
+#include <QtConcurrent>
 #include "segmentlistviirs.h"
 #include "segmentviirs.h"
 #include "segmentimage.h"
@@ -12,22 +12,19 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-Segment *doReadSegmentInMemoryVIIRS(Segment *t)
+void *SegmentListVIIRS::doReadSegmentInMemoryVIIRS(Segment *t)
 {
     t->ReadSegmentInMemory();
-    return(t);
 }
 
-Segment *doReadDatasetsInMemoryVIIRS(Segment *t)
-{
-    t->ReadDatasetsInMemory();
-    return(t);
-}
+//void *SegmentListVIIRS::doReadDatasetsInMemoryVIIRS(Segment *t)
+//{
+//    t->ReadDatasetsInMemory();
+//}
 
-Segment *doComposeSegmentImageVIIRS(Segment *t)
+void *SegmentListVIIRS::doComposeSegmentImageVIIRS(Segment *t)
 {
     t->ComposeSegmentImage();
-    return(t);
 }
 
 
@@ -158,60 +155,60 @@ bool SegmentListVIIRS::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorl
     imageptrs->ptrimageViirs = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
 
 
-    watcherreadviirs = new QFutureWatcher<Segment*>(this);
-    connect(watcherreadviirs, SIGNAL(resultReadyAt(int)), SLOT(resultisreadyviirs(int)));
-    connect(watcherreadviirs, SIGNAL(finished()), SLOT(readfinishedviirs()));
+    watcherreadviirs = new QFutureWatcher<void>(this);
+    connect(watcherreadviirs, SIGNAL(resultReadyAt(int)), this, SLOT(resultisreadyviirs(int)));
+    connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirs()));
 
-    watcherreadviirs->setFuture(QtConcurrent::mapped( segsselected.begin(), segsselected.end(), doReadSegmentInMemoryVIIRS));
+    watcherreadviirs->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doReadSegmentInMemoryVIIRS));
 
     return true;
 }
 
 // Problems with reopen the hdf5 files in a concurrent environment .... does not work.
 // Serial solution works.
-bool SegmentListVIIRS::ShowImage(QList<bool> bandlist, QList<int> colorlist)
-{
+//bool SegmentListVIIRS::ShowImage(QList<bool> bandlist, QList<int> colorlist)
+//{
 
-    progressresultready = 0;
-    QApplication::setOverrideCursor( Qt::WaitCursor ); // reset in composefinishedviirs
+//    progressresultready = 0;
+//    QApplication::setOverrideCursor( Qt::WaitCursor ); // reset in composefinishedviirs
 
-    for (int i=0; i < 3; i++)
-    {
-        for (int j=0; j < 1024; j++)
-        {
-            imageptrs->segment_stats_ch[i][j] = 0;
-            imageptrs->lut_ch[i][j] = 0;
-        }
-    }
+//    for (int i=0; i < 3; i++)
+//    {
+//        for (int j=0; j < 1024; j++)
+//        {
+//            imageptrs->segment_stats_ch[i][j] = 0;
+//            imageptrs->lut_ch[i][j] = 0;
+//        }
+//    }
 
-    for(int k = 0; k < 3; k++)
-    {
-        imageptrs->stat_max_ch[k] = 0;
-        imageptrs->stat_min_ch[k] = 9999999;
-        this->stat_max_ch[k] = 0;
-        this->stat_min_ch[k] = 9999999;
-    }
-
-
-    QList<Segment*>::iterator segsel = segsselected.begin();
-    while ( segsel != segsselected.end() )
-    {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-        segm->setBandandColor(bandlist, colorlist);
-        segm->initializeMemory();
-        ++segsel;
-    }
+//    for(int k = 0; k < 3; k++)
+//    {
+//        imageptrs->stat_max_ch[k] = 0;
+//        imageptrs->stat_min_ch[k] = 9999999;
+//        this->stat_max_ch[k] = 0;
+//        this->stat_min_ch[k] = 9999999;
+//    }
 
 
-    watcherreadviirs = new QFutureWatcher<Segment*>(this);
-    connect(watcherreadviirs, SIGNAL(resultReadyAt(int)), SLOT(resultisreadyviirs(int)));
-    connect(watcherreadviirs, SIGNAL(finished()), SLOT(readfinishedviirs()));
+//    QList<Segment*>::iterator segsel = segsselected.begin();
+//    while ( segsel != segsselected.end() )
+//    {
+//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+//        segm->setBandandColor(bandlist, colorlist);
+//        segm->initializeMemory();
+//        ++segsel;
+//    }
 
-    watcherreadviirs->setFuture(QtConcurrent::mapped( segsselected.begin(), segsselected.end(), doReadDatasetsInMemoryVIIRS));
 
-    return true;
+//    watcherreadviirs = new QFutureWatcher<void>(this);
+//    connect(watcherreadviirs, SIGNAL(resultReadyAt(int)), SLOT(resultisreadyviirs(int)));
+//    connect(watcherreadviirs, SIGNAL(finished()), SLOT(readfinishedviirs()));
 
-}
+//    watcherreadviirs->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doReadDatasetsInMemoryVIIRS));
+
+//    return true;
+
+//}
 
 void SegmentListVIIRS::readfinishedviirs()
 {
@@ -249,9 +246,9 @@ void SegmentListVIIRS::readfinishedviirs()
 
     CalculateLUT();
 
-    watchercomposeviirs = new QFutureWatcher<Segment*>(this);
+    watchercomposeviirs = new QFutureWatcher<void>(this);
     connect(watchercomposeviirs, SIGNAL(finished()), SLOT(composefinishedviirs()));
-    watchercomposeviirs->setFuture(QtConcurrent::mapped(segsselected.begin(), segsselected.end(), doComposeSegmentImageVIIRS));
+    watchercomposeviirs->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doComposeSegmentImageVIIRS));
 }
 
 
@@ -367,6 +364,20 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
     emit progressCounter(99);
 }
 
+void SegmentListVIIRS::testLonLat()
+{
+    QList<Segment*>::iterator segsel = segsselected.begin();
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        segm->testLonLat();
+        ++segsel;
+    }
+    qDebug() << " testLonLat Finished !!";
+
+}
+
 void SegmentListVIIRS::CalculateLUT()
 {
     qDebug() << "start SegmentListVIIRS::CalculateLUT()";
@@ -426,7 +437,7 @@ void SegmentListVIIRS::CalculateLUT()
         {
             sum_ch[k] += stats_ch[k][i];
             imageptrs->lut_ch[k][i] = (quint16)(sum_ch[k] * scale);
-            if (imageptrs->lut_ch[k][i] >= 256)
+            if (imageptrs->lut_ch[k][i] > 255)
                 imageptrs->lut_ch[k][i] = 255;
         }
     }
@@ -442,12 +453,10 @@ void SegmentListVIIRS::SmoothVIIRSImage()
     int pixval[3];
     bool valok[3];
 
-
     int lineimage;
     int saveindex1 = -1;
     int saveindex2 = -1;
     int savepixval = -1;
-
 
     QList<Segment *>::iterator segsel;
     for (int pixelx = 0; pixelx < earthviews; pixelx++)
@@ -458,7 +467,6 @@ void SegmentListVIIRS::SmoothVIIRSImage()
         {
             SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
             composecolor = segm->composeColorImage();
-
 
             for (int line = 0; line < segm->NbrOfLines; line++)
             {

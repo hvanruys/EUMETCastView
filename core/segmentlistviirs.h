@@ -14,9 +14,13 @@ public:
     SegmentListVIIRS(SatelliteList *satl = 0, QObject *parent = 0);
     void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist);
-    bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
+    //bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist);
+    void testLonLat();
     void SmoothVIIRSImage();
+    static void *doReadSegmentInMemoryVIIRS(Segment *t);
+    static void *doReadDatasetsInMemoryVIIRS(Segment *t);
+    static void *doComposeSegmentImageVIIRS(Segment *t);
 
 private:
     void CalculateLUT();
@@ -29,8 +33,8 @@ private:
 
 protected:
 
-    QFutureWatcher<Segment*> *watcherreadviirs;
-    QFutureWatcher<Segment*> *watchercomposeviirs;
+    QFutureWatcher<void> *watcherreadviirs;
+    QFutureWatcher<void> *watchercomposeviirs;
 
 protected slots:
     void readfinishedviirs();

@@ -238,8 +238,8 @@ void Options::checkStringListValues()
     {
         geostationarylistname.clear();
         geostationarylistlon.clear();
-        geostationarylistname << "Meteosat-10" << "Meteosat-9" << "Meteosat-7" << "Electro-L N1" << "GOES13" << "GOES15" << "MTSAT2";
-        geostationarylistlon << "0.0" << "9.5" << "57" << "76.1" << "-74.9" << "-135.2" << "145";
+        geostationarylistname << "Meteosat-10" << "Meteosat-9" << "Meteosat-7" << "FY2E" << "FY2G" << "GOES13" << "GOES15" << "MTSAT2";
+        geostationarylistlon << "0.0" << "9.5" << "57" << "86.5" << "104.5" << "-74.9" << "-135.2" << "145";
     }
 
     if(tlesources.count() == 0)

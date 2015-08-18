@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabGeostationary">
      <property name="currentIndex">
-      <number>3</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabMeteosat">
       <attribute name="title">
@@ -58,6 +58,38 @@
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QTreeWidget" name="SegmenttreeWidgetMet7">
+         <column>
+          <property name="text">
+           <string notr="true">1</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabFengYun2E">
+      <attribute name="title">
+       <string>FY2E</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QTreeWidget" name="SegmenttreeWidgetFY2E">
+         <column>
+          <property name="text">
+           <string notr="true">1</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabFengYun2G">
+      <attribute name="title">
+       <string>FY2G</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_12">
+       <item>
+        <widget class="QTreeWidget" name="SegmenttreeWidgetFY2G">
          <column>
           <property name="text">
            <string notr="true">1</string>

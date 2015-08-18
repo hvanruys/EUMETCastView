@@ -18,6 +18,7 @@ public:
 
     Segment *ReadSegmentInMemory();
     Segment *ReadDatasetsInMemory();
+
     int ReadNbrOfLines();
 
     void setBandandColor(QList<bool> band, QList<int> color);
@@ -30,7 +31,9 @@ public:
     QString getDatasetNameFromBand();
     QString getDatasetNameFromColor(int colorindex);
     bool composeColorImage();
-
+    bool lookupLonLat(double lon_rad, double lat_rad, int &col, int &row);
+    bool testLonLat();
+    //Segment *ComposeGVProjection();
     int threshold[3];
 
 

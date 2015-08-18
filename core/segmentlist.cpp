@@ -11,24 +11,21 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-Segment *doReadSegmentInMemory(Segment *t)
+
+void SegmentList::doComposeGVProjection(Segment *t)
+{
+    t->ComposeSegmentGVProjection(0);
+}
+
+void SegmentList::doReadSegmentInMemory(Segment *t)
 {
     t->ReadSegmentInMemory();
-    return(t);
 }
 
-Segment *doComposeSegmentImage(Segment *t)
+void SegmentList::doComposeSegmentImage(Segment *t)
 {
     t->ComposeSegmentImage();
-    return(t);
 }
-
-//Segment *doComposeGVProjection(Segment *t)
-//{
-//    t->ComposeSegmentGVProjection();
-//    return(t);
-//}
-
 
 SegmentList::SegmentList(QObject *parent) :
     QObject(parent)
@@ -360,9 +357,6 @@ bool SegmentList::TestForSegmentGL(int x, int realy, float distance, const QMatr
 
             if (angle < PI/2 + (asin(1/distance)))
             {
-                struct point p;
-                p.x = x;
-                p.y = realy;
 
                 struct point p00;
                 p00.x = (int)winvec1.x();
@@ -429,8 +423,6 @@ bool SegmentList::TestForSegmentGL(int x, int realy, float distance, const QMatr
 void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview)
 {
 
-    bool ok;
-
     QList<Segment*>::iterator segit = segmentlist.begin();
     QVector2D winvec1, winvec2, winvecend1, winvecend2, winvecend3, winvecend4;
 
@@ -475,7 +467,7 @@ void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4
             //                           winvec2
 
 
-            qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
+            //qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
 
             //if (angle < PI/2 + (asin(1/distance)))
             {
@@ -563,13 +555,17 @@ bool SegmentList::ComposeImage(double gamma_ch[])
     emit progressCounter(10);
 
 
-    //QtConcurrent::blockingMap(segsselected, doReadSegmentInMemory);
+//    watcherread = new QFutureWatcher<Segment*>(this);
+//    connect(watcherread, SIGNAL(resultReadyAt(int)), SLOT(resultisready(int)));
+//    connect(watcherread, SIGNAL(finished()), SLOT(readfinished()));
 
-    watcherread = new QFutureWatcher<Segment*>(this);
+//    watcherread->setFuture(QtConcurrent::mapped( segsselected.begin(), segsselected.end(), &SegmentList::doReadSegmentInMemory));
+
+    watcherread = new QFutureWatcher<void>(this);
     connect(watcherread, SIGNAL(resultReadyAt(int)), SLOT(resultisready(int)));
     connect(watcherread, SIGNAL(finished()), SLOT(readfinished()));
 
-    watcherread->setFuture(QtConcurrent::mapped( segsselected.begin(), segsselected.end(), doReadSegmentInMemory));
+    watcherread->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentList::doReadSegmentInMemory));
 
     return true;
 }
@@ -679,10 +675,10 @@ void SegmentList::ComposeImage1()
 {
     qDebug() << "SegmentList::ComposeImage1()";
 
-    watchercompose = new QFutureWatcher<Segment*>(this);
+    watchercompose = new QFutureWatcher<void>(this);
     connect(watchercompose, SIGNAL(resultReadyAt(int)), SLOT(resultcomposeisready(int)));
     connect(watchercompose, SIGNAL(finished()), SLOT(composefinished()));
-    watchercompose->setFuture(QtConcurrent::mapped(segsselected.begin(), segsselected.end(), doComposeSegmentImage));
+    watchercompose->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentList::doComposeSegmentImage));
     qDebug() << "na SegmentList::ComposeImage1()";
 
 }
@@ -738,17 +734,27 @@ void SegmentList::RenderSegments(QPainter *painter, QColor col, bool renderall)
 
 }
 
+//void SegmentList::ComposeGVProjection(int inputchannel)
+//{
+
+//    qDebug() << "SegmentList::ComposeGVProjection()";
+//    QList<Segment*>::iterator segit = segsselected.begin();
+//    while ( segit != segsselected.end() )
+//    {
+//        (*segit)->ComposeSegmentGVProjection(inputchannel);
+//         emit segmentprojectionfinished();
+//        ++segit;
+//    }
+//}
+
 void SegmentList::ComposeGVProjection(int inputchannel)
 {
+    projectioninputchannel = inputchannel;
+    watchercomposeprojection = new QFutureWatcher<void>(this);
+    connect(watchercomposeprojection, SIGNAL(resultReadyAt(int)), SLOT(composeprojectionreadyat(int)));
+    connect(watchercomposeprojection, SIGNAL(finished()), SLOT(composeprojectionfinished()));
 
-    qDebug() << "SegmentList::ComposeGVProjection()";
-    QList<Segment*>::iterator segit = segsselected.begin();
-    while ( segit != segsselected.end() )
-    {
-        (*segit)->ComposeSegmentGVProjection(inputchannel);
-         emit segmentprojectionfinished();
-        ++segit;
-    }
+    watchercomposeprojection->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentList::doComposeGVProjection));
 }
 
 void SegmentList::ComposeLCCProjection(int inputchannel)
@@ -776,24 +782,25 @@ void SegmentList::ComposeSGProjection(int inputchannel)
     }
 }
 
-//void SegmentList::composegvpfinished()
-//{
 
-//    qDebug() << "composegvpfinished";
+void SegmentList::composeprojectionfinished()
+{
 
-//    QApplication::restoreOverrideCursor();
+    qDebug() << "composeprojectionfinished";
 
-//    emit segmentprojectionfinished();
-//}
+    QApplication::restoreOverrideCursor();
 
-//void SegmentList::composegvpreadyat(int segmentnbr)
-//{
+    emit segmentprojectionfinished();
+}
 
-//    qDebug() << QString("composegvpreadyat %1").arg(segmentnbr);
+void SegmentList::composeprojectionreadyat(int segmentnbr)
+{
 
-//    emit segmentprojectionfinished();
+    qDebug() << QString("composeprojectionreadyat %1").arg(segmentnbr);
 
-//}
+    emit segmentprojectionfinished();
+
+}
 
 void SegmentList::ClearSegments()
 {
@@ -807,9 +814,19 @@ void SegmentList::ClearSegments()
 
 }
 
-/*
-void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast)
+bool SegmentList::lookupLonLat(double lon_rad, double lat_rad, int &col, int &row)
 {
 
+
+    QList<Segment*>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        if((*segit)->lookupLonLat(lon_rad, lat_rad, col, row))
+        {
+            return true;
+        }
+        ++segit;
+    }
+
+    return false;
 }
-*/

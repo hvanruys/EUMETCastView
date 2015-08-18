@@ -117,7 +117,7 @@ void SegmentVIIRS::initializeMemory()
         if(ptrbaVIIRS[i] == NULL)
         {
             ptrbaVIIRS[i] = new unsigned short[earth_views_per_scanline * NbrOfLines];
-            qDebug() << QString("Initializing VIIRS memory eart views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
+            qDebug() << QString("Initializing VIIRS memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
             bImageMemory = true;
         }
     }
@@ -353,8 +353,13 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
         }
     }
 
+    qDebug() << QString("ptrbaVIIRS min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
+    if(this->bandlist.at(0))
+    {
+        qDebug() << QString("ptrbaVIIRS min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
+        qDebug() << QString("ptrbaVIIRS min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
 
-
+    }
 
     delete [] tiepoints_lat;
     delete [] tiepoints_lon;
@@ -382,9 +387,7 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
 
     h5_status = H5Fclose (h5_file_id);
 
-
     return this;
-
 }
 
 Segment *SegmentVIIRS::ReadDatasetsInMemory()
@@ -463,6 +466,7 @@ Segment *SegmentVIIRS::ReadDatasetsInMemory()
     return this;
 
 }
+
 
 QString SegmentVIIRS::getDatasetNameFromBand()
 {
@@ -638,9 +642,9 @@ void SegmentVIIRS::ComposeSegmentImage()
                 pixval[2] = *(this->ptrbaVIIRS[2] + line * 3200 + pixelx);
             }
 
-            valok[0] = pixval[0] > 0 && pixval[0] < 65528;
-            valok[1] = pixval[1] > 0 && pixval[1] < 65528;
-            valok[2] = pixval[2] > 0 && pixval[2] < 65528;
+            valok[0] = pixval[0] < 65528 && pixval[0] > 0;
+            valok[1] = pixval[1] < 65528 && pixval[1] > 0;
+            valok[2] = pixval[2] < 65528 && pixval[2] > 0;
 
             if( valok[0] && (color ? valok[1] && valok[2] : true))
             {
@@ -657,7 +661,16 @@ void SegmentVIIRS::ComposeSegmentImage()
 
             }
             else
-                row[pixelx] = qRgb(0, 0, 150);
+            {
+                if(pixval[0] >= 65528 && pixval[1] >= 65528 && pixval[2] >= 65528)
+                    row[pixelx] = qRgba(0, 0, 150, 250);
+                else if(pixval[0] == 0 || pixval[1] == 0 || pixval[2] == 0)
+                    row[pixelx] = qRgba(150, 0, 0, 250);
+                else
+                {
+                    row[pixelx] = qRgba(0, 150, 0, 250);
+                }
+            }
 
         }
 
@@ -750,6 +763,43 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
 
 }
 
+bool SegmentVIIRS::lookupLonLat(double lon_rad, double lat_rad, int &col, int &row)
+{
+    float latpos, lonpos;
+
+    if( geolatitude == 0x0)
+    {
+        qDebug() << "pointer to geolatitude = 0x0 !!!!!!!!!!!";
+        return false;
+    }
+    else
+        qDebug() << "pointer to geolatitude = OK !!!!!!!!!!!";
+
+    for( int i = 0; i < this->NbrOfLines; i++)
+    {
+        for( int j = 0; j < this->earth_views_per_scanline ; j++ )
+        {
+            latpos = geolatitude[i * 3200 + j];
+            lonpos = geolongitude[i * 3200 + j];
+        }
+    }
+
+    return false;
+}
+
+bool SegmentVIIRS::testLonLat()
+{
+    if( geolatitude == 0x0)
+    {
+        qDebug() << "pointer to geolatitude = 0x0 !!!!!!!!!!!";
+    }
+    if( geolongitude == 0x0)
+    {
+        qDebug() << "pointer to geolongitude = 0x0 !!!!!!!!!!!";
+    }
+    return true;
+}
+
 void SegmentVIIRS::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 {
 
@@ -776,13 +826,13 @@ void SegmentVIIRS::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
     for (int pix = 0 ; pix < earthviews; pix+=2)
     {
         pixval[0] = ptrbaVIIRS[0][nbrLine * 3200 + pix];
-        valok[0] = pixval[0] > 0 && pixval[0] < 65528;
+        valok[0] = pixval[0] < 65528 && pixval[0] > 0;
         if(color)
         {
             pixval[1] = ptrbaVIIRS[1][nbrLine * 3200 + pix];
             pixval[2] = ptrbaVIIRS[2][nbrLine * 3200 + pix];
-            valok[1] = pixval[1] > 0 && pixval[1] < 65528;
-            valok[2] = pixval[2] > 0 && pixval[2] < 65528;
+            valok[1] = pixval[1] < 65528 && pixval[1] > 0;
+            valok[2] = pixval[2] < 65528 && pixval[2] > 0;
         }
 
 

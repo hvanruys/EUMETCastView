@@ -63,7 +63,8 @@ SOURCES += main.cpp \
     texturewriter.cpp \
     sgp_math.cpp \
     sgp_obs.cpp \
-    sgp_time.cpp
+    sgp_time.cpp \
+    qcompressor.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -115,7 +116,8 @@ HEADERS  += mainwindow.h \
     texturewriter.h \
     sgp4sdp4.h \
     stdafx.h \
-    stb_image.h
+    stb_image.h \
+    qcompressor.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
@@ -140,7 +142,7 @@ CONFIG(release, debug|release) {
     #This is a release build
     unix:LIBS += -lpthread -lbz2 -L/usr/ \
         -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 \
-        -L/usr/local/hdf5/lib -lhdf5
+        -L/usr/local/hdf5/lib -lhdf5 -lz
     else:win32:LIBS += \
         -L$$PWD/../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
         -L"C:\Program Files\HDF_Group\HDF5\1.8.14\lib" -lhdf5
@@ -149,7 +151,7 @@ CONFIG(release, debug|release) {
     #This is a debug build
 unix:LIBS += -lpthread -lbz2 -L/usr/ \
     -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 \
-    -L/usr/local/hdf5/lib -lhdf5
+    -L/usr/local/hdf5/lib -lhdf5 -lz
 else:win32:LIBS += \
     -L$$PWD/../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
     -L"C:\Program Files\HDF_Group\HDF5\1.8.14\lib" -lhdf5

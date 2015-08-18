@@ -1055,9 +1055,18 @@ void Segment::ComposeSegmentSGProjection(int inputchannel)
 
 }
 
+bool Segment::lookupLonLat(double lon_rad, double lat_rad, int &col, int &row)
+{
+
+}
 
 
 Segment *Segment::ReadDatasetsInMemory()
+{
+    return this;
+}
+
+Segment *Segment::ReadSegmentInMemory()
 {
     return this;
 }

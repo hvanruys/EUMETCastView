@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "formimage.h"
 #include "formmapcyl.h"
+#include "formgeostationary.h"
 
 
 namespace Ui {
@@ -11,13 +12,14 @@ namespace Ui {
 }
 
 class FormImage;
+class FormGeostationary;
 
 class FormToolbox : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, AVHRRSatellite *seglist = 0);
+    explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, AVHRRSatellite *seglist = 0);
     int getTabWidgetIndex();
     QList<bool> getVIIRSBandList();
     QList<int> getVIIRSColorList();
@@ -25,12 +27,15 @@ public:
     void writeInfoToAVHRR(QString info);
     void writeInfoToVIIRS(QString info);
     void writeInfoToGeo(QString info);
-
+    void createFilenamestring(QString sat, QString d, QVector<QString> spectrum);
+    QString returnFilenamestring() { return filenamecreated; }
     ~FormToolbox();
 
 private:
     Ui::FormToolbox *ui;
     FormImage *formimage;
+    FormGeostationary *formgeostationary;
+
     void setupChannelCombo();
     void setInverseCheckBoxes();
     void setParameters();
@@ -44,6 +49,8 @@ private:
     QVector<bool> inversevector;
     SegmentListGeostationary::eGeoSatellite whichgeo;
     QStringList rowchosen;
+    QString filenamecreated;
+
 
 public slots:
     void setChannelComboBoxes();
@@ -52,7 +59,7 @@ public slots:
     void setToolboxButtons(bool state);
 
 signals:
-    void getmeteosatchannel(SegmentListGeostationary::eGeoSatellite, QString, QVector<QString>, QVector<bool>);
+    void getmeteosatchannel(QString, QVector<QString>, QVector<bool>);
     void overlaycorrection(int,int);
     void switchstackedwidget(int);
     void emitShowVIIRSImage();
@@ -75,7 +82,7 @@ private slots:
     void setValueProgressBar(int val);
 
 
-    void on_btnMeteosat_clicked();
+    void on_btnGeoColor_clicked();
     void on_btnCLAHEMeteosat_clicked();
     void on_btnExpandImage_clicked();
     void on_btnRotate180_clicked();

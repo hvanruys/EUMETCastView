@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "options.h"
 #include "pixgeoconversion.h"
+#include <QtConcurrent/QtConcurrent>
 
 
 #include <QDebug>
@@ -97,6 +98,28 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS()
 }
 
 
+//    int col, row;
+//    double lon_rad, lat_rad;
+
+//    qDebug() << "=====> start SegmentVIIRS::ComposeProjectionAlt";
+//    for (int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
+//    {
+//        for (int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
+//        {
+//            if (imageptrs->gvp->map_inverse(i, j, lon_rad, lat_rad))
+//            {
+//                if(segs->seglviirs->lookupLonLat(lon_rad, lat_rad, col, row))
+//                {
+
+//                }
+//            }
+//        }
+//    }
+//    qDebug() << "=====> end SegmentVIIRS::ComposeProjectionAlt";
+
+//}
+
+
 void GeneralVerticalPerspective::CreateMapFromGeoStationary()
 {
     QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
@@ -115,6 +138,8 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
     int col, piccol;
     int row, picrow;
     int hrvmap = 0;
+
+    int piccnt = 0;
 
     //imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     qDebug() << QString("Start GeneralVerticalPerspective::CreateMapFromGeoStationary");
@@ -138,6 +163,10 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
     int UNLA = 11136 - sl->UpperNorthLineActual;
 
     qDebug() << QString("sl->areatype = %1   hrvmap = %2").arg(sl->areatype).arg(hrvmap);
+    qDebug() << QString("COFF = %1").arg(sl->COFF);
+    qDebug() << QString("LOFF = %1").arg(sl->LOFF);
+    qDebug() << QString("CFAC = %1").arg(sl->CFAC);
+    qDebug() << QString("LFAC = %1").arg(sl->LFAC);
     qDebug() << QString("LECA = %1").arg(LECA);
     qDebug() << QString("LSLA = %1").arg(LSLA);
     qDebug() << QString("LWCA = %1").arg(LWCA);
@@ -237,6 +266,8 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                             rgbval = scanl[col];
                             fb_painter.setPen(rgbval);
                             fb_painter.drawPoint(i,j);
+                            if(picrow == 1000)
+                                piccnt++;
                         }
                     }
                 }
@@ -244,7 +275,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
         }
     }
 
-    qDebug() << QString("ptrimage projection einde");
+    qDebug() << QString("ptrimage projection einde piccnt = %1").arg(piccnt);
     fb_painter.end();
 
     QApplication::restoreOverrideCursor();

@@ -26,6 +26,12 @@ const double  LFAC_HRV     =   2344945030.;   /* scaling coefficients (see note 
 const double  CFAC_NONHRV_ELECTRO     =   586236263.;   /* scaling coefficients (see note above)  */
 const double  LFAC_NONHRV_ELECTRO     =   586236263.;   /* scaling coefficients (see note above)  */
 
+const double  CFAC_HRV_FENGYUN     =   1872000000;   /* scaling coefficients (see note above)  */
+const double  LFAC_HRV_FENGYUN     =   1872000000;   /* scaling coefficients (see note above)  */
+
+const double  CFAC_NONHRV_FENGYUN     =   468000000;   /* scaling coefficients (see note above)  */
+const double  LFAC_NONHRV_FENGYUN     =   468000000;   /* scaling coefficients (see note above)  */
+
 const double  CFAC_NONHRV_MET7     =   1043037809.;   /* scaling coefficients (see note above)  */
 const double  LFAC_NONHRV_MET7     =   1043037809.;   /* scaling coefficients (see note above)  */
 
@@ -43,6 +49,12 @@ const long    LOFF_HRV     =        5566;      /* scaling coefficients (see note
 
 const long    COFF_NONHRV_ELECTRO  =        1392;      /* scaling coefficients (see note above)  */
 const long    LOFF_NONHRV_ELECTRO  =        1392;      /* scaling coefficients (see note above)  */
+
+const long    COFF_HRV_FENGYUN  =        4576;      /* scaling coefficients (see note above)  */
+const long    LOFF_HRV_FENGYUN  =        4576;      /* scaling coefficients (see note above)  */
+
+const long    COFF_NONHRV_FENGYUN  =        1144;      /* scaling coefficients (see note above)  */
+const long    LOFF_NONHRV_FENGYUN  =        1144;      /* scaling coefficients (see note above)  */
 
 const long    COFF_NONHRV_MET7  =        2500;      /* scaling coefficients (see note above)  */
 const long    LOFF_NONHRV_MET7  =        2500;      /* scaling coefficients (see note above)  */
