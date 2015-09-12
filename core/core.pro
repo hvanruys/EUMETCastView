@@ -135,7 +135,7 @@ RESOURCES += \
 
 CONFIG += c++11
 
-unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib-128 ../meteosatlib  ../QSgp4
+unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
 else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.14\include" ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4
 
 CONFIG(release, debug|release) {
