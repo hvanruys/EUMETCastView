@@ -164,6 +164,7 @@ private slots:
     void on_rbtnACh5_clicked();
     void on_btnTextureVIIRS_clicked();
     void on_sliCLAHE_sliderMoved(int position);
+    void on_btnTest_clicked();
 };
 
 #endif // FORMTOOLBOX_H

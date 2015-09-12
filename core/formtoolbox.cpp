@@ -139,6 +139,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
 
+    whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
     qDebug() << "constructor formtoolbox";
 
 }
@@ -1296,6 +1297,8 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 void FormToolbox::on_btnGeoColor_clicked()
 {
 
+    if(whichgeo == SegmentListGeostationary::NOGEO)
+        return;
     emit switchstackedwidget(3);
     ui->pbProgress->reset();
     if(whichgeo == SegmentListGeostationary::MET_10)
@@ -1670,14 +1673,10 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     if(ui->rdbAVHRRin->isChecked())
     {
         imageptrs->gvp->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getAVHRRSegmentType());
-        if(opts.smoothprojectionimage)
-            imageptrs->SmoothProjectionImage();
     }
     else if(ui->rdbVIIRSin->isChecked())
     {
         imageptrs->gvp->CreateMapFromVIIRS();
-        //if(opts.smoothprojectionimage)
-        //    imageptrs->SmoothProjectionImage();
     }
     else
         imageptrs->gvp->CreateMapFromGeoStationary();
@@ -1716,14 +1715,10 @@ void FormToolbox::on_btnCreateLambert_clicked()
     if(ui->rdbAVHRRin->isChecked())
     {
         imageptrs->lcc->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getAVHRRSegmentType());
-        if(opts.smoothprojectionimage)
-            imageptrs->SmoothProjectionImage();
     }
     else if(ui->rdbVIIRSin->isChecked())
     {
         imageptrs->lcc->CreateMapFromVIIRS();
-        if(opts.smoothprojectionimage)
-            imageptrs->SmoothProjectionImage();
     }
     else
         imageptrs->lcc->CreateMapFromGeostationary();
@@ -1759,14 +1754,10 @@ void FormToolbox::on_btnCreateStereo_clicked()
     if(ui->rdbAVHRRin->isChecked())
     {
         imageptrs->sg->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getAVHRRSegmentType());
-        if(opts.smoothprojectionimage)
-            imageptrs->SmoothProjectionImage();
     }
     else if(ui->rdbVIIRSin->isChecked())
     {
         imageptrs->sg->CreateMapFromVIIRS();
-        if(opts.smoothprojectionimage)
-            imageptrs->SmoothProjectionImage();
     }
     else
         imageptrs->sg->CreateMapFromGeostationary();
@@ -1977,8 +1968,6 @@ void FormToolbox::on_btnLCCClearMap_clicked()
 {
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-
-    imageptrs->lcc->testmap();
 
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     formimage->displayImage(9);
@@ -2446,4 +2435,9 @@ void FormToolbox::createFilenamestring(QString sat, QString d, QVector<QString> 
 
     filenamecreated = outstring;
 
+}
+
+void FormToolbox::on_btnTest_clicked()
+{
+    segs->seglviirs->testLonLat();
 }

@@ -78,7 +78,7 @@ SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent)
     lat_start_deg = lat_start_rad * 180.0 /PI;
 
 
-    NbrOfLines = 0;
+    NbrOfLines = 360;
 
     CalculateCornerPoints();
 

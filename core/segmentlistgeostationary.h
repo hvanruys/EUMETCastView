@@ -12,7 +12,7 @@ class SegmentListGeostationary : public QObject
 public:
 
     enum eGeoSatellite {
-        MET_10 = 0,
+        MET_10 =0,
         MET_9,
         MET_7,
         FY2E,
@@ -20,7 +20,8 @@ public:
         GOES_13,
         GOES_15,
         MTSAT,
-        ELECTRO_N1
+        ELECTRO_N1,
+        NOGEO
     };
 
     explicit SegmentListGeostationary(QObject *parent = 0);

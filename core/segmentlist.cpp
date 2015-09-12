@@ -533,13 +533,16 @@ bool SegmentList::ComposeImage(double gamma_ch[])
         ++segit;
     }
 
+#if 0
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         Segment *segm = (Segment *)(*segsel);
         segm->NbrOfLines = segm->ReadNbrOfLines();
+        qDebug() << QString("SegmentList::ReadNbrOfLines NbrOfLines = %1").arg(segm->NbrOfLines);
         ++segsel;
     }
+#endif
 
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
@@ -734,28 +737,31 @@ void SegmentList::RenderSegments(QPainter *painter, QColor col, bool renderall)
 
 }
 
-//void SegmentList::ComposeGVProjection(int inputchannel)
-//{
-
-//    qDebug() << "SegmentList::ComposeGVProjection()";
-//    QList<Segment*>::iterator segit = segsselected.begin();
-//    while ( segit != segsselected.end() )
-//    {
-//        (*segit)->ComposeSegmentGVProjection(inputchannel);
-//         emit segmentprojectionfinished();
-//        ++segit;
-//    }
-//}
-
 void SegmentList::ComposeGVProjection(int inputchannel)
 {
-    projectioninputchannel = inputchannel;
-    watchercomposeprojection = new QFutureWatcher<void>(this);
-    connect(watchercomposeprojection, SIGNAL(resultReadyAt(int)), SLOT(composeprojectionreadyat(int)));
-    connect(watchercomposeprojection, SIGNAL(finished()), SLOT(composeprojectionfinished()));
 
-    watchercomposeprojection->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentList::doComposeGVProjection));
+    qDebug() << "SegmentList::ComposeGVProjection()";
+    QList<Segment*>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentGVProjection(inputchannel);
+         emit segmentprojectionfinished();
+        ++segit;
+    }
+    if(opts.smoothprojectionimage)
+        imageptrs->SmoothProjectionImage();
+
 }
+
+//void SegmentList::ComposeGVProjection(int inputchannel)
+//{
+//    projectioninputchannel = inputchannel;
+//    watchercomposeprojection = new QFutureWatcher<void>(this);
+//    connect(watchercomposeprojection, SIGNAL(resultReadyAt(int)), SLOT(composeprojectionreadyat(int)));
+//    connect(watchercomposeprojection, SIGNAL(finished()), SLOT(composeprojectionfinished()));
+
+//    watchercomposeprojection->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentList::doComposeGVProjection));
+//}
 
 void SegmentList::ComposeLCCProjection(int inputchannel)
 {
@@ -765,21 +771,27 @@ void SegmentList::ComposeLCCProjection(int inputchannel)
     while ( segit != segsselected.end() )
     {
         (*segit)->ComposeSegmentLCCProjection(inputchannel);
-         emit segmentprojectionfinished();
+        emit segmentprojectionfinished();
         ++segit;
     }
+    if(opts.smoothprojectionimage)
+        imageptrs->SmoothProjectionImage();
+
 }
 
 void SegmentList::ComposeSGProjection(int inputchannel)
 {
     qDebug() << "SegmentList::ComposeSGProjection()";
     QList<Segment*>::iterator segit = segsselected.begin();
-     while ( segit != segsselected.end() )
+    while ( segit != segsselected.end() )
     {
         (*segit)->ComposeSegmentSGProjection(inputchannel);
-         emit segmentprojectionfinished();
+        emit segmentprojectionfinished();
         ++segit;
     }
+    if(opts.smoothprojectionimage)
+        imageptrs->SmoothProjectionImage();
+
 }
 
 
@@ -787,6 +799,12 @@ void SegmentList::composeprojectionfinished()
 {
 
     qDebug() << "composeprojectionfinished";
+
+    QRgb val;
+    QRgb *row;
+
+    if(opts.smoothprojectionimage)
+        imageptrs->SmoothProjectionImage();
 
     QApplication::restoreOverrideCursor();
 

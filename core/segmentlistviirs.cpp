@@ -12,7 +12,7 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-void *SegmentListVIIRS::doReadSegmentInMemoryVIIRS(Segment *t)
+void SegmentListVIIRS::doReadSegmentInMemoryVIIRS(Segment *t)
 {
     t->ReadSegmentInMemory();
 }
@@ -22,11 +22,15 @@ void *SegmentListVIIRS::doReadSegmentInMemoryVIIRS(Segment *t)
 //    t->ReadDatasetsInMemory();
 //}
 
-void *SegmentListVIIRS::doComposeSegmentImageVIIRS(Segment *t)
+void SegmentListVIIRS::doComposeSegmentImageVIIRS(Segment *t)
 {
     t->ComposeSegmentImage();
 }
 
+void SegmentListVIIRS::doComposeProjection(Segment *t)
+{
+    t->ComposeProjectionConcurrent();
+}
 
 SegmentListVIIRS::SegmentListVIIRS(SatelliteList *satl, QObject *parent)
 {
@@ -156,8 +160,8 @@ bool SegmentListVIIRS::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorl
 
 
     watcherreadviirs = new QFutureWatcher<void>(this);
-    connect(watcherreadviirs, SIGNAL(resultReadyAt(int)), this, SLOT(resultisreadyviirs(int)));
     connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirs()));
+    connect(watcherreadviirs, SIGNAL(progressValueChanged(int)), this, SLOT(progressreadvalue(int)));
 
     watcherreadviirs->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doReadSegmentInMemoryVIIRS));
 
@@ -269,13 +273,14 @@ void SegmentListVIIRS::composefinishedviirs()
 
 }
 
-void SegmentListVIIRS::resultisreadyviirs(int segmentnbr)
+void SegmentListVIIRS::progressreadvalue(int progress)
 {
     int totalcount = segsselected.count();
     this->progressresultready += 100 / totalcount;
 
-    qDebug() << QString("result ready segmentnbr = %1  progressresultready = %2").arg(segmentnbr).arg(this->progressresultready);
     emit progressCounter(this->progressresultready);
+
+    qDebug() << QString("SegmentListVIIRS::progressreadvalue( %1 )").arg(progress);
 }
 
 void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlist)
@@ -366,17 +371,30 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
 
 void SegmentListVIIRS::testLonLat()
 {
-    QList<Segment*>::iterator segsel = segsselected.begin();
 
-    while ( segsel != segsselected.end() )
-    {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-        segm->testLonLat();
-        ++segsel;
-    }
-    qDebug() << " testLonLat Finished !!";
+    watchergeolookup = new QFutureWatcher<void>(this);
+    //connect(watchergeolookup,SIGNAL(progressRangeChanged(int,int)),&pdialog,SLOT(setRange(int,int)));
+
+    connect(watchergeolookup, SIGNAL(progressValueChanged(int)), this, SLOT(progressgeolookup(int)));
+    connect(watchergeolookup, SIGNAL(finished()), this, SLOT(finishedgeolookup()));
+
+    watchergeolookup->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doComposeProjection));
+}
+
+
+void SegmentListVIIRS::progressgeolookup(int progress)
+{
+    qDebug() << "SegmentListVIIRS::progressgeolookup " << progress;
 
 }
+
+void SegmentListVIIRS::finishedgeolookup()
+{
+    delete watchergeolookup;
+
+    qDebug() << "SegmentListVIIRS::finishedgeolookup()";
+}
+
 
 void SegmentListVIIRS::CalculateLUT()
 {

@@ -853,8 +853,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
     }
     else if(treewidgetselectedgoes13dc4.size() > 0)
     {
-
-        qDebug() << "---------> treewidgetselectedgoes13dc4.size() > 0";
         sl = segs->seglgoes13dc4;
         sl->bActiveSegmentList = true;
         segs->seglmeteosat->bActiveSegmentList = false;

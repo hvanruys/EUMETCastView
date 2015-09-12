@@ -80,7 +80,7 @@ SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent)
     lon_start_deg = lon_start_rad * 180.0 / PI;
     lat_start_deg = lat_start_rad * 180.0 /PI;
 
-    NbrOfLines = 0;
+    NbrOfLines = 360;
 
     CalculateCornerPoints();
 

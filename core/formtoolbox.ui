@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tabAVHHR">
       <attribute name="title">
@@ -2982,6 +2982,13 @@
                    <widget class="QPushButton" name="btnGVPHome">
                     <property name="text">
                      <string>Home</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnTest">
+                    <property name="text">
+                     <string>Test</string>
                     </property>
                    </widget>
                   </item>

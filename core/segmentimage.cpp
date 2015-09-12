@@ -688,13 +688,14 @@ void  SegmentImage::SmoothProjectionImage()
     int reddiff, greendiff, bluediff;
     int diff;
 
+    qDebug() << "SegmentImage::SmoothProjectionImage()";
 
-    for( int h = 0; h < ptrimageProjection->height(); h++)
+    for( int h = 0; h < this->ptrimageProjection->height(); h++)
     {
         first = true;
         hole = false;
-        row = (QRgb*)ptrimageProjection->scanLine(h);
-        for( int w = 0; w < ptrimageProjection->width(); w++)
+        row = (QRgb*)this->ptrimageProjection->scanLine(h);
+        for( int w = 0; w < this->ptrimageProjection->width(); w++)
         {
             val = *(row + w);
             if (qAlpha(val) == 250 && first)
@@ -731,16 +732,14 @@ void  SegmentImage::SmoothProjectionImage()
                         for(int ind = firstholeindex; ind < w; ind++)
                         {
                             row[ind] = qRgba(qRed(row[firstholeindex-1])+reddiff, qGreen(row[firstholeindex-1])+greendiff, qBlue(row[firstholeindex-1])+bluediff, 255);
+                            count++;
                         }
                     }
                     hole = false;
                 }
-
             }
         }
     }
-
-    qDebug() << QString("count = %1").arg(count);
 
 }
 

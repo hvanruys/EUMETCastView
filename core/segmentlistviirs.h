@@ -18,9 +18,10 @@ public:
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist);
     void testLonLat();
     void SmoothVIIRSImage();
-    static void *doReadSegmentInMemoryVIIRS(Segment *t);
-    static void *doReadDatasetsInMemoryVIIRS(Segment *t);
-    static void *doComposeSegmentImageVIIRS(Segment *t);
+    static void doReadSegmentInMemoryVIIRS(Segment *t);
+    //static void doReadDatasetsInMemoryVIIRS(Segment *t);
+    static void doComposeSegmentImageVIIRS(Segment *t);
+    static void doComposeProjection(Segment *t);
 
 private:
     void CalculateLUT();
@@ -35,12 +36,15 @@ protected:
 
     QFutureWatcher<void> *watcherreadviirs;
     QFutureWatcher<void> *watchercomposeviirs;
+    QFutureWatcher<void> *watchergeolookup;
 
 protected slots:
     void readfinishedviirs();
     void composefinishedviirs();
-    void resultisreadyviirs(int segmentnbr);
+    void finishedgeolookup();
 
+    void progressgeolookup(int progress);
+    void progressreadvalue(int progress);
 signals:
     void progressCounter(int);
 

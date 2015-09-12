@@ -4,6 +4,15 @@
 #include "satellite.h"
 #include "segment.h"
 
+typedef struct
+{
+    float lon;
+    float lat;
+    int i;
+    int j;
+} lonlatdata;
+
+
 class SegmentVIIRS : public Segment
 {
     Q_OBJECT
@@ -18,7 +27,8 @@ public:
 
     Segment *ReadSegmentInMemory();
     Segment *ReadDatasetsInMemory();
-
+    bool lookupLonLat(double lon_deg, double lat_deg, int &col, int &row);
+    bool testlookupLonLat(double lon_deg, double lat_deg, int &col, int &row);
     int ReadNbrOfLines();
 
     void setBandandColor(QList<bool> band, QList<int> color);
@@ -27,13 +37,11 @@ public:
     void ComposeSegmentGVProjection(int inputchannel);
     void ComposeSegmentSGProjection(int inputchannel);
     void ComposeProjection(eProjections proj);
+    void ComposeProjectionConcurrent();
 
     QString getDatasetNameFromBand();
     QString getDatasetNameFromColor(int colorindex);
     bool composeColorImage();
-    bool lookupLonLat(double lon_rad, double lat_rad, int &col, int &row);
-    bool testLonLat();
-    //Segment *ComposeGVProjection();
     int threshold[3];
 
 
@@ -45,8 +53,7 @@ private:
     void CalcGeoLocations(int itrack, int iscan);
 
     void RenderSegmentlineInTextureVIIRS( int nbrTotalLine, QRgb *row );
-
-
+    void LonLatMax();
     float *tiepoints_lat;
     float *tiepoints_lon;
     float *aligncoef;
@@ -56,6 +63,13 @@ private:
     float *geolongitude;
     QList<bool> bandlist;
     QList<int> colorlist;
+
+    float latMax;
+    float lonMax;
+    float latMin;
+    float lonMin;
+    QMap<int, QList<lonlatdata>> viirsmap;
+
 
 };
 

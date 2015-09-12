@@ -665,9 +665,6 @@ void FormImage::displayGeoImageInfo()
     } else if(segs->seglmeteosatrss->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Meteosat 9");
-    } else if(segs->seglmeteosatrss->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("Meteosat 9");
     } else if(segs->seglmet7->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Meteosat 7");
@@ -1262,7 +1259,6 @@ void FormImage::recalculateCLAHEMeteosat(QVector<QString> spectrumvector, QVecto
         {
             for(int i = 0; i < (sl->bisRSS ? 5 : (sl->areatype == 1 ? 24 : 5)); i++)
             {
-                qDebug() << QString("voor dump to ptrimagemeteosat i = %1").arg(i);
                 for (int line = 463; line >= 0; line--)
                 {
                     row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine((sl->bisRSS ? 5 : (sl->areatype == 1 ? 24 : 5))*464 - i * 464 - line - 1);

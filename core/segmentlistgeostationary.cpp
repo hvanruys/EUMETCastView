@@ -635,7 +635,7 @@ void SegmentListGeostationary::ComposeSegmentImageHDF( QFileInfo fileinfo, int c
     }
 
     qDebug() << QString("stat min = %1 stat max = %2").arg(stat_min).arg(stat_max);
-    this->SetupContrastStretch( stat_min, 0, stat_max, 255, stat_max, 255, stat_max, 255);
+    this->SetupContrastStretch( stat_min, 0, stat_max+1, 255, stat_max+1, 255, stat_max+1, 255);
 
     g_mutex.lock();
 

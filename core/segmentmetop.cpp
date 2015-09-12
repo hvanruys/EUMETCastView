@@ -83,7 +83,7 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
     lon_start_deg = lon_start_rad * 180.0 / PI;
     lat_start_deg = lat_start_rad * 180.0 /PI;
 
-    NbrOfLines = 0;
+    NbrOfLines = 1080;
 
     CalculateCornerPoints();
 }
@@ -753,7 +753,7 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                     QByteArray mdr_record = QByteArray::fromRawData(buf, nBuf);
                     //qDebug() << QString("line at 0 = mdr heightintotalimage = %1").arg(heightintotalimage);
                     //qDebug() << QString("mdr_record length = %1").arg(mdr_record.length());
-                    inspectSolarAngle(&mdr_record);
+                    //inspectSolarAngle(&mdr_record);
                     inspectEarthLocations(&mdr_record, heightinsegment);
 
                     //mdr_record = QByteArray::fromRawData(buf, nBuf);
@@ -767,15 +767,7 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                         {
                             val1_ch[k] = 0xFF & picture_line.at(i+l);
                             val2_ch[k] = 0xFF & picture_line.at(i+l+1);
-                            quint16 val16 = (val1_ch[k] <<= 8) | val2_ch[k];
-    //                        quint32 val32 = val16 * solar_factor[i/2];
-    //                        if (val32 > 65535)
-    //                            val32 = 100;
-                            quint32 val32 = val16;
-                            if (val32 > 50000)
-                                val32 = 0;
-                            tot_ch[k] = (quint16)val32;
-
+                            tot_ch[k] = (val1_ch[k] <<= 8) | val2_ch[k];
                             *(this->ptrbaChannel[k] + heightinsegment * 2048 + j) = tot_ch[k];
                         }
 
@@ -860,7 +852,7 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
     double dtot;
 
     QRgb *row_col;
-    QRgb rgbvalue1 = qRgb(0,0,0);
+    QRgb rgbvalue1 = qRgba(0,0,0,255);
 
 
 
@@ -893,8 +885,11 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
                     if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                     {
                         rgbvalue1 = row_col[5 + i * 20 + j];
-                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1);
-                        // qDebug() << QString("map_x = %1 map_y = %2").arg(map_x).arg(map_y);
+                        QColor col(rgbvalue1);
+                        col.setAlpha(255);
+
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, col.rgb());
+                        QRgb rgbval = imageptrs->ptrimageProjection->pixel((int)map_x, (int)map_y);
                      }
                  }
             }

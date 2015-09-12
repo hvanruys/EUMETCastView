@@ -1117,6 +1117,9 @@ QSize Globe::sizeHint() const
 void Globe::Render3DGeo(SegmentListGeostationary::eGeoSatellite sat)
 {
 
+    if(futureRender3DGeo.isRunning())
+        return;
+
     if (segs->seglmeteosat->getKindofImage() != "HRV" && segs->seglmeteosat->getKindofImage() != "HRV Color")
     {
         futureRender3DGeo = QtConcurrent::run(Render3DColorTexture, this, sat);

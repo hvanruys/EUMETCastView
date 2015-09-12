@@ -33,6 +33,7 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
         imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     }
 
+
     image_width = imagewidth;
     image_height = imageheight;
     lon_center = lonmapdeg*PI/180.0;
@@ -98,26 +99,6 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS()
 }
 
 
-//    int col, row;
-//    double lon_rad, lat_rad;
-
-//    qDebug() << "=====> start SegmentVIIRS::ComposeProjectionAlt";
-//    for (int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
-//    {
-//        for (int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
-//        {
-//            if (imageptrs->gvp->map_inverse(i, j, lon_rad, lat_rad))
-//            {
-//                if(segs->seglviirs->lookupLonLat(lon_rad, lat_rad, col, row))
-//                {
-
-//                }
-//            }
-//        }
-//    }
-//    qDebug() << "=====> end SegmentVIIRS::ComposeProjectionAlt";
-
-//}
 
 
 void GeneralVerticalPerspective::CreateMapFromGeoStationary()
