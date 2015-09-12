@@ -96,18 +96,16 @@ CONFIG(release, debug|release) {
     else:win32:TARGET = ../../../EUMETCastView-master/libs/win64_MSVC2012/debug/meteosat
 }
 
-INCLUDEPATH += ../PublicDecompWT_2.06_qt/2.06/DISE \
+unix:INCLUDEPATH += ../PublicDecompWT_2.06_qt/2.06/DISE \
                     ../PublicDecompWT_2.06_qt/2.06/COMP/JPEG/Inc \
                     ../PublicDecompWT_2.06_qt/2.06/COMP/Inc \
                     ../PublicDecompWT_2.06_qt/2.06/COMP/WT/Inc \
                     ../PublicDecompWT_2.06_qt/2.06/COMP/T4/Inc
-
-#unix:LIBS += -lpthread \
-#        -L../../PublicDecompWT_2.06_qt/2.06/DISE -lDISE \
-#        -L../../PublicDecompWT_2.06_qt/2.06/COMP/JPEG/Src -lJPEG \
-#        -L../../PublicDecompWT_2.06_qt/2.06/COMP/WT/Src -lWT \
-#        -L../../PublicDecompWT_2.06_qt/2.06/COMP/T4/Src -lT4 \
-#        -L../../PublicDecompWT_2.06_qt/2.06/COMP/Src -lCOMP
+else:win32:INCLUDEPATH += ../../PublicDecompWT_2.06_qt/2.06/DISE \
+                    ../../PublicDecompWT_2.06_qt/2.06/COMP/JPEG/Inc \
+                    ../../PublicDecompWT_2.06_qt/2.06/COMP/Inc \
+                    ../../PublicDecompWT_2.06_qt/2.06/COMP/WT/Inc \
+                    ../../PublicDecompWT_2.06_qt/2.06/COMP/T4/Inc
 
 DISTFILES += \
     README.md

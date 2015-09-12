@@ -5,6 +5,7 @@ SUBDIRS = bz2 \
 	meteosatlib \
 	QSgp4 \
         core
+
 core.depends = bz2
 core.depends = meteosatlib
 core.depends = QSgp4
