@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#define PROGRAM_VERSION "1.0.0"
+#define PROGRAM_VERSION "1.0.2"
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -242,7 +242,7 @@ const QString htmlText =
 "<p>Metop-A, Metop-B </p>"
 "<p>Noaa, SUOMI NPP</p>"
 "<p>Meteosat-10, Meteosat-9, Meteosat7</p>"
-"<p>GOES-13, GOES-15, MTSAT-2</p>"
+"<p>FengYun 2E, FengYun 2G, GOES-13, GOES-15, MTSAT-2</p>"
 "<ul>"
 "<li>Made by Hugo Van Ruyskensvelde.</li>"
 "<li>Version " + QString("%1").arg(PROGRAM_VERSION) + ".</li>"
