@@ -14,6 +14,7 @@ public:
     SegmentListVIIRS(SatelliteList *satl = 0, QObject *parent = 0);
     void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist);
+    bool ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist);
     //bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist);
     void testLonLat();
@@ -45,6 +46,7 @@ protected slots:
 
     void progressgeolookup(int progress);
     void progressreadvalue(int progress);
+    void viirsFinished();
 signals:
     void progressCounter(int);
 

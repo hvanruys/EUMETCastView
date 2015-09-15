@@ -2,6 +2,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "hdf5.h"
 
 #define PROGRAM_VERSION "1.0.2"
 
@@ -23,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     satlist = new SatelliteList();
     seglist = new AVHRRSatellite(this, satlist);
+
 
     formephem = new FormEphem(this, satlist, seglist);
     ui->stackedWidget->addWidget(formephem); // index 0
@@ -192,6 +194,16 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start( 1000);
     connect(timer, SIGNAL(timeout()), formephem, SLOT(timerDone()));
     connect(timer, SIGNAL(timeout()), this, SLOT(timerDone()));
+
+    herr_t  h5_status;
+    unsigned int majnum;
+    unsigned int minnum;
+    unsigned int relnum;
+
+    h5_status = H5get_libversion(&majnum, &minnum, &relnum);
+
+    qDebug() << QString("HDF5 library %1.%2.%3").arg(majnum).arg(minnum).arg(relnum);
+
 
 }
 

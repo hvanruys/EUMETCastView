@@ -107,7 +107,6 @@ private:
     void fillptrimageHRV(quint16 *pixHRV);
     void formwheelZoom(int d);
 
-
 signals:
     void moveImage(QPoint, QPoint);
     void picSizeChanged();

@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabAVHHR">
       <attribute name="title">
@@ -919,7 +919,7 @@
          <item row="1" column="0">
           <widget class="QPushButton" name="btnMakeVIIRSImage">
            <property name="text">
-            <string> Show VIIRS Image </string>
+            <string> Make VIIRS Image </string>
            </property>
           </widget>
          </item>

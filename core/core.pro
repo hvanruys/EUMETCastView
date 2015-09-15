@@ -136,7 +136,7 @@ RESOURCES += \
 CONFIG += c++11
 
 unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
-else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.14\include" ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4
+else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.15\include" ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4
 
 CONFIG(release, debug|release) {
     #This is a release build
@@ -146,7 +146,7 @@ CONFIG(release, debug|release) {
     else:win32:LIBS += \
         -L$$PWD/../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
         -L$$PWD/../zlib128-dll/lib -lzdll \
-        -L"C:\Program Files\HDF_Group\HDF5\1.8.14\lib" -lhdf5
+        -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5
 
 } else {
     #This is a debug build
@@ -156,7 +156,7 @@ unix:LIBS += -lpthread -lz -L/usr/ \
 else:win32:LIBS += \
     -L$$PWD/../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzdll \
     -L$$PWD/../zlib128-dll/lib -lzdll \
-    -L"C:\Program Files\HDF_Group\HDF5\1.8.14\lib" -lhdf5
+    -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5
 }
 
 DISTFILES += \

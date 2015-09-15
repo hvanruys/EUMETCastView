@@ -4,6 +4,8 @@
 #include "gshhsdata.h"
 #include "pixgeoconversion.h"
 
+#include <qtconcurrentrun.h>
+
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern gshhsData *gshhsdata;
@@ -29,6 +31,7 @@ void doCLAHEHRVEurope(quint16 *t)
 {
     imageptrs->CLAHE(t, 5568, 5*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
 }
+
 
 FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *seglist ) :
     QWidget(parent)
@@ -69,6 +72,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     txtInfo = "";
 
 }
+
 
 QLabel *FormImage::returnimageLabelptr()
 {
@@ -271,13 +275,12 @@ void FormImage::ComposeImage()
     else if(viirscount > 0 && opts.buttonVIIRS)
     {
             emit allsegmentsreceivedbuttons(false);
-
+            this->displayImage(10);
             this->kindofimage = "VIIRS";
             this->setAVHRRSegmentType(SEG_VIIRS);
             bandlist = formtoolbox->getVIIRSBandList();
             colorlist = formtoolbox->getVIIRSColorList();
-            segs->seglviirs->ComposeVIIRSImage(bandlist, colorlist);
-            this->displayImage(10);
+            segs->seglviirs->ComposeVIIRSImageSerial(bandlist, colorlist);
     }
     else
         return;
@@ -313,8 +316,6 @@ bool FormImage::ShowVIIRSImage()
         colorlist = formtoolbox->getVIIRSColorList();
 
         segs->seglviirs->ShowImageSerial(bandlist, colorlist);
-
-
     }
     else
         ret = false;

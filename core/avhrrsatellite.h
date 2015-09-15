@@ -124,6 +124,7 @@ private:
     bool showallsegments;
 
 
+
 signals:
     void signalProgress(int progress); // in formephem
     void signalResetProgressbar(int max, const QString &text);

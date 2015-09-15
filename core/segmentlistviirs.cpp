@@ -85,7 +85,6 @@ bool SegmentListVIIRS::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorl
     qDebug() << "bool SegmentListVIIRS::ComposeNewImage(QList<bool> bandlist, QList<int> colorlist) started";
 
     progressresultready = 0;
-
     QApplication::setOverrideCursor( Qt::WaitCursor ); // reset in composefinishedviirs
 
     for (int i=0; i < 3; i++)
@@ -140,7 +139,6 @@ bool SegmentListVIIRS::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorl
     {
         SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
         segm->setBandandColor(bandlist, colorlist);
-
         segm->setStartLineNbr(startlinenbr);
         segm->initializeMemory();
         startlinenbr += segm->NbrOfLines;
@@ -167,6 +165,163 @@ bool SegmentListVIIRS::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorl
 
     return true;
 }
+
+
+void SegmentListVIIRS::viirsFinished()
+{
+    QApplication::restoreOverrideCursor();
+
+    qDebug() << "viirsFinished()";
+
+    emit segmentlistfinished();
+    emit progressCounter(99);
+
+}
+
+
+bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist)
+{
+
+    qDebug() << "bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist) started";
+
+    progressresultready = 0;
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+
+    for (int i=0; i < 3; i++)
+    {
+        for (int j=0; j < 1024; j++)
+        {
+            imageptrs->segment_stats_ch[i][j] = 0;
+            imageptrs->lut_ch[i][j] = 0;
+        }
+    }
+
+    for(int k = 0; k < 3; k++)
+    {
+        imageptrs->stat_max_ch[k] = 0;
+        imageptrs->stat_min_ch[k] = 9999999;
+        this->stat_max_ch[k] = 0;
+        this->stat_min_ch[k] = 9999999;
+    }
+
+    // Reset memory
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        segm->resetMemory();
+        ++segsel;
+    }
+    segsselected.clear();
+
+
+    int startlinenbr = 0;
+    int totalnbroflines = 0;
+    int totalnbrofsegments = 0;
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+
+    // create QList of selected segments
+    while ( segit != segmentlist.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segit);
+        if (segm->segmentselected)
+        {
+             segsselected.append(segm);
+             totalnbroflines += 768;
+             totalnbrofsegments++;
+        }
+        ++segit;
+    }
+
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        segm->setBandandColor(bandlist, colorlist);
+        segm->setStartLineNbr(startlinenbr);
+        segm->initializeMemory();
+        startlinenbr += segm->NbrOfLines;
+        ++segsel;
+    }
+
+
+    // image pointers always = new QImage()
+    if(imageptrs->ptrimageViirs != NULL)
+    {
+        delete imageptrs->ptrimageViirs;
+        imageptrs->ptrimageViirs = NULL;
+    }
+
+    imageptrs->ptrimageViirs = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
+
+    int deltaprogress = 99 / (totalnbrofsegments*2);
+    int totalprogress = 0;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        segm->ReadSegmentInMemory();
+
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+
+        QApplication::processEvents();
+        ++segsel;
+    }
+
+    bool composecolor;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        composecolor = segm->composeColorImage();
+
+        for(int i = 0; i < (composecolor ? 3 : 1); i++)
+        {
+            if( segm->stat_max_ch[i] > this->stat_max_ch[i])
+                this->stat_max_ch[i] = segm->stat_max_ch[i];
+            if( segm->stat_min_ch[i] < this->stat_min_ch[i])
+                this->stat_min_ch[i] = segm->stat_min_ch[i];
+        }
+        ++segsel;
+    }
+
+
+    for(int i = 0; i < (composecolor ? 3 : 1); i++)
+    {
+        imageptrs->stat_max_ch[i] = this->stat_max_ch[i];
+        imageptrs->stat_min_ch[i] = this->stat_min_ch[i];
+    }
+
+    CalculateLUT();
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        segm->ComposeSegmentImage();
+
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+
+        QApplication::processEvents();
+        ++segsel;
+    }
+    qDebug() << " SegmentListVIIRS::ComposeVIIRSImageSerial Finished !!";
+
+    QApplication::restoreOverrideCursor();
+
+    emit segmentlistfinished();
+    emit progressCounter(99);
+
+
+    return true;
+}
+
 
 // Problems with reopen the hdf5 files in a concurrent environment .... does not work.
 // Serial solution works.
@@ -324,8 +479,6 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
         ++segsel;
     }
 
-    int cntsegments = 0;
-
     bool composecolor;
 
     segsel = segsselected.begin();
@@ -341,7 +494,6 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
             if( segm->stat_min_ch[i] < this->stat_min_ch[i])
                 this->stat_min_ch[i] = segm->stat_min_ch[i];
         }
-        cntsegments++;
         ++segsel;
     }
 

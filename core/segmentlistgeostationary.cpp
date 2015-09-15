@@ -56,6 +56,7 @@ SegmentListGeostationary::SegmentListGeostationary(QObject *parent) :
     this->m_GeoSatellite = MET_10;
     qDebug() << QString("in constructor SegmentListGeostationary");
 
+
 }
 
 void SegmentListGeostationary::ResetSegments()
@@ -141,7 +142,7 @@ bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QStr
 }
 
 
-// apperently HDF5 is not thred safe , so this will not work ......
+// apparently HDF5 is not thred safe , so this will not work ......
 bool SegmentListGeostationary::ComposeImageHDF(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
 
