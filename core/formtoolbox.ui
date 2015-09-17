@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>806</width>
+    <width>363</width>
     <height>1047</height>
    </rect>
   </property>
@@ -623,116 +623,21 @@
          <layout class="QVBoxLayout" name="verticalLayout_16">
           <item>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="14" column="1">
-             <widget class="QRadioButton" name="rbM13">
-              <property name="text">
-               <string>M13 (4.05)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1">
-             <widget class="QRadioButton" name="rbM11">
-              <property name="text">
-               <string>M11 (2.25)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="0">
-             <widget class="QComboBox" name="comboM7">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0">
-             <widget class="QComboBox" name="comboM8">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0">
-             <widget class="QComboBox" name="comboM6">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="16" column="0">
-             <widget class="QComboBox" name="comboM15">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QRadioButton" name="rbM6">
-              <property name="text">
-               <string>M6 (0.746)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_32">
-              <property name="text">
-               <string>Band ( in µm)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="17" column="1">
+            <item row="17" column="2">
              <widget class="QRadioButton" name="rbM16">
               <property name="text">
                <string>M16 (12.013)</string>
               </property>
              </widget>
             </item>
-            <item row="12" column="0">
-             <widget class="QComboBox" name="comboM11">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="17" column="0">
-             <widget class="QComboBox" name="comboM16">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QRadioButton" name="rbM1">
+            <item row="7" column="2">
+             <widget class="QRadioButton" name="rbM6">
               <property name="text">
-               <string>M1 (0.412)</string>
+               <string>M6 (0.746)</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="rbColorVIIRS">
-              <property name="text">
-               <string>Colors</string>
-              </property>
-             </widget>
-            </item>
-            <item row="14" column="0">
+            <item row="14" column="1">
              <widget class="QComboBox" name="comboM13">
               <property name="maximumSize">
                <size>
@@ -742,29 +647,49 @@
               </property>
              </widget>
             </item>
-            <item row="15" column="1">
-             <widget class="QRadioButton" name="rbM14">
+            <item row="1" column="2">
+             <widget class="QRadioButton" name="rbM1">
               <property name="text">
-               <string>M14 (8.55)</string>
+               <string>M1 (0.412)</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
-             <widget class="QRadioButton" name="rbM4">
+            <item row="14" column="2">
+             <widget class="QRadioButton" name="rbM13">
               <property name="text">
-               <string>M4 (0.555)</string>
+               <string>M13 (4.05)</string>
               </property>
              </widget>
             </item>
-            <item row="10" column="1">
-             <widget class="QRadioButton" name="rbM9">
+            <item row="12" column="2">
+             <widget class="QRadioButton" name="rbM11">
               <property name="text">
-               <string>M9 (1.378)</string>
+               <string>M11 (2.25)</string>
               </property>
              </widget>
             </item>
-            <item row="13" column="0">
-             <widget class="QComboBox" name="comboM12">
+            <item row="8" column="1">
+             <widget class="QComboBox" name="comboM7">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="1">
+             <widget class="QComboBox" name="comboM8">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QComboBox" name="comboM6">
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -774,48 +699,126 @@
              </widget>
             </item>
             <item row="16" column="1">
+             <widget class="QComboBox" name="comboM15">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_32">
+              <property name="text">
+               <string>Band ( in µm)</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="12" column="1">
+             <widget class="QComboBox" name="comboM11">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QRadioButton" name="rbColorVIIRS">
+              <property name="text">
+               <string>Colors</string>
+              </property>
+             </widget>
+            </item>
+            <item row="17" column="1">
+             <widget class="QComboBox" name="comboM16">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="2">
+             <widget class="QRadioButton" name="rbM4">
+              <property name="text">
+               <string>M4 (0.555)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="15" column="2">
+             <widget class="QRadioButton" name="rbM14">
+              <property name="text">
+               <string>M14 (8.55)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="2">
+             <widget class="QRadioButton" name="rbM9">
+              <property name="text">
+               <string>M9 (1.378)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="13" column="1">
+             <widget class="QComboBox" name="comboM12">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="16" column="2">
              <widget class="QRadioButton" name="rbM15">
               <property name="text">
                <string>M15 (10.763)</string>
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
+            <item row="3" column="2">
              <widget class="QRadioButton" name="rbM2">
               <property name="text">
                <string>M2 (0.445)</string>
               </property>
              </widget>
             </item>
-            <item row="6" column="1">
+            <item row="6" column="2">
              <widget class="QRadioButton" name="rbM5">
               <property name="text">
                <string>M5 (0.672)</string>
               </property>
              </widget>
             </item>
-            <item row="9" column="1">
+            <item row="9" column="2">
              <widget class="QRadioButton" name="rbM8">
               <property name="text">
                <string>M8 (1.240)</string>
               </property>
              </widget>
             </item>
-            <item row="8" column="1">
+            <item row="8" column="2">
              <widget class="QRadioButton" name="rbM7">
               <property name="text">
                <string>M7 (0.865)</string>
               </property>
              </widget>
             </item>
-            <item row="11" column="1">
+            <item row="11" column="2">
              <widget class="QRadioButton" name="rbM10">
               <property name="text">
                <string>M10 (1.61)</string>
               </property>
              </widget>
             </item>
-            <item row="6" column="0">
+            <item row="6" column="1">
              <widget class="QComboBox" name="comboM5">
               <property name="maximumSize">
                <size>
@@ -825,7 +828,7 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="0">
+            <item row="4" column="1">
              <widget class="QComboBox" name="comboM3">
               <property name="maximumSize">
                <size>
@@ -835,7 +838,7 @@
               </property>
              </widget>
             </item>
-            <item row="5" column="0">
+            <item row="5" column="1">
              <widget class="QComboBox" name="comboM4">
               <property name="maximumSize">
                <size>
@@ -845,7 +848,7 @@
               </property>
              </widget>
             </item>
-            <item row="10" column="0">
+            <item row="10" column="1">
              <widget class="QComboBox" name="comboM9">
               <property name="maximumSize">
                <size>
@@ -855,7 +858,7 @@
               </property>
              </widget>
             </item>
-            <item row="11" column="0">
+            <item row="11" column="1">
              <widget class="QComboBox" name="comboM10">
               <property name="maximumSize">
                <size>
@@ -865,7 +868,7 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
+            <item row="3" column="1">
              <widget class="QComboBox" name="comboM2">
               <property name="maximumSize">
                <size>
@@ -875,7 +878,14 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="13" column="2">
+             <widget class="QRadioButton" name="rbM12">
+              <property name="text">
+               <string>M12 (3.70)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
              <widget class="QComboBox" name="comboM1">
               <property name="maximumSize">
                <size>
@@ -885,21 +895,14 @@
               </property>
              </widget>
             </item>
-            <item row="13" column="1">
-             <widget class="QRadioButton" name="rbM12">
-              <property name="text">
-               <string>M12 (3.70)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
+            <item row="4" column="2">
              <widget class="QRadioButton" name="rbM3">
               <property name="text">
                <string>M3 (0.488)</string>
               </property>
              </widget>
             </item>
-            <item row="15" column="0">
+            <item row="15" column="1">
              <widget class="QComboBox" name="comboM14">
               <property name="maximumSize">
                <size>
@@ -908,6 +911,608 @@
                </size>
               </property>
              </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_34">
+              <property name="text">
+               <string>Invert</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_52">
+              <item>
+               <spacer name="horizontalSpacer_67">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM1">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_68">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_59">
+              <item>
+               <spacer name="horizontalSpacer_81">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM2">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_82">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_57">
+              <item>
+               <spacer name="horizontalSpacer_77">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM3">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_78">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="5" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_58">
+              <item>
+               <spacer name="horizontalSpacer_79">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM4">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_80">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="6" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_60">
+              <item>
+               <spacer name="horizontalSpacer_83">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM5">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_84">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="7" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_53">
+              <item>
+               <spacer name="horizontalSpacer_69">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM6">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_70">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="8" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_61">
+              <item>
+               <spacer name="horizontalSpacer_85">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM7">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_86">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="9" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_54">
+              <item>
+               <spacer name="horizontalSpacer_71">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM8">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_72">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="10" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_62">
+              <item>
+               <spacer name="horizontalSpacer_87">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM9">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_88">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="11" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_55">
+              <item>
+               <spacer name="horizontalSpacer_73">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM10">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_74">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="12" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_56">
+              <item>
+               <spacer name="horizontalSpacer_75">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM11">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_76">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="13" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_68">
+              <item>
+               <spacer name="horizontalSpacer_97">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM12">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_98">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="14" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_67">
+              <item>
+               <spacer name="horizontalSpacer_95">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM13">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_96">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="15" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_64">
+              <item>
+               <spacer name="horizontalSpacer_89">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM14">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_90">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="16" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_65">
+              <item>
+               <spacer name="horizontalSpacer_91">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM15">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_92">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="17" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_66">
+              <item>
+               <spacer name="horizontalSpacer_93">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseM16">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_94">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
@@ -2794,7 +3399,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>744</width>
+                 <width>305</width>
                  <height>434</height>
                 </rect>
                </property>

@@ -23,6 +23,7 @@ public:
     int getTabWidgetIndex();
     QList<bool> getVIIRSBandList();
     QList<int> getVIIRSColorList();
+    QList<bool> getVIIRSInvertList();
     void setTabWidgetIndex(int index);
     void writeInfoToAVHRR(QString info);
     void writeInfoToVIIRS(QString info);

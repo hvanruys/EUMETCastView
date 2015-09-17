@@ -17,11 +17,6 @@ void SegmentListVIIRS::doReadSegmentInMemoryVIIRS(Segment *t)
     t->ReadSegmentInMemory();
 }
 
-//void *SegmentListVIIRS::doReadDatasetsInMemoryVIIRS(Segment *t)
-//{
-//    t->ReadDatasetsInMemory();
-//}
-
 void SegmentListVIIRS::doComposeSegmentImageVIIRS(Segment *t)
 {
     t->ComposeSegmentImage();
@@ -79,7 +74,7 @@ void SegmentListVIIRS::GetFirstLastVisibleSegmentData( QString *satnamefirst, QS
     }
 }
 
-bool SegmentListVIIRS::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist)
+bool SegmentListVIIRS::ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
 
     qDebug() << "bool SegmentListVIIRS::ComposeNewImage(QList<bool> bandlist, QList<int> colorlist) started";
@@ -138,7 +133,7 @@ bool SegmentListVIIRS::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorl
     while ( segsel != segsselected.end() )
     {
         SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-        segm->setBandandColor(bandlist, colorlist);
+        segm->setBandandColor(bandlist, colorlist, invertlist);
         segm->setStartLineNbr(startlinenbr);
         segm->initializeMemory();
         startlinenbr += segm->NbrOfLines;
@@ -179,7 +174,7 @@ void SegmentListVIIRS::viirsFinished()
 }
 
 
-bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist)
+bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
 
     qDebug() << "bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist) started";
@@ -239,7 +234,7 @@ bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> 
     while ( segsel != segsselected.end() )
     {
         SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-        segm->setBandandColor(bandlist, colorlist);
+        segm->setBandandColor(bandlist, colorlist, invertlist);
         segm->setStartLineNbr(startlinenbr);
         segm->initializeMemory();
         startlinenbr += segm->NbrOfLines;
@@ -438,7 +433,7 @@ void SegmentListVIIRS::progressreadvalue(int progress)
     qDebug() << QString("SegmentListVIIRS::progressreadvalue( %1 )").arg(progress);
 }
 
-void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlist)
+void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
 
     progressresultready = 0;
@@ -466,7 +461,7 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
     while ( segsel != segsselected.end() )
     {
         SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-        segm->setBandandColor(bandlist, colorlist);
+        segm->setBandandColor(bandlist, colorlist, invertlist);
         segm->initializeMemory();
         ++segsel;
     }
@@ -579,7 +574,7 @@ void SegmentListVIIRS::CalculateLUT()
                 {
                     int pixel = *(segm->ptrbaVIIRS[k] + line * segm->earth_views_per_scanline + pixelx);
                     int pixcalc = 256 * (pixel - imageptrs->stat_min_ch[k]) / (imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k]);
-
+                    pixcalc = ( pixcalc < 0 ? 0 : pixcalc);
                     pixcalc = ( pixcalc > 255 ? 255 : pixcalc );
                     stats_ch[k][pixcalc]++;
 
@@ -607,8 +602,7 @@ void SegmentListVIIRS::CalculateLUT()
         {
             sum_ch[k] += stats_ch[k][i];
             imageptrs->lut_ch[k][i] = (quint16)(sum_ch[k] * scale);
-            if (imageptrs->lut_ch[k][i] > 255)
-                imageptrs->lut_ch[k][i] = 255;
+            imageptrs->lut_ch[k][i] = ( imageptrs->lut_ch[k][i] > 255 ? 255 : imageptrs->lut_ch[k][i]);
         }
     }
 }

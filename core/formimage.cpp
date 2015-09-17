@@ -223,6 +223,7 @@ void FormImage::ComposeImage()
 
     QList<bool> bandlist;
     QList<int> colorlist;
+    QList<bool> invertlist;
 
     qDebug() << QString("in FormImage::ComposeImage nbr of metop segments selected = %1").arg(metopcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of noaa segments selected = %1").arg(noaacount);
@@ -280,7 +281,8 @@ void FormImage::ComposeImage()
             this->setAVHRRSegmentType(SEG_VIIRS);
             bandlist = formtoolbox->getVIIRSBandList();
             colorlist = formtoolbox->getVIIRSColorList();
-            segs->seglviirs->ComposeVIIRSImageSerial(bandlist, colorlist);
+            invertlist = formtoolbox->getVIIRSInvertList();
+            segs->seglviirs->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
     }
     else
         return;
@@ -299,6 +301,7 @@ bool FormImage::ShowVIIRSImage()
 
     QList<bool> bandlist;
     QList<int> colorlist;
+    QList<bool> invertlist;
 
     qDebug() << QString("in FormImage::ShowVIIRSImage nbr of viirs segments selected = %1").arg(viirscount);
 
@@ -314,8 +317,9 @@ bool FormImage::ShowVIIRSImage()
 
         bandlist = formtoolbox->getVIIRSBandList();
         colorlist = formtoolbox->getVIIRSColorList();
+        invertlist = formtoolbox->getVIIRSInvertList();
 
-        segs->seglviirs->ShowImageSerial(bandlist, colorlist);
+        segs->seglviirs->ShowImageSerial(bandlist, colorlist, invertlist);
     }
     else
         ret = false;

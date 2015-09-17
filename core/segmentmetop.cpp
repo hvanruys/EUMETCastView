@@ -766,8 +766,16 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                         for( int k = 0, l = 0; k < 5; k++, l+=4096)
                         {
                             val1_ch[k] = 0xFF & picture_line.at(i+l);
+                            if(k==2 && val1_ch[k]== 255)
+                                val1_ch[k] = 0;
                             val2_ch[k] = 0xFF & picture_line.at(i+l+1);
                             tot_ch[k] = (val1_ch[k] <<= 8) | val2_ch[k];
+//                            if(k==2 && i==2*500)
+//                                tot_ch[k] = 0;
+//                            if(k==2 && heightinsegment==180)
+//                                tot_ch[k] = 0;
+//                            if(k==2 && i==2*500 && heightinsegment==180)
+//                                qDebug() << QString(" ----------------->>>>  val1_ch = %1 val2_ch = %2 tot_ch = %3").arg(val1_ch[k],0,16).arg(val2_ch[k],0,16).arg(tot_ch[k],0,16);
                             *(this->ptrbaChannel[k] + heightinsegment * 2048 + j) = tot_ch[k];
                         }
 

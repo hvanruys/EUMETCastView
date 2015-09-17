@@ -31,7 +31,7 @@ public:
     bool testlookupLonLat(double lon_deg, double lat_deg, int &col, int &row);
     int ReadNbrOfLines();
 
-    void setBandandColor(QList<bool> band, QList<int> color);
+    void setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert);
     void ComposeSegmentImage();
     void ComposeSegmentLCCProjection(int inputchannel);
     void ComposeSegmentGVProjection(int inputchannel);
@@ -63,12 +63,15 @@ private:
     float *geolongitude;
     QList<bool> bandlist;
     QList<int> colorlist;
+    QList<bool> invertlist;
 
     float latMax;
     float lonMax;
     float latMin;
     float lonMin;
     QMap<int, QList<lonlatdata>> viirsmap;
+
+    bool invertthissegment[3];
 
 
 };

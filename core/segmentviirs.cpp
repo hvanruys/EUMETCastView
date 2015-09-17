@@ -105,6 +105,9 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
     latMin = 999.0;
     lonMin = 999.0;
     CalculateCornerPoints();
+    invertthissegment[0] = false;
+    invertthissegment[1] = false;
+    invertthissegment[2] = false;
 
 }
 
@@ -159,10 +162,11 @@ void SegmentVIIRS::cleanupMemory()
     resetMemory();
 }
 
-void SegmentVIIRS::setBandandColor(QList<bool> band, QList<int> color)
+void SegmentVIIRS::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)
 {
     bandlist = band;
     colorlist = color;
+    invertlist = invert;
 }
 
 Segment *SegmentVIIRS::ReadSegmentInMemory()
@@ -331,7 +335,7 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
            cout << " " <<  geolatitude[j * 3200 + i];
         cout << endl;
     }
-*/
+
     cout << "geolatitude  :" << endl;
     for (j = 0; j < 768; j+=767) {
         for (i = 0; i < 3200; i+=3199)
@@ -345,7 +349,7 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
         cout << endl;
     }
 
-
+*/
 
 //    qDebug() << "start sorting !!!!";
 
@@ -602,37 +606,85 @@ Segment *SegmentVIIRS::ReadDatasetsInMemory()
 QString SegmentVIIRS::getDatasetNameFromBand()
 {
     if(bandlist.at(1))
+    {
+        invertthissegment[0] = invertlist.at(0);
         return("/All_Data/VIIRS-M1-SDR_All/Radiance");
+    }
     else if(bandlist.at(2))
+    {
+        invertthissegment[0] = invertlist.at(1);
         return("/All_Data/VIIRS-M2-SDR_All/Radiance");
+    }
     else if(bandlist.at(3))
+    {
+        invertthissegment[0] = invertlist.at(2);
         return("/All_Data/VIIRS-M3-SDR_All/Radiance");
+    }
     else if(bandlist.at(4))
+    {
+        invertthissegment[0] = invertlist.at(3);
         return("/All_Data/VIIRS-M4-SDR_All/Radiance");
+    }
     else if(bandlist.at(5))
+    {
+        invertthissegment[0] = invertlist.at(4);
         return("/All_Data/VIIRS-M5-SDR_All/Radiance");
+    }
     else if(bandlist.at(6))
+    {
+        invertthissegment[0] = invertlist.at(5);
         return("/All_Data/VIIRS-M6-SDR_All/Radiance");
+    }
     else if(bandlist.at(7))
+    {
+        invertthissegment[0] = invertlist.at(6);
         return("/All_Data/VIIRS-M7-SDR_All/Radiance");
+    }
     else if(bandlist.at(8))
+    {
+        invertthissegment[0] = invertlist.at(7);
         return("/All_Data/VIIRS-M8-SDR_All/Radiance");
+    }
     else if(bandlist.at(9))
+    {
+        invertthissegment[0] = invertlist.at(8);
         return("/All_Data/VIIRS-M9-SDR_All/Radiance");
+    }
     else if(bandlist.at(10))
+    {
+        invertthissegment[0] = invertlist.at(9);
         return("/All_Data/VIIRS-M10-SDR_All/Radiance");
+    }
     else if(bandlist.at(11))
+    {
+        invertthissegment[0] = invertlist.at(10);
         return("/All_Data/VIIRS-M11-SDR_All/Radiance");
+    }
     else if(bandlist.at(12))
+    {
+        invertthissegment[0] = invertlist.at(11);
         return("/All_Data/VIIRS-M12-SDR_All/Radiance");
+    }
     else if(bandlist.at(13))
+    {
+        invertthissegment[0] = invertlist.at(12);
         return("/All_Data/VIIRS-M13-SDR_All/Radiance");
+    }
     else if(bandlist.at(14))
+    {
+        invertthissegment[0] = invertlist.at(13);
         return("/All_Data/VIIRS-M14-SDR_All/Radiance");
+    }
     else if(bandlist.at(15))
+    {
+        invertthissegment[0] = invertlist.at(14);
         return("/All_Data/VIIRS-M15-SDR_All/Radiance");
+    }
     else if(bandlist.at(16))
+    {
+        invertthissegment[0] = invertlist.at(15);
         return("/All_Data/VIIRS-M16-SDR_All/Radiance");
+    }
 
 
 }
@@ -643,37 +695,85 @@ QString SegmentVIIRS::getDatasetNameFromColor(int colorindex)
     colorindex++; // 1, 2 or 3
 
     if(colorlist.at(0) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(0);
         return("/All_Data/VIIRS-M1-SDR_All/Radiance");
+    }
     else if(colorlist.at(1) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(1);
         return("/All_Data/VIIRS-M2-SDR_All/Radiance");
+    }
     else if(colorlist.at(2) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(2);
         return("/All_Data/VIIRS-M3-SDR_All/Radiance");
+    }
     else if(colorlist.at(3) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(3);
         return("/All_Data/VIIRS-M4-SDR_All/Radiance");
+    }
     else if(colorlist.at(4) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(4);
         return("/All_Data/VIIRS-M5-SDR_All/Radiance");
+    }
     else if(colorlist.at(5) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(5);
         return("/All_Data/VIIRS-M6-SDR_All/Radiance");
+    }
     else if(colorlist.at(6) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(6);
         return("/All_Data/VIIRS-M7-SDR_All/Radiance");
+    }
     else if(colorlist.at(7) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(7);
         return("/All_Data/VIIRS-M8-SDR_All/Radiance");
+    }
     else if(colorlist.at(8) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(8);
         return("/All_Data/VIIRS-M9-SDR_All/Radiance");
+    }
     else if(colorlist.at(9) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(9);
         return("/All_Data/VIIRS-M10-SDR_All/Radiance");
+    }
     else if(colorlist.at(10) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(10);
         return("/All_Data/VIIRS-M11-SDR_All/Radiance");
+    }
     else if(colorlist.at(11) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(11);
         return("/All_Data/VIIRS-M12-SDR_All/Radiance");
+    }
     else if(colorlist.at(12) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(12);
         return("/All_Data/VIIRS-M13-SDR_All/Radiance");
+    }
     else if(colorlist.at(13) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(13);
         return("/All_Data/VIIRS-M14-SDR_All/Radiance");
+    }
     else if(colorlist.at(14) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(14);
         return("/All_Data/VIIRS-M15-SDR_All/Radiance");
+    }
     else if(colorlist.at(15) == colorindex)
+    {
+        invertthissegment[colorindex-1] = invertlist.at(15);
         return("/All_Data/VIIRS-M16-SDR_All/Radiance");
+    }
 }
 
 
@@ -754,9 +854,14 @@ void SegmentVIIRS::ComposeSegmentImage()
     QRgb *row;
     int indexout[3];
 
-    qDebug() << "SegmentVIIRS::ComposeSegmentImage() segm->startLineNbr = " << this->startLineNbr;
+    qDebug() << QString("SegmentVIIRS::ComposeSegmentImage() segm->startLineNbr = %1").arg(this->startLineNbr);
+    qDebug() << QString("SegmentVIIRS::ComposeSegmentImage() color = %1 ").arg(bandlist.at(0));
+    qDebug() << QString("SegmentVIIRS::ComposeSegmentImage() invertthissegment[0] = %1").arg(invertthissegment[0]);
+    qDebug() << QString("SegmentVIIRS::ComposeSegmentImage() invertthissegment[1] = %1").arg(invertthissegment[1]);
+    qDebug() << QString("SegmentVIIRS::ComposeSegmentImage() invertthissegment[2] = %1").arg(invertthissegment[2]);
 
     int pixval[3];
+    int r, g, b;
 
     bool color = bandlist.at(0);
     bool valok[3];
@@ -784,11 +889,41 @@ void SegmentVIIRS::ComposeSegmentImage()
                     indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
                     indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
                 }
-                if(color)
-                    row[pixelx] = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
-                else
-                    row[pixelx] = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[0][indexout[0]] );
 
+                if(color)
+                {
+                    if(invertthissegment[0])
+                    {
+                        r = 255 - imageptrs->lut_ch[0][indexout[0]];
+                    }
+                    else
+                        r = imageptrs->lut_ch[0][indexout[0]];
+                    if(invertthissegment[1])
+                    {
+                        g = 255 - imageptrs->lut_ch[1][indexout[1]];
+                    }
+                    else
+                        g = imageptrs->lut_ch[1][indexout[1]];
+                    if(invertthissegment[2])
+                    {
+                        b = 255 - imageptrs->lut_ch[2][indexout[2]];
+                    }
+                    else
+                        b = imageptrs->lut_ch[2][indexout[2]];
+
+                    row[pixelx] = qRgb(r, g, b );
+                }
+                else
+                {
+                    if(invertthissegment[0])
+                    {
+                        r = 255 - imageptrs->lut_ch[0][indexout[0]];
+                    }
+                    else
+                        r = imageptrs->lut_ch[0][indexout[0]];
+
+                    row[pixelx] = qRgb(r, r, r);
+                }
 
             }
             else
@@ -1171,7 +1306,7 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
 {
     int indexout[3];
     int pixval[3];
-
+    int r, g, b;
     QRgb rgbvalue = qRgb(0,0,0);
 
     pixval[0] = ptrbaVIIRS[0][lines * 3200 + views];
@@ -1192,9 +1327,42 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
         }
 
         if(color)
+        {
+            if(invertthissegment[0])
+            {
+                r = 255 - imageptrs->lut_ch[0][indexout[0]];
+            }
+            else
+                r = imageptrs->lut_ch[0][indexout[0]];
+            if(invertthissegment[1])
+            {
+                g = 255 - imageptrs->lut_ch[1][indexout[1]];
+            }
+            else
+                g = imageptrs->lut_ch[1][indexout[1]];
+            if(invertthissegment[2])
+            {
+                b = 255 - imageptrs->lut_ch[2][indexout[2]];
+            }
+            else
+                b = imageptrs->lut_ch[2][indexout[2]];
+
+            rgbvalue = qRgb(r, g, b );
+        }
+
+        if(color)
             rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
         else
-            rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[0][indexout[0]] );
+        {
+            if(invertthissegment[0])
+            {
+                r = 255 - imageptrs->lut_ch[0][indexout[0]];
+            }
+            else
+                r = imageptrs->lut_ch[0][indexout[0]];
+
+            rgbvalue = qRgb(r, r, r);
+        }
 
         if(opts.sattrackinimage)
         {

@@ -490,6 +490,16 @@ QList<int> FormToolbox::getVIIRSColorList()
     return(viirslist);
 }
 
+QList<bool> FormToolbox::getVIIRSInvertList()
+{
+    QList<bool> viirslist;
+    viirslist << ui->chkInverseM1->isChecked() << ui->chkInverseM2->isChecked() << ui->chkInverseM3->isChecked() << ui->chkInverseM4->isChecked() << ui->chkInverseM5->isChecked()
+                  << ui->chkInverseM6->isChecked() << ui->chkInverseM7->isChecked() << ui->chkInverseM8->isChecked() << ui->chkInverseM9->isChecked() << ui->chkInverseM10->isChecked()
+                      << ui->chkInverseM11->isChecked() << ui->chkInverseM12->isChecked() << ui->chkInverseM13->isChecked() << ui->chkInverseM14->isChecked() << ui->chkInverseM15->isChecked()
+                          << ui->chkInverseM16->isChecked();
+    return(viirslist);
+}
+
 void FormToolbox::setParameters()
 {
     qDebug() << "FormToolbox::setParameters()";
