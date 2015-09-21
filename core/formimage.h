@@ -21,7 +21,7 @@ public:
     void ComposeImage();
     bool ShowVIIRSImage();
     QSize getPictureSize() const;
-    void recalculateCLAHEMeteosat(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayProjection(QPainter *paint,  SegmentListGeostationary *sl);

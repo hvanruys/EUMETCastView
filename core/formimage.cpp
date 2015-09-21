@@ -945,7 +945,7 @@ void FormImage::recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<b
 
 }
 
-void FormImage::recalculateCLAHEMeteosat(QVector<QString> spectrumvector, QVector<bool> inversevector)
+void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
 
     QRgb *row_col;
@@ -2227,7 +2227,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
         }
     }
 
-    if (opts.currenttoolbox == 0) // LLC
+    if (opts.currenttoolbox == 0 && opts.gridonprojection == true) // LLC
     {
         for(double lon = -180.0; lon < 180.0; lon+=10.0)
         {
@@ -2295,7 +2295,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
         }
     }
 
-    if (opts.currenttoolbox == 1) //GVP
+    if (opts.currenttoolbox == 1 && opts.gridonprojection == true) //GVP
     {
         for(double lon = -180.0; lon < 180.0; lon+=10.0)
         {
@@ -2361,7 +2361,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
     }
 
 
-    if (opts.currenttoolbox == 2) //SG
+    if (opts.currenttoolbox == 2 && opts.gridonprojection == true ) //SG
     {
         for(double lon = -180.0; lon < 180.0; lon+=10.0)
         {

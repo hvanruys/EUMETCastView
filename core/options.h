@@ -141,6 +141,7 @@ public:
     double meteosatgamma;
     double yawcorrection;
     bool smoothprojectionimage;
+    bool gridonprojection;
     float clahecliplimit;
 
 

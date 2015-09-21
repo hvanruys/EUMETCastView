@@ -130,6 +130,7 @@ void Options::Initialize()
     projectionoverlaylonlatcolor=settings.value("/window/projectionoverlaylonlatcolor", "#b9b9b9").value<QString>();
 
     smoothprojectionimage = settings.value("/window/smoothprojectionimage", true ).toBool();
+    gridonprojection = settings.value("/window/gridonprojection", true ).toBool();
     textureOn = settings.value("/window/textureon", true ).toBool();
     stationnameOn = settings.value("/window/stationnameon", false ).toBool();
     lightingOn = settings.value("/window/lightingon", true ).toBool();

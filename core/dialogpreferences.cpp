@@ -124,6 +124,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     ui->rbSattrackOn->setChecked(opts.sattrackinimage);
     ui->rbSmoothProjection->setChecked(opts.smoothprojectionimage);
+    ui->rbGridOnProjection->setChecked(opts.gridonprojection);
 
     setupStationsTable();
     setupTLESourceTable();
@@ -289,6 +290,7 @@ void DialogPreferences::dialogaccept()
 
     opts.sattrackinimage = ui->rbSattrackOn->isChecked();
     opts.smoothprojectionimage = ui->rbSmoothProjection->isChecked();
+    opts.gridonprojection = ui->rbGridOnProjection->isChecked();
 
     opts.gshhsglobe1On = ui->chkGshhs1->isChecked();
     opts.gshhsglobe2On = ui->chkGshhs2->isChecked();

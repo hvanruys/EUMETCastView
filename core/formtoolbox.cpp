@@ -943,7 +943,7 @@ void FormToolbox::on_btnCLAHEMeteosat_clicked()
     {
         this->setToolboxButtons(false);
         QApplication::processEvents();
-        formimage->recalculateCLAHEMeteosat(spectrumvector, inversevector);
+        formimage->recalculateCLAHE(spectrumvector, inversevector);
         formimage->slotUpdateMeteosat();
     }
 }
