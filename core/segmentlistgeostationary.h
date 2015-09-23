@@ -26,8 +26,9 @@ public:
 
     explicit SegmentListGeostationary(QObject *parent = 0);
     bool ComposeImageXRIT(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
-    bool ComposeImageHDF(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    //bool ComposeImageHDF(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
     bool ComposeImageHDFSerial(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    bool ComposeImageHDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector);
 
     void displayMinMax();
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
@@ -38,6 +39,7 @@ public:
 
     void ComposeSegmentImageXRIT(QString filepath, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
+    void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2, quint16 x3, quint16 y3, quint16 x4, quint16 y4);
     quint8 ContrastStretch(quint16 val);
     void InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence);

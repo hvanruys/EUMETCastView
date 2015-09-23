@@ -183,19 +183,11 @@ bool FormToolbox::eventFilter(QObject *target, QEvent *event)
     return QWidget::eventFilter(target, event);
 }
 
-void FormToolbox::addTopbGeostationary(int val)
-{
-    ui->pbProgress->setValue(ui->pbProgress->value() + val);
-}
-
-void FormToolbox::setMaxpbGeostationary(int max)
-{
-    ui->pbProgress->setMaximum(max);
-}
 
 void FormToolbox::setValueProgressBar(int val)
 {
     ui->pbProgress->setValue(val);
+    //this->update();
 }
 
 void FormToolbox::setupChannelCombo()
@@ -1006,6 +998,9 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnIR120->setEnabled(state);
         ui->btnIR134->setEnabled(false);
         ui->btnHRV->setEnabled(false);
+        ui->cmbHRVtype->setEnabled(false);
+        ui->chkColorHRV->setEnabled(false);
+
         break;
     case SegmentListGeostationary::GOES_13:
     case SegmentListGeostationary::GOES_15:
@@ -1022,6 +1017,9 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnIR120->setEnabled(false);
         ui->btnIR134->setEnabled(false);
         ui->btnHRV->setEnabled(false);
+        ui->cmbHRVtype->setEnabled(false);
+        ui->chkColorHRV->setEnabled(false);
+
         break;
     case SegmentListGeostationary::MTSAT:
         ui->btnGeoColor->setEnabled(false);
@@ -1037,6 +1035,9 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnIR120->setEnabled(state);
         ui->btnIR134->setEnabled(false);
         ui->btnHRV->setEnabled(false);
+        ui->cmbHRVtype->setEnabled(false);
+        ui->chkColorHRV->setEnabled(false);
+
         break;
     case SegmentListGeostationary::FY2E:
     case SegmentListGeostationary::FY2G:
@@ -1053,6 +1054,8 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnIR120->setEnabled(false);
         ui->btnIR134->setEnabled(false);
         ui->btnHRV->setEnabled(state);
+        ui->cmbHRVtype->setEnabled(false);
+        ui->chkColorHRV->setEnabled(false);
         break;
 
     default:
@@ -1069,6 +1072,9 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnIR120->setEnabled(state);
         ui->btnIR134->setEnabled(state);
         ui->btnHRV->setEnabled(state);
+        ui->cmbHRVtype->setEnabled(state);
+        ui->chkColorHRV->setEnabled(state);
+
 
 
 
@@ -1097,7 +1103,9 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->btnRotate180->setEnabled(state);
 
     if(state)
+    {
         QApplication::restoreOverrideCursor();
+    }
     else
         QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -1255,10 +1263,8 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
         ui->pbProgress->setMaximum(7);
     else if(whichgeo == SegmentListGeostationary::MTSAT)
         ui->pbProgress->setMaximum(6);
-    else if(whichgeo == SegmentListGeostationary::FY2E)
-        ui->pbProgress->setMaximum(1);
-    else if(whichgeo == SegmentListGeostationary::FY2G)
-        ui->pbProgress->setMaximum(1);
+    else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
+        ui->pbProgress->setMaximum(100);
 
     segs->seglmeteosat->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglmeteosatrss->areatype = ui->cmbHRVtype->currentIndex();
@@ -1316,6 +1322,9 @@ void FormToolbox::on_btnGeoColor_clicked()
     if(whichgeo == SegmentListGeostationary::MET_9)
         ui->pbProgress->setMaximum(9);
 
+    if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G )
+        ui->pbProgress->setMaximum(100);
+
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 ||
             whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G )
         onButtonColorHRV("VIS_IR Color");
@@ -1353,7 +1362,7 @@ void FormToolbox::on_btnHRV_clicked()
 
     if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
     {
-        ui->pbProgress->setMaximum(1);
+        ui->pbProgress->setMaximum(100);
     }
 
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)

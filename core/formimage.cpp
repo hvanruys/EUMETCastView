@@ -877,6 +877,7 @@ void FormImage::slotUpdateMeteosat()
 
     if(sl->allSegmentsReceived())
     {
+        QApplication::restoreOverrideCursor();
 
         if(opts.imageontextureOnMet)
         {
@@ -884,7 +885,6 @@ void FormImage::slotUpdateMeteosat()
             {
                 qDebug() << "all HRV received !!!!!!!!!!!!!!";
                 emit allsegmentsreceivedbuttons(true);
-
             }
             else
             {

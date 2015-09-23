@@ -78,8 +78,6 @@ private slots:
     void setChannelInverse();
     void setMeteosatGamma();
     void setMeteosatGamma(double gammaval);
-    void addTopbGeostationary(int val);
-    void setMaxpbGeostationary(int max);
     void setValueProgressBar(int val);
 
 

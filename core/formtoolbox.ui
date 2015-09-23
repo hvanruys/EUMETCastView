@@ -3400,7 +3400,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>305</width>
-                 <height>421</height>
+                 <height>256</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -4005,7 +4005,7 @@
      <item>
       <widget class="QProgressBar" name="pbProgress">
        <property name="value">
-        <number>24</number>
+        <number>0</number>
        </property>
       </widget>
      </item>

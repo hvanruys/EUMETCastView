@@ -34,6 +34,7 @@ public:
 
 private:
     QStringList getGeostationarySegments(SegmentListGeostationary::eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
+    QStringList getGeostationarySegmentsFengYun(SegmentListGeostationary::eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
     void PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite whichgeo, QMap<QString, QMap<QString, QMap<int, QFileInfo> > > map, QTreeWidget *widget);
     void CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);

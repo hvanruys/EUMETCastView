@@ -367,6 +367,7 @@ void Options::Save()
     settings.setValue("/window/projectionoverlaylonlatcolor", projectionoverlaylonlatcolor );
 
     settings.setValue("/window/smoothprojectionimage", smoothprojectionimage );
+    settings.setValue("/window/gridonprojection", gridonprojection );
     settings.setValue("/window/textureon", textureOn );
     settings.setValue("/window/stationnameon", stationnameOn );
     settings.setValue("/window/lightingon", lightingOn );

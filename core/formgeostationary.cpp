@@ -265,6 +265,59 @@ QStringList FormGeostationary::getGeostationarySegments(SegmentListGeostationary
     return strlistout;
 }
 
+QStringList FormGeostationary::getGeostationarySegmentsFengYun(SegmentListGeostationary::eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern)
+{
+
+    qDebug() << QString("getGeostationarySegmentsFengYun type = %1  Filepath = %2 filepattern = %3").arg(imagetype).arg(filepath).arg(filepattern);
+    qDebug() << QString("getGeostationarySegmentsFengYun spectrumvector %1 %2 %3").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
+
+    QDir fydir(filepath);
+    fydir.setFilter(QDir::Files | QDir::NoSymLinks);
+    fydir.setSorting(QDir::Name);
+
+    QStringList strlist = fydir.entryList();
+    QStringList strlistout;
+
+
+    QStringList::Iterator itc = strlist.begin();
+
+    if(imagetype == "HRV" )
+    {
+        while( itc != strlist.end() )
+        {
+            QString st = *itc;
+            if(fydir.match(filepattern, *itc) && st.mid(40, 6) == "VIS1KM")
+                    strlistout.append(*itc);
+            itc++;
+        }
+    }
+    else
+        if(imagetype == "VIS_IR")
+        {
+            for( int j = 0; j < spectrumvector.size(); j++)
+            {
+                while( itc != strlist.end() )
+                {
+                    QString st = *itc;
+
+                    if(fydir.match(filepattern, *itc) && (st.mid(40, 3) == spectrumvector.at(j)))
+                        strlistout.append(*itc);
+                    itc++;
+                }
+                itc = strlist.begin();
+            }
+        }
+
+    //L-???-??????-GOES13______-?????????-0?????___-201404181000-C_
+
+    for (int j = 0; j < strlistout.size(); ++j)
+    {
+        qDebug() << QString("getMeteosatSegment out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
+    }
+
+    return strlistout;
+}
+
 QStringList FormGeostationary::globit(const QString filepath, const QString filepattern)
 {
 
@@ -1299,12 +1352,9 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
 
     QString filetiming;
     QString filedate;
-    QString filenamegz;
-    QString filename;
     QStringList llVIS_IR;
     QStringList llHRV;
     QString filepattern;
-    QString filespectrum;
 
     SegmentListGeostationary::eGeoSatellite whichgeo = sl->getGeoSatellite();
 
@@ -1325,16 +1375,6 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
 
     filetiming = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2) + tex.mid(13, 2) + tex.mid(16, 2) + "00";
     filedate = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2);
-    if(whichgeo == SegmentListGeostationary::FY2E)
-    {
-        filenamegz = "Z_SATE_C_BABJ_" + filetiming + "_O_FY2E_FDI_" + spectrumvector.at(0) + "_001_NOM.HDF.gz";
-        filename = filenamegz.mid(0, filenamegz.length() - 3);
-    }
-    else if(whichgeo == SegmentListGeostationary::FY2G)
-    {
-        filenamegz = "Z_SATE_C_BABJ_" + filetiming + "_O_FY2G_FDI_" + spectrumvector.at(0) + "_001_NOM.HDF.gz";
-        filename = filenamegz.mid(0, filenamegz.length() - 3);
-    }
 
     if(whichgeo == SegmentListGeostationary::FY2E && (type == "VIS_IR" || type == "VIS_IR Color"))
         filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_???") + QString("_001_NOM.HDF.gz");
@@ -1345,41 +1385,21 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
     else if(whichgeo == SegmentListGeostationary::FY2G && type == "HRV")
         filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
 
-    qDebug() << "HDF file gz = " << filenamegz;
-    qDebug() << "HDF file = " << filename;
-
-
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {
-        llVIS_IR = this->getGeostationarySegments(whichgeo, "VIS_IR", sl->getImagePath(), spectrumvector, filepattern);
+        llVIS_IR = this->getGeostationarySegmentsFengYun(whichgeo, "VIS_IR", sl->getImagePath(), spectrumvector, filepattern);
+        qDebug() << QString("llVIS_IR count = %1").arg(llVIS_IR.count());
         for (int j =  0; j < llVIS_IR.size(); ++j)
         {
-            QFile file(sl->getImagePath() + "/" + llVIS_IR.at(j));
-            QFileInfo fileinfo(file);
-            filespectrum = fileinfo.fileName().mid(40, 3);
-
-            sl->InsertPresent( spectrumvector, filespectrum, 0);
-            sl->ComposeImageHDFSerial(fileinfo.filePath(), spectrumvector, inversevector);
-            qDebug() << QString("ComposeImageHDF VIS_IR ----> %1").arg(fileinfo.fileName());
+            qDebug() << QString("llVIS_IR at %1 = %2 spectrumvector = %3").arg(j).arg(llVIS_IR.at(j)).arg(spectrumvector.at(j));
         }
+        sl->ComposeImageHDFInThread(llVIS_IR, spectrumvector, inversevector);
     }
     else if(type == "HRV")
     {
-        llHRV = this->getGeostationarySegments(whichgeo, "HRV", sl->getImagePath(), spectrumvector, filepattern);
-        for (int j =  0; j < llHRV.size(); ++j)
-        {
-            QFile file(sl->getImagePath() + "/" + llHRV.at(j));
-            QFileInfo fileinfo(file);
-            filespectrum = fileinfo.fileName().mid(40, 6);
-            Q_ASSERT(filespectrum == "VIS1KM");
-            sl->InsertPresent( spectrumvector, filespectrum, 0);
-            sl->ComposeImageHDFSerial(fileinfo.filePath(), spectrumvector, inversevector);
-            qDebug() << QString("ComposeImageHDF HRV ----> %1").arg(fileinfo.fileName());
-        }
-
+        llHRV = this->getGeostationarySegmentsFengYun(whichgeo, "HRV", sl->getImagePath(), spectrumvector, filepattern);
+        sl->ComposeImageHDFInThread(llHRV, spectrumvector, inversevector);
     }
-    formtoolbox->setToolboxButtons(true);
-    QApplication::restoreOverrideCursor();
 
 }
 
