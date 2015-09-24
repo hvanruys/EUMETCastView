@@ -169,7 +169,7 @@ void SegmentListVIIRS::viirsFinished()
     qDebug() << "viirsFinished()";
 
     emit segmentlistfinished();
-    emit progressCounter(99);
+    emit progressCounter(100);
 
 }
 
@@ -515,33 +515,6 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
     emit segmentlistfinished();
     emit progressCounter(99);
 }
-
-void SegmentListVIIRS::testLonLat()
-{
-
-    watchergeolookup = new QFutureWatcher<void>(this);
-    //connect(watchergeolookup,SIGNAL(progressRangeChanged(int,int)),&pdialog,SLOT(setRange(int,int)));
-
-    connect(watchergeolookup, SIGNAL(progressValueChanged(int)), this, SLOT(progressgeolookup(int)));
-    connect(watchergeolookup, SIGNAL(finished()), this, SLOT(finishedgeolookup()));
-
-    watchergeolookup->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doComposeProjection));
-}
-
-
-void SegmentListVIIRS::progressgeolookup(int progress)
-{
-    qDebug() << "SegmentListVIIRS::progressgeolookup " << progress;
-
-}
-
-void SegmentListVIIRS::finishedgeolookup()
-{
-    delete watchergeolookup;
-
-    qDebug() << "SegmentListVIIRS::finishedgeolookup()";
-}
-
 
 void SegmentListVIIRS::CalculateLUT()
 {

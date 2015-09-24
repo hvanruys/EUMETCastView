@@ -100,6 +100,54 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->scbLCCMapUpDown->setMaximum(1);
     ui->scbLCCMapUpDown->setMinimum(-1);
 
+
+    QStringList listResolution;
+    listResolution << "user defined";
+    listResolution << "4:3  SVGA   800x600";
+    listResolution << "4:3  XGA   1024x768";
+    listResolution << "4:3  XGA+  1152x864";
+    listResolution << "4:3  SXGA  1280x960";
+    listResolution << "4:3  SVGA+ 1400x1050";
+    listResolution << "4:3  UXGA  1600x1200";
+    listResolution << "16:9 WXGA  1280x720";
+    listResolution << "16:9 HD    1360x768";
+    listResolution << "16:9 HD+   1600x900";
+    listResolution << "16:9 FHD   1920x1080";
+    listResolution << "16:9 QWXGA 2048x1152";
+    listResolution << "16:9 WQHD  2560x1440";
+    listResolution << "16:9 UHD   3840x2160";
+
+
+    resolutionX.append(800);
+    resolutionX.append(1024);
+    resolutionX.append(1152);
+    resolutionX.append(1280);
+    resolutionX.append(1400);
+    resolutionX.append(1600);
+    resolutionX.append(1280);
+    resolutionX.append(1360);
+    resolutionX.append(1600);
+    resolutionX.append(1920);
+    resolutionX.append(2048);
+    resolutionX.append(2560);
+    resolutionX.append(3840);
+
+    resolutionY.append(600);
+    resolutionY.append(768);
+    resolutionY.append(864);
+    resolutionY.append(960);
+    resolutionY.append(1050);
+    resolutionY.append(1200);
+    resolutionY.append(720);
+    resolutionY.append(768);
+    resolutionY.append(900);
+    resolutionY.append(1080);
+    resolutionY.append(1152);
+    resolutionY.append(1440);
+    resolutionY.append(2160);
+
+    ui->cbProjResolutions->addItems(listResolution);
+
     setParameters();
 
     ui->scbLCCMapLeftRight->blockSignals(false);
@@ -107,7 +155,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     ui->pbProgress->setValue(0);
     ui->pbProgress->setMinimum(0);
-    ui->pbProgress->setMaximum(99);
+    ui->pbProgress->setMaximum(100);
 
     on_toolBox_currentChanged(0);
 
@@ -140,6 +188,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
 
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
+
     qDebug() << "constructor formtoolbox";
 
 }
@@ -528,6 +577,9 @@ void FormToolbox::setParameters()
     ui->chkShowPerspective->setChecked(opts.mapextentperspectiveon);
     ui->spbMapHeight->setValue(opts.mapheight);
     ui->spbMapWidth->setValue(opts.mapwidth);
+
+    ui->cbProjResolutions->setCurrentIndex(searchResolution(opts.mapwidth, opts.mapheight));
+
     ui->spbGVPlon->setValue(opts.mapgvplon);
     ui->spbGVPlat->setValue(opts.mapgvplat);
     ui->spbGVPheight->setValue(opts.mapgvpheight);
@@ -547,6 +599,23 @@ void FormToolbox::setParameters()
     ui->spbSGPanHorizon->setValue(opts.mapsgpanhorizon);
     ui->spbSGPanVert->setValue(opts.mapsgpanvert);
     ui->spbSGRadius->setValue(opts.mapsgradius);
+
+}
+
+int FormToolbox::searchResolution(int mapwidth, int mapheight)
+{
+   int index = -1;
+
+   for(int i = 0; i < resolutionX.size(); i++)
+   {
+       if(resolutionX.at(i) == mapwidth && resolutionY.at(i) == mapheight )
+       {
+           index = i;
+           break;
+       }
+   }
+
+   return(index+1);
 
 }
 
@@ -2405,25 +2474,6 @@ void FormToolbox::on_rbtnACh5_clicked()
         opts.channelontexture = 5;
 }
 
-
-
-//void FormToolbox::on_btnRemoveMetop_clicked()
-//{
-//    bool bmetop = segs->seglmetop->imageMemory();
-//    bool bnoaa = segs->seglnoaa->imageMemory();
-//    bool bGAC = segs->seglgac->imageMemory();
-//    bool bHRP = segs->seglhrp->imageMemory();
-//    bool bVIIRS = segs->seglviirs->imageMemory();
-
-
-//    qDebug() << QString("metop segments memory = %1").arg(bmetop);
-//    qDebug() << QString("noaa segments memory = %1").arg(bnoaa);
-//    qDebug() << QString("hrp segments memory = %1").arg(bHRP);
-//    qDebug() << QString("gac segments memory = %1").arg(bGAC);
-//    qDebug() << QString("viirs segments memory = %1").arg(bVIIRS);
-//}
-
-
 void FormToolbox::on_sliCLAHE_sliderMoved(int position)
 {
     opts.clahecliplimit = float(position)/10;
@@ -2456,7 +2506,14 @@ void FormToolbox::createFilenamestring(QString sat, QString d, QVector<QString> 
 
 }
 
-void FormToolbox::on_btnTest_clicked()
+
+void FormToolbox::on_cbProjResolutions_currentIndexChanged(int index)
 {
-    segs->seglviirs->testLonLat();
+    qDebug() << QString("on_cbProjResolutions_currentIndexChanged(int index) = %1").arg(index);
+    if(index > 0)
+    {
+        ui->spbMapWidth->setValue(resolutionX.at(index-1));
+        ui->spbMapHeight->setValue(resolutionY.at(index-1));
+    }
+
 }

@@ -146,54 +146,6 @@ bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QStr
     return true;
 }
 
-
-//// apparently HDF5 is not thread safe , so this will not work for VIS_IR Color......
-//bool SegmentListGeostationary::ComposeImageHDF(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector)
-//{
-
-//    //"Z_SATE_C_BABJ_20150809101500_O_FY2E_FDI_IR1_001_NOM.HDF.gz"
-//    int filesequence = 1;
-//    QString filespectrum = fileinfo.fileName().mid(40, 3);
-//    QString filedate = fileinfo.fileName().mid(14, 12);
-
-//    qDebug() << QString("SegmentListGeostationary::ComposeImageHDF filePath = %1").arg(fileinfo.filePath());
-//    qDebug() << QString("SegmentListGeostationary::ComposeImageHDF spectrumvector = %1 %2 %3").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
-
-//    if(kindofimage == "VIS_IR" || kindofimage == "VIS_IR Color")
-//    {
-//        if( spectrumvector.at(1) == "" && spectrumvector.at(2) == "")
-//        {
-//            QFuture<void> future = QtConcurrent::run(doComposeGeostationaryHDF, this, fileinfo.filePath(), 0, spectrumvector, inversevector);
-//            watcherRed[filesequence].setFuture(future);
-//        }
-//        else
-//        {
-//            if(spectrumvector.at(0) == filespectrum)
-//            {
-//                QFuture<void> future = QtConcurrent::run(doComposeGeostationaryHDF, this, fileinfo.filePath(), 0, spectrumvector, inversevector);
-//                watcherRed[filesequence].setFuture(future);
-//            }
-//            else if(spectrumvector.at(1) == filespectrum)
-//            {
-//                QFuture<void> future = QtConcurrent::run(doComposeGeostationaryHDF, this, fileinfo.filePath(), 1, spectrumvector, inversevector);
-//                watcherGreen[filesequence].setFuture(future);
-//            }
-//            else if(spectrumvector.at(2) == filespectrum)
-//            {
-//                QFuture<void> future = QtConcurrent::run(doComposeGeostationaryHDF, this, fileinfo.filePath(), 2, spectrumvector, inversevector);
-//                watcherBlue[filesequence].setFuture(future);
-//            }
-//        }
-//    } else if(kindofimage == "HRV")
-//    {
-//            QFuture<void> future = QtConcurrent::run(doComposeGeostationaryHDF, this, fileinfo.filePath(), 0, spectrumvector, inversevector);
-//            watcherRed[filesequence].setFuture(future);
-
-//    }
-
-//    return true;
-//}
-
 bool SegmentListGeostationary::ComposeImageHDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
 

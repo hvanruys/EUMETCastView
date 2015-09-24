@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabAVHHR">
       <attribute name="title">
@@ -2659,6 +2659,36 @@
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_69">
+         <item>
+          <widget class="QLabel" name="label_35">
+           <property name="text">
+            <string>Projection resolutions</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cbProjResolutions"/>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_12">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QLabel" name="label_9">
          <property name="frameShape">
           <enum>QFrame::Box</enum>
@@ -3399,8 +3429,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>305</width>
-                 <height>256</height>
+                 <width>301</width>
+                 <height>399</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -3587,13 +3617,6 @@
                    <widget class="QPushButton" name="btnGVPHome">
                     <property name="text">
                      <string>Home</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="btnTest">
-                    <property name="text">
-                     <string>Test</string>
                     </property>
                    </widget>
                   </item>

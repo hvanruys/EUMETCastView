@@ -17,7 +17,6 @@ public:
     bool ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     //bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    void testLonLat();
     void SmoothVIIRSImage();
     static void doReadSegmentInMemoryVIIRS(Segment *t);
     static void doComposeSegmentImageVIIRS(Segment *t);
@@ -36,14 +35,10 @@ protected:
 
     QFutureWatcher<void> *watcherreadviirs;
     QFutureWatcher<void> *watchercomposeviirs;
-    QFutureWatcher<void> *watchergeolookup;
 
 protected slots:
     void readfinishedviirs();
     void composefinishedviirs();
-    void finishedgeolookup();
-
-    void progressgeolookup(int progress);
     void progressreadvalue(int progress);
     void viirsFinished();
 signals:

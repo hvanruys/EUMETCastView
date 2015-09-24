@@ -43,6 +43,7 @@ private:
     void onButtonChannel(QString channel, bool bInverse);
     void onButtonColorHRV(QString type);
     bool eventFilter(QObject *target, QEvent *event);
+    int searchResolution(int mapwidth, int mapheight);
 
     AVHRRSatellite *segs;
 
@@ -51,6 +52,8 @@ private:
     SegmentListGeostationary::eGeoSatellite whichgeo;
     QStringList rowchosen;
     QString filenamecreated;
+    QVector<int> resolutionX;
+    QVector<int> resolutionY;
 
 
 public slots:
@@ -163,7 +166,7 @@ private slots:
     void on_rbtnACh5_clicked();
     void on_btnTextureVIIRS_clicked();
     void on_sliCLAHE_sliderMoved(int position);
-    void on_btnTest_clicked();
+    void on_cbProjResolutions_currentIndexChanged(int index);
 };
 
 #endif // FORMTOOLBOX_H
