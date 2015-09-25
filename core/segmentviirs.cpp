@@ -52,7 +52,8 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
 
     this->earth_views_per_scanline = 3200;
 
-    Satellite nss_2 = satlist->GetSatellite(37849);
+    Satellite nss_2;
+    ok = satlist->GetSatellite(37849, &nss_2);
     line1 = nss_2.line1;
     line2 = nss_2.line2;
 

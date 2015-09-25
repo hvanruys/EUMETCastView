@@ -27,7 +27,7 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
     Segment(parent)
 {
     bool ok;
-    //qDebug() << "in creator SegmentMetop";
+    qDebug() << "in creator SegmentMetop";
     satlist = satl;
     fileInfo.setFile(*filesegment);
 
@@ -58,9 +58,15 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
     Satellite metop_sat;
 
     if(fileInfo.fileName().mid(0,15) == "AVHR_xxx_1B_M02")  // Metop-A
-        metop_sat = satlist->GetSatellite(29499);
+        ok = satlist->GetSatellite(29499, &metop_sat);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_xxx_1B_M01") // Metop-B
-        metop_sat = satlist->GetSatellite(38771);
+        ok = satlist->GetSatellite(38771, &metop_sat);
+
+    if(!ok)
+    {
+        qInfo() << "EUMETCastView needs TLE's";
+        return;
+    }
 
     line1 = metop_sat.line1;
     line2 = metop_sat.line2;

@@ -709,7 +709,7 @@ void SegmentList::composefinished()
 */
 
     emit segmentlistfinished();
-    emit progressCounter(99);
+    emit progressCounter(100);
 
 }
 

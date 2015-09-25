@@ -16,7 +16,9 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
   QObject(parent)
 {
 
+
     qDebug() << QString("constructor AVHRRSatellite");
+
     satlist = satl;
 
     segmentlistmetop = new SegmentListMetop();
@@ -649,7 +651,11 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 {
     QFileInfoList fileinfolist; // QList<QFileInfo>
 
-    qDebug() << QString("in AVHRRSatellite:ReadDirectories(QDate, int)");
+    bool noaaTle = false;
+    bool metopTle = false;
+    bool nppTle = false;
+
+    qDebug() << QString("in AVHRRSatellite:ReadDirectories(QDate, int) hoursbefore = %1").arg(hoursbefore);
 
     QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
 
@@ -723,7 +729,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         segmentdir.setFilter(QDir::Files | QDir::NoSymLinks);
                         segmentdir.setSorting(QDir::Name); //::Time);
                         fileinfolist = segmentdir.entryInfoList();
-                        qDebug() << QString("fileinfolist.size = %1 in subdir thepath").arg(fileinfolist.size());
+                        qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepath);
                     }
                 }
 
@@ -736,7 +742,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     segmentdir.setFilter(QDir::Files | QDir::NoSymLinks);
                     segmentdir.setSorting(QDir::Name); //::Time);
                     fileinfolist.append(segmentdir.entryInfoList());
-                    qDebug() << QString("fileinfolist.size = %1 in subdir thepath").arg(fileinfolist.size());
+                    qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepath);
                 }
 
                 QMap<QString, QFileInfo> map;
@@ -746,6 +752,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     //avhrr_20130701_151100_noaa19
                     if (fileinfo.fileName().mid( 0, 6) == "avhrr_" && fileinfo.fileName().mid( 22, 6) == "noaa19")
                     {
+                        noaaTle = true;
                         QDate d(fileinfo.fileName().mid( 6, 4).toInt(), fileinfo.fileName().mid( 10, 2).toInt(), fileinfo.fileName().mid( 12, 2).toInt());
                         filedate.setDate(d);
                         QTime t(fileinfo.fileName().mid( 15, 2).toInt(), fileinfo.fileName().mid( 17, 2).toInt(), fileinfo.fileName().mid( 19, 2).toInt());
@@ -761,6 +768,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                              fileinfo.fileName().mid( 0, 11) == "AVHR_HRP_00" ||
                              fileinfo.fileName().mid( 0, 11) == "AVHR_xxx_1B")
                     {
+                        metopTle = true;
                         QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
                         filedate.setDate(d);
                         QTime t(fileinfo.fileName().mid( 24, 2).toInt(), fileinfo.fileName().mid( 26, 2).toInt(), fileinfo.fileName().mid( 28, 2).toInt());
@@ -772,6 +780,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
                     else if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp")
                     {
+                        nppTle = true;
                         QDate d(fileinfo.fileName().mid( 10, 4).toInt(), fileinfo.fileName().mid( 14, 2).toInt(), fileinfo.fileName().mid( 16, 2).toInt());
                         filedate.setDate(d);
                         QTime t(fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt());
@@ -872,6 +881,56 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     }
 
                 }
+
+                if(metopTle)
+                {
+                    bool ok1 = false, ok2 = false;
+                    Satellite metop_sat;
+                    ok1 = satlist->GetSatellite(29499, &metop_sat);
+                    ok2 = satlist->GetSatellite(38771, &metop_sat);
+                    if (ok1 == false || ok2 == false)
+                    {
+                        QApplication::restoreOverrideCursor();
+                        QMessageBox msgBox;
+                        msgBox.setText("Need the Metop TLE's.");
+                        msgBox.exec();
+
+                        return;
+                    }
+                }
+
+                if(nppTle)
+                {
+                    bool ok = false;
+                    Satellite nppsat;
+                    ok = satlist->GetSatellite(37849, &nppsat);
+                    if (ok == false)
+                    {
+                        QApplication::restoreOverrideCursor();
+                        QMessageBox msgBox;
+                        msgBox.setText("Need the Suomi TLE's.");
+                        msgBox.exec();
+
+                        return;
+                    }
+                }
+
+                if(noaaTle)
+                {
+                    bool ok = false;
+                    Satellite noaasat;
+                    ok = satlist->GetSatellite(33591, &noaasat);
+                    if (ok == false)
+                    {
+                        QApplication::restoreOverrideCursor();
+                        QMessageBox msgBox;
+                        msgBox.setText("Need the Noaa TLE's.");
+                        msgBox.exec();
+
+                        return;
+                    }
+                }
+
 
                 fileinfolist = map.values();
 

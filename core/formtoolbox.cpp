@@ -109,6 +109,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     listResolution << "4:3  SXGA  1280x960";
     listResolution << "4:3  SVGA+ 1400x1050";
     listResolution << "4:3  UXGA  1600x1200";
+    listResolution << "4:3  ----  3200x2400";
     listResolution << "16:9 WXGA  1280x720";
     listResolution << "16:9 HD    1360x768";
     listResolution << "16:9 HD+   1600x900";
@@ -124,6 +125,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     resolutionX.append(1280);
     resolutionX.append(1400);
     resolutionX.append(1600);
+    resolutionX.append(3200);
     resolutionX.append(1280);
     resolutionX.append(1360);
     resolutionX.append(1600);
@@ -138,6 +140,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     resolutionY.append(960);
     resolutionY.append(1050);
     resolutionY.append(1200);
+    resolutionY.append(2400);
     resolutionY.append(720);
     resolutionY.append(768);
     resolutionY.append(900);

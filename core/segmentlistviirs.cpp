@@ -311,7 +311,7 @@ bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> 
     QApplication::restoreOverrideCursor();
 
     emit segmentlistfinished();
-    emit progressCounter(99);
+    emit progressCounter(100);
 
 
     return true;
@@ -413,7 +413,7 @@ void SegmentListVIIRS::composefinishedviirs()
 
     //SmoothVIIRSImage();
 
-    emit progressCounter(99);
+    emit progressCounter(100);
 
     delete watchercomposeviirs;
     opts.texture_changed = true;
@@ -513,7 +513,7 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
     QApplication::restoreOverrideCursor();
 
     emit segmentlistfinished();
-    emit progressCounter(99);
+    emit progressCounter(100);
 }
 
 void SegmentListVIIRS::CalculateLUT()

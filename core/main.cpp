@@ -19,15 +19,64 @@ Options opts;
 SegmentImage *imageptrs;
 gshhsData *gshhsdata;
 
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+
+
+#ifdef NDEBUG
+   // release mode code
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr, "Release Debug: %s\n", localMsg.constData());
+        break;
+    case QtInfoMsg:
+        fprintf(stderr, "Release Info: %s\n", localMsg.constData());
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Release Warning: %s\n", localMsg.constData());
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Release Critical: %s\n", localMsg.constData());
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Release Fatal: %s\n", localMsg.constData());
+        abort();
+    }
+#else
+  // debug mode code
+
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr, "Debug Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtInfoMsg:
+        fprintf(stderr, "Debug Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Debug Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Debug Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Debug Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        abort();
+    }
+#endif
+
+}
 
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(myMessageOutput);
+
     QApplication app(argc, argv);
 
     QStringList styles = QStyleFactory::keys();
 
     for (int i = 0; i < styles.size(); ++i)
-             qDebug() << styles.at(i);
+             qInfo() << styles.at(i);
 
     app.setStyle(QStyleFactory::create("Fusion"));
 

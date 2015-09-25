@@ -884,23 +884,48 @@ void SatelliteList::GetSatelliteEphem(const int catnbr, double *deg_lon, double 
     }
 }
 
-Satellite SatelliteList::GetSatellite(const int catnbr)
+//Satellite SatelliteList::GetSatellite(const int catnbr, bool *ok)
+//{
+
+//    *ok = false;
+
+//    if (satlist.count() > 0)
+//    {
+//        QList<Satellite>::iterator sat = satlist.begin();
+
+//        while ( sat != satlist.end() )
+//        {
+//            if((*sat).catnr == catnbr)
+//            {
+//                *ok = true;
+//                return (*sat);
+//            }
+//            ++sat;
+//        }
+//    }
+
+//}
+
+bool SatelliteList::GetSatellite(const int catnbr, Satellite *sat)
 {
+
 
     if (satlist.count() > 0)
     {
-        QList<Satellite>::iterator sat = satlist.begin();
+        QList<Satellite>::iterator itsat = satlist.begin();
 
-        while ( sat != satlist.end() )
+        while ( itsat != satlist.end() )
         {
-             if((*sat).catnr == catnbr)
+            if((*itsat).catnr == catnbr)
             {
-                return (*sat);
+                *sat = *itsat;
+                return true;
             }
-            ++sat;
+            ++itsat;
         }
     }
 
+    return false;
 }
 
 bool SatelliteList::SatExistInList(const int catnr)

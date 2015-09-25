@@ -157,6 +157,8 @@ else:win32:LIBS += \
     -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5
 }
 
+CONFIG(release, debug|release): DEFINES += NDEBUG
+
 DISTFILES += \
     EUMETCastView.ini \
     images/NE2_50M_SR_W_4096.jpg \

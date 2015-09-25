@@ -94,7 +94,8 @@ public:
     void TestForSat(int x, int y);
     void TestForSatGL(int x, int y);
 
-    Satellite GetSatellite(const int catnr);
+    //Satellite GetSatellite(const int catnr, bool *ok);
+    bool GetSatellite(const int catnr, Satellite *sat);
     bool SatExistInList(const int catnr);
     QList<Satellite>  *GetSatlist(void) { return(& satlist); }
 

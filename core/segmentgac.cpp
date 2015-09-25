@@ -52,7 +52,10 @@ SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent)
 
     this->earth_views_per_scanline = 409;
 
-    Satellite noaa19 = satlist->GetSatellite(33591);
+
+    Satellite noaa19;
+    ok = satlist->GetSatellite(33591, &noaa19);
+
     line1 = noaa19.line1;
     line2 = noaa19.line2;
 

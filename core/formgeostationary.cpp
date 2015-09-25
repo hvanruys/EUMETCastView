@@ -745,6 +745,7 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
 void FormGeostationary::PopulateTree()
 {
 
+    qDebug() << "FormGeostationary::PopulateTree()";
     PopulateTreeGeo(SegmentListGeostationary::MET_10, segs->segmentlistmapmeteosat, ui->SegmenttreeWidget);
     PopulateTreeGeo(SegmentListGeostationary::MET_9, segs->segmentlistmapmeteosatrss, ui->SegmenttreeWidgetRSS);
     PopulateTreeGeo(SegmentListGeostationary::MET_7, segs->segmentlistmapmet7, ui->SegmenttreeWidgetMet7);
