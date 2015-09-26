@@ -61,7 +61,13 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->btnOverlayProjectionLCC->setText("Overlay On");
     ui->btnOverlayProjectionSG->setText(("Overlay On"));
 
-    ui->rdbAVHRRin->setChecked(true);
+    if(opts.lastinputprojection == 0)
+        ui->rdbAVHRRin->setChecked(true);
+    else if(opts.lastinputprojection == 1)
+        ui->rdbVIIRSin->setChecked(true);
+    else
+        ui->rdbMeteosatin->setChecked(true);
+
     ui->cmbHRVtype->addItem("Europe");
     ui->cmbHRVtype->addItem("Full");
 
@@ -89,8 +95,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     inversevector.append(false);
     inversevector.append(false);
 
-    ui->tabWidget->setCurrentIndex(2);
-    ui->toolBox->setCurrentIndex(0);
+    ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
+    ui->toolBox->setCurrentIndex(opts.currenttoolbox); // in projection tab
 
     ui->scbLCCMapLeftRight->blockSignals(true);
     ui->scbLCCMapUpDown->blockSignals(true);
@@ -167,7 +173,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->btnLCCMapEast->installEventFilter(this);
     ui->btnLCCMapWest->installEventFilter(this);
 
-    ui->rbColorVIIRS->setChecked(true);
 
     ui->rbtnAColor->setChecked(true);
     opts.channelontexture = 6; // color channel
@@ -189,6 +194,72 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
+
+    if(opts.lastVIIRSband == 0)
+        ui->rbColorVIIRS->setChecked(true);
+    else if(opts.lastVIIRSband == 1)
+        ui->rbM1->setChecked(true);
+    else if(opts.lastVIIRSband == 2)
+        ui->rbM2->setChecked(true);
+    else if(opts.lastVIIRSband == 3)
+        ui->rbM3->setChecked(true);
+    else if(opts.lastVIIRSband == 4)
+        ui->rbM4->setChecked(true);
+    else if(opts.lastVIIRSband == 5)
+        ui->rbM5->setChecked(true);
+    else if(opts.lastVIIRSband == 6)
+        ui->rbM6->setChecked(true);
+    else if(opts.lastVIIRSband == 7)
+        ui->rbM7->setChecked(true);
+    else if(opts.lastVIIRSband == 8)
+        ui->rbM8->setChecked(true);
+    else if(opts.lastVIIRSband == 9)
+        ui->rbM9->setChecked(true);
+    else if(opts.lastVIIRSband == 10)
+        ui->rbM10->setChecked(true);
+    else if(opts.lastVIIRSband == 11)
+        ui->rbM11->setChecked(true);
+    else if(opts.lastVIIRSband == 12)
+        ui->rbM12->setChecked(true);
+    else if(opts.lastVIIRSband == 13)
+        ui->rbM13->setChecked(true);
+    else if(opts.lastVIIRSband == 14)
+        ui->rbM14->setChecked(true);
+    else if(opts.lastVIIRSband == 15)
+        ui->rbM15->setChecked(true);
+    else if(opts.lastVIIRSband == 16)
+        ui->rbM16->setChecked(true);
+
+
+    ui->comboMet006->setCurrentIndex(opts.lastcomboMet006);
+    ui->comboMet008->setCurrentIndex(opts.lastcomboMet008);
+    ui->comboMet016->setCurrentIndex(opts.lastcomboMet016);
+    ui->comboMet039->setCurrentIndex(opts.lastcomboMet039);
+    ui->comboMet062->setCurrentIndex(opts.lastcomboMet062);
+    ui->comboMet073->setCurrentIndex(opts.lastcomboMet073);
+    ui->comboMet087->setCurrentIndex(opts.lastcomboMet087);
+    ui->comboMet097->setCurrentIndex(opts.lastcomboMet097);
+    ui->comboMet108->setCurrentIndex(opts.lastcomboMet108);
+    ui->comboMet120->setCurrentIndex(opts.lastcomboMet120);
+    ui->comboMet134->setCurrentIndex(opts.lastcomboMet134);
+
+
+    ui->comboM1->setCurrentIndex(opts.lastcomboM1);
+    ui->comboM2->setCurrentIndex(opts.lastcomboM2);
+    ui->comboM3->setCurrentIndex(opts.lastcomboM3);
+    ui->comboM4->setCurrentIndex(opts.lastcomboM4);
+    ui->comboM5->setCurrentIndex(opts.lastcomboM5);
+    ui->comboM6->setCurrentIndex(opts.lastcomboM6);
+    ui->comboM7->setCurrentIndex(opts.lastcomboM7);
+    ui->comboM8->setCurrentIndex(opts.lastcomboM8);
+    ui->comboM9->setCurrentIndex(opts.lastcomboM9);
+    ui->comboM10->setCurrentIndex(opts.lastcomboM10);
+    ui->comboM11->setCurrentIndex(opts.lastcomboM11);
+    ui->comboM12->setCurrentIndex(opts.lastcomboM12);
+    ui->comboM13->setCurrentIndex(opts.lastcomboM13);
+    ui->comboM14->setCurrentIndex(opts.lastcomboM14);
+    ui->comboM15->setCurrentIndex(opts.lastcomboM15);
+    ui->comboM16->setCurrentIndex(opts.lastcomboM16);
 
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
 
@@ -825,6 +896,78 @@ void FormToolbox::setChannelIndex()
 
 FormToolbox::~FormToolbox()
 {
+    qDebug() << "closing FormToolbox::~FormToolbox()";
+    if(ui->rdbAVHRRin->isChecked())
+        opts.lastinputprojection = 0;
+    else if(ui->rdbVIIRSin->isChecked())
+        opts.lastinputprojection = 1;
+    else
+        opts.lastinputprojection = 2;
+
+    if(ui->rbColorVIIRS->isChecked())
+        opts.lastVIIRSband = 0;
+    else if(ui->rbM1->isChecked())
+        opts.lastVIIRSband = 1;
+    else if(ui->rbM2->isChecked())
+        opts.lastVIIRSband = 2;
+    else if(ui->rbM3->isChecked())
+        opts.lastVIIRSband = 3;
+    else if(ui->rbM4->isChecked())
+        opts.lastVIIRSband = 4;
+    else if(ui->rbM5->isChecked())
+        opts.lastVIIRSband = 5;
+    else if(ui->rbM6->isChecked())
+        opts.lastVIIRSband = 6;
+    else if(ui->rbM7->isChecked())
+        opts.lastVIIRSband = 7;
+    else if(ui->rbM8->isChecked())
+        opts.lastVIIRSband = 8;
+    else if(ui->rbM9->isChecked())
+        opts.lastVIIRSband = 9;
+    else if(ui->rbM10->isChecked())
+        opts.lastVIIRSband = 10;
+    else if(ui->rbM11->isChecked())
+        opts.lastVIIRSband = 11;
+    else if(ui->rbM12->isChecked())
+        opts.lastVIIRSband = 12;
+    else if(ui->rbM13->isChecked())
+        opts.lastVIIRSband = 13;
+    else if(ui->rbM14->isChecked())
+        opts.lastVIIRSband = 14;
+    else if(ui->rbM15->isChecked())
+        opts.lastVIIRSband = 15;
+    else if(ui->rbM16->isChecked())
+        opts.lastVIIRSband = 16;
+
+    opts.lastcomboMet006 = ui->comboMet006->currentIndex();
+    opts.lastcomboMet008 = ui->comboMet008->currentIndex();
+    opts.lastcomboMet016 = ui->comboMet016->currentIndex();
+    opts.lastcomboMet039 = ui->comboMet039->currentIndex();
+    opts.lastcomboMet062 = ui->comboMet062->currentIndex();
+    opts.lastcomboMet073 = ui->comboMet073->currentIndex();
+    opts.lastcomboMet087 = ui->comboMet087->currentIndex();
+    opts.lastcomboMet097 = ui->comboMet097->currentIndex();
+    opts.lastcomboMet108 = ui->comboMet108->currentIndex();
+    opts.lastcomboMet120 = ui->comboMet120->currentIndex();
+    opts.lastcomboMet134 = ui->comboMet134->currentIndex();
+
+    opts.lastcomboM1 = ui->comboM1->currentIndex();
+    opts.lastcomboM2 = ui->comboM2->currentIndex();
+    opts.lastcomboM3 = ui->comboM3->currentIndex();
+    opts.lastcomboM4 = ui->comboM4->currentIndex();
+    opts.lastcomboM5 = ui->comboM5->currentIndex();
+    opts.lastcomboM6 = ui->comboM6->currentIndex();
+    opts.lastcomboM7 = ui->comboM7->currentIndex();
+    opts.lastcomboM8 = ui->comboM8->currentIndex();
+    opts.lastcomboM9 = ui->comboM9->currentIndex();
+    opts.lastcomboM10 = ui->comboM10->currentIndex();
+    opts.lastcomboM11 = ui->comboM11->currentIndex();
+    opts.lastcomboM12 = ui->comboM12->currentIndex();
+    opts.lastcomboM13 = ui->comboM13->currentIndex();
+    opts.lastcomboM14 = ui->comboM14->currentIndex();
+    opts.lastcomboM15 = ui->comboM15->currentIndex();
+    opts.lastcomboM16 = ui->comboM16->currentIndex();
+
     delete ui;
 }
 
@@ -1636,6 +1779,9 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
         formimage->displayImage(9);
         emit screenupdateprojection();
     }
+
+    opts.currenttabwidget = ui->tabWidget->currentIndex();
+    opts.currenttoolbox = ui->toolBox->currentIndex();
 }
 
 void FormToolbox::on_chkShowLambert_stateChanged(int arg1)

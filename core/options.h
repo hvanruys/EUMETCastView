@@ -113,7 +113,8 @@ public:
     bool gshhsglobe3On;
     bool graytextureOn;
 
-    int currenttoolbox;
+    int currenttoolbox; // LLC - GVP - Stereographic
+    int currenttabwidget; // AVHRR - VIIRS - Geostationary - Projections
     int parallel1;
     int parallel2;
     int centralmeridian;
@@ -157,6 +158,36 @@ public:
     bool fbo_changed;
     bool texture_changed;
     bool bPhongModel;
+    int lastcomboMet006;
+    int lastcomboMet008;
+    int lastcomboMet016;
+    int lastcomboMet039;
+    int lastcomboMet062;
+    int lastcomboMet073;
+    int lastcomboMet087;
+    int lastcomboMet097;
+    int lastcomboMet108;
+    int lastcomboMet120;
+    int lastcomboMet134;
+
+    int lastinputprojection;
+    int lastVIIRSband;
+    int lastcomboM1;
+    int lastcomboM2;
+    int lastcomboM3;
+    int lastcomboM4;
+    int lastcomboM5;
+    int lastcomboM6;
+    int lastcomboM7;
+    int lastcomboM8;
+    int lastcomboM9;
+    int lastcomboM10;
+    int lastcomboM11;
+    int lastcomboM12;
+    int lastcomboM13;
+    int lastcomboM14;
+    int lastcomboM15;
+    int lastcomboM16;
 
 }; 
 

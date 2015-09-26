@@ -166,6 +166,7 @@ void Options::Initialize()
         zoomfactorviirs = 100;
 
     currenttoolbox = settings.value("/parameters/currenttoolbox", 0).toInt();
+    currenttabwidget = settings.value("/parameters/currenttabwidget", 0).toInt();
     parallel1 = settings.value("/parameters/parallel1", 20).toInt();
     parallel2 = settings.value("/parameters/parallel2", 60).toInt();
     centralmeridian = settings.value("/parameters/centralmeridian", 0).toInt();
@@ -204,7 +205,37 @@ void Options::Initialize()
 
     clahecliplimit = settings.value("/parameters/clahecliplimit", 1.0).toFloat();
 
-    qDebug() << QString("smoothprojectionimage = %1").arg(smoothprojectionimage);
+    lastinputprojection = settings.value("/window/lastinputprojection", 0 ).toInt();
+
+    lastcomboMet006 = settings.value("/window/comboMet006", 0 ).toInt();;
+    lastcomboMet008 = settings.value("/window/comboMet008", 0 ).toInt();
+    lastcomboMet016 = settings.value("/window/comboMet016", 0 ).toInt();
+    lastcomboMet039 = settings.value("/window/comboMet039", 0 ).toInt();
+    lastcomboMet062 = settings.value("/window/comboMet062", 0 ).toInt();
+    lastcomboMet073 = settings.value("/window/comboMet073", 0 ).toInt();
+    lastcomboMet087 = settings.value("/window/comboMet087", 0 ).toInt();
+    lastcomboMet097 = settings.value("/window/comboMet097", 0 ).toInt();
+    lastcomboMet108 = settings.value("/window/comboMet108", 0 ).toInt();
+    lastcomboMet120 = settings.value("/window/comboMet120", 0 ).toInt();
+    lastcomboMet134 = settings.value("/window/comboMet134", 0 ).toInt();
+
+    lastVIIRSband = settings.value("/window/viirsband", 0 ).toInt();
+    lastcomboM1 = settings.value("/window/comboM1", 0 ).toInt();
+    lastcomboM2 = settings.value("/window/comboM2", 0 ).toInt();
+    lastcomboM3 = settings.value("/window/comboM3", 0 ).toInt();
+    lastcomboM4 = settings.value("/window/comboM4", 0 ).toInt();
+    lastcomboM5 = settings.value("/window/comboM5", 0 ).toInt();
+    lastcomboM6 = settings.value("/window/comboM6", 0 ).toInt();
+    lastcomboM7 = settings.value("/window/comboM7", 0 ).toInt();
+    lastcomboM8 = settings.value("/window/comboM8", 0 ).toInt();
+    lastcomboM9 = settings.value("/window/comboM9", 0 ).toInt();
+    lastcomboM10 = settings.value("/window/comboM10", 0 ).toInt();
+    lastcomboM11 = settings.value("/window/comboM11", 0 ).toInt();
+    lastcomboM12 = settings.value("/window/comboM12", 0 ).toInt();
+    lastcomboM13 = settings.value("/window/comboM13", 0 ).toInt();
+    lastcomboM14 = settings.value("/window/comboM14", 0 ).toInt();
+    lastcomboM15 = settings.value("/window/comboM15", 0 ).toInt();
+    lastcomboM16 = settings.value("/window/comboM16", 0 ).toInt();
 
     checkStringListValues();
     fbo_changed = false;
@@ -253,7 +284,7 @@ void Options::checkStringListValues()
 void Options::Save()
 {
 
-    qDebug() << QString("writting ini file udpmessages = %1").arg(udpmessages);
+    qDebug() << QString("Saving Options ");
 
 //    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
 //                        "HugoSoft", "EUMETCastView");
@@ -394,7 +425,9 @@ void Options::Save()
     settings.setValue("/window/zoomfactorviirs", zoomfactorviirs );
 
 
+    qDebug() << QString("saving currenttoolbox = %1 currenttabwidget = %2").arg(currenttoolbox).arg(currenttabwidget);
     settings.setValue("/parameters/currenttoolbox", currenttoolbox);
+    settings.setValue("/parameters/currenttabwidget", currenttabwidget);
     settings.setValue("/parameters/parallel1", parallel1);
     settings.setValue("/parameters/parallel2", parallel2);
     settings.setValue("/parameters/centralmeridian", centralmeridian);
@@ -435,21 +468,37 @@ void Options::Save()
     settings.setValue( "/satellite/geostationarylistlon", geostationarylistlon );
     settings.setValue( "/satellite/geostationarylistname", geostationarylistname );
 
+    settings.setValue( "/window/comboMet006", lastcomboMet006);
+    settings.setValue( "/window/comboMet008", lastcomboMet008);
+    settings.setValue( "/window/comboMet016", lastcomboMet016);
+    settings.setValue( "/window/comboMet039", lastcomboMet039);
+    settings.setValue( "/window/comboMet062", lastcomboMet062);
+    settings.setValue( "/window/comboMet073", lastcomboMet073);
+    settings.setValue( "/window/comboMet087", lastcomboMet087);
+    settings.setValue( "/window/comboMet097", lastcomboMet097);
+    settings.setValue( "/window/comboMet108", lastcomboMet108);
+    settings.setValue( "/window/comboMet120", lastcomboMet120);
+    settings.setValue( "/window/comboMet134", lastcomboMet134);
 
+    settings.setValue( "/window/lastinputprojection", lastinputprojection );
+    settings.setValue( "/window/viirsband", lastVIIRSband);
+    settings.setValue( "/window/comboM1", lastcomboM1);
+    settings.setValue( "/window/comboM2", lastcomboM2);
+    settings.setValue( "/window/comboM3", lastcomboM3);
+    settings.setValue( "/window/comboM4", lastcomboM4);
+    settings.setValue( "/window/comboM5", lastcomboM5);
+    settings.setValue( "/window/comboM6", lastcomboM6);
+    settings.setValue( "/window/comboM7", lastcomboM7);
+    settings.setValue( "/window/comboM8", lastcomboM8);
+    settings.setValue( "/window/comboM9", lastcomboM9);
+    settings.setValue( "/window/comboM10", lastcomboM10);
+    settings.setValue( "/window/comboM11", lastcomboM11);
+    settings.setValue( "/window/comboM12", lastcomboM12);
+    settings.setValue( "/window/comboM13", lastcomboM13);
+    settings.setValue( "/window/comboM14", lastcomboM14);
+    settings.setValue( "/window/comboM15", lastcomboM15);
+    settings.setValue( "/window/comboM16", lastcomboM16);
 
-
-//  char buf[20];
-//
-//  sprintf( buf, "%d", windowwidth);
-//  WritePrivateProfileString( "window", "width", buf, ".\\qttrack.ini");
-//  sprintf( buf, "%d", windowheight);
-//  WritePrivateProfileString( "window", "height", buf, ".\\qttrack.ini");
-//  sprintf( buf, "%d", az_zoom);
-//  WritePrivateProfileString( "window", "az_zoom", buf, ".\\qttrack.ini");
-//
-//
-//  WritePrivateProfileString( "satellite", "tlefiles", tlelist.join(",").latin1(), ".\\qttrack.ini");
-//  WritePrivateProfileString( "satellite", "catnrs", catnbrlist.join(",").latin1(), ".\\qttrack.ini");
 }
 
 void Options::deleteTleFile( QString sel )

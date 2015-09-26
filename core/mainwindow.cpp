@@ -268,6 +268,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     opts.mainwindowgeometry = saveGeometry();
     opts.windowstate = saveState(0);
 
+
     //settings.setValue("geometry", saveGeometry());
     //settings.setValue("windowState", saveState());
     QMainWindow::closeEvent(event);
@@ -279,6 +280,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete timer;
 
+    delete formtoolbox;
     delete formephem;
     delete formglobecyl;
     delete cylequidist;

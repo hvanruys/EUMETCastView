@@ -684,7 +684,10 @@ void SegmentHRP::ComposeProjection(int inputchannel, eProjections proj)
         double yaw_factor = 0.068766 * cos(PSO);
         double yaw = yaw_factor * (1 - yaw_factor * yaw_factor/3);
 
-        // qDebug() << QString("nbrline = %1 Pitch = %2  Roll = %3 Yaw = %4").arg(nbrLine).arg(pitch).arg(roll).arg(yaw);
+        roll *= 2;
+
+        if( nbrLine == 0 || nbrLine == this->NbrOfLines - 1)
+            qDebug() << QString("nbrline = %1 Pitch = %2  Roll = %3 Yaw = %4").arg(nbrLine).arg(pitch).arg(roll).arg(yaw);
 
         this->RenderSegmentlineInProjectionAlternative(inputchannel, startheight + nbrLine, eciref, angular_velocity, pitch, roll, yaw + yawcorrection, proj);
         //this->RenderSegmentlineInProjection(inputchannel, startheight + nbrLine, eciref, angular_velocity, proj );
