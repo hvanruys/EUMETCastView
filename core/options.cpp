@@ -206,6 +206,7 @@ void Options::Initialize()
     clahecliplimit = settings.value("/parameters/clahecliplimit", 1.0).toFloat();
 
     lastinputprojection = settings.value("/window/lastinputprojection", 0 ).toInt();
+    lastVIIRSband = settings.value("/window/viirsband", 0 ).toInt();
 
     lastcomboMet006 = settings.value("/window/comboMet006", 0 ).toInt();;
     lastcomboMet008 = settings.value("/window/comboMet008", 0 ).toInt();
@@ -219,7 +220,20 @@ void Options::Initialize()
     lastcomboMet120 = settings.value("/window/comboMet120", 0 ).toInt();
     lastcomboMet134 = settings.value("/window/comboMet134", 0 ).toInt();
 
-    lastVIIRSband = settings.value("/window/viirsband", 0 ).toInt();
+
+    lastinverseMet006 = settings.value("/window/inverseMet006", false ).toBool();;
+    lastinverseMet008 = settings.value("/window/inverseMet008", false ).toBool();
+    lastinverseMet016 = settings.value("/window/inverseMet016", false ).toBool();
+    lastinverseMet039 = settings.value("/window/inverseMet039", false ).toBool();
+    lastinverseMet062 = settings.value("/window/inverseMet062", false ).toBool();
+    lastinverseMet073 = settings.value("/window/inverseMet073", false ).toBool();
+    lastinverseMet087 = settings.value("/window/inverseMet087", false ).toBool();
+    lastinverseMet097 = settings.value("/window/inverseMet097", false ).toBool();
+    lastinverseMet108 = settings.value("/window/inverseMet108", false ).toBool();
+    lastinverseMet120 = settings.value("/window/inverseMet120", false ).toBool();
+    lastinverseMet134 = settings.value("/window/inverseMet134", false ).toBool();
+
+
     lastcomboM1 = settings.value("/window/comboM1", 0 ).toInt();
     lastcomboM2 = settings.value("/window/comboM2", 0 ).toInt();
     lastcomboM3 = settings.value("/window/comboM3", 0 ).toInt();
@@ -236,6 +250,25 @@ void Options::Initialize()
     lastcomboM14 = settings.value("/window/comboM14", 0 ).toInt();
     lastcomboM15 = settings.value("/window/comboM15", 0 ).toInt();
     lastcomboM16 = settings.value("/window/comboM16", 0 ).toInt();
+
+    lastinverseM1 = settings.value("/window/inverseM1", false ).toBool();
+    lastinverseM2 = settings.value("/window/inverseM2", false ).toBool();
+    lastinverseM3 = settings.value("/window/inverseM3", false ).toBool();
+    lastinverseM4 = settings.value("/window/inverseM4", false ).toBool();
+    lastinverseM5 = settings.value("/window/inverseM5", false ).toBool();
+    lastinverseM6 = settings.value("/window/inverseM6", false ).toBool();
+    lastinverseM7 = settings.value("/window/inverseM7", false ).toBool();
+    lastinverseM8 = settings.value("/window/inverseM8", false ).toBool();
+    lastinverseM9 = settings.value("/window/inverseM9", false ).toBool();
+    lastinverseM10 = settings.value("/window/inverseM10", false ).toBool();
+    lastinverseM11 = settings.value("/window/inverseM11", false ).toBool();
+    lastinverseM12 = settings.value("/window/inverseM12", false ).toBool();
+    lastinverseM13 = settings.value("/window/inverseM13", false ).toBool();
+    lastinverseM14 = settings.value("/window/inverseM14", false ).toBool();
+    lastinverseM15 = settings.value("/window/inverseM15", false ).toBool();
+    lastinverseM16 = settings.value("/window/inverseM16", false ).toBool();
+
+
 
     checkStringListValues();
     fbo_changed = false;
@@ -480,8 +513,21 @@ void Options::Save()
     settings.setValue( "/window/comboMet120", lastcomboMet120);
     settings.setValue( "/window/comboMet134", lastcomboMet134);
 
+    settings.setValue( "/window/inverseMet006", lastinverseMet006);
+    settings.setValue( "/window/inverseMet008", lastinverseMet008);
+    settings.setValue( "/window/inverseMet016", lastinverseMet016);
+    settings.setValue( "/window/inverseMet039", lastinverseMet039);
+    settings.setValue( "/window/inverseMet062", lastinverseMet062);
+    settings.setValue( "/window/inverseMet073", lastinverseMet073);
+    settings.setValue( "/window/inverseMet087", lastinverseMet087);
+    settings.setValue( "/window/inverseMet097", lastinverseMet097);
+    settings.setValue( "/window/inverseMet108", lastinverseMet108);
+    settings.setValue( "/window/inverseMet120", lastinverseMet120);
+    settings.setValue( "/window/inverseMet134", lastinverseMet134);
+
     settings.setValue( "/window/lastinputprojection", lastinputprojection );
     settings.setValue( "/window/viirsband", lastVIIRSband);
+
     settings.setValue( "/window/comboM1", lastcomboM1);
     settings.setValue( "/window/comboM2", lastcomboM2);
     settings.setValue( "/window/comboM3", lastcomboM3);
@@ -498,6 +544,23 @@ void Options::Save()
     settings.setValue( "/window/comboM14", lastcomboM14);
     settings.setValue( "/window/comboM15", lastcomboM15);
     settings.setValue( "/window/comboM16", lastcomboM16);
+
+    settings.setValue( "/window/inverseM1", lastinverseM1);
+    settings.setValue( "/window/inverseM2", lastinverseM2);
+    settings.setValue( "/window/inverseM3", lastinverseM3);
+    settings.setValue( "/window/inverseM4", lastinverseM4);
+    settings.setValue( "/window/inverseM5", lastinverseM5);
+    settings.setValue( "/window/inverseM6", lastinverseM6);
+    settings.setValue( "/window/inverseM7", lastinverseM7);
+    settings.setValue( "/window/inverseM8", lastinverseM8);
+    settings.setValue( "/window/inverseM9", lastinverseM9);
+    settings.setValue( "/window/inverseM10", lastinverseM10);
+    settings.setValue( "/window/inverseM11", lastinverseM11);
+    settings.setValue( "/window/inverseM12", lastinverseM12);
+    settings.setValue( "/window/inverseM13", lastinverseM13);
+    settings.setValue( "/window/inverseM14", lastinverseM14);
+    settings.setValue( "/window/inverseM15", lastinverseM15);
+    settings.setValue( "/window/inverseM16", lastinverseM16);
 
 }
 

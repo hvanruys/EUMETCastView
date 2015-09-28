@@ -158,6 +158,7 @@ public:
     bool fbo_changed;
     bool texture_changed;
     bool bPhongModel;
+
     int lastcomboMet006;
     int lastcomboMet008;
     int lastcomboMet016;
@@ -170,8 +171,21 @@ public:
     int lastcomboMet120;
     int lastcomboMet134;
 
+    bool lastinverseMet006;
+    bool lastinverseMet008;
+    bool lastinverseMet016;
+    bool lastinverseMet039;
+    bool lastinverseMet062;
+    bool lastinverseMet073;
+    bool lastinverseMet087;
+    bool lastinverseMet097;
+    bool lastinverseMet108;
+    bool lastinverseMet120;
+    bool lastinverseMet134;
+
     int lastinputprojection;
     int lastVIIRSband;
+
     int lastcomboM1;
     int lastcomboM2;
     int lastcomboM3;
@@ -188,6 +202,23 @@ public:
     int lastcomboM14;
     int lastcomboM15;
     int lastcomboM16;
+
+    bool lastinverseM1;
+    bool lastinverseM2;
+    bool lastinverseM3;
+    bool lastinverseM4;
+    bool lastinverseM5;
+    bool lastinverseM6;
+    bool lastinverseM7;
+    bool lastinverseM8;
+    bool lastinverseM9;
+    bool lastinverseM10;
+    bool lastinverseM11;
+    bool lastinverseM12;
+    bool lastinverseM13;
+    bool lastinverseM14;
+    bool lastinverseM15;
+    bool lastinverseM16;
 
 }; 
 

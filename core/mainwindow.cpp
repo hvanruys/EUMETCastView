@@ -4,7 +4,7 @@
 #include "ui_mainwindow.h"
 #include "hdf5.h"
 
-#define PROGRAM_VERSION "1.0.4"
+#define PROGRAM_VERSION "1.0.6"
 
 extern Options opts;
 extern SegmentImage *imageptrs;

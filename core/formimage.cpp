@@ -1169,6 +1169,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     }
     else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G ))
     {
+        qDebug() << "recalculate CLAHE ; VIS_IR and FY2E/G";
         pixelsRed = new quint16[npix];
         if(sl->isPresentMono[0])
             memcpy(pixelsRed, imageptrs->ptrRed[0], 2288 * 2288 * sizeof(quint16));
@@ -1430,6 +1431,8 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         }
         else if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
         {
+            qDebug() << "recalculate CLAHE ; VIS_IR and FY2E/G move to ptrImageGeostationary";
+
             for (int line = 0; line < 2288; line++)
             {
                 row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
@@ -1444,7 +1447,6 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                     row_col[pixelx] = qRgb(r,g,b);
                 }
             }
-
         }
     }
 

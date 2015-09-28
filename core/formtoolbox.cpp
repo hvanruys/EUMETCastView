@@ -243,6 +243,17 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->comboMet120->setCurrentIndex(opts.lastcomboMet120);
     ui->comboMet134->setCurrentIndex(opts.lastcomboMet134);
 
+    ui->chkInverseVIS006->setChecked(opts.lastinverseMet006);
+    ui->chkInverseVIS008->setChecked(opts.lastinverseMet008);
+    ui->chkInverseIR_016->setChecked(opts.lastinverseMet016);
+    ui->chkInverseIR_039->setChecked(opts.lastinverseMet039);
+    ui->chkInverseWV_062->setChecked(opts.lastinverseMet062);
+    ui->chkInverseWV_073->setChecked(opts.lastinverseMet073);
+    ui->chkInverseIR_087->setChecked(opts.lastinverseMet087);
+    ui->chkInverseIR_097->setChecked(opts.lastinverseMet097);
+    ui->chkInverseIR_108->setChecked(opts.lastinverseMet108);
+    ui->chkInverseIR_120->setChecked(opts.lastinverseMet120);
+    ui->chkInverseIR_134->setChecked(opts.lastinverseMet134);
 
     ui->comboM1->setCurrentIndex(opts.lastcomboM1);
     ui->comboM2->setCurrentIndex(opts.lastcomboM2);
@@ -260,6 +271,25 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->comboM14->setCurrentIndex(opts.lastcomboM14);
     ui->comboM15->setCurrentIndex(opts.lastcomboM15);
     ui->comboM16->setCurrentIndex(opts.lastcomboM16);
+
+    ui->chkInverseM1->setChecked(opts.lastinverseM1);
+    ui->chkInverseM2->setChecked(opts.lastinverseM2);
+    ui->chkInverseM3->setChecked(opts.lastinverseM3);
+    ui->chkInverseM4->setChecked(opts.lastinverseM4);
+    ui->chkInverseM5->setChecked(opts.lastinverseM5);
+    ui->chkInverseM6->setChecked(opts.lastinverseM6);
+    ui->chkInverseM7->setChecked(opts.lastinverseM7);
+    ui->chkInverseM8->setChecked(opts.lastinverseM8);
+    ui->chkInverseM9->setChecked(opts.lastinverseM9);
+    ui->chkInverseM10->setChecked(opts.lastinverseM10);
+    ui->chkInverseM11->setChecked(opts.lastinverseM11);
+    ui->chkInverseM12->setChecked(opts.lastinverseM12);
+    ui->chkInverseM13->setChecked(opts.lastinverseM13);
+    ui->chkInverseM14->setChecked(opts.lastinverseM14);
+    ui->chkInverseM15->setChecked(opts.lastinverseM15);
+    ui->chkInverseM16->setChecked(opts.lastinverseM16);
+
+
 
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
 
@@ -951,6 +981,18 @@ FormToolbox::~FormToolbox()
     opts.lastcomboMet120 = ui->comboMet120->currentIndex();
     opts.lastcomboMet134 = ui->comboMet134->currentIndex();
 
+    opts.lastinverseMet006 = ui->chkInverseVIS006->isChecked();
+    opts.lastinverseMet008 = ui->chkInverseVIS008->isChecked();
+    opts.lastinverseMet016 = ui->chkInverseIR_016->isChecked();
+    opts.lastinverseMet039 = ui->chkInverseIR_039->isChecked();
+    opts.lastinverseMet062 = ui->chkInverseWV_062->isChecked();
+    opts.lastinverseMet073 = ui->chkInverseWV_073->isChecked();
+    opts.lastinverseMet087 = ui->chkInverseIR_087->isChecked();
+    opts.lastinverseMet097 = ui->chkInverseIR_097->isChecked();
+    opts.lastinverseMet108 = ui->chkInverseIR_108->isChecked();
+    opts.lastinverseMet120 = ui->chkInverseIR_120->isChecked();
+    opts.lastinverseMet134 = ui->chkInverseIR_134->isChecked();
+
     opts.lastcomboM1 = ui->comboM1->currentIndex();
     opts.lastcomboM2 = ui->comboM2->currentIndex();
     opts.lastcomboM3 = ui->comboM3->currentIndex();
@@ -967,6 +1009,23 @@ FormToolbox::~FormToolbox()
     opts.lastcomboM14 = ui->comboM14->currentIndex();
     opts.lastcomboM15 = ui->comboM15->currentIndex();
     opts.lastcomboM16 = ui->comboM16->currentIndex();
+
+    opts.lastinverseM1 = ui->chkInverseM1->isChecked();
+    opts.lastinverseM2 = ui->chkInverseM2->isChecked();
+    opts.lastinverseM3 = ui->chkInverseM3->isChecked();
+    opts.lastinverseM4 = ui->chkInverseM4->isChecked();
+    opts.lastinverseM5 = ui->chkInverseM5->isChecked();
+    opts.lastinverseM6 = ui->chkInverseM6->isChecked();
+    opts.lastinverseM7 = ui->chkInverseM7->isChecked();
+    opts.lastinverseM8 = ui->chkInverseM8->isChecked();
+    opts.lastinverseM9 = ui->chkInverseM9->isChecked();
+    opts.lastinverseM10 = ui->chkInverseM10->isChecked();
+    opts.lastinverseM11 = ui->chkInverseM11->isChecked();
+    opts.lastinverseM12 = ui->chkInverseM12->isChecked();
+    opts.lastinverseM13 = ui->chkInverseM13->isChecked();
+    opts.lastinverseM14 = ui->chkInverseM14->isChecked();
+    opts.lastinverseM15 = ui->chkInverseM15->isChecked();
+    opts.lastinverseM16 = ui->chkInverseM16->isChecked();
 
     delete ui;
 }
