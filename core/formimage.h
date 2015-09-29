@@ -38,8 +38,8 @@ public:
     void setKindOfImage(QString koi) { kindofimage = koi; }
     QString getKindOfImage() { return kindofimage; }
 
-    void setAVHRRSegmentType(eSegmentType st) { segmenttype = st; }
-    eSegmentType getAVHRRSegmentType() { return segmenttype; }
+    void setSegmentType(eSegmentType st) { segmenttype = st; }
+    eSegmentType getSegmentType() { return segmenttype; }
 
     void setZoomValue(int z);
     int getZoomValue();

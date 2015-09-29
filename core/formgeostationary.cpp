@@ -1386,6 +1386,8 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
     else if(whichgeo == SegmentListGeostationary::FY2G && type == "HRV")
         filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
 
+    sl->InsertPresent( spectrumvector, "", 0);
+
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {
         llVIS_IR = this->getGeostationarySegmentsFengYun(whichgeo, "VIS_IR", sl->getImagePath(), spectrumvector, filepattern);

@@ -166,6 +166,8 @@ void Options::Initialize()
         zoomfactorviirs = 100;
 
     currenttoolbox = settings.value("/parameters/currenttoolbox", 0).toInt();
+    qDebug() << QString("Initialize Options currenttoolbox = %1").arg(currenttoolbox);
+
     currenttabwidget = settings.value("/parameters/currenttabwidget", 0).toInt();
     parallel1 = settings.value("/parameters/parallel1", 20).toInt();
     parallel2 = settings.value("/parameters/parallel2", 60).toInt();

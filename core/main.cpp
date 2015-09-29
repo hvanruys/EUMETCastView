@@ -49,7 +49,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     switch (type) {
     case QtDebugMsg:
         fprintf(stderr, "Debug Debug: %s\n", localMsg.constData());
-        fprintf(stderr, "           : %s:%u, %s\n", context.file, context.line, context.function);
+        //fprintf(stderr, "           : %s:%u, %s\n", context.file, context.line, context.function);
         break;
     case QtInfoMsg:
         fprintf(stderr, "Debug Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);

@@ -13,8 +13,11 @@ class SegmentListVIIRS  : public SegmentList
 public:
     SegmentListVIIRS(SatelliteList *satl = 0, QObject *parent = 0);
     void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
-    bool ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    bool ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    //bool ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    //bool ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    bool ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+
     //bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     void SmoothVIIRSImage();

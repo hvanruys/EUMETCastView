@@ -6,6 +6,14 @@
 #include "formmapcyl.h"
 #include "formgeostationary.h"
 
+#define TAB_AVHRR 0
+#define TAB_VIIRS 1
+#define TAB_GEOSTATIONARY 2
+#define TAB_PROJECTION 3
+
+#define TAB_LLC 0
+#define TAB_GVP 1
+#define TAB_GS  2
 
 namespace Ui {
     class FormToolbox;
@@ -152,7 +160,6 @@ private slots:
     void on_spbSGRadius_valueChanged(double arg1);
     void on_btnSGClearMap_clicked();
     void on_btnOverlayProjectionSG_clicked();
-    void on_tabWidget_tabBarClicked(int index);
     void on_spbLCCCorrX_valueChanged(int arg1);
     void on_spbLCCCorrY_valueChanged(int arg1);
     void on_btnSetTrueColors_clicked();

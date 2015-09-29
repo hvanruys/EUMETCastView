@@ -188,7 +188,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     formtoolbox->setChannelIndex();
 
-
     setWindowTitle(tr("EUMETCast Viewer"));
     timer = new QTimer( this );
     timer->start( 1000);
@@ -399,13 +398,13 @@ void MainWindow::on_actionImage_triggered()
     if(index == -1)
         formimage->displayImage(6);
     else if(index == 0)
-        formimage->displayImage(6);
+        formimage->displayImage(6); // AVHRR Color image
     else if(index == 1)
-        formimage->displayImage(10);
+        formimage->displayImage(10); //VIIRS image
     else if(index == 2)
-        formimage->displayImage(8);
+        formimage->displayImage(8); //Geostationary image
     else
-        formimage->displayImage(9);
+        formimage->displayImage(9); //Projection image
 }
 
 void MainWindow::updateStatusBarIndicator(const QString &text)

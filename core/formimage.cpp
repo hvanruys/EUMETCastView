@@ -62,7 +62,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     overlaymeteosat = true;
     overlayprojection = true;
     refreshoverlay = true;
-    this->setAVHRRSegmentType(SEG_NONE);
+    this->setSegmentType(SEG_NONE);
 
     metopcount = 0;
     noaacount = 0;
@@ -242,7 +242,7 @@ void FormImage::ComposeImage()
                 emit allsegmentsreceivedbuttons(false);
 
                 this->kindofimage = "AVHRR Color";
-                this->setAVHRRSegmentType(SEG_METOP);
+                this->setSegmentType(SEG_METOP);
                 segs->seglmetop->ComposeImage(opts.buttonEqualization ? metop_gammaEqual_ch : metop_gamma_ch);
             }
             else if (noaacount > 0 && opts.buttonNoaa)
@@ -250,7 +250,7 @@ void FormImage::ComposeImage()
                 emit allsegmentsreceivedbuttons(false);
 
                 this->kindofimage = "AVHRR Color";
-                this->setAVHRRSegmentType(SEG_NOAA);
+                this->setSegmentType(SEG_NOAA);
                 segs->seglnoaa->ComposeImage(opts.buttonEqualization ? noaa_gammaEqual_ch : noaa_gamma_ch);
             }
             else if (hrpcount > 0 && opts.buttonHRP)
@@ -258,7 +258,7 @@ void FormImage::ComposeImage()
                 emit allsegmentsreceivedbuttons(false);
 
                 this->kindofimage = "AVHRR Color";
-                this->setAVHRRSegmentType(SEG_HRP);
+                this->setSegmentType(SEG_HRP);
                 segs->seglhrp->ComposeImage(opts.buttonEqualization ? hrp_gammaEqual_ch : hrp_gamma_ch);
             }
             else if (gaccount > 0 && opts.buttonGAC)
@@ -266,7 +266,7 @@ void FormImage::ComposeImage()
                 emit allsegmentsreceivedbuttons(false);
 
                 this->kindofimage = "AVHRR Color";
-                this->setAVHRRSegmentType(SEG_GAC);
+                this->setSegmentType(SEG_GAC);
                 segs->seglgac->ComposeImage(opts.buttonEqualization ? gac_gammaEqual_ch : gac_gamma_ch);
             }
         }
@@ -278,11 +278,14 @@ void FormImage::ComposeImage()
             emit allsegmentsreceivedbuttons(false);
             this->displayImage(10);
             this->kindofimage = "VIIRS";
-            this->setAVHRRSegmentType(SEG_VIIRS);
+            this->setSegmentType(SEG_VIIRS);
             bandlist = formtoolbox->getVIIRSBandList();
             colorlist = formtoolbox->getVIIRSColorList();
             invertlist = formtoolbox->getVIIRSInvertList();
-            segs->seglviirs->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
+//          in Workerthread
+            segs->seglviirs->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+//          in main thread
+//            segs->seglviirs->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
     }
     else
         return;
@@ -487,13 +490,13 @@ void FormImage::paintEvent( QPaintEvent * )
     if (channelshown >= 1 && channelshown <= 6)
     {
         //qDebug() << QString("Segmenttype = %1").arg(this->getSegmentType());
-        if (this->getAVHRRSegmentType() == SEG_NOAA)
+        if (this->getSegmentType() == SEG_NOAA)
             slnoaa = segs->seglnoaa;
-        else if (this->getAVHRRSegmentType() == SEG_GAC)
+        else if (this->getSegmentType() == SEG_GAC)
             slgac = segs->seglgac;
-        else if (this->getAVHRRSegmentType() == SEG_METOP)
+        else if (this->getSegmentType() == SEG_METOP)
             slmetop = segs->seglmetop;
-        else if (this->getAVHRRSegmentType() == SEG_HRP)
+        else if (this->getSegmentType() == SEG_HRP)
             slhrp = segs->seglhrp;
     }
 
@@ -579,7 +582,7 @@ void FormImage::displayAVHRRImageInfo()
     eSegmentType type;
     int nbrselected;
 
-    type = getAVHRRSegmentType();
+    type = getSegmentType();
     switch(type)
     {
     case SEG_NONE:
@@ -631,7 +634,7 @@ void FormImage::displayVIIRSImageInfo()
     eSegmentType type;
     int nbrselected;
 
-    type = getAVHRRSegmentType();
+    type = getSegmentType();
     switch(type)
     {
     case SEG_NONE:
@@ -1067,7 +1070,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     quint16 *pixelsBlue;
     quint16 *pixelsHRV;
 
-    qDebug() << QString("recalculateCLAHEMeteosat() ; kind of image = %1").arg(sl->getKindofImage());
+    qDebug() << QString("recalculateCLAHE() ; kind of image = %1").arg(sl->getKindofImage());
 
     if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 ))
     {
@@ -1129,7 +1132,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         }
     }
 */
-    else if(sl->getGeoSatellite() == SegmentListGeostationary::MET_7 )
+    else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == SegmentListGeostationary::MET_7 )
     {
         pixelsRed = new quint16[npix];
         if(spectrumvector.at(0) == "00_7_0")
@@ -1149,7 +1152,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
-    else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15)
+    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15))
     {
         pixelsRed = new quint16[npix];
         for( int i = 0; i < 7 ; i++)
@@ -1158,7 +1161,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 memcpy(pixelsRed + i * 464 * 2816, imageptrs->ptrRed[i], 464 * 2816 * sizeof(quint16));
         }
     }
-    else if(sl->getGeoSatellite() == SegmentListGeostationary::MTSAT)
+    else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == SegmentListGeostationary::MTSAT)
     {
         pixelsRed = new quint16[npix];
         for( int i = 0; i < 6 ; i++)
@@ -1172,11 +1175,14 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         qDebug() << "recalculate CLAHE ; VIS_IR and FY2E/G";
         pixelsRed = new quint16[npix];
         if(sl->isPresentMono[0])
+        {
+            qDebug() << "-- > CLAHE memcpy";
             memcpy(pixelsRed, imageptrs->ptrRed[0], 2288 * 2288 * sizeof(quint16));
+        }
     }
 
 
-    if(sl->getKindofImage() == "VIS_IR Color")
+    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 ))
     {
         imageptrs->CLAHE(pixelsRed, 3712, (sl->bisRSS ? 3*464 : 3712), 0, 1023, 16, 16, 256, opts.clahecliplimit);
         imageptrs->CLAHE(pixelsGreen, 3712, (sl->bisRSS ? 3*464 : 3712), 0, 1023, 16, 16, 256, opts.clahecliplimit);
@@ -1186,7 +1192,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     {
         if(sl->bisRSS)
         {
-            qDebug() << "recalculateCLAHEMeteosat() ; isRSS = true";
+            qDebug() << "recalculateCLAHE() ; isRSS = true";
             imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
 
         }
@@ -1194,12 +1200,12 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         {
             if(sl->areatype == 1)
             {
-                qDebug() << "recalculateCLAHEMeteosat() ; areatype == 1";
+                qDebug() << "recalculateCLAHE() ; areatype == 1";
                 imageptrs->CLAHE(pixelsHRV, 5568, 11136, 0, 1023, 16, 16, 256, opts.clahecliplimit);
             }
             else
             {
-                qDebug() << "recalculateCLAHEMeteosat() ; areatype == 0";
+                qDebug() << "recalculateCLAHE() ; areatype == 0";
                 imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
             }
         }
@@ -1235,7 +1241,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     //g_mutex.lock();
 
-    if(sl->getKindofImage() == "VIS_IR Color")
+    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 ))
     {
         for(int i = 0; i < (sl->bisRSS ? 3 : 8); i++)
         {
@@ -2040,6 +2046,8 @@ void FormImage::OverlayAVHRRImage(QPainter *paint)
 
 void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
 {
+    qDebug() << QString("FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl) opts.currenttoolbox = %1").arg(opts.currenttoolbox);
+
     bool first = true;
     double lat_deg;
     double lon_deg;

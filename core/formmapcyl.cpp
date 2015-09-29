@@ -572,24 +572,25 @@ void FormMapCyl::on_verticalScrollBar_valueChanged(int value)
 
 void FormMapCyl::on_btnNoaa_clicked()
 {
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     toggleButtonNoaa();
 }
 
 void FormMapCyl::on_btnMetop_clicked()
 {
-    formtoolbox->setTabWidgetIndex(0);
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     toggleButtonMetop();
 }
 
 void FormMapCyl::on_btnHRP_clicked()
 {
-    formtoolbox->setTabWidgetIndex(0);
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     toggleButtonHRP();
 }
 
 void FormMapCyl::on_btnGAC_clicked()
 {
-    formtoolbox->setTabWidgetIndex(0);
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     toggleButtonGAC();
 }
 
@@ -600,7 +601,7 @@ void FormMapCyl::on_btnRealTime_clicked()
 
 void FormMapCyl::on_btnVIIRS_clicked()
 {
-    formtoolbox->setTabWidgetIndex(1);
+    formtoolbox->setTabWidgetIndex(TAB_VIIRS);
     toggleButtonVIIRS();
 }
 
