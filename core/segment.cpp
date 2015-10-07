@@ -1055,10 +1055,10 @@ void Segment::ComposeSegmentSGProjection(int inputchannel)
 
 }
 
-void Segment::ComposeProjectionConcurrent()
-{
+//void Segment::ComposeProjectionConcurrent()
+//{
 
-}
+//}
 
 bool Segment::lookupLonLat(double lon_rad, double lat_rad, int &col, int &row)
 {

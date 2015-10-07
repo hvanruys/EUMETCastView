@@ -78,7 +78,7 @@ private:
 
     void renderStations(QMatrix4x4 projection, QMatrix4x4 modelview, QColor color);
     //void renderActiveSatnames();
-    void drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, SegmentList::eSegments seg, QList<Segment *> *segptr);
+    void drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentType seg, QList<Segment *> *segptr);
     void mouseDownAction(int x, int y);
     //void displayVector (QVector3D vec);
     //void RenderAllScanAreaGL();

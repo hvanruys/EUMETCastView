@@ -29,14 +29,6 @@ class SegmentListGAC;
 class SegmentListGeostationary;
 class SegmentListVIIRS;
 
-enum eSelectedType
-{
-    METOP = 0,
-    NOAA,
-    HRP,
-    GAC
-};
-
 class AVHRRSatellite  : public QObject
 {
     Q_OBJECT

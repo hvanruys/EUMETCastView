@@ -13,18 +13,16 @@ Options::Options()
 
 void Options::Initialize()
 {
-    // QSettings settings( QSettings::IniFormat, QSettings::UserScope, "HugoSoft", "EUMETCastView");
     QSettings settings( "EUMETCastView.ini", QSettings::IniFormat);
     obslon = settings.value("/observer/longitude", 0.0 ).toDouble();
     obslat = settings.value("/observer/latitude", 0.0 ).toDouble();
     obsalt = settings.value( "/observer/altitude", 0.0 ).toDouble();
-    //windowwidth=settings.value("/window/width", 640 ).toInt();
-    //windowheight=settings.value("/window/height", 480 ).toInt();
     buttonMetop=settings.value("/window/buttonmetop", false ).toBool();
     buttonNoaa=settings.value("/window/buttonnoaa", false ).toBool();
     buttonGAC=settings.value("/window/buttongac", false ).toBool();
     buttonHRP=settings.value("/window/buttonhrp", false ).toBool();
     buttonVIIRS=settings.value("/window/buttonviirs", false ).toBool();
+
     buttonRealTime=settings.value("/window/buttonrealtime", true ).toBool();
     buttonEqualization=settings.value("/window/buttonequalization", false ).toBool();
     nbrofvisiblesegments=settings.value("/segments/nbrofvisiblesegments", 10).toInt();
@@ -68,11 +66,6 @@ void Options::Initialize()
         }
     }
 
-
-    //msgcurrentlon = settings.value("/satellite/msgcurrentlon", 0.0).toDouble();
-    //msgcurrentname = settings.value("/satellite/msgcurrentname", "MSG3").value<QString>();
-    //msgrsslon = settings.value("/satellite/msgrsslon", 9.5).toDouble();
-    //msgrssname = settings.value("/satellite/msgrssname", "MSG2").value<QString>();
 
     geostationarylistlon = settings.value( "/satellite/geostationarylistlon" ).value<QStringList>();
     geostationarylistname = settings.value( "/satellite/geostationarylistname" ).value<QStringList>();
@@ -166,7 +159,6 @@ void Options::Initialize()
         zoomfactorviirs = 100;
 
     currenttoolbox = settings.value("/parameters/currenttoolbox", 0).toInt();
-    qDebug() << QString("Initialize Options currenttoolbox = %1").arg(currenttoolbox);
 
     currenttabwidget = settings.value("/parameters/currenttabwidget", 0).toInt();
     parallel1 = settings.value("/parameters/parallel1", 20).toInt();
@@ -177,12 +169,6 @@ void Options::Initialize()
     mapextentsouth  = settings.value("/parameters/mapextentsouth", -10).toInt();
     mapextentwest  = settings.value("/parameters/mapextentwest", -10).toInt();
     mapextenteast  = settings.value("/parameters/mapextenteast", 10).toInt();
-
-    qDebug() << QString("init Options::mapextentnorth = %1").arg(mapextentnorth);
-    qDebug() << QString("init Options::mapextentsouth = %1").arg(mapextentsouth);
-    qDebug() << QString("init Options::mapextentwest = %1").arg(mapextentwest);
-    qDebug() << QString("init Options::mapextenteast = %1").arg(mapextenteast);
-
 
     mapextentlamberton  = settings.value("/parameters/mapextentlamberton", false).toBool();
     mapextentperspectiveon  = settings.value("/parameters/mapextentperspectiveon", false).toBool();
@@ -321,10 +307,7 @@ void Options::Save()
 
     qDebug() << QString("Saving Options ");
 
-//    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-//                        "HugoSoft", "EUMETCastView");
     QSettings settings( "EUMETCastView.ini", QSettings::IniFormat);
-
 
     settings.setValue("/satellite/tlefiles", tlelist );
 
@@ -368,7 +351,8 @@ void Options::Save()
     settings.setValue( "/window/buttonnoaa", buttonNoaa );
     settings.setValue( "/window/buttongac", buttonGAC );
     settings.setValue( "/window/buttonhrp", buttonHRP );
-    settings.setValue( "/window/buttonhrp", buttonVIIRS );
+    settings.setValue( "/window/buttonviirs", buttonVIIRS );
+
     settings.setValue( "/window/buttonrealtime", buttonRealTime );
     settings.setValue( "/window/buttonequalization", buttonEqualization );
     settings.setValue( "/observer/longitude", obslon );
@@ -572,10 +556,8 @@ void Options::deleteTleFile( QString sel )
   QStringList::Iterator its = tlelist.begin();
   QStringList strlistout;
   
-  //qDebug() << "sel = " + sel;
   while( its != tlelist.end() )
   {
-    //  qDebug() << *its;
     if (*its != sel)
       strlistout << *its;
     ++its;
@@ -589,10 +571,8 @@ bool Options::addTleFile( QString sel )
 {
   QStringList::Iterator its = tlelist.begin();
   bool thesame = false;
-  //qDebug() << "sel = " + sel;
   while( its != tlelist.end() )
   {
-    //  qDebug() << *its;
     if (*its  == sel)
       thesame = true;
     ++its;
@@ -609,10 +589,8 @@ void Options::deleteSegmentDirectory( QString sel )
   QStringList::Iterator its = segmentdirectorylist.begin();
   QStringList strlistout;
 
-  qDebug() << "sel = " + sel;
   while( its != segmentdirectorylist.end() )
   {
-      //qDebug() << *its;
     if (*its != sel)
       strlistout << *its;
     ++its;

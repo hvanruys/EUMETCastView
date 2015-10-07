@@ -250,12 +250,18 @@ void StereoGraphic::CreateMapFromAVHRR(int inputchannel, eSegmentType type)
         segs->seglgac->ComposeSGProjection(inputchannel);
     else if( type == SEG_HRP)
         segs->seglhrp->ComposeSGProjection(inputchannel);
+    if(opts.smoothprojectionimage)
+        imageptrs->SmoothProjectionImage();
+
 
 }
 
 void StereoGraphic::CreateMapFromVIIRS()
 {
     segs->seglviirs->ComposeSGProjection(0);
+    if(opts.smoothprojectionimage)
+        imageptrs->SmoothProjectionImage();
+
 }
 
 bool StereoGraphic::map_forward(double lon_rad, double lat_rad, double &map_x, double &map_y)

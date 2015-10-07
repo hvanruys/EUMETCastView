@@ -34,7 +34,6 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
     int sensing_start_msecond = fileInfo.fileName().mid(26, 1).toInt( &ok, 10);
     double d_sensing_start_second = (double)sensing_start_second + (double)sensing_start_msecond / 10.0;
 
-
     //this->sensing_start_year = sensing_start_year;
     qdatetime_start.setDate(QDate(sensing_start_year, sensing_start_month, sensing_start_day));
     qdatetime_start.setTime(QTime(sensing_start_hour,sensing_start_minute, sensing_start_second,sensing_start_msecond * 100));
@@ -96,6 +95,9 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
         ptrbaVIIRS[i] = NULL;
     }
 
+    projectionCoordX = NULL;
+    projectionCoordY = NULL;
+
     tiepoints_lat = NULL;
     tiepoints_lon = NULL;
     aligncoef = NULL;
@@ -143,6 +145,17 @@ void SegmentVIIRS::resetMemory()
     {
         delete [] geolongitude;
         geolongitude = NULL;
+    }
+
+    if( projectionCoordX != NULL)
+    {
+        delete [] projectionCoordX;
+        projectionCoordX = NULL;
+    }
+    if( projectionCoordY != NULL)
+    {
+        delete [] projectionCoordY;
+        projectionCoordY = NULL;
     }
 
     for(int i = 0; i < 3; i++)
@@ -352,8 +365,6 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
 
 */
 
-//    qDebug() << "start sorting !!!!";
-
 //    QVector<float> vlongitude;
 //    QVector<float> vlatitude;
 
@@ -366,102 +377,7 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
 //        }
 //    }
 
-//    QMap<float, float> map;
-//    for(int i = 0; i < vlongitude.size(); ++i) // Assume vectors have the same size
-//         map.insertMulti(vlongitude[i], vlatitude[i]);
 
-//    QList<float> llongitude = map.keys();
-//    QList<float> llatitude = map.values();
-
-//    vlongitude = QVector<float>::fromList(llongitude);
-//    vlatitude = QVector<float>::fromList(llatitude);
-
-//    qDebug() << "stop sorting !!!!";
-
-//    qDebug() << QString("QVector vlongitude length = %1").arg(vlongitude.length());
-//    qDebug() << QString("QVector vlatitude length = %1").arg(vlatitude.length());
-
-
-//    qDebug() << "start sorting !!!!";
-
-
-//    QMap<int, lonlatdata> datamap;
-
-//    for (j = 0; j < 768; j+=1)
-//    {
-//        for (i = 0; i < 3200; i+=1)
-//        {
-//            lonlatdata data;
-//            data.lon = geolongitude[j * 3200 + i];
-//            data.lat = geolatitude[j * 3200 + i];
-//            data.i = i;
-//            data.j = j;
-//            int key = floor(geolongitude[j * 3200 + i] * 1000.0);
-//            datamap.insertMulti(key, data);
-//        }
-//    }
-
-//    int savekey = 999999;
-//    QList<lonlatdata> ldata;
-//    QMap<int, lonlatdata>::const_iterator it = datamap.constBegin();
-//    while (it != datamap.constEnd())
-//    {
-
-//        if(savekey != it.key())
-//        {
-//            if(savekey != 999999)
-//            {
-//                // std::sort(ldata.begin(), ldata.end());
-//                viirsmap.insert(savekey, ldata);
-//            }
-//            ldata.clear();
-//            ldata.append(it.value());
-//            savekey = it.key();
-//        }
-//        else
-//        {
-//            ldata.append(it.value());
-//        }
-
-
-//        ++it;
-//    }
-
-//    QList<lonlatdata> tmp;
-
-//    tmp = viirsmap.value(5911);
-//    for( i = 0; i < tmp.size(); i++)
-//    {
-//        qDebug() << "tmp = " << QString::number(tmp.at(i).lon, 'g', 9) << " " << tmp.at(i).lat << " " << tmp.at(i).i << " " << tmp.at(i).j;
-//    }
-
-//    qDebug() << "stop sorting !!!!";
-
-//    qDebug() << "start sorting !!!!";
-
-//    for (j = 0; j < 768; j+=1)
-//    {
-//        for (i = 0; i < 3200; i+=1)
-//        {
-//            lonlatdata data;
-//            data.lonkey10 = floor(geolongitude[j * 3200 + i] * 10);
-//            data.lon = geolongitude[j * 3200 + i];
-//            data.lat = geolatitude[j * 3200 + i];
-//            data.i = i;
-//            data.j = j;
-//            sortvector.append(data);
-//        }
-//    }
-
-//    std::sort(sortvector.begin(), sortvector.end());
-//    qDebug() << "stop sorting !!!!";
-
-
-//    for( i = 0; i < sortvector.size(); i++)
-//    {
-//        if( sortvector.at(i).lonkey10 == 700)
-//            qDebug() << QString("key = %1 ; lon %2 lat %3 i = %4  j = %5").arg(sortvector.at(i).lonkey10).arg(sortvector.at(i).lon).arg(sortvector.at(i).lat).arg(sortvector.at(i).i).arg(sortvector.at(i).j);
-//    }
 
     // For a 16 bit integer we choose [1; 65527] instead of the possible range [0; 65535] as 0 is an error identificator
     // and values between [65528; 65535] are used as fill values.
@@ -808,8 +724,8 @@ void SegmentVIIRS::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 
     lat_C = tiepoints_lat[iC * 201 + jC];
     lat_D = tiepoints_lat[iD * 201 + jD];
 
-    //if(iscan == 100)
-    //    qDebug() << QString("itrack = %1 iscan = %2 Lat tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lat_A).arg(lat_B).arg(lat_C).arg(lat_D);
+//    if(iscan == 100)
+//        qDebug() << QString("itrack = %1 iscan = %2 Lat tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lat_A).arg(lat_B).arg(lat_C).arg(lat_D);
 
     lon_A = tiepoints_lon[iA * 201 + jA];
     lon_B = tiepoints_lon[iB * 201 + jB];
@@ -980,14 +896,28 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
     bool color = bandlist.at(0);
     bool valok[3];
 
+    projectionCoordX = new quint16[768 * 3200];
+    projectionCoordY = new quint16[768 * 3200];
+    projectionCoordValue = new QRgb[768 * 3200];
+
+    for( int i = 0; i < 768; i++)
+    {
+        for( int j = 0; j < 3200 ; j++ )
+        {
+            projectionCoordX[i * 3200 + j] = 65535;
+            projectionCoordY[i * 3200 + j] = 65535;
+            projectionCoordValue[i * 3200 + j] = qRgba(0, 0, 0, 0);
+        }
+    }
+    qDebug() << "SegmentVIIRS::ComposeProjection(eProjections proj)";
+
     for( int i = 0; i < this->NbrOfLines; i++)
     {
         for( int j = 0; j < this->earth_views_per_scanline ; j++ )
         {
-            latpos1 = geolatitude[i * 3200 + j];
-            lonpos1 = geolongitude[i * 3200 + j];
             pixval[0] = ptrbaVIIRS[0][i * 3200 + j];
             valok[0] = pixval[0] > 0 && pixval[0] < 65528;
+
             if(color)
             {
                 pixval[1] = ptrbaVIIRS[1][i * 3200 + j];
@@ -999,6 +929,9 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
 
             if( valok[0] && (color ? valok[1] && valok[2] : true))
             {
+                latpos1 = geolatitude[i * 3200 + j];
+                lonpos1 = geolongitude[i * 3200 + j];
+
                 if(proj == LCC) //Lambert
                 {
                     if(imageptrs->lcc->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
@@ -1021,72 +954,116 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
                         MapPixel( i, j, map_x, map_y, color);
                     }
                 }
-            }
-        }
-    }
-
-
-    g_mutex.unlock();
-
-}
-
-void SegmentVIIRS::ComposeProjectionConcurrent()
-{
-    if( geolatitude == 0x0)
-    {
-        qDebug() << "pointer to geolatitude = 0x0 !!!!!!!!!!!";
-    }
-
-    bool color = bandlist.at(0);
-    bool valok[3];
-    int pixval[3];
-
-    LonLatMax();
-
-    int col, row;
-    double lon_rad, lat_rad;
-    int counter = 0;
-    qDebug() << "=====> start SegmentVIIRS::ComposeProjectionConcurrent";
-    int cntTotal = imageptrs->ptrimageProjection->height() * imageptrs->ptrimageProjection->width();
-
-    //testlookupLonLat(55.888, 73.900, col, row);
-    //return;
-
-    g_mutex.lock();
-
-    for (int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
-    {
-        for (int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
-        {
-            if (imageptrs->gvp->map_inverse(i, j, lon_rad, lat_rad))
+            } else
             {
-                if(this->lookupLonLat(lon_rad*180.0/PI, lat_rad*180/PI, col, row))
-                {
-                    if(col == 1500 && row == 400)
-                        counter++;
-                    pixval[0] = ptrbaVIIRS[0][col * 3200 + row];
-                    valok[0] = pixval[0] > 0 && pixval[0] < 65528;
-                    if(color)
-                    {
-                        pixval[1] = ptrbaVIIRS[1][col * 3200 + row];
-                        pixval[2] = ptrbaVIIRS[2][col * 3200 + row];
-                        valok[1] = pixval[1] > 0 && pixval[1] < 65528;
-                        valok[2] = pixval[2] > 0 && pixval[2] < 65528;
-                    }
-
-                    if( valok[0] && (color ? valok[1] && valok[2] : true))
-                        MapPixel(col, row, i, j, color);
-                }
+                projectionCoordX[i * 3200 + j] = 65535;
+                projectionCoordY[i * 3200 + j] = 65535;
+                projectionCoordValue[i * 3200 + j] = qRgba(0, 0, 0, 0);
 
             }
         }
     }
+/*
+    int maxX = 0;
+    int maxY = 0;
+
+    fprintf(stderr, "projectionCoordX \n");
+    for( int i = 0; i < 16; i++) //this->NbrOfLines - 1; i++)
+    {
+        for( int j = 0; j < 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
+        {
+            if(projectionCoordX[i * 3200 + j] < 10000 && projectionCoordX[i * 3200 + j + 1] < 10000)
+            {
+                if(maxX < abs(projectionCoordX[i * 3200 + j] - projectionCoordX[i * 3200 + j + 1]) )
+                    maxX = abs(projectionCoordX[i * 3200 + j] - projectionCoordX[i * 3200 + j + 1]);
+                if(maxY < abs(projectionCoordY[i * 3200 + j] - projectionCoordY[i * 3200 + j + 1]) )
+                    maxY = abs(projectionCoordY[i * 3200 + j] - projectionCoordY[i * 3200 + j + 1]);
+            }
+
+            fprintf(stderr, "%u ", projectionCoordX[i * 3200 + j]);
+        }
+
+        fprintf(stderr, "\n");
+    }
+
+    fprintf(stderr, "projectionCoordY \n");
+
+    for( int i = 0; i < 16; i++) //this->NbrOfLines - 1; i++)
+    {
+        for( int j = 0; j < 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
+        {
+            fprintf(stderr, "%u ", projectionCoordY[i * 3200 + j]);
+        }
+
+        fprintf(stderr, "\n");
+    }
+
+    qDebug() << QString("===============>>>>>>>>>>> maxX = %1 maxY = %2").arg(maxX).arg(maxY);
+
+*/
+
 
     g_mutex.unlock();
 
-    qDebug() << "=====> end SegmentVIIRS::ComposeProjectionConcurrent counter = " << counter << " from total = " << cntTotal;
-
 }
+
+//void SegmentVIIRS::ComposeProjectionConcurrent()
+//{
+//    if( geolatitude == 0x0)
+//    {
+//        qDebug() << "pointer to geolatitude = 0x0 !!!!!!!!!!!";
+//    }
+
+//    bool color = bandlist.at(0);
+//    bool valok[3];
+//    int pixval[3];
+
+//    LonLatMax();
+
+//    int col, row;
+//    double lon_rad, lat_rad;
+//    int counter = 0;
+//    qDebug() << "=====> start SegmentVIIRS::ComposeProjectionConcurrent";
+//    int cntTotal = imageptrs->ptrimageProjection->height() * imageptrs->ptrimageProjection->width();
+
+//    //testlookupLonLat(55.888, 73.900, col, row);
+//    //return;
+
+//    g_mutex.lock();
+
+//    for (int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
+//    {
+//        for (int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
+//        {
+//            if (imageptrs->gvp->map_inverse(i, j, lon_rad, lat_rad))
+//            {
+//                if(this->lookupLonLat(lon_rad*180.0/PI, lat_rad*180/PI, col, row))
+//                {
+//                    if(col == 1500 && row == 400)
+//                        counter++;
+//                    pixval[0] = ptrbaVIIRS[0][col * 3200 + row];
+//                    valok[0] = pixval[0] > 0 && pixval[0] < 65528;
+//                    if(color)
+//                    {
+//                        pixval[1] = ptrbaVIIRS[1][col * 3200 + row];
+//                        pixval[2] = ptrbaVIIRS[2][col * 3200 + row];
+//                        valok[1] = pixval[1] > 0 && pixval[1] < 65528;
+//                        valok[2] = pixval[2] > 0 && pixval[2] < 65528;
+//                    }
+
+//                    if( valok[0] && (color ? valok[1] && valok[2] : true))
+//                        MapPixel(col, row, i, j, color);
+//                }
+
+//            }
+//        }
+//    }
+
+//    g_mutex.unlock();
+
+//    qDebug() << "=====> end SegmentVIIRS::ComposeProjectionConcurrent counter = " << counter << " from total = " << cntTotal;
+
+//}
 
 void SegmentVIIRS::LonLatMax()
 {
@@ -1115,141 +1092,6 @@ void SegmentVIIRS::LonLatMax()
     qDebug() << QString("Minimum Longitude = %1 ; Maximum Longitude = %2").arg(lonMin).arg(lonMax);
 
 
-}
-
-bool SegmentVIIRS::lookupLonLat(double lon_deg, double lat_deg, int &col, int &row)
-{
-
-    col = 0;
-    row = 0;
-    QVector2D pt(lon_deg, lat_deg);
-
-//    for( int i = 0; i < 1; i++) //this->NbrOfLines; i++)
-//    {
-//        for( int j = 0; j < this->earth_views_per_scanline ; j++ )
-//        {
-//            if( j < this->earth_views_per_scanline-1 )
-//            {
-//                latpos1 = geolatitude[i * 3200 + j];
-//                lonpos1 = geolongitude[i * 3200 + j];
-//                latpos2 = geolatitude[i * 3200 + j + 1];
-//                lonpos2 = geolongitude[i * 3200 + j + 1];
-//                if(lon_deg < lonpos2 && lon_deg >= lonpos1 && lat_deg < latpos2 && lat_deg >= latpos1)
-//                {
-//                    col = j;
-//                    row = i;
-//                    qDebug() << QString("pos1 %1 %2 pos2 %3 %4 deg %5 %6 i %7 j %8").arg(lonpos1).arg(latpos1).arg(lonpos2).arg(latpos2)
-//                                .arg(lon_deg).arg(lat_deg).arg(i).arg(j);
-
-//                    return true;
-//                }
-//            }
-
-//        }
-//    }
-
-    if(lon_deg >= lonMax || lon_deg < lonMin )
-        return false;
-    if(lat_deg >= latMax || lat_deg < latMin)
-        return false;
-
-    QList<lonlatdata> ldata = viirsmap.value(floor(lon_deg * 1000.0));
-
-    if(ldata.size() == 0)
-        return false;
-
-    float dist;
-    float mindistance = 999;
-    lonlatdata minpt;
-    minpt.lon = 0.0;
-    minpt.lat = 0.0;
-    minpt.i = 0;
-    minpt.j = 0;
-
-    for(int i = 0; i < ldata.size(); i++)
-    {
-        QVector2D v0(ldata.at(i).lon, ldata.at(i).lat);
-        dist = v0.distanceToPoint(pt);
-        if(mindistance > dist)
-        {
-            mindistance = dist;
-            minpt.lon = ldata.at(i).lon;
-            minpt.lat = ldata.at(i).lat;
-            minpt.i = ldata.at(i).i;
-            minpt.j = ldata.at(i).j;
-        }
-    }
-
-    if(mindistance < 0.05)
-    {
-        col = minpt.i;
-        row = minpt.j;
-        return true;
-    }
-    else
-        return false;
-}
-
-bool SegmentVIIRS::testlookupLonLat(double lon_deg, double lat_deg, int &col, int &row)
-{
-
-    col = 0;
-    row = 0;
-    QVector2D pt(lon_deg, lat_deg);
-
-    if(lon_deg >= lonMax || lon_deg < lonMin )
-        return false;
-    if(lat_deg >= latMax || lat_deg < latMin)
-        return false;
-
-    QList<lonlatdata> ldata = viirsmap.value(floor(lon_deg * 1000.0));
-
-    if(ldata.size() == 0)
-        return false;
-
-    QList<float> ldist;
-    float dist;
-    float mindistance = 999;
-    lonlatdata minpt;
-    minpt.lon = 0.0;
-    minpt.lat = 0.0;
-    minpt.i = 0;
-    minpt.j = 0;
-
-    for(int i = 0; i < ldata.size(); i++)
-    {
-
-        QVector2D v0(ldata.at(i).lon, ldata.at(i).lat);
-        dist = v0.distanceToPoint(pt);
-        ldist.append(dist);
-        if(mindistance > dist)
-        {
-            mindistance = dist;
-            minpt.lon = ldata.at(i).lon;
-            minpt.lat = ldata.at(i).lat;
-            minpt.i = ldata.at(i).i;
-            minpt.j = ldata.at(i).j;
-        }
-    }
-
-    for(int i = 0; i < ldata.size(); i++)
-    {
-        qDebug() << QString("ldata %1  %2 %3  %4  %5 dist = %6").arg(i).arg(ldata.at(i).i).arg(ldata.at(i).j).arg(ldata.at(i).lon)
-                    .arg(ldata.at(i).lat).arg(ldist.at(i));
-    }
-
-    qDebug() << QString("mindistance = %1  %2 %3  %4  %5 dist = %6").arg(mindistance).arg(minpt.i).arg(minpt.j).arg(minpt.lon)
-                .arg(minpt.lat).arg(mindistance);
-
-
-    if(mindistance < 0.5)
-    {
-        col = minpt.i;
-        row = minpt.j;
-        return true;
-    }
-    else
-        return false;
 }
 
 
@@ -1320,6 +1162,8 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
 
     if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
     {
+        projectionCoordX[lines * 3200 + views] = (quint16)map_x;
+        projectionCoordY[lines * 3200 + views] = (quint16)map_y;
 
         for(int i = 0; i < (color ? 3 : 1); i++)
         {
@@ -1348,11 +1192,10 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
             else
                 b = imageptrs->lut_ch[2][indexout[2]];
 
-            rgbvalue = qRgb(r, g, b );
-        }
+            //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
+            rgbvalue = qRgba(r, g, b, 255);
 
-        if(color)
-            rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
+        }
         else
         {
             if(invertthissegment[0])
@@ -1362,7 +1205,7 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
             else
                 r = imageptrs->lut_ch[0][indexout[0]];
 
-            rgbvalue = qRgb(r, r, r);
+            rgbvalue = qRgba(r, r, r, 255);
         }
 
         if(opts.sattrackinimage)
@@ -1373,80 +1216,18 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
                 imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
             }
             else
+            {
                 imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                projectionCoordValue[lines * 3200 + views] = rgbvalue;
+
+            }
         }
         else
+        {
             imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-
-    }
-}
-
-/*
-void SegmentVIIRS::MapPixelAlter( int lines, int views, double map_x, double map_y, bool color)
-{
-    int indexout[3];
-    int pixval[3];
-
-    QRgb rgbvalue = qRgb(0,0,0);
-
-    pixval[0] = ptrbaVIIRS[0][lines * 3200 + views];
-    if(color)
-    {
-        pixval[1] = ptrbaVIIRS[1][lines * 3200 + views];
-        pixval[2] = ptrbaVIIRS[2][lines * 3200 + views];
-    }
-
-    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
-    {
-        for(int i = 0; i < (color ? 3 : 1); i++)
-        {
-            indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
-            indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
+            projectionCoordValue[lines * 3200 + views] = rgbvalue;
         }
 
-            rgbvalue  = qRgb(200,200, 200 );
-
-        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-
-
     }
 }
 
-void SegmentVIIRS::MapPixelInverse( int proj_x, int proj_y, int views, int lines, bool color)
-{
-    int indexout[3];
-    int pixval[3];
-    bool valok[0];
-
-    QRgb rgbvalue = qRgb(0,0,0);
-
-    pixval[0] = ptrbaVIIRS[0][lines * 3200 + views];
-    valok[0] = pixval[0] > 0 && pixval[0] < 65528;
-    if(color)
-    {
-        pixval[1] = ptrbaVIIRS[1][lines * 3200 + views];
-        pixval[2] = ptrbaVIIRS[2][lines * 3200 + views];
-        valok[1] = pixval[1] > 0 && pixval[1] < 65528;
-        valok[2] = pixval[2] > 0 && pixval[2] < 65528;
-    }
-
-
-    if( valok[0] && (color ? valok[1] && valok[2] : true))
-    {
-
-        for(int i = 0; i < (color ? 3 : 1); i++)
-        {
-            indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
-            indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
-        }
-
-        if(color)
-            rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
-        else
-            rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[0][indexout[0]] );
-
-        imageptrs->ptrimageProjection->setPixel(proj_x, proj_y, rgbvalue);
-    }
-}
-
-*/

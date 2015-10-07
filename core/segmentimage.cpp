@@ -743,6 +743,11 @@ void  SegmentImage::SmoothProjectionImage()
 
 }
 
+void  SegmentImage::SmoothProjectionImageBiLinear()
+{
+
+}
+
 void SegmentImage::boundaryFill4 (int x, int y)
 {
     QRgb currentrgb;

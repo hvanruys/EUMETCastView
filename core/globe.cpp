@@ -624,23 +624,23 @@ void Globe::paintGL()
 
     if (bSegmentNames && opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
     {
-        drawSegmentNames(&painter, modelview, SegmentList::METOP, segs->seglmetop->GetSegmentlistptr());
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_METOP, segs->seglmetop->GetSegmentlistptr());
     }
     else if (bSegmentNames && opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
     {
-        drawSegmentNames(&painter, modelview, SegmentList::NOAA, segs->seglnoaa->GetSegmentlistptr());
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_NOAA, segs->seglnoaa->GetSegmentlistptr());
     }
     else if (bSegmentNames && opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
     {
-        drawSegmentNames(&painter, modelview, SegmentList::HRP, segs->seglhrp->GetSegmentlistptr());
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_HRP, segs->seglhrp->GetSegmentlistptr());
     }
     else if (bSegmentNames && opts.buttonGAC && segs->seglgac->NbrOfSegments() > 0)
     {
-        drawSegmentNames(&painter, modelview, SegmentList::GAC, segs->seglgac->GetSegmentlistptr());
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_GAC, segs->seglgac->GetSegmentlistptr());
     }
     else if (bSegmentNames && opts.buttonVIIRS && segs->seglviirs->NbrOfSegments() > 0)
     {
-        drawSegmentNames(&painter, modelview, SegmentList::VIIRS, segs->seglviirs->GetSegmentlistptr());
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRS, segs->seglviirs->GetSegmentlistptr());
     }
 
 
@@ -833,7 +833,8 @@ void Globe::drawStationNames(QPainter *painter, QMatrix4x4 modelview)
 
 }
 
-void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, SegmentList::eSegments seg, QList<Segment *> *segptr)
+
+void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentType seg, QList<Segment *> *segptr)
 {
     //0123456789012345678901234567890123456789012345678901234567890123456
     //AVHR_GAC_1B_N19_20140127061603Z_20140127061903Z_N_O_20140127080206Z
@@ -890,23 +891,23 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, SegmentLis
             if(result > angle)
             {
 
-                if(seg == SegmentList::METOP)
+                if(seg == eSegmentType::SEG_METOP)
                 {
                     renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(12, 3)).arg((*segit)->fileInfo.fileName().mid(24, 2)).arg((*segit)->fileInfo.fileName().mid(26, 2));
                 }
-                else if(seg == SegmentList::NOAA)
+                else if(seg == eSegmentType::SEG_NOAA)
                 {
                     renderout = QString("%1 %2:%3").arg("N19").arg((*segit)->fileInfo.fileName().mid(15, 2)).arg((*segit)->fileInfo.fileName().mid(17, 2));
                 }
-                else if(seg == SegmentList::GAC)
+                else if(seg == eSegmentType::SEG_GAC)
                 {
                     renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(12, 3)).arg((*segit)->fileInfo.fileName().mid(24, 2)).arg((*segit)->fileInfo.fileName().mid(26, 2));
                 }
-                else if(seg == SegmentList::HRP)
+                else if(seg == eSegmentType::SEG_HRP)
                 {
                     renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(12, 3)).arg((*segit)->fileInfo.fileName().mid(24, 2)).arg((*segit)->fileInfo.fileName().mid(26, 2));
                 }
-                else if(seg == SegmentList::VIIRS)
+                else if(seg == eSegmentType::SEG_VIIRS)
                 {
                     renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(5, 3)).arg((*segit)->fileInfo.fileName().mid(20, 2)).arg((*segit)->fileInfo.fileName().mid(22, 2));
                 }

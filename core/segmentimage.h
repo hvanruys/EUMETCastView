@@ -40,6 +40,7 @@ public:
          unsigned short Min, unsigned short Max, unsigned int uiNrX, unsigned int uiNrY,
               unsigned int uiNrBins, float fCliplimit);
     void SmoothProjectionImage();
+    void SmoothProjectionImageBiLinear();
     void showHistogram(QImage *ptr);
 
     QImage *ptrimagecomp_ch[5];

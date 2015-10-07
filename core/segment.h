@@ -55,7 +55,7 @@ public:
     virtual void ComposeSegmentGVProjection(int inputchannel);
     virtual void ComposeSegmentSGProjection(int inputchannel);
 
-    virtual void ComposeProjectionConcurrent();
+    //virtual void ComposeProjectionConcurrent();
     virtual bool lookupLonLat(double lon_rad, double lat_rad, int &col, int &row);
 
     //void RenderSegmentContourline(float lat_first, float lon_first, float lat_last, float lon_last);

@@ -359,4 +359,25 @@ QDateTime julianDoubleToDateTime(double julian)
     return QDateTime(d, t, Qt::UTC);
 }
 
+int Min(const int *Numbers, const int Count)
+{
+    int Minimum = Numbers[0];
+
+    for(int i = 0; i < Count; i++)
+        if( Minimum > Numbers[i] )
+            Minimum = Numbers[i];
+    return Minimum;
+}
+
+int Max(const int *Numbers, const int Count)
+{
+    int Maximum = Numbers[0];
+
+    for(int i = 0; i < Count; i++)
+        if( Maximum < Numbers[i] )
+            Maximum = Numbers[i];
+    return Maximum;
+}
+
+
 /*------------------------------------------------------------------*/

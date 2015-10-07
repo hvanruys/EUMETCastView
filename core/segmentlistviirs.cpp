@@ -9,8 +9,59 @@
 #include <QPainter>
 #include <math.h>
 
+#include <iostream>
+#include <iomanip>
+
 extern Options opts;
 extern SegmentImage *imageptrs;
+
+quint16 Min(const quint16 v11, const quint16 v12, const quint16 v21, const quint16 v22)
+{
+    quint16 Minimum = v11;
+
+    if( Minimum > v12 )
+            Minimum = v12;
+    if( Minimum > v21 )
+            Minimum = v21;
+    if( Minimum > v22 )
+            Minimum = v22;
+
+    return Minimum;
+}
+
+quint16 Min2(const quint16 v11, const quint16 v12)
+{
+    quint16 Minimum = v11;
+
+    if( Minimum > v12 )
+            Minimum = v12;
+
+    return Minimum;
+}
+
+quint16 Max(const quint16 v11, const quint16 v12, const quint16 v21, const quint16 v22)
+{
+    int Maximum = v11;
+
+    if( Maximum < v12 )
+            Maximum = v12;
+    if( Maximum < v21 )
+            Maximum = v21;
+    if( Maximum < v22 )
+            Maximum = v22;
+
+    return Maximum;
+}
+
+quint16 Max2(const quint16 v11, const quint16 v12)
+{
+    int Maximum = v11;
+
+    if( Maximum < v12 )
+            Maximum = v12;
+
+    return Maximum;
+}
 
 void doComposeVIIRSImageInThread(SegmentListVIIRS *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
@@ -27,10 +78,10 @@ void SegmentListVIIRS::doComposeSegmentImageVIIRS(Segment *t)
     t->ComposeSegmentImage();
 }
 
-void SegmentListVIIRS::doComposeProjection(Segment *t)
-{
-    t->ComposeProjectionConcurrent();
-}
+//void SegmentListVIIRS::doComposeProjection(Segment *t)
+//{
+//    t->ComposeProjectionConcurrent();
+//}
 
 SegmentListVIIRS::SegmentListVIIRS(SatelliteList *satl, QObject *parent)
 {
@@ -38,7 +89,6 @@ SegmentListVIIRS::SegmentListVIIRS(SatelliteList *satl, QObject *parent)
     qDebug() << QString("in constructor SegmentListVIIRS");
 
     earthviews = 3200;
-
     satlist = satl;
 
 }
@@ -324,16 +374,16 @@ bool SegmentListVIIRS::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int
 
 }
 
-void SegmentListVIIRS::viirsFinished()
-{
-    QApplication::restoreOverrideCursor();
+//void SegmentListVIIRS::viirsFinished()
+//{
+//    QApplication::restoreOverrideCursor();
 
-    qDebug() << "viirsFinished()";
+//    qDebug() << "viirsFinished()";
 
-    emit segmentlistfinished();
-    emit progressCounter(100);
+//    emit segmentlistfinished();
+//    emit progressCounter(100);
 
-}
+//}
 
 
 //bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
@@ -573,8 +623,6 @@ void SegmentListVIIRS::composefinishedviirs()
 
     qDebug() << "SegmentListVIIRS::composefinishedviirs()";
 
-    //SmoothVIIRSImage();
-
     emit progressCounter(100);
 
     delete watchercomposeviirs;
@@ -745,125 +793,526 @@ void SegmentListVIIRS::CalculateLUT()
 void SegmentListVIIRS::SmoothVIIRSImage()
 {
 
+    struct point { quint16 x; quint16 y; quint16 value; };
+
     qDebug() << "start SegmentListVIIRS::SmoothVIIRSImage()";
-    int earth_views;
-    bool composecolor;
 
-    int pixval[3];
-    bool valok[3];
-
-    int lineimage;
-    int saveindex1 = -1;
-    int saveindex2 = -1;
-    int savepixval = -1;
+    int lineimage = 0;
 
     QList<Segment *>::iterator segsel;
-    for (int pixelx = 0; pixelx < earthviews; pixelx++)
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
     {
-        lineimage = 0;
-        segsel = segsselected.begin();
-        while ( segsel != segsselected.end() )
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        BilinearInterpolation(segm);
+        //printData(segm);
+        ++segsel;
+        lineimage += segm->NbrOfLines;
+
+    }
+}
+
+void SegmentListVIIRS::printData(SegmentVIIRS *segm)
+{
+    int yaaa = 16 * 17;
+    int xaaa = 16 * 67;
+    fprintf(stderr, "projectionCoordX \n");
+    for( int i = yaaa + 0; i < yaaa + 16; i++) //this->NbrOfLines - 1; i++)
+    {
+        for( int j = xaaa + 0; j < xaaa + 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
         {
-            SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-            composecolor = segm->composeColorImage();
 
-            for (int line = 0; line < segm->NbrOfLines; line++)
+            fprintf(stderr, "%u, ", segm->getProjectionX(i,j));
+        }
+
+        fprintf(stderr, "\n");
+    }
+
+
+    fprintf(stderr, "projectionCoordY \n");
+    for( int i = yaaa + 0; i < yaaa + 16; i++) //this->NbrOfLines - 1; i++)
+    {
+        for( int j = xaaa + 0; j < xaaa + 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
+        {
+
+            fprintf(stderr, "%u, ", segm->getProjectionY(i,j));
+        }
+
+        fprintf(stderr, "\n");
+    }
+
+    fprintf(stderr, "projectionCoordValues \n");
+    for( int i = yaaa + 0; i < yaaa + 16; i++) //this->NbrOfLines - 1; i++)
+    {
+        for( int j = xaaa + 0; j < xaaa + 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
+        {
+
+            fprintf(stderr, "%u, ", qRed(segm->getProjectionValue(i,j)));
+        }
+
+        fprintf(stderr, "\n");
+    }
+
+}
+
+inline bool SegmentListVIIRS::PixelOK(int pix)
+{
+    return (pix > 0 && pix < 65528 ? true : false);
+}
+
+
+
+void SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm)
+{
+    quint16 x11;
+    quint16 y11;
+    QRgb rgb11;
+
+    quint16 x12;
+    quint16 y12;
+    QRgb rgb12;
+
+    quint16 x21;
+    quint16 y21;
+    QRgb rgb21;
+
+    quint16 x22;
+    quint16 y22;
+    QRgb rgb22;
+
+    quint16 xc11;
+    quint16 yc11;
+
+    quint16 xc12;
+    quint16 yc12;
+
+    quint16 xc21;
+    quint16 yc21;
+
+    quint16 xc22;
+    quint16 yc22;
+
+    quint16 minx;
+    quint16 miny;
+    quint16 maxx;
+    quint16 maxy;
+
+    quint16 anchorX;
+    quint16 anchorY;
+
+    int dimx, dimy;
+
+    long counter = 0;
+    long counterb = 0;
+
+    QRgb *canvas;
+
+    qDebug() << "===> start SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm)";
+    for (int line = 0; line < segm->NbrOfLines-1; line++)
+    {
+        for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
+        {
+            x11 = segm->getProjectionX(line, pixelx);
+            y11 = segm->getProjectionY(line, pixelx);
+
+            x12 = segm->getProjectionX(line, pixelx+1);
+            y12 = segm->getProjectionY(line, pixelx+1);
+
+            x21 = segm->getProjectionX(line+1, pixelx);
+            y21 = segm->getProjectionY(line+1, pixelx);
+
+            x22 = segm->getProjectionX(line+1, pixelx+1);
+            y22 = segm->getProjectionY(line+1, pixelx+1);
+
+            if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528)
             {
-                for(int k = 0; k < (composecolor ? 3 : 1); k++)
-                    pixval[k] = *(segm->ptrbaVIIRS[k] + line * segm->earth_views_per_scanline + pixelx);
+                minx = Min(x11, x12, x21, x22);
+                miny = Min(y11, y12, y21, y22);
+                maxx = Max(x11, x12, x21, x22);
+                maxy = Max(y11, y12, y21, y22);
 
-
-                valok[0] = PixelOK(pixval[0]);
-                if(composecolor)
+                anchorX = minx;
+                anchorY = miny;
+                dimx = maxx + 1 - minx;
+                dimy = maxy + 1 - miny;
+                if( dimx == 1 && dimy == 1 )
                 {
-                    valok[1] = PixelOK(pixval[1]);
-                    valok[2] = PixelOK(pixval[2]);
-                }
-
-                if( valok[0] && (composecolor ? valok[1] && valok[2] : true))
-                {
-                    if(saveindex2 > 0)
-                    {
-                        InterpolateVIIRS(saveindex1, saveindex2+1, pixelx);
-                        saveindex2 = -1;
-                    }
-                    saveindex1 = lineimage + line;
-                    savepixval = pixval[0];
+                    counter++;
                 }
                 else
                 {
-                    if(savepixval != -1)
-                    {
-                        saveindex2 = lineimage + line;
-                        savepixval = pixval[0];
+                    rgb11 = segm->getProjectionValue(line, pixelx);
+                    rgb12 = segm->getProjectionValue(line, pixelx+1);
+                    rgb21 = segm->getProjectionValue(line+1, pixelx);
+                    rgb22 = segm->getProjectionValue(line+1, pixelx+1);
 
-                    }
-                 }
+                    xc11 = x11 - minx;
+                    xc12 = x12 - minx;
+                    xc21 = x21 - minx;
+                    xc22 = x22 - minx;
+                    yc11 = y11 - miny;
+                    yc12 = y12 - miny;
+                    yc21 = y21 - miny;
+                    yc22 = y22 - miny;
 
+                    canvas = new QRgb[dimx * dimy];
+                    for(int i = 0 ; i < dimx * dimy ; i++)
+                        canvas[i] = qRgba(0,0,0,0);
+
+                    canvas[yc11 * dimx + xc11] = rgb11;
+                    canvas[yc12 * dimx + xc12] = rgb12;
+                    canvas[yc21 * dimx + xc21] = rgb21;
+                    canvas[yc22 * dimx + xc22] = rgb22;
+
+
+//                    for ( int i = 0; i < dimy; i++ )
+//                    {
+//                       for ( int j = 0; j < dimx; j++ )
+//                       {
+//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
+//                       }
+//                       std::cout << std::endl;
+//                    }
+
+//                    std::cout << "....................................... line " << line << " pixelx = " << pixelx << std::endl;
+
+                    bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
+                    bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
+                    bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
+                    bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
+
+//                    for ( int i = 0; i < dimy; i++ )
+//                    {
+//                       for ( int j = 0; j < dimx; j++ )
+//                       {
+//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
+//                       }
+//                       std::cout << std::endl;
+//                    }
+
+//                    std::cout << "-------------------------------------- line " << line << " pixelx = " << pixelx << std::endl;
+
+                    MapInterpolation(canvas, dimx, dimy);
+                    MapCanvas(canvas, anchorX, anchorY, dimx, dimy);
+
+//                    for ( int i = 0; i < dimy; i++ )
+//                    {
+//                       for ( int j = 0; j < dimx; j++ )
+//                       {
+//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
+//                       }
+//                       std::cout << std::endl;
+//                    }
+
+//                    std::cout << "================================= line " << line << " pixelx = " << pixelx << std::endl;
+
+                    delete [] canvas;
+                    counterb++;
+                }
             }
-            ++segsel;
-            lineimage += segm->NbrOfLines;
+        }
+    }
+
+    qDebug() << QString("====> end SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm) counter = %1 countern = %2").arg(counter).arg(counterb);
+
+}
+
+
+bool SegmentListVIIRS::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx)
+{
+    int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
+    int deltared, deltagreen, deltablue;
+    dx=x2-x1;
+    dy=y2-y1;
+    dx1=fabs(dx);
+    dy1=fabs(dy);
+    px=2*dy1-dx1;
+    py=2*dx1-dy1;
+
+
+    if(dy1<=dx1)
+    {
+        if(dx1==0)
+            return false;
+
+        if(dx>=0)
+        {
+            x=x1;
+            y=y1;
+            xe=x2;
+            deltared = (qRed(rgb2) - qRed(rgb1))/ dx1 ;
+            deltagreen = (qGreen(rgb2) - qGreen(rgb1))/ dx1 ;
+            deltablue = (qBlue(rgb2) - qBlue(rgb1))/ dx1 ;
+//            canvas[y * yy + x] = val1;
+
+        }
+        else
+        {
+            x=x2;
+            y=y2;
+            xe=x1;
+            deltared = (qRed(rgb1) - qRed(rgb2))/ dx1 ;
+            deltagreen = (qGreen(rgb1) - qGreen(rgb2))/ dx1 ;
+            deltablue = (qBlue(rgb1) - qBlue(rgb2))/ dx1 ;
+//            canvas[y * yy + x] = val2;
+
         }
 
+        for(i=0;x<xe;i++)
+        {
+            x=x+1;
+
+            if(px<0)
+            {
+                px=px+2*dy1;
+            }
+            else
+            {
+                if((dx<0 && dy<0) || (dx>0 && dy>0))
+                {
+                    y=y+1;
+                }
+                else
+                {
+                    y=y-1;
+                }
+                px=px+2*(dy1-dx1);
+            }
+            if(dx>=0)
+            {
+                rgb1 = qRgb(qRed(rgb1) + deltared, qGreen(rgb1) + deltagreen, qBlue(rgb1) + deltablue );
+                if( x != xe)
+                    canvas[y * dimx + x] = rgb1;
+            }
+            else
+            {
+                rgb2 = qRgb(qRed(rgb2) + deltared, qGreen(rgb2) + deltagreen, qBlue(rgb2) + deltablue );
+                if( x != xe)
+                    canvas[y * dimx + x] = rgb2;
+            }
+
+        }
     }
-
-    qDebug() << "end SegmentListVIIRS::SmoothVIIRSImage()";
-
-
-
-}
-
-void SegmentListVIIRS::InterpolateVIIRS(int index1, int index2, int pixelx)
-{
-    //qDebug() << QString("index1 = %1 index2 = %2 pixelx = %4").arg(index1).arg(index2).arg(pixelx);
-
-    QRgb *row_1, *row_2;
-
-    row_1 = (QRgb*)imageptrs->ptrimageViirs->scanLine(index1);
-    row_2 = (QRgb*)imageptrs->ptrimageViirs->scanLine(index2);
-
-    QRgb pix1, pix2;
-
-    pix1 = row_1[pixelx];
-    pix2 = row_2[pixelx];
-
-    int red1 = qRed(pix1);
-    int red2 = qRed(pix2);
-    int green1 = qGreen(pix1);
-    int green2 = qGreen(pix2);
-    int blue1 = qBlue(pix1);
-    int blue2 = qBlue(pix2);
-
-    int parts = index2 - index1;
-
-    int deltared = (red2 - red1)/parts;
-    int deltagreen = (green2 - green1)/parts;
-    int deltablue = (blue2 - blue1)/parts;
-
-    int red, green, blue;
-    red = ( red1 + deltared > 255 ? 255 : red1 + deltared);
-    green = ( green1 + deltagreen > 255 ? 255 : green1 + deltagreen);
-    blue = ( blue1 + deltablue > 255 ? 255 : blue1 + deltablue);
-
-    for (int line = index1 + 1, delta = 1; line < index2; line++)
-    {
-        row_1 = (QRgb*)imageptrs->ptrimageViirs->scanLine(line);
-
-        red = ( red1 + deltared * delta > 255 ? 255 : red1 + deltared * delta);
-        green = ( green1 + deltagreen * delta > 255 ? 255 : green1 + deltagreen * delta);
-        blue = ( blue1 + deltablue * delta > 255 ? 255 : blue1 + deltablue * delta);
-
-        row_1[pixelx] = qRgb(red, green, blue );
-        delta++;
-    }
-
-}
-
-bool SegmentListVIIRS::PixelOK(int pix)
-{
-    if(pix > 0 && pix < 65528)
-        return true;
     else
-        return false;
+    {
+        if(dy1==0)
+            return false;
+
+        if(dy>=0)
+        {
+            x=x1;
+            y=y1;
+            ye=y2;
+            deltared = (qRed(rgb2) - qRed(rgb1))/ dy1 ;
+            deltagreen = (qGreen(rgb2) - qGreen(rgb1))/ dy1 ;
+            deltablue = (qBlue(rgb2) - qBlue(rgb1))/ dy1 ;
+
+//            canvas[y * yy + x] = val1;
+        }
+        else
+        {
+            x=x2;
+            y=y2;
+            ye=y1;
+            deltared = (qRed(rgb1) - qRed(rgb2))/ dy1 ;
+            deltagreen = (qGreen(rgb1) - qGreen(rgb2))/ dy1 ;
+            deltablue = (qBlue(rgb1) - qBlue(rgb2))/ dy1 ;
+
+//            canvas[y * yy + x] = val2;
+        }
+
+
+        for(i=0;y<ye;i++)
+        {
+            y=y+1;
+
+            if(py<=0)
+            {
+                py=py+2*dx1;
+            }
+            else
+            {
+                if((dx<0 && dy<0) || (dx>0 && dy>0))
+                {
+                    x=x+1;
+                }
+                else
+                {
+                    x=x-1;
+                }
+                py=py+2*(dx1-dy1);
+            }
+            if(dy>=0)
+            {
+                rgb1 = qRgb(qRed(rgb1) + deltared, qGreen(rgb1) + deltagreen, qBlue(rgb1) + deltablue );
+                if( y != ye)
+                    canvas[y * dimx + x] = rgb1;
+            }
+            else
+            {
+                rgb2 = qRgb(qRed(rgb2) + deltared, qGreen(rgb2) + deltagreen, qBlue(rgb2) + deltablue );
+                if( y != ye)
+                    canvas[y * dimx + x] = rgb2;
+            }
+        }
+    }
+
+    return true;
 }
 
+
+
+void SegmentListVIIRS::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
+{
+
+    for(int h = 0; h < dimy; h++ )
+    {
+        QRgb start = qRgba(0,0,0,0);
+        QRgb end = qRgba(0,0,0,0);
+        bool hole = false;
+        bool first = false;
+        bool last = false;
+        int holecount = 0;
+
+        for(int w = 0; w < dimx; w++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 255 && hole == false)
+            {
+                start = rgb;
+                first = true;
+            }
+            else if(rgbalpha == 255 && hole == true)
+            {
+                end = rgb;
+                last = true;
+                break;
+            }
+            else if(rgbalpha == 0 && first == true)
+            {
+                hole = true;
+                holecount++;
+                canvas[h * dimx + w] = qRgba(0,0,0,100);
+            }
+        }
+
+        if(holecount == 0)
+            continue;
+        if(first == false || last == false)
+        {
+            for(int w = 0; w < dimx; w++)
+            {
+                QRgb rgb = canvas[h * dimx + w];
+                if(qAlpha(rgb) == 100)
+                    canvas[h * dimx + w] = qRgba(0,0,0,0);
+            }
+            continue;
+        }
+
+
+
+        int deltared = (qRed(end) - qRed(start)) / (holecount+1);
+        int deltagreen = (qGreen(end) - qGreen(start)) / (holecount+1);
+        int deltablue = (qBlue(end) - qBlue(start)) / (holecount+1);
+
+        int red = qRed(start);
+        int green = qGreen(start);
+        int blue = qBlue(start);
+
+        for(int w = 0; w < dimx; w++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 100)
+            {
+                red += deltared;
+                green += deltagreen;
+                blue += deltablue;
+                canvas[h * dimx + w] = qRgba(red, green, blue, 100);
+            }
+        }
+    }
+
+
+    for(int w = 0; w < dimx; w++)
+    {
+        QRgb start = qRgba(0,0,0,0);
+        QRgb end = qRgba(0,0,0,0);
+
+        int hcount = 0;
+
+        bool startok = false;
+
+        for(int h = 0; h < dimy; h++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 255 && !startok)
+            {
+                start = rgb;
+            }
+            else
+            {
+                if(rgbalpha == 255)
+                {
+                    end = rgb;
+                    break;
+                }
+                else if(rgbalpha == 100)
+                {
+                    startok = true;
+                    hcount++;
+                }
+
+            }
+        }
+
+        if(hcount == 0)
+            continue;
+
+        int redstart = qRed(start);
+        int greenstart = qGreen(start);
+        int bluestart = qBlue(start);
+
+        int deltared = (qRed(end) - qRed(start)) / (hcount+1);
+        int deltagreen = (qGreen(end) - qGreen(start)) / (hcount+1);
+        int deltablue = (qBlue(end) - qBlue(start)) / (hcount+1);
+
+
+        for(int h = 0; h < dimy; h++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 100)
+            {
+                redstart += deltared;
+                greenstart += deltagreen;
+                bluestart += deltablue;
+                int redtotal = (qRed(canvas[h * dimx + w]) + redstart)/2;
+                int greentotal = (qGreen(canvas[h * dimx + w]) + greenstart)/2;
+                int bluetotal = (qBlue(canvas[h * dimx + w]) + bluestart)/2;
+
+                canvas[h * dimx + w] = qRgba(redtotal, greentotal, bluetotal, 255);
+            }
+        }
+    }
+
+
+}
+
+void SegmentListVIIRS::MapCanvas(QRgb *canvas, quint16 anchorX, quint16 anchorY, quint16 dimx, quint16 dimy)
+{
+
+    for(int h = 0; h < dimy; h++ )
+    {
+        for(int w = 0; w < dimx; w++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            if(qAlpha(rgb) == 255)
+                imageptrs->ptrimageProjection->setPixel(anchorX + w, anchorY + h, rgb);
+        }
+    }
+
+
+}

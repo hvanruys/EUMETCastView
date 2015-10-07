@@ -27,8 +27,6 @@ public:
 
     Segment *ReadSegmentInMemory();
     Segment *ReadDatasetsInMemory();
-    bool lookupLonLat(double lon_deg, double lat_deg, int &col, int &row);
-    bool testlookupLonLat(double lon_deg, double lat_deg, int &col, int &row);
     int ReadNbrOfLines();
 
     void setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert);
@@ -37,13 +35,15 @@ public:
     void ComposeSegmentGVProjection(int inputchannel);
     void ComposeSegmentSGProjection(int inputchannel);
     void ComposeProjection(eProjections proj);
-    void ComposeProjectionConcurrent();
+    //void ComposeProjectionConcurrent();
 
     QString getDatasetNameFromBand();
     QString getDatasetNameFromColor(int colorindex);
     bool composeColorImage();
+    quint16 getProjectionX(int line, int pixelx) { return projectionCoordX[line * 3200 + pixelx]; }
+    quint16 getProjectionY(int line, int pixelx) { return projectionCoordY[line * 3200 + pixelx]; }
+    QRgb getProjectionValue(int line, int pixelx) { return projectionCoordValue[line * 3200 + pixelx]; }
     int threshold[3];
-
 
 private:
 
@@ -61,6 +61,12 @@ private:
     float s[16];
     float *geolatitude;
     float *geolongitude;
+
+    quint16 *projectionCoordX;
+    quint16 *projectionCoordY;
+    QRgb *projectionCoordValue;
+
+
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> invertlist;
@@ -69,7 +75,6 @@ private:
     float lonMax;
     float latMin;
     float lonMin;
-    QMap<int, QList<lonlatdata>> viirsmap;
 
     bool invertthissegment[3];
 

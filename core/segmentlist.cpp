@@ -3,9 +3,8 @@
 
 //#include "segmentmetop.h"
 //#include "segmentimage.h"
-//#include "segmentlist.h"
+#include "segmentlist.h"
 #include "avhrrsatellite.h"
-
 #include "options.h"
 
 extern Options opts;
@@ -111,23 +110,6 @@ int SegmentList::NbrOfSegmentsShown()
 
 }
 
-
-//int SegmentList::NbrOfSegmentsReady()
-//{
-//    int nbr = 0;
-
-//    QList<Segment*>::iterator segit = segmentlist.begin();
-
-//    while ( segit != segmentlist.end() )
-//    {
-//        if( (*segit)->isImageReady())
-//            nbr++;
-//        ++segit;
-//    }
-
-//    return nbr;
-
-//}
 
 int SegmentList::NbrOfSegmentLinesSelected()
 {
@@ -748,8 +730,6 @@ void SegmentList::ComposeGVProjection(int inputchannel)
          emit segmentprojectionfinished();
         ++segit;
     }
-    if(opts.smoothprojectionimage)
-        imageptrs->SmoothProjectionImage();
 
 }
 
@@ -774,8 +754,6 @@ void SegmentList::ComposeLCCProjection(int inputchannel)
         emit segmentprojectionfinished();
         ++segit;
     }
-    if(opts.smoothprojectionimage)
-        imageptrs->SmoothProjectionImage();
 
 }
 
@@ -789,27 +767,25 @@ void SegmentList::ComposeSGProjection(int inputchannel)
         emit segmentprojectionfinished();
         ++segit;
     }
-    if(opts.smoothprojectionimage)
-        imageptrs->SmoothProjectionImage();
 
 }
 
 
-void SegmentList::composeprojectionfinished()
-{
+//void SegmentList::composeprojectionfinished()
+//{
 
-    qDebug() << "composeprojectionfinished";
+//    qDebug() << "composeprojectionfinished";
 
-    QRgb val;
-    QRgb *row;
+//    QRgb val;
+//    QRgb *row;
 
-    if(opts.smoothprojectionimage)
-        imageptrs->SmoothProjectionImage();
+//    if(opts.smoothprojectionimage)
+//        imageptrs->SmoothProjectionImage();
 
-    QApplication::restoreOverrideCursor();
+//    QApplication::restoreOverrideCursor();
 
-    emit segmentprojectionfinished();
-}
+//    emit segmentprojectionfinished();
+//}
 
 void SegmentList::composeprojectionreadyat(int segmentnbr)
 {

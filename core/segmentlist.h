@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QPen>
 #include <QFutureWatcher>
+//#include "avhrrsatellite.h"
 
 class Segment;
 
@@ -15,22 +16,12 @@ class SegmentList : public QObject
 
 public:
 
-    enum eSegments {
-        NONE = 0,
-        METOP,
-        NOAA,
-        HRP,
-        GAC,
-        VIIRS
-    };
-
     explicit SegmentList(QObject *parent = 0);
     void CalculateSunPosition(double first_julian, double last_julian, QVector3D *sunPosition);
     void SetNbrOfVisibleSegments(int nbr);
     int GetNbrOfVisibleSegments();
     void SetIndexFirstVisible(int cnt) { indexfirstvisible = cnt; }
     void SetIndexLastVisible(int cnt) { indexlastvisible = cnt; }
-    QString GetSatelliteName() { return segmenttype; }
     void SetTotalSegmentsInDirectory(long nbr) { TotalSegmentsInDirectory = nbr; }
     int GetTotalSegmentsInDirectory() { return TotalSegmentsInDirectory; }
     void SetDirectoryName(QString its) { directoryname = its; }
@@ -42,7 +33,6 @@ public:
     int NbrOfSegmentsSelected();
     int NbrOfSegmentsShown();
     int NbrOfSegmentLinesSelected();
-    // int NbrOfSegmentsReady();
     bool imageMemory();
 
     void GetFirstLastVisible( double *first_julian,  double *last_julian);
@@ -95,7 +85,7 @@ protected:
     QList<Segment *> segsselected;
     QFutureWatcher<void> *watcherread;
     QFutureWatcher<void> *watchercompose;
-    QFutureWatcher<void> *watchercomposeprojection;
+    //QFutureWatcher<void> *watchercomposeprojection;
 
     double factor_ch[5];
     float scale;
@@ -105,7 +95,7 @@ protected slots:
     void composefinished();
     void resultisready(int segmentnbr);
     void resultcomposeisready(int segmentnbr);
-    void composeprojectionfinished();
+//    void composeprojectionfinished();
     void composeprojectionreadyat(int segmentnbr);
 
 signals:

@@ -131,6 +131,8 @@ int intersect(struct line l1, struct line l2);
 int pnpoly(int nvert, const QPoint *points, int testx, int testy);
 void sortSphericalVectorLon(SphericalVector arr[], int size);
 
+int Min(const int *Numbers, const int Count);
+int Max(const int *Numbers, const int Count);
 
 
 

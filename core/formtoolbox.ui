@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabAVHHR">
       <attribute name="title">
@@ -3578,7 +3578,7 @@
                   <item>
                    <widget class="QDoubleSpinBox" name="spbGVPscale">
                     <property name="singleStep">
-                     <double>0.050000000000000</double>
+                     <double>0.010000000000000</double>
                     </property>
                    </widget>
                   </item>
