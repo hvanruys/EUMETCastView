@@ -141,7 +141,7 @@ public:
     double mapsgradius;
     double meteosatgamma;
     double yawcorrection;
-    bool smoothprojectionimage;
+    int smoothprojectiontype;
     bool gridonprojection;
     float clahecliplimit;
 

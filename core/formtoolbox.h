@@ -173,7 +173,10 @@ private slots:
     void on_rbtnACh5_clicked();
     void on_btnTextureVIIRS_clicked();
     void on_sliCLAHE_sliderMoved(int position);
+    void on_sliCLAHEprojection_sliderMoved(int position);
+
     void on_cbProjResolutions_currentIndexChanged(int index);
+    void on_btnCLAHEprojection_clicked();
 };
 
 #endif // FORMTOOLBOX_H

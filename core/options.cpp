@@ -122,7 +122,8 @@ void Options::Initialize()
     projectionoverlaycolor3=settings.value("/window/projectionoverlaycolor3", "#b9b9b9").value<QString>();
     projectionoverlaylonlatcolor=settings.value("/window/projectionoverlaylonlatcolor", "#b9b9b9").value<QString>();
 
-    smoothprojectionimage = settings.value("/window/smoothprojectionimage", true ).toBool();
+    smoothprojectiontype = settings.value("/window/smoothprojectiontype", 0 ).toInt();
+
     gridonprojection = settings.value("/window/gridonprojection", true ).toBool();
     textureOn = settings.value("/window/textureon", true ).toBool();
     stationnameOn = settings.value("/window/stationnameon", false ).toBool();
@@ -416,7 +417,8 @@ void Options::Save()
     settings.setValue("/window/projectionoverlaycolor3", projectionoverlaycolor3 );
     settings.setValue("/window/projectionoverlaylonlatcolor", projectionoverlaylonlatcolor );
 
-    settings.setValue("/window/smoothprojectionimage", smoothprojectionimage );
+    settings.setValue("/window/smoothprojectiontype", smoothprojectiontype );
+
     settings.setValue("/window/gridonprojection", gridonprojection );
     settings.setValue("/window/textureon", textureOn );
     settings.setValue("/window/stationnameon", stationnameOn );

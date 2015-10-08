@@ -11,6 +11,7 @@ extern SegmentImage *imageptrs;
 extern gshhsData *gshhsdata;
 
 #include <QMutex>
+#include <QDebug>
 
 #define MAP_X 3
 #define MAP_Y 3
@@ -1479,6 +1480,68 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     QApplication::restoreOverrideCursor();
 }
+
+void FormImage::CLAHEprojection()
+{
+    quint16 *pixelsRed;
+    quint16 *pixelsGreen;
+    quint16 *pixelsBlue;
+    QRgb *scan;
+    QRgb rgb;
+    int projwidth = imageptrs->ptrimageProjection->width();
+    int projheight = imageptrs->ptrimageProjection->height();
+
+    qDebug() << "FormImage::CLAHEprojection()";
+
+    QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
+
+    pixelsRed = new quint16[projwidth * projheight];
+    pixelsGreen = new quint16[projwidth * projheight];
+    pixelsBlue = new quint16[projwidth * projheight];
+
+    for(int line = 0; line < projheight; line++)
+    {
+        scan = (QRgb *)imageptrs->ptrimageProjection->scanLine(line);
+
+        for(int pixelx = 0; pixelx < projwidth; pixelx++)
+        {
+            rgb = scan[pixelx];
+            pixelsRed[line * projwidth + pixelx] = qRed(rgb);
+            pixelsGreen[line * projwidth + pixelx] = qGreen(rgb);
+            pixelsBlue[line * projwidth + pixelx] = qBlue(rgb);
+
+        }
+    }
+
+    imageptrs->CLAHE(pixelsRed, projwidth, projheight, 0, 1023, 16, 16, 256, opts.clahecliplimit);
+    imageptrs->CLAHE(pixelsGreen, projwidth, projheight, 0, 1023, 16, 16, 256, opts.clahecliplimit);
+    imageptrs->CLAHE(pixelsBlue, projwidth, projheight, 0, 1023, 16, 16, 256, opts.clahecliplimit);
+
+
+
+    for(int line = 0; line < projheight; line++)
+    {
+        scan = (QRgb *)imageptrs->ptrimageProjection->scanLine(line);
+
+        for(int pixelx = 0; pixelx < projwidth; pixelx++)
+        {
+            rgb = qRgb(pixelsRed[line * projwidth + pixelx],
+                    pixelsGreen[line * projwidth + pixelx],
+                    pixelsBlue[line * projwidth + pixelx]);
+            scan[pixelx] = rgb;
+
+        }
+    }
+
+    this->slotUpdateProjection();
+
+    QApplication::restoreOverrideCursor();
+
+    delete [] pixelsRed;
+    delete [] pixelsGreen;
+    delete [] pixelsBlue;
+}
+
 
 void FormImage::fillptrimage(quint16 *pix)
 {

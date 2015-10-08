@@ -196,7 +196,9 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblRemoveVIIRS->setVisible(false);
 
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
+    ui->lblCLAHEprojection->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
+    ui->sliCLAHEprojection->setSliderPosition(opts.clahecliplimit * 10);
 
     if(opts.lastVIIRSband == 0)
         ui->rbColorVIIRS->setChecked(true);
@@ -2688,6 +2690,14 @@ void FormToolbox::on_sliCLAHE_sliderMoved(int position)
 {
     opts.clahecliplimit = float(position)/10;
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
+    ui->lblCLAHEprojection->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
+}
+
+void FormToolbox::on_sliCLAHEprojection_sliderMoved(int position)
+{
+    opts.clahecliplimit = float(position)/10;
+    ui->lblCLAHEprojection->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
+    ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
 }
 
 void FormToolbox::createFilenamestring(QString sat, QString d, QVector<QString> spectrum)
@@ -2725,5 +2735,14 @@ void FormToolbox::on_cbProjResolutions_currentIndexChanged(int index)
         ui->spbMapWidth->setValue(resolutionX.at(index-1));
         ui->spbMapHeight->setValue(resolutionY.at(index-1));
     }
+
+}
+
+void FormToolbox::on_btnCLAHEprojection_clicked()
+{
+
+    QApplication::processEvents();
+    formimage->CLAHEprojection();
+    //formimage->slotUpdateMeteosat();
 
 }

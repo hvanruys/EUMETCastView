@@ -123,8 +123,13 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->ledAlt->setText(QString("%1").arg(opts.obsalt));
 
     ui->rbSattrackOn->setChecked(opts.sattrackinimage);
-    ui->rbSmoothProjection->setChecked(opts.smoothprojectionimage);
     ui->rbGridOnProjection->setChecked(opts.gridonprojection);
+    if(opts.smoothprojectiontype == 0)
+        ui->rbNoSmoothing->setChecked(true);
+    else if(opts.smoothprojectiontype == 1)
+        ui->rbSmoothProjection->setChecked(true);
+    else
+        ui->rbLinearInterpolation->setChecked(true);
 
     setupStationsTable();
     setupTLESourceTable();
@@ -289,7 +294,13 @@ void DialogPreferences::dialogaccept()
     opts.udpmessages = ui->chkUDPMessages->isChecked();
 
     opts.sattrackinimage = ui->rbSattrackOn->isChecked();
-    opts.smoothprojectionimage = ui->rbSmoothProjection->isChecked();
+    if(ui->rbNoSmoothing->isChecked())
+        opts.smoothprojectiontype = 0;
+    else if(ui->rbSmoothProjection->isChecked())
+        opts.smoothprojectiontype = 1;
+    else
+        opts.smoothprojectiontype = 2;
+
     opts.gridonprojection = ui->rbGridOnProjection->isChecked();
 
     opts.gshhsglobe1On = ui->chkGshhs1->isChecked();

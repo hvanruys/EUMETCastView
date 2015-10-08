@@ -23,6 +23,7 @@ public:
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void CLAHEprojection();
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayProjection(QPainter *paint,  SegmentListGeostationary *sl);
     void OverlayNoaaImage(QPainter *paint,  SegmentListNoaa *sl);
