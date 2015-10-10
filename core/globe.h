@@ -1,11 +1,17 @@
- #ifndef GLOBE_H
+#ifndef GLOBE_H
 #define GLOBE_H
+
+#define OPENGL21
 
 #include <QApplication>
 #include <QOpenGLWidget>
 #include <QOpenGLTexture>
 #include <QOpenGLShaderProgram>
+#ifdef OPENGL21
+#include <QOpenGLFunctions_2_1>
+#else
 #include <QOpenGLFunctions_4_3_Core>
+#endif
 
 #include "trackball.h"
 #include "globals.h"
@@ -20,7 +26,11 @@
 #include "projextentsgl.h"
 #include "texturewriter.h"
 
+#ifdef OPENGL21
+class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_2_1
+#else
 class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
+#endif
 {
 
     Q_OBJECT
@@ -60,9 +70,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void showEvent(QShowEvent *event);
     void wheelEvent(QWheelEvent * event);
-
-
-
 
     void initShaders();
     void initTextures();

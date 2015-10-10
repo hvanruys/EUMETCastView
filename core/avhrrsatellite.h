@@ -59,6 +59,7 @@ public:
     QStringList GetOverviewSegmentsMTSAT();
     QStringList GetOverviewSegmentsFY2E();
     QStringList GetOverviewSegmentsFY2G();
+    QStringList GetOverviewSegmentsH8();
 
 
     void drawOverlay(char *pFileName );
@@ -89,6 +90,7 @@ public:
     SegmentListGeostationary *seglmtsatdc4;
     SegmentListGeostationary *seglfy2e;
     SegmentListGeostationary *seglfy2g;
+    SegmentListGeostationary *seglh8;
 
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmeteosat;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmeteosatrss;
@@ -102,6 +104,7 @@ public:
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmtsatdc4;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2e;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2g;
+    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmaph8;
 
 
 private:

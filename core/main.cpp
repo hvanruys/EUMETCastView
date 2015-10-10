@@ -49,7 +49,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     switch (type) {
     case QtDebugMsg:
         fprintf(stderr, "Debug Debug: %s\n", localMsg.constData());
-        fprintf(stderr, "           : %s:%u\n", context.file, context.line);
+        //fprintf(stderr, "           : %s:%u\n", context.file, context.line);
         //fprintf(stderr, "           : %s:%u, %s\n", context.file, context.line, context.function);
         break;
     case QtInfoMsg:
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 
     app.setApplicationName("EUMETCastView");
-    app.setApplicationVersion("1.0");
+    app.setApplicationVersion("1.0.7");
 
     app.setStyleSheet(
     "QPushButton {"

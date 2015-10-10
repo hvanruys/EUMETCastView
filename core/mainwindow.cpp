@@ -4,7 +4,7 @@
 #include "ui_mainwindow.h"
 #include "hdf5.h"
 
-#define PROGRAM_VERSION "1.0.6"
+//#define PROGRAM_VERSION "1.0.6"
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -244,20 +244,7 @@ void MainWindow::timerDone(void)
 }
 
 
-//const char *htmlText =
-const QString htmlText =
-"<HTML>"
-"<center><p><b>===EUMETCastView===</b></p></center>"
-"<b>Image Viewer for the EUMETCast transmissions</b>"
-"<p>supports the following satellites</p>"
-"<p>Metop-A, Metop-B </p>"
-"<p>Noaa, SUOMI NPP</p>"
-"<p>Meteosat-10, Meteosat-9, Meteosat7</p>"
-"<p>FengYun 2E, FengYun 2G, GOES-13, GOES-15, MTSAT-2</p>"
-"<ul>"
-"<li>Made by Hugo Van Ruyskensvelde.</li>"
-"<li>Version " + QString("%1").arg(PROGRAM_VERSION) + ".</li>"
-"</HTML>";
+
 
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -294,7 +281,7 @@ MainWindow::~MainWindow()
 
     QDir workingdir(".");
     QStringList filters;
-    filters << "*.h5" << "*.HDF";
+    filters << "*.h5" << "*.HDF" << "IMG_DK01*";
     workingdir.setNameFilters(filters);
     QFileInfoList fileinfolist;
 
@@ -305,7 +292,7 @@ MainWindow::~MainWindow()
     {
         QFile h5file(fileinfolist.at(i).fileName());
         if(h5file.remove())
-            qDebug() << QString("Deleting h5 file : %1").arg(fileinfolist.at(i).fileName());
+            qDebug() << QString("Deleting h5 and Himawari files : %1").arg(fileinfolist.at(i).fileName());
     }
 
     qDebug() << "================closing MainWindow================";
@@ -322,7 +309,24 @@ void MainWindow::on_actionPreferences_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-       QMessageBox::about(this, "About EUMETCastView", htmlText);
+    const QString htmlText =
+    "<HTML>"
+    "<center><p><b>===EUMETCastView===</b></p></center>"
+    "<b>Image Viewer for the EUMETCast transmissions</b>"
+    "<center><b>Version " + QApplication::applicationVersion() + "</b></center>"
+    "<p>supports the following satellites</p>"
+    "<p>Metop-A, Metop-B </p>"
+    "<p>Noaa, SUOMI NPP</p>"
+    "<p>Meteosat-10, Meteosat-9, Meteosat7</p>"
+    "<p>FengYun 2E, FengYun 2G</p>"
+    "<p>GOES-13, GOES-15</p>"
+    "<p>MTSAT-2, Himawari-8</p>"
+    "<ul>"
+    "<li>Made by Hugo Van Ruyskensvelde.</li>"
+    "</HTML>";
+
+    QString title = QString("About EUMETCastView Version %1").arg(QApplication::applicationVersion());
+    QMessageBox::about(this, title, htmlText);
 }
 
 void MainWindow::on_actionNormalSize_triggered()

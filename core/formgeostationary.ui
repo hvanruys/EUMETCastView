@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabGeostationary">
      <property name="currentIndex">
-      <number>4</number>
+      <number>11</number>
      </property>
      <widget class="QWidget" name="tabMeteosat">
       <attribute name="title">
@@ -186,6 +186,22 @@
       <layout class="QVBoxLayout" name="verticalLayout_11">
        <item>
         <widget class="QTreeWidget" name="SegmenttreeWidgetMTSATdc4">
+         <column>
+          <property name="text">
+           <string notr="true">1</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Himawari-8</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_13">
+       <item>
+        <widget class="QTreeWidget" name="SegmenttreeWidgetH8">
          <column>
           <property name="text">
            <string notr="true">1</string>

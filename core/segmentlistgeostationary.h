@@ -20,6 +20,7 @@ public:
         GOES_13,
         GOES_15,
         MTSAT,
+        H8,
         ELECTRO_N1,
         NOGEO
     };
@@ -37,6 +38,8 @@ public:
     void setKindofImage( QString ip) { kindofimage = ip; }
 
     void ComposeSegmentImageXRIT(QString filepath, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
+    void ComposeSegmentImageXRITHimawari( QString filepath, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
+
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2, quint16 x3, quint16 y3, quint16 x4, quint16 y4);
@@ -50,21 +53,21 @@ public:
     void setGeoSatellite(eGeoSatellite ws) { m_GeoSatellite = ws; }
 
 
-    QFutureWatcher<void> watcherRed[8];
-    QFutureWatcher<void> watcherGreen[8];
-    QFutureWatcher<void> watcherBlue[8];
+    QFutureWatcher<void> watcherRed[10];
+    QFutureWatcher<void> watcherGreen[10];
+    QFutureWatcher<void> watcherBlue[10];
     QFutureWatcher<void> watcherHRV[24];
     QFutureWatcher<void> watcherMono[10];
 
-    bool issegmentcomposedRed[8];
-    bool issegmentcomposedGreen[8];
-    bool issegmentcomposedBlue[8];
+    bool issegmentcomposedRed[10];
+    bool issegmentcomposedGreen[10];
+    bool issegmentcomposedBlue[10];
     bool issegmentcomposedHRV[24];
     bool issegmentcomposedMono[10];
 
-    bool isPresentRed[8];
-    bool isPresentGreen[8];
-    bool isPresentBlue[8];
+    bool isPresentRed[10];
+    bool isPresentGreen[10];
+    bool isPresentBlue[10];
     bool isPresentHRV[24];
     bool isPresentMono[10];
 

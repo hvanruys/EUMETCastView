@@ -201,6 +201,7 @@ void MSG_header::read_from( std::ifstream &in )
         segment_id->read_from(pnt);
         pnt = pnt + MSG_SEGMENT_ID_LEN;
         left = left - MSG_SEGMENT_ID_LEN;
+
         break;
       case MSG_HEADER_IMAGE_SEGMENT_LINE_QUALITY:
         segment_quality = new MSG_header_segment_quality;

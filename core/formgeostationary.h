@@ -74,6 +74,8 @@ private slots:
 
     void on_SegmenttreeWidgetFY2G_itemClicked(QTreeWidgetItem *item, int column);
 
+    void on_SegmenttreeWidgetH8_itemClicked(QTreeWidgetItem *item, int column);
+
 signals:
     void geostationarysegmentschosen(SegmentListGeostationary::eGeoSatellite geo, QStringList ll);
     void enabletoolboxbuttons(bool);

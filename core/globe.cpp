@@ -67,7 +67,7 @@ void Globe::initializeGL()
 
     initShaders();
     initTextures();
-    initFrameBuffer();
+    //initFrameBuffer();
 
     geometries = new GeometryEngine(&programearthnobump);
     geometries->initSphereGeometry(1.0f, 128, 64);
@@ -283,9 +283,11 @@ void Globe::resizeGL(int w, int h)
 
 //}
 
+
 void Globe::printTexture()
 {
 
+#ifndef OPENGL21
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     //set the viewport to be the size of the texture
     glViewport(0,0, this->parentWidget()->width(), this->parentWidget()->height());
@@ -327,7 +329,7 @@ void Globe::printTexture()
     fclose(f_out);
     delete [] data;
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0); //unbind the FBO
-
+#endif
 }
 
 void Globe::testfbo()
@@ -702,8 +704,10 @@ void Globe::paintGL()
 
 //}
 
+
 void Globe::initFrameBuffer()
 {
+#ifndef OPENGL21
     //create fboA and attach texture A to it
     glGenFramebuffers(1, &imageptrs->fboId);
     glBindFramebuffer(GL_FRAMEBUFFER, imageptrs->fboId);
@@ -713,7 +717,9 @@ void Globe::initFrameBuffer()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     else
         qDebug() << "Error creating framebuffer";
+#endif
 }
+
 
 void Globe::drawSatelliteNames(QPainter *painter, QMatrix4x4 modelview)
 {
@@ -1492,8 +1498,10 @@ void Globe::toggleSegmentNames()
         bSegmentNames = true;
 }
 
+
 bool Globe::checkFramebufferStatus()
 {
+#ifndef OPENGL21
     // check FBO status
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     switch(status)
@@ -1509,15 +1517,15 @@ bool Globe::checkFramebufferStatus()
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
         qDebug() << "[ERROR] Framebuffer incomplete: No image is attached to FBO.";
         return false;
-/*
-    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-        std::cout << "[ERROR] Framebuffer incomplete: Attached images have different dimensions." << std::endl;
-        return false;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
-        std::cout << "[ERROR] Framebuffer incomplete: Color attached images have different internal formats." << std::endl;
-        return false;
-*/
+//    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+//        std::cout << "[ERROR] Framebuffer incomplete: Attached images have different dimensions." << std::endl;
+//        return false;
+
+//    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+//        std::cout << "[ERROR] Framebuffer incomplete: Color attached images have different internal formats." << std::endl;
+//        return false;
+
     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
         qDebug() << "[ERROR] Framebuffer incomplete: Draw buffer.";
         return false;
@@ -1534,4 +1542,6 @@ bool Globe::checkFramebufferStatus()
         qDebug() << "[ERROR] Framebuffer incomplete: Unknown error.";
         return false;
     }
+#endif
 }
+

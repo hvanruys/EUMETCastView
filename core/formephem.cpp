@@ -239,6 +239,7 @@ void FormEphem::getSegmentsForCalendar()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMTSAT(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2E(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2G(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsH8(), 0  );
 
     emit signalDirectoriesRead();
 }
@@ -261,7 +262,9 @@ void FormEphem::showSegmentsAdded()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES13(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES15(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMTSAT(), 0  );
-
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2E(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2G(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsH8(), 0  );
 
 }
 
