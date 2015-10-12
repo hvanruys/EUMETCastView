@@ -1,7 +1,7 @@
 #ifndef GLOBE_H
 #define GLOBE_H
 
-#define OPENGL21
+//#define OPENGL21
 
 #include <QApplication>
 #include <QOpenGLWidget>

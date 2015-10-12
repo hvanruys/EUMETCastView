@@ -1173,8 +1173,8 @@ bool SegmentListVIIRS::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb 
     int deltared, deltagreen, deltablue;
     dx=x2-x1;
     dy=y2-y1;
-    dx1=fabs(dx);
-    dy1=fabs(dy);
+    dx1=abs(dx);
+    dy1=abs(dy);
     px=2*dy1-dx1;
     py=2*dx1-dy1;
 

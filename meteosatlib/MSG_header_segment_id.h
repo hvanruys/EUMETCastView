@@ -41,6 +41,7 @@ class MSG_header_segment_id {
     ~MSG_header_segment_id( );
 
     void read_from( unsigned const char_1 *buff );
+    void read_from_himawari( unsigned const char_1 *buff );
 
     friend std::ostream& operator<< ( std::ostream& os,
                                       MSG_header_segment_id &h);
@@ -51,6 +52,11 @@ class MSG_header_segment_id {
     uint_2 planned_start_segment_sequence_number;
     uint_2 planned_end_segment_sequence_number;
     t_enum_MSG_data_format data_field_format;
+
+    // Himawari
+    uint_1 image_segm_seq_no;
+    uint_1 total_no_image_segm;
+    uint_2 line_no_image_segm;
 
 };
 

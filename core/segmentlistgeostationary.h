@@ -32,6 +32,7 @@ public:
 
     void displayMinMax();
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
+    void CalculateMinMaxHimawari(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
     QString getKindofImage() { return kindofimage; }
     QString getImagePath() { return imagepath; }
     void setImagePath( QString ip) { imagepath = ip; }
@@ -42,8 +43,8 @@ public:
 
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
-    void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2, quint16 x3, quint16 y3, quint16 x4, quint16 y4);
-    quint8 ContrastStretch(quint16 val);
+    void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2); //, quint16 x3, quint16 y3, quint16 x4, quint16 y4);
+    quint16 ContrastStretch(quint16 val);
     void InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence);
     bool allHRVColorSegmentsReceived();
     bool allSegmentsReceived();
@@ -51,7 +52,7 @@ public:
     bool bisRSS;
     eGeoSatellite getGeoSatellite() { return m_GeoSatellite; }
     void setGeoSatellite(eGeoSatellite ws) { m_GeoSatellite = ws; }
-
+    void recalcHimawari();
 
     QFutureWatcher<void> watcherRed[10];
     QFutureWatcher<void> watcherGreen[10];
@@ -99,12 +100,12 @@ private:
 
     void ComposeColorHRV();
 
-    quint16 maxvalueRed[8];
-    quint16 minvalueRed[8];
-    quint16 maxvalueGreen[8];
-    quint16 minvalueGreen[8];
-    quint16 maxvalueBlue[8];
-    quint16 minvalueBlue[8];
+    quint16 maxvalueRed[10];
+    quint16 minvalueRed[10];
+    quint16 maxvalueGreen[10];
+    quint16 minvalueGreen[10];
+    quint16 maxvalueBlue[10];
+    quint16 minvalueBlue[10];
 
     QString kindofimage;
     QString imagepath;

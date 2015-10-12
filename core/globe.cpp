@@ -1162,8 +1162,8 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::
 
     QRgb *scanl;
     QRgb rgbval;
-    int map_x, map_y;
-    double lon_rad, lat_rad;
+//    int map_x, map_y;
+//    double lon_rad, lat_rad;
     double lon_deg, lat_deg;
     int x, y;
 
@@ -1249,6 +1249,15 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::
         else if(sat == SegmentListGeostationary::FY2G)
         {
             if(pixconv.pixcoord2geocoord(segs->seglfy2g->geosatlon, pix, heightinimage, COFF_NONHRV_FENGYUN, LOFF_NONHRV_FENGYUN, CFAC_NONHRV_FENGYUN, LFAC_NONHRV_FENGYUN, &lat_deg, &lon_deg) == 0)
+            {
+                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                fb_painter.setPen(rgbval);
+                fb_painter.drawPoint(x, y);
+            }
+        }
+        else if(sat == SegmentListGeostationary::H8)
+        {
+            if(pixconv.pixcoord2geocoord(segs->seglh8->geosatlon, pix, heightinimage, COFF_NONHRV_H8, LOFF_NONHRV_H8, CFAC_NONHRV_H8, LFAC_NONHRV_H8, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
@@ -1543,5 +1552,6 @@ bool Globe::checkFramebufferStatus()
         return false;
     }
 #endif
+    return false;
 }
 

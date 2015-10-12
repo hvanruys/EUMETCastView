@@ -50,6 +50,17 @@ void MSG_header_segment_id::read_from( unsigned const char_1 *buff )
   return;
 }
 
+void MSG_header_segment_id::read_from_himawari( unsigned const char_1 *buff )
+{
+    spacecraft_id = (t_enum_MSG_spacecraft) 21003;
+    spectral_channel_id = 0;
+    sequence_number = get_ui1(buff+3);
+    planned_start_segment_sequence_number = 0;
+    planned_end_segment_sequence_number = 0;
+    data_field_format = (t_enum_MSG_data_format) 0;
+
+}
+
 std::ostream& operator<< ( std::ostream& os, MSG_header_segment_id &h)
 {
   os << "------------------------------------------------------" << std::endl

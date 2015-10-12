@@ -110,6 +110,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglfy2e, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateMeteosat()));
     connect(seglist->seglfy2g, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateMeteosat()));
 
+    for( int i = 0; i < 10; i++)
+    {
+        connect(&seglist->seglh8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateHimawari()));
+        connect(&seglist->seglh8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateHimawari()));
+        connect(&seglist->seglh8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateHimawari()));
+    }
+
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
     imageptrs->lcc = new LambertConformalConic(this, seglist);
     imageptrs->sg = new StereoGraphic(this, seglist);
@@ -130,6 +137,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglmtsatdc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglfy2e, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglfy2g, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglh8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglviirs, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmetop, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglnoaa, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));

@@ -121,6 +121,7 @@ public slots:
     void slotShowVIIRSImage();
     void setPixmapToLabel();
     void slotUpdateMeteosat();
+    void slotUpdateHimawari();
     void slotUpdateProjection();
     void slotRefreshOverlay();
 

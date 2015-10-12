@@ -126,7 +126,11 @@ std::string MSG_spacecraft_name( t_enum_MSG_spacecraft spacecraft_id )
     case MSG_MTSAT_2:
       spcname = "MTSAT2";
       break;
-    default:
+    case MSG_HIMAWARI_8:
+      spcname = "HIMAWARI-8";
+      break;
+
+  default:
       spcname = "Unknown";
       break;
   }

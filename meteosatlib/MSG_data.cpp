@@ -27,6 +27,10 @@
 #include <fstream>
 #include "MSG_data.h"
 
+#define BYTE_SWAP2(x) \
+    (((x & 0xFF00) >> 8) | \
+     ((x & 0x00FF) << 8))
+
 std::ostream& operator<< ( std::ostream& os, MSG_data_level_15_header &h )
 {
   os << h.sat_status
@@ -289,6 +293,48 @@ void MSG_data::read_from( std::ifstream &in, MSG_header &header )
         os.close( );
       }
       break;
+
+    default:
+      std::cerr << "Unknown MSG file type " << header.f_typecode << std::endl;
+      throw;
+      break;
+  }
+
+  if (dbuff) delete [ ] dbuff;
+
+  return;
+}
+
+void MSG_data::read_from_himawari( std::ifstream &in, MSG_header &header )
+{
+  size_t dsize;
+  size_t dpos;
+  unsigned char_1 *dbuff = 0;
+  unsigned char_1 *dpnt = 0;
+
+  typecode = header.f_typecode;
+  switch (typecode)
+  {
+    case MSG_FILE_IMAGE_DATA:
+      image = new MSG_data_image;
+
+      dsize = header.data_field_length / 8;
+      dbuff = new unsigned char_1[dsize];
+      in.read((char *) dbuff, dsize);
+      if (in.fail( ))
+      {
+        std::cerr << "Read error from HRIT file: Data field." << std::endl;
+        throw;
+      }
+
+      if (header.image_structure->compression_flag == MSG_NO_COMPRESSION)
+      {
+        image->len = dsize;
+        image->data = (MSG_SAMPLE *) ( new char[dsize] );
+        memcpy(image->data, dbuff, dsize);
+      }
+      break;
+
 
     default:
       std::cerr << "Unknown MSG file type " << header.f_typecode << std::endl;

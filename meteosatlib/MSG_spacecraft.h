@@ -61,8 +61,9 @@ typedef enum {
   MSG_GMS_6         = 20006,
   MSG_MTSAT_1       = 21001,
   MSG_MTSAT_2       = 21002,
+  MSG_HIMAWARI_8    = 21003,
 
-  MSG_UNDEFINED_SPACECRAFT = 21003
+  MSG_UNDEFINED_SPACECRAFT = 21004
 } t_enum_MSG_spacecraft;
 
 std::string MSG_spacecraft_name( t_enum_MSG_spacecraft id );

@@ -1674,14 +1674,15 @@ void FormToolbox::on_btnGeoColor_clicked()
     ui->pbProgress->reset();
     if(whichgeo == SegmentListGeostationary::MET_10)
         ui->pbProgress->setMaximum(24);
-    if(whichgeo == SegmentListGeostationary::MET_9)
+    else if(whichgeo == SegmentListGeostationary::MET_9)
         ui->pbProgress->setMaximum(9);
-
-    if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G )
+    else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G )
         ui->pbProgress->setMaximum(100);
+    else if(whichgeo == SegmentListGeostationary::H8)
+        ui->pbProgress->setMaximum(30);
 
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 ||
-            whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G )
+            whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G || whichgeo == SegmentListGeostationary::H8)
         onButtonColorHRV("VIS_IR Color");
 }
 
@@ -1749,6 +1750,7 @@ void FormToolbox::onButtonColorHRV(QString type)
     segs->seglmeteosatrss->setKindofImage(type);
     segs->seglfy2e->setKindofImage(type);
     segs->seglfy2g->setKindofImage(type);
+    segs->seglh8->setKindofImage(type);
 
     formimage->displayImage(8);
     formimage->adjustPicSize(true);
@@ -1842,6 +1844,65 @@ void FormToolbox::onButtonColorHRV(QString type)
         }
 
     }
+    else if(whichgeo == SegmentListGeostationary::H8 )
+    {
+        if(ui->comboMet006->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet006->currentIndex()-1] = "VIS";
+            inversevector[ui->comboMet006->currentIndex()-1] = ui->chkInverseVIS006->isChecked();
+        }
+        if(ui->comboMet008->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet008->currentIndex()-1] = "B04";
+            inversevector[ui->comboMet008->currentIndex()-1] = ui->chkInverseVIS008->isChecked();
+        }
+        if(ui->comboMet016->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet016->currentIndex()-1] = "B05";
+            inversevector[ui->comboMet016->currentIndex()-1] = ui->chkInverseIR_016->isChecked();
+        }
+        if(ui->comboMet039->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet039->currentIndex()-1] = "IR4";
+            inversevector[ui->comboMet039->currentIndex()-1] = ui->chkInverseIR_039->isChecked();
+        }
+        if(ui->comboMet062->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet062->currentIndex()-1] = "IR3";
+            inversevector[ui->comboMet062->currentIndex()-1] = ui->chkInverseWV_062->isChecked();
+        }
+        if(ui->comboMet073->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet073->currentIndex()-1] = "B10";
+            inversevector[ui->comboMet073->currentIndex()-1] = ui->chkInverseWV_073->isChecked();
+        }
+        if(ui->comboMet087->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet087->currentIndex()-1] = "B11";
+            inversevector[ui->comboMet087->currentIndex()-1] = ui->chkInverseIR_087->isChecked();
+        }
+        if(ui->comboMet097->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet097->currentIndex()-1] = "IR1";
+            inversevector[ui->comboMet097->currentIndex()-1] = ui->chkInverseIR_097->isChecked();
+        }
+        if(ui->comboMet108->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet108->currentIndex()-1] = "B14";
+            inversevector[ui->comboMet108->currentIndex()-1] = ui->chkInverseIR_108->isChecked();
+        }
+        if(ui->comboMet120->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet120->currentIndex()-1] = "IR2";
+            inversevector[ui->comboMet120->currentIndex()-1] = ui->chkInverseIR_120->isChecked();
+        }
+        if(ui->comboMet134->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboMet134->currentIndex()-1] = "B16";
+            inversevector[ui->comboMet134->currentIndex()-1] = ui->chkInverseIR_134->isChecked();
+        }
+    }
+
 
     emit getmeteosatchannel(type, spectrumvector, inversevector);
 }

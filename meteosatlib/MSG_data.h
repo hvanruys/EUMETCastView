@@ -99,6 +99,7 @@ class MSG_data {
     MSG_data_image *image;
 
     void read_from( std::ifstream &in, MSG_header &header );
+    void read_from_himawari( std::ifstream &in, MSG_header &header );
 
     // Overloaded << operator
     friend std::ostream& operator<< ( std::ostream& os, MSG_data &h );

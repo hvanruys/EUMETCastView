@@ -43,15 +43,33 @@ void MSG_header_annotation::read_from( unsigned const char_1 *buff )
   char_1 tmp[62];
   memcpy(tmp, buff+3, 61);
   tmp[61] = 0;
+  //H-000-MSG3__-MSG3________-IR_097___-000008___-201505052015-C_
+  //0123456789012345678901234567890123456789012345678901234567890
   annotation = tmp;
   xrit_channel_id = annotation.substr(0,1);
-  annotation_version = annotation.substr(2,3);
-  disseminating_s_c = annotation.substr(6,6);
-  product_id_1 = annotation.substr(13,12);
-  product_id_2 = annotation.substr(26,9);
-  product_id_3 = annotation.substr(36,9);
-  product_id_4 = annotation.substr(46,12);
-  flags = annotation.substr(59,2);
+  if(xrit_channel_id == "H" || xrit_channel_id == "L")
+  {
+      annotation_version = annotation.substr(2,3);
+      disseminating_s_c = annotation.substr(6,6);
+      product_id_1 = annotation.substr(13,12);
+      product_id_2 = annotation.substr(26,9);
+      product_id_3 = annotation.substr(36,9);
+      product_id_4 = annotation.substr(46,12);
+      flags = annotation.substr(59,2);
+  }
+  else if(xrit_channel_id == "I")
+  //IMG_DK01IR3_201501250230_001
+  //0123456789012345678901234567
+  {
+      annotation_version = "   ";
+      disseminating_s_c = annotation.substr(0,6);
+      product_id_1 = annotation.substr(4,4);
+      product_id_2 = annotation.substr(8,3);
+      product_id_3 = annotation.substr(25,3);
+      product_id_4 = annotation.substr(12,12);
+      flags = "  ";
+
+  }
   return;
 }
 

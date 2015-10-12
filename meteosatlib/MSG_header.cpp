@@ -114,109 +114,131 @@ void MSG_header::read_from( std::ifstream &in )
   size_t hqlen = 0;
   while (left)
   {
-    switch(*pnt)
-    {
+      switch(*pnt)
+      {
       case MSG_HEADER_IMAGE_STRUCTURE:
-        if (get_ui2(pnt+1) != MSG_IMAGE_STRUCTURE_LEN)
-        {
-          std::cerr << "Error: Image Structure Header mismatch." << std::endl;
-          std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
-          throw;
-        }
-        image_structure = new MSG_header_image_struct;
-        image_structure->read_from(pnt);
-        pnt = pnt + MSG_IMAGE_STRUCTURE_LEN;
-        left = left - MSG_IMAGE_STRUCTURE_LEN;
-        break;
+          if (get_ui2(pnt+1) != MSG_IMAGE_STRUCTURE_LEN)
+          {
+              std::cerr << "Error: Image Structure Header mismatch." << std::endl;
+              std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
+              throw;
+          }
+          image_structure = new MSG_header_image_struct;
+          image_structure->read_from(pnt);
+          pnt = pnt + MSG_IMAGE_STRUCTURE_LEN;
+          left = left - MSG_IMAGE_STRUCTURE_LEN;
+          break;
       case MSG_HEADER_IMAGE_NAVIGATION:
-        if (get_ui2(pnt+1) != MSG_IMAGE_NAVIGATION_LEN)
-        {
-          std::cerr << "Error: Image Navigation Header mismatch." << std::endl;
-          std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
-          throw;
-        }
-        image_navigation = new MSG_header_image_navig;
-        image_navigation->read_from(pnt);
-        pnt = pnt + MSG_IMAGE_NAVIGATION_LEN;
-        left = left - MSG_IMAGE_NAVIGATION_LEN;
-        break;
+          if (get_ui2(pnt+1) != MSG_IMAGE_NAVIGATION_LEN)
+          {
+              std::cerr << "Error: Image Navigation Header mismatch." << std::endl;
+              std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
+              throw;
+          }
+          image_navigation = new MSG_header_image_navig;
+          image_navigation->read_from(pnt);
+          pnt = pnt + MSG_IMAGE_NAVIGATION_LEN;
+          left = left - MSG_IMAGE_NAVIGATION_LEN;
+          break;
       case MSG_HEADER_IMAGE_DATA_FUNCTION:
-        hunk_size = (size_t) get_ui2(pnt+1);
-        image_data_function = new MSG_header_image_datafunc;
-        image_data_function->read_from(pnt);
-        pnt = pnt + hunk_size;
-        left = left - hunk_size;
-        break;
+          hunk_size = (size_t) get_ui2(pnt+1);
+          image_data_function = new MSG_header_image_datafunc;
+          image_data_function->read_from(pnt);
+          pnt = pnt + hunk_size;
+          left = left - hunk_size;
+          break;
       case MSG_HEADER_ANNOTATION:
-        if (get_ui2(pnt+1) != MSG_ANNOTATION_LEN)
-        {
-          std::cerr << "Error: Annotation Header mismatch." << std::endl;
-          std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
-          throw;
-        }
-        annotation = new MSG_header_annotation;
-        annotation->read_from(pnt);
-        pnt = pnt + MSG_ANNOTATION_LEN;
-        left = left - MSG_ANNOTATION_LEN;
-        break;
+          //        if (get_ui2(pnt+1) != MSG_ANNOTATION_LEN)
+          //        {
+          //          std::cerr << "Error: Annotation Header mismatch." << std::endl;
+          //          std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
+          //          throw;
+          //        }
+          hunk_size = (size_t) get_ui2(pnt+1);
+          annotation = new MSG_header_annotation;
+          annotation->read_from(pnt);
+          pnt = pnt + hunk_size;
+          left = left - hunk_size;
+          //        pnt = pnt + MSG_ANNOTATION_LEN;
+          //        left = left - MSG_ANNOTATION_LEN;
+          break;
       case MSG_HEADER_TIMESTAMP:
-        if (get_ui2(pnt+1) != MSG_TIMESTAMP_LEN)
-        {
-          std::cerr << "Error: Timestamp Header mismatch." << std::endl;
-          std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
-          throw;
-        }
-        timestamp = new MSG_header_timestamp;
-        timestamp->read_from(pnt);
-        pnt = pnt + MSG_TIMESTAMP_LEN;
-        left = left - MSG_TIMESTAMP_LEN;
-        break;
+          if (get_ui2(pnt+1) != MSG_TIMESTAMP_LEN)
+          {
+              std::cerr << "Error: Timestamp Header mismatch." << std::endl;
+              std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
+              throw;
+          }
+          timestamp = new MSG_header_timestamp;
+          timestamp->read_from(pnt);
+          pnt = pnt + MSG_TIMESTAMP_LEN;
+          left = left - MSG_TIMESTAMP_LEN;
+          break;
       case MSG_HEADER_ANCILLARY_TEXT:
-        hunk_size = (size_t) get_ui2(pnt+1);
-        ancillary_text = new MSG_header_ancillary_text;
-        ancillary_text->read_from(pnt);
-        pnt = pnt + hunk_size;
-        left = left - hunk_size;
-        break;
+          hunk_size = (size_t) get_ui2(pnt+1);
+          ancillary_text = new MSG_header_ancillary_text;
+          ancillary_text->read_from(pnt);
+          pnt = pnt + hunk_size;
+          left = left - hunk_size;
+          break;
       case MSG_HEADER_KEY:
-        if (get_ui2(pnt+1) != MSG_KEY_LEN)
-        {
-          std::cerr << "Error: Key Header mismatch." << std::endl;
-          std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
-          throw;
-        }
-        key = new MSG_header_key;
-        key->read_from(pnt);
-        pnt = pnt + MSG_KEY_LEN;
-        left = left - MSG_KEY_LEN;
-        break;
+          if (get_ui2(pnt+1) != MSG_KEY_LEN)
+          {
+              std::cerr << "Error: Key Header mismatch." << std::endl;
+              std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
+              throw;
+          }
+          key = new MSG_header_key;
+          key->read_from(pnt);
+          pnt = pnt + MSG_KEY_LEN;
+          left = left - MSG_KEY_LEN;
+          break;
       case MSG_HEADER_SEGMENT_IDENTIFICATION:
-        if (get_ui2(pnt+1) != MSG_SEGMENT_ID_LEN)
-        {
-          std::cerr << "Error: Segment Id Header mismatch." << std::endl;
-          std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
-          throw;
-        }
-        segment_id = new MSG_header_segment_id;
-        segment_id->read_from(pnt);
-        pnt = pnt + MSG_SEGMENT_ID_LEN;
-        left = left - MSG_SEGMENT_ID_LEN;
+          //        if (get_ui2(pnt+1) != MSG_SEGMENT_ID_LEN)
+          //        {
+          //          std::cerr << "Error: Segment Id Header mismatch." << std::endl;
+          //          std::cerr << "Header Length: " << get_ui2(pnt+1) << std::endl;
+          //          throw;
+          //        }
+          hunk_size = (size_t) get_ui2(pnt+1);
 
-        break;
+          segment_id = new MSG_header_segment_id;
+          segment_id->read_from(pnt);
+          pnt = pnt + hunk_size;
+          left = left - hunk_size;
+          //        pnt = pnt + MSG_SEGMENT_ID_LEN;
+          //        left = left - MSG_SEGMENT_ID_LEN;
+
+          break;
       case MSG_HEADER_IMAGE_SEGMENT_LINE_QUALITY:
-        segment_quality = new MSG_header_segment_quality;
-        segment_quality->read_from(pnt, image_structure->number_of_lines);
-        hqlen = get_ui2(pnt+1);
-        pnt = pnt + hqlen;
-        left = left - hqlen;
-        break;
+          segment_quality = new MSG_header_segment_quality;
+          segment_quality->read_from(pnt, image_structure->number_of_lines);
+          hqlen = get_ui2(pnt+1);
+          pnt = pnt + hqlen;
+          left = left - hqlen;
+          break;
+      case MSG_HEADER_IMAGE_COMPENSATION: //#130
+          hqlen = get_ui2(pnt+1);
+          pnt = pnt + hqlen;
+          left = left - hqlen;
+          break;
+      case MSG_HEADER_IMAGE_OBSERVATION_TIME: //#131
+          hqlen = get_ui2(pnt+1);
+          pnt = pnt + hqlen;
+          left = left - hqlen;
+          break;
+      case MSG_HEADER_IMAGE_QUALITY_INFORMATION: //#132
+          hqlen = get_ui2(pnt+1);
+          pnt = pnt + hqlen;
+          left = left - hqlen;
+          break;
       default:
-        std::cerr << "Unknown header type: " << (uint_2) *pnt << std::endl;
-        std::cerr << "Unparsed " << left << " bytes." << std::endl;
-        throw;
-        break;
+          std::cerr << "Unknown header type: " << (uint_2) *pnt << std::endl;
+          std::cerr << "Unparsed " << left << " bytes." << std::endl;
+          throw;
+          break;
       }
-   }
+  }
    delete [ ] hbuff;
    return;
 }
