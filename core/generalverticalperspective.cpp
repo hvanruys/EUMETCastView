@@ -133,20 +133,36 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
     SegmentListGeostationary *sl;
     double sub_lon;
     sl = segs->getActiveSegmentList();
+    if(sl == NULL)
+        return;
+
     sub_lon = sl->geosatlon;
 
     if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
         hrvmap = 1;
 
-    int LECA = 11136 - sl->LowerEastColumnActual;
-    int LSLA = 11136 - sl->LowerSouthLineActual;
-    int LWCA = 11136 - sl->LowerWestColumnActual;
-    int LNLA = 11136 - sl->LowerNorthLineActual;
+    int LECA = 0;
+    int LSLA = 0;
+    int LWCA = 0;
+    int LNLA = 0;
 
-    int UECA = 11136 - sl->UpperEastColumnActual;
-    int USLA = 11136 - sl->UpperSouthLineActual;
-    int UWCA = 11136 - sl->UpperWestColumnActual;
-    int UNLA = 11136 - sl->UpperNorthLineActual;
+    int UECA = 0;
+    int USLA = 0;
+    int UWCA = 0;
+    int UNLA = 0;
+
+    if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
+    {
+        LECA = 11136 - sl->LowerEastColumnActual;
+        LSLA = 11136 - sl->LowerSouthLineActual;
+        LWCA = 11136 - sl->LowerWestColumnActual;
+        LNLA = 11136 - sl->LowerNorthLineActual;
+
+        UECA = 11136 - sl->UpperEastColumnActual;
+        USLA = 11136 - sl->UpperSouthLineActual;
+        UWCA = 11136 - sl->UpperWestColumnActual;
+        UNLA = 11136 - sl->UpperNorthLineActual;
+    }
 
     qDebug() << QString("sl->areatype = %1   hrvmap = %2").arg(sl->areatype).arg(hrvmap);
     qDebug() << QString("COFF = %1").arg(sl->COFF);
@@ -161,6 +177,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
     qDebug() << QString("USLA = %1").arg(USLA);
     qDebug() << QString("UWCA = %1").arg(UWCA);
     qDebug() << QString("UNLA = %1").arg(UNLA);
+
 
     qDebug() << QString("ptrimage projection height = %1 width = %2").arg(imageptrs->ptrimageProjection->height()).arg(imageptrs->ptrimageProjection->width());
     qDebug() << QString("ptrimage meteosat height = %1 width = %2").arg(imageptrs->ptrimageGeostationary->height()).arg(imageptrs->ptrimageGeostationary->width());

@@ -33,7 +33,7 @@ FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AV
     ui->SegmenttreeWidget->setRootIsDecorated(false);
     ui->SegmenttreeWidget->header()->setStretchLastSection(true);
     ui->SegmenttreeWidget->setColumnCount(14);
-    for(int i = 2; i < 14; i++)
+    for(int i = 0; i < 14; i++)
     {
         ui->SegmenttreeWidget->setColumnWidth(i, 200);
         ui->SegmenttreeWidget->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
@@ -1406,10 +1406,10 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
         }
         else if(whichgeo == SegmentListGeostationary::H8)
         {
-            sl->COFF = COFF_NONHRV_MTSAT;
-            sl->LOFF = LOFF_NONHRV_MTSAT;
-            sl->CFAC = CFAC_NONHRV_MTSAT;
-            sl->LFAC = LFAC_NONHRV_MTSAT;
+            sl->COFF = COFF_NONHRV_H8;
+            sl->LOFF = LOFF_NONHRV_H8;
+            sl->CFAC = CFAC_NONHRV_H8;
+            sl->LFAC = LFAC_NONHRV_H8;
         }
 
         if(type == "VIS_IR" || type == "VIS_IR Color" || type == "HRV Color")

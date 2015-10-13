@@ -705,6 +705,9 @@ void FormImage::displayGeoImageInfo()
     } else if(segs->seglfy2g->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Feng Yun 2G");
+    } else if(segs->seglh8->bActiveSegmentList == true)
+    {
+        displayGeoImageInformation("Himawari-8");
     }
 
 
@@ -879,10 +882,6 @@ void FormImage::slotUpdateMeteosat()
     {
         sl = segs->seglfy2g;
     }
-    else if(segs->seglh8->bActiveSegmentList == true)
-    {
-        sl = segs->seglh8;
-    }
     else
         return;
 
@@ -920,7 +919,7 @@ void FormImage::slotUpdateHimawari()
 
     refreshoverlay = true;
 
-    //imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+    imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
 
     SegmentListGeostationary *sl;
 
@@ -948,7 +947,7 @@ void FormImage::slotUpdateHimawari()
             emit allsegmentsreceivedbuttons(true);
     }
 
-    imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+    //imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
 
     qDebug() << "FormImage::slotUpdateHimawari()";
 

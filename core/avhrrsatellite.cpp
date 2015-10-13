@@ -1703,6 +1703,11 @@ SegmentListGeostationary *AVHRRSatellite::getActiveSegmentList()
         activelist = "FY2G";
         sl = seglfy2g;
     }
+    else if(seglh8->bActiveSegmentList == true)
+    {
+        activelist = "H8";
+        sl = seglh8;
+    }
     else
         return NULL;
 

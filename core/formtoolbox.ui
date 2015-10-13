@@ -2718,14 +2718,14 @@
             <item>
              <widget class="QToolBox" name="toolBox">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>320</width>
+                 <width>279</width>
                  <height>518</height>
                 </rect>
                </property>
@@ -3429,8 +3429,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>214</width>
-                 <height>256</height>
+                 <width>333</width>
+                 <height>357</height>
                 </rect>
                </property>
                <attribute name="label">

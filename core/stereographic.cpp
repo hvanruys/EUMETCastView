@@ -112,22 +112,36 @@ void StereoGraphic::CreateMapFromGeostationary()
     SegmentListGeostationary *sl;
 
     sl = segs->getActiveSegmentList();
-
+    if(sl == NULL)
+        return;
 
     double sub_lon = sl->geosatlon;
 
     if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
         hrvmap = 1;
 
-    int LECA = 11136 - sl->LowerEastColumnActual;
-    int LSLA = 11136 - sl->LowerSouthLineActual;
-    int LWCA = 11136 - sl->LowerWestColumnActual;
-    int LNLA = 11136 - sl->LowerNorthLineActual;
+    int LECA = 0;
+    int LSLA = 0;
+    int LWCA = 0;
+    int LNLA = 0;
 
-    int UECA = 11136 - sl->UpperEastColumnActual;
-    int USLA = 11136 - sl->UpperSouthLineActual;
-    int UWCA = 11136 - sl->UpperWestColumnActual;
-    int UNLA = 11136 - sl->UpperNorthLineActual;
+    int UECA = 0;
+    int USLA = 0;
+    int UWCA = 0;
+    int UNLA = 0;
+
+    if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
+    {
+        int LECA = 11136 - sl->LowerEastColumnActual;
+        int LSLA = 11136 - sl->LowerSouthLineActual;
+        int LWCA = 11136 - sl->LowerWestColumnActual;
+        int LNLA = 11136 - sl->LowerNorthLineActual;
+
+        int UECA = 11136 - sl->UpperEastColumnActual;
+        int USLA = 11136 - sl->UpperSouthLineActual;
+        int UWCA = 11136 - sl->UpperWestColumnActual;
+        int UNLA = 11136 - sl->UpperNorthLineActual;
+    }
 
     qDebug() << QString("sl->areatype = %1   hrvmap = %2").arg(sl->areatype).arg(hrvmap);
     qDebug() << QString("LECA = %1").arg(LECA);

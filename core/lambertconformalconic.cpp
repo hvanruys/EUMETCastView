@@ -205,27 +205,41 @@ void LambertConformalConic::CreateMapFromGeostationary()
     SegmentListGeostationary *sl;
     double sub_lon;
     sl = segs->getActiveSegmentList();
+    if(sl == NULL)
+        return;
 
     qDebug() << QString("COFF = %1 COFF_HRV = %2 COFF_NON_HRV = %3").arg(sl->COFF).arg(COFF_HRV).arg(COFF_NONHRV);
     qDebug() << QString("LOFF = %1 LOFF_HRV = %2 LOFF_NON_HRV = %3").arg(sl->LOFF).arg(LOFF_HRV).arg(LOFF_NONHRV);
     qDebug() << QString("CFAC = %1 CFAC_HRV = %2 CFAC_NON_HRV = %3").arg(sl->CFAC).arg(CFAC_HRV).arg(CFAC_NONHRV);
     qDebug() << QString("LFAC = %1 LFAC_HRV = %2 LFAC_NON_HRV = %3").arg(sl->LFAC).arg(LFAC_HRV).arg(LFAC_NONHRV);
 
-
     sub_lon = sl->geosatlon;
 
     if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
         hrvmap = 1;
 
-    int LECA = 11136 - sl->LowerEastColumnActual;
-    int LSLA = 11136 - sl->LowerSouthLineActual;
-    int LWCA = 11136 - sl->LowerWestColumnActual;
-    int LNLA = 11136 - sl->LowerNorthLineActual;
+    int LECA = 0;
+    int LSLA = 0;
+    int LWCA = 0;
+    int LNLA = 0;
 
-    int UECA = 11136 - sl->UpperEastColumnActual;
-    int USLA = 11136 - sl->UpperSouthLineActual;
-    int UWCA = 11136 - sl->UpperWestColumnActual;
-    int UNLA = 11136 - sl->UpperNorthLineActual;
+    int UECA = 0;
+    int USLA = 0;
+    int UWCA = 0;
+    int UNLA = 0;
+
+    if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
+    {
+        LECA = 11136 - sl->LowerEastColumnActual;
+        LSLA = 11136 - sl->LowerSouthLineActual;
+        LWCA = 11136 - sl->LowerWestColumnActual;
+        LNLA = 11136 - sl->LowerNorthLineActual;
+
+        UECA = 11136 - sl->UpperEastColumnActual;
+        USLA = 11136 - sl->UpperSouthLineActual;
+        UWCA = 11136 - sl->UpperWestColumnActual;
+        UNLA = 11136 - sl->UpperNorthLineActual;
+    }
 
     qDebug() << QString("sl->areatype = %1   hrvmap = %2  KindOfImage = %3").arg(sl->areatype).arg(hrvmap).arg(sl->getKindofImage());
     qDebug() << QString("LECA = %1").arg(LECA);
