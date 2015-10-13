@@ -144,7 +144,7 @@ CONFIG(release, debug|release) {
         -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
         -L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += \
-        -L$$PWD/../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
+        -L$$PWD/../../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
         -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5
 
 } else {
@@ -153,7 +153,7 @@ unix:LIBS += -lpthread -lz -L/usr/ \
     -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
     -L/usr/local/hdf5/lib -lhdf5
 else:win32:LIBS += \
-    -L$$PWD/../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
+    -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
     -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5
 }
 
