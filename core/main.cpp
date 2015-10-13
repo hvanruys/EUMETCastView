@@ -11,6 +11,7 @@
 
 #include <QMutex>
 
+#define APPVERSION "1.0.8"
 using namespace std;
 
 QMutex g_mutex;
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 
     app.setApplicationName("EUMETCastView");
-    app.setApplicationVersion("1.0.7");
+    app.setApplicationVersion(APPVERSION);
 
     app.setStyleSheet(
     "QPushButton {"
