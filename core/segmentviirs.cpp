@@ -602,6 +602,8 @@ QString SegmentVIIRS::getDatasetNameFromBand()
         invertthissegment[0] = invertlist.at(15);
         return("/All_Data/VIIRS-M16-SDR_All/Radiance");
     }
+    else
+        return "";
 
 
 }
