@@ -38,6 +38,9 @@ public:
     void writeInfoToGeo(QString info);
     void createFilenamestring(QString sat, QString d, QVector<QString> spectrum);
     QString returnFilenamestring() { return filenamecreated; }
+    bool comboColVIIRSOK();
+    bool comboColGeoOK();
+
     ~FormToolbox();
 
 private:

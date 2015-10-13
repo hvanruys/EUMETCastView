@@ -1668,6 +1668,25 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 void FormToolbox::on_btnGeoColor_clicked()
 {
 
+    if(!comboColGeoOK())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Need color choices for 3 different bands in the Geostationary tab.");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
+        return;
+    }
+
+
     if(whichgeo == SegmentListGeostationary::NOGEO)
         return;
     emit switchstackedwidget(3);
@@ -2780,8 +2799,77 @@ void FormToolbox::on_btnSetNaturalColors_clicked()
 
 }
 
+bool FormToolbox::comboColVIIRSOK()
+{
+    int cnt = 0;
+
+    cnt += ui->comboM1->currentIndex();
+    cnt += ui->comboM2->currentIndex();
+    cnt += ui->comboM3->currentIndex();
+    cnt += ui->comboM4->currentIndex();
+    cnt += ui->comboM5->currentIndex();
+    cnt += ui->comboM6->currentIndex();
+    cnt += ui->comboM7->currentIndex();
+    cnt += ui->comboM8->currentIndex();
+    cnt += ui->comboM9->currentIndex();
+    cnt += ui->comboM10->currentIndex();
+    cnt += ui->comboM11->currentIndex();
+    cnt += ui->comboM12->currentIndex();
+    cnt += ui->comboM13->currentIndex();
+    cnt += ui->comboM14->currentIndex();
+    cnt += ui->comboM15->currentIndex();
+    cnt += ui->comboM16->currentIndex();
+
+    if(cnt == 6)
+        return true;
+    else
+        return false;
+}
+
+bool FormToolbox::comboColGeoOK()
+{
+    int cnt = 0;
+
+    cnt += ui->comboMet006->currentIndex();
+    cnt += ui->comboMet008->currentIndex();
+    cnt += ui->comboMet016->currentIndex();
+    cnt += ui->comboMet039->currentIndex();
+    cnt += ui->comboMet062->currentIndex();
+    cnt += ui->comboMet073->currentIndex();
+    cnt += ui->comboMet087->currentIndex();
+    cnt += ui->comboMet097->currentIndex();
+    cnt += ui->comboMet108->currentIndex();
+    cnt += ui->comboMet120->currentIndex();
+    cnt += ui->comboMet134->currentIndex();
+
+    if(cnt == 6)
+        return true;
+    else
+        return false;
+}
+
 void FormToolbox::on_btnMakeVIIRSImage_clicked()
 {
+
+    if(!comboColVIIRSOK())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Need color choices for 3 different bands in the VIIRS tab.");
+        //msgBox.setInformativeText("Do you want to save your changes?");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
+        return;
+    }
+
     ui->pbProgress->reset();
     emit emitShowVIIRSImage();
 }

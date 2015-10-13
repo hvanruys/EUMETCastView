@@ -539,6 +539,25 @@ void FormMapCyl::on_btnRemoveSelected_clicked()
 
 void FormMapCyl::on_btnMakeImage_clicked()
 {
+    if(!formtoolbox->comboColVIIRSOK())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Need color choices for 3 different bands in the VIIRS tab.");
+        //msgBox.setInformativeText("Do you want to save your changes?");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
+        return;
+    }
+
     emit emitMakeImage();
 }
 
@@ -601,8 +620,10 @@ void FormMapCyl::on_btnRealTime_clicked()
 
 void FormMapCyl::on_btnVIIRS_clicked()
 {
+
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
     toggleButtonVIIRS();
+    return;
 }
 
 void FormMapCyl::on_btnAllSegments_clicked()
