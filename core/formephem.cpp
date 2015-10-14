@@ -221,7 +221,7 @@ void FormEphem::getSegmentsForCalendar()
 {
     QTreeWidgetItem *newitem;
 
-    segs->ReadDirectories(ui->calendar->selectedDate(), ui->sliNbrOfHours->value());
+    segs->ReadDirectoriesYYYYMMDD(ui->calendar->selectedDate(), ui->sliNbrOfHours->value());
 
     ui->segmentoverview->clear();
 

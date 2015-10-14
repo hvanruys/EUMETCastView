@@ -1039,6 +1039,355 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 }
 
 
+void AVHRRSatellite::ReadDirectoriesYYYYMMDD(QDate seldate, int hoursbefore)
+{
+    QFileInfoList fileinfolist; // QList<QFileInfo>
+
+    bool noaaTle = false;
+    bool metopTle = false;
+    bool nppTle = false;
+
+    qDebug() << QString("in AVHRRSatellite:ReadDirectories(QDate, int) hoursbefore = %1").arg(hoursbefore);
+
+    QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
+
+    QList<Segment*> *slnoaa = segmentlistnoaa->GetSegmentlistptr();
+    QList<Segment*> *slhrp = segmentlisthrp->GetSegmentlistptr();
+    QList<Segment*> *slgac = segmentlistgac->GetSegmentlistptr();
+    QList<Segment*> *slmetop = segmentlistmetop->GetSegmentlistptr();
+    QList<Segment*> *slviirs = segmentlistviirs->GetSegmentlistptr();
+
+    segmentlistnoaa->ClearSegments();
+    segmentlisthrp->ClearSegments();
+    segmentlistgac->ClearSegments();
+    segmentlistmetop->ClearSegments();
+    segmentlistviirs->ClearSegments();
+
+    segmentlistmapmeteosat.clear();
+    segmentlistmapmeteosatrss.clear();
+    segmentlistmapmet7.clear();
+    //segmentlistmapelectro.clear();
+    segmentlistmapgoes13dc3.clear();
+    segmentlistmapgoes15dc3.clear();
+    segmentlistmapmtsatdc3.clear();
+    segmentlistmapgoes13dc4.clear();
+    segmentlistmapgoes15dc4.clear();
+    segmentlistmapmtsatdc4.clear();
+    segmentlistmapfy2e.clear();
+    segmentlistmapfy2g.clear();
+    segmentlistmaph8.clear();
+
+    this->countmetop = 0;
+    this->countgac = 0;
+    this->counthrp = 0;
+    this->countnoaa = 0;
+    this->countviirs = 0;
+
+    QDir segmentdir;
+    QDateTime thedatetimebefore;
+
+    if (opts.segmentdirectorylist.count() > 0)
+    {
+        QStringList::Iterator its = opts.segmentdirectorylist.begin();
+        QStringList::Iterator itc = opts.segmentdirectorylistinc.begin(); //segmentdirectory checked
+
+        while( its != opts.segmentdirectorylist.end() )
+        {
+            if (*itc == "1")  //include checked
+            {
+                segmentdir.cd( *its );
+                segmentdir.setFilter(QDir::Files | QDir::NoSymLinks);
+                segmentdir.setSorting(QDir::Name);
+                fileinfolist = segmentdir.entryInfoList();
+
+                if (fileinfolist.size() > 0)
+                {
+                    emit signalResetProgressbar(fileinfolist.size(), (*its));
+                    QApplication::processEvents();
+                }
+
+                qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(*its);
+
+                if(hoursbefore > 0)
+                {
+                    thedatetimebefore.setDate(seldate);
+                    thedatetimebefore.setDate(thedatetimebefore.date().addDays(-1));
+                    thedatetimebefore.setTime(thedatetimebefore.time().addSecs((24 - hoursbefore)*3600));
+
+                    QString thepath = (*its) + "/" + thedatetimebefore.toString( "yyyyMMdd");
+                    qDebug() << QString("thepath = %1 time = %2").arg(thepath).arg(thedatetimebefore.toString( "hh:mm:ss"));
+
+                    if(segmentdir.cd( thepath ))
+                    {
+                        segmentdir.setFilter(QDir::Files | QDir::NoSymLinks);
+                        segmentdir.setSorting(QDir::Name); //::Time);
+                        fileinfolist = segmentdir.entryInfoList();
+                        qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepath);
+                    }
+                }
+
+                QString yeardir = seldate.toString("yyyyMMdd").mid(0, 4);
+                QString monthdir = seldate.toString("yyyyMMdd").mid(4, 2);
+                QString daydir = seldate.toString("yyyyMMdd").mid(6, 2);
+
+                QString thepath = (*its) + "/" + yeardir + monthdir + daydir;
+                QString thepathYYYYMMDD = (*its) + "/" + yeardir + "/" + monthdir + "/" + daydir;
+
+
+                if(segmentdir.cd( thepath ) || segmentdir.cd( thepathYYYYMMDD ))
+                {
+                    segmentdir.setFilter(QDir::Files | QDir::NoSymLinks);
+                    segmentdir.setSorting(QDir::Name); //::Time);
+                    fileinfolist.append(segmentdir.entryInfoList());
+                    qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepath);
+                }
+
+                QMap<QString, QFileInfo> map;
+                QDateTime filedate;
+                foreach (const QFileInfo &fileinfo, fileinfolist)
+                {
+                    //avhrr_20130701_151100_noaa19
+                    if (fileinfo.fileName().mid( 0, 6) == "avhrr_" && fileinfo.fileName().mid( 22, 6) == "noaa19")
+                    {
+                        noaaTle = true;
+                        QDate d(fileinfo.fileName().mid( 6, 4).toInt(), fileinfo.fileName().mid( 10, 2).toInt(), fileinfo.fileName().mid( 12, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 15, 2).toInt(), fileinfo.fileName().mid( 17, 2).toInt(), fileinfo.fileName().mid( 19, 2).toInt());
+                        filedate.setTime(t);
+                        if( filedate >= thedatetimebefore)
+                            map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    //AVHR_xxx_1B_M01_20130701051903Z_20130701052203Z_N_O_20130701054640Z
+                    //AVHR_GAC_1B_N19_20130701041003Z_20130701041303Z_N_O_20130701054958Z
+                    //AVHR_HRP_00_M02_20130701060200Z_20130701060300Z_N_O_20130701061314Z
+                    else if (fileinfo.fileName().mid( 0, 11) == "AVHR_GAC_1B" ||
+                             fileinfo.fileName().mid( 0, 11) == "AVHR_HRP_00" ||
+                             fileinfo.fileName().mid( 0, 11) == "AVHR_xxx_1B")
+                    {
+                        metopTle = true;
+                        QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 24, 2).toInt(), fileinfo.fileName().mid( 26, 2).toInt(), fileinfo.fileName().mid( 28, 2).toInt());
+                        filedate.setTime(t);
+                        if( filedate >= thedatetimebefore)
+                            map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
+                    else if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp")
+                    {
+                        nppTle = true;
+                        QDate d(fileinfo.fileName().mid( 10, 4).toInt(), fileinfo.fileName().mid( 14, 2).toInt(), fileinfo.fileName().mid( 16, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt());
+                        filedate.setTime(t);
+                        if( filedate >= thedatetimebefore)
+                            map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+
+                    //H-000-MSG3__-MSG3________-HRV______-000001___-201310270845-C_
+                    //H-000-MSG1__-MSG1_RSS____-HRV______-000016___-201211210610-C_
+                    //H-000-GOMS1_-GOMS1_4_____-00_9_076E-000001___-201312231100-C_
+                    //L-000-MTP___-MET7________-06_4_057E-000004___-201403300930-C_
+                    //L-000-MSG3__-GOES13______-00_7_075W-000001___-201404031200-C_
+                    //L-000-MSG3__-GOES15______-00_7_135W-000001___-201404031500-C_
+                    //L-000-MSG3__-MTSAT2______-00_7_145E-000006___-201404032100-C_
+                    else if (fileinfo.fileName().mid( 0, 9) == "H-000-MSG" && fileinfo.fileName().mid( 59, 2) == "C_")
+                    {
+                        QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    else if (fileinfo.fileName().mid( 0, 11) == "H-000-GOMS1" && fileinfo.fileName().mid( 59, 2) == "C_")
+                    {
+                        QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    else if (fileinfo.fileName().mid( 0, 17) == "L-000-MTP___-MET7" && fileinfo.fileName().mid( 59, 2) == "C_")
+                    {
+                        QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileinfo.fileName().mid( 59, 2) == "C_")
+                    {
+                        QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_")
+                    {
+                        QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-MTSAT2" && fileinfo.fileName().mid( 59, 2) == "C_")
+                    {
+                        QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    //0123456789012345678901234567890123456789012345678901234567890
+                    //Z_SATE_C_BABJ_20150624130000_O_FY2G_FDI_IR1_001_NOM.HDF.gz
+                    else if (fileinfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileinfo.fileName().mid( 31, 8) == "FY2E_FDI") // Data Channel 12
+                    {
+                        QDate d(fileinfo.fileName().mid( 14, 4).toInt(), fileinfo.fileName().mid( 18, 2).toInt(), fileinfo.fileName().mid( 20, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    else if (fileinfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileinfo.fileName().mid( 31, 8) == "FY2G_FDI") // Data Channel 12
+                    {
+                        QDate d(fileinfo.fileName().mid( 14, 4).toInt(), fileinfo.fileName().mid( 18, 2).toInt(), fileinfo.fileName().mid( 20, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+                    //IMG_DK01B04_201510090000_001.bz2
+                    //0123456789012345678901234567890
+                    //YYYYMMDDhhmm : YYYY=year, MM=month, DD=day of month, hh=hour, mm=minute
+                    //nnnn : ‘_001’-‘_010’ for segmented full earth’s disk image data files
+                    //Sequence number is set only for dissemination of the segment files.
+                    else if (fileinfo.fileName().mid( 0, 6) == "IMG_DK") //Data Channel 4
+                    {
+                        QDate d(fileinfo.fileName().mid( 12, 4).toInt(), fileinfo.fileName().mid( 16, 2).toInt(), fileinfo.fileName().mid( 18, 2).toInt());
+                        filedate.setDate(d);
+                        QTime t(fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt(), 0);
+                        filedate.setTime(t);
+                        map.insert(fileinfo.fileName(), fileinfo);
+
+                    }
+
+
+                }
+
+                if(metopTle)
+                {
+                    bool ok1 = false, ok2 = false;
+                    Satellite metop_sat;
+                    ok1 = satlist->GetSatellite(29499, &metop_sat);
+                    ok2 = satlist->GetSatellite(38771, &metop_sat);
+                    if (ok1 == false || ok2 == false)
+                    {
+                        QApplication::restoreOverrideCursor();
+                        QMessageBox msgBox;
+                        msgBox.setText("Need the Metop TLE's.");
+                        msgBox.exec();
+
+                        return;
+                    }
+                }
+
+                if(nppTle)
+                {
+                    bool ok = false;
+                    Satellite nppsat;
+                    ok = satlist->GetSatellite(37849, &nppsat);
+                    if (ok == false)
+                    {
+                        QApplication::restoreOverrideCursor();
+                        QMessageBox msgBox;
+                        msgBox.setText("Need the Suomi TLE's.");
+                        msgBox.exec();
+
+                        return;
+                    }
+                }
+
+                if(noaaTle)
+                {
+                    bool ok = false;
+                    Satellite noaasat;
+                    ok = satlist->GetSatellite(33591, &noaasat);
+                    if (ok == false)
+                    {
+                        QApplication::restoreOverrideCursor();
+                        QMessageBox msgBox;
+                        msgBox.setText("Need the Noaa TLE's.");
+                        msgBox.exec();
+
+                        return;
+                    }
+                }
+
+
+                fileinfolist = map.values();
+
+                emit signalResetProgressbar(fileinfolist.size(), (*its));
+
+                if( fileinfolist.count() > 0)
+                    AddSegmentsToList(fileinfolist);
+                qDebug() << QString("ReadDirectories count = %1").arg(fileinfolist.count());
+            }
+            ++its;
+            ++itc;
+
+        }
+    }
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setText("There are no segment directories set !");
+        msgBox.exec();
+    }
+
+
+    QApplication::restoreOverrideCursor();
+
+    qDebug() << QString("Count segmentlistmetop = %1").arg(slmetop->count());
+    qDebug() << QString("Count segmentlistnoaa = %1").arg(slnoaa->count());
+    qDebug() << QString("Count segmentlisthrp = %1").arg(slhrp->count());
+    qDebug() << QString("Count segmentlistgac = %1").arg(slgac->count());
+    qDebug() << QString("Count segmentlistviirs = %1").arg(slviirs->count());
+
+    qDebug() << QString( "Nbr of items in segmentlist MET-10     = %1").arg(segmentlistmapmeteosat.size());
+    qDebug() << QString( "Nbr of items in segmentlist MET-9      = %1").arg(segmentlistmapmeteosatrss.size());
+    qDebug() << QString( "Nbr of items in segmentlist MET-7      = %1").arg(segmentlistmapmet7.size());
+    //qDebug() << QString( "Nbr of items in segmentlist Electro  = %1").arg(segmentlistmapelectro.size());
+    qDebug() << QString( "Nbr of items in segmentlist GOES-13    = %1").arg(segmentlistmapgoes13dc3.size());
+    qDebug() << QString( "Nbr of items in segmentlist GOES-15    = %1").arg(segmentlistmapgoes15dc3.size());
+    qDebug() << QString( "Nbr of items in segmentlist MTSAT2     = %1").arg(segmentlistmapmtsatdc3.size());
+    qDebug() << QString( "Nbr of items in segmentlist FY2E       = %1").arg(segmentlistmapfy2e.size());
+    qDebug() << QString( "Nbr of items in segmentlist FY2G       = %1").arg(segmentlistmapfy2g.size());
+    qDebug() << QString( "Nbr of items in segmentlist Himawari-8 = %1").arg(segmentlistmaph8.size());
+
+    QString strtot = QString("Total segments = %1").arg(slmetop->count()+slnoaa->count()+slgac->count()+slhrp->count()+slviirs->count()+
+                                                        segmentlistmapmeteosat.size()+segmentlistmapmeteosatrss.size() +
+                                                        segmentlistmapmet7.size() +
+                                                        // segmentlistmapelectro.size()+
+                                                        segmentlistmapfy2e.size() + segmentlistmapfy2g.size() +
+                                                        segmentlistmapgoes13dc3.size()+segmentlistmapgoes15dc3.size()+segmentlistmapmtsatdc3.size()
+                                                        +segmentlistmaph8.size());
+    emit signalResetProgressbar(1, strtot);
+    emit signalNothingSelected();
+}
+
+
 void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
 {
 
