@@ -18,6 +18,7 @@ public:
     bool inverse(double x, double y, double &lon_rad, double &lat_rad);
     bool forward(double lon_rad, double lat_rad, double &x, double &y);
     bool map_forward(double lon_rad, double lat_rad, double &map_x, double &map_y);
+    bool map_forward_viirs(double lon_rad, double lat_rad, double &map_x, double &map_y);
     bool map_inverse(double map_x, double map_y, double &lon_rad, double &lat_rad);
     void CreateMapFromAVHRR(int inputchannel, eSegmentType type);
     void CreateMapFromVIIRS();

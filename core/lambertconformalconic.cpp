@@ -471,6 +471,24 @@ bool LambertConformalConic::map_forward(double lon_rad, double lat_rad, double &
     return ret;
 }
 
+bool LambertConformalConic::map_forward_viirs(double lon_rad, double lat_rad, double &map_x, double &map_y)
+{
+
+    double x, y;
+    bool ret = false;
+
+    ret = this->lamccfor(lon_rad, lat_rad, &x, &y);
+
+    if(ret)
+    {
+        map_y = mapdeltay + (max_y - y)*Ay/Dy;
+        map_x = mapdeltax + (x*Ax - min_x*map_width) / Dx;
+
+    }
+
+    return ret;
+}
+
 bool LambertConformalConic::map_inverse(double map_x, double map_y, double &lon_rad, double &lat_rad)
 {
 

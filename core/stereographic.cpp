@@ -298,6 +298,23 @@ bool StereoGraphic::map_forward(double lon_rad, double lat_rad, double &map_x, d
     return ret;
 }
 
+bool StereoGraphic::map_forward_viirs(double lon_rad, double lat_rad, double &map_x, double &map_y)
+{
+
+    double x, y;
+    double dist=acos(sin_p10*sin(lat_rad)+cos_p10*cos(lat_rad)*cos(lon_center-lon_rad));
+    if(dist > opts.mapsgradius*PI/180.0) return false;
+
+    bool ret = this->forward(lon_rad, lat_rad, x, y);
+    if(ret)
+    {
+        map_y = false_northing + mapdeltay + (map_radius * scale - y) / (map_radius * scale / (map_height/2));
+        map_x = false_easting + mapdeltax + (x + map_radius * scale) / (map_radius * scale / (map_width/2));
+    }
+
+    return ret;
+}
+
 bool StereoGraphic::forward(double lon_rad, double lat_rad, double &x, double &y)
 {
     double sinphi, cosphi;	/* sin and cos value				*/

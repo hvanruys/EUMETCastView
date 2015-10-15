@@ -32,11 +32,11 @@ private:
     //bool QuadOk(SegmentVIIRS *segm, int line, int pixelx);
     //bool AdjacentPixels(SegmentVIIRS *segm, int line, int pixelx);
     void BilinearInterpolation(SegmentVIIRS *segm);
-    void BilinearInbetween(SegmentVIIRS *segmfirst, SegmentVIIRS *segmnext);
+    void BilinearBetweenSegments(SegmentVIIRS *segmfirst, SegmentVIIRS *segmnext);
 
     bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
     void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
-    void MapCanvas(QRgb *canvas, quint16 anchorX, quint16 anchorY, quint16 dimx, quint16 dimy);
+    void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy);
     void printData(SegmentVIIRS *segm, int linesfrom, int viewsfrom);
 
     SatelliteList *satlist;

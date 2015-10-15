@@ -40,8 +40,8 @@ public:
     QString getDatasetNameFromBand();
     QString getDatasetNameFromColor(int colorindex);
     bool composeColorImage();
-    quint16 getProjectionX(int line, int pixelx) { return projectionCoordX[line * 3200 + pixelx]; }
-    quint16 getProjectionY(int line, int pixelx) { return projectionCoordY[line * 3200 + pixelx]; }
+    qint32 getProjectionX(int line, int pixelx) { return projectionCoordX[line * 3200 + pixelx]; }
+    qint32 getProjectionY(int line, int pixelx) { return projectionCoordY[line * 3200 + pixelx]; }
     QRgb getProjectionValue(int line, int pixelx) { return projectionCoordValue[line * 3200 + pixelx]; }
     int threshold[3];
 
@@ -62,8 +62,8 @@ private:
     float *geolatitude;
     float *geolongitude;
 
-    quint16 *projectionCoordX;
-    quint16 *projectionCoordY;
+    qint32 *projectionCoordX;
+    qint32 *projectionCoordY;
     QRgb *projectionCoordValue;
 
 
@@ -77,7 +77,6 @@ private:
     float lonMin;
 
     bool invertthissegment[3];
-
 
 };
 

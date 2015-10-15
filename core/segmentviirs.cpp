@@ -898,8 +898,8 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
     bool color = bandlist.at(0);
     bool valok[3];
 
-    projectionCoordX = new quint16[768 * 3200];
-    projectionCoordY = new quint16[768 * 3200];
+    projectionCoordX = new qint32[768 * 3200];
+    projectionCoordY = new qint32[768 * 3200];
     projectionCoordValue = new QRgb[768 * 3200];
 
     for( int i = 0; i < 768; i++)
@@ -936,14 +936,14 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
 
                 if(proj == LCC) //Lambert
                 {
-                    if(imageptrs->lcc->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->lcc->map_forward_viirs(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
                 }
                 else if(proj == GVP) // General Vertical Perspecitve
                 {
-                    if(imageptrs->gvp->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->gvp->map_forward_viirs(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
@@ -951,7 +951,7 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
                 }
                 else if(proj == SG) // Stereographic
                 {
-                    if(imageptrs->sg->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->sg->map_forward_viirs(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
@@ -1162,10 +1162,14 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
     }
 
 
-    if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//    if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+    if (map_x > -5 && map_x < imageptrs->ptrimageProjection->width() + 5 && map_y > -5 && map_y < imageptrs->ptrimageProjection->height() + 5)
     {
-        projectionCoordX[lines * 3200 + views] = (quint16)map_x;
-        projectionCoordY[lines * 3200 + views] = (quint16)map_y;
+        if(map_x > -5 && map_x < 0)
+            int bla = 0;
+
+        projectionCoordX[lines * 3200 + views] = (qint32)map_x;
+        projectionCoordY[lines * 3200 + views] = (qint32)map_y;
 
         for(int i = 0; i < (color ? 3 : 1); i++)
         {
@@ -1215,18 +1219,21 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
             if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
             {
                 rgbvalue = qRgb(250, 0, 0);
-                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
             }
             else
             {
-                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 projectionCoordValue[lines * 3200 + views] = rgbvalue;
 
             }
         }
         else
         {
-            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+            if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
             projectionCoordValue[lines * 3200 + views] = rgbvalue;
         }
 

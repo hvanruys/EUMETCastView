@@ -1024,7 +1024,7 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
 
 /*    from pt 5 --> pt 2045
     = 5 + 20 * 102 total of 103 pts
-    tot = 5 + 20 * 102 + 3 = 2048
+    to = 5 + 20 * 102 + 3 = 2048
 */
     if(num_navigation_points == 103)
     {

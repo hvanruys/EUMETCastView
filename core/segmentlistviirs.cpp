@@ -15,9 +15,9 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-quint16 Min(const quint16 v11, const quint16 v12, const quint16 v21, const quint16 v22)
+qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
 {
-    quint16 Minimum = v11;
+    qint32 Minimum = v11;
 
     if( Minimum > v12 )
             Minimum = v12;
@@ -29,9 +29,9 @@ quint16 Min(const quint16 v11, const quint16 v12, const quint16 v21, const quint
     return Minimum;
 }
 
-quint16 Min2(const quint16 v11, const quint16 v12)
+qint32 Min2(const qint32 v11, const qint32 v12)
 {
-    quint16 Minimum = v11;
+    qint32 Minimum = v11;
 
     if( Minimum > v12 )
             Minimum = v12;
@@ -39,7 +39,7 @@ quint16 Min2(const quint16 v11, const quint16 v12)
     return Minimum;
 }
 
-quint16 Max(const quint16 v11, const quint16 v12, const quint16 v21, const quint16 v22)
+qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
 {
     int Maximum = v11;
 
@@ -53,7 +53,7 @@ quint16 Max(const quint16 v11, const quint16 v12, const quint16 v21, const quint
     return Maximum;
 }
 
-quint16 Max2(const quint16 v11, const quint16 v12)
+qint32 Max2(const qint32 v11, const qint32 v12)
 {
     int Maximum = v11;
 
@@ -806,7 +806,7 @@ void SegmentListVIIRS::SmoothVIIRSImage()
     {
         SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
         if(segsel != segsselected.begin())
-            BilinearInbetween(segmsave, segm);
+            BilinearBetweenSegments(segmsave, segm);
         segmsave = segm;
         BilinearInterpolation(segm);
         //printData(segm);
@@ -892,43 +892,43 @@ inline bool SegmentListVIIRS::PixelOK(int pix)
 }
 
 
-void SegmentListVIIRS::BilinearInbetween(SegmentVIIRS *segmfirst, SegmentVIIRS *segmnext)
+void SegmentListVIIRS::BilinearBetweenSegments(SegmentVIIRS *segmfirst, SegmentVIIRS *segmnext)
 {
-    quint16 x11;
-    quint16 y11;
+    qint32 x11;
+    qint32 y11;
     QRgb rgb11;
 
-    quint16 x12;
-    quint16 y12;
+    qint32 x12;
+    qint32 y12;
     QRgb rgb12;
 
-    quint16 x21;
-    quint16 y21;
+    qint32 x21;
+    qint32 y21;
     QRgb rgb21;
 
-    quint16 x22;
-    quint16 y22;
+    qint32 x22;
+    qint32 y22;
     QRgb rgb22;
 
-    quint16 xc11;
-    quint16 yc11;
+    qint32 xc11;
+    qint32 yc11;
 
-    quint16 xc12;
-    quint16 yc12;
+    qint32 xc12;
+    qint32 yc12;
 
-    quint16 xc21;
-    quint16 yc21;
+    qint32 xc21;
+    qint32 yc21;
 
-    quint16 xc22;
-    quint16 yc22;
+    qint32 xc22;
+    qint32 yc22;
 
-    quint16 minx;
-    quint16 miny;
-    quint16 maxx;
-    quint16 maxy;
+    qint32 minx;
+    qint32 miny;
+    qint32 maxx;
+    qint32 maxy;
 
-    quint16 anchorX;
-    quint16 anchorY;
+    qint32 anchorX;
+    qint32 anchorY;
 
     int dimx, dimy;
 
@@ -951,8 +951,12 @@ void SegmentListVIIRS::BilinearInbetween(SegmentVIIRS *segmfirst, SegmentVIIRS *
         x22 = segmnext->getProjectionX(0, pixelx+1);
         y22 = segmnext->getProjectionY(0, pixelx+1);
 
-        if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528)
+        if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
+                && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
+                && x11 >= -3 && x12 >= -3 && x21 >= -3 && x22 >= -3
+                && y11 >= -3 && y12 >= -3 && y21 >= -3 && y22 >= -3 )
         {
+
             minx = Min(x11, x12, x21, x22);
             miny = Min(y11, y12, y21, y22);
             maxx = Max(x11, x12, x21, x22);
@@ -1013,41 +1017,41 @@ void SegmentListVIIRS::BilinearInbetween(SegmentVIIRS *segmfirst, SegmentVIIRS *
 
 void SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm)
 {
-    quint16 x11;
-    quint16 y11;
+    qint32 x11;
+    qint32 y11;
     QRgb rgb11;
 
-    quint16 x12;
-    quint16 y12;
+    qint32 x12;
+    qint32 y12;
     QRgb rgb12;
 
-    quint16 x21;
-    quint16 y21;
+    qint32 x21;
+    qint32 y21;
     QRgb rgb21;
 
-    quint16 x22;
-    quint16 y22;
+    qint32 x22;
+    qint32 y22;
     QRgb rgb22;
 
-    quint16 xc11;
-    quint16 yc11;
+    qint32 xc11;
+    qint32 yc11;
 
-    quint16 xc12;
-    quint16 yc12;
+    qint32 xc12;
+    qint32 yc12;
 
-    quint16 xc21;
-    quint16 yc21;
+    qint32 xc21;
+    qint32 yc21;
 
-    quint16 xc22;
-    quint16 yc22;
+    qint32 xc22;
+    qint32 yc22;
 
-    quint16 minx;
-    quint16 miny;
-    quint16 maxx;
-    quint16 maxy;
+    qint32 minx;
+    qint32 miny;
+    qint32 maxx;
+    qint32 maxy;
 
-    quint16 anchorX;
-    quint16 anchorY;
+    qint32 anchorX;
+    qint32 anchorY;
 
     int dimx, dimy;
 
@@ -1073,7 +1077,10 @@ void SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm)
             x22 = segm->getProjectionX(line+1, pixelx+1);
             y22 = segm->getProjectionY(line+1, pixelx+1);
 
-            if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528)
+            if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
+                    && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
+                    && x11 >= -3 && x12 >= -3 && x21 >= -3 && x22 >= -3
+                    && y11 >= -3 && y12 >= -3 && y21 >= -3 && y22 >= -3 )
             {
                 minx = Min(x11, x12, x21, x22);
                 miny = Min(y11, y12, y21, y22);
@@ -1094,6 +1101,7 @@ void SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm)
                     rgb12 = segm->getProjectionValue(line, pixelx+1);
                     rgb21 = segm->getProjectionValue(line+1, pixelx);
                     rgb22 = segm->getProjectionValue(line+1, pixelx+1);
+
 
                     xc11 = x11 - minx;
                     xc12 = x12 - minx;
@@ -1450,19 +1458,20 @@ void SegmentListVIIRS::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy
 
 }
 
-void SegmentListVIIRS::MapCanvas(QRgb *canvas, quint16 anchorX, quint16 anchorY, quint16 dimx, quint16 dimy)
+void SegmentListVIIRS::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy)
 {
-
     for(int h = 0; h < dimy; h++ )
     {
         for(int w = 0; w < dimx; w++)
         {
             QRgb rgb = canvas[h * dimx + w];
             if(qAlpha(rgb) == 255)
-                imageptrs->ptrimageProjection->setPixel(anchorX + w, anchorY + h, rgb);
+            {
+                if (anchorX + w >= 0 && anchorX + w < imageptrs->ptrimageProjection->width() &&
+                        anchorY + h >= 0 && anchorY + h < imageptrs->ptrimageProjection->height())
+                    imageptrs->ptrimageProjection->setPixel(anchorX + w, anchorY + h, rgb);
+            }
         }
     }
-
-
 }
 

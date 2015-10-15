@@ -160,6 +160,10 @@ protected:
 
     QString satname;
     
+    qint32 *projectionCoordX;
+    qint32 *projectionCoordY;
+    QRgb *projectionCoordValue;
+
 signals:
     void segmentimagecomposed();
     

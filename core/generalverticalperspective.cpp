@@ -303,6 +303,20 @@ bool GeneralVerticalPerspective::map_forward(double lon_rad, double lat_rad, dou
     return ret;
 }
 
+bool GeneralVerticalPerspective::map_forward_viirs(double lon_rad, double lat_rad, double &map_x, double &map_y)
+{
+
+    double x, y;
+    bool ret = this->genpersfor(lon_rad, lat_rad, &x, &y);
+    if(ret)
+    {
+        map_y = mapdeltay + (map_radius * scale - y) / (map_radius * scale / (map_height/2));
+        map_x = mapdeltax + (x + map_radius * scale) / (map_radius * scale / (map_width/2));
+    }
+
+    return ret;
+}
+
 bool GeneralVerticalPerspective::genpersfor(double lon, double lat, double *x, double *y)
 {
     double dlon;
