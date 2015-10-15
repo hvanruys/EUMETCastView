@@ -294,6 +294,17 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->chkInverseM15->setChecked(opts.lastinverseM15);
     ui->chkInverseM16->setChecked(opts.lastinverseM16);
 
+    ui->lblGeo1->setText("0.635");
+    ui->lblGeo2->setText("0.81");
+    ui->lblGeo3->setText("1.64");
+    ui->lblGeo4->setText("3.90");
+    ui->lblGeo5->setText("6.25");
+    ui->lblGeo6->setText("7.35");
+    ui->lblGeo7->setText("8.70");
+    ui->lblGeo8->setText("9.66");
+    ui->lblGeo9->setText("10.80");
+    ui->lblGeo10->setText("12.00");
+    ui->lblGeo11->setText("13.40");
 
 
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
@@ -1288,6 +1299,20 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
 
+        ui->lblGeo1->setText("   ");
+        ui->lblGeo2->setText("   ");
+        ui->lblGeo3->setText("   ");
+        ui->lblGeo4->setText("   ");
+        ui->lblGeo5->setText("   ");
+        ui->lblGeo6->setText("   ");
+        ui->lblGeo7->setText("   ");
+        ui->lblGeo8->setText("   ");
+        ui->lblGeo9->setText("   ");
+        ui->lblGeo10->setText("   ");
+        ui->lblGeo11->setText("   ");
+
+
+
         break;
     case SegmentListGeostationary::GOES_13:
     case SegmentListGeostationary::GOES_15:
@@ -1307,6 +1332,19 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
 
+        ui->lblGeo1->setText("   ");
+        ui->lblGeo2->setText("   ");
+        ui->lblGeo3->setText("   ");
+        ui->lblGeo4->setText("   ");
+        ui->lblGeo5->setText("   ");
+        ui->lblGeo6->setText("   ");
+        ui->lblGeo7->setText("   ");
+        ui->lblGeo8->setText("   ");
+        ui->lblGeo9->setText("   ");
+        ui->lblGeo10->setText("   ");
+        ui->lblGeo11->setText("   ");
+
+
         break;
     case SegmentListGeostationary::MTSAT:
         ui->btnGeoColor->setEnabled(false);
@@ -1324,6 +1362,18 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnHRV->setEnabled(false);
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
+
+        ui->lblGeo1->setText("   ");
+        ui->lblGeo2->setText("   ");
+        ui->lblGeo3->setText("   ");
+        ui->lblGeo4->setText("   ");
+        ui->lblGeo5->setText("   ");
+        ui->lblGeo6->setText("   ");
+        ui->lblGeo7->setText("   ");
+        ui->lblGeo8->setText("   ");
+        ui->lblGeo9->setText("   ");
+        ui->lblGeo10->setText("   ");
+        ui->lblGeo11->setText("   ");
 
         break;
     case SegmentListGeostationary::FY2E:
@@ -1343,6 +1393,19 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnHRV->setEnabled(state);
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
+
+        ui->lblGeo1->setText("   ");
+        ui->lblGeo2->setText("   ");
+        ui->lblGeo3->setText("   ");
+        ui->lblGeo4->setText("   ");
+        ui->lblGeo5->setText("   ");
+        ui->lblGeo6->setText("   ");
+        ui->lblGeo7->setText("   ");
+        ui->lblGeo8->setText("   ");
+        ui->lblGeo9->setText("   ");
+        ui->lblGeo10->setText("   ");
+        ui->lblGeo11->setText("   ");
+
         break;
     case SegmentListGeostationary::H8:
         ui->btnGeoColor->setEnabled(state);
@@ -1360,6 +1423,19 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnHRV->setEnabled(false);
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
+
+        ui->lblGeo1->setText("0.64");
+        ui->lblGeo2->setText("0.86");
+        ui->lblGeo3->setText("1.6");
+        ui->lblGeo4->setText("3.9");
+        ui->lblGeo5->setText("6.2");
+        ui->lblGeo6->setText("7.3");
+        ui->lblGeo7->setText("8.6");
+        ui->lblGeo8->setText("10.4");
+        ui->lblGeo9->setText("11.2");
+        ui->lblGeo10->setText("12.4");
+        ui->lblGeo11->setText("13.3");
+
         break;
 
     default:
@@ -1378,6 +1454,18 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnHRV->setEnabled(state);
         ui->cmbHRVtype->setEnabled(state);
         ui->chkColorHRV->setEnabled(state);
+
+        ui->lblGeo1->setText("0.635");
+        ui->lblGeo2->setText("0.81");
+        ui->lblGeo3->setText("1.64");
+        ui->lblGeo4->setText("3.90");
+        ui->lblGeo5->setText("6.25");
+        ui->lblGeo6->setText("7.35");
+        ui->lblGeo7->setText("8.70");
+        ui->lblGeo8->setText("9.66");
+        ui->lblGeo9->setText("10.80");
+        ui->lblGeo10->setText("12.00");
+        ui->lblGeo11->setText("13.40");
 
     }
 

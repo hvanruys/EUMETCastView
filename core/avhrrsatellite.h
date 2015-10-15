@@ -36,7 +36,6 @@ class AVHRRSatellite  : public QObject
 public:
     AVHRRSatellite(QObject *parent = 0, SatelliteList *lst = 0);
     void ReadDirectories(QDate seldate, int hoursbefore);
-    void ReadDirectoriesYYYYMMDD(QDate seldate, int hoursbefore);
     void AddSegmentsToList(QFileInfoList fileinfolist);
     SegmentListGeostationary *getActiveSegmentList();
     bool SelectedAVHRRSegments();
@@ -109,6 +108,8 @@ public:
 
 
 private:
+
+    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, int hoursbefore);
 
     SatelliteList *satlist;
     long nbrofpointsselected;

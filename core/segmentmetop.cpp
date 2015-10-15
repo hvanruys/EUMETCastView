@@ -27,7 +27,6 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
     Segment(parent)
 {
     bool ok;
-    qDebug() << "in creator SegmentMetop";
     satlist = satl;
     fileInfo.setFile(*filesegment);
 

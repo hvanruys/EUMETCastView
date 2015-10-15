@@ -1630,6 +1630,19 @@
          <layout class="QHBoxLayout" name="horizontalLayout_20">
           <item>
            <layout class="QGridLayout" name="gridLayout_3">
+            <item row="10" column="2">
+             <widget class="QPushButton" name="btnIR120">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>IR_120</string>
+              </property>
+             </widget>
+            </item>
             <item row="4" column="1">
              <widget class="QComboBox" name="comboMet039">
               <property name="maximumSize">
@@ -1699,16 +1712,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="QComboBox" name="comboMet016">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="1">
              <widget class="QComboBox" name="comboMet008">
               <property name="maximumSize">
@@ -1719,8 +1722,28 @@
               </property>
              </widget>
             </item>
+            <item row="3" column="1">
+             <widget class="QComboBox" name="comboMet016">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
             <item row="11" column="1">
              <widget class="QComboBox" name="comboMet134">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="comboMet006">
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -1766,15 +1789,8 @@
               </item>
              </layout>
             </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="comboMet006">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
+            <item row="12" column="0">
+             <widget class="QComboBox" name="cmbHRVtype"/>
             </item>
             <item row="7" column="0">
              <layout class="QHBoxLayout" name="horizontalLayout_15">
@@ -1826,8 +1842,15 @@
               </property>
              </widget>
             </item>
-            <item row="12" column="0">
-             <widget class="QComboBox" name="cmbHRVtype"/>
+            <item row="5" column="1">
+             <widget class="QComboBox" name="comboMet062">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
             </item>
             <item row="3" column="2">
              <widget class="QPushButton" name="btnIR016">
@@ -1916,13 +1939,16 @@
               </item>
              </layout>
             </item>
-            <item row="5" column="1">
-             <widget class="QComboBox" name="comboMet062">
+            <item row="5" column="2">
+             <widget class="QPushButton" name="btnWV062">
               <property name="maximumSize">
                <size>
-                <width>50</width>
+                <width>60</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="text">
+               <string>WV_062</string>
               </property>
              </widget>
             </item>
@@ -1936,8 +1962,8 @@
               </property>
              </widget>
             </item>
-            <item row="5" column="2">
-             <widget class="QPushButton" name="btnWV062">
+            <item row="2" column="2">
+             <widget class="QPushButton" name="btnVIS008">
               <property name="maximumSize">
                <size>
                 <width>60</width>
@@ -1945,7 +1971,17 @@
                </size>
               </property>
               <property name="text">
-               <string>WV_062</string>
+               <string>VIS008</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QComboBox" name="comboMet073">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
               </property>
              </widget>
             </item>
@@ -1962,19 +1998,6 @@
                </widget>
               </item>
              </layout>
-            </item>
-            <item row="2" column="2">
-             <widget class="QPushButton" name="btnVIS008">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>VIS008</string>
-              </property>
-             </widget>
             </item>
             <item row="9" column="0">
              <layout class="QHBoxLayout" name="horizontalLayout_17">
@@ -2013,13 +2036,16 @@
               </item>
              </layout>
             </item>
-            <item row="6" column="1">
-             <widget class="QComboBox" name="comboMet073">
+            <item row="11" column="2">
+             <widget class="QPushButton" name="btnIR134">
               <property name="maximumSize">
                <size>
-                <width>50</width>
+                <width>60</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="text">
+               <string>IR_134</string>
               </property>
              </widget>
             </item>
@@ -2060,8 +2086,8 @@
               </item>
              </layout>
             </item>
-            <item row="10" column="2">
-             <widget class="QPushButton" name="btnIR120">
+            <item row="6" column="2">
+             <widget class="QPushButton" name="btnWV073">
               <property name="maximumSize">
                <size>
                 <width>60</width>
@@ -2069,20 +2095,17 @@
                </size>
               </property>
               <property name="text">
-               <string>IR_120</string>
+               <string>WV_073</string>
               </property>
              </widget>
             </item>
-            <item row="11" column="2">
-             <widget class="QPushButton" name="btnIR134">
+            <item row="8" column="1">
+             <widget class="QComboBox" name="comboMet097">
               <property name="maximumSize">
                <size>
-                <width>60</width>
+                <width>50</width>
                 <height>16777215</height>
                </size>
-              </property>
-              <property name="text">
-               <string>IR_134</string>
               </property>
              </widget>
             </item>
@@ -2170,8 +2193,8 @@
               </item>
              </layout>
             </item>
-            <item row="6" column="2">
-             <widget class="QPushButton" name="btnWV073">
+            <item row="1" column="2">
+             <widget class="QPushButton" name="btnVIS006">
               <property name="maximumSize">
                <size>
                 <width>60</width>
@@ -2179,7 +2202,7 @@
                </size>
               </property>
               <property name="text">
-               <string>WV_073</string>
+               <string>VIS006</string>
               </property>
              </widget>
             </item>
@@ -2219,29 +2242,6 @@
                </spacer>
               </item>
              </layout>
-            </item>
-            <item row="8" column="1">
-             <widget class="QComboBox" name="comboMet097">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QPushButton" name="btnVIS006">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>VIS006</string>
-              </property>
-             </widget>
             </item>
             <item row="9" column="2">
              <widget class="QPushButton" name="btnIR108">
@@ -2342,6 +2342,100 @@
                </spacer>
               </item>
              </layout>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLabel" name="lblGeo1">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QLabel" name="lblGeo2">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="3">
+             <widget class="QLabel" name="lblGeo4">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="3">
+             <widget class="QLabel" name="lblGeo5">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="3">
+             <widget class="QLabel" name="lblGeo6">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="3">
+             <widget class="QLabel" name="lblGeo7">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="3">
+             <widget class="QLabel" name="lblGeo8">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="3">
+             <widget class="QLabel" name="lblGeo9">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="3">
+             <widget class="QLabel" name="lblGeo10">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="3">
+             <widget class="QLabel" name="lblGeo11">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="QLabel" name="lblGeo3">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QLabel" name="label_37">
+              <property name="text">
+               <string>in µm</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_38">
+              <property name="text">
+               <string>Band</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -3429,8 +3523,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>333</width>
-                 <height>357</height>
+                 <width>214</width>
+                 <height>256</height>
                 </rect>
                </property>
                <attribute name="label">
