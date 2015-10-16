@@ -544,11 +544,11 @@ void SegmentMetop::inspectEarthLocations(QByteArray *mdr_record, int heightinseg
         earthloc_lon[heightinsegment*103 + i] = (float)llon_deg/10000;
     }
 
-    if(num_navigation_points == 103 && (heightinsegment == 0 || heightinsegment == 540 || heightinsegment == 1079))
-    {
-        qDebug() << QString("------>IEL height = %1  lon[0] = %2, lon[52] = %3, lon[102] = %4").arg(heightinsegment).arg( earthloc_lon[heightinsegment*103]).arg( earthloc_lon[heightinsegment*103 + 52]).arg( earthloc_lon[heightinsegment * 103 + 102]);
-        qDebug() << QString("------>IEL height = %1  lat[0] = %2, lat[52] = %3, lat[102] = %4").arg(heightinsegment).arg( earthloc_lat[heightinsegment*103]).arg( earthloc_lat[heightinsegment*103 + 52]).arg( earthloc_lat[heightinsegment * 103 + 102]);
-    }
+//    if(num_navigation_points == 103 && (heightinsegment == 0 || heightinsegment == 540 || heightinsegment == 1079))
+//    {
+//        qDebug() << QString("------>IEL height = %1  lon[0] = %2, lon[52] = %3, lon[102] = %4").arg(heightinsegment).arg( earthloc_lon[heightinsegment*103]).arg( earthloc_lon[heightinsegment*103 + 52]).arg( earthloc_lon[heightinsegment * 103 + 102]);
+//        qDebug() << QString("------>IEL height = %1  lat[0] = %2, lat[52] = %3, lat[102] = %4").arg(heightinsegment).arg( earthloc_lat[heightinsegment*103]).arg( earthloc_lat[heightinsegment*103 + 52]).arg( earthloc_lat[heightinsegment * 103 + 102]);
+//    }
 
 }
 
@@ -842,11 +842,31 @@ Segment *SegmentMetop::ReadSegmentInMemory()
     return this;
 }
 
+void SegmentMetop::initializeProjectionCoord()
+{
+    projectionCoordX = new int[1080 * 2048];
+    projectionCoordY = new int[1080 * 2048];
+    projectionCoordValue = new QRgb[1080 * 2048];
+
+    for( int i = 0; i < 1080; i++)
+    {
+        for( int j = 0; j < 2048 ; j++ )
+        {
+            projectionCoordX[i * 2048 + j] = 65535;
+            projectionCoordY[i * 2048 + j] = 65535;
+            projectionCoordValue[i * 2048 + j] = qRgba(0, 0, 0, 0);
+        }
+    }
+
+}
+
 void SegmentMetop::ComposeSegmentGVProjection(int inputchannel)
 {
 
     qDebug() << QString("ComposeSegmentGVProjection startLineNbr = %1").arg(this->startLineNbr);
     int startheight = this->startLineNbr;
+
+    initializeProjectionCoord();
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
@@ -884,6 +904,11 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
 
     g_mutex.lock();
 
+    /*    from pt 5 --> pt 2045
+        = 5 + 20 * 102 total of 103 pts
+        to = 5 + 20 * 102 + 3 = 2048
+    */
+
 
     if(num_navigation_points == 103)
     {
@@ -893,18 +918,27 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
             for( int j = 0; j < 20 ; j++ )
             {
                 intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[5 + i*20 + j], &latpos1, &lonpos1, dtot);
-                if(imageptrs->gvp->map_forward(lonpos1, latpos1, map_x, map_y))
+                if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
-                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = (int)map_y;
+
+                    //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                     {
-                        rgbvalue1 = row_col[5 + i * 20 + j];
+                        rgbvalue1 = row_col[4 + i * 20 + j];
                         QColor col(rgbvalue1);
                         col.setAlpha(255);
-
-                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, col.rgb());
-                        QRgb rgbval = imageptrs->ptrimageProjection->pixel((int)map_x, (int)map_y);
-                     }
-                 }
+                        if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, col.rgb());
+                        projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = col.rgb();
+                    }
+                }
+                else
+                {
+                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = 65535;
+                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = 65535;
+                    projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = qRgb(0,0,0);
+                }
             }
         }
     }
@@ -917,6 +951,9 @@ void SegmentMetop::ComposeSegmentSGProjection(int inputchannel)
 {
 
     qDebug() << QString("ComposeSegmentSGProjection startLineNbr = %1").arg(this->startLineNbr);
+
+    initializeProjectionCoord();
+
     int startheight = this->startLineNbr;
 
     for (int line = 0; line < this->NbrOfLines; line++)
@@ -968,7 +1005,7 @@ void SegmentMetop::RenderSegmentlineInSG( int channel, int nbrLine, int heightin
                 {
                     if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                     {
-                        rgbvalue1 = row_col[5 + i * 20 + j];
+                        rgbvalue1 = row_col[4 + i * 20 + j];
                         imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1);
                         // qDebug() << QString("map_x = %1 map_y = %2").arg(map_x).arg(map_y);
                      }
@@ -985,6 +1022,9 @@ void SegmentMetop::ComposeSegmentLCCProjection(int inputchannel)
 {
 
     qDebug() << QString("SegmentMetop::ComposeSegmentLCCProjection startLineNbr = %1").arg(this->startLineNbr);
+
+    initializeProjectionCoord();
+
     inputchannel = (inputchannel == 0 ? 6 : inputchannel);
     int startheight = this->startLineNbr;
 
@@ -1034,7 +1074,7 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
 
             for( int j = 0; j < 20 ; j++ )
             {
-                pointx = 5 + i*20 + j;
+                pointx = 4 + i*20 + j;
                 intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[5 + i*20 + j], &latpos1, &lonpos1, dtot);
                 //qDebug() << QString("pixelnumber = %1 lonpos1 = %2 latpos = %3").arg(5 + i * 20 + j).arg(lonpos1*180.0/PI).arg(latpos1*180.0/PI);
                 if(imageptrs->lcc->map_forward(lonpos1, latpos1, map_x, map_y))

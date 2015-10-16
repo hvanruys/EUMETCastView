@@ -1,14 +1,14 @@
 #ifndef GLOBE_H
 #define GLOBE_H
 
-//#define OPENGL21
+#define OPENGL31
 
 #include <QApplication>
 #include <QOpenGLWidget>
 #include <QOpenGLTexture>
 #include <QOpenGLShaderProgram>
-#ifdef OPENGL21
-#include <QOpenGLFunctions_2_1>
+#ifdef OPENGL31
+#include <QOpenGLFunctions_3_1>
 #else
 #include <QOpenGLFunctions_4_3_Core>
 #endif
@@ -26,8 +26,8 @@
 #include "projextentsgl.h"
 #include "texturewriter.h"
 
-#ifdef OPENGL21
-class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_2_1
+#ifdef OPENGL31
+class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_1
 #else
 class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
 #endif

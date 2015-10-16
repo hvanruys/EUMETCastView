@@ -287,7 +287,7 @@ void Globe::resizeGL(int w, int h)
 void Globe::printTexture()
 {
 
-#ifndef OPENGL21
+#ifndef OPENGL31
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     //set the viewport to be the size of the texture
     glViewport(0,0, this->parentWidget()->width(), this->parentWidget()->height());
@@ -707,7 +707,7 @@ void Globe::paintGL()
 
 void Globe::initFrameBuffer()
 {
-#ifndef OPENGL21
+#ifndef OPENGL31
     //create fboA and attach texture A to it
     glGenFramebuffers(1, &imageptrs->fboId);
     glBindFramebuffer(GL_FRAMEBUFFER, imageptrs->fboId);
@@ -1510,7 +1510,7 @@ void Globe::toggleSegmentNames()
 
 bool Globe::checkFramebufferStatus()
 {
-#ifndef OPENGL21
+#ifndef OPENGL31
     // check FBO status
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     switch(status)

@@ -15,53 +15,7 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
-{
-    qint32 Minimum = v11;
 
-    if( Minimum > v12 )
-            Minimum = v12;
-    if( Minimum > v21 )
-            Minimum = v21;
-    if( Minimum > v22 )
-            Minimum = v22;
-
-    return Minimum;
-}
-
-qint32 Min2(const qint32 v11, const qint32 v12)
-{
-    qint32 Minimum = v11;
-
-    if( Minimum > v12 )
-            Minimum = v12;
-
-    return Minimum;
-}
-
-qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
-{
-    int Maximum = v11;
-
-    if( Maximum < v12 )
-            Maximum = v12;
-    if( Maximum < v21 )
-            Maximum = v21;
-    if( Maximum < v22 )
-            Maximum = v22;
-
-    return Maximum;
-}
-
-qint32 Max2(const qint32 v11, const qint32 v12)
-{
-    int Maximum = v11;
-
-    if( Maximum < v12 )
-            Maximum = v12;
-
-    return Maximum;
-}
 
 void doComposeVIIRSImageInThread(SegmentListVIIRS *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
@@ -814,32 +768,32 @@ void SegmentListVIIRS::SmoothVIIRSImage()
         lineimage += segm->NbrOfLines;
     }
 
-    QRgb *scanline;
-    QRgb rgbval;
-    long count100 = 0;
-    long count0 = 0;
-    long count250 = 0;
-    long count200 = 0;
+//    QRgb *scanline;
+//    QRgb rgbval;
+//    long count100 = 0;
+//    long count0 = 0;
+//    long count250 = 0;
+//    long count200 = 0;
 
-    for(int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
-    {
-        scanline = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(j);
+//    for(int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
+//    {
+//        scanline = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(j);
 
-        for(int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
-        {
-            rgbval = scanline[i];
-            if(qAlpha(rgbval) == 100)
-                count100++;
-            else if(qAlpha(rgbval) == 0)
-                count0++;
-            else if(qAlpha(rgbval) == 200)
-                count200++;
-            else if(qAlpha(rgbval) == 250)
-                count250++;
-        }
-    }
+//        for(int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
+//        {
+//            rgbval = scanline[i];
+//            if(qAlpha(rgbval) == 100)
+//                count100++;
+//            else if(qAlpha(rgbval) == 0)
+//                count0++;
+//            else if(qAlpha(rgbval) == 200)
+//                count200++;
+//            else if(qAlpha(rgbval) == 250)
+//                count250++;
+//        }
+//    }
 
-    qDebug() << QString("Count100 = %1  count0 = %2 count200 = %3 count250 = %4").arg(count100).arg(count0).arg(count200).arg(count250);
+//    qDebug() << QString("Count100 = %1  count0 = %2 count200 = %3 count250 = %4").arg(count100).arg(count0).arg(count200).arg(count250);
 
 }
 

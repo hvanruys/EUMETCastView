@@ -52,6 +52,7 @@ public:
     void ComposeGVProjection(int inputchannel);
     void ComposeLCCProjection(int inputchannel);
     void ComposeSGProjection(int inputchannel);
+    void SmoothProjectionImage();
 
     bool lookupLonLat(double lon_rad, double lat_rad, int &col, int &row);
 
@@ -60,6 +61,14 @@ public:
     static void doComposeGVProjection(Segment *t);
 
 protected:
+    void BilinearInterpolation(Segment *segm);
+    void BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext);
+    bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
+    void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
+    void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy);
+    qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
+    qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
+
     int nbrofvisiblesegments;
     int indexfirstvisible;
     int indexlastvisible;

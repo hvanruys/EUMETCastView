@@ -141,6 +141,24 @@ int SegmentNoaa::ReadNbrOfLines()
 
 }
 
+void SegmentNoaa::initializeProjectionCoord()
+{
+    projectionCoordX = new int[360 * 2048];
+    projectionCoordY = new int[360 * 2048];
+    projectionCoordValue = new QRgb[360 * 2048];
+
+    for( int i = 0; i < 360; i++)
+    {
+        for( int j = 0; j < 2048 ; j++ )
+        {
+            projectionCoordX[i * 2048 + j] = 65535;
+            projectionCoordY[i * 2048 + j] = 65535;
+            projectionCoordValue[i * 2048 + j] = qRgba(0, 0, 0, 0);
+        }
+    }
+
+}
+
 Segment *SegmentNoaa::ReadSegmentInMemory()
 {
     FILE*   f;
@@ -210,7 +228,7 @@ Segment *SegmentNoaa::ReadSegmentInMemory()
       }
     }
 
-    NbrOfLines = heightinsegment;
+    //NbrOfLines = heightinsegment;
     BZ2_bzclose ( b );
     fclose(f);
 
@@ -238,6 +256,8 @@ void SegmentNoaa::ComposeProjection(int inputchannel, eProjections proj)
 
     qDebug() << QString("SegmentNoaa::ComposeProjection startLineNbr = %1 Start").arg(this->startLineNbr);
     int startheight = this->startLineNbr;
+
+    initializeProjectionCoord();
 
     inputchannel = (inputchannel == 0 ? 6 : inputchannel);
 
@@ -316,11 +336,11 @@ void SegmentNoaa::RenderSegmentlineInProjection( int channel, int nbrLine, int h
     QEci ecilast(d3earthposlast, velref, newdate, QTle::wgs72);
     QGeodetic geolast = ecilast.ToGeo();
 
-    RenderSegmentlineInProjectionCirc(row_col, geofirst.latitude, geofirst.longitude, geolast.latitude, geolast.longitude, georef.altitude, proj);
+    RenderSegmentlineInProjectionCirc(row_col, nbrLine, geofirst.latitude, geofirst.longitude, geolast.latitude, geolast.longitude, georef.altitude, proj);
 
 }
 
-void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_first, double lon_first, double lat_last, double lon_last, double altitude, eProjections proj)
+void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, int nbrLine, double lat_first, double lon_first, double lat_last, double lon_last, double altitude, eProjections proj)
 {
     QRgb rgbvalue = qRgb(0,0,0);
 
@@ -376,9 +396,13 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fi
 
         if(proj == LCC)
         {
-            if(imageptrs->lcc->map_forward(lonpos1, latpos1, map_x, map_y))
+
+            if(imageptrs->lcc->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                projectionCoordX[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = (int)map_x;
+                projectionCoordY[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = (int)map_y;
+
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
                     if(opts.sattrackinimage)
                     {
@@ -390,13 +414,19 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fi
                     else
                         rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
             }
 
-            if(imageptrs->lcc->map_forward(lonpos2, latpos2, map_x, map_y))
+            if(imageptrs->lcc->map_forward_neg_coord(lonpos2, latpos2, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                projectionCoordX[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = (int)map_x;
+                projectionCoordY[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = (int)map_y;
+
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
                     if(opts.sattrackinimage)
                     {
@@ -408,15 +438,21 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fi
                     else
                         rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
             }
         }
         else if(proj == GVP)
         {
-            if(imageptrs->gvp->map_forward(lonpos1, latpos1, map_x, map_y))
+            if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                projectionCoordX[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = (int)map_x;
+                projectionCoordY[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = (int)map_y;
+
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
                     if(opts.sattrackinimage)
                     {
@@ -428,13 +464,19 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fi
                     else
                         rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
             }
 
-            if(imageptrs->gvp->map_forward(lonpos2, latpos2, map_x, map_y))
+            if(imageptrs->gvp->map_forward_neg_coord(lonpos2, latpos2, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                projectionCoordX[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = (int)map_x;
+                projectionCoordY[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = (int)map_y;
+
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
                     if(opts.sattrackinimage)
                     {
@@ -446,16 +488,22 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fi
                     else
                         rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
             }
 
         }
         else if(proj == SG)
         {
-            if(imageptrs->sg->map_forward(lonpos1, latpos1, map_x, map_y))
+            if(imageptrs->sg->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                projectionCoordX[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = (int)map_x;
+                projectionCoordY[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = (int)map_y;
+
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
                     if(opts.sattrackinimage)
                     {
@@ -467,13 +515,19 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fi
                     else
                         rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + (earth_views_per_scanline/2)+pix] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
             }
 
-            if(imageptrs->sg->map_forward(lonpos2, latpos2, map_x, map_y))
+            if(imageptrs->sg->map_forward_neg_coord(lonpos2, latpos2, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                projectionCoordX[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = (int)map_x;
+                projectionCoordY[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = (int)map_y;
+
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
                     if(opts.sattrackinimage)
                     {
@@ -485,7 +539,10 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fi
                     else
                         rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + (earth_views_per_scanline/2)-pix] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
             }
         }
@@ -495,6 +552,182 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fi
 
 
 }
+
+//void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_first, double lon_first, double lat_last, double lon_last, double altitude, eProjections proj)
+//{
+//    QRgb rgbvalue = qRgb(0,0,0);
+
+//    double latdiff = sin((lat_first-lat_last)/2);
+//    double londiff = sin((lon_first-lon_last)/2);
+
+//    double sinpsi = sqrt(latdiff * latdiff + cos(lat_first)*cos(lat_last)*londiff * londiff);
+//    double psi = asin(sinpsi);
+//    double delta = atan(sinpsi/((( this->qtle->radiusearthkm + altitude)/ this->qtle->radiusearthkm) - cos(psi)));
+
+//    // qDebug() << QString("earth_views_per_scanline = %1").arg(earth_views_per_scanline);
+
+//    //double deltax = delta / 204;
+//    double deltax = delta / (earth_views_per_scanline / 2);
+//    double psix;
+//    double psix1, psix2;
+//    double dx;
+//    double r = this->qtle->radiusearthkm + altitude;  // earth_location_altitude[0]/10;
+//    double sindeltax;
+//    double lonpos, latpos, dlon, tc;
+//    double lonpos1, latpos1, lonpos2, latpos2, dlon1, dlon2;
+
+//    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PI);
+
+//    //sindeltax = sin(delta);
+//    //dx = r * cos(delta) - sqrt( this->qtle->radiusearthkm * this->qtle->radiusearthkm - r * r * sindeltax * sindeltax );
+//    //psix = asin( dx * sindeltax / this->qtle->radiusearthkm );
+
+
+
+//    QColor rgb;
+//    QColor rgb1, rgb2;
+//    int posx, posy;
+//    int posx1, posy1, posx2, posy2;
+
+//    double map_x, map_y;
+
+//    for (int pix = 0 ; pix < (earth_views_per_scanline/2); pix+=1)                    //205 ; pix++)
+//    {
+
+//        sindeltax = sin(deltax * pix);
+//        dx = r * cos(deltax * pix) - sqrt( this->qtle->radiusearthkm * this->qtle->radiusearthkm - r * r * sindeltax * sindeltax );
+//        psix1 = psi + asin( dx * sindeltax / this->qtle->radiusearthkm );
+//        psix2 = psi - asin( dx * sindeltax / this->qtle->radiusearthkm );
+
+//        latpos1 = asin(sin(lat_first)*cos(psix1)+cos(lat_first)*sin(psix1)*cos(tc));
+//        dlon1=atan2(sin(tc)*sin(psix1)*cos(lat_first),cos(psix1)-sin(lat_first)*sin(latpos1));
+//        lonpos1=fmod( lon_first-dlon1 + PI,2*PI )-PI;
+
+//        latpos2 = asin(sin(lat_first)*cos(psix2)+cos(lat_first)*sin(psix2)*cos(tc));
+//        dlon2=atan2(sin(tc)*sin(psix2)*cos(lat_first),cos(psix2)-sin(lat_first)*sin(latpos2));
+//        lonpos2=fmod( lon_first-dlon2 + PI,2*PI )-PI;
+
+//        if(proj == LCC)
+//        {
+//            if(imageptrs->lcc->map_forward(lonpos1, latpos1, map_x, map_y))
+//            {
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                {
+//                    if(opts.sattrackinimage)
+//                    {
+//                        if( pix == 0 || pix == 1)
+//                            rgbvalue = qRgb(255, 0, 0);
+//                        else
+//                            rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
+//                    }
+//                    else
+//                        rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
+
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                }
+//            }
+
+//            if(imageptrs->lcc->map_forward(lonpos2, latpos2, map_x, map_y))
+//            {
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                {
+//                    if(opts.sattrackinimage)
+//                    {
+//                        if( pix == 0 || pix == 1)
+//                            rgbvalue = qRgb(255, 0, 0);
+//                        else
+//                            rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
+//                    }
+//                    else
+//                        rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
+
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                }
+//            }
+//        }
+//        else if(proj == GVP)
+//        {
+//            if(imageptrs->gvp->map_forward(lonpos1, latpos1, map_x, map_y))
+//            {
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                {
+//                    if(opts.sattrackinimage)
+//                    {
+//                        if( pix == 0 || pix == 1)
+//                            rgbvalue = qRgb(255, 0, 0);
+//                        else
+//                            rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
+//                    }
+//                    else
+//                        rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
+
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                }
+//            }
+
+//            if(imageptrs->gvp->map_forward(lonpos2, latpos2, map_x, map_y))
+//            {
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                {
+//                    if(opts.sattrackinimage)
+//                    {
+//                        if( pix == 0 || pix == 1)
+//                            rgbvalue = qRgb(255, 0, 0);
+//                        else
+//                            rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
+//                    }
+//                    else
+//                        rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
+
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                }
+//            }
+
+//        }
+//        else if(proj == SG)
+//        {
+//            if(imageptrs->sg->map_forward(lonpos1, latpos1, map_x, map_y))
+//            {
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                {
+//                    if(opts.sattrackinimage)
+//                    {
+//                        if( pix == 0 || pix == 1)
+//                            rgbvalue = qRgb(255, 0, 0);
+//                        else
+//                            rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
+//                    }
+//                    else
+//                        rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)+pix]), qGreen(row_col[(earth_views_per_scanline/2)+pix]), qBlue(row_col[(earth_views_per_scanline/2)+pix]));
+
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                }
+//            }
+
+//            if(imageptrs->sg->map_forward(lonpos2, latpos2, map_x, map_y))
+//            {
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                {
+//                    if(opts.sattrackinimage)
+//                    {
+//                        if( pix == 0 || pix == 1)
+//                            rgbvalue = qRgb(255, 0, 0);
+//                        else
+//                            rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
+//                    }
+//                    else
+//                        rgbvalue =qRgb(qRed(row_col[(earth_views_per_scanline/2)-pix]), qGreen(row_col[(earth_views_per_scanline/2)-pix]), qBlue(row_col[(earth_views_per_scanline/2)-pix]));
+
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                }
+//            }
+//        }
+
+
+//    }
+
+
+//}
 
 
 void SegmentNoaa::RenderSegmentlineInProjectionAlternative( int channel, int nbrLine, int heightintotalimage, QEci eciref, double ang_vel, eProjections proj)

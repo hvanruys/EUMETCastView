@@ -42,9 +42,7 @@ public:
     void RenderSatPath(QPainter *painter, QColor color);
     void sphericalToPixel(double lon, double lat, int &x, int &y, int devwidth, int devheight);
     void drawLineCyl(double lon1, double lat1, double lon2, double lat2, QPainter *painter);
-    //void drawCircleGL(float cx, float cy, float r, int num_segments);
     void RenderPosition(QPainter *painter);
-    //void DrawArcGL(float cx, float cy, float r, float start_angle, float arc_angle, int num_segments);
     int pnpoly(int nvert, QPoint points[], int testx, int testy);
     bool ToggleSelected();
 
@@ -74,6 +72,11 @@ public:
     //bool isImageReady() { return image_ready; }
     void setStartLineNbr(int nbr) { startLineNbr = nbr; }
     int getStartLineNbr() { return startLineNbr; }
+    qint32 getProjectionX(int line, int pixelx) { return projectionCoordX[line * 2048 + pixelx]; }
+    qint32 getProjectionY(int line, int pixelx) { return projectionCoordY[line * 2048 + pixelx]; }
+    QRgb getProjectionValue(int line, int pixelx) { return projectionCoordValue[line * 2048 + pixelx]; }
+
+
 
     bool segmentok;   // check if segment is read
     bool segmentselected; // selected for display
@@ -134,8 +137,6 @@ protected:
 
     void CalculateCornerPoints();
 
-
-
     quint32 cnt_mphr;
     quint32 cnt_sphr;
     quint32 cnt_ipr;
@@ -160,12 +161,12 @@ protected:
 
     QString satname;
     
-    qint32 *projectionCoordX;
-    qint32 *projectionCoordY;
+    int *projectionCoordX;
+    int *projectionCoordY;
     QRgb *projectionCoordValue;
 
 signals:
-    void segmentimagecomposed();
+    //void segmentimagecomposed();
     
 public slots:
     

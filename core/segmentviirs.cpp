@@ -97,6 +97,7 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
 
     projectionCoordX = NULL;
     projectionCoordY = NULL;
+    projectionCoordValue = NULL;
 
     tiepoints_lat = NULL;
     tiepoints_lon = NULL;
@@ -156,6 +157,11 @@ void SegmentVIIRS::resetMemory()
     {
         delete [] projectionCoordY;
         projectionCoordY = NULL;
+    }
+    if( projectionCoordValue != NULL)
+    {
+        delete [] projectionCoordValue;
+        projectionCoordValue = NULL;
     }
 
     for(int i = 0; i < 3; i++)
@@ -891,7 +897,7 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
 
     float lonpos1, latpos1;
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
     int pixval[3];
 
@@ -936,14 +942,14 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
 
                 if(proj == LCC) //Lambert
                 {
-                    if(imageptrs->lcc->map_forward_viirs(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
                 }
                 else if(proj == GVP) // General Vertical Perspecitve
                 {
-                    if(imageptrs->gvp->map_forward_viirs(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
@@ -951,7 +957,7 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
                 }
                 else if(proj == SG) // Stereographic
                 {
-                    if(imageptrs->sg->map_forward_viirs(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
@@ -1005,7 +1011,7 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
 */
 
 
-    g_mutex.unlock();
+   // g_mutex.unlock();
 
 }
 

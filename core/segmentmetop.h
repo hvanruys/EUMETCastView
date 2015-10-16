@@ -57,6 +57,7 @@ private:
 
     char saveheader;
     bool get_next_header(QByteArray ba, quint32 *reclength);
+    void initializeProjectionCoord();
 
     quint32 state_vector_year;
     quint32 state_vector_month;

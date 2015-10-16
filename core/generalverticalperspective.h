@@ -25,7 +25,7 @@ public:
     void CreateMapFromGeoStationary();
 
     bool map_forward(double lon_rad, double lat_rad, double &map_x, double &map_y);
-    bool map_forward_viirs(double lon_rad, double lat_rad, double &map_x, double &map_y);
+    bool map_forward_neg_coord(double lon_rad, double lat_rad, double &map_x, double &map_y);
     bool map_inverse(double map_x, double map_y, double &lon_rad, double &lat_rad);
     bool genpersfor(double lon, double lat, double *x, double *y);
     bool genpersinv(double x, double y, double *lon, double *lat);

@@ -56,6 +56,11 @@ Segment::Segment(QObject *parent) :
 
     qtle = NULL;
     qsgp4 = NULL;
+
+    projectionCoordX = NULL;
+    projectionCoordY = NULL;
+    projectionCoordValue = NULL;
+
     bImageMemory = false;
 
 }
@@ -264,6 +269,23 @@ void Segment::resetMemory()
     earthloc_lon = new float[1];
     earthloc_lat = new float[1];
 
+    if( projectionCoordX != NULL)
+    {
+        qDebug() << "delete projectionCoorX";
+        delete [] projectionCoordX;
+    }
+    if( projectionCoordY != NULL)
+    {
+        qDebug() << "delete projectionCoorY";
+        delete [] projectionCoordY;
+    }
+    if( projectionCoordValue != NULL)
+    {
+        qDebug() << "delete projectionCoorValue";
+        delete [] projectionCoordValue;
+    }
+
+
 
 }
 
@@ -288,6 +310,24 @@ void Segment::cleanupMemory()
         delete qtle;
     if( qsgp4 != NULL)
         delete qsgp4;
+
+    if( projectionCoordX != NULL)
+    {
+        qDebug() << "delete projectionCoorX";
+        delete [] projectionCoordX;
+    }
+    if( projectionCoordY != NULL)
+    {
+        qDebug() << "delete projectionCoorY";
+        delete [] projectionCoordY;
+    }
+    if( projectionCoordValue != NULL)
+    {
+        qDebug() << "delete projectionCoorValue";
+        delete [] projectionCoordValue;
+    }
+
+
 
 }
 
@@ -721,6 +761,7 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
     // nbrLine = nbr of line in segment
     // nbrTotalLine = nbr of lines in complete picture
 
+
     QEci qeci;
     qsgp4->getPosition(minutes_since_state_vector + (double)(nbrLine) / (6.0 * 60.0), qeci);
     QGeodetic qgeo = qeci.ToGeo();
@@ -922,7 +963,7 @@ void Segment::ComposeSegmentImage()
 
 
 
-    qDebug() << QString("ComposeSegmentImage startLineNbr = %1 nbr of lines = %2").arg(this->startLineNbr).arg(this->NbrOfLines);
+    qDebug() << QString("start ComposeSegmentImage startLineNbr = %1 nbr of lines = %2").arg(this->startLineNbr).arg(this->NbrOfLines);
     int startheight = this->startLineNbr;
 
     QStringList channellist;
@@ -1035,7 +1076,7 @@ void Segment::ComposeSegmentImage()
     //this->setImageReady();
     qDebug() << QString("--> na ComposeSegmentImage startLineNbr = %1 nbr of lines = %2 segshow = %3").arg(this->startLineNbr).arg(this->NbrOfLines).arg(this->segmentshow);
 
-    emit segmentimagecomposed();
+    //emit segmentimagecomposed();
 
 
 }

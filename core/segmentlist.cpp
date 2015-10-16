@@ -10,7 +10,6 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-
 void SegmentList::doComposeGVProjection(Segment *t)
 {
     t->ComposeSegmentGVProjection(0);
@@ -410,11 +409,6 @@ void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4
 
     QVector3D vecZ = modelview.row(2).toVector3D();
 
-
-//    GLint viewport[4];
-//    glGetIntegerv (GL_VIEWPORT, viewport);
-
-
 //    static GLfloat mat[16];
 //    const float *data = modelview.constData();
 //    for (int index = 0; index < 16; ++index)
@@ -515,7 +509,7 @@ bool SegmentList::ComposeImage(double gamma_ch[])
         ++segit;
     }
 
-#if 0
+//#if 0 // necessary for incomplete segments !!
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
@@ -524,7 +518,7 @@ bool SegmentList::ComposeImage(double gamma_ch[])
         qDebug() << QString("SegmentList::ReadNbrOfLines NbrOfLines = %1").arg(segm->NbrOfLines);
         ++segsel;
     }
-#endif
+//#endif
 
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
@@ -538,13 +532,6 @@ bool SegmentList::ComposeImage(double gamma_ch[])
     }
 
     emit progressCounter(10);
-
-
-//    watcherread = new QFutureWatcher<Segment*>(this);
-//    connect(watcherread, SIGNAL(resultReadyAt(int)), SLOT(resultisready(int)));
-//    connect(watcherread, SIGNAL(finished()), SLOT(readfinished()));
-
-//    watcherread->setFuture(QtConcurrent::mapped( segsselected.begin(), segsselected.end(), &SegmentList::doReadSegmentInMemory));
 
     watcherread = new QFutureWatcher<void>(this);
     connect(watcherread, SIGNAL(resultReadyAt(int)), SLOT(resultisready(int)));
@@ -823,4 +810,644 @@ bool SegmentList::lookupLonLat(double lon_rad, double lat_rad, int &col, int &ro
     }
 
     return false;
+}
+
+void SegmentList::SmoothProjectionImage()
+{
+
+    qDebug() << "start SegmentList::SmoothProjectionImage()";
+
+    int lineimage = 0;
+
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+
+    Segment *segmsave;
+
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        if(segsel != segsselected.begin())
+            BilinearBetweenSegments(segmsave, segm);
+        segmsave = segm;
+        BilinearInterpolation(segm);
+        //printData(segm);
+        ++segsel;
+        lineimage += segm->NbrOfLines;
+    }
+}
+
+void SegmentList::BilinearInterpolation(Segment *segm)
+{
+    qint32 x11;
+    qint32 y11;
+    QRgb rgb11;
+
+    qint32 x12;
+    qint32 y12;
+    QRgb rgb12;
+
+    qint32 x21;
+    qint32 y21;
+    QRgb rgb21;
+
+    qint32 x22;
+    qint32 y22;
+    QRgb rgb22;
+
+    qint32 xc11;
+    qint32 yc11;
+
+    qint32 xc12;
+    qint32 yc12;
+
+    qint32 xc21;
+    qint32 yc21;
+
+    qint32 xc22;
+    qint32 yc22;
+
+    qint32 minx;
+    qint32 miny;
+    qint32 maxx;
+    qint32 maxy;
+
+    qint32 anchorX;
+    qint32 anchorY;
+
+    int dimx, dimy;
+
+    long counter = 0;
+    long counterb = 0;
+
+    QRgb *canvas;
+
+    int earthviews = this->NbrOfEartviewsPerScanline();
+
+    qDebug() << "===> start SegmentList::BilinearInterpolation(Segment *segm)";
+    for (int line = 0; line < segm->NbrOfLines-1; line++)
+    {
+        for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
+        {
+            x11 = segm->getProjectionX(line, pixelx);
+            y11 = segm->getProjectionY(line, pixelx);
+
+            x12 = segm->getProjectionX(line, pixelx+1);
+            y12 = segm->getProjectionY(line, pixelx+1);
+
+            x21 = segm->getProjectionX(line+1, pixelx);
+            y21 = segm->getProjectionY(line+1, pixelx);
+
+            x22 = segm->getProjectionX(line+1, pixelx+1);
+            y22 = segm->getProjectionY(line+1, pixelx+1);
+
+            if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
+                    && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
+                    && x11 >= -6 && x12 >= -6 && x21 >= -6 && x22 >= -6
+                    && y11 >= -6 && y12 >= -6 && y21 >= -6 && y22 >= -6 )
+            {
+                minx = Min(x11, x12, x21, x22);
+                miny = Min(y11, y12, y21, y22);
+                maxx = Max(x11, x12, x21, x22);
+                maxy = Max(y11, y12, y21, y22);
+
+                anchorX = minx;
+                anchorY = miny;
+                dimx = maxx + 1 - minx;
+                dimy = maxy + 1 - miny;
+                if( dimx == 1 && dimy == 1 )
+                {
+                    counter++;
+                }
+                else
+                {
+                    rgb11 = segm->getProjectionValue(line, pixelx);
+                    rgb12 = segm->getProjectionValue(line, pixelx+1);
+                    rgb21 = segm->getProjectionValue(line+1, pixelx);
+                    rgb22 = segm->getProjectionValue(line+1, pixelx+1);
+
+
+                    xc11 = x11 - minx;
+                    xc12 = x12 - minx;
+                    xc21 = x21 - minx;
+                    xc22 = x22 - minx;
+                    yc11 = y11 - miny;
+                    yc12 = y12 - miny;
+                    yc21 = y21 - miny;
+                    yc22 = y22 - miny;
+
+                    canvas = new QRgb[dimx * dimy];
+                    for(int i = 0 ; i < dimx * dimy ; i++)
+                        canvas[i] = qRgba(0,0,0,0);
+
+                    canvas[yc11 * dimx + xc11] = rgb11;
+                    canvas[yc12 * dimx + xc12] = rgb12;
+                    canvas[yc21 * dimx + xc21] = rgb21;
+                    canvas[yc22 * dimx + xc22] = rgb22;
+
+
+//                    for ( int i = 0; i < dimy; i++ )
+//                    {
+//                       for ( int j = 0; j < dimx; j++ )
+//                       {
+//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
+//                       }
+//                       std::cout << std::endl;
+//                    }
+
+//                    std::cout << "....................................... line " << line << " pixelx = " << pixelx << std::endl;
+
+                    bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
+                    bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
+                    bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
+                    bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
+
+//                    for ( int i = 0; i < dimy; i++ )
+//                    {
+//                       for ( int j = 0; j < dimx; j++ )
+//                       {
+//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
+//                       }
+//                       std::cout << std::endl;
+//                    }
+
+//                    std::cout << "-------------------------------------- line " << line << " pixelx = " << pixelx << std::endl;
+
+                    MapInterpolation(canvas, dimx, dimy);
+                    MapCanvas(canvas, anchorX, anchorY, dimx, dimy);
+
+//                    for ( int i = 0; i < dimy; i++ )
+//                    {
+//                       for ( int j = 0; j < dimx; j++ )
+//                       {
+//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
+//                       }
+//                       std::cout << std::endl;
+//                    }
+
+//                    std::cout << "================================= line " << line << " pixelx = " << pixelx << std::endl;
+
+                    delete [] canvas;
+                    counterb++;
+                }
+            }
+        }
+    }
+
+    qDebug() << QString("====> end SegmentList::BilinearInterpolation(Segment *segm) counter = %1 countern = %2").arg(counter).arg(counterb);
+
+}
+
+void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext)
+{
+    qint32 x11;
+    qint32 y11;
+    QRgb rgb11;
+
+    qint32 x12;
+    qint32 y12;
+    QRgb rgb12;
+
+    qint32 x21;
+    qint32 y21;
+    QRgb rgb21;
+
+    qint32 x22;
+    qint32 y22;
+    QRgb rgb22;
+
+    qint32 xc11;
+    qint32 yc11;
+
+    qint32 xc12;
+    qint32 yc12;
+
+    qint32 xc21;
+    qint32 yc21;
+
+    qint32 xc22;
+    qint32 yc22;
+
+    qint32 minx;
+    qint32 miny;
+    qint32 maxx;
+    qint32 maxy;
+
+    qint32 anchorX;
+    qint32 anchorY;
+
+    int dimx, dimy;
+
+    long counter = 0;
+    long counterb = 0;
+
+    QRgb *canvas;
+
+    int earthviews = this->NbrOfEartviewsPerScanline();
+
+    for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
+    {
+        x11 = segmfirst->getProjectionX(segmfirst->NbrOfLines-1, pixelx);
+        y11 = segmfirst->getProjectionY(segmfirst->NbrOfLines-1, pixelx);
+
+        x12 = segmfirst->getProjectionX(segmfirst->NbrOfLines-1, pixelx+1);
+        y12 = segmfirst->getProjectionY(segmfirst->NbrOfLines-1, pixelx+1);
+
+        x21 = segmnext->getProjectionX(0, pixelx);
+        y21 = segmnext->getProjectionY(0, pixelx);
+
+        x22 = segmnext->getProjectionX(0, pixelx+1);
+        y22 = segmnext->getProjectionY(0, pixelx+1);
+
+        if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
+                && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
+                && x11 >= -3 && x12 >= -3 && x21 >= -3 && x22 >= -3
+                && y11 >= -3 && y12 >= -3 && y21 >= -3 && y22 >= -3 )
+        {
+
+            minx = Min(x11, x12, x21, x22);
+            miny = Min(y11, y12, y21, y22);
+            maxx = Max(x11, x12, x21, x22);
+            maxy = Max(y11, y12, y21, y22);
+
+            anchorX = minx;
+            anchorY = miny;
+            dimx = maxx + 1 - minx;
+            dimy = maxy + 1 - miny;
+            if( dimx == 1 && dimy == 1 )
+            {
+                counter++;
+            }
+            else
+            {
+                rgb11 = segmfirst->getProjectionValue(segmfirst->NbrOfLines-1, pixelx);
+                rgb12 = segmfirst->getProjectionValue(segmfirst->NbrOfLines-1, pixelx+1);
+                rgb21 = segmnext->getProjectionValue(0, pixelx);
+                rgb22 = segmnext->getProjectionValue(0, pixelx+1);
+
+                xc11 = x11 - minx;
+                xc12 = x12 - minx;
+                xc21 = x21 - minx;
+                xc22 = x22 - minx;
+                yc11 = y11 - miny;
+                yc12 = y12 - miny;
+                yc21 = y21 - miny;
+                yc22 = y22 - miny;
+
+                canvas = new QRgb[dimx * dimy];
+                for(int i = 0 ; i < dimx * dimy ; i++)
+                    canvas[i] = qRgba(0,0,0,0);
+
+                canvas[yc11 * dimx + xc11] = rgb11;
+                canvas[yc12 * dimx + xc12] = rgb12;
+                canvas[yc21 * dimx + xc21] = rgb21;
+                canvas[yc22 * dimx + xc22] = rgb22;
+
+
+                bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
+                bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
+                bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
+                bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
+
+                MapInterpolation(canvas, dimx, dimy);
+                MapCanvas(canvas, anchorX, anchorY, dimx, dimy);
+
+                delete [] canvas;
+                counterb++;
+            }
+        }
+    }
+
+
+    qDebug() << QString("====> end SegmentList::BilinearInbetween(Segment *segmfirst, Segment *segmnext) counter = %1 counterb = %2").arg(counter).arg(counterb);
+
+}
+
+
+bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx)
+{
+    int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
+    int deltared, deltagreen, deltablue;
+    dx=x2-x1;
+    dy=y2-y1;
+    dx1=abs(dx);
+    dy1=abs(dy);
+    px=2*dy1-dx1;
+    py=2*dx1-dy1;
+
+
+    if(dy1<=dx1)
+    {
+        if(dx1==0)
+            return false;
+
+        if(dx>=0)
+        {
+            x=x1;
+            y=y1;
+            xe=x2;
+            deltared = (qRed(rgb2) - qRed(rgb1))/ dx1 ;
+            deltagreen = (qGreen(rgb2) - qGreen(rgb1))/ dx1 ;
+            deltablue = (qBlue(rgb2) - qBlue(rgb1))/ dx1 ;
+//            canvas[y * yy + x] = val1;
+
+        }
+        else
+        {
+            x=x2;
+            y=y2;
+            xe=x1;
+            deltared = (qRed(rgb1) - qRed(rgb2))/ dx1 ;
+            deltagreen = (qGreen(rgb1) - qGreen(rgb2))/ dx1 ;
+            deltablue = (qBlue(rgb1) - qBlue(rgb2))/ dx1 ;
+//            canvas[y * yy + x] = val2;
+
+        }
+
+        for(i=0;x<xe;i++)
+        {
+            x=x+1;
+
+            if(px<0)
+            {
+                px=px+2*dy1;
+            }
+            else
+            {
+                if((dx<0 && dy<0) || (dx>0 && dy>0))
+                {
+                    y=y+1;
+                }
+                else
+                {
+                    y=y-1;
+                }
+                px=px+2*(dy1-dx1);
+            }
+            if(dx>=0)
+            {
+                rgb1 = qRgb(qRed(rgb1) + deltared, qGreen(rgb1) + deltagreen, qBlue(rgb1) + deltablue );
+                if( x != xe)
+                    canvas[y * dimx + x] = rgb1;
+            }
+            else
+            {
+                rgb2 = qRgb(qRed(rgb2) + deltared, qGreen(rgb2) + deltagreen, qBlue(rgb2) + deltablue );
+                if( x != xe)
+                    canvas[y * dimx + x] = rgb2;
+            }
+
+        }
+    }
+    else
+    {
+        if(dy1==0)
+            return false;
+
+        if(dy>=0)
+        {
+            x=x1;
+            y=y1;
+            ye=y2;
+            deltared = (qRed(rgb2) - qRed(rgb1))/ dy1 ;
+            deltagreen = (qGreen(rgb2) - qGreen(rgb1))/ dy1 ;
+            deltablue = (qBlue(rgb2) - qBlue(rgb1))/ dy1 ;
+
+//            canvas[y * yy + x] = val1;
+        }
+        else
+        {
+            x=x2;
+            y=y2;
+            ye=y1;
+            deltared = (qRed(rgb1) - qRed(rgb2))/ dy1 ;
+            deltagreen = (qGreen(rgb1) - qGreen(rgb2))/ dy1 ;
+            deltablue = (qBlue(rgb1) - qBlue(rgb2))/ dy1 ;
+
+//            canvas[y * yy + x] = val2;
+        }
+
+
+        for(i=0;y<ye;i++)
+        {
+            y=y+1;
+
+            if(py<=0)
+            {
+                py=py+2*dx1;
+            }
+            else
+            {
+                if((dx<0 && dy<0) || (dx>0 && dy>0))
+                {
+                    x=x+1;
+                }
+                else
+                {
+                    x=x-1;
+                }
+                py=py+2*(dx1-dy1);
+            }
+            if(dy>=0)
+            {
+                rgb1 = qRgb(qRed(rgb1) + deltared, qGreen(rgb1) + deltagreen, qBlue(rgb1) + deltablue );
+                if( y != ye)
+                    canvas[y * dimx + x] = rgb1;
+            }
+            else
+            {
+                rgb2 = qRgb(qRed(rgb2) + deltared, qGreen(rgb2) + deltagreen, qBlue(rgb2) + deltablue );
+                if( y != ye)
+                    canvas[y * dimx + x] = rgb2;
+            }
+        }
+    }
+
+    return true;
+}
+
+
+
+void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
+{
+
+    for(int h = 0; h < dimy; h++ )
+    {
+        QRgb start = qRgba(0,0,0,0);
+        QRgb end = qRgba(0,0,0,0);
+        bool hole = false;
+        bool first = false;
+        bool last = false;
+        int holecount = 0;
+
+        for(int w = 0; w < dimx; w++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 255 && hole == false)
+            {
+                start = rgb;
+                first = true;
+            }
+            else if(rgbalpha == 255 && hole == true)
+            {
+                end = rgb;
+                last = true;
+                break;
+            }
+            else if(rgbalpha == 0 && first == true)
+            {
+                hole = true;
+                holecount++;
+                canvas[h * dimx + w] = qRgba(0,0,0,100);
+            }
+        }
+
+        if(holecount == 0)
+            continue;
+        if(first == false || last == false)
+        {
+            for(int w = 0; w < dimx; w++)
+            {
+                QRgb rgb = canvas[h * dimx + w];
+                if(qAlpha(rgb) == 100)
+                    canvas[h * dimx + w] = qRgba(0,0,0,0);
+            }
+            continue;
+        }
+
+
+
+        int deltared = (qRed(end) - qRed(start)) / (holecount+1);
+        int deltagreen = (qGreen(end) - qGreen(start)) / (holecount+1);
+        int deltablue = (qBlue(end) - qBlue(start)) / (holecount+1);
+
+        int red = qRed(start);
+        int green = qGreen(start);
+        int blue = qBlue(start);
+
+        for(int w = 0; w < dimx; w++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 100)
+            {
+                red += deltared;
+                green += deltagreen;
+                blue += deltablue;
+                canvas[h * dimx + w] = qRgba(red, green, blue, 100);
+            }
+        }
+    }
+
+
+    for(int w = 0; w < dimx; w++)
+    {
+        QRgb start = qRgba(0,0,0,0);
+        QRgb end = qRgba(0,0,0,0);
+
+        int hcount = 0;
+
+        bool startok = false;
+
+        for(int h = 0; h < dimy; h++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 255 && !startok)
+            {
+                start = rgb;
+            }
+            else
+            {
+                if(rgbalpha == 255)
+                {
+                    end = rgb;
+                    break;
+                }
+                else if(rgbalpha == 100)
+                {
+                    startok = true;
+                    hcount++;
+                }
+
+            }
+        }
+
+        if(hcount == 0)
+            continue;
+
+        int redstart = qRed(start);
+        int greenstart = qGreen(start);
+        int bluestart = qBlue(start);
+
+        int deltared = (qRed(end) - qRed(start)) / (hcount+1);
+        int deltagreen = (qGreen(end) - qGreen(start)) / (hcount+1);
+        int deltablue = (qBlue(end) - qBlue(start)) / (hcount+1);
+
+
+        for(int h = 0; h < dimy; h++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 100)
+            {
+                redstart += deltared;
+                greenstart += deltagreen;
+                bluestart += deltablue;
+                int redtotal = (qRed(canvas[h * dimx + w]) + redstart)/2;
+                int greentotal = (qGreen(canvas[h * dimx + w]) + greenstart)/2;
+                int bluetotal = (qBlue(canvas[h * dimx + w]) + bluestart)/2;
+
+                canvas[h * dimx + w] = qRgba(redtotal, greentotal, bluetotal, 255);
+            }
+        }
+    }
+
+
+}
+
+void SegmentList::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy)
+{
+    for(int h = 0; h < dimy; h++ )
+    {
+        for(int w = 0; w < dimx; w++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            if(qAlpha(rgb) == 255)
+            {
+                if (anchorX + w >= 0 && anchorX + w < imageptrs->ptrimageProjection->width() &&
+                        anchorY + h >= 0 && anchorY + h < imageptrs->ptrimageProjection->height())
+                    imageptrs->ptrimageProjection->setPixel(anchorX + w, anchorY + h, rgb);
+            }
+        }
+    }
+}
+
+qint32 SegmentList::Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
+{
+    qint32 Minimum = v11;
+
+    if( Minimum > v12 )
+            Minimum = v12;
+    if( Minimum > v21 )
+            Minimum = v21;
+    if( Minimum > v22 )
+            Minimum = v22;
+
+    return Minimum;
+}
+
+qint32 SegmentList::Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
+{
+    int Maximum = v11;
+
+    if( Maximum < v12 )
+            Maximum = v12;
+    if( Maximum < v21 )
+            Maximum = v21;
+    if( Maximum < v22 )
+            Maximum = v22;
+
+    return Maximum;
 }

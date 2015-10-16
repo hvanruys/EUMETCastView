@@ -33,6 +33,8 @@ private:
     //bool AdjacentPixels(SegmentVIIRS *segm, int line, int pixelx);
     void BilinearInterpolation(SegmentVIIRS *segm);
     void BilinearBetweenSegments(SegmentVIIRS *segmfirst, SegmentVIIRS *segmnext);
+//    qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
+//    qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
 
     bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
     void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);

@@ -20,16 +20,13 @@ public:
     void ComposeSegmentGVProjection(int inputchannel);
     void ComposeSegmentSGProjection(int inputchannel);
     void RenderSegmentlineInProjection(int channel, int nbrLine, int heightintotalimage , QEci eciref, double ang_vel, eProjections proj);
-    void RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_first, double lon_first, double lat_last, double lon_last, double altitude, eProjections proj);
+    void RenderSegmentlineInProjectionCirc(QRgb *row_col, int nbrLine, double lat_first, double lon_first, double lat_last, double lon_last, double altitude, eProjections proj);
     void RenderSegmentlineInProjectionAlternative(int channel, int nbrLine, int heightintotalimage, QEci eciref, double ang_vel, eProjections proj);
 
     //int sensing_start_year;
-
-
-
 private:
 
-
+    void initializeProjectionCoord();
 
 };
 
