@@ -710,13 +710,11 @@ void SegmentVIIRS::GetAlpha( float &ascan, float &atrack, int rels, int relt, in
 
 void SegmentVIIRS::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 ; 0 <= iscan < 200
 {
-    float ascan, atrack;
     int iA, iB, iC, iD;
     int jA, jB, jC, jD;
     float lat_A, lat_B, lat_C, lat_D;
-    float lat_1, lat_2, lat;
     float lon_A, lon_B, lon_C, lon_D;
-    float lon_1, lon_2, lon;
+    quint16 val_A, val_B, val_C, val_D;
 
     iA = 2 * itrack;
     jA = iscan;
@@ -732,13 +730,57 @@ void SegmentVIIRS::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 
     lat_C = tiepoints_lat[iC * 201 + jC];
     lat_D = tiepoints_lat[iD * 201 + jD];
 
-//    if(iscan == 100)
+//    if(itrack == 0)
 //        qDebug() << QString("itrack = %1 iscan = %2 Lat tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lat_A).arg(lat_B).arg(lat_C).arg(lat_D);
 
     lon_A = tiepoints_lon[iA * 201 + jA];
     lon_B = tiepoints_lon[iB * 201 + jB];
     lon_C = tiepoints_lon[iC * 201 + jC];
     lon_D = tiepoints_lon[iD * 201 + jD];
+
+
+    val_A = ptrbaVIIRS[0][((itrack * 16)) * 3200 + (iscan * 16)];
+    val_B = ptrbaVIIRS[0][((itrack * 16)) * 3200 + (iscan * 16) + 15];
+    val_C = ptrbaVIIRS[0][((itrack * 16) + 15) * 3200 + (iscan * 16) + 15];
+    val_D = ptrbaVIIRS[0][((itrack * 16) + 15) * 3200 + (iscan * 16)];
+
+    if( val_A == 0 || val_A > 65528 || val_B == 0 || val_B > 65528 || val_C == 0 || val_C > 65528 || val_D == 0 || val_D > 65528)
+    {
+        quint16 minval = Min(val_A, val_B, val_C, val_D);
+
+        for(int relt = 0; relt < 16; relt++)
+        {
+            for(int rels = 0; rels < 16; rels++)
+            {
+                if(ptrbaVIIRS[0][((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] == 0 || ptrbaVIIRS[0][((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] >= 65528)
+                {
+                    geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = 65535;
+                    geolongitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = 65535;
+                }
+            }
+        }
+    }
+
+//    if(itrack == 0)
+//        qDebug() << QString("itrack = %1 iscan = %2 Lon tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lon_A).arg(lon_B).arg(lon_C).arg(lon_D);
+
+    float themin = Minf(lon_A, lon_B, lon_C, lon_D);
+    float themax = Maxf(lon_A, lon_B, lon_C, lon_D);
+
+
+    if (Maxf(abs(lat_A), abs(lat_B), abs(lat_C), abs(lat_D)) > 60.0 || (themax - themin) > 90.0)
+        interpolateViaVector(itrack, iscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+    else
+        interpolateViaLonLat(itrack, iscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+
+}
+
+void SegmentVIIRS::interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+{
+
+    float ascan, atrack;
+    float lat_1, lat_2, lat;
+    float lon_1, lon_2, lon;
 
     for(int relt = 0; relt < 16; relt++)
     {
@@ -761,6 +803,100 @@ void SegmentVIIRS::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 
 
         }
     }
+
+//    if( itrack == 0 && iscan == 0)
+//    {
+//        for (int relt = 0; relt < 16; relt++) {
+//            for (int rels = 0; rels < 16; rels++)
+//               cout << " " <<  geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels];
+//            cout << endl;
+//        }
+//    }
+
+}
+
+void SegmentVIIRS::interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+{
+    float ascan, atrack;
+    float lon, lat;
+
+    // Earth Centred vectors
+    float lat_A_rad = lat_A * PI / 180.0;
+    float lon_A_rad = lon_A * PI / 180.0;
+    float lat_B_rad = lat_B * PI / 180.0;
+    float lon_B_rad = lon_B * PI / 180.0;
+    float lat_C_rad = lat_C * PI / 180.0;
+    float lon_C_rad = lon_C * PI / 180.0;
+    float lat_D_rad = lat_D * PI / 180.0;
+    float lon_D_rad = lon_D * PI / 180.0;
+
+    float x_A_ec = cos(lat_A_rad) * cos(lon_A_rad);
+    float y_A_ec = cos(lat_A_rad) * sin(lon_A_rad);
+    float z_A_ec = sin(lat_A_rad);
+
+    float x_B_ec = cos(lat_B_rad) * cos(lon_B_rad);
+    float y_B_ec = cos(lat_B_rad) * sin(lon_B_rad);
+    float z_B_ec = sin(lat_B_rad);
+
+    float x_C_ec = cos(lat_C_rad) * cos(lon_C_rad);
+    float y_C_ec = cos(lat_C_rad) * sin(lon_C_rad);
+    float z_C_ec = sin(lat_C_rad);
+
+    float x_D_ec = cos(lat_D_rad) * cos(lon_D_rad);
+    float y_D_ec = cos(lat_D_rad) * sin(lon_D_rad);
+    float z_D_ec = sin(lat_D_rad);
+
+
+    float x1, y1, z1;
+    float x2, y2, z2;
+    float x, y, z;
+    float lon_deg, lat_deg;
+
+    for(int relt = 0; relt < 16; relt++)
+    {
+        for(int rels = 0; rels < 16; rels++)
+        {
+            GetAlpha(ascan, atrack, rels, relt, iscan);
+            // 96 x 201
+
+            x1 = (1 - ascan) * x_A_ec + ascan * x_B_ec;
+            y1 = (1 - ascan) * y_A_ec + ascan * y_B_ec;
+            z1 = (1 - ascan) * z_A_ec + ascan * z_B_ec;
+
+            x2 = (1 - ascan) * x_D_ec + ascan * x_C_ec;
+            y2 = (1 - ascan) * y_D_ec + ascan * y_C_ec;
+            z2 = (1 - ascan) * z_D_ec + ascan * z_C_ec;
+
+            x = (1 - atrack) * x1 + atrack * x2;
+            y = (1 - atrack) * y1 + atrack * y2;
+            z = (1 - atrack) * z1 + atrack * z2;
+
+            lon_deg = atan2(y, x) * 180.0/PI;
+            lat_deg = atan2(z, sqrt(x * x + y * y)) * 180.0/PI;
+
+            geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = lat_deg;
+            geolongitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = lon_deg;
+
+
+        }
+    }
+
+//    if( itrack == 0)
+//    {
+//        cout << "geolatitude" << endl;
+//        for (int relt = 0; relt < 16; relt++) {
+//            for (int rels = 0; rels < 16; rels++)
+//               cout << " " <<  geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels];
+//            cout << endl;
+//        }
+//        cout << "geolongitude" << endl;
+//        for (int relt = 0; relt < 16; relt++) {
+//            for (int rels = 0; rels < 16; rels++)
+//               cout << " " <<  geolongitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels];
+//            cout << endl;
+//        }
+//    }
+
 }
 
 int SegmentVIIRS::ReadNbrOfLines()
@@ -847,7 +983,7 @@ void SegmentVIIRS::ComposeSegmentImage()
                     else
                         r = imageptrs->lut_ch[0][indexout[0]];
 
-                    row[pixelx] = qRgb(r, r, r);
+                    row[pixelx] = qRgb(r, r, r );
                 }
 
             }
@@ -1171,8 +1307,6 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
 //    if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
     if (map_x > -5 && map_x < imageptrs->ptrimageProjection->width() + 5 && map_y > -5 && map_y < imageptrs->ptrimageProjection->height() + 5)
     {
-        if(map_x > -5 && map_x < 0)
-            int bla = 0;
 
         projectionCoordX[lines * 3200 + views] = (qint32)map_x;
         projectionCoordY[lines * 3200 + views] = (qint32)map_y;
@@ -1217,7 +1351,7 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
             else
                 r = imageptrs->lut_ch[0][indexout[0]];
 
-            rgbvalue = qRgba(r, r, r, 255);
+             rgbvalue = qRgba(r, r, r, 255);
         }
 
         if(opts.sattrackinimage)
@@ -1246,3 +1380,115 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
     }
 }
 
+float SegmentVIIRS::Minf(const float v11, const float v12, const float v21, const float v22)
+{
+    float Minimum = v11;
+
+    if( Minimum > v12 )
+            Minimum = v12;
+    if( Minimum > v21 )
+            Minimum = v21;
+    if( Minimum > v22 )
+            Minimum = v22;
+
+    return Minimum;
+}
+
+float SegmentVIIRS::Maxf(const float v11, const float v12, const float v21, const float v22)
+{
+    int Maximum = v11;
+
+    if( Maximum < v12 )
+            Maximum = v12;
+    if( Maximum < v21 )
+            Maximum = v21;
+    if( Maximum < v22 )
+            Maximum = v22;
+
+    return Maximum;
+}
+
+qint32 SegmentVIIRS::Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
+{
+    qint32 Minimum = v11;
+
+    if( Minimum > v12 )
+            Minimum = v12;
+    if( Minimum > v21 )
+            Minimum = v21;
+    if( Minimum > v22 )
+            Minimum = v22;
+
+    return Minimum;
+}
+
+qint32 SegmentVIIRS::Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
+{
+    int Maximum = v11;
+
+    if( Maximum < v12 )
+            Maximum = v12;
+    if( Maximum < v21 )
+            Maximum = v21;
+    if( Maximum < v22 )
+            Maximum = v22;
+
+    return Maximum;
+}
+
+//    float m00_A = -sin(lon_A);
+//    float m01_A = cos(lon_A);
+//    float m02_A = 0;
+//    float m10_A = -sin(lat_A)*cos(lon_A);
+//    float m11_A = -sin(lat_A)*sin(lon_A);
+//    float m12_A = cos(lat_A);
+//    float m20_A = cos(lat_A) * cos(lon_A);
+//    float m21_A = cos(lat_A) * sin(lon_A);
+//    float m22_A = sin(lat_A);
+
+//    float m00_B = -sin(lon_B);
+//    float m01_B = cos(lon_B);
+//    float m02_B = 0;
+//    float m10_B = -sin(lat_B)*cos(lon_B);
+//    float m11_B = -sin(lat_B)*sin(lon_B);
+//    float m12_B = cos(lat_B);
+//    float m20_B = cos(lat_B) * cos(lon_B);
+//    float m21_B = cos(lat_B) * sin(lon_B);
+//    float m22_B = sin(lat_B);
+
+//    float m00_C = -sin(lon_C);
+//    float m01_C = cos(lon_C);
+//    float m02_C = 0;
+//    float m10_C = -sin(lat_C)*cos(lon_C);
+//    float m11_C = -sin(lat_C)*sin(lon_C);
+//    float m12_C = cos(lat_C);
+//    float m20_C = cos(lat_C) * cos(lon_C);
+//    float m21_C = cos(lat_C) * sin(lon_C);
+//    float m22_C = sin(lat_C);
+
+//    float m00_D = -sin(lon_D);
+//    float m01_D = cos(lon_D);
+//    float m02_D = 0;
+//    float m10_D = -sin(lat_D)*cos(lon_D);
+//    float m11_D = -sin(lat_D)*sin(lon_D);
+//    float m12_D = cos(lat_D);
+//    float m20_D = cos(lat_D) * cos(lon_D);
+//    float m21_D = cos(lat_D) * sin(lon_D);
+//    float m22_D = sin(lat_D);
+
+//// Pixel centred
+//    float x_A_pc = m00_A * x_A_ec + m10_A * y_A_ec + m20_A * z_A_ec;
+//    float y_A_pc = m01_A * x_A_ec + m11_A * y_A_ec + m21_A * z_A_ec;
+//    float z_A_pc = m02_A * x_A_ec + m12_A * y_A_ec + m22_A * z_A_ec;
+
+//    float x_B_pc = m00_B * x_B_ec + m10_B * y_B_ec + m20_B * z_B_ec;
+//    float y_B_pc = m01_B * x_B_ec + m11_B * y_B_ec + m21_B * z_B_ec;
+//    float z_B_pc = m02_B * x_B_ec + m12_B * y_B_ec + m22_B * z_B_ec;
+
+//    float x_C_pc = m00_C * x_C_ec + m10_C * y_C_ec + m20_C * z_C_ec;
+//    float y_C_pc = m01_C * x_C_ec + m11_C * y_C_ec + m21_C * z_C_ec;
+//    float z_C_pc = m02_C * x_C_ec + m12_C * y_C_ec + m22_C * z_C_ec;
+
+//    float x_D_pc = m00_D * x_D_ec + m10_D * y_D_ec + m20_D * z_D_ec;
+//    float y_D_pc = m01_D * x_D_ec + m11_D * y_D_ec + m21_D * z_D_ec;
+//    float z_D_pc = m02_D * x_D_ec + m12_D * y_D_ec + m22_D * z_D_ec;

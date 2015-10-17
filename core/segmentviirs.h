@@ -54,6 +54,14 @@ private:
 
     void RenderSegmentlineInTextureVIIRS( int nbrTotalLine, QRgb *row );
     void LonLatMax();
+    float Minf(const float v11, const float v12, const float v21, const float v22);
+    float Maxf(const float v11, const float v12, const float v21, const float v22);
+    qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
+    qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
+
+    void interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
+    void interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
+
     float *tiepoints_lat;
     float *tiepoints_lon;
     float *aligncoef;

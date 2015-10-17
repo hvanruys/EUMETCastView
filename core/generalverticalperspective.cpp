@@ -69,13 +69,23 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
     map_radius = R*sqrt((p-1)/(p+1));
     scale = scaling;
 
+
+    if(lat_center < 0.2)
+    {
+        sin_lat_o = lat_center;
+        cos_lat_o = 1 - (lat_center*lat_center/2);
+    }
+    else
+    {
 #ifdef WIN32 && __GNUC__
-    sin_lat_o = sin(lat_center);
-    cos_lat_o = cos(lat_center);
+        sin_lat_o = sin(lat_center);
+        cos_lat_o = cos(lat_center);
 #else
-    sincos(lat_center, &sin_lat_o, &cos_lat_o);
+        sincos(lat_center, &sin_lat_o,&cos_lat_o);
 #endif
-   return map_radius;
+    }
+
+    return map_radius;
 }
 
 
@@ -332,6 +342,7 @@ bool GeneralVerticalPerspective::map_forward_neg_coord(double lon_rad, double la
 bool GeneralVerticalPerspective::genpersfor(double lon, double lat, double *x, double *y)
 {
     double dlon;
+    double sinlon;
     double sinphi,cosphi;
     double coslon;
     double g;
@@ -341,14 +352,33 @@ bool GeneralVerticalPerspective::genpersfor(double lon, double lat, double *x, d
     //-----------------
     dlon = adjust_lon_rad(lon - lon_center);
 
-#ifdef WIN32 && __GNUC__
-    sinphi = sin(lat);
-    cosphi = cos(lat);
-#else
-    sincos(lat,&sinphi,&cosphi);
-#endif
 
-    coslon = cos(dlon);
+    if(lat < 0.2)
+    {
+        sinphi = lat;
+        cosphi = 1 - (lat*lat/2);
+    }
+    else
+    {
+#ifdef WIN32 && __GNUC__
+        sinphi = sin(lat);
+        cosphi = cos(lat);
+#else
+        sincos(lat,&sinphi,&cosphi);
+#endif
+    }
+
+//    if(dlon <  0.02)
+//    {
+//        sinlon = dlon;
+//        coslon = 1 - (dlon*dlon/2);
+//    }
+//    else
+//    {
+        coslon = cos(dlon);
+        sinlon = sin(dlon);
+//    }
+
     g = sin_lat_o * sinphi + cos_lat_o * cosphi * coslon;
     if (g < (1.0/ p))
     {
@@ -356,7 +386,7 @@ bool GeneralVerticalPerspective::genpersfor(double lon, double lat, double *x, d
         return(false);
     }
     ksp = (p - 1.0)/(p - g);
-    *x = false_easting + R * ksp * cosphi * sin(dlon);
+    *x = false_easting + R * ksp * cosphi * sinlon;
     *y = false_northing + R * ksp * (cos_lat_o * sinphi - sin_lat_o * cosphi * coslon);
 
     return(true);

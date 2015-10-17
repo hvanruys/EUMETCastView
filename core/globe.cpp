@@ -1102,11 +1102,7 @@ void Globe::showSunPosition( geodetic_t *sungeo )
 
   /* Calculate Sun's Lat North, Lon East and Alt. */
   Calculate_LatLonAlt(jul_utc, &solar_vector, sungeo);
-
-
 }
-
-
 
 void Globe::showEvent(QShowEvent *event)
 {
