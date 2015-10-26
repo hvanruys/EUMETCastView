@@ -9,7 +9,8 @@
 #include "segmentnoaa.h"
 #include "segmenthrp.h"
 #include "segmentgac.h"
-#include "segmentviirs.h"
+#include "segmentviirsm.h"
+#include "segmentviirsdnb.h"
 
 #include "segmentlistmetop.h"
 #include "segmentlistnoaa.h"
@@ -39,16 +40,19 @@ public:
     void AddSegmentsToList(QFileInfoList fileinfolist);
     SegmentListGeostationary *getActiveSegmentList();
     bool SelectedAVHRRSegments();
-    bool SelectedVIIRSSegments();
+    bool SelectedVIIRSMSegments();
+    bool SelectedVIIRSDNBSegments();
 
     void RemoveAllSelectedAVHRR();
-    void RemoveAllSelectedVIIRS();
+    void RemoveAllSelectedVIIRSM();
+    void RemoveAllSelectedVIIRSDNB();
     QString GetOverviewSegments();
     QStringList GetOverviewSegmentsMetop();
     QStringList GetOverviewSegmentsNoaa();
     QStringList GetOverviewSegmentsGAC();
     QStringList GetOverviewSegmentsHRP();
-    QStringList GetOverviewSegmentsVIIRS();
+    QStringList GetOverviewSegmentsVIIRSM();
+    QStringList GetOverviewSegmentsVIIRSDNB();
 
     QStringList GetOverviewSegmentsMeteosat();
     QStringList GetOverviewSegmentsMeteosatRss();
@@ -70,13 +74,15 @@ public:
     SegmentListNoaa *seglnoaa;
     SegmentListHRP *seglhrp;
     SegmentListGAC *seglgac;
-    SegmentListVIIRS *seglviirs;
+    SegmentListVIIRS *seglviirsm;
+    SegmentListVIIRS *seglviirsdnb;
 
     SegmentList *segmentlistnoaa;
     SegmentList *segmentlisthrp;
     SegmentList *segmentlistgac;
     SegmentList *segmentlistmetop;
-    SegmentListVIIRS *segmentlistviirs;
+    SegmentListVIIRS *segmentlistviirsm;
+    SegmentListVIIRS *segmentlistviirsdnb;
 
     SegmentListGeostationary *seglmeteosat;
     SegmentListGeostationary *seglmeteosatrss;
@@ -117,7 +123,8 @@ private:
     long countnoaa;
     long counthrp;
     long countgac;
-    long countviirs;
+    long countviirsm;
+    long countviirsdnb;
     bool showallsegments;
 
 

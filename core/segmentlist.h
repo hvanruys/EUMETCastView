@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <QPen>
 #include <QFutureWatcher>
-//#include "avhrrsatellite.h"
+#include "globals.h"
 
 class Segment;
 
@@ -52,9 +52,8 @@ public:
     void ComposeGVProjection(int inputchannel);
     void ComposeLCCProjection(int inputchannel);
     void ComposeSGProjection(int inputchannel);
-    void SmoothProjectionImage();
-
-    bool lookupLonLat(double lon_rad, double lat_rad, int &col, int &row);
+    void SmoothProjectionImageBilinear();
+    void SmoothProjectionImageBicubic();
 
     static void doReadSegmentInMemory(Segment *t);
     static void doComposeSegmentImage(Segment *t);
@@ -66,6 +65,10 @@ protected:
     bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
     void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
     void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy);
+
+    double cubicInterpolate (double p[4], double x);
+    double bicubicInterpolate (double p[4][4], double x, double y);
+
     qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
     qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
 
@@ -74,6 +77,8 @@ protected:
     int indexlastvisible;
 
     QString segmenttype;
+    eSegmentType segtype;
+
     QString directoryname;
     long TotalSegmentsInDirectory;
     long stat_max_ch[5];

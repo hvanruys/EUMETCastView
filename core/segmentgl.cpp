@@ -176,10 +176,31 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         }
     }
 
-    if (opts.buttonVIIRS && segs->seglviirs->NbrOfSegments() > 0)
+    if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
     {
-        QList<Segment*>::iterator segit = segs->seglviirs->GetSegmentlistptr()->begin();
-        while ( segit != segs->seglviirs->GetSegmentlistptr()->end() )
+        QList<Segment*>::iterator segit = segs->seglviirsm->GetSegmentlistptr()->begin();
+        while ( segit != segs->seglviirsm->GetSegmentlistptr()->end() )
+        {
+            if(segs->getShowAllSegments())
+            {
+                RenderContour(*segit, projection, modelview, width, height);
+
+            }
+            else
+            {
+                if ((*segit)->segmentshow)
+                {
+                    RenderContour(*segit, projection, modelview, width, height);
+                }
+            }
+            ++segit;
+        }
+    }
+
+    if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+    {
+        QList<Segment*>::iterator segit = segs->seglviirsdnb->GetSegmentlistptr()->begin();
+        while ( segit != segs->seglviirsdnb->GetSegmentlistptr()->end() )
         {
             if(segs->getShowAllSegments())
             {

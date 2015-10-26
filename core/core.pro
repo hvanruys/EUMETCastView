@@ -24,7 +24,6 @@ SOURCES += main.cpp \
     segmenthrp.cpp \
     segmentmetop.cpp \
     segmentnoaa.cpp \
-    segmentviirs.cpp \
     segmentlist.cpp \
     segmentlistgac.cpp \
     segmentlisthrp.cpp \
@@ -64,7 +63,9 @@ SOURCES += main.cpp \
     sgp_math.cpp \
     sgp_obs.cpp \
     sgp_time.cpp \
-    qcompressor.cpp
+    qcompressor.cpp \
+    segmentviirsm.cpp \
+    segmentviirsdnb.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -77,7 +78,6 @@ HEADERS  += mainwindow.h \
     segmenthrp.h \
     segmentmetop.h \
     segmentnoaa.h \
-    segmentviirs.h \
     segmentlist.h \
     segmentlistgac.h \
     segmentlisthrp.h \
@@ -117,7 +117,9 @@ HEADERS  += mainwindow.h \
     sgp4sdp4.h \
     stdafx.h \
     stb_image.h \
-    qcompressor.h
+    qcompressor.h \
+    segmentviirsm.h \
+    segmentviirsdnb.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

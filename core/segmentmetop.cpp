@@ -33,6 +33,7 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
     this->satname = fileInfo.baseName().mid(12, 3);
 
     segment_type = "Metop";
+    segtype = eSegmentType::SEG_METOP;
     this->earth_views_per_scanline = 2048;
 
     //AVHR_xxx_1B_M01_20130701051903Z_20130701052203Z_N_O_20130701054640Z

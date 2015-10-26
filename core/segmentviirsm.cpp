@@ -1,4 +1,4 @@
-#include "segmentviirs.h"
+#include "segmentviirsm.h"
 #include "segmentimage.h"
 
 #include "hdf5.h"
@@ -11,9 +11,7 @@ extern SegmentImage *imageptrs;
 
 extern QMutex g_mutex;
 
-bool operator<(const lonlatdata& a, const lonlatdata& b) { return a.lon < b.lon; }
-
-SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, QObject *parent) :
     Segment(parent)
 {
     bool ok;
@@ -21,7 +19,8 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
     satlist = satl;
 
     fileInfo.setFile(*filesegment);
-    segment_type = "VIIRS";
+    segment_type = "VIIRSM";
+    segtype = eSegmentType::SEG_VIIRSM;
 
     //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
 
@@ -50,6 +49,7 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
     qsensingend.AddMin(1.0);
 
     this->earth_views_per_scanline = 3200;
+    this->NbrOfLines = 768;
 
     Satellite nss_2;
     ok = satlist->GetSatellite(37849, &nss_2);
@@ -86,7 +86,6 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
 
     //qDebug() << QString("---> lon = %1 lat = %2  hours_since_state_vector = %3").arg(lon_start_deg).arg(lat_start_deg).arg( hours_since_state_vector);
 
-    NbrOfLines = 768;
     geolatitude = NULL;
     geolongitude = NULL;
 
@@ -115,27 +114,27 @@ SegmentVIIRS::SegmentVIIRS(QFile *filesegment, SatelliteList *satl, QObject *par
 
 }
 
-SegmentVIIRS::~SegmentVIIRS()
+SegmentVIIRSM::~SegmentVIIRSM()
 {
     cleanupMemory();
 }
 
-void SegmentVIIRS::initializeMemory()
+void SegmentVIIRSM::initializeMemory()
 {
-    qDebug() << "Initializing VIIRS memory";
+    qDebug() << "Initializing VIIRSM memory";
 
     for(int i = 0; i < (bandlist.at(0) ? 3 : 1); i++)
     {
         if(ptrbaVIIRS[i] == NULL)
         {
             ptrbaVIIRS[i] = new unsigned short[earth_views_per_scanline * NbrOfLines];
-            qDebug() << QString("Initializing VIIRS memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
+            qDebug() << QString("Initializing VIIRSM memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
             bImageMemory = true;
         }
     }
 }
 
-void SegmentVIIRS::resetMemory()
+void SegmentVIIRSM::resetMemory()
 {
     if( geolatitude != NULL)
     {
@@ -177,19 +176,19 @@ void SegmentVIIRS::resetMemory()
 
 }
 
-void SegmentVIIRS::cleanupMemory()
+void SegmentVIIRSM::cleanupMemory()
 {
     resetMemory();
 }
 
-void SegmentVIIRS::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)
+void SegmentVIIRSM::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)
 {
     bandlist = band;
     colorlist = color;
     invertlist = invert;
 }
 
-Segment *SegmentVIIRS::ReadSegmentInMemory()
+Segment *SegmentVIIRSM::ReadSegmentInMemory()
 {
 
     FILE*   f = NULL;
@@ -392,8 +391,8 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
     {
         stat_max_ch[k] = 0;
         stat_min_ch[k] = 9999999;
+        active_pixels[k] = 0;
     }
-
 
     for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
     {
@@ -406,6 +405,7 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
                         stat_max_ch[k] = ptrbaVIIRS[k][j * 3200 + i];
                     if(ptrbaVIIRS[k][j * 3200 + i] < stat_min_ch[k])
                         stat_min_ch[k] = ptrbaVIIRS[k][j * 3200 + i];
+                    active_pixels[k]++;
                 }
             }
         }
@@ -448,7 +448,7 @@ Segment *SegmentVIIRS::ReadSegmentInMemory()
     return this;
 }
 
-Segment *SegmentVIIRS::ReadDatasetsInMemory()
+Segment *SegmentVIIRSM::ReadDatasetsInMemory()
 {
     qDebug() << "Segment *SegmentVIIRS::ReadDatasetsInMemory()";
 
@@ -526,7 +526,7 @@ Segment *SegmentVIIRS::ReadDatasetsInMemory()
 }
 
 
-QString SegmentVIIRS::getDatasetNameFromBand()
+QString SegmentVIIRSM::getDatasetNameFromBand()
 {
     if(bandlist.at(1))
     {
@@ -614,7 +614,7 @@ QString SegmentVIIRS::getDatasetNameFromBand()
 
 }
 
-QString SegmentVIIRS::getDatasetNameFromColor(int colorindex)
+QString SegmentVIIRSM::getDatasetNameFromColor(int colorindex)
 {
     Q_ASSERT(colorindex >=0 && colorindex < 3);
     colorindex++; // 1, 2 or 3
@@ -702,13 +702,13 @@ QString SegmentVIIRS::getDatasetNameFromColor(int colorindex)
 }
 
 
-void SegmentVIIRS::GetAlpha( float &ascan, float &atrack, int rels, int relt, int iscan)
+void SegmentVIIRSM::GetAlpha( float &ascan, float &atrack, int rels, int relt, int iscan)
 {
     ascan = s[rels] + s[rels] * (1 - s[rels]) * expanscoef[iscan] + s[relt] * (1 - s[relt]) * aligncoef[iscan];
     atrack = s[relt];
 }
 
-void SegmentVIIRS::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 ; 0 <= iscan < 200
+void SegmentVIIRSM::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 ; 0 <= iscan < 200
 {
     int iA, iB, iC, iD;
     int jA, jB, jC, jD;
@@ -775,7 +775,7 @@ void SegmentVIIRS::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 
 
 }
 
-void SegmentVIIRS::interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+void SegmentVIIRSM::interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
 {
 
     float ascan, atrack;
@@ -815,7 +815,7 @@ void SegmentVIIRS::interpolateViaLonLat(int itrack, int iscan, float lon_A, floa
 
 }
 
-void SegmentVIIRS::interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+void SegmentVIIRSM::interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
 {
     float ascan, atrack;
     float lon, lat;
@@ -899,17 +899,17 @@ void SegmentVIIRS::interpolateViaVector(int itrack, int iscan, float lon_A, floa
 
 }
 
-int SegmentVIIRS::ReadNbrOfLines()
+int SegmentVIIRSM::ReadNbrOfLines()
 {
     return NbrOfLines;
 }
 
-bool SegmentVIIRS::composeColorImage()
+bool SegmentVIIRSM::composeColorImage()
 {
     return(bandlist.at(0));
 }
 
-void SegmentVIIRS::ComposeSegmentImage()
+void SegmentVIIRSM::ComposeSegmentImage()
 {
 
     QRgb *row;
@@ -1011,22 +1011,22 @@ void SegmentVIIRS::ComposeSegmentImage()
 }
 
 
-void SegmentVIIRS::ComposeSegmentLCCProjection(int inputchannel)
+void SegmentVIIRSM::ComposeSegmentLCCProjection(int inputchannel)
 {
     ComposeProjection(LCC);
 }
 
-void SegmentVIIRS::ComposeSegmentGVProjection(int inputchannel)
+void SegmentVIIRSM::ComposeSegmentGVProjection(int inputchannel)
 {
     ComposeProjection(GVP);
 }
 
-void SegmentVIIRS::ComposeSegmentSGProjection(int inputchannel)
+void SegmentVIIRSM::ComposeSegmentSGProjection(int inputchannel)
 {
     ComposeProjection(SG);
 }
 
-void SegmentVIIRS::ComposeProjection(eProjections proj)
+void SegmentVIIRSM::ComposeProjection(eProjections proj)
 {
 
     double map_x, map_y;
@@ -1107,6 +1107,23 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
             }
         }
     }
+
+    long cntcoord = 0;
+    long cnttotal = 0;
+
+    for( int i = 0; i < this->NbrOfLines; i++)
+    {
+        for( int j = 0; j < this->earth_views_per_scanline ; j++ )
+        {
+            if(projectionCoordX[i * 3200 + j] != 65535)
+                cntcoord++;
+            cnttotal++;
+
+        }
+    }
+
+    qDebug() << QString("Nbr of pixels in projection active = %1  ; total = %2").arg(cntcoord).arg(cnttotal);
+
 /*
     int maxX = 0;
     int maxY = 0;
@@ -1209,7 +1226,7 @@ void SegmentVIIRS::ComposeProjection(eProjections proj)
 
 //}
 
-void SegmentVIIRS::LonLatMax()
+void SegmentVIIRSM::LonLatMax()
 {
 
     lonMin = +180.0;
@@ -1239,7 +1256,7 @@ void SegmentVIIRS::LonLatMax()
 }
 
 
-void SegmentVIIRS::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
+void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 {
 
     QColor rgb;
@@ -1289,7 +1306,7 @@ void SegmentVIIRS::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 }
 
 
-void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, bool color)
+void SegmentVIIRSM::MapPixel( int lines, int views, double map_x, double map_y, bool color)
 {
     int indexout[3];
     int pixval[3];
@@ -1303,9 +1320,7 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
         pixval[2] = ptrbaVIIRS[2][lines * 3200 + views];
     }
 
-
-//    if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-    if (map_x > -5 && map_x < imageptrs->ptrimageProjection->width() + 5 && map_y > -5 && map_y < imageptrs->ptrimageProjection->height() + 5)
+    if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
     {
 
         projectionCoordX[lines * 3200 + views] = (qint32)map_x;
@@ -1380,7 +1395,7 @@ void SegmentVIIRS::MapPixel( int lines, int views, double map_x, double map_y, b
     }
 }
 
-float SegmentVIIRS::Minf(const float v11, const float v12, const float v21, const float v22)
+float SegmentVIIRSM::Minf(const float v11, const float v12, const float v21, const float v22)
 {
     float Minimum = v11;
 
@@ -1394,7 +1409,7 @@ float SegmentVIIRS::Minf(const float v11, const float v12, const float v21, cons
     return Minimum;
 }
 
-float SegmentVIIRS::Maxf(const float v11, const float v12, const float v21, const float v22)
+float SegmentVIIRSM::Maxf(const float v11, const float v12, const float v21, const float v22)
 {
     int Maximum = v11;
 
@@ -1408,7 +1423,7 @@ float SegmentVIIRS::Maxf(const float v11, const float v12, const float v21, cons
     return Maximum;
 }
 
-qint32 SegmentVIIRS::Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
+qint32 SegmentVIIRSM::Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
 {
     qint32 Minimum = v11;
 
@@ -1422,7 +1437,7 @@ qint32 SegmentVIIRS::Min(const qint32 v11, const qint32 v12, const qint32 v21, c
     return Minimum;
 }
 
-qint32 SegmentVIIRS::Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
+qint32 SegmentVIIRSM::Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
 {
     int Maximum = v11;
 

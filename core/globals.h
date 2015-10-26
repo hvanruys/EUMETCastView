@@ -19,7 +19,8 @@ enum eSegmentType
     SEG_NOAA,
     SEG_HRP,
     SEG_GAC,
-    SEG_VIIRS
+    SEG_VIIRSM,
+    SEG_VIIRSDNB
 };
 
 // structures

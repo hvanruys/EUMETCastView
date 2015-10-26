@@ -31,7 +31,8 @@ public:
     bool buttonNoaa;
     bool buttonGAC;
     bool buttonHRP;
-    bool buttonVIIRS;
+    bool buttonVIIRSM;
+    bool buttonVIIRSDNB;
     bool buttonRealTime;
     bool buttonEqualization;
     int nbrofvisiblesegments;
@@ -145,6 +146,10 @@ public:
     bool gridonprojection;
     float clahecliplimit;
 
+    int dnbsblowerlimit;
+    int dnbsbupperlimit;
+    int dnbsbvalue;
+    int dnbspbwindowsvalue;
 
     QByteArray ephemsplittersizes;
     QByteArray mainwindowgeometry;

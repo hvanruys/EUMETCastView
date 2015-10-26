@@ -668,6 +668,8 @@ void SegmentList::composefinished()
     qDebug() << QString("compose stat_min_ch4 = %1  stat_max_ch4 = %2").arg(stat_min_ch[3]).arg(stat_max_ch[3]);
     qDebug() << QString("compose stat_min_ch5 = %1  stat_max_ch5 = %2").arg(stat_min_ch[4]).arg(stat_max_ch[4]);
 
+    emit progressCounter(100);
+
     QApplication::restoreOverrideCursor();
 
 /*
@@ -795,27 +797,10 @@ void SegmentList::ClearSegments()
 
 }
 
-bool SegmentList::lookupLonLat(double lon_rad, double lat_rad, int &col, int &row)
+void SegmentList::SmoothProjectionImageBilinear()
 {
 
-
-    QList<Segment*>::iterator segit = segsselected.begin();
-    while ( segit != segsselected.end() )
-    {
-        if((*segit)->lookupLonLat(lon_rad, lat_rad, col, row))
-        {
-            return true;
-        }
-        ++segit;
-    }
-
-    return false;
-}
-
-void SegmentList::SmoothProjectionImage()
-{
-
-    qDebug() << "start SegmentList::SmoothProjectionImage()";
+    qDebug() << "start SegmentList::SmoothProjectionImageBilinear()";
 
     int lineimage = 0;
 
@@ -837,6 +822,30 @@ void SegmentList::SmoothProjectionImage()
     }
 }
 
+void SegmentList::SmoothProjectionImageBicubic()
+{
+
+    qDebug() << "start SegmentList::SmoothProjectionImageBicubic()";
+
+    int lineimage = 0;
+
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+
+    Segment *segmsave;
+
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        if(segsel != segsselected.begin())
+            BilinearBetweenSegments(segmsave, segm);
+        segmsave = segm;
+        BilinearInterpolation(segm);
+        //printData(segm);
+        ++segsel;
+        lineimage += segm->NbrOfLines;
+    }
+}
 void SegmentList::BilinearInterpolation(Segment *segm)
 {
     qint32 x11;
@@ -903,8 +912,8 @@ void SegmentList::BilinearInterpolation(Segment *segm)
 
             if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
                     && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
-                    && x11 >= -6 && x12 >= -6 && x21 >= -6 && x22 >= -6
-                    && y11 >= -6 && y12 >= -6 && y21 >= -6 && y22 >= -6 )
+                    && x11 > -15 && x12 > -15 && x21 > -15 && x22 > -15
+                    && y11 > -15 && y12 > -15 && y21 > -15 && y22 > -15 )
             {
                 minx = Min(x11, x12, x21, x22);
                 miny = Min(y11, y12, y21, y22);
@@ -1061,8 +1070,8 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext)
 
         if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
                 && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
-                && x11 >= -3 && x12 >= -3 && x21 >= -3 && x22 >= -3
-                && y11 >= -3 && y12 >= -3 && y21 >= -3 && y22 >= -3 )
+                && x11 >= -10 && x12 >= -10 && x21 >= -10 && x22 >= -10
+                && y11 >= -10 && y12 >= -10 && y21 >= -10 && y22 >= -10 )
         {
 
             minx = Min(x11, x12, x21, x22);
@@ -1422,6 +1431,19 @@ void SegmentList::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint1
             }
         }
     }
+}
+
+double SegmentList::cubicInterpolate (double p[4], double x) {
+    return p[1] + 0.5 * x*(p[2] - p[0] + x*(2.0*p[0] - 5.0*p[1] + 4.0*p[2] - p[3] + x*(3.0*(p[1] - p[2]) + p[3] - p[0])));
+}
+
+double SegmentList::bicubicInterpolate (double p[4][4], double x, double y) {
+    double arr[4];
+    arr[0] = cubicInterpolate(p[0], y);
+    arr[1] = cubicInterpolate(p[1], y);
+    arr[2] = cubicInterpolate(p[2], y);
+    arr[3] = cubicInterpolate(p[3], y);
+    return cubicInterpolate(arr, x);
 }
 
 qint32 SegmentList::Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)

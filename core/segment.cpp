@@ -1081,6 +1081,63 @@ void Segment::ComposeSegmentImage()
 
 }
 
+qint32 Segment::getProjectionX(int line, int pixelx)
+{
+    switch(segtype)
+    {
+    case eSegmentType::SEG_METOP:
+    case eSegmentType::SEG_NOAA:
+    case eSegmentType::SEG_HRP:
+    case eSegmentType::SEG_GAC:
+        return projectionCoordX[line * 2048 + pixelx];
+        break;
+    case eSegmentType::SEG_VIIRSM:
+        return projectionCoordX[line * 3200 + pixelx];
+        break;
+    case eSegmentType::SEG_VIIRSDNB:
+        return projectionCoordX[line * 4064 + pixelx];
+        break;
+    }
+}
+
+qint32 Segment::getProjectionY(int line, int pixelx)
+{
+    switch(segtype)
+    {
+    case eSegmentType::SEG_METOP:
+    case eSegmentType::SEG_NOAA:
+    case eSegmentType::SEG_HRP:
+    case eSegmentType::SEG_GAC:
+        return projectionCoordY[line * 2048 + pixelx];
+        break;
+    case eSegmentType::SEG_VIIRSM:
+        return projectionCoordY[line * 3200 + pixelx];
+        break;
+    case eSegmentType::SEG_VIIRSDNB:
+        return projectionCoordY[line * 4064 + pixelx];
+        break;
+    }
+}
+
+QRgb Segment::getProjectionValue(int line, int pixelx)
+{
+    switch(segtype)
+    {
+    case eSegmentType::SEG_METOP:
+    case eSegmentType::SEG_NOAA:
+    case eSegmentType::SEG_HRP:
+    case eSegmentType::SEG_GAC:
+        return projectionCoordValue[line * 2048 + pixelx];
+        break;
+    case eSegmentType::SEG_VIIRSM:
+        return projectionCoordValue[line * 3200 + pixelx];
+        break;
+    case eSegmentType::SEG_VIIRSDNB:
+        return projectionCoordValue[line * 4064 + pixelx];
+        break;
+    }
+}
+
 void Segment::ComposeSegmentGVProjection(int inputchannel)
 {
 

@@ -180,6 +180,9 @@ private slots:
 
     void on_cbProjResolutions_currentIndexChanged(int index);
     void on_btnCLAHEprojection_clicked();
+
+    void on_sbCentreBand_valueChanged(int value);
+    void on_spbDnbWindow_valueChanged(int arg1);
 };
 
 #endif // FORMTOOLBOX_H

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1340</width>
+    <width>1575</width>
     <height>541</height>
    </rect>
   </property>
@@ -170,7 +170,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnVIIRS">
+      <widget class="QPushButton" name="btnVIIRSM">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -178,7 +178,20 @@
         </size>
        </property>
        <property name="text">
-        <string> VIIRS tracks </string>
+        <string> VIIRS M-Band </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnVIIRSDNB">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string> VIIRS Day/night </string>
        </property>
       </widget>
      </item>

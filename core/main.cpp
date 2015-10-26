@@ -11,7 +11,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.1.0"
+#define APPVERSION "1.1.1"
 using namespace std;
 
 QMutex g_mutex;

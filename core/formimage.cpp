@@ -33,7 +33,6 @@ void doCLAHEHRVEurope(quint16 *t)
     imageptrs->CLAHE(t, 5568, 5*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
 }
 
-
 FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *seglist ) :
     QWidget(parent)
 {
@@ -69,11 +68,10 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     noaacount = 0;
     gaccount = 0;
     hrpcount = 0;
-    viirscount = 0;
+    viirsmcount = 0;
     txtInfo = "";
 
 }
-
 
 QLabel *FormImage::returnimageLabelptr()
 {
@@ -150,6 +148,14 @@ void FormImage::setPixmapToLabel()
 
 }
 
+void FormImage::setPixmapToLabelDNB()
+{
+
+    refreshoverlay = true;
+    imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirs)));
+    QApplication::processEvents();
+}
+
 void FormImage::displayImage(int channel)
 {
     this->channelshown = channel;
@@ -215,9 +221,13 @@ void FormImage::ComposeImage()
         hrpcount = segs->seglhrp->NbrOfSegmentsSelected();
         gaccount = segs->seglgac->NbrOfSegmentsSelected();
     }
-    else if(opts.buttonVIIRS)
+    else if(opts.buttonVIIRSM)
     {
-        viirscount = segs->seglviirs->NbrOfSegmentsSelected();
+        viirsmcount = segs->seglviirsm->NbrOfSegmentsSelected();
+    }
+    else if(opts.buttonVIIRSDNB)
+    {
+        viirsdnbcount = segs->seglviirsdnb->NbrOfSegmentsSelected();
     }
     else
         return;
@@ -230,7 +240,8 @@ void FormImage::ComposeImage()
     qDebug() << QString("in FormImage::ComposeImage nbr of noaa segments selected = %1").arg(noaacount);
     qDebug() << QString("in FormImage::ComposeImage nbr of hrp segments selected = %1").arg(hrpcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of gac segments selected = %1").arg(gaccount);
-    qDebug() << QString("in FormImage::ComposeImage nbr of viirs segments selected = %1").arg(viirscount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of viirsm segments selected = %1").arg(viirsmcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnb segments selected = %1").arg(viirsdnbcount);
 
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonGAC || opts.buttonHRP)
     {
@@ -274,19 +285,31 @@ void FormImage::ComposeImage()
         else
             return;
     }
-    else if(viirscount > 0 && opts.buttonVIIRS)
+    else if(viirsmcount > 0 && opts.buttonVIIRSM)
     {
             emit allsegmentsreceivedbuttons(false);
             this->displayImage(10);
-            this->kindofimage = "VIIRS";
-            this->setSegmentType(SEG_VIIRS);
+            this->kindofimage = "VIIRSM";
+            this->setSegmentType(SEG_VIIRSM);
             bandlist = formtoolbox->getVIIRSBandList();
             colorlist = formtoolbox->getVIIRSColorList();
             invertlist = formtoolbox->getVIIRSInvertList();
 //          in Workerthread
-            segs->seglviirs->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+            segs->seglviirsm->ComposeVIIRSImage(bandlist, colorlist, invertlist);
 //          in main thread
-//            segs->seglviirs->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
+//            segs->seglviirsm->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
+    }
+    else if(viirsdnbcount > 0 && opts.buttonVIIRSDNB)
+    {
+            emit allsegmentsreceivedbuttons(false);
+            this->displayImage(10);
+            this->kindofimage = "VIIRSDNB";
+            this->setSegmentType(SEG_VIIRSDNB);
+            bandlist = formtoolbox->getVIIRSBandList();
+            colorlist = formtoolbox->getVIIRSColorList();
+            invertlist = formtoolbox->getVIIRSInvertList();
+            //          in Workerthread
+            segs->seglviirsdnb->ComposeVIIRSImage(bandlist, colorlist, invertlist);
     }
     else
         return;
@@ -294,22 +317,26 @@ void FormImage::ComposeImage()
 
 void FormImage::slotShowVIIRSImage()
 {
-    this->ShowVIIRSImage();
+    if(this->getSegmentType() == eSegmentType::SEG_VIIRSM)
+        this->ShowVIIRSMImage();
+    else if(this->getSegmentType() == eSegmentType::SEG_VIIRSDNB)
+        this->ShowVIIRSDNBImage();
+
 }
 
-bool FormImage::ShowVIIRSImage()
+bool FormImage::ShowVIIRSMImage()
 {
     bool ret = false;
 
-    viirscount = segs->seglviirs->NbrOfSegmentsSelected();
+    viirsmcount = segs->seglviirsm->NbrOfSegmentsSelected();
 
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> invertlist;
 
-    qDebug() << QString("in FormImage::ShowVIIRSImage nbr of viirs segments selected = %1").arg(viirscount);
+    qDebug() << QString("in FormImage::ShowVIIRSImage nbr of viirs segments selected = %1").arg(viirsmcount);
 
-    if (viirscount > 0)
+    if (viirsmcount > 0)
     {
 
         ret = true;
@@ -317,13 +344,13 @@ bool FormImage::ShowVIIRSImage()
 
         emit allsegmentsreceivedbuttons(false);
 
-        this->kindofimage = "VIIRS";
+        this->kindofimage = "VIIRSM";
 
         bandlist = formtoolbox->getVIIRSBandList();
         colorlist = formtoolbox->getVIIRSColorList();
         invertlist = formtoolbox->getVIIRSInvertList();
 
-        segs->seglviirs->ShowImageSerial(bandlist, colorlist, invertlist);
+        segs->seglviirsm->ShowImageSerialM(bandlist, colorlist, invertlist);
     }
     else
         ret = false;
@@ -332,6 +359,31 @@ bool FormImage::ShowVIIRSImage()
 
 }
 
+bool FormImage::ShowVIIRSDNBImage()
+{
+    bool ret = false;
+
+    viirsdnbcount = segs->seglviirsdnb->NbrOfSegmentsSelected();
+
+    qDebug() << QString("in FormImage::ShowVIIRSDNBImage nbr of viirs segments selected = %1").arg(viirsdnbcount);
+
+    if (viirsdnbcount > 0)
+    {
+        ret = true;
+        displayImage(10);
+
+        emit allsegmentsreceivedbuttons(false);
+
+        this->kindofimage = "VIIRSDNB";
+
+        segs->seglviirsdnb->ShowImageSerialDNB();
+    }
+    else
+        ret = false;
+
+    return ret;
+
+}
 
 void FormImage::mousePressEvent(QMouseEvent *e)
 {
@@ -502,7 +554,7 @@ void FormImage::paintEvent( QPaintEvent * )
     }
 
     if( channelshown == 10)
-        slviirs = segs->seglviirs;
+        slviirs = segs->seglviirsm;
 
     if(channelshown >= 1 && channelshown <= 6)
         displayAVHRRImageInfo();
@@ -645,15 +697,21 @@ void FormImage::displayVIIRSImageInfo()
     case SEG_NONE:
         segtype = "None";
         break;
-    case SEG_VIIRS:
-        segtype = "VIIRS";
+    case SEG_VIIRSM:
+        segtype = "VIIRSM";
+        nbrselected = segs->seglviirsm->NbrOfSegmentsSelected();
+
+        break;
+    case SEG_VIIRSDNB:
+        segtype = "VIIRSDNB";
+        nbrselected = segs->seglviirsdnb->NbrOfSegmentsSelected();
+
         break;
     default:
         segtype = "NA";
         break;
     }
 
-    nbrselected = segs->seglviirs->NbrOfSegmentsSelected();
 
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"

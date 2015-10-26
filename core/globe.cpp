@@ -165,8 +165,10 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->seglhrp->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonGAC)
             isselected = segs->seglgac->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-        else if (opts.buttonVIIRS)
-            isselected = segs->seglviirs->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonVIIRSM)
+            isselected = segs->seglviirsm->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonVIIRSDNB)
+            isselected = segs->seglviirsdnb->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
 
         emit mapClicked();
 
@@ -489,10 +491,15 @@ void Globe::paintGL()
             segs->seglgac->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglgac->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         }
-        if (opts.buttonVIIRS && segs->seglviirs->NbrOfSegments() > 0)
+        if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
         {
-            segs->seglviirs->GetFirstLastVisible(&first_julian, &last_julian);
-            segs->seglviirs->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+            segs->seglviirsm->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglviirsm->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        }
+        if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+        {
+            segs->seglviirsdnb->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglviirsdnb->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         }
     }
 
@@ -613,13 +620,24 @@ void Globe::paintGL()
     }
     //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
     //012345678901234567890123456789012345678901234567890123456789
-    else if (opts.buttonVIIRS && segs->seglviirs->NbrOfSegmentsSelected() > 0)
+    else if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegmentsSelected() > 0)
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(10, 4)).arg(segmentnameselected.mid(14, 2)).arg(segmentnameselected.mid(16, 2))
                 .arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2));
 
         if(segmentnameselected.mid(0,8) == "SVMC_npp")
+            painter.drawText(10, this->height() - 20, "SUOMI NPP " + segdate);
+    }
+    //SVDNBC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
+    //012345678901234567890123456789012345678901234567890123456789
+    else if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(12, 4)).arg(segmentnameselected.mid(16, 2)).arg(segmentnameselected.mid(18, 2))
+                .arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2));
+
+        if(segmentnameselected.mid(0,10) == "SVDNBC_npp")
             painter.drawText(10, this->height() - 20, "SUOMI NPP " + segdate);
     }
 
@@ -640,9 +658,13 @@ void Globe::paintGL()
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_GAC, segs->seglgac->GetSegmentlistptr());
     }
-    else if (bSegmentNames && opts.buttonVIIRS && segs->seglviirs->NbrOfSegments() > 0)
+    else if (bSegmentNames && opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
     {
-        drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRS, segs->seglviirs->GetSegmentlistptr());
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSM, segs->seglviirsm->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSDNB, segs->seglviirsdnb->GetSegmentlistptr());
     }
 
 
@@ -913,9 +935,13 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 {
                     renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(12, 3)).arg((*segit)->fileInfo.fileName().mid(24, 2)).arg((*segit)->fileInfo.fileName().mid(26, 2));
                 }
-                else if(seg == eSegmentType::SEG_VIIRS)
+                else if(seg == eSegmentType::SEG_VIIRSM)
                 {
-                    renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(5, 3)).arg((*segit)->fileInfo.fileName().mid(20, 2)).arg((*segit)->fileInfo.fileName().mid(22, 2));
+                    renderout = QString("M %1:%2").arg((*segit)->fileInfo.fileName().mid(20, 2)).arg((*segit)->fileInfo.fileName().mid(22, 2));
+                }
+                else if(seg == eSegmentType::SEG_VIIRSDNB)
+                {
+                    renderout = QString("DNB %1:%2").arg((*segit)->fileInfo.fileName().mid(22, 2)).arg((*segit)->fileInfo.fileName().mid(24, 2));
                 }
                 else
                 {

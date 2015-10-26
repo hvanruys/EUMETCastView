@@ -1,25 +1,27 @@
-#ifndef SEGMENTVIIRS_H
-#define SEGMENTVIIRS_H
+#ifndef SEGMENTVIIRSM_H
+#define SEGMENTVIIRSM_H
 
 #include "satellite.h"
 #include "segment.h"
 
-typedef struct
-{
-    float lon;
-    float lat;
-    int i;
-    int j;
-} lonlatdata;
+//typedef struct
+//{
+//    float lon;
+//    float lat;
+//    int i;
+//    int j;
+//} lonlatdata;
+
+//bool operator<(const lonlatdata& a, const lonlatdata& b) { return a.lon < b.lon; }
 
 
-class SegmentVIIRS : public Segment
+class SegmentVIIRSM : public Segment
 {
     Q_OBJECT
 
 public:
-    explicit SegmentVIIRS(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
-    ~SegmentVIIRS();
+    explicit SegmentVIIRSM(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    ~SegmentVIIRSM();
 
     void initializeMemory();
     void resetMemory();
@@ -40,9 +42,6 @@ public:
     QString getDatasetNameFromBand();
     QString getDatasetNameFromColor(int colorindex);
     bool composeColorImage();
-    qint32 getProjectionX(int line, int pixelx) { return projectionCoordX[line * 3200 + pixelx]; }
-    qint32 getProjectionY(int line, int pixelx) { return projectionCoordY[line * 3200 + pixelx]; }
-    QRgb getProjectionValue(int line, int pixelx) { return projectionCoordValue[line * 3200 + pixelx]; }
     int threshold[3];
 
 private:
@@ -70,11 +69,6 @@ private:
     float *geolatitude;
     float *geolongitude;
 
-    qint32 *projectionCoordX;
-    qint32 *projectionCoordY;
-    QRgb *projectionCoordValue;
-
-
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> invertlist;
@@ -88,4 +82,4 @@ private:
 
 };
 
-#endif // SEGMENTVIIRS_H
+#endif // SEGMENTVIIRSM_H

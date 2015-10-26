@@ -2,7 +2,7 @@
 #define SEGMENTLISTVIIRS_H
 
 #include <QObject>
-#include "segmentviirs.h"
+#include "segmentviirsm.h"
 #include "segmentlist.h"
 
 class SatelliteList;
@@ -11,39 +11,36 @@ class SegmentListVIIRS  : public SegmentList
         Q_OBJECT
 
 public:
-    SegmentListVIIRS(SatelliteList *satl = 0, QObject *parent = 0);
+    SegmentListVIIRS(SatelliteList *satl = 0, QObject *parent = 0, eSegmentType type = eSegmentType::SEG_VIIRSM);
     void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
     //bool ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     //bool ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    bool ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    bool ComposeVIIRSMImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    bool ComposeVIIRSDNBImageInThread();
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
 
     //bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
-    void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    void ShowImageSerialM(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    void ShowImageSerialDNB();
     void SmoothVIIRSImage();
-    static void doReadSegmentInMemoryVIIRS(Segment *t);
-    static void doComposeSegmentImageVIIRS(Segment *t);
+    //static void doReadSegmentInMemoryVIIRS(Segment *t);
+    //static void doComposeSegmentImageVIIRS(Segment *t);
     //static void doComposeProjection(Segment *t);
+    void sliderCentreBandChanged(int val);
+    void spbWindowValueChanged(int spbwindowval, int slcentreband);
+
 
 private:
     void CalculateLUT();
+    void CalculateLUTDNB();
     bool PixelOK(int pix);
-    //void InterpolateVIIRS(int index1, int index2, int pixelx);
-    //bool QuadOk(SegmentVIIRS *segm, int line, int pixelx);
-    //bool AdjacentPixels(SegmentVIIRS *segm, int line, int pixelx);
-    void BilinearInterpolation(SegmentVIIRS *segm);
-    void BilinearBetweenSegments(SegmentVIIRS *segmfirst, SegmentVIIRS *segmnext);
-//    qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
-//    qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
-
-    bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
-    void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
-    void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy);
-    void printData(SegmentVIIRS *segm, int linesfrom, int viewsfrom);
+    void printData(SegmentVIIRSM *segm, int linesfrom, int viewsfrom);
 
     SatelliteList *satlist;
     int lut[256];
     int earthviews;
+    float stat_max_dnb;
+    float stat_min_dnb;
 
 
 protected:
@@ -53,9 +50,10 @@ protected:
 
 protected slots:
     void readfinishedviirs();
+    void readfinishedviirsdnb();
     void composefinishedviirs();
     void progressreadvalue(int progress);
-    //void viirsFinished();
+
 signals:
     void progressCounter(int);
 

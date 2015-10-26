@@ -143,21 +143,21 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
         }
     }
 
-    if (opts.buttonVIIRS && segs->seglviirs->NbrOfSegments() > 0)
+    if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
     {
         if(segs->getShowAllSegments())
         {
-            segs->seglviirs->RenderSegments( &painter, QColor(Qt::cyan), true );
+            segs->seglviirsm->RenderSegments( &painter, QColor(Qt::cyan), true );
         }
         else
         {
-            segs->seglviirs->GetFirstLastVisible( &first_julian, &last_julian );
+            segs->seglviirsm->GetFirstLastVisible( &first_julian, &last_julian );
             showSunPosition(&painter, first_julian, last_julian);
-            segs->seglviirs->RenderSegments( &painter, QColor(Qt::cyan), false );
+            segs->seglviirsm->RenderSegments( &painter, QColor(Qt::cyan), false );
         }
     }
 
-    if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false && opts.buttonHRP == false && opts.buttonVIIRS == false)
+    if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false && opts.buttonHRP == false && opts.buttonVIIRSM == false)
         showSunPosition(&painter);
 
     if (down)
@@ -204,8 +204,8 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
         isselected = segs->seglhrp->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
     else if (opts.buttonGAC)
         isselected = segs->seglgac->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
-    else if (opts.buttonVIIRS)
-        isselected = segs->seglviirs->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonVIIRSM)
+        isselected = segs->seglviirsm->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
 
     if(isselected)
         emit mapClicked();  // show selected segmentlist in FormEphem

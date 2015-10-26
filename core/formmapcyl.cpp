@@ -28,7 +28,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnNoaa->setCheckable(true);
     ui->btnGAC->setCheckable(true);
     ui->btnHRP->setCheckable(true);
-    ui->btnVIIRS->setCheckable(true);
+    ui->btnVIIRSM->setCheckable(true);
+    ui->btnVIIRSDNB->setCheckable(true);
     ui->btnRealTime->setCheckable(true);
     ui->btnPhong->setCheckable(true);
 
@@ -37,7 +38,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
         opts.buttonNoaa = false;
         opts.buttonGAC = false;
         opts.buttonHRP = false;
-        opts.buttonVIIRS = false;
+        opts.buttonVIIRSM = false;
+        opts.buttonVIIRSDNB = false;
         opts.buttonRealTime = false;
     }
     else
@@ -46,7 +48,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
             opts.buttonMetop = false;
             opts.buttonGAC = false;
             opts.buttonHRP = false;
-            opts.buttonVIIRS = false;
+            opts.buttonVIIRSM = false;
+            opts.buttonVIIRSDNB = false;
             opts.buttonRealTime = false;
         }
         else
@@ -55,7 +58,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                 opts.buttonNoaa = false;
                 opts.buttonMetop = false;
                 opts.buttonHRP = false;
-                opts.buttonVIIRS = false;
+                opts.buttonVIIRSM = false;
+                opts.buttonVIIRSDNB = false;
                 opts.buttonRealTime = false;
             }
             else
@@ -64,7 +68,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                     opts.buttonNoaa = false;
                     opts.buttonGAC = false;
                     opts.buttonMetop = false;
-                    opts.buttonVIIRS = false;
+                    opts.buttonVIIRSM = false;
+                    opts.buttonVIIRSDNB = false;
                     opts.buttonRealTime = false;
                 }
                 else
@@ -74,23 +79,36 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                         opts.buttonGAC = false;
                         opts.buttonHRP = false;
                         opts.buttonMetop = false;
-                        opts.buttonVIIRS = false;
+                        opts.buttonVIIRSM = false;
+                        opts.buttonVIIRSDNB = false;
                     }
                     else
-                        if (opts.buttonVIIRS)
+                        if (opts.buttonVIIRSM)
                         {
                             opts.buttonNoaa = false;
                             opts.buttonGAC = false;
                             opts.buttonHRP = false;
                             opts.buttonMetop = false;
                             opts.buttonRealTime = false;
+                            opts.buttonVIIRSDNB = false;
                         }
+                        else
+                            if (opts.buttonVIIRSDNB)
+                            {
+                                opts.buttonNoaa = false;
+                                opts.buttonGAC = false;
+                                opts.buttonHRP = false;
+                                opts.buttonMetop = false;
+                                opts.buttonRealTime = false;
+                                opts.buttonVIIRSM = false;
+                            }
 
     ui->btnMetop->setChecked(opts.buttonMetop);
     ui->btnNoaa->setChecked(opts.buttonNoaa);
     ui->btnGAC->setChecked(opts.buttonGAC);
     ui->btnHRP->setChecked(opts.buttonHRP);
-    ui->btnVIIRS->setChecked(opts.buttonVIIRS);
+    ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
+    ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
     ui->btnPhong->setChecked(true);
 
@@ -99,13 +117,15 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     connect( ui->btnNoaa, SIGNAL( clicked() ), mapcyl, SLOT( showNoaaSegments() ));
     connect( ui->btnGAC, SIGNAL( clicked() ), mapcyl, SLOT( showGACSegments() ));
     connect( ui->btnHRP, SIGNAL( clicked() ), mapcyl, SLOT( showHRPSegments() ));
-    connect( ui->btnVIIRS, SIGNAL( clicked() ), mapcyl, SLOT( showVIIRSSegments() ));
+    connect( ui->btnVIIRSM, SIGNAL( clicked() ), mapcyl, SLOT( showVIIRSSegments() ));
+    connect( ui->btnVIIRSDNB, SIGNAL( clicked() ), mapcyl, SLOT( showVIIRSSegments() ));
 
     connect( ui->btnMetop, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
     connect( ui->btnNoaa, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnGAC, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnHRP, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnVIIRS, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    connect( ui->btnVIIRSM, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    connect( ui->btnVIIRSDNB, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
 
     //connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(showSegmentList(int)));
     connect(mapcyl, SIGNAL(wheelChange(int)), this, SLOT(changeScrollBar(int)));
@@ -144,7 +164,7 @@ void FormMapCyl::showSegmentcount()
     qDebug() << "FormMapCyl::showSegmentcount";
 
     long totseg = segs->seglmetop->NbrOfSegmentsSelected() + segs->seglnoaa->NbrOfSegmentsSelected()  + segs->seglhrp->NbrOfSegmentsSelected()
-            + segs->seglgac->NbrOfSegmentsSelected() + segs->seglviirs->NbrOfSegmentsSelected();
+            + segs->seglgac->NbrOfSegmentsSelected() + segs->seglviirsm->NbrOfSegmentsSelected()  + segs->seglviirsdnb->NbrOfSegmentsSelected();
     if ( totseg > 0)
     {
         ui->btnRemoveSelected->setText( QString(" Remove %1 selected segments ").arg(totseg));
@@ -193,9 +213,13 @@ void FormMapCyl::updatesatmap(int index)
         {
             segs->seglgac->ShowSegment(ui->verticalScrollBar->value());
         }
-        if (opts.buttonVIIRS)
+        if (opts.buttonVIIRSM)
         {
-            segs->seglviirs->ShowSegment(ui->verticalScrollBar->value());
+            segs->seglviirsm->ShowSegment(ui->verticalScrollBar->value());
+        }
+        if (opts.buttonVIIRSDNB)
+        {
+            segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
         }
 
         mapcyl->update();
@@ -216,9 +240,12 @@ void FormMapCyl::updatesatmap(int index)
         } else if (opts.buttonHRP)
         {
              tit = "HRP ";
-        } else if (opts.buttonVIIRS)
+        } else if (opts.buttonVIIRSM)
         {
-            tit = "HRP ";
+            tit = "VIIRSM ";
+        }  else if (opts.buttonVIIRSDNB)
+        {
+            tit = "VIIRSDNB ";
         }
 /*
         switch(imagetab->GetChannelShown())
@@ -265,13 +292,16 @@ void FormMapCyl::toggleButtonMetop()
         opts.buttonNoaa = false;
         opts.buttonGAC = false;
         opts.buttonHRP = false;
-        opts.buttonVIIRS = false;
+        opts.buttonVIIRSM = false;
         opts.buttonRealTime = false;
+        opts.buttonVIIRSDNB = false;
+
         ui->btnMetop->setChecked(opts.buttonMetop);
         ui->btnNoaa->setChecked(opts.buttonNoaa);
         ui->btnGAC->setChecked(opts.buttonGAC);
         ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRS->setChecked(opts.buttonVIIRS);
+        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
+        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
         ui->btnRealTime->setChecked(opts.buttonRealTime);
         this->showSegmentList(0);
     }
@@ -293,14 +323,17 @@ void FormMapCyl::toggleButtonNoaa()
         opts.buttonNoaa = true;
         opts.buttonGAC = false;
         opts.buttonHRP = false;
-        opts.buttonVIIRS = false;
+        opts.buttonVIIRSM = false;
         opts.buttonRealTime = false;
+        opts.buttonVIIRSDNB = false;
+
         ui->btnMetop->setChecked(opts.buttonMetop);
         ui->btnNoaa->setChecked(opts.buttonNoaa);
         ui->btnGAC->setChecked(opts.buttonGAC);
         ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRS->setChecked(opts.buttonVIIRS);
+        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
         ui->btnRealTime->setChecked(opts.buttonRealTime);
+        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
 
         this->showSegmentList(0);
     }
@@ -323,13 +356,16 @@ void FormMapCyl::toggleButtonGAC()
         opts.buttonGAC = true;
         opts.buttonHRP = false;
         opts.buttonRealTime = false;
-        opts.buttonVIIRS = false;
+        opts.buttonVIIRSM = false;
+        opts.buttonVIIRSDNB = false;
+
         ui->btnMetop->setChecked(opts.buttonMetop);
         ui->btnNoaa->setChecked(opts.buttonNoaa);
         ui->btnGAC->setChecked(opts.buttonGAC);
         ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRS->setChecked(opts.buttonVIIRS);
+        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
         ui->btnRealTime->setChecked(opts.buttonRealTime);
+        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
 
         this->showSegmentList(0);
     }
@@ -350,15 +386,17 @@ void FormMapCyl::toggleButtonHRP()
         opts.buttonNoaa = false;
         opts.buttonGAC = false;
         opts.buttonHRP = true;
-        opts.buttonVIIRS = false;
+        opts.buttonVIIRSM = false;
         opts.buttonRealTime = false;
+        opts.buttonVIIRSDNB = false;
 
         ui->btnMetop->setChecked(opts.buttonMetop);
         ui->btnNoaa->setChecked(opts.buttonNoaa);
         ui->btnGAC->setChecked(opts.buttonGAC);
         ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRS->setChecked(opts.buttonVIIRS);
+        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
         ui->btnRealTime->setChecked(opts.buttonRealTime);
+        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
 
 
         this->showSegmentList(0);
@@ -368,28 +406,63 @@ void FormMapCyl::toggleButtonHRP()
     this->setScrollBarMaximum();
 }
 
-void FormMapCyl::toggleButtonVIIRS()
+void FormMapCyl::toggleButtonVIIRSM()
 {
 
-    qDebug() << "FormMapCyl::toggleButtonVIIRS()";
+    qDebug() << "FormMapCyl::toggleButtonVIIRSM()";
 
-    if (opts.buttonVIIRS == true)
-        opts.buttonVIIRS = false;
+    if (opts.buttonVIIRSM == true)
+        opts.buttonVIIRSM = false;
     else
     {
         opts.buttonMetop = false;
         opts.buttonNoaa = false;
         opts.buttonGAC = false;
         opts.buttonHRP = false;
-        opts.buttonVIIRS = true;
+        opts.buttonVIIRSM = true;
         opts.buttonRealTime = false;
+        opts.buttonVIIRSDNB = false;
 
         ui->btnMetop->setChecked(opts.buttonMetop);
         ui->btnNoaa->setChecked(opts.buttonNoaa);
         ui->btnGAC->setChecked(opts.buttonGAC);
         ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRS->setChecked(opts.buttonVIIRS);
+        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
         ui->btnRealTime->setChecked(opts.buttonRealTime);
+        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
+
+
+        this->showSegmentList(0);
+    }
+    //imagetab->SetGammaSpinboxes();
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+}
+
+void FormMapCyl::toggleButtonVIIRSDNB()
+{
+
+    qDebug() << "FormMapCyl::toggleButtonVIIRSDNB()";
+
+    if (opts.buttonVIIRSDNB == true)
+        opts.buttonVIIRSDNB = false;
+    else
+    {
+        opts.buttonMetop = false;
+        opts.buttonNoaa = false;
+        opts.buttonGAC = false;
+        opts.buttonHRP = false;
+        opts.buttonVIIRSM = false;
+        opts.buttonRealTime = false;
+        opts.buttonVIIRSDNB = true;
+
+        ui->btnMetop->setChecked(opts.buttonMetop);
+        ui->btnNoaa->setChecked(opts.buttonNoaa);
+        ui->btnGAC->setChecked(opts.buttonGAC);
+        ui->btnHRP->setChecked(opts.buttonHRP);
+        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
+        ui->btnRealTime->setChecked(opts.buttonRealTime);
+        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
 
 
         this->showSegmentList(0);
@@ -409,16 +482,17 @@ void FormMapCyl::toggleButtonRealTime()
         opts.buttonNoaa = false;
         opts.buttonGAC = false;
         opts.buttonHRP = false;
-        opts.buttonVIIRS = false;
+        opts.buttonVIIRSM = false;
         opts.buttonRealTime = true;
+        opts.buttonVIIRSDNB = false;
 
         ui->btnMetop->setChecked(opts.buttonMetop);
         ui->btnNoaa->setChecked(opts.buttonNoaa);
         ui->btnGAC->setChecked(opts.buttonGAC);
         ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRS->setChecked(opts.buttonVIIRS);
+        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
         ui->btnRealTime->setChecked(opts.buttonRealTime);
-
+        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
 
     }
     //this->RemoveAllSelected();
@@ -446,9 +520,9 @@ void FormMapCyl::setScrollBarMaximum()
     {
         ui->verticalScrollBar->setMaximum(segs->seglgac->NbrOfSegments());
     }
-    else if (opts.buttonVIIRS)
+    else if (opts.buttonVIIRSM)
     {
-        ui->verticalScrollBar->setMaximum(segs->seglviirs->NbrOfSegments());
+        ui->verticalScrollBar->setMaximum(segs->seglviirsm->NbrOfSegments());
     }
     else if (opts.buttonRealTime)
     {
@@ -498,15 +572,22 @@ void FormMapCyl::showSegmentList(int value)
 
         outp = QString("GAC From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
-    else if(opts.buttonVIIRS)
+    else if(opts.buttonVIIRSM)
     {
-        segs->seglviirs->ShowSegment(value);
-        segs->seglviirs->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglviirs->NbrOfSegments();
+        segs->seglviirsm->ShowSegment(value);
+        segs->seglviirsm->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglviirsm->NbrOfSegments();
 
-        outp = QString("VIIRS From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+        outp = QString("VIIRSM From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
+    else if(opts.buttonVIIRSDNB)
+    {
+        segs->seglviirsdnb->ShowSegment(value);
+        segs->seglviirsdnb->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglviirsdnb->NbrOfSegments();
 
+        outp = QString("VIIRSDNB From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
     else if(opts.buttonRealTime)
     {
         outp = QString("Real time");
@@ -520,7 +601,8 @@ void FormMapCyl::showSegmentList(int value)
 void FormMapCyl::RemoveAllSelected()
 {
     segs->RemoveAllSelectedAVHRR();
-    segs->RemoveAllSelectedVIIRS();
+    segs->RemoveAllSelectedVIIRSM();
+    segs->RemoveAllSelectedVIIRSDNB();
 
     mapcyl->update();
     ui->btnRemoveSelected->setText(" No selected segments ");
@@ -618,11 +700,18 @@ void FormMapCyl::on_btnRealTime_clicked()
     toggleButtonRealTime();
 }
 
-void FormMapCyl::on_btnVIIRS_clicked()
+void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
 {
 
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
-    toggleButtonVIIRS();
+    toggleButtonVIIRSM();
+    return;
+}
+
+void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
+{
+    formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+    toggleButtonVIIRSDNB();
     return;
 }
 
@@ -644,3 +733,4 @@ void FormMapCyl::on_btnPhong_clicked()
         opts.bPhongModel = true;
     }
 }
+

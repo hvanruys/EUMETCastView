@@ -21,7 +21,8 @@ void Options::Initialize()
     buttonNoaa=settings.value("/window/buttonnoaa", false ).toBool();
     buttonGAC=settings.value("/window/buttongac", false ).toBool();
     buttonHRP=settings.value("/window/buttonhrp", false ).toBool();
-    buttonVIIRS=settings.value("/window/buttonviirs", false ).toBool();
+    buttonVIIRSM=settings.value("/window/buttonviirs", false ).toBool();
+    buttonVIIRSDNB=settings.value("/window/buttonviirsdnb", false ).toBool();
 
     buttonRealTime=settings.value("/window/buttonrealtime", true ).toBool();
     buttonEqualization=settings.value("/window/buttonequalization", false ).toBool();
@@ -197,6 +198,11 @@ void Options::Initialize()
     lastinputprojection = settings.value("/window/lastinputprojection", 0 ).toInt();
     lastVIIRSband = settings.value("/window/viirsband", 0 ).toInt();
 
+    dnbsblowerlimit = settings.value("/dnb/dnbsblowerlimit", -250 ).toInt();
+    dnbsbupperlimit = settings.value("/dnb/dnbsbupperlimit", -100 ).toInt();
+    dnbsbvalue = settings.value("/dnb/dnbsbvalue", -209 ).toInt();
+    dnbspbwindowsvalue = settings.value("/dnb/dnbspbwindowsvalue", 3 ).toInt();
+
     lastcomboMet006 = settings.value("/window/comboMet006", 0 ).toInt();;
     lastcomboMet008 = settings.value("/window/comboMet008", 0 ).toInt();
     lastcomboMet016 = settings.value("/window/comboMet016", 0 ).toInt();
@@ -352,7 +358,8 @@ void Options::Save()
     settings.setValue( "/window/buttonnoaa", buttonNoaa );
     settings.setValue( "/window/buttongac", buttonGAC );
     settings.setValue( "/window/buttonhrp", buttonHRP );
-    settings.setValue( "/window/buttonviirs", buttonVIIRS );
+    settings.setValue( "/window/buttonviirs", buttonVIIRSM );
+    settings.setValue( "/window/buttonviirsdnb", buttonVIIRSDNB );
 
     settings.setValue( "/window/buttonrealtime", buttonRealTime );
     settings.setValue( "/window/buttonequalization", buttonEqualization );
@@ -455,6 +462,11 @@ void Options::Save()
     settings.setValue("/parameters/latitudeoforigin", latitudeoforigin);
 
     settings.setValue("/parameters/mapextentnorth", mapextentnorth);
+
+    settings.setValue("/dnb/dnbsblowerlimit", dnbsblowerlimit );
+    settings.setValue("/dnb/dnbsbupperlimit", dnbsbupperlimit );
+    settings.setValue("/dnb/dnbsbvalue", dnbsbvalue );
+    settings.setValue("/dnb/dnbspbwindowsvalue", dnbspbwindowsvalue );
 
     qDebug() << QString("save Options::mapextentnorth = %1").arg(mapextentnorth);
     qDebug() << QString("save Options::mapextentsouth = %1").arg(mapextentsouth);

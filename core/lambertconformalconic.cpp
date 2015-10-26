@@ -168,9 +168,9 @@ void LambertConformalConic::CreateMapFromAVHRR(int inputchannel, eSegmentType ty
     else if(opts.smoothprojectiontype == 2)
     {
         if (type == SEG_NOAA)
-            segs->seglnoaa->SmoothProjectionImage();
+            segs->seglnoaa->SmoothProjectionImageBilinear();
         else if( type == SEG_METOP)
-            segs->seglmetop->SmoothProjectionImage();
+            segs->seglmetop->SmoothProjectionImageBilinear();
         else if( type == SEG_GAC)
 //            segs->seglgac->SmoothProjectionImage();
             imageptrs->SmoothProjectionImage();
@@ -184,11 +184,11 @@ void LambertConformalConic::CreateMapFromAVHRR(int inputchannel, eSegmentType ty
 void LambertConformalConic::CreateMapFromVIIRS()
 {
     calc_map_extents();
-    segs->seglviirs->ComposeLCCProjection(0);
+    segs->seglviirsm->ComposeLCCProjection(0);
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
     else if(opts.smoothprojectiontype == 2)
-        segs->seglviirs->SmoothVIIRSImage();
+        segs->seglviirsm->SmoothVIIRSImage();
 }
 
 

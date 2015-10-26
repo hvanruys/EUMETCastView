@@ -19,7 +19,8 @@ public:
     explicit FormImage(QWidget *parent = 0, SatelliteList *satlist=0, AVHRRSatellite *seglist=0);
     QLabel *returnimageLabelptr();
     void ComposeImage();
-    bool ShowVIIRSImage();
+    bool ShowVIIRSMImage();
+    bool ShowVIIRSDNBImage();
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
@@ -56,7 +57,8 @@ public:
     int noaacount;
     int gaccount;
     int hrpcount;
-    int viirscount;
+    int viirsmcount;
+    int viirsdnbcount;
 
 
     int channelshown; // which button channel
@@ -120,6 +122,7 @@ public slots:
     void slotMakeImage();
     void slotShowVIIRSImage();
     void setPixmapToLabel();
+    void setPixmapToLabelDNB();
     void slotUpdateMeteosat();
     void slotUpdateHimawari();
     void slotUpdateProjection();

@@ -183,22 +183,25 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->teAVHRR->setReadOnly(true);
     ui->teAVHRR->append(formimage->txtInfo);
 
-    ui->btnRemoveMetop->setVisible(false);
-    ui->btnRemoveNoaa->setVisible(false);
-    ui->btnRemoveHRP->setVisible(false);
-    ui->btnRemoveGAC->setVisible(false);
-    ui->btnRemoveVIIRS->setVisible(false);
-
-    ui->lblRemoveMetop->setVisible(false);
-    ui->lblRemoveNoaa->setVisible(false);
-    ui->lblRemoveHRP->setVisible(false);
-    ui->lblRemoveGAC->setVisible(false);
-    ui->lblRemoveVIIRS->setVisible(false);
-
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->lblCLAHEprojection->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
     ui->sliCLAHEprojection->setSliderPosition(opts.clahecliplimit * 10);
+
+    ui->sbCentreBand->blockSignals(true);
+
+    ui->sbCentreBand->setMinimum(opts.dnbsblowerlimit);
+    ui->sbCentreBand->setMaximum(opts.dnbsbupperlimit);
+    ui->sbCentreBand->setValue(opts.dnbsbvalue);
+
+    ui->sbCentreBand->blockSignals(false);
+
+    ui->spbDnbWindow->setValue(opts.dnbspbwindowsvalue);
+
+    float fval = pow(10, opts.dnbsbvalue/20.0);
+    ui->lblCentreBand->setText(QString("%1").arg(fval, 0, 'E', 2));
+    ui->lblTitleCentreBand->setText(QString("Centre Band from %1 to %2 [W/cm² sr]").arg(fval/pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2).arg(fval*pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2));
+
 
     if(opts.lastVIIRSband == 0)
         ui->rbColorVIIRS->setChecked(true);
@@ -306,6 +309,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblGeo10->setText("12.00");
     ui->lblGeo11->setText("13.40");
 
+
+    ui->lblUpper->setVisible(false);
+    ui->lblLower->setVisible(false);
+    ui->spbLower->setVisible(false);
+    ui->spbUpper->setVisible(false);
 
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
 
@@ -1517,6 +1525,7 @@ void FormToolbox::setToolboxButtons(bool state)
     if(state)
     {
         QApplication::restoreOverrideCursor();
+        ui->pbProgress->setValue(100);
     }
     else
         QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -2208,11 +2217,11 @@ void FormToolbox::on_btnCreatePerspective_clicked()
                 return;
         }
     }
-    else if(opts.buttonVIIRS)
+    else if(opts.buttonVIIRSM)
     {
         if(ui->rdbVIIRSin->isChecked())
         {
-            if(!segs->SelectedVIIRSSegments())
+            if(!segs->SelectedVIIRSMSegments())
                 return;
         }
 
@@ -2248,11 +2257,11 @@ void FormToolbox::on_btnCreateLambert_clicked()
                 return;
         }
     }
-    else if(opts.buttonVIIRS)
+    else if(opts.buttonVIIRSM)
     {
         if(ui->rdbVIIRSin->isChecked())
         {
-            if(!segs->SelectedVIIRSSegments())
+            if(!segs->SelectedVIIRSMSegments())
                 return;
         }
 
@@ -2288,11 +2297,11 @@ void FormToolbox::on_btnCreateStereo_clicked()
                 return;
         }
     }
-    else if(opts.buttonVIIRS)
+    else if(opts.buttonVIIRSM)
     {
         if(ui->rdbVIIRSin->isChecked())
         {
-            if(!segs->SelectedVIIRSSegments())
+            if(!segs->SelectedVIIRSMSegments())
                 return;
         }
 
@@ -2939,27 +2948,34 @@ bool FormToolbox::comboColGeoOK()
 void FormToolbox::on_btnMakeVIIRSImage_clicked()
 {
 
-    if(!comboColVIIRSOK())
+    if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM)
     {
-        QMessageBox msgBox;
-        msgBox.setText("Need color choices for 3 different bands in the VIIRS tab.");
-        //msgBox.setInformativeText("Do you want to save your changes?");
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.setIcon(QMessageBox::Warning);
-        int ret = msgBox.exec();
+        if(!comboColVIIRSOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the VIIRS tab.");
+            //msgBox.setInformativeText("Do you want to save your changes?");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
 
-        switch (ret) {
-        case QMessageBox::Ok:
-            break;
-        default:
-            break;
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
         }
 
-        return;
+        ui->pbProgress->reset();
+        emit emitShowVIIRSImage();
     }
+    else if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSDNB)
+    {
 
-    ui->pbProgress->reset();
-    emit emitShowVIIRSImage();
+    }
 }
 
 void FormToolbox::on_rbtnAColor_clicked()
@@ -3038,7 +3054,6 @@ void FormToolbox::createFilenamestring(QString sat, QString d, QVector<QString> 
 
 }
 
-
 void FormToolbox::on_cbProjResolutions_currentIndexChanged(int index)
 {
     qDebug() << QString("on_cbProjResolutions_currentIndexChanged(int index) = %1").arg(index);
@@ -3047,14 +3062,27 @@ void FormToolbox::on_cbProjResolutions_currentIndexChanged(int index)
         ui->spbMapWidth->setValue(resolutionX.at(index-1));
         ui->spbMapHeight->setValue(resolutionY.at(index-1));
     }
-
 }
 
 void FormToolbox::on_btnCLAHEprojection_clicked()
 {
-
     QApplication::processEvents();
     formimage->CLAHEprojection();
     //formimage->slotUpdateMeteosat();
+}
 
+void FormToolbox::on_sbCentreBand_valueChanged(int value)
+{
+    float fval = value/20.0;
+    opts.dnbsbvalue = value;
+
+    segs->seglviirsdnb->sliderCentreBandChanged(value);
+    float fval1 = pow(10, fval);
+    ui->lblCentreBand->setText(QString("%1").arg(fval1, 0, 'E', 2));
+    ui->lblTitleCentreBand->setText(QString("Centre Band from %1 to %2 [W/cm² sr]").arg(fval1/pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2).arg(fval1*pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2));
+}
+
+void FormToolbox::on_spbDnbWindow_valueChanged(int arg1)
+{
+    segs->seglviirsdnb->spbWindowValueChanged(arg1, ui->sbCentreBand->value());
 }

@@ -209,8 +209,8 @@ void FormEphem::setSegmentsShownValue()
         segs->seglhrp->SetNbrOfVisibleSegments(ui->segmentsslider->value());
     else if (opts.buttonGAC)
         segs->seglgac->SetNbrOfVisibleSegments(ui->segmentsslider->value());
-    else if (opts.buttonVIIRS)
-        segs->seglviirs->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonVIIRSM)
+        segs->seglviirsm->SetNbrOfVisibleSegments(ui->segmentsslider->value());
 
     opts.nbrofvisiblesegments = ui->segmentsslider->value();
 
@@ -229,7 +229,8 @@ void FormEphem::getSegmentsForCalendar()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsHRP(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGAC(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRS(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSM(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSDNB(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosatRss(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat7(), 0  );
@@ -254,7 +255,7 @@ void FormEphem::showSegmentsAdded()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsHRP(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGAC(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRS(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSM(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosatRss(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat7(), 0  );
@@ -622,7 +623,7 @@ void FormEphem::showSelectedSegmentList(void)
     QList<Segment*> *slnoaa = segs->seglnoaa->GetSegmentlistptr();
     QList<Segment*> *slgac = segs->seglgac->GetSegmentlistptr();
     QList<Segment*> *slhrp = segs->seglhrp->GetSegmentlistptr();
-    QList<Segment*> *slviirs = segs->seglviirs->GetSegmentlistptr();
+    QList<Segment*> *slviirs = segs->seglviirsm->GetSegmentlistptr();
     QList<QTreeWidgetItem *> items;
 
     ui->selectedsegmentwidget->clear();
@@ -697,7 +698,7 @@ void FormEphem::showSelectedSegmentList(void)
 
     }
     else
-    if (opts.buttonVIIRS)
+    if (opts.buttonVIIRSM)
     {
         QList<Segment*>::iterator segitviirs = slviirs->begin();
         while ( segitviirs != slviirs->end() )

@@ -1,6 +1,6 @@
 #include <QtConcurrent>
 #include "segmentlistviirs.h"
-#include "segmentviirs.h"
+#include "segmentviirsm.h"
 #include "segmentimage.h"
 #include "options.h"
 
@@ -17,33 +17,43 @@ extern SegmentImage *imageptrs;
 
 
 
-void doComposeVIIRSImageInThread(SegmentListVIIRS *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
+void doComposeVIIRSMImageInThread(SegmentListVIIRS *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
-    t->ComposeVIIRSImageInThread(bandlist, colorlist, invertlist);
+    t->ComposeVIIRSMImageInThread(bandlist, colorlist, invertlist);
 }
 
-void SegmentListVIIRS::doReadSegmentInMemoryVIIRS(Segment *t)
+void doComposeVIIRSDNBImageInThread(SegmentListVIIRS *t)
 {
-    t->ReadSegmentInMemory();
+    t->ComposeVIIRSDNBImageInThread();
 }
 
-void SegmentListVIIRS::doComposeSegmentImageVIIRS(Segment *t)
-{
-    t->ComposeSegmentImage();
-}
+//void SegmentListVIIRS::doReadSegmentInMemoryVIIRS(Segment *t)
+//{
+//    t->ReadSegmentInMemory();
+//}
+
+//void SegmentListVIIRS::doComposeSegmentImageVIIRS(Segment *t)
+//{
+//    t->ComposeSegmentImage();
+//}
 
 //void SegmentListVIIRS::doComposeProjection(Segment *t)
 //{
 //    t->ComposeProjectionConcurrent();
 //}
 
-SegmentListVIIRS::SegmentListVIIRS(SatelliteList *satl, QObject *parent)
+SegmentListVIIRS::SegmentListVIIRS(SatelliteList *satl, QObject *parent, eSegmentType type)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListVIIRS");
 
-    earthviews = 3200;
     satlist = satl;
+    segtype = type;
+
+    if(segtype == eSegmentType::SEG_VIIRSM)
+        earthviews = 3200;
+    else
+        earthviews = 4064;
 
 }
 
@@ -65,11 +75,11 @@ void SegmentListVIIRS::GetFirstLastVisibleSegmentData( QString *satnamefirst, QS
             *segdatefirst = QString("%1-%2-%3").arg(first_filename.mid(10,4)).arg(first_filename.mid(14,2)).arg(first_filename.mid(16,2));
             *segtimefirst = QString("%1:%2:%3").arg(first_filename.mid(20,2)).arg(first_filename.mid(22,2)).arg(first_filename.mid(24,2));
         }
-        if(last_filename.mid(0,8) == "SVMC_npp")
+        else if(last_filename.mid(0,10) == "SVDNBC_npp")
         {
             *satnamelast = last_filename.mid(5, 3);
-            *segdatelast = QString("%1-%2-%3").arg(last_filename.mid(10,4)).arg(last_filename.mid(14,2)).arg(last_filename.mid(16,2));
-            *segtimelast = QString("%1:%2:%3").arg(last_filename.mid(20,2)).arg(last_filename.mid(22,2)).arg(last_filename.mid(24,2));
+            *segdatelast = QString("%1-%2-%3").arg(last_filename.mid(12,4)).arg(last_filename.mid(16,2)).arg(last_filename.mid(18,2));
+            *segtimelast = QString("%1:%2:%3").arg(last_filename.mid(22,2)).arg(last_filename.mid(24,2)).arg(last_filename.mid(26,2));
         }
     }
     else
@@ -89,108 +99,520 @@ bool SegmentListVIIRS::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorl
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
     watcherreadviirs = new QFutureWatcher<void>(this);
-    connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirs()));
-    QFuture<void> future = QtConcurrent::run(doComposeVIIRSImageInThread, this, bandlist, colorlist, invertlist);
+
+    if(this->segtype == eSegmentType::SEG_VIIRSM)
+        connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirs()));
+    else if(this->segtype == eSegmentType::SEG_VIIRSDNB)
+        connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirsdnb()));
+
+    QFuture<void> future;
+    if(this->segtype == eSegmentType::SEG_VIIRSM)
+        future = QtConcurrent::run(doComposeVIIRSMImageInThread, this, bandlist, colorlist, invertlist);
+    else if(this->segtype == eSegmentType::SEG_VIIRSDNB)
+        future = QtConcurrent::run(doComposeVIIRSDNBImageInThread, this);
+    else
+        return false;
+
     watcherreadviirs->setFuture(future);
 
     return true;
 
 }
 
-//bool SegmentListVIIRS::ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
-//{
-
-//    progressresultready = 0;
-//    QApplication::setOverrideCursor( Qt::WaitCursor ); // reset in composefinishedviirs
-
-//    for (int i=0; i < 3; i++)
-//    {
-//        for (int j=0; j < 1024; j++)
-//        {
-//            imageptrs->segment_stats_ch[i][j] = 0;
-//            imageptrs->lut_ch[i][j] = 0;
-//        }
-//    }
-
-//    for(int k = 0; k < 3; k++)
-//    {
-//        imageptrs->stat_max_ch[k] = 0;
-//        imageptrs->stat_min_ch[k] = 9999999;
-//        this->stat_max_ch[k] = 0;
-//        this->stat_min_ch[k] = 9999999;
-//    }
-
-//    // Reset memory
-//    QList<Segment*>::iterator segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        Segment *segm = (Segment *)(*segsel);
-//        segm->resetMemory();
-//        ++segsel;
-//    }
-//    segsselected.clear();
-
-
-//    int startlinenbr = 0;
-//    int totalnbroflines = 0;
-
-//    QList<Segment*>::iterator segit = segmentlist.begin();
-
-//    // create QList of selected segments
-//    while ( segit != segmentlist.end() )
-//    {
-//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segit);
-
-//        if (segm->segmentselected)
-//        {
-//             segsselected.append(segm);
-//             totalnbroflines += 768;
-//        }
-//        ++segit;
-//    }
-
-
-//    segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-//        segm->setBandandColor(bandlist, colorlist, invertlist);
-//        segm->setStartLineNbr(startlinenbr);
-//        segm->initializeMemory();
-//        startlinenbr += segm->NbrOfLines;
-//        ++segsel;
-//    }
-
-//    emit progressCounter(10);
-
-//    // image pointers always = new QImage()
-//    if(imageptrs->ptrimageViirs != NULL)
-//    {
-//        delete imageptrs->ptrimageViirs;
-//        imageptrs->ptrimageViirs = NULL;
-//    }
-
-//    imageptrs->ptrimageViirs = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
-
-
-//    watcherreadviirs = new QFutureWatcher<void>(this);
-//    connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirs()));
-//    connect(watcherreadviirs, SIGNAL(progressValueChanged(int)), this, SLOT(progressreadvalue(int)));
-
-//    watcherreadviirs->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doReadSegmentInMemoryVIIRS));
-
-//    return true;
-//}
-
-bool SegmentListVIIRS::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
+#if 0
+bool SegmentListVIIRS::ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
 
-    qDebug() << "bool SegmentListVIIRS::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int> colorlist) started";
+    progressresultready = 0;
+    QApplication::setOverrideCursor( Qt::WaitCursor ); // reset in composefinishedviirs
+
+    for (int i=0; i < 3; i++)
+    {
+        for (int j=0; j < 1024; j++)
+        {
+            imageptrs->segment_stats_ch[i][j] = 0;
+            imageptrs->lut_ch[i][j] = 0;
+        }
+    }
+
+    for(int k = 0; k < 3; k++)
+    {
+        imageptrs->stat_max_ch[k] = 0;
+        imageptrs->stat_min_ch[k] = 9999999;
+        this->stat_max_ch[k] = 0;
+        this->stat_min_ch[k] = 9999999;
+    }
+
+    // Reset memory
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        segm->resetMemory();
+        ++segsel;
+    }
+    segsselected.clear();
+
+
+    int startlinenbr = 0;
+    int totalnbroflines = 0;
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+
+    // create QList of selected segments
+    while ( segit != segmentlist.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segit);
+
+        if (segm->segmentselected)
+        {
+             segsselected.append(segm);
+             totalnbroflines += 768;
+        }
+        ++segit;
+    }
+
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        segm->setBandandColor(bandlist, colorlist, invertlist);
+        segm->setStartLineNbr(startlinenbr);
+        segm->initializeMemory();
+        startlinenbr += segm->NbrOfLines;
+        ++segsel;
+    }
+
+    emit progressCounter(10);
+
+    // image pointers always = new QImage()
+    if(imageptrs->ptrimageViirs != NULL)
+    {
+        delete imageptrs->ptrimageViirs;
+        imageptrs->ptrimageViirs = NULL;
+    }
+
+    imageptrs->ptrimageViirs = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
+
+
+    watcherreadviirs = new QFutureWatcher<void>(this);
+    connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirs()));
+    connect(watcherreadviirs, SIGNAL(progressValueChanged(int)), this, SLOT(progressreadvalue(int)));
+
+    watcherreadviirs->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doReadSegmentInMemoryVIIRS));
+
+    return true;
+}
+
+#endif
+
+bool SegmentListVIIRS::ComposeVIIRSMImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
+{
+
+    qDebug() << "bool SegmentListVIIRS::ComposeVIIRSMImageInThread(QList<bool> bandlist, QList<int> colorlist) started";
 
     progressresultready = 0;
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     emit progressCounter(10);
+
+    for (int i=0; i < 3; i++)
+    {
+        for (int j=0; j < 1024; j++)
+        {
+            imageptrs->segment_stats_ch[i][j] = 0;
+            imageptrs->lut_ch[i][j] = 0;
+        }
+    }
+
+    for(int k = 0; k < 3; k++)
+    {
+        imageptrs->stat_max_ch[k] = 0;
+        imageptrs->stat_min_ch[k] = 9999999;
+        this->stat_max_ch[k] = 0;
+        this->stat_min_ch[k] = 9999999;
+    }
+
+    // Reset memory
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        segm->resetMemory();
+        ++segsel;
+    }
+    segsselected.clear();
+
+
+    int startlinenbr = 0;
+    int totalnbroflines = 0;
+    int totalnbrofsegments = 0;
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+
+    // create QList of selected segments
+    while ( segit != segmentlist.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segit);
+        if (segm->segmentselected)
+        {
+             segsselected.append(segm);
+             totalnbroflines += 768;
+             totalnbrofsegments++;
+        }
+        ++segit;
+    }
+
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+        segm->setBandandColor(bandlist, colorlist, invertlist);
+        segm->setStartLineNbr(startlinenbr);
+        segm->initializeMemory();
+        startlinenbr += segm->NbrOfLines;
+        ++segsel;
+    }
+
+
+    // image pointers always = new QImage()
+    if(imageptrs->ptrimageViirs != NULL)
+    {
+        delete imageptrs->ptrimageViirs;
+        imageptrs->ptrimageViirs = NULL;
+    }
+
+    imageptrs->ptrimageViirs = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
+
+    int deltaprogress = 99 / (totalnbrofsegments*2);
+    int totalprogress = 0;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+        segm->ReadSegmentInMemory();
+
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+
+        //QApplication::processEvents();
+        ++segsel;
+    }
+
+    bool composecolor;
+
+    long cnt_active_pixels = 0;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+        composecolor = segm->composeColorImage();
+
+        for(int i = 0; i < (composecolor ? 3 : 1); i++)
+        {
+            if( segm->stat_max_ch[i] > this->stat_max_ch[i])
+                this->stat_max_ch[i] = segm->stat_max_ch[i];
+            if( segm->stat_min_ch[i] < this->stat_min_ch[i])
+                this->stat_min_ch[i] = segm->stat_min_ch[i];
+        }
+        cnt_active_pixels += segm->active_pixels[0];
+        ++segsel;
+    }
+
+
+    for(int i = 0; i < (composecolor ? 3 : 1); i++)
+    {
+        imageptrs->stat_max_ch[i] = this->stat_max_ch[i];
+        imageptrs->stat_min_ch[i] = this->stat_min_ch[i];
+    }
+
+    imageptrs->active_pixels = cnt_active_pixels;
+
+    CalculateLUT();
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+        segm->ComposeSegmentImage();
+
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+
+        QApplication::processEvents();
+        ++segsel;
+    }
+    qDebug() << " SegmentListVIIRS::ComposeVIIRSMImageInThread Finished !!";
+
+    QApplication::restoreOverrideCursor();
+
+    emit segmentlistfinished();
+    emit progressCounter(100);
+
+
+    return true;
+
+}
+
+bool SegmentListVIIRS::ComposeVIIRSDNBImageInThread()
+{
+
+    qDebug() << "bool SegmentListVIIRS::ComposeVIIRSDNBImageInThread(QList<bool> bandlist, QList<int> colorlist) started";
+
+    progressresultready = 0;
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+
+    emit progressCounter(10);
+
+
+    // Reset memory
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        segm->resetMemory();
+        ++segsel;
+    }
+    segsselected.clear();
+
+    int startlinenbr = 0;
+    int totalnbroflines = 0;
+    int totalnbrofsegments = 0;
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+
+    // create QList of selected segments
+    while ( segit != segmentlist.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segit);
+        if (segm->segmentselected)
+        {
+             segsselected.append(segm);
+             totalnbroflines += 768;
+             totalnbrofsegments++;
+        }
+        ++segit;
+    }
+
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        segm->setStartLineNbr(startlinenbr);
+        segm->initializeMemory();
+        startlinenbr += segm->NbrOfLines;
+        ++segsel;
+    }
+
+
+    // image pointers always = new QImage()
+    if(imageptrs->ptrimageViirs != NULL)
+    {
+        delete imageptrs->ptrimageViirs;
+        imageptrs->ptrimageViirs = NULL;
+    }
+
+    imageptrs->ptrimageViirs = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
+
+    int deltaprogress = 99 / (totalnbrofsegments*2);
+    int totalprogress = 0;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        segm->ReadSegmentInMemory();
+
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+        ++segsel;
+    }
+
+/*
+    stat_max_dnb = -1.0E31;
+    stat_min_dnb = 1.0E31;
+
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+
+        if( segm->stat_max > this->stat_max_dnb)
+            this->stat_max_dnb = segm->stat_max;
+        if( segm->stat_min < this->stat_min_dnb)
+            this->stat_min_dnb = segm->stat_min;
+        ++segsel;
+    }
+
+
+    imageptrs->stat_max_dnb = this->stat_max_dnb;
+    imageptrs->stat_min_dnb = this->stat_min_dnb;
+
+    qDebug() << QString("imageptrs stat_min = %1 stat_max = %2").arg(imageptrs->stat_min_dnb).arg(imageptrs->stat_max_dnb);
+*/
+
+    //CalculateLUTDNB();
+
+    float lowerlimit = pow(10, opts.dnbsbvalue/20.0)/pow(10, opts.dnbspbwindowsvalue);
+    float upperlimit = pow(10, opts.dnbsbvalue/20.0)*pow(10, opts.dnbspbwindowsvalue);
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+
+        segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
+
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+        ++segsel;
+    }
+    qDebug() << " SegmentListVIIRS::ComposeVIIRSDNBImageInThread Finished !!";
+
+//    QApplication::restoreOverrideCursor();
+
+    emit segmentlistfinished();
+    emit progressCounter(100);
+
+
+    return true;
+
+}
+
+void SegmentListVIIRS::CalculateLUTDNB()
+{
+    qDebug() << "start SegmentListVIIRS::CalculateLUTDNB()";
+    int earth_views;
+    long stats_ch[256];
+
+    for (int j = 0; j < 256; j++)
+    {
+        stats_ch[j] = 0;
+    }
+
+
+    for( int exp = -15; exp < -4; exp++)
+    {
+        float topow = pow(10, exp);
+        int teller = 0;
+        float dexpo = topow;
+        float dexpo1 = 0.5 * topow;
+        int index = (15 + exp) * 20;
+
+        qDebug() << QString("index = %1 dexpo = %2 dexpo1 = %3").arg(index).arg(dexpo).arg(dexpo1);
+
+        teller++;
+
+        for(float man = 0.5; man < 10.0; man+=0.5)
+        {
+            float dexpo = man * topow;
+            float dexpo1 = (man + 0.5) * topow;
+            int index = (15 + exp) * 20 + teller;
+
+            qDebug() << QString("index = %1 dexpo = %2 dexpo1 = %3").arg(index).arg(dexpo).arg(dexpo1);
+            teller++;
+        }
+    }
+
+    int counter;
+
+    QList<Segment *>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        earth_views = segm->earth_views_per_scanline;
+
+        for (int line = 0; line < segm->NbrOfLines; line++)
+        {
+            for (int pixelx = 0; pixelx < segm->earth_views_per_scanline; pixelx++)
+            {
+                float pixel = *(segm->ptrbaVIIRSDNB + line * segm->earth_views_per_scanline + pixelx);
+               {
+//                    float delta = stat_max_dnb - stat_min_dnb;
+//                    float deltapixel = pixel - stat_min_dnb;
+//                    float breuk = deltapixel / delta;
+//                    if(line == 100 && pixelx > 2000 && pixelx < 2011)
+//                    {
+//                         qDebug() << QString("pixel = %1 deltapixel = %2 delta = %3 breuk = %4 stat_max_dnb = %5 stat_min_dnb = %6")
+//                                             .arg(pixel).arg(deltapixel).arg(delta).arg(breuk).arg(stat_max_dnb).arg(stat_min_dnb);
+//                    }
+//                    float pp = (pixel - stat_min_dnb) / (stat_max_dnb - stat_min_dnb);
+//                    int pixcalc = (int)(255 * (pixel - stat_min_dnb) / (stat_max_dnb - stat_min_dnb));
+//                    pixcalc = ( pixcalc < 0 ? 0 : pixcalc);
+//                    pixcalc = ( pixcalc > 255 ? 255 : pixcalc );
+//                    stats_ch[pixcalc]++;
+
+                    //float thepow[]
+
+
+
+                    for( int exp = -15; exp < -4; exp++)
+                    {
+                        float topow = pow(10, exp);
+                        float dexpo = topow;
+                        float dexpo1 = 0.5 * topow;
+                        if(pixel >= dexpo && pixel < dexpo1)
+                        {
+                            int index = (15 + exp) * 20;
+                            stats_ch[index]++;
+                        }
+                        counter = 1;
+
+                        for(float man = 0.5; man < 10.0; man+=0.5)
+                        {
+                            dexpo = man * topow;
+                            dexpo1 = (man + 0.5) * topow;
+                            if(pixel >= dexpo && pixel < dexpo1)
+                            {
+                                int index = (15 + exp) * 20 + counter;
+                                stats_ch[index]++;
+                            }
+                            counter++;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        ++segsel;
+    }
+
+//    float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
+//    float scale = 256.0 / imageptrs->active_pixels;
+
+//    unsigned long long sum_ch = 0;
+
+//    for( int i = 0; i < 256; i++)
+//    {
+//        sum_ch += stats_ch[i];
+//        imageptrs->lut_ch[0][i] = (quint16)(sum_ch * scale);
+//        imageptrs->lut_ch[0][i] = ( imageptrs->lut_ch[0][i] > 255 ? 255 : imageptrs->lut_ch[0][i]);
+//        qDebug() << i << " " << lut_ch[0][i];
+//    }
+
+    for (int j = 0; j < 256; j++)
+    {
+        qDebug() << j << " " << stats_ch[j];
+    }
+
+}
+
+
+#if 0
+bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
+{
+
+    qDebug() << "bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist) started";
+
+    progressresultready = 0;
+    QApplication::setOverrideCursor( Qt::WaitCursor );
 
     for (int i=0; i < 3; i++)
     {
@@ -273,7 +695,7 @@ bool SegmentListVIIRS::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
 
-        //QApplication::processEvents();
+        QApplication::processEvents();
         ++segsel;
     }
 
@@ -325,120 +747,71 @@ bool SegmentListVIIRS::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int
 
 
     return true;
+}
+
+
+ Problems with reopen the hdf5 files in a concurrent environment .... does not work.
+ Serial solution works.
+bool SegmentListVIIRS::ShowImage(QList<bool> bandlist, QList<int> colorlist)
+{
+
+    progressresultready = 0;
+    QApplication::setOverrideCursor( Qt::WaitCursor ); // reset in composefinishedviirs
+
+    for (int i=0; i < 3; i++)
+    {
+        for (int j=0; j < 1024; j++)
+        {
+            imageptrs->segment_stats_ch[i][j] = 0;
+            imageptrs->lut_ch[i][j] = 0;
+        }
+    }
+
+    for(int k = 0; k < 3; k++)
+    {
+        imageptrs->stat_max_ch[k] = 0;
+        imageptrs->stat_min_ch[k] = 9999999;
+        this->stat_max_ch[k] = 0;
+        this->stat_min_ch[k] = 9999999;
+    }
+
+
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        segm->setBandandColor(bandlist, colorlist);
+        segm->initializeMemory();
+        ++segsel;
+    }
+
+
+    watcherreadviirs = new QFutureWatcher<void>(this);
+    connect(watcherreadviirs, SIGNAL(resultReadyAt(int)), SLOT(resultisreadyviirs(int)));
+    connect(watcherreadviirs, SIGNAL(finished()), SLOT(readfinishedviirs()));
+
+    watcherreadviirs->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doReadDatasetsInMemoryVIIRS));
+
+    return true;
 
 }
 
-//void SegmentListVIIRS::viirsFinished()
+#endif
+
+//void SegmentListVIIRS::readfinishedviirs()
 //{
-//    QApplication::restoreOverrideCursor();
+//    qDebug() << "SegmentListVIIRS::readfinishedviirs()";
 
-//    qDebug() << "viirsFinished()";
+//    delete watcherreadviirs;
 
-//    emit segmentlistfinished();
-//    emit progressCounter(100);
-
-//}
-
-
-//bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
-//{
-
-//    qDebug() << "bool SegmentListVIIRS::ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist) started";
-
-//    progressresultready = 0;
-//    QApplication::setOverrideCursor( Qt::WaitCursor );
-
-//    for (int i=0; i < 3; i++)
-//    {
-//        for (int j=0; j < 1024; j++)
-//        {
-//            imageptrs->segment_stats_ch[i][j] = 0;
-//            imageptrs->lut_ch[i][j] = 0;
-//        }
-//    }
-
-//    for(int k = 0; k < 3; k++)
-//    {
-//        imageptrs->stat_max_ch[k] = 0;
-//        imageptrs->stat_min_ch[k] = 9999999;
-//        this->stat_max_ch[k] = 0;
-//        this->stat_min_ch[k] = 9999999;
-//    }
-
-//    // Reset memory
-//    QList<Segment*>::iterator segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        Segment *segm = (Segment *)(*segsel);
-//        segm->resetMemory();
-//        ++segsel;
-//    }
-//    segsselected.clear();
-
-
-//    int startlinenbr = 0;
-//    int totalnbroflines = 0;
-//    int totalnbrofsegments = 0;
-
-//    QList<Segment*>::iterator segit = segmentlist.begin();
-
-//    // create QList of selected segments
-//    while ( segit != segmentlist.end() )
-//    {
-//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segit);
-//        if (segm->segmentselected)
-//        {
-//             segsselected.append(segm);
-//             totalnbroflines += 768;
-//             totalnbrofsegments++;
-//        }
-//        ++segit;
-//    }
-
-
-//    segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-//        segm->setBandandColor(bandlist, colorlist, invertlist);
-//        segm->setStartLineNbr(startlinenbr);
-//        segm->initializeMemory();
-//        startlinenbr += segm->NbrOfLines;
-//        ++segsel;
-//    }
-
-
-//    // image pointers always = new QImage()
-//    if(imageptrs->ptrimageViirs != NULL)
-//    {
-//        delete imageptrs->ptrimageViirs;
-//        imageptrs->ptrimageViirs = NULL;
-//    }
-
-//    imageptrs->ptrimageViirs = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
-
-//    int deltaprogress = 99 / (totalnbrofsegments*2);
-//    int totalprogress = 0;
-
-//    segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-//        segm->ReadSegmentInMemory();
-
-//        totalprogress += deltaprogress;
-//        emit progressCounter(totalprogress);
-
-//        QApplication::processEvents();
-//        ++segsel;
-//    }
+//    int cntsegments = 0;
 
 //    bool composecolor;
 
-//    segsel = segsselected.begin();
+//    QList<Segment *>::iterator segsel = segsselected.begin();
 //    while ( segsel != segsselected.end() )
 //    {
-//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+//        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
 //        composecolor = segm->composeColorImage();
 
 //        for(int i = 0; i < (composecolor ? 3 : 1); i++)
@@ -448,6 +821,7 @@ bool SegmentListVIIRS::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int
 //            if( segm->stat_min_ch[i] < this->stat_min_ch[i])
 //                this->stat_min_ch[i] = segm->stat_min_ch[i];
 //        }
+//        cntsegments++;
 //        ++segsel;
 //    }
 
@@ -460,117 +834,34 @@ bool SegmentListVIIRS::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int
 
 //    CalculateLUT();
 
-//    segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-//        segm->ComposeSegmentImage();
-
-//        totalprogress += deltaprogress;
-//        emit progressCounter(totalprogress);
-
-//        QApplication::processEvents();
-//        ++segsel;
-//    }
-//    qDebug() << " SegmentListVIIRS::ComposeVIIRSImageSerial Finished !!";
-
-//    QApplication::restoreOverrideCursor();
-
-//    emit segmentlistfinished();
-//    emit progressCounter(100);
-
-
-//    return true;
-//}
-
-
-// Problems with reopen the hdf5 files in a concurrent environment .... does not work.
-// Serial solution works.
-//bool SegmentListVIIRS::ShowImage(QList<bool> bandlist, QList<int> colorlist)
-//{
-
-//    progressresultready = 0;
-//    QApplication::setOverrideCursor( Qt::WaitCursor ); // reset in composefinishedviirs
-
-//    for (int i=0; i < 3; i++)
-//    {
-//        for (int j=0; j < 1024; j++)
-//        {
-//            imageptrs->segment_stats_ch[i][j] = 0;
-//            imageptrs->lut_ch[i][j] = 0;
-//        }
-//    }
-
-//    for(int k = 0; k < 3; k++)
-//    {
-//        imageptrs->stat_max_ch[k] = 0;
-//        imageptrs->stat_min_ch[k] = 9999999;
-//        this->stat_max_ch[k] = 0;
-//        this->stat_min_ch[k] = 9999999;
-//    }
-
-
-//    QList<Segment*>::iterator segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-//        segm->setBandandColor(bandlist, colorlist);
-//        segm->initializeMemory();
-//        ++segsel;
-//    }
-
-
-//    watcherreadviirs = new QFutureWatcher<void>(this);
-//    connect(watcherreadviirs, SIGNAL(resultReadyAt(int)), SLOT(resultisreadyviirs(int)));
-//    connect(watcherreadviirs, SIGNAL(finished()), SLOT(readfinishedviirs()));
-
-//    watcherreadviirs->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doReadDatasetsInMemoryVIIRS));
-
-//    return true;
-
+//    watchercomposeviirs = new QFutureWatcher<void>(this);
+//    connect(watchercomposeviirs, SIGNAL(finished()), SLOT(composefinishedviirs()));
+//    watchercomposeviirs->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doComposeSegmentImageVIIRS));
 //}
 
 void SegmentListVIIRS::readfinishedviirs()
 {
-    qDebug() << "SegmentListVIIRS::readfinishedviirs()";
 
+    qDebug() << "=============>SegmentListVIIRS::readfinishedviirs()";
+    emit progressCounter(100);
+    opts.texture_changed = true;
+    QApplication::restoreOverrideCursor();
     delete watcherreadviirs;
 
-    int cntsegments = 0;
-
-    bool composecolor;
-
-    QList<Segment *>::iterator segsel = segsselected.begin();
-    while ( segsel != segsselected.end() )
-    {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
-        composecolor = segm->composeColorImage();
-
-        for(int i = 0; i < (composecolor ? 3 : 1); i++)
-        {
-            if( segm->stat_max_ch[i] > this->stat_max_ch[i])
-                this->stat_max_ch[i] = segm->stat_max_ch[i];
-            if( segm->stat_min_ch[i] < this->stat_min_ch[i])
-                this->stat_min_ch[i] = segm->stat_min_ch[i];
-        }
-        cntsegments++;
-        ++segsel;
-    }
-
-
-    for(int i = 0; i < (composecolor ? 3 : 1); i++)
-    {
-        imageptrs->stat_max_ch[i] = this->stat_max_ch[i];
-        imageptrs->stat_min_ch[i] = this->stat_min_ch[i];
-    }
-
-    CalculateLUT();
-
-    watchercomposeviirs = new QFutureWatcher<void>(this);
-    connect(watchercomposeviirs, SIGNAL(finished()), SLOT(composefinishedviirs()));
-    watchercomposeviirs->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doComposeSegmentImageVIIRS));
+    emit segmentlistfinished();
 }
 
+void SegmentListVIIRS::readfinishedviirsdnb()
+{
+
+    qDebug() << "=============>SegmentListVIIRS::readfinishedviirsdnb()";
+    emit progressCounter(100);
+    opts.texture_changed = true;
+    QApplication::restoreOverrideCursor();
+    delete watcherreadviirs;
+
+    emit segmentlistfinished();
+}
 
 void SegmentListVIIRS::composefinishedviirs()
 {
@@ -597,7 +888,7 @@ void SegmentListVIIRS::progressreadvalue(int progress)
     qDebug() << QString("SegmentListVIIRS::progressreadvalue( %1 )").arg(progress);
 }
 
-void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
+void SegmentListVIIRS::ShowImageSerialM(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
 
     progressresultready = 0;
@@ -624,7 +915,7 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
     QList<Segment*>::iterator segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         segm->setBandandColor(bandlist, colorlist, invertlist);
         segm->initializeMemory();
         ++segsel;
@@ -633,17 +924,19 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         segm->ReadDatasetsInMemory();
         ++segsel;
     }
 
     bool composecolor;
 
+    long cnt_active_pixels = 0;
+
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         composecolor = segm->composeColorImage();
 
         for(int i = 0; i < (composecolor ? 3 : 1); i++)
@@ -653,6 +946,7 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
             if( segm->stat_min_ch[i] < this->stat_min_ch[i])
                 this->stat_min_ch[i] = segm->stat_min_ch[i];
         }
+        cnt_active_pixels += segm->active_pixels[0];
         ++segsel;
     }
 
@@ -663,16 +957,103 @@ void SegmentListVIIRS::ShowImageSerial(QList<bool> bandlist, QList<int> colorlis
         imageptrs->stat_min_ch[i] = this->stat_min_ch[i];
     }
 
+    imageptrs->active_pixels = cnt_active_pixels;
+
     CalculateLUT();
 
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         segm->ComposeSegmentImage();
         ++segsel;
     }
-    qDebug() << " SegmentListVIIRS::ShowImageSerial Finished !!";
+    qDebug() << " SegmentListVIIRS::ShowImageSerialM Finished !!";
+
+    QApplication::restoreOverrideCursor();
+
+    emit segmentlistfinished();
+    emit progressCounter(100);
+}
+
+void SegmentListVIIRS::ShowImageSerialDNB()
+{
+
+    progressresultready = 0;
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+
+    for (int i=0; i < 3; i++)
+    {
+        for (int j=0; j < 1024; j++)
+        {
+            imageptrs->segment_stats_ch[i][j] = 0;
+            imageptrs->lut_ch[i][j] = 0;
+        }
+    }
+
+    for(int k = 0; k < 3; k++)
+    {
+        imageptrs->stat_max_ch[k] = 0;
+        imageptrs->stat_min_ch[k] = 9999999;
+        this->stat_max_ch[k] = 0;
+        this->stat_min_ch[k] = 9999999;
+    }
+
+
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        segm->initializeMemory();
+        ++segsel;
+    }
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        segm->ReadDatasetsInMemory();
+        ++segsel;
+    }
+
+
+    long cnt_active_pixels = 0;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+
+//        for(int i = 0; i < (composecolor ? 3 : 1); i++)
+//        {
+//            if( segm->stat_max_ch[i] > this->stat_max_ch[i])
+//                this->stat_max_ch[i] = segm->stat_max_ch[i];
+//            if( segm->stat_min_ch[i] < this->stat_min_ch[i])
+//                this->stat_min_ch[i] = segm->stat_min_ch[i];
+//        }
+        cnt_active_pixels += segm->active_pixels[0];
+        ++segsel;
+    }
+
+
+//    for(int i = 0; i < (composecolor ? 3 : 1); i++)
+//    {
+//        imageptrs->stat_max_ch[i] = this->stat_max_ch[i];
+//        imageptrs->stat_min_ch[i] = this->stat_min_ch[i];
+//    }
+
+    imageptrs->active_pixels = cnt_active_pixels;
+
+//    CalculateLUTDNB();
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        segm->ComposeSegmentImage();
+        ++segsel;
+    }
+    qDebug() << " SegmentListVIIRS::ShowImageSerialDNB Finished !!";
 
     QApplication::restoreOverrideCursor();
 
@@ -699,7 +1080,7 @@ void SegmentListVIIRS::CalculateLUT()
     QList<Segment *>::iterator segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         composecolor = segm->composeColorImage();
         earth_views = segm->earth_views_per_scanline;
 
@@ -723,7 +1104,8 @@ void SegmentListVIIRS::CalculateLUT()
         ++segsel;
     }
 
-    float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
+    // float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
+    float newscale = 256.0 / imageptrs->active_pixels;
 
     unsigned long long sum_ch[3];
 
@@ -738,11 +1120,12 @@ void SegmentListVIIRS::CalculateLUT()
         for(int k = 0; k < (composecolor ? 3 : 1); k++)
         {
             sum_ch[k] += stats_ch[k][i];
-            imageptrs->lut_ch[k][i] = (quint16)(sum_ch[k] * scale);
+            imageptrs->lut_ch[k][i] = (quint16)(sum_ch[k] * newscale);
             imageptrs->lut_ch[k][i] = ( imageptrs->lut_ch[k][i] > 255 ? 255 : imageptrs->lut_ch[k][i]);
         }
     }
 }
+
 
 void SegmentListVIIRS::SmoothVIIRSImage()
 {
@@ -754,11 +1137,11 @@ void SegmentListVIIRS::SmoothVIIRSImage()
     QList<Segment *>::iterator segsel;
     segsel = segsselected.begin();
 
-    SegmentVIIRS *segmsave;
+    SegmentVIIRSM *segmsave;
 
     while ( segsel != segsselected.end() )
     {
-        SegmentVIIRS *segm = (SegmentVIIRS *)(*segsel);
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         if(segsel != segsselected.begin())
             BilinearBetweenSegments(segmsave, segm);
         segmsave = segm;
@@ -797,7 +1180,7 @@ void SegmentListVIIRS::SmoothVIIRSImage()
 
 }
 
-void SegmentListVIIRS::printData(SegmentVIIRS *segm, int linesfrom, int viewsfrom)
+void SegmentListVIIRS::printData(SegmentVIIRSM *segm, int linesfrom, int viewsfrom)
 {
     int yaaa = 0;
     int xaaa = 0;
@@ -845,587 +1228,53 @@ inline bool SegmentListVIIRS::PixelOK(int pix)
     return (pix > 0 && pix < 65528 ? true : false);
 }
 
-
-void SegmentListVIIRS::BilinearBetweenSegments(SegmentVIIRS *segmfirst, SegmentVIIRS *segmnext)
+void SegmentListVIIRS::sliderCentreBandChanged(int val)
 {
-    qint32 x11;
-    qint32 y11;
-    QRgb rgb11;
+    float fval = val/20.0;
+    qDebug() << QString("Value sliderCentreBandChanged value = %1").arg(pow(10,fval));
 
-    qint32 x12;
-    qint32 y12;
-    QRgb rgb12;
 
-    qint32 x21;
-    qint32 y21;
-    QRgb rgb21;
+    float lowerlimit = pow(10, val/20.0)/pow(10, opts.dnbspbwindowsvalue);
+    float upperlimit = pow(10, val/20.0)*pow(10, opts.dnbspbwindowsvalue);
 
-    qint32 x22;
-    qint32 y22;
-    QRgb rgb22;
+    qDebug() << QString("lowerlimit = %1").arg(lowerlimit);
+    qDebug() << QString("upperlimit = %1").arg(upperlimit);
 
-    qint32 xc11;
-    qint32 yc11;
-
-    qint32 xc12;
-    qint32 yc12;
-
-    qint32 xc21;
-    qint32 yc21;
-
-    qint32 xc22;
-    qint32 yc22;
-
-    qint32 minx;
-    qint32 miny;
-    qint32 maxx;
-    qint32 maxy;
-
-    qint32 anchorX;
-    qint32 anchorY;
-
-    int dimx, dimy;
-
-    long counter = 0;
-    long counterb = 0;
-
-    QRgb *canvas;
-
-    for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
     {
-        x11 = segmfirst->getProjectionX(767, pixelx);
-        y11 = segmfirst->getProjectionY(767, pixelx);
-
-        x12 = segmfirst->getProjectionX(767, pixelx+1);
-        y12 = segmfirst->getProjectionY(767, pixelx+1);
-
-        x21 = segmnext->getProjectionX(0, pixelx);
-        y21 = segmnext->getProjectionY(0, pixelx);
-
-        x22 = segmnext->getProjectionX(0, pixelx+1);
-        y22 = segmnext->getProjectionY(0, pixelx+1);
-
-        if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
-                && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
-                && x11 >= -3 && x12 >= -3 && x21 >= -3 && x22 >= -3
-                && y11 >= -3 && y12 >= -3 && y21 >= -3 && y22 >= -3 )
-        {
-
-            minx = Min(x11, x12, x21, x22);
-            miny = Min(y11, y12, y21, y22);
-            maxx = Max(x11, x12, x21, x22);
-            maxy = Max(y11, y12, y21, y22);
-
-            anchorX = minx;
-            anchorY = miny;
-            dimx = maxx + 1 - minx;
-            dimy = maxy + 1 - miny;
-            if( dimx == 1 && dimy == 1 )
-            {
-                counter++;
-            }
-            else
-            {
-                rgb11 = segmfirst->getProjectionValue(767, pixelx);
-                rgb12 = segmfirst->getProjectionValue(767, pixelx+1);
-                rgb21 = segmnext->getProjectionValue(0, pixelx);
-                rgb22 = segmnext->getProjectionValue(0, pixelx+1);
-
-                xc11 = x11 - minx;
-                xc12 = x12 - minx;
-                xc21 = x21 - minx;
-                xc22 = x22 - minx;
-                yc11 = y11 - miny;
-                yc12 = y12 - miny;
-                yc21 = y21 - miny;
-                yc22 = y22 - miny;
-
-                canvas = new QRgb[dimx * dimy];
-                for(int i = 0 ; i < dimx * dimy ; i++)
-                    canvas[i] = qRgba(0,0,0,0);
-
-                canvas[yc11 * dimx + xc11] = rgb11;
-                canvas[yc12 * dimx + xc12] = rgb12;
-                canvas[yc21 * dimx + xc21] = rgb21;
-                canvas[yc22 * dimx + xc22] = rgb22;
-
-
-                bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
-                bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
-                bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
-                bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
-
-                MapInterpolation(canvas, dimx, dimy);
-                MapCanvas(canvas, anchorX, anchorY, dimx, dimy);
-
-                delete [] canvas;
-                counterb++;
-            }
-        }
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
+        ++segsel;
     }
-
-
-    qDebug() << QString("====> end SegmentListVIIRS::BilinearInbetween(SegmentVIIRS *segmfirst, SegmentVIIRS *segmnext) counter = %1 counterb = %2").arg(counter).arg(counterb);
+    emit segmentlistfinished();
+    QApplication::restoreOverrideCursor();
 
 }
 
-void SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm)
+void SegmentListVIIRS::spbWindowValueChanged(int spbwindowval, int slcentreband)
 {
-    qint32 x11;
-    qint32 y11;
-    QRgb rgb11;
+    float fval = spbwindowval;
 
-    qint32 x12;
-    qint32 y12;
-    QRgb rgb12;
+    qDebug() << QString("Value WindowBandChanged value = %1").arg(pow(10, fval));
 
-    qint32 x21;
-    qint32 y21;
-    QRgb rgb21;
+    opts.dnbspbwindowsvalue = spbwindowval;
 
-    qint32 x22;
-    qint32 y22;
-    QRgb rgb22;
+    float lowerlimit = pow(10, slcentreband/20.0)/pow(10, opts.dnbspbwindowsvalue);
+    float upperlimit = pow(10, slcentreband/20.0)*pow(10, opts.dnbspbwindowsvalue);
 
-    qint32 xc11;
-    qint32 yc11;
+    qDebug() << QString("lowerlimit = %1").arg(lowerlimit);
+    qDebug() << QString("upperlimit = %1").arg(upperlimit);
 
-    qint32 xc12;
-    qint32 yc12;
 
-    qint32 xc21;
-    qint32 yc21;
-
-    qint32 xc22;
-    qint32 yc22;
-
-    qint32 minx;
-    qint32 miny;
-    qint32 maxx;
-    qint32 maxy;
-
-    qint32 anchorX;
-    qint32 anchorY;
-
-    int dimx, dimy;
-
-    long counter = 0;
-    long counterb = 0;
-
-    QRgb *canvas;
-
-    qDebug() << "===> start SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm)";
-    for (int line = 0; line < segm->NbrOfLines-1; line++)
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
     {
-        for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
-        {
-            x11 = segm->getProjectionX(line, pixelx);
-            y11 = segm->getProjectionY(line, pixelx);
-
-            x12 = segm->getProjectionX(line, pixelx+1);
-            y12 = segm->getProjectionY(line, pixelx+1);
-
-            x21 = segm->getProjectionX(line+1, pixelx);
-            y21 = segm->getProjectionY(line+1, pixelx);
-
-            x22 = segm->getProjectionX(line+1, pixelx+1);
-            y22 = segm->getProjectionY(line+1, pixelx+1);
-
-            if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
-                    && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
-                    && x11 >= -3 && x12 >= -3 && x21 >= -3 && x22 >= -3
-                    && y11 >= -3 && y12 >= -3 && y21 >= -3 && y22 >= -3 )
-            {
-                minx = Min(x11, x12, x21, x22);
-                miny = Min(y11, y12, y21, y22);
-                maxx = Max(x11, x12, x21, x22);
-                maxy = Max(y11, y12, y21, y22);
-
-                anchorX = minx;
-                anchorY = miny;
-                dimx = maxx + 1 - minx;
-                dimy = maxy + 1 - miny;
-                if( dimx == 1 && dimy == 1 )
-                {
-                    counter++;
-                }
-                else
-                {
-                    rgb11 = segm->getProjectionValue(line, pixelx);
-                    rgb12 = segm->getProjectionValue(line, pixelx+1);
-                    rgb21 = segm->getProjectionValue(line+1, pixelx);
-                    rgb22 = segm->getProjectionValue(line+1, pixelx+1);
-
-
-                    xc11 = x11 - minx;
-                    xc12 = x12 - minx;
-                    xc21 = x21 - minx;
-                    xc22 = x22 - minx;
-                    yc11 = y11 - miny;
-                    yc12 = y12 - miny;
-                    yc21 = y21 - miny;
-                    yc22 = y22 - miny;
-
-                    canvas = new QRgb[dimx * dimy];
-                    for(int i = 0 ; i < dimx * dimy ; i++)
-                        canvas[i] = qRgba(0,0,0,0);
-
-                    canvas[yc11 * dimx + xc11] = rgb11;
-                    canvas[yc12 * dimx + xc12] = rgb12;
-                    canvas[yc21 * dimx + xc21] = rgb21;
-                    canvas[yc22 * dimx + xc22] = rgb22;
-
-
-//                    for ( int i = 0; i < dimy; i++ )
-//                    {
-//                       for ( int j = 0; j < dimx; j++ )
-//                       {
-//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
-//                       }
-//                       std::cout << std::endl;
-//                    }
-
-//                    std::cout << "....................................... line " << line << " pixelx = " << pixelx << std::endl;
-
-                    bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
-                    bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
-                    bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
-                    bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
-
-//                    for ( int i = 0; i < dimy; i++ )
-//                    {
-//                       for ( int j = 0; j < dimx; j++ )
-//                       {
-//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
-//                       }
-//                       std::cout << std::endl;
-//                    }
-
-//                    std::cout << "-------------------------------------- line " << line << " pixelx = " << pixelx << std::endl;
-
-                    MapInterpolation(canvas, dimx, dimy);
-                    MapCanvas(canvas, anchorX, anchorY, dimx, dimy);
-
-//                    for ( int i = 0; i < dimy; i++ )
-//                    {
-//                       for ( int j = 0; j < dimx; j++ )
-//                       {
-//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
-//                       }
-//                       std::cout << std::endl;
-//                    }
-
-//                    std::cout << "================================= line " << line << " pixelx = " << pixelx << std::endl;
-
-                    delete [] canvas;
-                    counterb++;
-                }
-            }
-        }
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
+        ++segsel;
     }
-
-    qDebug() << QString("====> end SegmentListVIIRS::BilinearInterpolation(SegmentVIIRS *segm) counter = %1 countern = %2").arg(counter).arg(counterb);
+    emit segmentlistfinished();
+    QApplication::restoreOverrideCursor();
 
 }
-
-
-bool SegmentListVIIRS::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx)
-{
-    int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
-    int deltared, deltagreen, deltablue;
-    dx=x2-x1;
-    dy=y2-y1;
-    dx1=abs(dx);
-    dy1=abs(dy);
-    px=2*dy1-dx1;
-    py=2*dx1-dy1;
-
-
-    if(dy1<=dx1)
-    {
-        if(dx1==0)
-            return false;
-
-        if(dx>=0)
-        {
-            x=x1;
-            y=y1;
-            xe=x2;
-            deltared = (qRed(rgb2) - qRed(rgb1))/ dx1 ;
-            deltagreen = (qGreen(rgb2) - qGreen(rgb1))/ dx1 ;
-            deltablue = (qBlue(rgb2) - qBlue(rgb1))/ dx1 ;
-//            canvas[y * yy + x] = val1;
-
-        }
-        else
-        {
-            x=x2;
-            y=y2;
-            xe=x1;
-            deltared = (qRed(rgb1) - qRed(rgb2))/ dx1 ;
-            deltagreen = (qGreen(rgb1) - qGreen(rgb2))/ dx1 ;
-            deltablue = (qBlue(rgb1) - qBlue(rgb2))/ dx1 ;
-//            canvas[y * yy + x] = val2;
-
-        }
-
-        for(i=0;x<xe;i++)
-        {
-            x=x+1;
-
-            if(px<0)
-            {
-                px=px+2*dy1;
-            }
-            else
-            {
-                if((dx<0 && dy<0) || (dx>0 && dy>0))
-                {
-                    y=y+1;
-                }
-                else
-                {
-                    y=y-1;
-                }
-                px=px+2*(dy1-dx1);
-            }
-            if(dx>=0)
-            {
-                rgb1 = qRgb(qRed(rgb1) + deltared, qGreen(rgb1) + deltagreen, qBlue(rgb1) + deltablue );
-                if( x != xe)
-                    canvas[y * dimx + x] = rgb1;
-            }
-            else
-            {
-                rgb2 = qRgb(qRed(rgb2) + deltared, qGreen(rgb2) + deltagreen, qBlue(rgb2) + deltablue );
-                if( x != xe)
-                    canvas[y * dimx + x] = rgb2;
-            }
-
-        }
-    }
-    else
-    {
-        if(dy1==0)
-            return false;
-
-        if(dy>=0)
-        {
-            x=x1;
-            y=y1;
-            ye=y2;
-            deltared = (qRed(rgb2) - qRed(rgb1))/ dy1 ;
-            deltagreen = (qGreen(rgb2) - qGreen(rgb1))/ dy1 ;
-            deltablue = (qBlue(rgb2) - qBlue(rgb1))/ dy1 ;
-
-//            canvas[y * yy + x] = val1;
-        }
-        else
-        {
-            x=x2;
-            y=y2;
-            ye=y1;
-            deltared = (qRed(rgb1) - qRed(rgb2))/ dy1 ;
-            deltagreen = (qGreen(rgb1) - qGreen(rgb2))/ dy1 ;
-            deltablue = (qBlue(rgb1) - qBlue(rgb2))/ dy1 ;
-
-//            canvas[y * yy + x] = val2;
-        }
-
-
-        for(i=0;y<ye;i++)
-        {
-            y=y+1;
-
-            if(py<=0)
-            {
-                py=py+2*dx1;
-            }
-            else
-            {
-                if((dx<0 && dy<0) || (dx>0 && dy>0))
-                {
-                    x=x+1;
-                }
-                else
-                {
-                    x=x-1;
-                }
-                py=py+2*(dx1-dy1);
-            }
-            if(dy>=0)
-            {
-                rgb1 = qRgb(qRed(rgb1) + deltared, qGreen(rgb1) + deltagreen, qBlue(rgb1) + deltablue );
-                if( y != ye)
-                    canvas[y * dimx + x] = rgb1;
-            }
-            else
-            {
-                rgb2 = qRgb(qRed(rgb2) + deltared, qGreen(rgb2) + deltagreen, qBlue(rgb2) + deltablue );
-                if( y != ye)
-                    canvas[y * dimx + x] = rgb2;
-            }
-        }
-    }
-
-    return true;
-}
-
-
-
-void SegmentListVIIRS::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
-{
-
-    for(int h = 0; h < dimy; h++ )
-    {
-        QRgb start = qRgba(0,0,0,0);
-        QRgb end = qRgba(0,0,0,0);
-        bool hole = false;
-        bool first = false;
-        bool last = false;
-        int holecount = 0;
-
-        for(int w = 0; w < dimx; w++)
-        {
-            QRgb rgb = canvas[h * dimx + w];
-            int rgbalpha = qAlpha(rgb);
-            if(rgbalpha == 255 && hole == false)
-            {
-                start = rgb;
-                first = true;
-            }
-            else if(rgbalpha == 255 && hole == true)
-            {
-                end = rgb;
-                last = true;
-                break;
-            }
-            else if(rgbalpha == 0 && first == true)
-            {
-                hole = true;
-                holecount++;
-                canvas[h * dimx + w] = qRgba(0,0,0,100);
-            }
-        }
-
-        if(holecount == 0)
-            continue;
-        if(first == false || last == false)
-        {
-            for(int w = 0; w < dimx; w++)
-            {
-                QRgb rgb = canvas[h * dimx + w];
-                if(qAlpha(rgb) == 100)
-                    canvas[h * dimx + w] = qRgba(0,0,0,0);
-            }
-            continue;
-        }
-
-
-
-        int deltared = (qRed(end) - qRed(start)) / (holecount+1);
-        int deltagreen = (qGreen(end) - qGreen(start)) / (holecount+1);
-        int deltablue = (qBlue(end) - qBlue(start)) / (holecount+1);
-
-        int red = qRed(start);
-        int green = qGreen(start);
-        int blue = qBlue(start);
-
-        for(int w = 0; w < dimx; w++)
-        {
-            QRgb rgb = canvas[h * dimx + w];
-            int rgbalpha = qAlpha(rgb);
-            if(rgbalpha == 100)
-            {
-                red += deltared;
-                green += deltagreen;
-                blue += deltablue;
-                canvas[h * dimx + w] = qRgba(red, green, blue, 100);
-            }
-        }
-    }
-
-
-    for(int w = 0; w < dimx; w++)
-    {
-        QRgb start = qRgba(0,0,0,0);
-        QRgb end = qRgba(0,0,0,0);
-
-        int hcount = 0;
-
-        bool startok = false;
-
-        for(int h = 0; h < dimy; h++)
-        {
-            QRgb rgb = canvas[h * dimx + w];
-            int rgbalpha = qAlpha(rgb);
-            if(rgbalpha == 255 && !startok)
-            {
-                start = rgb;
-            }
-            else
-            {
-                if(rgbalpha == 255)
-                {
-                    end = rgb;
-                    break;
-                }
-                else if(rgbalpha == 100)
-                {
-                    startok = true;
-                    hcount++;
-                }
-
-            }
-        }
-
-        if(hcount == 0)
-            continue;
-
-        int redstart = qRed(start);
-        int greenstart = qGreen(start);
-        int bluestart = qBlue(start);
-
-        int deltared = (qRed(end) - qRed(start)) / (hcount+1);
-        int deltagreen = (qGreen(end) - qGreen(start)) / (hcount+1);
-        int deltablue = (qBlue(end) - qBlue(start)) / (hcount+1);
-
-
-        for(int h = 0; h < dimy; h++)
-        {
-            QRgb rgb = canvas[h * dimx + w];
-            int rgbalpha = qAlpha(rgb);
-            if(rgbalpha == 100)
-            {
-                redstart += deltared;
-                greenstart += deltagreen;
-                bluestart += deltablue;
-                int redtotal = (qRed(canvas[h * dimx + w]) + redstart)/2;
-                int greentotal = (qGreen(canvas[h * dimx + w]) + greenstart)/2;
-                int bluetotal = (qBlue(canvas[h * dimx + w]) + bluestart)/2;
-
-                canvas[h * dimx + w] = qRgba(redtotal, greentotal, bluetotal, 255);
-            }
-        }
-    }
-
-
-}
-
-void SegmentListVIIRS::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy)
-{
-    for(int h = 0; h < dimy; h++ )
-    {
-        for(int w = 0; w < dimx; w++)
-        {
-            QRgb rgb = canvas[h * dimx + w];
-            if(qAlpha(rgb) == 255)
-            {
-                if (anchorX + w >= 0 && anchorX + w < imageptrs->ptrimageProjection->width() &&
-                        anchorY + h >= 0 && anchorY + h < imageptrs->ptrimageProjection->height())
-                    imageptrs->ptrimageProjection->setPixel(anchorX + w, anchorY + h, rgb);
-            }
-        }
-    }
-}
-

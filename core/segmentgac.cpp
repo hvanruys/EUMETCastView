@@ -28,6 +28,7 @@ SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent)
     satlist = satl;
     fileInfo.setFile(*filesegment);
     segment_type = "GAC";
+    segtype = eSegmentType::SEG_GAC;
 
     this->satname = fileInfo.baseName().mid(12, 3);
 

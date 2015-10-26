@@ -72,10 +72,9 @@ public:
     //bool isImageReady() { return image_ready; }
     void setStartLineNbr(int nbr) { startLineNbr = nbr; }
     int getStartLineNbr() { return startLineNbr; }
-    qint32 getProjectionX(int line, int pixelx) { return projectionCoordX[line * 2048 + pixelx]; }
-    qint32 getProjectionY(int line, int pixelx) { return projectionCoordY[line * 2048 + pixelx]; }
-    QRgb getProjectionValue(int line, int pixelx) { return projectionCoordValue[line * 2048 + pixelx]; }
-
+    qint32 getProjectionX(int line, int pixelx);
+    qint32 getProjectionY(int line, int pixelx);
+    QRgb getProjectionValue(int line, int pixelx);
 
 
     bool segmentok;   // check if segment is read
@@ -89,6 +88,7 @@ public:
     QSgp4Date qsensingend;
 
     QFileInfo fileInfo;
+    eSegmentType segtype;
     QString segment_type;
 
     double lat_start_deg, lon_start_deg, lat_end_deg, lon_end_deg;
@@ -101,6 +101,7 @@ public:
 
     unsigned short *ptrbaChannel[5];
     unsigned short *ptrbaVIIRS[3];
+    float *ptrbaVIIRSDNB;
 
     QString line1;
     QString line2;
@@ -108,6 +109,7 @@ public:
     long stat_min_ch[5];
     long list_stat_max_ch[5];
     long list_stat_min_ch[5];
+    long active_pixels[5];
 
     unsigned long segment_stats_ch[5][1024];
     quint16 lut_ch[5][1024];

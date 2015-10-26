@@ -35,7 +35,8 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     segmentlistnoaa = new SegmentListNoaa(satlist);
     segmentlisthrp = new SegmentListHRP();
     segmentlistgac = new SegmentListGAC();
-    segmentlistviirs = new SegmentListVIIRS();
+    segmentlistviirsm = new SegmentListVIIRS(0, 0,eSegmentType::SEG_VIIRSM);
+    segmentlistviirsdnb = new SegmentListVIIRS(0, 0,eSegmentType::SEG_VIIRSDNB);
 
     seglmeteosat = new SegmentListGeostationary();
     seglmeteosat->bisRSS = false;
@@ -121,13 +122,15 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     seglnoaa = (SegmentListNoaa*)segmentlistnoaa;
     seglhrp = (SegmentListHRP*)segmentlisthrp;
     seglgac = (SegmentListGAC*)segmentlistgac;
-    seglviirs = (SegmentListVIIRS*)segmentlistviirs;
+    seglviirsm = (SegmentListVIIRS*)segmentlistviirsm;
+    seglviirsdnb = (SegmentListVIIRS*)segmentlistviirsdnb;
 
     countmetop = 0;
     countnoaa = 0;
     counthrp = 0;
     countgac = 0;
-    countviirs = 0;
+    countviirsm = 0;
+    countviirsdnb = 0;
 
     showallsegments = false;
 
@@ -146,13 +149,15 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     SegmentNoaa *segnoaa;
     SegmentHRP *seghrp;
     SegmentGAC *seggac;
-    SegmentVIIRS *segviirs;
+    SegmentVIIRSM *segviirsm;
+    SegmentVIIRSDNB *segviirsdnb;
 
     QList<Segment*> *slmetop = segmentlistmetop->GetSegmentlistptr();
     QList<Segment*> *slnoaa = segmentlistnoaa->GetSegmentlistptr();
     QList<Segment*> *slhrp = segmentlisthrp->GetSegmentlistptr();
     QList<Segment*> *slgac = segmentlistgac->GetSegmentlistptr();
-    QList<Segment*> *slviirs = segmentlistviirs->GetSegmentlistptr();
+    QList<Segment*> *slviirsm = segmentlistviirsm->GetSegmentlistptr();
+    QList<Segment*> *slviirsdnb = segmentlistviirsdnb->GetSegmentlistptr();
 
     int counter = 0;
 
@@ -216,18 +221,32 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete seggac;
-        } else if (fileInfo.fileName().mid( 0, 8) == "SVMC_npp") // NPP-2
+        } else if (fileInfo.fileName().mid( 0, 8) == "SVMC_npp" && fileInfo.fileName().mid( 77, 3) == "bz2") // NPP-2
         {
-            segmentlistviirs->SetDirectoryName(fileInfo.absolutePath());
+            segmentlistviirsm->SetDirectoryName(fileInfo.absolutePath());
             QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
-            segviirs = new SegmentVIIRS(&file, satlist);
-            if(segviirs->segmentok == true)
+            segviirsm = new SegmentVIIRSM(&file, satlist);
+            if(segviirsm->segmentok == true)
             {
-                slviirs->append(segviirs);
-                countviirs++;
+                slviirsm->append(segviirsm);
+                countviirsm++;
             }
             else
-                delete segviirs;
+                delete segviirsm;
+        } else if (fileInfo.fileName().mid( 0, 10) == "SVDNBC_npp" && fileInfo.fileName().mid( 79, 3) == "bz2") // NPP-2
+        {
+            //SVDNBC_npp_d20150810_t0033443_e0035085_b19602_c20150824113128000166_eum_ops.h5.bz2
+            //0123456789012345678901234567890123456789012345678901234567890123456789012345678901
+            segmentlistviirsdnb->SetDirectoryName(fileInfo.absolutePath());
+            QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+            segviirsdnb = new SegmentVIIRSDNB(&file, satlist);
+            if(segviirsdnb->segmentok == true)
+            {
+                slviirsdnb->append(segviirsdnb);
+                countviirsdnb++;
+            }
+            else
+                delete segviirsdnb;
         } else if (fileInfo.fileName().mid( 0, 9) == "H-000-MSG" && fileInfo.fileName().mid( 13, 3) == "MSG" &&
                    fileInfo.fileName().mid( 18, 3) == "___" && fileInfo.fileName().mid( 59, 2) == "C_")
         // Data Channel 2
@@ -708,13 +727,15 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QList<Segment*> *slhrp = segmentlisthrp->GetSegmentlistptr();
     QList<Segment*> *slgac = segmentlistgac->GetSegmentlistptr();
     QList<Segment*> *slmetop = segmentlistmetop->GetSegmentlistptr();
-    QList<Segment*> *slviirs = segmentlistviirs->GetSegmentlistptr();
+    QList<Segment*> *slviirsm = segmentlistviirsm->GetSegmentlistptr();
+    QList<Segment*> *slviirsdnb = segmentlistviirsdnb->GetSegmentlistptr();
 
     segmentlistnoaa->ClearSegments();
     segmentlisthrp->ClearSegments();
     segmentlistgac->ClearSegments();
     segmentlistmetop->ClearSegments();
-    segmentlistviirs->ClearSegments();
+    segmentlistviirsm->ClearSegments();
+    segmentlistviirsdnb->ClearSegments();
 
     segmentlistmapmeteosat.clear();
     segmentlistmapmeteosatrss.clear();
@@ -734,7 +755,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     this->countgac = 0;
     this->counthrp = 0;
     this->countnoaa = 0;
-    this->countviirs = 0;
+    this->countviirsm = 0;
+    this->countviirsdnb = 0;
 
     QDir segmentdir;
     QDateTime datebefore;
@@ -882,7 +904,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString("Count segmentlistnoaa = %1").arg(slnoaa->count());
     qDebug() << QString("Count segmentlisthrp = %1").arg(slhrp->count());
     qDebug() << QString("Count segmentlistgac = %1").arg(slgac->count());
-    qDebug() << QString("Count segmentlistviirs = %1").arg(slviirs->count());
+    qDebug() << QString("Count segmentlistviirsm = %1").arg(slviirsm->count());
+    qDebug() << QString("Count segmentlistviirsdnb = %1").arg(slviirsdnb->count());
 
     qDebug() << QString( "Nbr of items in segmentlist MET-10     = %1").arg(segmentlistmapmeteosat.size());
     qDebug() << QString( "Nbr of items in segmentlist MET-9      = %1").arg(segmentlistmapmeteosatrss.size());
@@ -895,7 +918,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString( "Nbr of items in segmentlist FY2G       = %1").arg(segmentlistmapfy2g.size());
     qDebug() << QString( "Nbr of items in segmentlist Himawari-8 = %1").arg(segmentlistmaph8.size());
 
-    QString strtot = QString("Total segments = %1").arg(slmetop->count()+slnoaa->count()+slgac->count()+slhrp->count()+slviirs->count()+
+    QString strtot = QString("Total segments = %1").arg(slmetop->count()+slnoaa->count()+slgac->count()+slhrp->count()+slviirsm->count()+
                                                         segmentlistmapmeteosat.size()+segmentlistmapmeteosatrss.size() +
                                                         segmentlistmapmet7.size() +
                                                         // segmentlistmapelectro.size()+
@@ -950,12 +973,25 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
 
         }
         //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
+        //SVDNBC_npp_d20151019_t0013359_e0015001_b20595_c20151019002104000944_eum_ops.h5
         else if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp")
         {
             *nppTle = true;
             QDate d(fileinfo.fileName().mid( 10, 4).toInt(), fileinfo.fileName().mid( 14, 2).toInt(), fileinfo.fileName().mid( 16, 2).toInt());
             filedate.setDate(d);
             QTime t(fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt());
+            filedate.setTime(t);
+            if(hoursbefore == 0)
+                fileok = true;
+            else if(t.hour() >= 24 - hoursbefore)
+                fileok = true;
+        }
+        else if (fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp")
+        {
+            *nppTle = true;
+            QDate d(fileinfo.fileName().mid( 12, 4).toInt(), fileinfo.fileName().mid( 16, 2).toInt(), fileinfo.fileName().mid( 18, 2).toInt());
+            filedate.setDate(d);
+            QTime t(fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt(), fileinfo.fileName().mid( 26, 2).toInt());
             filedate.setTime(t);
             if(hoursbefore == 0)
                 fileok = true;
@@ -1074,16 +1110,16 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
     SegmentNoaa *segnoaa;
     SegmentHRP *seghrp;
     SegmentGAC *seggac;
-    SegmentVIIRS *segviirs;
+    SegmentVIIRSM *segviirsm;
+    SegmentVIIRSDNB *segviirsdnb;
+
 
     QList<Segment*> *slmetop = segmentlistmetop->GetSegmentlistptr();
     QList<Segment*> *slnoaa = segmentlistnoaa->GetSegmentlistptr();
     QList<Segment*> *slhrp = segmentlisthrp->GetSegmentlistptr();
     QList<Segment*> *slgac = segmentlistgac->GetSegmentlistptr();
-    QList<Segment*> *slviirs = segmentlistviirs->GetSegmentlistptr();
-
-    //QList<SegmentMeteosat*> *slmeteosat = segmentlistmeteosat->GetSegmentlistptr();
-
+    QList<Segment*> *slviirsm = segmentlistviirsm->GetSegmentlistptr();
+    QList<Segment*> *slviirsdnb = segmentlistviirsdnb->GetSegmentlistptr();
 
     thefilepath.replace( opts.dirremote.toLatin1(), opts.localdirremote.toLatin1()); // "/media/sdc1/", "/home/hugo/Vol2T/");
     qDebug() << "AddSegmentsToListFromUdp : " + QString(thefilepath);
@@ -1146,9 +1182,19 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     {
                         qDebug() << "fileinfo filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
-                        segviirs = new SegmentVIIRS(&file,satlist);
-                        segviirs->segmentshow = true;
-                        slviirs->append(seggac);
+                        segviirsm = new SegmentVIIRSM(&file,satlist);
+                        segviirsm->segmentshow = true;
+                        slviirsm->append(segviirsm);
+                        emit signalAddedSegmentlist();
+
+                    }
+                    if (fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp")
+                    {
+                        qDebug() << "fileinfo filename  = " << fileinfo.fileName();
+                        QFile file(thefilepath);
+                        segviirsdnb = new SegmentVIIRSDNB(&file,satlist);
+                        segviirsdnb->segmentshow = true;
+                        slviirsdnb->append(segviirsdnb);
                         emit signalAddedSegmentlist();
 
                     }
@@ -1174,7 +1220,8 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
     segmentlistnoaa->SetTotalSegmentsInDirectory(slnoaa->count());
     segmentlisthrp->SetTotalSegmentsInDirectory(slhrp->count());
     segmentlistgac->SetTotalSegmentsInDirectory(slgac->count());
-    segmentlistviirs->SetTotalSegmentsInDirectory(slviirs->count());
+    segmentlistviirsm->SetTotalSegmentsInDirectory(slviirsm->count());
+    segmentlistviirsdnb->SetTotalSegmentsInDirectory(slviirsdnb->count());
 
 }
 
@@ -1234,11 +1281,11 @@ void AVHRRSatellite::RemoveAllSelectedAVHRR()
 
 }
 
-void AVHRRSatellite::RemoveAllSelectedVIIRS()
+void AVHRRSatellite::RemoveAllSelectedVIIRSM()
 {
     qDebug() << "AVHRRSatellite::RemoveAllSelectedVIIRS()";
 
-    QList<Segment*> *slviirs = segmentlistviirs->GetSegmentlistptr();
+    QList<Segment*> *slviirs = segmentlistviirsm->GetSegmentlistptr();
 
     QList<Segment*>::iterator segitviirs = slviirs->begin();
     while ( segitviirs != slviirs->end() )
@@ -1253,6 +1300,24 @@ void AVHRRSatellite::RemoveAllSelectedVIIRS()
 
 }
 
+void AVHRRSatellite::RemoveAllSelectedVIIRSDNB()
+{
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedVIIRSDNB()";
+
+    QList<Segment*> *slviirs = segmentlistviirsdnb->GetSegmentlistptr();
+
+    QList<Segment*>::iterator segitviirs = slviirs->begin();
+    while ( segitviirs != slviirs->end() )
+    {
+        if((*segitviirs)->IsSelected())
+            (*segitviirs)->ToggleSelected();
+        //(*segitviirs)->resetImageReady();
+        (*segitviirs)->resetMemory();
+
+        ++segitviirs;
+    }
+
+}
 
 bool AVHRRSatellite::SelectedAVHRRSegments()
 {
@@ -1305,13 +1370,13 @@ bool AVHRRSatellite::SelectedAVHRRSegments()
 
 }
 
-bool AVHRRSatellite::SelectedVIIRSSegments()
+bool AVHRRSatellite::SelectedVIIRSMSegments()
 {
     qDebug() << "AVHRRSatellite::SelectedVIIRSSegments()";
 
     bool selsegs = false;
 
-    QList<Segment*> *slviirs = segmentlistviirs->GetSegmentlistptr();
+    QList<Segment*> *slviirs = segmentlistviirsm->GetSegmentlistptr();
 
 
     QList<Segment*>::iterator segitviirs = slviirs->begin();
@@ -1326,6 +1391,29 @@ bool AVHRRSatellite::SelectedVIIRSSegments()
     return false;
 
 }
+
+bool AVHRRSatellite::SelectedVIIRSDNBSegments()
+{
+    qDebug() << "AVHRRSatellite::SelectedVIIRSDNBSegments()";
+
+    bool selsegs = false;
+
+    QList<Segment*> *slviirs = segmentlistviirsdnb->GetSegmentlistptr();
+
+
+    QList<Segment*>::iterator segitviirs = slviirs->begin();
+    while ( segitviirs != slviirs->end() )
+    {
+        if((*segitviirs)->IsSelected())
+            return true;
+
+        ++segitviirs;
+    }
+
+    return false;
+
+}
+
 
 
 
@@ -1370,11 +1458,21 @@ QStringList AVHRRSatellite::GetOverviewSegmentsGAC()
 
 }
 
-QStringList AVHRRSatellite::GetOverviewSegmentsVIIRS()
+QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSM()
 {
 
     QStringList strlist;
-    strlist << segmentlistviirs->GetDirectoryName() << QString("VIIRS") <<  QString("%1").arg(countviirs);
+    strlist << segmentlistviirsm->GetDirectoryName() << QString("VIIRSM") <<  QString("%1").arg(countviirsm);
+
+    return strlist;
+
+}
+
+QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSDNB()
+{
+
+    QStringList strlist;
+    strlist << segmentlistviirsdnb->GetDirectoryName() << QString("VIIRSDNB") <<  QString("%1").arg(countviirsdnb);
 
     return strlist;
 
@@ -1469,13 +1567,15 @@ QString AVHRRSatellite::GetOverviewSegments()
     int nbrsegmnoaa = 0, nbrsegmnoaasel = 0;
     int nbrsegmgac = 0, nbrsegmgacsel = 0;
     int nbrsegmhrp = 0, nbrsegmhrpsel = 0;
-    int nbrsegmviirs = 0, nbrsegmviirssel = 0;
+    int nbrsegmviirsm = 0, nbrsegmviirsmsel = 0;
+    int nbrsegmviirsdnb = 0, nbrsegmviirsdnbsel = 0;
 
     QList<Segment*> *slmetop = segmentlistmetop->GetSegmentlistptr();
     QList<Segment*> *slnoaa = segmentlistnoaa->GetSegmentlistptr();
     QList<Segment*> *slhrp = segmentlisthrp->GetSegmentlistptr();
     QList<Segment*> *slgac = segmentlistgac->GetSegmentlistptr();
-    QList<Segment*> *slviirs = segmentlistviirs->GetSegmentlistptr();
+    QList<Segment*> *slviirsm = segmentlistviirsm->GetSegmentlistptr();
+    QList<Segment*> *slviirsdnb = segmentlistviirsdnb->GetSegmentlistptr();
 
     QList<Segment*>::iterator segitmetop = slmetop->begin();
     while ( segitmetop != slmetop->end() )
@@ -1525,18 +1625,29 @@ QString AVHRRSatellite::GetOverviewSegments()
         ++segitgac;
     }
 
-    QList<Segment*>::iterator segitviirs = slviirs->begin();
-    while ( segitviirs != slviirs->end() )
+    QList<Segment*>::iterator segitviirsm = slviirsm->begin();
+    while ( segitviirsm != slviirsm->end() )
     {
-        if((*segitviirs)->IsSelected())
+        if((*segitviirsm)->IsSelected())
         {
-            ++nbrsegmviirssel;
+            ++nbrsegmviirsmsel;
 
         }
-        ++nbrsegmviirs;
-        ++segitviirs;
+        ++nbrsegmviirsm;
+        ++segitviirsm;
     }
 
+    QList<Segment*>::iterator segitviirsdnb = slviirsdnb->begin();
+    while ( segitviirsdnb != slviirsdnb->end() )
+    {
+        if((*segitviirsdnb)->IsSelected())
+        {
+            ++nbrsegmviirsdnbsel;
+
+        }
+        ++nbrsegmviirsdnb;
+        ++segitviirsdnb;
+    }
 
 
     return QString("For %1 \n"
@@ -1548,12 +1659,15 @@ QString AVHRRSatellite::GetOverviewSegments()
                    "For %13 \n"
                    "\rSegments in directory = %14\n\rTotal Segments HRP = %15\n\rselected = %16 \n"
                    "For %17 \n"
-                   "\rSegments in directory = %18\n\rTotal Segments VIIRS = %19\n\rselected = %20 \n").
+                   "\rSegments in directory = %18\n\rTotal Segments VIIRSM = %19\n\rselected = %20 \n"
+                   "For %21 \n"
+                   "\rSegments in directory = %22\n\rTotal Segments VIIRSDNB = %23\n\rselected = %24 \n").
             arg(segmentlistmetop->GetDirectoryName()).arg(segmentlistmetop->GetTotalSegmentsInDirectory()).arg(nbrsegmmetop).arg(nbrsegmmetopsel).
             arg(segmentlistnoaa->GetDirectoryName()).arg(segmentlistnoaa->GetTotalSegmentsInDirectory()).arg(nbrsegmnoaa).arg(nbrsegmnoaasel).
             arg(segmentlistgac->GetDirectoryName()).arg(segmentlistgac->GetTotalSegmentsInDirectory()).arg(nbrsegmgac).arg(nbrsegmgacsel).
             arg(segmentlisthrp->GetDirectoryName()).arg(segmentlisthrp->GetTotalSegmentsInDirectory()).arg(nbrsegmhrp).arg(nbrsegmhrpsel).
-            arg(segmentlistviirs->GetDirectoryName()).arg(segmentlistviirs->GetTotalSegmentsInDirectory()).arg(nbrsegmviirs).arg(nbrsegmviirssel);
+            arg(segmentlistviirsm->GetDirectoryName()).arg(segmentlistviirsm->GetTotalSegmentsInDirectory()).arg(nbrsegmviirsm).arg(nbrsegmviirsmsel).
+            arg(segmentlistviirsdnb->GetDirectoryName()).arg(segmentlistviirsdnb->GetTotalSegmentsInDirectory()).arg(nbrsegmviirsdnb).arg(nbrsegmviirsdnbsel);
 
 }
 

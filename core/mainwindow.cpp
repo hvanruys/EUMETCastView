@@ -136,7 +136,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglfy2e, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglfy2g, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglh8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglviirs, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglviirsm, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmetop, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglnoaa, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglhrp, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
@@ -158,13 +158,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglnoaa, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
     connect(seglist->seglhrp, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
     connect(seglist->seglgac, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglviirs, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
+    connect(seglist->seglviirsm, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
+    connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
 
     connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
     connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
     connect(seglist->seglhrp, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
     connect(seglist->seglgac, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglviirs, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
+    connect(seglist->seglviirsm, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
 
 
     connect( formglobecyl, SIGNAL(signalSegmentChanged(QString)), this, SLOT(updateStatusBarIndicator(QString)) );
@@ -322,7 +323,7 @@ void MainWindow::on_actionAbout_triggered()
     "<center><b>Version " + QApplication::applicationVersion() + "</b></center>"
     "<p>supports the following satellites</p>"
     "<p>Metop-A, Metop-B </p>"
-    "<p>Noaa, SUOMI NPP</p>"
+    "<p>Noaa, SUOMI NPP (M-Band and Day/Night Band)</p>"
     "<p>Meteosat-10, Meteosat-9, Meteosat7</p>"
     "<p>FengYun 2E, FengYun 2G</p>"
     "<p>GOES-13, GOES-15</p>"
@@ -455,6 +456,9 @@ void MainWindow::on_actionCreatePNG_triggered()
     else
     {
         QApplication::setOverrideCursor(Qt::WaitCursor);
+        if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
+                fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
+            fileName.append(".jpg");
 
         pm = formimage->returnimageLabelptr()->pixmap();
         pm->save(fileName);

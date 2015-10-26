@@ -9,6 +9,7 @@ SegmentListHRP::SegmentListHRP(QObject *parent) :
     SegmentList(parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
+    segtype = eSegmentType::SEG_HRP;
 
     qDebug() << QString("in constructor SegmentListHRP");
 
