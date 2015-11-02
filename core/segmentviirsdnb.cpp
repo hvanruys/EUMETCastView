@@ -96,6 +96,18 @@ SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, SatelliteList *satl, QObjec
     invertthissegment[1] = false;
     invertthissegment[2] = false;
 
+    int inscan[64] = { 16, 16, 16, 16, 16, 16, 24, 24,
+                    20, 14, 20, 16, 16, 16, 16, 24,
+                    24, 24, 16, 14, 16, 16, 16, 16,
+                    16, 16, 24, 16, 24, 22, 24,  8,
+                     8, 24, 22, 24, 16, 24, 16, 16,
+                    16, 16, 16, 16, 14, 16, 24, 24,
+                    24, 16, 16, 16, 16, 20, 14, 20,
+                    24, 24, 16, 16, 16, 16, 16, 16 };
+
+    for(int i = 0; i < 64; i++)
+        Zscan[i] = inscan[i];
+
 }
 
 SegmentVIIRSDNB::~SegmentVIIRSDNB()
