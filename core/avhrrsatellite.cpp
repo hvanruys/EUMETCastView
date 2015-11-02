@@ -35,8 +35,8 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     segmentlistnoaa = new SegmentListNoaa(satlist);
     segmentlisthrp = new SegmentListHRP();
     segmentlistgac = new SegmentListGAC();
-    segmentlistviirsm = new SegmentListVIIRS(0, 0,eSegmentType::SEG_VIIRSM);
-    segmentlistviirsdnb = new SegmentListVIIRS(0, 0,eSegmentType::SEG_VIIRSDNB);
+    segmentlistviirsm = new SegmentListVIIRSM(0, 0,eSegmentType::SEG_VIIRSM);
+    segmentlistviirsdnb = new SegmentListVIIRSDNB(0, 0,eSegmentType::SEG_VIIRSDNB);
 
     seglmeteosat = new SegmentListGeostationary();
     seglmeteosat->bisRSS = false;
@@ -122,8 +122,8 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     seglnoaa = (SegmentListNoaa*)segmentlistnoaa;
     seglhrp = (SegmentListHRP*)segmentlisthrp;
     seglgac = (SegmentListGAC*)segmentlistgac;
-    seglviirsm = (SegmentListVIIRS*)segmentlistviirsm;
-    seglviirsdnb = (SegmentListVIIRS*)segmentlistviirsdnb;
+    seglviirsm = (SegmentListVIIRSM*)segmentlistviirsm;
+    seglviirsdnb = (SegmentListVIIRSDNB*)segmentlistviirsdnb;
 
     countmetop = 0;
     countnoaa = 0;
@@ -1227,6 +1227,8 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
 
 void AVHRRSatellite::RemoveAllSelectedAVHRR()
 {
+    int countsel = 0;
+
     qDebug() << "AVHRRSatellite::RemoveAllSelectedAVHRR()";
 
     QList<Segment*> *slmetop = segmentlistmetop->GetSegmentlistptr();
@@ -1234,56 +1236,87 @@ void AVHRRSatellite::RemoveAllSelectedAVHRR()
     QList<Segment*> *slhrp = segmentlisthrp->GetSegmentlistptr();
     QList<Segment*> *slgac = segmentlistgac->GetSegmentlistptr();
 
+    countsel = 0;
     QList<Segment*>::iterator segitmetop = slmetop->begin();
     while ( segitmetop != slmetop->end() )
     {
         if((*segitmetop)->IsSelected())
+        {
+            countsel++;
             (*segitmetop)->ToggleSelected();
+        }
         //(*segitmetop)->resetImageReady();
         (*segitmetop)->resetMemory();
 
         ++segitmetop;
     }
 
+    qDebug() << QString("nbr of segments in metop = %1 countsel = %2").arg(slmetop->count()).arg(countsel);
+    QList<Segment*> *slmetopsel = segmentlistmetop->GetSegsSelectedptr();
+    slmetopsel->clear();
+
+    countsel = 0;
     QList<Segment*>::iterator segitnoaa = slnoaa->begin();
     while ( segitnoaa != slnoaa->end() )
     {
         if((*segitnoaa)->IsSelected())
+        {
+            countsel++;
             (*segitnoaa)->ToggleSelected();
+        }
         //(*segitnoaa)->resetImageReady();
         (*segitnoaa)->resetMemory();
 
         ++segitnoaa;
     }
 
+    qDebug() << QString("nbr of segments in noaa = %1 countsel = %2").arg(slnoaa->count()).arg(countsel);
+    QList<Segment*> *slnoaasel = segmentlistnoaa->GetSegsSelectedptr();
+    slnoaasel->clear();
+
+    countsel = 0;
     QList<Segment*>::iterator segithrp = slhrp->begin();
     while ( segithrp != slhrp->end() )
     {
         if((*segithrp)->IsSelected())
+        {
+            countsel++;
             (*segithrp)->ToggleSelected();
+        }
         //(*segithrp)->resetImageReady();
         (*segithrp)->resetMemory();
 
         ++segithrp;
     }
 
+    qDebug() << QString("nbr of segments in hrp = %1 countsel = %2").arg(slhrp->count()).arg(countsel);
+    QList<Segment*> *slhrpsel = segmentlisthrp->GetSegsSelectedptr();
+    slhrpsel->clear();
+
+    countsel = 0;
     QList<Segment*>::iterator segitgac = slgac->begin();
     while ( segitgac != slgac->end() )
     {
         if((*segitgac)->IsSelected())
+        {
+            countsel++;
             (*segitgac)->ToggleSelected();
+        }
         //(*segitgac)->resetImageReady();
         (*segitgac)->resetMemory();
 
         ++segitgac;
     }
 
+    qDebug() << QString("nbr of segments in gac = %1 countsel = %2").arg(slgac->count()).arg(countsel);
+    QList<Segment*> *slgacsel = segmentlistgac->GetSegsSelectedptr();
+    slgacsel->clear();
 
 }
 
 void AVHRRSatellite::RemoveAllSelectedVIIRSM()
 {
-    qDebug() << "AVHRRSatellite::RemoveAllSelectedVIIRS()";
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedVIIRSM()";
 
     QList<Segment*> *slviirs = segmentlistviirsm->GetSegmentlistptr();
 
@@ -1297,6 +1330,10 @@ void AVHRRSatellite::RemoveAllSelectedVIIRSM()
 
         ++segitviirs;
     }
+
+    QList<Segment*> *slviirssel = segmentlistviirsm->GetSegsSelectedptr();
+    slviirssel->clear();
+
 
 }
 
@@ -1317,6 +1354,8 @@ void AVHRRSatellite::RemoveAllSelectedVIIRSDNB()
         ++segitviirs;
     }
 
+    QList<Segment*> *slviirssel = segmentlistviirsm->GetSegsSelectedptr();
+    slviirssel->clear();
 }
 
 bool AVHRRSatellite::SelectedAVHRRSegments()

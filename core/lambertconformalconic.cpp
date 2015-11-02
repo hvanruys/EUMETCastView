@@ -181,14 +181,25 @@ void LambertConformalConic::CreateMapFromAVHRR(int inputchannel, eSegmentType ty
  }
 
 
-void LambertConformalConic::CreateMapFromVIIRS()
+void LambertConformalConic::CreateMapFromVIIRS(eSegmentType type)
 {
     calc_map_extents();
-    segs->seglviirsm->ComposeLCCProjection(0);
+
+    if (type == SEG_VIIRSM)
+        segs->seglviirsm->ComposeLCCProjection(0);
+    else if( type == SEG_VIIRSDNB)
+        segs->seglviirsdnb->ComposeLCCProjection(0);
+
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
     else if(opts.smoothprojectiontype == 2)
-        segs->seglviirsm->SmoothVIIRSImage();
+    {
+        if (type == SEG_VIIRSM)
+            segs->seglviirsm->SmoothVIIRSImage();
+        else if( type == SEG_VIIRSDNB)
+            segs->seglviirsdnb->SmoothVIIRSImage();
+    }
+
 }
 
 

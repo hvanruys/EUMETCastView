@@ -15,7 +15,7 @@ public:
     void Initialize(double r_maj, double r_min, double stdlat1, double stdlat2, double c_lon, double c_lat, int imagewidth, int imageheight, int corrX, int corrY);
 
     void CreateMapFromAVHRR(int inputchannel, eSegmentType type);
-    void CreateMapFromVIIRS();
+    void CreateMapFromVIIRS(eSegmentType type);
     void CreateMapFromGeostationary();
 
 

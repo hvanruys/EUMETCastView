@@ -13,6 +13,8 @@ class SegmentGAC : public Segment
 
 public:
     explicit SegmentGAC(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    ~SegmentGAC();
+
     bool inspectMPHRrecord(QByteArray mphr_record);
     quint32 get_next_header( QByteArray ba );
     void RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine );

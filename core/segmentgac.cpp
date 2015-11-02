@@ -63,8 +63,8 @@ SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent)
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
 
-    qtle = new QTle(noaa19.sat_name, line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle(noaa19.sat_name, line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
     julian_state_vector = qtle->Epoch();
 
@@ -86,6 +86,10 @@ SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent)
 
     CalculateCornerPoints();
 
+}
+
+SegmentGAC::~SegmentGAC()
+{
 }
 
 /*
@@ -244,8 +248,8 @@ bool SegmentGAC::inspectMPHRrecord(QByteArray mphr_record)
     line2.append(QString("%1").arg( revs_per_day, 10, 'f', 7));
     line2.append(QString("%1").arg( orbit_start, 5, 10, fill));
 
-    qtle = new QTle( "GAC", line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle( "GAC", line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
     int sensing_start_year = mphr_record.mid(712, 4).toInt( &ok, 10);
     int sensing_start_month = mphr_record.mid(716, 2).toInt( &ok, 10);
@@ -476,7 +480,7 @@ Segment *SegmentGAC::ReadSegmentInMemory()
                        val1_ch[k] = 0xFF & picture_line.at(i+l);
                        val2_ch[k] = 0xFF & picture_line.at(i+l+1);
                        tot_ch[k] = (val1_ch[k] <<= 8) | val2_ch[k];
-                       *(this->ptrbaChannel[k] + heightinsegment * 409 + j) = tot_ch[k];
+                       *(this->ptrbaChannel[k].data() + heightinsegment * 409 + j) = tot_ch[k];
 
                    }
                    for (int k=0; k < 5; k++)

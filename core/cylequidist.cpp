@@ -44,14 +44,19 @@ CylEquiDist::CylEquiDist(const int width , const int height, double startlon, do
 
     int i;
 
-    lon_array = new double[pm_width];
+    lon_array.reset(new double[pm_width]);
     for (i = 0; i < pm_width; i++)
         lon_array[i] = (i + 0.5) * del_lon + start_lon;
 
-    lat_array = new double[pm_height];
+    lat_array.reset(new double[pm_height]);
     for (i = 0; i < pm_height; i++)
         lat_array[i] = start_lat - (i + 0.5) * del_lat;
 
+}
+
+CylEquiDist::~CylEquiDist()
+{
+    qDebug() << "closing CylEquiDist";
 }
 
 void
@@ -84,11 +89,11 @@ CylEquiDist::SetupMap()
 
     int i;
 
-    lon_array = new double[pm_width];
+    lon_array.reset(new double[pm_width]);
     for (i = 0; i < pm_width; i++)
         lon_array[i] = (i + 0.5) * del_lon + start_lon;
 
-    lat_array = new double[pm_height];
+    lat_array.reset(new double[pm_height]);
     for (i = 0; i < pm_height; i++)
         lat_array[i] = start_lat - (i + 0.5) * del_lat;
 

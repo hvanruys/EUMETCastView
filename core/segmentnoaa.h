@@ -13,6 +13,8 @@ class SegmentNoaa : public Segment
 
 public:
     explicit SegmentNoaa(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    ~SegmentNoaa();
+
     Segment *ReadSegmentInMemory();
     int ReadNbrOfLines();
     void ComposeProjection(int inputchannel, eProjections proj);

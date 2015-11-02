@@ -31,7 +31,6 @@ Segment::Segment(QObject *parent) :
 
     for(int k = 0; k < 5; k++)
     {
-        this->ptrbaChannel[k] = (unsigned short *)malloc(1 * sizeof(unsigned short));
         stat_max_ch[k] = 0;
         stat_min_ch[k] = 9999999;
         list_stat_max_ch[k] = 0;
@@ -48,20 +47,8 @@ Segment::Segment(QObject *parent) :
         }
     }
 
-    earthloc_lon = new float[1];
-    earthloc_lat = new float[1];
-
     segmentselected = false;
     segmentshow = false;
-
-    qtle = NULL;
-    qsgp4 = NULL;
-
-    projectionCoordX = NULL;
-    projectionCoordY = NULL;
-    projectionCoordValue = NULL;
-
-    bImageMemory = false;
 
 }
 
@@ -72,7 +59,7 @@ void Segment::CalculateCornerPoints()
     // first line ///////////////////////////////////////
 
     QEci qeci;
-    if(qsgp4 == NULL)
+    if(qsgp4.isNull())
         qDebug() << "qsgp4 is NULL !!!";
     qsgp4->getPosition(minutes_since_state_vector, qeci);
     QGeodetic qgeo = qeci.ToGeo();
@@ -213,7 +200,7 @@ void Segment::CalculateCornerPoints()
 
 Segment::~Segment()
 {
-    cleanupMemory();
+    resetMemory();
 }
 
 void Segment::initializeMemory()
@@ -223,111 +210,34 @@ void Segment::initializeMemory()
 
     for(int k = 0; k < 5; k++)
     {
-        unsigned short *temp = (unsigned short *)realloc(ptrbaChannel[k], (earth_views_per_scanline * NbrOfLines)*sizeof(unsigned short));
-        if ( temp != NULL ) //realloc was successful
-        {
-           ptrbaChannel[k] = temp;
-           bImageMemory = true;
-        }
-        else //there was an error
-        {
-           free(ptrbaChannel[k]);
-           bImageMemory = false;
-           qDebug() << QString("Error allocating memory in InitializeMemory = %1!").arg(earth_views_per_scanline * NbrOfLines);
-        }
+        ptrbaChannel[k].reset(new unsigned short[earth_views_per_scanline * NbrOfLines]);
     }
 }
 
 void Segment::resetMemory()
 {
 
-/*    for(int k = 0; k < 5; k++)
-    {
-        unsigned short *temp = (unsigned short *)realloc(ptrbaChannel[k], 1*sizeof(unsigned short));
-        if ( temp != NULL ) //realloc was successful
-        {
-           ptrbaChannel[k] = temp;
-        }
-        else //there was an error
-        {
-           free(ptrbaChannel[k]);
-           qDebug() << "Error allocating memory in resetMemory!";
-        }
-    }
-*/
-
     for(int k = 0; k < 5; k++)
     {
-        free(ptrbaChannel[k]);
-        ptrbaChannel[k] = (unsigned short *)malloc(1*sizeof(unsigned short));
+        ptrbaChannel[k].reset();
     }
 
-
-    bImageMemory = false;
-    delete [] earthloc_lon;
-    delete [] earthloc_lat;
-    earthloc_lon = new float[1];
-    earthloc_lat = new float[1];
-
-    if( projectionCoordX != NULL)
+    for(int k = 0; k < 3; k++)
     {
-        qDebug() << "delete projectionCoorX";
-        delete [] projectionCoordX;
-    }
-    if( projectionCoordY != NULL)
-    {
-        qDebug() << "delete projectionCoorY";
-        delete [] projectionCoordY;
-    }
-    if( projectionCoordValue != NULL)
-    {
-        qDebug() << "delete projectionCoorValue";
-        delete [] projectionCoordValue;
+        ptrbaVIIRS[k].reset();
     }
 
+    projectionCoordX.reset();
+    projectionCoordY.reset();
+    projectionCoordValue.reset();
 
 
-}
+    earthloc_lon.reset();
+    earthloc_lat.reset();
 
-void Segment::cleanupMemory()
-{
-
-    for(int i = 0; i < 5; i++)
-    {
-        if(ptrbaChannel[i] != NULL)
-        {
-            free(ptrbaChannel[i]);
-            ptrbaChannel[i] = NULL;
-        }
-    }
-
-    if( earthloc_lon != NULL)
-        delete [] earthloc_lon;
-    if( earthloc_lat != NULL)
-        delete [] earthloc_lat;
-
-    if( qtle != NULL)
-        delete qtle;
-    if( qsgp4 != NULL)
-        delete qsgp4;
-
-    if( projectionCoordX != NULL)
-    {
-        qDebug() << "delete projectionCoorX";
-        delete [] projectionCoordX;
-    }
-    if( projectionCoordY != NULL)
-    {
-        qDebug() << "delete projectionCoorY";
-        delete [] projectionCoordY;
-    }
-    if( projectionCoordValue != NULL)
-    {
-        qDebug() << "delete projectionCoorValue";
-        delete [] projectionCoordValue;
-    }
-
-
+    projectionCoordX.reset();
+    projectionCoordY.reset();
+    projectionCoordValue.reset();
 
 }
 
@@ -613,7 +523,7 @@ void Segment::NormalizeSegment()
         {
             for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
             {
-                int pixel = *(this->ptrbaChannel[k] + line * earth_views_per_scanline + pixelx);
+                int pixel = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
                 int pixcalc = (pixel - list_stat_min_ch[k]) * 1023 / (list_stat_max_ch[k] - list_stat_min_ch[k]);
 
                 this->ptrbaChannel[k][line * earth_views_per_scanline + pixelx] = pixcalc;
@@ -1007,7 +917,7 @@ void Segment::ComposeSegmentImage()
         {
             for( int k = 0; k < 5; k++)
             {
-                pixel[k] = *(this->ptrbaChannel[k] + line * earth_views_per_scanline + pixelx);
+                pixel[k] = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
                 if (inverse.at(k) == "1")
                     row_ch[k][pixelx] = qRgb(255 - (pixel[k]/4), 255 - (pixel[k]/4), 255 - (pixel[k]/4));
                 else
@@ -1152,17 +1062,6 @@ void Segment::ComposeSegmentSGProjection(int inputchannel)
 {
 
 }
-
-//void Segment::ComposeProjectionConcurrent()
-//{
-
-//}
-
-bool Segment::lookupLonLat(double lon_rad, double lat_rad, int &col, int &row)
-{
-    return false;
-}
-
 
 Segment *Segment::ReadDatasetsInMemory()
 {

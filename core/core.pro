@@ -29,7 +29,6 @@ SOURCES += main.cpp \
     segmentlisthrp.cpp \
     segmentlistmetop.cpp \
     segmentlistnoaa.cpp \
-    segmentlistviirs.cpp \
     generalverticalperspective.cpp \
     lambertconformalconic.cpp \
     stereographic.cpp \
@@ -65,7 +64,9 @@ SOURCES += main.cpp \
     sgp_time.cpp \
     qcompressor.cpp \
     segmentviirsm.cpp \
-    segmentviirsdnb.cpp
+    segmentviirsdnb.cpp \
+    segmentlistviirsdnb.cpp \
+    segmentlistviirsm.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -83,7 +84,6 @@ HEADERS  += mainwindow.h \
     segmentlisthrp.h \
     segmentlistmetop.h \
     segmentlistnoaa.h \
-    segmentlistviirs.h \
     generalverticalperspective.h \
     lambertconformalconic.h \
     stereographic.h \
@@ -119,7 +119,9 @@ HEADERS  += mainwindow.h \
     stb_image.h \
     qcompressor.h \
     segmentviirsm.h \
-    segmentviirsdnb.h
+    segmentviirsdnb.h \
+    segmentlistviirsdnb.h \
+    segmentlistviirsm.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

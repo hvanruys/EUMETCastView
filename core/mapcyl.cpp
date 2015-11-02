@@ -157,6 +157,20 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
         }
     }
 
+    if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+    {
+        if(segs->getShowAllSegments())
+        {
+            segs->seglviirsdnb->RenderSegments( &painter, QColor(Qt::cyan), true );
+        }
+        else
+        {
+            segs->seglviirsdnb->GetFirstLastVisible( &first_julian, &last_julian );
+            showSunPosition(&painter, first_julian, last_julian);
+            segs->seglviirsdnb->RenderSegments( &painter, QColor(Qt::cyan), false );
+        }
+    }
+
     if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false && opts.buttonHRP == false && opts.buttonVIIRSM == false)
         showSunPosition(&painter);
 
@@ -206,6 +220,8 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
         isselected = segs->seglgac->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
     else if (opts.buttonVIIRSM)
         isselected = segs->seglviirsm->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonVIIRSDNB)
+        isselected = segs->seglviirsdnb->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
 
     if(isselected)
         emit mapClicked();  // show selected segmentlist in FormEphem

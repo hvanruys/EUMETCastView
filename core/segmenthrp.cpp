@@ -63,8 +63,8 @@ SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent)
     line1 = sat.line1;
     line2 = sat.line2;
 
-    qtle = new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
     julian_state_vector = qtle->Epoch();
 
@@ -87,6 +87,9 @@ SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent)
 
 }
 
+SegmentHRP::~SegmentHRP()
+{
+}
 
 
 /*
@@ -486,7 +489,7 @@ Segment *SegmentHRP::ReadSegmentInMemory()
                     for( int k = 0; k < 5; k++)
                     {
                         for( int j = 0; j < 2048; j++)
-                            *(this->ptrbaChannel[k] + (heightinsegment) * 2048 + j) = valline[k][j];
+                            *(this->ptrbaChannel[k].data() + (heightinsegment) * 2048 + j) = valline[k][j];
                     }
 
                     for (int i=0; i < 2048; i++)
@@ -559,8 +562,8 @@ bool SegmentHRP::inspectMPHRrecord(QByteArray mphr_record)
     line1 = metop_sat.line1;
     line2 = metop_sat.line2;
 
-    qtle = new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
     // epoch = line1.mid(18,14).toDouble(&ok);
     // julian_state_vector = Julian_Date_of_Epoch(epoch);

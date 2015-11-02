@@ -71,8 +71,8 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
     line1 = metop_sat.line1;
     line2 = metop_sat.line2;
 
-    qtle = new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
     julian_state_vector = qtle->Epoch();
 
@@ -300,8 +300,8 @@ void SegmentMetop::inspectMPHRrecord(QByteArray mphr_record)
     line2.append( "0" );
 
 
-    qtle = new QTle("Metop", line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle("Metop", line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
     int sensing_start_year = mphr_record.mid(712, 4).toInt( &ok, 10);
     int sensing_start_month = mphr_record.mid(716, 2).toInt( &ok, 10);
@@ -728,11 +728,9 @@ Segment *SegmentMetop::ReadSegmentInMemory()
     }
 
     bzerror = BZ_OK;
-    delete [] earthloc_lon;
-    delete [] earthloc_lat;
 
-    earthloc_lon = new float[1080*103];
-    earthloc_lat = new float[1080*103];
+    earthloc_lon.reset(new float[1080*103]);
+    earthloc_lat.reset(new float[1080*103]);
 
     while ( bzerror == BZ_OK )
     {
@@ -782,7 +780,7 @@ Segment *SegmentMetop::ReadSegmentInMemory()
 //                                tot_ch[k] = 0;
 //                            if(k==2 && i==2*500 && heightinsegment==180)
 //                                qDebug() << QString(" ----------------->>>>  val1_ch = %1 val2_ch = %2 tot_ch = %3").arg(val1_ch[k],0,16).arg(val2_ch[k],0,16).arg(tot_ch[k],0,16);
-                            *(this->ptrbaChannel[k] + heightinsegment * 2048 + j) = tot_ch[k];
+                            *(this->ptrbaChannel[k].data() + heightinsegment * 2048 + j) = tot_ch[k];
                         }
 
                         for (int k=0; k < 5; k++)
@@ -845,9 +843,9 @@ Segment *SegmentMetop::ReadSegmentInMemory()
 
 void SegmentMetop::initializeProjectionCoord()
 {
-    projectionCoordX = new int[1080 * 2048];
-    projectionCoordY = new int[1080 * 2048];
-    projectionCoordValue = new QRgb[1080 * 2048];
+    projectionCoordX.reset(new int[1080 * 2048]);
+    projectionCoordY.reset(new int[1080 * 2048]);
+    projectionCoordValue.reset(new QRgb[1080 * 2048]);
 
     for( int i = 0; i < 1080; i++)
     {

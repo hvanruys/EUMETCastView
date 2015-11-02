@@ -33,7 +33,6 @@ public:
     int NbrOfSegmentsSelected();
     int NbrOfSegmentsShown();
     int NbrOfSegmentLinesSelected();
-    bool imageMemory();
 
     void GetFirstLastVisible( double *first_julian,  double *last_julian);
     void GetFirstLastVisible( QDateTime *first_date,  QDateTime *last_date);

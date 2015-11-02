@@ -21,7 +21,7 @@ public:
     double Initialize(double lonmapdeg, double latmapdeg, double heightmapkm, double scaling, int imagewidth, int imageheight);
 
     void CreateMapFromAVHRR(int inputchannel, eSegmentType type);
-    void CreateMapFromVIIRS();
+    void CreateMapFromVIIRS(eSegmentType type);
     void CreateMapFromGeoStationary();
 
     bool map_forward(double lon_rad, double lat_rad, double &map_x, double &map_y);

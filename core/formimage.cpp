@@ -350,7 +350,7 @@ bool FormImage::ShowVIIRSMImage()
         colorlist = formtoolbox->getVIIRSColorList();
         invertlist = formtoolbox->getVIIRSInvertList();
 
-        segs->seglviirsm->ShowImageSerialM(bandlist, colorlist, invertlist);
+        segs->seglviirsm->ShowImageSerial(bandlist, colorlist, invertlist);
     }
     else
         ret = false;
@@ -376,7 +376,7 @@ bool FormImage::ShowVIIRSDNBImage()
 
         this->kindofimage = "VIIRSDNB";
 
-        segs->seglviirsdnb->ShowImageSerialDNB();
+        segs->seglviirsdnb->ShowImageSerial();
     }
     else
         ret = false;
@@ -534,27 +534,28 @@ void FormImage::paintEvent( QPaintEvent * )
 
 
     SegmentListGeostationary *sl = NULL;
-    SegmentListNoaa *slnoaa = NULL;
-    SegmentListGAC *slgac = NULL;
-    SegmentListHRP *slhrp = NULL;
-    SegmentListMetop *slmetop = NULL;
-    SegmentListVIIRS *slviirs = NULL;
+//    SegmentListNoaa *slnoaa = NULL;
+//    SegmentListGAC *slgac = NULL;
+//    SegmentListHRP *slhrp = NULL;
+//    SegmentListMetop *slmetop = NULL;
+//    SegmentListVIIRSM *slviirsm = NULL;
+//    SegmentListVIIRSDNB *slviirsdnb = NULL;
 
-    if (channelshown >= 1 && channelshown <= 6)
-    {
-        //qDebug() << QString("Segmenttype = %1").arg(this->getSegmentType());
-        if (this->getSegmentType() == SEG_NOAA)
-            slnoaa = segs->seglnoaa;
-        else if (this->getSegmentType() == SEG_GAC)
-            slgac = segs->seglgac;
-        else if (this->getSegmentType() == SEG_METOP)
-            slmetop = segs->seglmetop;
-        else if (this->getSegmentType() == SEG_HRP)
-            slhrp = segs->seglhrp;
-    }
+//    if (channelshown >= 1 && channelshown <= 6)
+//    {
+//        //qDebug() << QString("Segmenttype = %1").arg(this->getSegmentType());
+//        if (this->getSegmentType() == SEG_NOAA)
+//            slnoaa = segs->seglnoaa;
+//        else if (this->getSegmentType() == SEG_GAC)
+//            slgac = segs->seglgac;
+//        else if (this->getSegmentType() == SEG_METOP)
+//            slmetop = segs->seglmetop;
+//        else if (this->getSegmentType() == SEG_HRP)
+//            slhrp = segs->seglhrp;
+//    }
 
-    if( channelshown == 10)
-        slviirs = segs->seglviirsm;
+//    if( channelshown == 10)
+//        slviirs = segs->seglviirsm;
 
     if(channelshown >= 1 && channelshown <= 6)
         displayAVHRRImageInfo();

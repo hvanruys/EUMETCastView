@@ -61,8 +61,8 @@ SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, QObject *p
     double epoch = line1.mid(18,14).toDouble(&ok);
     julian_state_vector = Julian_Date_of_Epoch(epoch);
 
-    qtle = new QTle(nss_2.sat_name, line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle(nss_2.sat_name, line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
 
     minutes_since_state_vector = ( julian_sensing_start - julian_state_vector ) * MIN_PER_DAY; //  + (1.0/12.0) / 60.0;
@@ -86,22 +86,6 @@ SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, QObject *p
 
     //qDebug() << QString("---> lon = %1 lat = %2  hours_since_state_vector = %3").arg(lon_start_deg).arg(lat_start_deg).arg( hours_since_state_vector);
 
-    geolatitude = NULL;
-    geolongitude = NULL;
-
-    for(int i = 0; i < 3; i++)
-    {
-        ptrbaVIIRS[i] = NULL;
-    }
-
-    projectionCoordX = NULL;
-    projectionCoordY = NULL;
-    projectionCoordValue = NULL;
-
-    tiepoints_lat = NULL;
-    tiepoints_lon = NULL;
-    aligncoef = NULL;
-    expanscoef = NULL;
 
     latMax = 0.0;
     lonMax = 0.0;
@@ -116,7 +100,7 @@ SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, QObject *p
 
 SegmentVIIRSM::~SegmentVIIRSM()
 {
-    cleanupMemory();
+    resetMemory();
 }
 
 void SegmentVIIRSM::initializeMemory()
@@ -125,60 +109,12 @@ void SegmentVIIRSM::initializeMemory()
 
     for(int i = 0; i < (bandlist.at(0) ? 3 : 1); i++)
     {
-        if(ptrbaVIIRS[i] == NULL)
+        if(ptrbaVIIRS[i].isNull())
         {
-            ptrbaVIIRS[i] = new unsigned short[earth_views_per_scanline * NbrOfLines];
+            ptrbaVIIRS[i].reset(new unsigned short[earth_views_per_scanline * NbrOfLines]);
             qDebug() << QString("Initializing VIIRSM memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
-            bImageMemory = true;
         }
     }
-}
-
-void SegmentVIIRSM::resetMemory()
-{
-    if( geolatitude != NULL)
-    {
-        delete [] geolatitude;
-        geolatitude = NULL;
-    }
-    if( geolongitude != NULL)
-    {
-        delete [] geolongitude;
-        geolongitude = NULL;
-    }
-
-    if( projectionCoordX != NULL)
-    {
-        delete [] projectionCoordX;
-        projectionCoordX = NULL;
-    }
-    if( projectionCoordY != NULL)
-    {
-        delete [] projectionCoordY;
-        projectionCoordY = NULL;
-    }
-    if( projectionCoordValue != NULL)
-    {
-        delete [] projectionCoordValue;
-        projectionCoordValue = NULL;
-    }
-
-    for(int i = 0; i < 3; i++)
-    {
-        if(ptrbaVIIRS[i] != NULL)
-        {
-            delete [] ptrbaVIIRS[i];
-            ptrbaVIIRS[i] = NULL;
-        }
-    }
-
-    bImageMemory = false;
-
-}
-
-void SegmentVIIRSM::cleanupMemory()
-{
-    resetMemory();
 }
 
 void SegmentVIIRSM::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)
@@ -243,12 +179,12 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
         qDebug() << "file " << basename << " already exist !";
     }
 */
-    tiepoints_lat = new float[96 * 201];
-    tiepoints_lon = new float[96 * 201];
-    aligncoef = new float[200];
-    expanscoef = new float[200];
-    geolongitude = new float[768 * 3200];
-    geolatitude = new float[768 * 3200];
+    tiepoints_lat.reset(new float[96 * 201]);
+    tiepoints_lon.reset(new float[96 * 201]);
+    aligncoef.reset(new float[200]);
+    expanscoef.reset(new float[200]);
+    geolongitude.reset(new float[768 * 3200]);
+    geolatitude.reset(new float[768 * 3200]);
 
 
     if( (h5_file_id = H5Fopen(basename.toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
@@ -265,7 +201,7 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
             qDebug() << "Dataset " << (iscolorimage ? getDatasetNameFromColor(k) : getDatasetNameFromBand() ) << " is open !!  ok ok ok ";
 
         if((h5_status = H5Dread (radiance_id[k], H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL,
-                                 H5P_DEFAULT, ptrbaVIIRS[k])) < 0)
+                                 H5P_DEFAULT, ptrbaVIIRS[k].data())) < 0)
             qDebug() << "Unable to read radiance dataset";
 
     }
@@ -293,19 +229,19 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
 
 
     if((h5_status = H5Dread (latitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, tiepoints_lat)) < 0)
+                             H5P_DEFAULT, tiepoints_lat.data())) < 0)
         fprintf(stderr, "unable to read latitude dataset");
 
     if((h5_status = H5Dread (longitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, tiepoints_lon)) < 0)
+                             H5P_DEFAULT, tiepoints_lon.data())) < 0)
         fprintf(stderr, "unable to read longitude dataset");
 
     if((h5_status = H5Dread (aligncoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, aligncoef)) < 0)
+                             H5P_DEFAULT, aligncoef.data())) < 0)
         fprintf(stderr, "unable to read AlignmentCoefficient dataset");
 
     if((h5_status = H5Dread (expanscoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, expanscoef)) < 0)
+                             H5P_DEFAULT, expanscoef.data())) < 0)
         fprintf(stderr, "unable to read ExpansionCoefficient dataset");
 
     int i, j;
@@ -419,16 +355,6 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
 
     }
 
-    delete [] tiepoints_lat;
-    delete [] tiepoints_lon;
-    delete [] aligncoef;
-    delete [] expanscoef;
-
-    tiepoints_lat = NULL;
-    tiepoints_lon = NULL;
-    aligncoef = NULL;
-    expanscoef = NULL;
-
     if(iscolorimage)
     {
         h5_status = H5Dclose (radiance_id[0]);
@@ -482,7 +408,7 @@ Segment *SegmentVIIRSM::ReadDatasetsInMemory()
             qDebug() << "Dataset " << (iscolorimage ? getDatasetNameFromColor(k) : getDatasetNameFromBand() ) << " is open !!  ok ok ok ";
 
         if((h5_status = H5Dread (radiance_id[k], H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL,
-                                 H5P_DEFAULT, ptrbaVIIRS[k])) < 0)
+                                 H5P_DEFAULT, ptrbaVIIRS[k].data())) < 0)
             qDebug() << "Unable to read radiance dataset";
 
     }
@@ -804,7 +730,7 @@ void SegmentVIIRSM::interpolateViaLonLat(int itrack, int iscan, float lon_A, flo
         }
     }
 
-//    if( itrack == 0 && iscan == 0)
+//    if( itrack == 0 && (iscan == 0 || iscan == 1))
 //    {
 //        for (int relt = 0; relt < 16; relt++) {
 //            for (int rels = 0; rels < 16; rels++)
@@ -932,11 +858,11 @@ void SegmentVIIRSM::ComposeSegmentImage()
         row = (QRgb*)imageptrs->ptrimageViirs->scanLine(this->startLineNbr + line);
         for (int pixelx = 0; pixelx < 3200; pixelx++)
         {
-            pixval[0] = *(this->ptrbaVIIRS[0] + line * 3200 + pixelx);
+            pixval[0] = *(this->ptrbaVIIRS[0].data() + line * 3200 + pixelx);
             if(color)
             {
-                pixval[1] = *(this->ptrbaVIIRS[1] + line * 3200 + pixelx);
-                pixval[2] = *(this->ptrbaVIIRS[2] + line * 3200 + pixelx);
+                pixval[1] = *(this->ptrbaVIIRS[1].data() + line * 3200 + pixelx);
+                pixval[2] = *(this->ptrbaVIIRS[2].data() + line * 3200 + pixelx);
             }
 
             valok[0] = pixval[0] < 65528 && pixval[0] > 0;
@@ -1040,9 +966,9 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj)
     bool color = bandlist.at(0);
     bool valok[3];
 
-    projectionCoordX = new qint32[768 * 3200];
-    projectionCoordY = new qint32[768 * 3200];
-    projectionCoordValue = new QRgb[768 * 3200];
+    projectionCoordX.reset(new qint32[768 * 3200]);
+    projectionCoordY.reset(new qint32[768 * 3200]);
+    projectionCoordValue.reset(new QRgb[768 * 3200]);
 
     for( int i = 0; i < 768; i++)
     {

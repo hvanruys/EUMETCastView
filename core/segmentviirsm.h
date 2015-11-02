@@ -4,17 +4,6 @@
 #include "satellite.h"
 #include "segment.h"
 
-//typedef struct
-//{
-//    float lon;
-//    float lat;
-//    int i;
-//    int j;
-//} lonlatdata;
-
-//bool operator<(const lonlatdata& a, const lonlatdata& b) { return a.lon < b.lon; }
-
-
 class SegmentVIIRSM : public Segment
 {
     Q_OBJECT
@@ -24,8 +13,6 @@ public:
     ~SegmentVIIRSM();
 
     void initializeMemory();
-    void resetMemory();
-    void cleanupMemory();
 
     Segment *ReadSegmentInMemory();
     Segment *ReadDatasetsInMemory();
@@ -61,13 +48,15 @@ private:
     void interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
     void interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
 
-    float *tiepoints_lat;
-    float *tiepoints_lon;
-    float *aligncoef;
-    float *expanscoef;
+    QScopedArrayPointer<float> tiepoints_lat;
+    QScopedArrayPointer<float> tiepoints_lon;
+    QScopedArrayPointer<float> aligncoef;
+    QScopedArrayPointer<float> expanscoef;
     float s[16];
-    float *geolatitude;
-    float *geolongitude;
+
+    QScopedArrayPointer<float> geolatitude;
+    QScopedArrayPointer<float> geolongitude;
+
 
     QList<bool> bandlist;
     QList<int> colorlist;

@@ -398,7 +398,6 @@ void FormMapCyl::toggleButtonHRP()
         ui->btnRealTime->setChecked(opts.buttonRealTime);
         ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
 
-
         this->showSegmentList(0);
     }
     //imagetab->SetGammaSpinboxes();
@@ -464,7 +463,6 @@ void FormMapCyl::toggleButtonVIIRSDNB()
         ui->btnRealTime->setChecked(opts.buttonRealTime);
         ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
 
-
         this->showSegmentList(0);
     }
     //imagetab->SetGammaSpinboxes();
@@ -495,41 +493,50 @@ void FormMapCyl::toggleButtonRealTime()
         ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
 
     }
-    //this->RemoveAllSelected();
+    this->RemoveAllSelected();
     this->setScrollBarMaximum();
 }
 
 void FormMapCyl::setScrollBarMaximum()
 {
 
-    qDebug() << QString("setscrollbarmaximum = %1").arg(segs->seglmetop->NbrOfSegments());
 
     if (opts.buttonMetop)
     {
         ui->verticalScrollBar->setMaximum(segs->seglmetop->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum metop = %1").arg(segs->seglmetop->NbrOfSegments());
     }
     else if (opts.buttonNoaa)
     {
         ui->verticalScrollBar->setMaximum(segs->seglnoaa->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum noaa = %1").arg(segs->seglnoaa->NbrOfSegments());
     }
     else if (opts.buttonHRP)
     {
         ui->verticalScrollBar->setMaximum(segs->seglhrp->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum HRP = %1").arg(segs->seglhrp->NbrOfSegments());
     }
     else if (opts.buttonGAC)
     {
         ui->verticalScrollBar->setMaximum(segs->seglgac->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum GAC = %1").arg(segs->seglgac->NbrOfSegments());
     }
     else if (opts.buttonVIIRSM)
     {
         ui->verticalScrollBar->setMaximum(segs->seglviirsm->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum VIIRSM = %1").arg(segs->seglviirsm->NbrOfSegments());
+    }
+    else if (opts.buttonVIIRSDNB)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglviirsdnb->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum VIIRSDNB = %1").arg(segs->seglviirsdnb->NbrOfSegments());
     }
     else if (opts.buttonRealTime)
     {
         ui->verticalScrollBar->setMaximum(0);
     }
 
-    showSegmentList(0);
+    //showSegmentList(0);
 }
 
 void FormMapCyl::showSegmentList(int value)
@@ -557,12 +564,13 @@ void FormMapCyl::showSegmentList(int value)
     }
     else if(opts.buttonHRP)
     {
+        qDebug() << "in showsegmentlist opts.buttonHRP";
+
         segs->seglhrp->ShowSegment(value);
         segs->seglhrp->GetFirstLastVisible(&first, &last);
         nbrseg = segs->seglhrp->NbrOfSegments();
 
         outp = QString("HRP From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-        //qDebug() << outp;
     }
     else if(opts.buttonGAC)
     {
@@ -592,6 +600,8 @@ void FormMapCyl::showSegmentList(int value)
     {
         outp = QString("Real time");
     }
+
+    qDebug() << outp;
 
     emit signalSegmentChanged(outp);
     mapcyl->update();

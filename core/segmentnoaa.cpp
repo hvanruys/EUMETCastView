@@ -65,8 +65,8 @@ SegmentNoaa::SegmentNoaa(QFile *filesegment, SatelliteList *satl, QObject *paren
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
 
-    qtle = new QTle(noaa19.sat_name, line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle(noaa19.sat_name, line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
     julian_state_vector = qtle->Epoch();
 
@@ -88,6 +88,11 @@ SegmentNoaa::SegmentNoaa(QFile *filesegment, SatelliteList *satl, QObject *paren
     CalculateCornerPoints();
 
 }
+
+SegmentNoaa::~SegmentNoaa()
+{
+}
+
 
 int SegmentNoaa::ReadNbrOfLines()
 {
@@ -144,9 +149,9 @@ int SegmentNoaa::ReadNbrOfLines()
 
 void SegmentNoaa::initializeProjectionCoord()
 {
-    projectionCoordX = new int[360 * 2048];
-    projectionCoordY = new int[360 * 2048];
-    projectionCoordValue = new QRgb[360 * 2048];
+    projectionCoordX.reset(new int[360 * 2048]);
+    projectionCoordY.reset(new int[360 * 2048]);
+    projectionCoordValue.reset(new QRgb[360 * 2048]);
 
     for( int i = 0; i < 360; i++)
     {
@@ -212,7 +217,7 @@ Segment *SegmentNoaa::ReadSegmentInMemory()
                     val2_ch[k] = 0xFF & picture_line.at(i+l);
                     l++;
                     tot_ch[k] = (val1_ch[k] <<= 8) | val2_ch[k];
-                    *(this->ptrbaChannel[k] + heightinsegment * 2048 + j) = tot_ch[k];
+                    *(this->ptrbaChannel[k].data() + heightinsegment * 2048 + j) = tot_ch[k];
 
                   }
 

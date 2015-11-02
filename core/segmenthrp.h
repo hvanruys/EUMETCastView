@@ -12,6 +12,8 @@ class SegmentHRP : public Segment
 
 public:
     explicit SegmentHRP(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    ~SegmentHRP();
+
     void ComposeProjection(int inputchannel, eProjections proj);
 
     void ComposeSegmentLCCProjection(int inputchannel);

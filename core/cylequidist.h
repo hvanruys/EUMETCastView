@@ -10,6 +10,7 @@ class CylEquiDist
 public:
   CylEquiDist( const QString filemapname , double startlon=0, double startlat=0 );
   CylEquiDist( const int width, const int height, double startlon=0, double startlat=0 );
+  ~CylEquiDist();
   bool sphericalToPixel(double lon, double lat, int &x, int &y);
   bool pixelToSpherical(const int x, const int y, double &lon, double &lat);
   // QRgb pixel( int x, int y ) { return (im.pixel(x, y)); };
@@ -28,8 +29,9 @@ private:
 
   double del_lon;
   double del_lat;
-  double *lon_array;
-  double *lat_array;
+
+  QScopedArrayPointer<double> lon_array;
+  QScopedArrayPointer<double> lat_array;
 
   double start_lon;
   double start_lat;

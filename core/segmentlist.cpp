@@ -56,24 +56,6 @@ int SegmentList::NbrOfSegments()
 
 }
 
-bool SegmentList::imageMemory()
-{
-    bool bMemory = false;
-
-    QList<Segment*>::iterator segit = segmentlist.begin();
-
-    while ( segit != segmentlist.end() )
-    {
-        bMemory = (*segit)->bImageMemory;
-        if(bMemory)
-            return true;
-        ++segit;
-    }
-
-    return false;
-
-}
-
 int SegmentList::NbrOfSegmentsSelected()
 {
     int nbr = 0;

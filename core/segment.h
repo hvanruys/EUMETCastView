@@ -38,7 +38,7 @@ public:
 
     virtual void initializeMemory();
     virtual void resetMemory();
-    virtual void cleanupMemory();
+//    virtual void cleanupMemory();
     void RenderSatPath(QPainter *painter, QColor color);
     void sphericalToPixel(double lon, double lat, int &x, int &y, int devwidth, int devheight);
     void drawLineCyl(double lon1, double lat1, double lon2, double lat2, QPainter *painter);
@@ -52,9 +52,6 @@ public:
     virtual void ComposeSegmentLCCProjection(int inputchannel);
     virtual void ComposeSegmentGVProjection(int inputchannel);
     virtual void ComposeSegmentSGProjection(int inputchannel);
-
-    //virtual void ComposeProjectionConcurrent();
-    virtual bool lookupLonLat(double lon_rad, double lat_rad, int &col, int &row);
 
     //void RenderSegmentContourline(float lat_first, float lon_first, float lat_last, float lon_last);
     void RenderSegmentlineInTextureRad(int channel, double earth_loc_lat_first,double earth_loc_lon_first, double earth_loc_lat_last,
@@ -99,9 +96,9 @@ public:
     QVector2D winvecend1, winvecend2;
     QVector2D winvecend3, winvecend4;
 
-    unsigned short *ptrbaChannel[5];
-    unsigned short *ptrbaVIIRS[3];
-    float *ptrbaVIIRSDNB;
+    QScopedArrayPointer<unsigned short> ptrbaChannel[5];
+    QScopedArrayPointer<unsigned short> ptrbaVIIRS[3];
+    QScopedArrayPointer<float> ptrbaVIIRSDNB;
 
     QString line1;
     QString line2;
@@ -119,11 +116,11 @@ public:
 
     int earth_views_per_scanline;
 
-    float *earthloc_lon;
-    float *earthloc_lat;
+    QScopedArrayPointer<float> earthloc_lon;
+    QScopedArrayPointer<float> earthloc_lat;
 
-    QTle *qtle;
-    QSgp4 *qsgp4;
+    QScopedPointer<QTle> qtle;
+    QScopedPointer<QSgp4> qsgp4;
 
     double minutes_since_state_vector;
     double minutes_sensing;
@@ -132,8 +129,6 @@ public:
     QGeodetic cornerpointlast1;
     QGeodetic cornerpointfirst2;
     QGeodetic cornerpointlast2;
-
-    bool bImageMemory;
 
 protected:
 
@@ -163,9 +158,9 @@ protected:
 
     QString satname;
     
-    int *projectionCoordX;
-    int *projectionCoordY;
-    QRgb *projectionCoordValue;
+    QScopedArrayPointer<int> projectionCoordX;
+    QScopedArrayPointer<int> projectionCoordY;
+    QScopedArrayPointer<QRgb> projectionCoordValue;
 
 signals:
     //void segmentimagecomposed();

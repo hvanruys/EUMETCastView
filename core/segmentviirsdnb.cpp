@@ -61,8 +61,8 @@ SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, SatelliteList *satl, QObjec
     double epoch = line1.mid(18,14).toDouble(&ok);
     julian_state_vector = Julian_Date_of_Epoch(epoch);
 
-    qtle = new QTle(nss_2.sat_name, line1, line2, QTle::wgs72);
-    qsgp4 = new QSgp4( *qtle );
+    qtle.reset(new QTle(nss_2.sat_name, line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
 
     minutes_since_state_vector = ( julian_sensing_start - julian_state_vector ) * MIN_PER_DAY; //  + (1.0/12.0) / 60.0;
@@ -86,19 +86,6 @@ SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, SatelliteList *satl, QObjec
 
     //qDebug() << QString("---> lon = %1 lat = %2  hours_since_state_vector = %3").arg(lon_start_deg).arg(lat_start_deg).arg( hours_since_state_vector);
 
-    geolatitude = NULL;
-    geolongitude = NULL;
-
-    ptrbaVIIRSDNB = NULL;
-
-    projectionCoordX = NULL;
-    projectionCoordY = NULL;
-    projectionCoordValue = NULL;
-
-    tiepoints_lat = NULL;
-    tiepoints_lon = NULL;
-    aligncoef = NULL;
-    expanscoef = NULL;
 
     latMax = 0.0;
     lonMax = 0.0;
@@ -113,63 +100,29 @@ SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, SatelliteList *satl, QObjec
 
 SegmentVIIRSDNB::~SegmentVIIRSDNB()
 {
-    cleanupMemory();
+    resetMemory();
 }
 
 void SegmentVIIRSDNB::initializeMemory()
 {
     qDebug() << "Initializing VIIRSDNB memory";
-    if(ptrbaVIIRSDNB == NULL)
+    if(ptrbaVIIRSDNB.isNull())
     {
-        ptrbaVIIRSDNB = new float[earth_views_per_scanline * NbrOfLines];
+        ptrbaVIIRSDNB.reset(new float[earth_views_per_scanline * NbrOfLines]);
         qDebug() << QString("Initializing VIIRSDNB memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
-        bImageMemory = true;
     }
 }
 
-void SegmentVIIRSDNB::resetMemory()
-{
-    if( geolatitude != NULL)
-    {
-        delete [] geolatitude;
-        geolatitude = NULL;
-    }
-    if( geolongitude != NULL)
-    {
-        delete [] geolongitude;
-        geolongitude = NULL;
-    }
-
-    if( projectionCoordX != NULL)
-    {
-        delete [] projectionCoordX;
-        projectionCoordX = NULL;
-    }
-    if( projectionCoordY != NULL)
-    {
-        delete [] projectionCoordY;
-        projectionCoordY = NULL;
-    }
-    if( projectionCoordValue != NULL)
-    {
-        delete [] projectionCoordValue;
-        projectionCoordValue = NULL;
-    }
-    if(ptrbaVIIRSDNB != NULL)
-    {
-        delete ptrbaVIIRSDNB;
-        ptrbaVIIRSDNB = NULL;
-    }
-
-    bImageMemory = false;
-
-}
-
-void SegmentVIIRSDNB::cleanupMemory()
-{
-    resetMemory();
-}
-
+// 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 ..............................303            308   310            315
+// |                 |     |              |         TPZGroupLocationScanCompact   |              |     |              |
+// *--+--+--+--+--*--*--*--*--+--+--+--*--*--+--+.................................*--+--+--+--*--*--*--*--+--+--+--+--*
+// |//|//|//|//|//|  |//|  |//|//|//|//|  |//|//|                                 |//|//|//|//|  |//|  |//|//|//|//|//|
+// *--+--+--+--+--*--*--*--*--+--+--+--*--*--+--+.................................*--+--+--+--*--*--*--*--+--+--+--+--*
+// |              |  |  |  |           |  |                                       |           |  |  |  |              |
+//         5          1          4              4   NumberOfTiePointsZonesScan          4          1           5
+// |  |  |  |  |     |     |  |  |  |     |                                       |  |  |  |     |     |  |  |  |  |
+// 0  1  2  3  4     5     6  7  8  9     10 11     index in align/expans coef                  246   247         251
+//
 Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 {
 
@@ -180,6 +133,10 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     int     bzerror;
     hid_t   h5_file_id, radiance_id, latitude_id, longitude_id;
     hid_t   aligncoef_id, expanscoef_id;
+    hid_t   NumberOfTiePointZonesScan_id;
+    hid_t   TiePointZoneGroupLocationScanCompact_id;
+    hid_t   MoonIllumFraction_id;
+
     herr_t  h5_status;
 
     bool tempfileexist;
@@ -214,13 +171,15 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 
     fileout.close();
 
-    tiepoints_lat = new float[96 * 316];
-    tiepoints_lon = new float[96 * 316];
-    aligncoef = new float[252];
-    expanscoef = new float[252];
+    tiepoints_lat.reset(new float[96 * 316]);
+    tiepoints_lon.reset(new float[96 * 316]);
+    aligncoef.reset(new float[252]);
+    expanscoef.reset(new float[252]);
+    NumberOfTiePointZonesScan.reset(new int[64]);
+    TiePointZoneGroupLocationScanCompact.reset(new int[64]);
 
-    geolongitude = new float[NbrOfLines * earth_views_per_scanline];
-    geolatitude = new float[NbrOfLines * earth_views_per_scanline];
+    geolongitude.reset(new float[NbrOfLines * earth_views_per_scanline]);
+    geolatitude.reset(new float[NbrOfLines * earth_views_per_scanline]);
 
 
     if( (h5_file_id = H5Fopen(basename.toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
@@ -232,7 +191,7 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
         qDebug() << "Dataset " << "/All_Data/VIIRS-DNB-SDR_All/Radiance" << " is open !!  ok ok ok ";
 
     if((h5_status = H5Dread (radiance_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, ptrbaVIIRSDNB)) < 0)
+                             H5P_DEFAULT, ptrbaVIIRSDNB.data())) < 0)
         qDebug() << "Unable to read radiance dataset";
 
 
@@ -241,28 +200,70 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     longitude_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/Longitude", H5P_DEFAULT);
     aligncoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/AlignmentCoefficient", H5P_DEFAULT);
     expanscoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/ExpansionCoefficient", H5P_DEFAULT);
+    NumberOfTiePointZonesScan_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/NumberOfTiePointZonesScan", H5P_DEFAULT);
+    TiePointZoneGroupLocationScanCompact_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/TiePointZoneGroupLocationScanCompact", H5P_DEFAULT);
+    MoonIllumFraction_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/MoonIllumFraction", H5P_DEFAULT);
 
 
     if((h5_status = H5Dread (latitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, tiepoints_lat)) < 0)
+                             H5P_DEFAULT, tiepoints_lat.data())) < 0)
         fprintf(stderr, "unable to read latitude dataset");
 
     if((h5_status = H5Dread (longitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, tiepoints_lon)) < 0)
+                             H5P_DEFAULT, tiepoints_lon.data())) < 0)
         fprintf(stderr, "unable to read longitude dataset");
 
     if((h5_status = H5Dread (aligncoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, aligncoef)) < 0)
+                             H5P_DEFAULT, aligncoef.data())) < 0)
         fprintf(stderr, "unable to read AlignmentCoefficient dataset");
 
     if((h5_status = H5Dread (expanscoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, expanscoef)) < 0)
+                             H5P_DEFAULT, expanscoef.data())) < 0)
         fprintf(stderr, "unable to read ExpansionCoefficient dataset");
+
+    if((h5_status = H5Dread (NumberOfTiePointZonesScan_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, NumberOfTiePointZonesScan.data())) < 0)
+        fprintf(stderr, "unable to read NumberOfTiePointZonesScan dataset");
+
+    if((h5_status = H5Dread (TiePointZoneGroupLocationScanCompact_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, TiePointZoneGroupLocationScanCompact.data())) < 0)
+        fprintf(stderr, "unable to read TiePointZoneGroupLocationScanCompact dataset");
+
+    if((h5_status = H5Dread (MoonIllumFraction_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, &MoonIllumFraction)) < 0)
+        fprintf(stderr, "unable to read MoonIllumFraction dataset");
+
+
+
+    h5_status = H5Dclose (radiance_id);
+    h5_status = H5Dclose (latitude_id);
+    h5_status = H5Dclose (longitude_id);
+    h5_status = H5Dclose (aligncoef_id);
+    h5_status = H5Dclose (expanscoef_id);
+    h5_status = H5Dclose (NumberOfTiePointZonesScan_id);
+    h5_status = H5Dclose (TiePointZoneGroupLocationScanCompact_id);
+    h5_status = H5Dclose (MoonIllumFraction_id);
+
+    h5_status = H5Fclose (h5_file_id);
+
+
+    qDebug() << QString("MoonIllumFraction = %1").arg(MoonIllumFraction);
 
     int i, j;
 
+    for( j = 0; j < 8; j++)
+        s8[j] = (float)((j + 0.5)/8.0);
+    for( j = 0; j < 14; j++)
+        s14[j] = (float)((j + 0.5)/14.0);
     for( j = 0; j < 16; j++)
-        s[j] = (float)((j + 0.5)/16.0);
+        s16[j] = (float)((j + 0.5)/16.0);
+    for( j = 0; j < 20; j++)
+        s20[j] = (float)((j + 0.5)/20.0);
+    for( j = 0; j < 22; j++)
+        s22[j] = (float)((j + 0.5)/22.0);
+    for( j = 0; j < 24; j++)
+        s24[j] = (float)((j + 0.5)/24.0);
+
 
     /*
     for (j = 0; j < 4; j++) {
@@ -279,15 +280,41 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     }
 
 */
-    //    cout  << "Calc geo lat and lon" << endl;
+    cout  << "Calc geo lat and lon" << endl;
+    int pscan = 0;
+    for(int i = 0; i < 64 ; i++)
+    {
+        Pscan[i] = pscan;
+        pscan += NumberOfTiePointZonesScan[i] * Zscan[i];
+    }
 
-    //    for(int itrack = 0; itrack < 48; itrack++)
-    //    {
-    //        for(int iscan = 0; iscan < 200; iscan++)
-    //        {
-    //            CalcGeoLocations(itrack, iscan);
-    //        }
-    //    }
+    int ptpzscan = 0;
+
+    int from = 0;
+    int count = 0;
+    for(int i = 0; i < 64 ; i++)
+    {
+        int to = NumberOfTiePointZonesScan[i] + from;
+        for(int j = from; j < to; j++)
+        {
+            Ptpzscan[j] = ptpzscan;
+            ptpzscan += Zscan[i];
+            count++;
+        }
+        from = to;
+    }
+
+
+    for(int itrack = 0; itrack < 48; itrack++)
+    {
+        int indexfrom = 0;
+
+        for(int igroupscan = 0; igroupscan < 64; igroupscan++)
+        {
+            CalcGeoLocationsPerGroup(itrack, igroupscan, indexfrom);
+            indexfrom += NumberOfTiePointZonesScan[igroupscan];
+        }
+    }
 
     //this->LonLatMax();
 
@@ -321,130 +348,40 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 
 */
 
-/*
-    stat_max = -1.0E31;
-    stat_min = 1.0E31;
+    tiepoints_lat.reset();
+    tiepoints_lon.reset();
+    aligncoef.reset();
+    expanscoef.reset();
+    NumberOfTiePointZonesScan.reset();
+    TiePointZoneGroupLocationScanCompact.reset();
 
-    long count0 = 0;
-    long counttot = 0;
-
-    for (j = 0; j < NbrOfLines; j++) {
-        for (i = 0; i < earth_views_per_scanline; i++)
-        {
-            counttot++;
-            if(ptrbaVIIRSDNB[j * earth_views_per_scanline + i] <= 0.0)
-                count0++;
-            //if(ptrbaVIIRSDNB[j * earth_views_per_scanline + i] >= 9.5E-12 && ptrbaVIIRSDNB[j * earth_views_per_scanline + i] < 9.0E-08)
-            {
-                if(ptrbaVIIRSDNB[j * earth_views_per_scanline + i] >= stat_max)
-                {
-                    stat_max = ptrbaVIIRSDNB[j * earth_views_per_scanline + i];
-                }
-                if(ptrbaVIIRSDNB[j * earth_views_per_scanline + i] < stat_min)
-                    stat_min = ptrbaVIIRSDNB[j * earth_views_per_scanline + i];
-            }
-        }
-    }
-
-    qDebug() << QString("ptrbaVIIRSDNB min_ch = %1 max_ch = %2").arg(stat_min).arg(stat_max);
-    qDebug() << QString("count0 = %1 counttot = %2").arg(count0).arg(counttot);
-*/
-
-    delete [] tiepoints_lat;
-    delete [] tiepoints_lon;
-    delete [] aligncoef;
-    delete [] expanscoef;
-
-    tiepoints_lat = NULL;
-    tiepoints_lon = NULL;
-    aligncoef = NULL;
-    expanscoef = NULL;
-
-    h5_status = H5Dclose (radiance_id);
-    h5_status = H5Dclose (latitude_id);
-    h5_status = H5Dclose (longitude_id);
-    h5_status = H5Dclose (aligncoef_id);
-    h5_status = H5Dclose (expanscoef_id);
-
-    h5_status = H5Fclose (h5_file_id);
 
     return this;
 }
 
-Segment *SegmentVIIRSDNB::ReadDatasetsInMemory()
+void SegmentVIIRSDNB::CalcGeoLocationsPerGroup(int itrack, int igroupscan, int indexfrom)
 {
-    qDebug() << "Segment *SegmentVIIRS::ReadDatasetsInMemory()";
 
-    hid_t   h5_file_id, radiance_id;
-    herr_t  h5_status;
 
-    bool tempfileexist;
-
-    QString basename = this->fileInfo.baseName() + ".h5";
-
+    int index = indexfrom;
+    for(int iscan = TiePointZoneGroupLocationScanCompact[igroupscan];
+        iscan < TiePointZoneGroupLocationScanCompact[igroupscan] + NumberOfTiePointZonesScan[igroupscan]; iscan++)
     {
-        QFile tfile(basename);
-        tempfileexist = tfile.exists();
+        CalcGeoLocationsInTPZ(itrack, iscan, index, igroupscan);
+        index++;
     }
-
-    qDebug() << QString("trying H5Fopen basename = %1 exist = %2").arg(basename).arg(tempfileexist);
-
-    if( (h5_file_id = H5Fopen(basename.toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
-        qDebug() << "File " << basename << " not open !!";
-    else
-        qDebug() << "File " << basename << " is open !! ------------";
-
-    if((radiance_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-SDR_All/Radiance", H5P_DEFAULT)) < 0)
-        qDebug() << "Dataset " << "/All_Data/VIIRS-DNB-SDR_All/Radiance" << " is not open !!";
-    else
-        qDebug() << "Dataset " << "/All_Data/VIIRS-DNB-SDR_All/Radiance" << " is open !!  ok ok ok ";
-
-    if((h5_status = H5Dread (radiance_id, H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, ptrbaVIIRSDNB)) < 0)
-        qDebug() << "Unable to read radiance dataset";
-
-
-    for(int k = 0; k < 3; k++)
-    {
-        stat_max_ch[k] = 0;
-        stat_min_ch[k] = 9999999;
-    }
-
-
-    for (int j = 0; j < NbrOfLines; j++) {
-        for (int i = 0; i < earth_views_per_scanline; i++)
-        {
-            if(ptrbaVIIRSDNB[j * earth_views_per_scanline + i] >= stat_max_ch[0])
-                stat_max_ch[0] = ptrbaVIIRSDNB[j * earth_views_per_scanline + i];
-            if(ptrbaVIIRSDNB[j * earth_views_per_scanline + i] < stat_min_ch[0])
-                stat_min_ch[0] = ptrbaVIIRSDNB[j * earth_views_per_scanline + i];
-        }
-    }
-
-    h5_status = H5Dclose (radiance_id);
-
-    h5_status = H5Fclose (h5_file_id);
-
-    return this;
-
 }
 
 
 
-
-void SegmentVIIRSDNB::GetAlpha( float &ascan, float &atrack, int rels, int relt, int iscan)
-{
-    ascan = s[rels] + s[rels] * (1 - s[rels]) * expanscoef[iscan] + s[relt] * (1 - s[relt]) * aligncoef[iscan];
-    atrack = s[relt];
-}
-
-void SegmentVIIRSDNB::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 ; 0 <= iscan < 200
+void SegmentVIIRSDNB::CalcGeoLocationsInTPZ(int itrack, int iscan, int indexfrom, int igroupscan)
 {
     int iA, iB, iC, iD;
     int jA, jB, jC, jD;
     float lat_A, lat_B, lat_C, lat_D;
     float lon_A, lon_B, lon_C, lon_D;
-    quint16 val_A, val_B, val_C, val_D;
+    float val_A, val_B, val_C, val_D;
+
 
     iA = 2 * itrack;
     jA = iscan;
@@ -455,70 +392,82 @@ void SegmentVIIRSDNB::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 
     iD = 2 * itrack + 1;
     jD = iscan;
 
-    lat_A = tiepoints_lat[iA * 201 + jA];
-    lat_B = tiepoints_lat[iB * 201 + jB];
-    lat_C = tiepoints_lat[iC * 201 + jC];
-    lat_D = tiepoints_lat[iD * 201 + jD];
+//    if(itrack == 0 && ((iscan >= 0 && iscan < 16) || iscan > 307))
+//        qDebug() << QString("itrack = %1 iscan = %2 A(%3, %4) B(%5, %6) C(%7, %8) D(%9, %10)").arg(itrack).arg(iscan).arg(jA).arg(iA).arg(jB).arg(iB)
+//                    .arg(jC).arg(iC).arg(jD).arg(iD);
+
+    lat_A = tiepoints_lat[iA * 316 + jA];
+    lat_B = tiepoints_lat[iB * 316 + jB];
+    lat_C = tiepoints_lat[iC * 316 + jC];
+    lat_D = tiepoints_lat[iD * 316 + jD];
 
 //    if(itrack == 0)
 //        qDebug() << QString("itrack = %1 iscan = %2 Lat tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lat_A).arg(lat_B).arg(lat_C).arg(lat_D);
 
-    lon_A = tiepoints_lon[iA * 201 + jA];
-    lon_B = tiepoints_lon[iB * 201 + jB];
-    lon_C = tiepoints_lon[iC * 201 + jC];
-    lon_D = tiepoints_lon[iD * 201 + jD];
+    lon_A = tiepoints_lon[iA * 316 + jA];
+    lon_B = tiepoints_lon[iB * 316 + jB];
+    lon_C = tiepoints_lon[iC * 316 + jC];
+    lon_D = tiepoints_lon[iD * 316 + jD];
 
 
-    val_A = ptrbaVIIRSDNB[((itrack * 16)) * earth_views_per_scanline + (iscan * 16)];
-    val_B = ptrbaVIIRSDNB[((itrack * 16)) * earth_views_per_scanline + (iscan * 16) + 15];
-    val_C = ptrbaVIIRSDNB[((itrack * 16) + 15) * earth_views_per_scanline + (iscan * 16) + 15];
-    val_D = ptrbaVIIRSDNB[((itrack * 16) + 15) * earth_views_per_scanline + (iscan * 16)];
+//    val_A = ptrbaVIIRSDNB[((itrack * 16)) * earth_views_per_scanline + (iscan * zscan)];
+//    val_B = ptrbaVIIRSDNB[((itrack * 16)) * earth_views_per_scanline + (iscan * zscan) + zscan - 1];
+//    val_C = ptrbaVIIRSDNB[((itrack * 16) + 15) * earth_views_per_scanline + (iscan * zscan) + zscan - 1];
+//    val_D = ptrbaVIIRSDNB[((itrack * 16) + 15) * earth_views_per_scanline + (iscan * zscan)];
 
-    if( val_A == 0 || val_A > 65528 || val_B == 0 || val_B > 65528 || val_C == 0 || val_C > 65528 || val_D == 0 || val_D > 65528)
-    {
-        quint16 minval = Min(val_A, val_B, val_C, val_D);
+//    float minval = Minf(val_A, val_B, val_C, val_D);
 
-        for(int relt = 0; relt < 16; relt++)
-        {
-            for(int rels = 0; rels < 16; rels++)
-            {
-                if(ptrbaVIIRSDNB[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] == 0 || ptrbaVIIRSDNB[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] >= 65528)
-                {
-                    geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
-                    geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
-                }
-            }
-        }
-    }
+//    for(int relt = 0; relt < 16; relt++)
+//    {
+//        for(int rels = 0; rels < zscan; rels++)
+//        {
+//            if(ptrbaVIIRSDNB[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels] == 0 || ptrbaVIIRSDNB[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels] >= 65528)
+//            {
+//                geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
+//                geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
+//            }
+//        }
+//    }
 
-//    if(itrack == 0)
-//        qDebug() << QString("itrack = %1 iscan = %2 Lon tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lon_A).arg(lon_B).arg(lon_C).arg(lon_D);
+////    if(itrack == 0)
+////        qDebug() << QString("itrack = %1 iscan = %2 Lon tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lon_A).arg(lon_B).arg(lon_C).arg(lon_D);
 
     float themin = Minf(lon_A, lon_B, lon_C, lon_D);
     float themax = Maxf(lon_A, lon_B, lon_C, lon_D);
 
 
-    if (Maxf(abs(lat_A), abs(lat_B), abs(lat_C), abs(lat_D)) > 60.0 || (themax - themin) > 90.0)
-        interpolateViaVector(itrack, iscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
-    else
-        interpolateViaLonLat(itrack, iscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+//    if (Maxf(abs(lat_A), abs(lat_B), abs(lat_C), abs(lat_D)) > 60.0 || (themax - themin) > 90.0)
+//        interpolateViaVector(itrack, indexfrom, igroupscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+//    else
+        interpolateViaLonLat(itrack, indexfrom, igroupscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+
+//    if(itrack == 0)
+//        qDebug() << QString("itrack = %1 iscan = %2 indexfrom = %3 igroupscan = 4").arg(itrack).arg(iscan).arg(indexfrom).arg(igroupscan);
 
 }
 
-void SegmentVIIRSDNB::interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+void SegmentVIIRSDNB::interpolateViaLonLat(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
 {
 
     float ascan, atrack;
     float lat_1, lat_2, lat;
     float lon_1, lon_2, lon;
 
+    int zscan = Zscan[igroupscan];
+    int nscan = NumberOfTiePointZonesScan[igroupscan];
+    int pscan = Pscan[igroupscan];
+    int ptpzscan = Ptpzscan[indexfrom];
+
+//    if(itrack == 0)
+//        qDebug() <<  QString("iscan = %1 ptpzscan = %2").arg(iscan).arg(ptpzscan);
+
     for(int relt = 0; relt < 16; relt++)
     {
-        for(int rels = 0; rels < 16; rels++)
+        for(int rels = 0; rels < zscan; rels++)
         {
-            GetAlpha(ascan, atrack, rels, relt, iscan);
-            // 96 x 201
-
+            GetAlpha(ascan, atrack, rels, relt, indexfrom, zscan);
+            // 96 x 316
+            // 48 * 16 = 768
             lat_1 = (1 - ascan) * lat_A + ascan * lat_B;
             lat_2 = (1 - ascan) * lat_D + ascan * lat_C;
             lat = (1 - atrack) * lat_1 + atrack * lat_2;
@@ -527,28 +476,38 @@ void SegmentVIIRSDNB::interpolateViaLonLat(int itrack, int iscan, float lon_A, f
             lon_2 = (1 - ascan) * lon_D + ascan * lon_C;
             lon = (1 - atrack) * lon_1 + atrack * lon_2;
 
-            geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lat;
-            geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lon;
+//            if(itrack == 0 && (iscan >= 0 && iscan < 8) && relt == 0)
+//                qDebug() <<  QString("iscan = %1 ptpzscan + rels = %2").arg(iscan).arg(ptpzscan + rels);
 
-
+            geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = lat;
+            geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = lon;
         }
     }
 
+
 //    if( itrack == 0 && iscan == 0)
 //    {
+//        cout << "Lat A = " << lat_A << " Lat B = " << lat_B << " Lat C = " << lat_C << " Lat D = " << lat_D << endl << endl;
 //        for (int relt = 0; relt < 16; relt++) {
-//            for (int rels = 0; rels < 16; rels++)
-//               cout << " " <<  geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels];
+//            for (int rels = 0; rels < zscan; rels++)
+//               cout << " " <<  geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels];
 //            cout << endl;
 //        }
 //    }
 
 }
 
-void SegmentVIIRSDNB::interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+
+
+void SegmentVIIRSDNB::interpolateViaVector(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
 {
     float ascan, atrack;
     float lon, lat;
+
+    int zscan = Zscan[igroupscan];
+    int nscan = NumberOfTiePointZonesScan[igroupscan];
+    int pscan = Pscan[igroupscan];
+    int ptpzscan = Ptpzscan[indexfrom];
 
     // Earth Centred vectors
     float lat_A_rad = lat_A * PI / 180.0;
@@ -584,9 +543,9 @@ void SegmentVIIRSDNB::interpolateViaVector(int itrack, int iscan, float lon_A, f
 
     for(int relt = 0; relt < 16; relt++)
     {
-        for(int rels = 0; rels < 16; rels++)
+        for(int rels = 0; rels < zscan; rels++)
         {
-            GetAlpha(ascan, atrack, rels, relt, iscan);
+            GetAlpha(ascan, atrack, rels, relt, indexfrom, zscan);
             // 96 x 201
 
             x1 = (1 - ascan) * x_A_ec + ascan * x_B_ec;
@@ -604,28 +563,104 @@ void SegmentVIIRSDNB::interpolateViaVector(int itrack, int iscan, float lon_A, f
             lon_deg = atan2(y, x) * 180.0/PI;
             lat_deg = atan2(z, sqrt(x * x + y * y)) * 180.0/PI;
 
-            geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lat_deg;
-            geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lon_deg;
-
-
+            geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = lat_deg;
+            geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = lon_deg;
         }
     }
 
 //    if( itrack == 0)
 //    {
+
+
 //        cout << "geolatitude" << endl;
 //        for (int relt = 0; relt < 16; relt++) {
-//            for (int rels = 0; rels < 16; rels++)
-//               cout << " " <<  geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels];
+//            for (int rels = 0; rels < zscan; rels++)
+//               cout << " " <<  geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels];
 //            cout << endl;
 //        }
 //        cout << "geolongitude" << endl;
 //        for (int relt = 0; relt < 16; relt++) {
-//            for (int rels = 0; rels < 16; rels++)
-//               cout << " " <<  geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels];
+//            for (int rels = 0; rels < zscan; rels++)
+//               cout << " " <<  geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels];
 //            cout << endl;
 //        }
 //    }
+
+}
+
+
+void SegmentVIIRSDNB::GetAlpha( float &ascan, float &atrack, int rels, int relt, int index, int zscan)
+{
+    if(zscan == 8)
+        ascan = s8[rels] + s8[rels] * (1 - s8[rels]) * expanscoef[index] + s16[relt] * (1 - s16[relt]) * aligncoef[index];
+    else if(zscan == 14)
+        ascan = s14[rels] + s14[rels] * (1 - s14[rels]) * expanscoef[index] + s16[relt] * (1 - s16[relt]) * aligncoef[index];
+    else if(zscan == 16)
+        ascan = s16[rels] + s16[rels] * (1 - s16[rels]) * expanscoef[index] + s16[relt] * (1 - s16[relt]) * aligncoef[index];
+    else if(zscan == 20)
+        ascan = s20[rels] + s20[rels] * (1 - s20[rels]) * expanscoef[index] + s16[relt] * (1 - s16[relt]) * aligncoef[index];
+    else if(zscan == 22)
+        ascan = s22[rels] + s22[rels] * (1 - s22[rels]) * expanscoef[index] + s16[relt] * (1 - s16[relt]) * aligncoef[index];
+    else if(zscan == 24)
+        ascan = s24[rels] + s24[rels] * (1 - s24[rels]) * expanscoef[index] + s16[relt] * (1 - s16[relt]) * aligncoef[index];
+    atrack = s16[relt];
+}
+
+Segment *SegmentVIIRSDNB::ReadDatasetsInMemory()
+{
+    qDebug() << "Segment *SegmentVIIRS::ReadDatasetsInMemory()";
+
+    hid_t   h5_file_id, radiance_id;
+    herr_t  h5_status;
+
+    bool tempfileexist;
+
+    QString basename = this->fileInfo.baseName() + ".h5";
+
+    {
+        QFile tfile(basename);
+        tempfileexist = tfile.exists();
+    }
+
+    qDebug() << QString("trying H5Fopen basename = %1 exist = %2").arg(basename).arg(tempfileexist);
+
+    if( (h5_file_id = H5Fopen(basename.toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
+        qDebug() << "File " << basename << " not open !!";
+    else
+        qDebug() << "File " << basename << " is open !! ------------";
+
+    if((radiance_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-SDR_All/Radiance", H5P_DEFAULT)) < 0)
+        qDebug() << "Dataset " << "/All_Data/VIIRS-DNB-SDR_All/Radiance" << " is not open !!";
+    else
+        qDebug() << "Dataset " << "/All_Data/VIIRS-DNB-SDR_All/Radiance" << " is open !!  ok ok ok ";
+
+    if((h5_status = H5Dread (radiance_id, H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, ptrbaVIIRSDNB.data())) < 0)
+        qDebug() << "Unable to read radiance dataset";
+
+
+    for(int k = 0; k < 3; k++)
+    {
+        stat_max_ch[k] = 0;
+        stat_min_ch[k] = 9999999;
+    }
+
+
+    for (int j = 0; j < NbrOfLines; j++) {
+        for (int i = 0; i < earth_views_per_scanline; i++)
+        {
+            if(ptrbaVIIRSDNB[j * earth_views_per_scanline + i] >= stat_max_ch[0])
+                stat_max_ch[0] = ptrbaVIIRSDNB[j * earth_views_per_scanline + i];
+            if(ptrbaVIIRSDNB[j * earth_views_per_scanline + i] < stat_min_ch[0])
+                stat_min_ch[0] = ptrbaVIIRSDNB[j * earth_views_per_scanline + i];
+        }
+    }
+
+    h5_status = H5Dclose (radiance_id);
+
+    h5_status = H5Fclose (h5_file_id);
+
+    return this;
 
 }
 
@@ -633,33 +668,6 @@ int SegmentVIIRSDNB::ReadNbrOfLines()
 {
     return NbrOfLines;
 }
-
-//void SegmentVIIRSDNB::ComposeSegmentImage()
-//{
-
-//    QRgb *row;
-//    int indexout;
-
-//    qDebug() << QString("SegmentVIIRSDNB::ComposeSegmentImage() segm->startLineNbr = %1").arg(this->startLineNbr);
-//    qDebug() << QString("SegmentVIIRSDNB::ComposeSegmentImage() invertthissegment[0] = %1").arg(invertthissegment[0]);
-
-//    float pixval;
-//    int r;
-
-//    for (int line = 0; line < this->NbrOfLines; line++)
-//    {
-//        row = (QRgb*)imageptrs->ptrimageViirs->scanLine(this->startLineNbr + line);
-//        for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
-//        {
-//            pixval = *(this->ptrbaVIIRSDNB + line * earth_views_per_scanline + pixelx);
-//            indexout =  (int)(255 * ( pixval - lowerlimit ) / (upperlimit - lowerlimit));
-//            indexout = indexout > 255 ? 255 : indexout;
-//            indexout = indexout < 0 ? 0 : indexout;
-//            r = indexout;
-//            row[pixelx] = qRgb(r, r, r );
-//        }
-//    }
-//}
 
 void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlimit)
 {
@@ -675,7 +683,7 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
         row = (QRgb*)imageptrs->ptrimageViirs->scanLine(this->startLineNbr + line);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
-            pixval = *(this->ptrbaVIIRSDNB + line * earth_views_per_scanline + pixelx);
+            pixval = *(this->ptrbaVIIRSDNB.data() + line * earth_views_per_scanline + pixelx);
             indexout =  (int)(255 * ( pixval - lowerlimit ) / (upperlimit - lowerlimit));
             indexout = indexout > 255 ? 255 : indexout;
             indexout = indexout < 0 ? 0 : indexout;
@@ -710,14 +718,13 @@ void SegmentVIIRSDNB::ComposeProjection(eProjections proj)
 
     //g_mutex.lock();
 
-    int pixval[3];
+    float pixval;
 
-    bool color = bandlist.at(0);
-    bool valok[3];
+    bool valok;
 
-    projectionCoordX = new qint32[NbrOfLines * earth_views_per_scanline];
-    projectionCoordY = new qint32[NbrOfLines * earth_views_per_scanline];
-    projectionCoordValue = new QRgb[NbrOfLines * earth_views_per_scanline];
+    projectionCoordX.reset(new qint32[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordY.reset(new qint32[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValue.reset(new QRgb[NbrOfLines * earth_views_per_scanline]);
 
     for( int i = 0; i < NbrOfLines; i++)
     {
@@ -728,26 +735,14 @@ void SegmentVIIRSDNB::ComposeProjection(eProjections proj)
             projectionCoordValue[i * earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
         }
     }
-    qDebug() << "SegmentVIIRS::ComposeProjection(eProjections proj)";
+    qDebug() << "SegmentVIIRSDNB::ComposeProjection(eProjections proj)";
 
     for( int i = 0; i < this->NbrOfLines; i++)
     {
         for( int j = 0; j < this->earth_views_per_scanline ; j++ )
         {
-            pixval[0] = ptrbaVIIRSDNB[i * earth_views_per_scanline + j];
-            valok[0] = pixval[0] > 0 && pixval[0] < 65528;
+            pixval = ptrbaVIIRSDNB[i * earth_views_per_scanline + j];
 
-            if(color)
-            {
-                pixval[1] = ptrbaVIIRS[1][i * earth_views_per_scanline + j];
-                pixval[2] = ptrbaVIIRS[2][i * earth_views_per_scanline + j];
-                valok[1] = pixval[1] > 0 && pixval[1] < 65528;
-                valok[2] = pixval[2] > 0 && pixval[2] < 65528;
-            }
-
-
-            if( valok[0] && (color ? valok[1] && valok[2] : true))
-            {
                 latpos1 = geolatitude[i * earth_views_per_scanline + j];
                 lonpos1 = geolongitude[i * earth_views_per_scanline + j];
 
@@ -755,14 +750,14 @@ void SegmentVIIRSDNB::ComposeProjection(eProjections proj)
                 {
                     if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
-                        MapPixel( i, j, map_x, map_y, color);
+                        MapPixel( i, j, map_x, map_y);
                     }
                 }
                 else if(proj == GVP) // General Vertical Perspecitve
                 {
                     if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
-                        MapPixel( i, j, map_x, map_y, color);
+                        MapPixel( i, j, map_x, map_y);
                     }
 
                 }
@@ -770,120 +765,17 @@ void SegmentVIIRSDNB::ComposeProjection(eProjections proj)
                 {
                     if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
-                        MapPixel( i, j, map_x, map_y, color);
+                        MapPixel( i, j, map_x, map_y);
                     }
                 }
-            } else
-            {
-                projectionCoordX[i * earth_views_per_scanline + j] = 65535;
-                projectionCoordY[i * earth_views_per_scanline + j] = 65535;
-                projectionCoordValue[i * earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
-
-            }
         }
     }
-
-/*
-    int maxX = 0;
-    int maxY = 0;
-
-    fprintf(stderr, "projectionCoordX \n");
-    for( int i = 0; i < 16; i++) //this->NbrOfLines - 1; i++)
-    {
-        for( int j = 0; j < 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
-        {
-            if(projectionCoordX[i * earth_views_per_scanline + j] < 10000 && projectionCoordX[i * earth_views_per_scanline + j + 1] < 10000)
-            {
-                if(maxX < abs(projectionCoordX[i * earth_views_per_scanline + j] - projectionCoordX[i * earth_views_per_scanline + j + 1]) )
-                    maxX = abs(projectionCoordX[i * earth_views_per_scanline + j] - projectionCoordX[i * earth_views_per_scanline + j + 1]);
-                if(maxY < abs(projectionCoordY[i * earth_views_per_scanline + j] - projectionCoordY[i * earth_views_per_scanline + j + 1]) )
-                    maxY = abs(projectionCoordY[i * earth_views_per_scanline + j] - projectionCoordY[i * earth_views_per_scanline + j + 1]);
-            }
-
-            fprintf(stderr, "%u ", projectionCoordX[i * earth_views_per_scanline + j]);
-        }
-
-        fprintf(stderr, "\n");
-    }
-
-    fprintf(stderr, "projectionCoordY \n");
-
-    for( int i = 0; i < 16; i++) //this->NbrOfLines - 1; i++)
-    {
-        for( int j = 0; j < 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
-        {
-            fprintf(stderr, "%u ", projectionCoordY[i * earth_views_per_scanline + j]);
-        }
-
-        fprintf(stderr, "\n");
-    }
-
-    qDebug() << QString("===============>>>>>>>>>>> maxX = %1 maxY = %2").arg(maxX).arg(maxY);
-
-*/
 
 
    // g_mutex.unlock();
 
 }
 
-//void SegmentVIIRS::ComposeProjectionConcurrent()
-//{
-//    if( geolatitude == 0x0)
-//    {
-//        qDebug() << "pointer to geolatitude = 0x0 !!!!!!!!!!!";
-//    }
-
-//    bool color = bandlist.at(0);
-//    bool valok[3];
-//    int pixval[3];
-
-//    LonLatMax();
-
-//    int col, row;
-//    double lon_rad, lat_rad;
-//    int counter = 0;
-//    qDebug() << "=====> start SegmentVIIRS::ComposeProjectionConcurrent";
-//    int cntTotal = imageptrs->ptrimageProjection->height() * imageptrs->ptrimageProjection->width();
-
-//    //testlookupLonLat(55.888, 73.900, col, row);
-//    //return;
-
-//    g_mutex.lock();
-
-//    for (int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
-//    {
-//        for (int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
-//        {
-//            if (imageptrs->gvp->map_inverse(i, j, lon_rad, lat_rad))
-//            {
-//                if(this->lookupLonLat(lon_rad*180.0/PI, lat_rad*180/PI, col, row))
-//                {
-//                    if(col == 1500 && row == 400)
-//                        counter++;
-//                    pixval[0] = ptrbaVIIRSDNB[col * earth_views_per_scanline + row];
-//                    valok[0] = pixval[0] > 0 && pixval[0] < 65528;
-//                    if(color)
-//                    {
-//                        pixval[1] = ptrbaVIIRS[1][col * earth_views_per_scanline + row];
-//                        pixval[2] = ptrbaVIIRS[2][col * earth_views_per_scanline + row];
-//                        valok[1] = pixval[1] > 0 && pixval[1] < 65528;
-//                        valok[2] = pixval[2] > 0 && pixval[2] < 65528;
-//                    }
-
-//                    if( valok[0] && (color ? valok[1] && valok[2] : true))
-//                        MapPixel(col, row, i, j, color);
-//                }
-
-//            }
-//        }
-//    }
-
-//    g_mutex.unlock();
-
-//    qDebug() << "=====> end SegmentVIIRS::ComposeProjectionConcurrent counter = " << counter << " from total = " << cntTotal;
-
-//}
 
 void SegmentVIIRSDNB::LonLatMax()
 {
@@ -965,63 +857,31 @@ void SegmentVIIRSDNB::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 }
 
 
-void SegmentVIIRSDNB::MapPixel( int lines, int views, double map_x, double map_y, bool color)
+void SegmentVIIRSDNB::MapPixel( int lines, int views, double map_x, double map_y)
 {
     int indexout;
-    int pixval;
+    float pixval;
     int r, g, b;
     QRgb rgbvalue = qRgb(0,0,0);
+
+    float lowerlimit = pow(10, opts.dnbsbvalue/20.0)/pow(10, opts.dnbspbwindowsvalue);
+    float upperlimit = pow(10, opts.dnbsbvalue/20.0)*pow(10, opts.dnbspbwindowsvalue);
 
     pixval = ptrbaVIIRSDNB[lines * earth_views_per_scanline + views];
 
 
 //    if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-    if (map_x > -5 && map_x < imageptrs->ptrimageProjection->width() + 5 && map_y > -5 && map_y < imageptrs->ptrimageProjection->height() + 5)
+    if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
     {
 
         projectionCoordX[lines * earth_views_per_scanline + views] = (qint32)map_x;
         projectionCoordY[lines * earth_views_per_scanline + views] = (qint32)map_y;
 
-        indexout =  (int)(255 * ( pixval - imageptrs->stat_min_ch[0] ) / (imageptrs->stat_max_ch[0] - imageptrs->stat_min_ch[0]));
-        indexout = ( indexout > 255 ? 255 : indexout );
+        indexout =  (int)(255 * ( pixval - lowerlimit ) / (upperlimit - lowerlimit));
+        indexout = indexout > 255 ? 255 : indexout;
+        indexout = indexout < 0 ? 0 : indexout;
 
-
-        if(color)
-        {
-            if(invertthissegment[0])
-            {
-                r = 255 - imageptrs->lut_ch[0][indexout];
-            }
-            else
-                r = imageptrs->lut_ch[0][indexout];
-            if(invertthissegment[1])
-            {
-                g = 255 - imageptrs->lut_ch[1][indexout];
-            }
-            else
-                g = imageptrs->lut_ch[1][indexout];
-            if(invertthissegment[2])
-            {
-                b = 255 - imageptrs->lut_ch[2][indexout];
-            }
-            else
-                b = imageptrs->lut_ch[2][indexout];
-
-            //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
-            rgbvalue = qRgba(r, g, b, 255);
-
-        }
-        else
-        {
-            if(invertthissegment[0])
-            {
-                r = 255 - imageptrs->lut_ch[0][indexout];
-            }
-            else
-                r = imageptrs->lut_ch[0][indexout];
-
-             rgbvalue = qRgba(r, r, r, 255);
-        }
+        rgbvalue = qRgba(indexout, indexout, indexout, 255);
 
         if(opts.sattrackinimage)
         {

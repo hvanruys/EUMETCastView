@@ -1,27 +1,25 @@
-#ifndef SEGMENTLISTVIIRS_H
-#define SEGMENTLISTVIIRS_H
+#ifndef SEGMENTLISTVIIRSDNB_H
+#define SEGMENTLISTVIIRSDNB_H
 
 #include <QObject>
-#include "segmentviirsm.h"
+#include "segmentviirsdnb.h"
 #include "segmentlist.h"
 
 class SatelliteList;
-class SegmentListVIIRS  : public SegmentList
+class SegmentListVIIRSDNB  : public SegmentList
 {
         Q_OBJECT
 
 public:
-    SegmentListVIIRS(SatelliteList *satl = 0, QObject *parent = 0, eSegmentType type = eSegmentType::SEG_VIIRSM);
+    SegmentListVIIRSDNB(SatelliteList *satl = 0, QObject *parent = 0, eSegmentType type = eSegmentType::SEG_VIIRSDNB);
     void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
     //bool ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     //bool ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    bool ComposeVIIRSMImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    bool ComposeVIIRSDNBImageInThread();
+    bool ComposeVIIRSImageInThread();
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
 
     //bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
-    void ShowImageSerialM(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    void ShowImageSerialDNB();
+    void ShowImageSerial();
     void SmoothVIIRSImage();
     //static void doReadSegmentInMemoryVIIRS(Segment *t);
     //static void doComposeSegmentImageVIIRS(Segment *t);
@@ -29,12 +27,10 @@ public:
     void sliderCentreBandChanged(int val);
     void spbWindowValueChanged(int spbwindowval, int slcentreband);
 
-
 private:
     void CalculateLUT();
-    void CalculateLUTDNB();
     bool PixelOK(int pix);
-    void printData(SegmentVIIRSM *segm, int linesfrom, int viewsfrom);
+    void printData(SegmentVIIRSDNB *segm, int linesfrom, int viewsfrom);
 
     SatelliteList *satlist;
     int lut[256];
@@ -50,7 +46,6 @@ protected:
 
 protected slots:
     void readfinishedviirs();
-    void readfinishedviirsdnb();
     void composefinishedviirs();
     void progressreadvalue(int progress);
 

@@ -927,7 +927,7 @@ void FormToolbox::setChannelIndex()
 
 FormToolbox::~FormToolbox()
 {
-    qDebug() << "closing FormToolbox::~FormToolbox()";
+    qDebug() << "closing FormToolbox";
     if(ui->rdbAVHRRin->isChecked())
         opts.lastinputprojection = 0;
     else if(ui->rdbVIIRSin->isChecked())
@@ -1272,6 +1272,7 @@ void FormToolbox::on_btnCLAHEavhhr_clicked()
 
 void FormToolbox::setTabWidgetIndex(int index)
 {
+    qDebug() << "FormToolbox::setTabWidgetIndex(int index)";
     ui->tabWidget->setCurrentIndex(index);
 }
 
@@ -2226,6 +2227,15 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         }
 
     }
+    else if(opts.buttonVIIRSDNB)
+    {
+        if(ui->rdbVIIRSin->isChecked())
+        {
+            if(!segs->SelectedVIIRSDNBSegments())
+                return;
+        }
+
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -2236,7 +2246,7 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     }
     else if(ui->rdbVIIRSin->isChecked())
     {
-        imageptrs->gvp->CreateMapFromVIIRS();
+        imageptrs->gvp->CreateMapFromVIIRS(formimage->getSegmentType());
     }
     else
         imageptrs->gvp->CreateMapFromGeoStationary();
@@ -2266,6 +2276,15 @@ void FormToolbox::on_btnCreateLambert_clicked()
         }
 
     }
+    else if(opts.buttonVIIRSDNB)
+    {
+        if(ui->rdbVIIRSin->isChecked())
+        {
+            if(!segs->SelectedVIIRSDNBSegments())
+                return;
+        }
+
+    }
 
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -2278,7 +2297,7 @@ void FormToolbox::on_btnCreateLambert_clicked()
     }
     else if(ui->rdbVIIRSin->isChecked())
     {
-        imageptrs->lcc->CreateMapFromVIIRS();
+        imageptrs->lcc->CreateMapFromVIIRS(formimage->getSegmentType());
     }
     else
         imageptrs->lcc->CreateMapFromGeostationary();
@@ -2306,6 +2325,15 @@ void FormToolbox::on_btnCreateStereo_clicked()
         }
 
     }
+    else if(opts.buttonVIIRSDNB)
+    {
+        if(ui->rdbVIIRSin->isChecked())
+        {
+            if(!segs->SelectedVIIRSDNBSegments())
+                return;
+        }
+
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -2317,7 +2345,7 @@ void FormToolbox::on_btnCreateStereo_clicked()
     }
     else if(ui->rdbVIIRSin->isChecked())
     {
-        imageptrs->sg->CreateMapFromVIIRS();
+        imageptrs->sg->CreateMapFromVIIRS(formimage->getSegmentType());
     }
     else
         imageptrs->sg->CreateMapFromGeostationary();
