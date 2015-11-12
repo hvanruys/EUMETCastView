@@ -100,12 +100,12 @@ bool FormImage::toggleOverlayProjection()
     return overlayprojection;
 }
 
-void FormImage::setPixmapToLabel()
+void FormImage::setPixmapToLabel(bool settoolboxbuttons)
 {
 
     refreshoverlay = true;
 
-    emit allsegmentsreceivedbuttons(true);
+    emit allsegmentsreceivedbuttons(settoolboxbuttons);
 
     switch(channelshown)
     {
@@ -141,19 +141,20 @@ void FormImage::setPixmapToLabel()
             break;
 
     }
-     this->adjustImage();
+
+    this->adjustImage();
     QApplication::processEvents();
 
     qDebug() << QString("FormImage::setPixmapToLabel() channelshown = %1").arg(this->channelshown);
 
 }
 
-void FormImage::setPixmapToLabelDNB()
+void FormImage::setPixmapToLabelDNB(bool settoolboxbuttons)
 {
-
     refreshoverlay = true;
     imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirs)));
-    QApplication::processEvents();
+    this->update();
+
 }
 
 void FormImage::displayImage(int channel)
@@ -161,8 +162,6 @@ void FormImage::displayImage(int channel)
     this->channelshown = channel;
 
     g_mutex.lock();
-
-    refreshoverlay = true;
 
     switch(channelshown)
     {
@@ -203,6 +202,7 @@ void FormImage::displayImage(int channel)
     this->adjustImage();
     g_mutex.unlock();
 
+    refreshoverlay = true;
 
 }
 
@@ -251,7 +251,7 @@ void FormImage::ComposeImage()
 
             if (metopcount > 0 && opts.buttonMetop)
             {
-                emit allsegmentsreceivedbuttons(false);
+                formtoolbox->setToolboxButtons(false);
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_METOP);
@@ -259,7 +259,7 @@ void FormImage::ComposeImage()
             }
             else if (noaacount > 0 && opts.buttonNoaa)
             {
-                emit allsegmentsreceivedbuttons(false);
+                formtoolbox->setToolboxButtons(false);
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_NOAA);
@@ -267,7 +267,7 @@ void FormImage::ComposeImage()
             }
             else if (hrpcount > 0 && opts.buttonHRP)
             {
-                emit allsegmentsreceivedbuttons(false);
+                formtoolbox->setToolboxButtons(false);
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_HRP);
@@ -275,7 +275,7 @@ void FormImage::ComposeImage()
             }
             else if (gaccount > 0 && opts.buttonGAC)
             {
-                emit allsegmentsreceivedbuttons(false);
+                formtoolbox->setToolboxButtons(false);
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_GAC);
@@ -287,7 +287,8 @@ void FormImage::ComposeImage()
     }
     else if(viirsmcount > 0 && opts.buttonVIIRSM)
     {
-            emit allsegmentsreceivedbuttons(false);
+            formtoolbox->setToolboxButtons(false);
+
             this->displayImage(10);
             this->kindofimage = "VIIRSM";
             this->setSegmentType(SEG_VIIRSM);
@@ -301,7 +302,8 @@ void FormImage::ComposeImage()
     }
     else if(viirsdnbcount > 0 && opts.buttonVIIRSDNB)
     {
-            emit allsegmentsreceivedbuttons(false);
+            formtoolbox->setToolboxButtons(false);
+
             this->displayImage(10);
             this->kindofimage = "VIIRSDNB";
             this->setSegmentType(SEG_VIIRSDNB);
@@ -534,28 +536,6 @@ void FormImage::paintEvent( QPaintEvent * )
 
 
     SegmentListGeostationary *sl = NULL;
-//    SegmentListNoaa *slnoaa = NULL;
-//    SegmentListGAC *slgac = NULL;
-//    SegmentListHRP *slhrp = NULL;
-//    SegmentListMetop *slmetop = NULL;
-//    SegmentListVIIRSM *slviirsm = NULL;
-//    SegmentListVIIRSDNB *slviirsdnb = NULL;
-
-//    if (channelshown >= 1 && channelshown <= 6)
-//    {
-//        //qDebug() << QString("Segmenttype = %1").arg(this->getSegmentType());
-//        if (this->getSegmentType() == SEG_NOAA)
-//            slnoaa = segs->seglnoaa;
-//        else if (this->getSegmentType() == SEG_GAC)
-//            slgac = segs->seglgac;
-//        else if (this->getSegmentType() == SEG_METOP)
-//            slmetop = segs->seglmetop;
-//        else if (this->getSegmentType() == SEG_HRP)
-//            slhrp = segs->seglhrp;
-//    }
-
-//    if( channelshown == 10)
-//        slviirs = segs->seglviirsm;
 
     if(channelshown >= 1 && channelshown <= 6)
         displayAVHRRImageInfo();
@@ -691,6 +671,7 @@ void FormImage::displayVIIRSImageInfo()
     QString segtype;
     eSegmentType type;
     int nbrselected;
+    float moonillum;
 
     type = getSegmentType();
     switch(type)
@@ -706,6 +687,7 @@ void FormImage::displayVIIRSImageInfo()
     case SEG_VIIRSDNB:
         segtype = "VIIRSDNB";
         nbrselected = segs->seglviirsdnb->NbrOfSegmentsSelected();
+        moonillum = segs->seglviirsdnb->getMoonIllumination();
 
         break;
     default:
@@ -714,15 +696,31 @@ void FormImage::displayVIIRSImageInfo()
     }
 
 
-    txtInfo = QString("<!DOCTYPE html>"
-                      "<html><head><title>Info</title></head>"
-                      "<body>"
-                      "<h2 style='color:blue'>Image Information</h1>"
-                      "<h3>Segment type = %1</h3>"
-                      "<h3>Nbr of segments = %2</h3>"
-                      "<h3>Image width = %3 height = %4</h3>"
-                      "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirs->width()).arg(imageptrs->ptrimageViirs->height());
+    if(type == SEG_VIIRSM)
+    {
+        txtInfo = QString("<!DOCTYPE html>"
+                          "<html><head><title>Info</title></head>"
+                          "<body>"
+                          "<h2 style='color:blue'>Image Information</h1>"
+                          "<h3>Segment type = %1</h3>"
+                          "<h3>Nbr of segments = %2</h3>"
+                          "<h3>Image width = %3 height = %4</h3>"
+                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirs->width()).arg(imageptrs->ptrimageViirs->height());
+    }
+    else if(type == SEG_VIIRSDNB)
+    {
+        txtInfo = QString("<!DOCTYPE html>"
+                          "<html><head><title>Info</title></head>"
+                          "<body style='background-color:red'>"
+                          "<h3 style='color:blue;text-align:center'>Image Information</h3>"
+                          "<p>Segment type = %1<br>"
+                          "Nbr of segments = %2<br>"
+                          "Image width = %3 height = %4<br>"
+                          "Moon illumination = %5 %</p>"
+                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirs->width())
+                .arg(imageptrs->ptrimageViirs->height()).arg(moonillum, 4, 'f', 2);
 
+    }
 
     formtoolbox->writeInfoToVIIRS(txtInfo);
 
@@ -992,8 +990,6 @@ void FormImage::slotUpdateHimawari()
 
     if(sl->allSegmentsReceived())
     {
-
-        //sl->recalcHimawari();
 
         QApplication::restoreOverrideCursor();
 
@@ -2507,7 +2503,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
         }
     }
 
-    if (opts.currenttoolbox == 0 && opts.gridonprojection == true) // LLC
+    if (opts.currenttoolbox == 0 && formtoolbox->GridOnProjLCC()) // LLC
     {
         for(double lon = -180.0; lon < 180.0; lon+=10.0)
         {
@@ -2575,7 +2571,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
         }
     }
 
-    if (opts.currenttoolbox == 1 && opts.gridonprojection == true) //GVP
+    if (opts.currenttoolbox == 1 && formtoolbox->GridOnProjGVP()) //GVP
     {
         for(double lon = -180.0; lon < 180.0; lon+=10.0)
         {
@@ -2641,7 +2637,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
     }
 
 
-    if (opts.currenttoolbox == 2 && opts.gridonprojection == true ) //SG
+    if (opts.currenttoolbox == 2 && formtoolbox->GridOnProjSG() ) //SG
     {
         for(double lon = -180.0; lon < 180.0; lon+=10.0)
         {

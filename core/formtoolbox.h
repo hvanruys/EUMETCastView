@@ -33,6 +33,7 @@ public:
     QList<int> getVIIRSColorList();
     QList<bool> getVIIRSInvertList();
     void setTabWidgetIndex(int index);
+    void setTabWidgetVIIRSIndex(int index);
     void writeInfoToAVHRR(QString info);
     void writeInfoToVIIRS(QString info);
     void writeInfoToGeo(QString info);
@@ -40,6 +41,10 @@ public:
     QString returnFilenamestring() { return filenamecreated; }
     bool comboColVIIRSOK();
     bool comboColGeoOK();
+    bool GridOnProjLCC();
+    bool GridOnProjGVP();
+    bool GridOnProjSG();
+
 
     ~FormToolbox();
 
@@ -55,6 +60,10 @@ private:
     void onButtonColorHRV(QString type);
     bool eventFilter(QObject *target, QEvent *event);
     int searchResolution(int mapwidth, int mapheight);
+    void setPOIsettings();
+    void setLCCParameters(int strlindex);
+    void setGVPParameters(int strlindex);
+    void setSGParameters(int strlindex);
 
     AVHRRSatellite *segs;
 
@@ -65,7 +74,7 @@ private:
     QString filenamecreated;
     QVector<int> resolutionX;
     QVector<int> resolutionY;
-
+    int currentAVHRRimage; // from 1 to 6 , 6 color image
 
 public slots:
     void setChannelComboBoxes();
@@ -121,8 +130,12 @@ private slots:
     void on_spbSouth_valueChanged(int arg1);
     void on_chkShowLambert_stateChanged(int arg1);
     void on_btnCreateLambert_clicked();
-    void on_spbMapWidth_valueChanged(int arg1);
-    void on_spbMapHeight_valueChanged(int arg1);
+    void on_spbLCCMapWidth_valueChanged(int arg1);
+    void on_spbLCCMapHeight_valueChanged(int arg1);
+    void on_spbGVPMapWidth_valueChanged(int arg1);
+    void on_spbGVPMapHeight_valueChanged(int arg1);
+    void on_spbSGMapWidth_valueChanged(int arg1);
+    void on_spbSGMapHeight_valueChanged(int arg1);
     void on_btnCreatePerspective_clicked();
     void on_spbGVPlat_valueChanged(double arg1);
     void on_spbGVPlon_valueChanged(double arg1);
@@ -146,8 +159,8 @@ private slots:
     void on_btnLCCMapSouth_clicked();
     void on_btnLCCMapWest_clicked();
     void on_btnLCCMapEast_clicked();
-    void on_scbLCCMapUpDown_valueChanged(int value);
-    void on_scbLCCMapLeftRight_valueChanged(int value);
+//    void on_scbLCCMapUpDown_valueChanged(int value);
+//    void on_scbLCCMapLeftRight_valueChanged(int value);
     void on_spbSGlat_valueChanged(double arg1);
     void on_spbSGlon_valueChanged(double arg1);
     void on_spbSGScale_valueChanged(double arg1);
@@ -157,9 +170,6 @@ private slots:
 
     void on_spbSGPanHorizon_valueChanged(int arg1);
     void on_spbSGPanVert_valueChanged(int arg1);
-    void on_btnSGNorth_clicked();
-    void on_btnSGSouth_clicked();
-    void on_btnSGEquatorial_clicked();
     void on_spbSGRadius_valueChanged(double arg1);
     void on_btnSGClearMap_clicked();
     void on_btnOverlayProjectionSG_clicked();
@@ -176,13 +186,16 @@ private slots:
     void on_rbtnACh5_clicked();
     void on_btnTextureVIIRS_clicked();
     void on_sliCLAHE_sliderMoved(int position);
-    void on_sliCLAHEprojection_sliderMoved(int position);
 
     void on_cbProjResolutions_currentIndexChanged(int index);
-    void on_btnCLAHEprojection_clicked();
 
     void on_sbCentreBand_valueChanged(int value);
     void on_spbDnbWindow_valueChanged(int arg1);
+    void on_comboPOI_currentIndexChanged(int index);
+    void on_chkLCCGridOnProj_clicked();
+    void on_chkGVPGridOnProj_clicked();
+    void on_chkSGGridOnProj_clicked();
+    void on_btnAddPOI_clicked();
 };
 
 #endif // FORMTOOLBOX_H

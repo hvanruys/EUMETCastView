@@ -2,10 +2,12 @@
 #include "ui_dialogpreferences.h"
 #include <QDebug>
 #include <QFileDialog>
-
 #include "segmentimage.h"
+#include "poi.h"
+
 extern SegmentImage *imageptrs;
 extern Options opts;
+extern Poi poi;
 
 DialogPreferences::DialogPreferences(QWidget *parent) :
     QDialog(parent),
@@ -123,7 +125,6 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->ledAlt->setText(QString("%1").arg(opts.obsalt));
 
     ui->rbSattrackOn->setChecked(opts.sattrackinimage);
-    ui->rbGridOnProjection->setChecked(opts.gridonprojection);
     if(opts.smoothprojectiontype == 0)
         ui->rbNoSmoothing->setChecked(true);
     else if(opts.smoothprojectiontype == 1)
@@ -133,6 +134,9 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     setupStationsTable();
     setupTLESourceTable();
+    setupPOILCCTable();
+    setupPOIGVPTable();
+    setupPOISGTable();
 
 
     connect(ui->listWidget,
@@ -187,6 +191,57 @@ void DialogPreferences::setupTLESourceTable()
 
 }
 
+void DialogPreferences::setupPOILCCTable()
+{
+    myPOILCCModel = new POILCCModel(this);
+
+    ui->tbvPOILCC->setModel(myPOILCCModel);
+
+
+    QHeaderView *hheader = ui->tbvPOILCC->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddPOILCC, SIGNAL(clicked()), this, SLOT(addPOILCCRow()));
+    connect(ui->btnDeletePOILCC, SIGNAL(clicked()), this, SLOT(deletePOILCCRow()));
+
+}
+
+void DialogPreferences::setupPOIGVPTable()
+{
+    myPOIGVPModel = new POIGVPModel(this);
+
+    ui->tbvPOIGVP->setModel(myPOIGVPModel);
+
+
+    QHeaderView *hheader = ui->tbvPOIGVP->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddPOIGVP, SIGNAL(clicked()), this, SLOT(addPOIGVPRow()));
+    connect(ui->btnDeletePOIGVP, SIGNAL(clicked()), this, SLOT(deletePOIGVPRow()));
+
+}
+
+void DialogPreferences::setupPOISGTable()
+{
+    myPOISGModel = new POISGModel(this);
+
+    ui->tbvPOISG->setModel(myPOISGModel);
+
+
+    QHeaderView *hheader = ui->tbvPOISG->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddPOISG, SIGNAL(clicked()), this, SLOT(addPOISGRow()));
+    connect(ui->btnDeletePOISG, SIGNAL(clicked()), this, SLOT(deletePOISGRow()));
+
+}
+
 void DialogPreferences::addStationRow()
 {
     myStationModel->insertRows(myStationModel->rowCount(), 1, QModelIndex());
@@ -230,6 +285,40 @@ void DialogPreferences::deleteTLESourceRow()
     myTLESourceModel->removeRow(row, QModelIndex());
 
 }
+
+void DialogPreferences::addPOILCCRow()
+{
+    myPOILCCModel->insertRows(myPOILCCModel->rowCount(), 1, QModelIndex());
+}
+
+void DialogPreferences::deletePOILCCRow()
+{
+    int row = ui->tbvPOILCC->currentIndex().row();
+    myPOILCCModel->removeRow(row, QModelIndex());
+}
+
+void DialogPreferences::addPOIGVPRow()
+{
+    myPOIGVPModel->insertRows(myPOIGVPModel->rowCount(), 1, QModelIndex());
+}
+
+void DialogPreferences::deletePOIGVPRow()
+{
+    int row = ui->tbvPOIGVP->currentIndex().row();
+    myPOIGVPModel->removeRow(row, QModelIndex());
+}
+
+void DialogPreferences::addPOISGRow()
+{
+    myPOISGModel->insertRows(myPOISGModel->rowCount(), 1, QModelIndex());
+}
+
+void DialogPreferences::deletePOISGRow()
+{
+    int row = ui->tbvPOISG->currentIndex().row();
+    myPOISGModel->removeRow(row, QModelIndex());
+}
+
 
 void DialogPreferences::changePage(QListWidgetItem *current, QListWidgetItem *previous)
 {
@@ -301,8 +390,6 @@ void DialogPreferences::dialogaccept()
     else
         opts.smoothprojectiontype = 2;
 
-    opts.gridonprojection = ui->rbGridOnProjection->isChecked();
-
     opts.gshhsglobe1On = ui->chkGshhs1->isChecked();
     opts.gshhsglobe2On = ui->chkGshhs2->isChecked();
     opts.gshhsglobe3On = ui->chkGshhs3->isChecked();
@@ -345,206 +432,6 @@ void DialogPreferences::on_btnLocalDirRemote_clicked()
 
 }
 
-//-----------------------------------------------------------------
-//-----------------------------------------------------------------
-//-----------------------------------------------------------------
-
-StationModel::StationModel(QObject *parent)
-    :QAbstractTableModel(parent)
-{
-
-}
-
-int StationModel::rowCount(const QModelIndex & /*parent*/) const
-{
-    return opts.stationlistname.count();
-}
-
-int StationModel::columnCount(const QModelIndex & /*parent*/) const
-{
-    return 3;
-}
-
-QVariant StationModel::data(const QModelIndex &index, int role) const
-{
-    if (role == Qt::DisplayRole)
-    {
-        if(index.column() == 0)
-            return opts.stationlistname.at(index.row());
-        else if (index.column() == 1)
-            return opts.stationlistlon.at(index.row());
-        else
-            return opts.stationlistlat.at(index.row());
-
-    }
-    return QVariant();
-}
-
-
-
-bool StationModel::setData(const QModelIndex & index, const QVariant & value, int role)
-{
-    if (role == Qt::EditRole)
-    {
-        // m_gridData[index.row()][index.column()] = value.toString();
-        if(index.column() == 0)
-            opts.stationlistname.replace(index.row(), value.toString());
-        else if (index.column() == 1)
-            opts.stationlistlon.replace(index.row(), value.toString());
-        else
-            opts.stationlistlat.replace(index.row(), value.toString());
-
-        emit editCompleted();
-    }
-
-
-
-    return true;
-}
-
-QVariant StationModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (role != Qt::DisplayRole)
-        return QVariant();
-
-    if (orientation == Qt::Horizontal) {
-        switch (section) {
-            case 0:
-                return tr("Station");
-
-            case 1:
-                return tr("Longitude");
-
-            case 2:
-                return tr("Latitude");
-
-            default:
-                return QVariant();
-        }
-    }
-    return QVariant();
-}
-
-bool StationModel::insertRows(int position, int rows, const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    beginInsertRows(QModelIndex(), position, position+rows-1);
-
-    opts.stationlistname.append( " " );
-    opts.stationlistlon.append( " " );
-    opts.stationlistlat.append( " " );
-
-    endInsertRows();
-    return true;
-}
-
-bool StationModel::removeRows(int position, int rows, const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    beginRemoveRows(QModelIndex(), position, position+rows-1);
-
-    opts.stationlistname.removeAt(position);
-    opts.stationlistlon.removeAt(position);
-    opts.stationlistlat.removeAt(position);
-
-    endRemoveRows();
-    return true;
-}
-
-Qt::ItemFlags StationModel::flags(const QModelIndex & /*index*/) const
-{
-    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-TLESourceModel::TLESourceModel(QObject *parent)
-    :QAbstractTableModel(parent)
-{
-
-}
-
-int TLESourceModel::rowCount(const QModelIndex & /*parent*/) const
-{
-    return opts.tlesources.count();
-}
-
-int TLESourceModel::columnCount(const QModelIndex & /*parent*/) const
-{
-    return 1;
-}
-
-QVariant TLESourceModel::data(const QModelIndex &index, int role) const
-{
-    if (role == Qt::DisplayRole)
-    {
-        if(index.column() == 0)
-            return opts.tlesources.at(index.row());
-
-    }
-    return QVariant();
-}
-
-
-
-bool TLESourceModel::setData(const QModelIndex & index, const QVariant & value, int role)
-{
-    if (role == Qt::EditRole)
-    {
-        // m_gridData[index.row()][index.column()] = value.toString();
-        if(index.column() == 0)
-            opts.tlesources.replace(index.row(), value.toString());
-
-        emit editCompleted();
-    }
-
-    return true;
-}
-
-QVariant TLESourceModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (role != Qt::DisplayRole)
-        return QVariant();
-
-    if (orientation == Qt::Horizontal) {
-        switch (section) {
-            case 0:
-                return tr("TLE Source");
-
-
-            default:
-                return QVariant();
-        }
-    }
-    return QVariant();
-}
-
-bool TLESourceModel::insertRows(int position, int rows, const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    beginInsertRows(QModelIndex(), position, position+rows-1);
-
-    opts.tlesources.append( " " );
-
-    endInsertRows();
-    return true;
-}
-
-bool TLESourceModel::removeRows(int position, int rows, const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    beginRemoveRows(QModelIndex(), position, position+rows-1);
-
-    opts.tlesources.removeAt(position);
-
-    endRemoveRows();
-    return true;
-}
-
-Qt::ItemFlags TLESourceModel::flags(const QModelIndex & /*index*/) const
-{
-    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
-}
 
 void DialogPreferences::on_btnGshhsGlobe1_clicked()
 {
@@ -986,3 +873,826 @@ void DialogPreferences::on_btnGlobeLonLatColor_clicked()
         opts.globelonlatcolor = ui->btnGlobeLonLatColor->text();
     }
 }
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+
+StationModel::StationModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+
+}
+
+int StationModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return opts.stationlistname.count();
+}
+
+int StationModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 3;
+}
+
+QVariant StationModel::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DisplayRole)
+    {
+        if(index.column() == 0)
+            return opts.stationlistname.at(index.row());
+        else if (index.column() == 1)
+            return opts.stationlistlon.at(index.row());
+        else
+            return opts.stationlistlat.at(index.row());
+
+    }
+    return QVariant();
+}
+
+
+
+bool StationModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        if(index.column() == 0)
+            opts.stationlistname.replace(index.row(), value.toString());
+        else if (index.column() == 1)
+            opts.stationlistlon.replace(index.row(), value.toString());
+        else
+            opts.stationlistlat.replace(index.row(), value.toString());
+
+        emit editCompleted();
+    }
+
+
+
+    return true;
+}
+
+QVariant StationModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+            case 0:
+                return tr("Station");
+
+            case 1:
+                return tr("Longitude");
+
+            case 2:
+                return tr("Latitude");
+
+            default:
+                return QVariant();
+        }
+    }
+    return QVariant();
+}
+
+bool StationModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    opts.stationlistname.append( " " );
+    opts.stationlistlon.append( " " );
+    opts.stationlistlat.append( " " );
+
+    endInsertRows();
+    return true;
+}
+
+bool StationModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+    opts.stationlistname.removeAt(position);
+    opts.stationlistlon.removeAt(position);
+    opts.stationlistlat.removeAt(position);
+
+    endRemoveRows();
+    return true;
+}
+
+Qt::ItemFlags StationModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+TLESourceModel::TLESourceModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+
+}
+
+int TLESourceModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return opts.tlesources.count();
+}
+
+int TLESourceModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 1;
+}
+
+QVariant TLESourceModel::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DisplayRole)
+    {
+        if(index.column() == 0)
+            return opts.tlesources.at(index.row());
+
+    }
+    return QVariant();
+}
+
+
+
+bool TLESourceModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        if(index.column() == 0)
+            opts.tlesources.replace(index.row(), value.toString());
+
+        emit editCompleted();
+    }
+
+    return true;
+}
+
+QVariant TLESourceModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+            case 0:
+                return tr("TLE Source");
+
+
+            default:
+                return QVariant();
+        }
+    }
+    return QVariant();
+}
+
+bool TLESourceModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    opts.tlesources.append( " " );
+
+    endInsertRows();
+    return true;
+}
+
+bool TLESourceModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+    opts.tlesources.removeAt(position);
+
+    endRemoveRows();
+    return true;
+}
+
+Qt::ItemFlags TLESourceModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
+//-----------------------------------------------------------------
+
+POILCCModel::POILCCModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+
+}
+
+int POILCCModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return poi.strlLCCName.count();
+}
+
+int POILCCModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 14;
+}
+
+QVariant POILCCModel::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DisplayRole)
+    {
+        switch(index.column())
+        {
+        case 0:
+            return poi.strlLCCName.at(index.row());
+            break;
+        case 1:
+            return poi.strlLCCMapWidth.at(index.row());
+            break;
+        case 2:
+            return poi.strlLCCMapHeight.at(index.row());
+            break;
+        case 3:
+            return poi.strlLCCParallel1.at(index.row());
+            break;
+        case 4:
+            return poi.strlLCCParallel2.at(index.row());
+            break;
+        case 5:
+            return poi.strlLCCCentral.at(index.row());
+            break;
+        case 6:
+            return poi.strlLCCLatOrigin.at(index.row());
+            break;
+        case 7:
+            return poi.strlLCCNorth.at(index.row());
+            break;
+        case 8:
+            return poi.strlLCCSouth.at(index.row());
+            break;
+        case 9:
+            return poi.strlLCCEast.at(index.row());
+            break;
+        case 10:
+            return poi.strlLCCWest.at(index.row());
+            break;
+        case 11:
+            return poi.strlLCCScaleX.at(index.row());
+            break;
+        case 12:
+            return poi.strlLCCScaleY.at(index.row());
+            break;
+        case 13:
+            return poi.strlLCCGridOnProj.at(index.row());
+            break;
+        }
+    }
+
+    return QVariant();
+}
+
+
+
+bool POILCCModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            poi.strlLCCName.replace(index.row(), value.toString());
+            break;
+        case 1:
+            poi.strlLCCMapWidth.replace(index.row(), value.toString());
+            break;
+        case 2:
+            poi.strlLCCMapHeight.replace(index.row(), value.toString());
+            break;
+        case 3:
+            poi.strlLCCParallel1.replace(index.row(), value.toString());
+            break;
+        case 4:
+            poi.strlLCCParallel2.replace(index.row(), value.toString());
+            break;
+        case 5:
+            poi.strlLCCCentral.replace(index.row(), value.toString());
+            break;
+        case 6:
+            poi.strlLCCLatOrigin.replace(index.row(), value.toString());
+            break;
+        case 7:
+            poi.strlLCCNorth.replace(index.row(), value.toString());
+            break;
+        case 8:
+            poi.strlLCCSouth.replace(index.row(), value.toString());
+            break;
+        case 9:
+            poi.strlLCCEast.replace(index.row(), value.toString());
+            break;
+        case 10:
+            poi.strlLCCWest.replace(index.row(), value.toString());
+            break;
+        case 11:
+            poi.strlLCCScaleX.replace(index.row(), value.toString());
+            break;
+        case 12:
+            poi.strlLCCScaleY.replace(index.row(), value.toString());
+            break;
+        case 13:
+            poi.strlLCCGridOnProj.replace(index.row(), value.toString());
+            break;
+        }
+
+        emit editCompleted();
+    }
+
+    return true;
+}
+
+QVariant POILCCModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Name");
+
+        case 1:
+            return tr("Width");
+
+        case 2:
+            return tr("Height");
+
+        case 3:
+            return tr("Parallel1");
+
+        case 4:
+            return tr("Parallel2");
+
+        case 5:
+            return tr("Lon Origin");
+
+        case 6:
+            return tr("Lat Origin");
+
+        case 7:
+            return tr("North");
+
+        case 8:
+            return tr("South");
+
+        case 9:
+            return tr("East");
+
+        case 10:
+            return tr("West");
+
+        case 11:
+            return tr("Scale X");
+
+        case 12:
+            return tr("Scale Y");
+
+        case 13:
+            return tr("Grid on proj");
+
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+}
+
+bool POILCCModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlLCCName.append( " " );
+    poi.strlLCCMapWidth.append( " " );
+    poi.strlLCCMapHeight.append( " " );
+    poi.strlLCCParallel1.append( " " );
+    poi.strlLCCParallel2.append( " " );
+    poi.strlLCCCentral.append( " " );
+    poi.strlLCCLatOrigin.append( " " );
+    poi.strlLCCNorth.append( " " );
+    poi.strlLCCSouth.append( " " );
+    poi.strlLCCEast.append( " " );
+    poi.strlLCCWest.append( " " );
+    poi.strlLCCScaleX.append( " " );
+    poi.strlLCCScaleY.append( " " );
+    poi.strlLCCGridOnProj.append( " " );
+
+    endInsertRows();
+    return true;
+}
+
+bool POILCCModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlLCCName.removeAt(position);
+    poi.strlLCCMapWidth.removeAt(position);
+    poi.strlLCCMapHeight.removeAt(position);
+    poi.strlLCCParallel1.removeAt(position);
+    poi.strlLCCParallel2.removeAt(position);
+    poi.strlLCCCentral.removeAt(position);
+    poi.strlLCCLatOrigin.removeAt(position);
+    poi.strlLCCNorth.removeAt(position);
+    poi.strlLCCSouth.removeAt(position);
+    poi.strlLCCEast.removeAt(position);
+    poi.strlLCCWest.removeAt(position);
+    poi.strlLCCScaleX.removeAt(position);
+    poi.strlLCCScaleY.removeAt(position);
+    poi.strlLCCGridOnProj.removeAt(position);
+
+    endRemoveRows();
+    return true;
+}
+
+Qt::ItemFlags POILCCModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
+//-----------------------------------------------------------------
+
+POIGVPModel::POIGVPModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+
+}
+
+int POIGVPModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return poi.strlGVPName.count();
+}
+
+int POIGVPModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 8;
+}
+
+QVariant POIGVPModel::data(const QModelIndex &index, int role) const
+{
+
+    if (role == Qt::DisplayRole)
+    {
+        switch(index.column())
+        {
+        case 0:
+            return poi.strlGVPName.at(index.row());
+            break;
+        case 1:
+            return poi.strlGVPMapWidth.at(index.row());
+            break;
+        case 2:
+            return poi.strlGVPMapHeight.at(index.row());
+            break;
+        case 3:
+            return poi.strlGVPLon.at(index.row());
+            break;
+        case 4:
+            return poi.strlGVPLat.at(index.row());
+            break;
+        case 5:
+            return poi.strlGVPHeight.at(index.row());
+            break;
+        case 6:
+            return poi.strlGVPScale.at(index.row());
+            break;
+        case 7:
+            return poi.strlGVPGridOnProj.at(index.row());
+            break;
+        }
+    }
+
+    return QVariant();
+}
+
+
+
+bool POIGVPModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            poi.strlGVPName.replace(index.row(), value.toString());
+            break;
+        case 1:
+            poi.strlGVPMapWidth.replace(index.row(), value.toString());
+            break;
+        case 2:
+            poi.strlGVPMapHeight.replace(index.row(), value.toString());
+            break;
+        case 3:
+            poi.strlGVPLon.replace(index.row(), value.toString());
+            break;
+        case 4:
+            poi.strlGVPLat.replace(index.row(), value.toString());
+            break;
+        case 5:
+            poi.strlGVPHeight.replace(index.row(), value.toString());
+            break;
+        case 6:
+            poi.strlGVPScale.replace(index.row(), value.toString());
+            break;
+        case 7:
+            poi.strlGVPGridOnProj.replace(index.row(), value.toString());
+            break;
+        }
+
+        emit editCompleted();
+    }
+
+    return true;
+}
+
+QVariant POIGVPModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Name");
+
+        case 1:
+            return tr("Map Width");
+
+        case 2:
+            return tr("Map Height");
+
+        case 3:
+            return tr("Longitude");
+
+        case 4:
+            return tr("Latitude");
+
+        case 5:
+            return tr("Height");
+
+        case 6:
+            return tr("Scale");
+
+        case 7:
+            return tr("Grid on Proj");
+
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+}
+
+bool POIGVPModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlGVPName.append( " " );
+    poi.strlGVPMapWidth.append( " " );
+    poi.strlGVPMapHeight.append( " " );
+    poi.strlGVPLon.append( " " );
+    poi.strlGVPLat.append( " " );
+    poi.strlGVPHeight.append( " " );
+    poi.strlGVPScale.append( " " );
+    poi.strlGVPGridOnProj.append( " " );
+
+    endInsertRows();
+    return true;
+
+}
+
+bool POIGVPModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlGVPName.removeAt(position);
+    poi.strlGVPMapWidth.removeAt(position);
+    poi.strlGVPMapHeight.removeAt(position);
+    poi.strlGVPLon.removeAt(position);
+    poi.strlGVPLat.removeAt(position);
+    poi.strlGVPHeight.removeAt(position);
+    poi.strlGVPScale.removeAt(position);
+    poi.strlGVPGridOnProj.removeAt(position);
+
+    endRemoveRows();
+    return true;
+
+}
+
+Qt::ItemFlags POIGVPModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
+//-----------------------------------------------------------------
+
+POISGModel::POISGModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+
+}
+
+int POISGModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return poi.strlSGName.count();
+}
+
+int POISGModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 10;
+}
+
+QVariant POISGModel::data(const QModelIndex &index, int role) const
+{
+
+    if (role == Qt::DisplayRole)
+    {
+        switch(index.column())
+        {
+        case 0:
+            return poi.strlSGName.at(index.row());
+            break;
+        case 1:
+            return poi.strlSGMapWidth.at(index.row());
+            break;
+        case 2:
+            return poi.strlSGMapHeight.at(index.row());
+            break;
+        case 3:
+            return poi.strlSGLon.at(index.row());
+            break;
+        case 4:
+            return poi.strlSGLat.at(index.row());
+            break;
+        case 5:
+            return poi.strlSGRadius.at(index.row());
+            break;
+        case 6:
+            return poi.strlSGScale.at(index.row());
+            break;
+        case 7:
+            return poi.strlSGPanH.at(index.row());
+            break;
+        case 8:
+            return poi.strlSGPanV.at(index.row());
+            break;
+        case 9:
+            return poi.strlSGGridOnProj.at(index.row());
+            break;
+        }
+    }
+
+    return QVariant();
+
+
+}
+
+
+
+bool POISGModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            poi.strlSGName.replace(index.row(), value.toString());
+            break;
+        case 1:
+            poi.strlSGMapWidth.replace(index.row(), value.toString());
+            break;
+        case 2:
+            poi.strlSGMapHeight.replace(index.row(), value.toString());
+            break;
+        case 3:
+            poi.strlSGLon.replace(index.row(), value.toString());
+            break;
+        case 4:
+            poi.strlSGLat.replace(index.row(), value.toString());
+            break;
+        case 5:
+            poi.strlSGRadius.replace(index.row(), value.toString());
+            break;
+        case 6:
+            poi.strlSGScale.replace(index.row(), value.toString());
+            break;
+        case 7:
+            poi.strlSGPanH.replace(index.row(), value.toString());
+            break;
+        case 8:
+            poi.strlSGPanV.replace(index.row(), value.toString());
+            break;
+        case 9:
+            poi.strlSGGridOnProj.replace(index.row(), value.toString());
+            break;
+        }
+
+        emit editCompleted();
+    }
+
+    return true;
+}
+
+QVariant POISGModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Name");
+
+        case 1:
+            return tr("Map Width");
+
+        case 2:
+            return tr("Map Height");
+
+        case 3:
+            return tr("Longitude");
+
+        case 4:
+            return tr("Latitude");
+
+        case 5:
+            return tr("Radius");
+
+        case 6:
+            return tr("Scale");
+
+        case 7:
+            return tr("Pan Hor");
+
+        case 8:
+            return tr("Pan Vert");
+
+        case 9:
+            return tr("Grid on Proj");
+
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+
+}
+
+bool POISGModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlSGName.append( " " );
+    poi.strlSGMapWidth.append( " " );
+    poi.strlSGMapHeight.append( " " );
+    poi.strlSGLon.append( " " );
+    poi.strlSGLat.append( " " );
+    poi.strlSGRadius.append( " " );
+    poi.strlSGScale.append( " " );
+    poi.strlSGPanH.append( " " );
+    poi.strlSGPanV.append( " " );
+    poi.strlSGGridOnProj.append( " " );
+
+    endInsertRows();
+    return true;
+
+}
+
+bool POISGModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlSGName.removeAt(position);
+    poi.strlSGMapWidth.removeAt(position);
+    poi.strlSGMapHeight.removeAt(position);
+    poi.strlSGLon.removeAt(position);
+    poi.strlSGLat.removeAt(position);
+    poi.strlSGRadius.removeAt(position);
+    poi.strlSGScale.removeAt(position);
+    poi.strlSGPanH.removeAt(position);
+    poi.strlSGPanV.removeAt(position);
+    poi.strlSGGridOnProj.removeAt(position);
+
+    endRemoveRows();
+    return true;
+
+}
+
+Qt::ItemFlags POISGModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
+
+

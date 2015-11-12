@@ -362,31 +362,14 @@ bool GeneralVerticalPerspective::genpersfor(double lon, double lat, double *x, d
     dlon = adjust_lon_rad(lon - lon_center);
 
 
-    if(lat < 0.2)
-    {
-        sinphi = lat;
-        cosphi = 1 - (lat*lat/2);
-    }
-    else
-    {
 #ifdef WIN32 && __GNUC__
         sinphi = sin(lat);
         cosphi = cos(lat);
 #else
         sincos(lat,&sinphi,&cosphi);
 #endif
-    }
-
-//    if(dlon <  0.02)
-//    {
-//        sinlon = dlon;
-//        coslon = 1 - (dlon*dlon/2);
-//    }
-//    else
-//    {
         coslon = cos(dlon);
         sinlon = sin(dlon);
-//    }
 
     g = sin_lat_o * sinphi + cos_lat_o * cosphi * coslon;
     if (g < (1.0/ p))
@@ -445,12 +428,15 @@ bool GeneralVerticalPerspective::genpersinv(double x, double y, double *lon, dou
 
     sinz = (p - sqrt(1.0 - (r * r * com) / con)) / (con / r + r/con);
     z = asinz(sinz);
-#ifdef WIN32 && __GNUC__
+//#ifdef WIN32 && __GNUC__
+//    sinz = sin(z);
+//    cosz = cos(z);
+//#else
+//    sincos(z,&sinz,&cosz);
+//#endif
+
     sinz = sin(z);
     cosz = cos(z);
-#else
-    sincos(z,&sinz,&cosz);
-#endif
 
     *lon = lon_center;
     if (fabs(rh) <= EPSLN)

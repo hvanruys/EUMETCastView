@@ -26,6 +26,7 @@ public:
     void ComposeProjection(eProjections proj);
     void ComposeSegmentImageWindow(float lowerlimit, float upperlimit);
 
+    float MoonIllumFraction;
 
     int threshold[3];
     float stat_max;
@@ -55,7 +56,6 @@ private:
     QScopedArrayPointer<float> expanscoef;
     QScopedArrayPointer<int> NumberOfTiePointZonesScan;
     QScopedArrayPointer<int> TiePointZoneGroupLocationScanCompact;
-    float MoonIllumFraction;
 
     float s8[8];
     float s14[14];

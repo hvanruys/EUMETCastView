@@ -10,6 +10,7 @@ unix:TARGET = ../EUMETCastView
 else:win32:TARGET = ../../EUMETCastView
 TEMPLATE = app
 CONFIG += static
+CONFIG += c++11
 
 
 SOURCES += main.cpp \
@@ -66,7 +67,8 @@ SOURCES += main.cpp \
     segmentviirsm.cpp \
     segmentviirsdnb.cpp \
     segmentlistviirsdnb.cpp \
-    segmentlistviirsm.cpp
+    segmentlistviirsm.cpp \
+    poi.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -121,7 +123,8 @@ HEADERS  += mainwindow.h \
     segmentviirsm.h \
     segmentviirsdnb.h \
     segmentlistviirsdnb.h \
-    segmentlistviirsm.h
+    segmentlistviirsm.h \
+    poi.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
@@ -136,8 +139,6 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     EUMETCastView.qrc \
     shaders.qrc
-
-CONFIG += c++11
 
 unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
 else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.15\include" ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4

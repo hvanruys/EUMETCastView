@@ -26,6 +26,7 @@ public:
     //static void doComposeProjection(Segment *t);
     void sliderCentreBandChanged(int val);
     void spbWindowValueChanged(int spbwindowval, int slcentreband);
+    float getMoonIllumination();
 
 private:
     void CalculateLUT();
@@ -41,12 +42,10 @@ private:
 
 protected:
 
-    QFutureWatcher<void> *watcherreadviirs;
-    QFutureWatcher<void> *watchercomposeviirs;
+    QFutureWatcher<void> *watcherviirs;
 
 protected slots:
-    void readfinishedviirs();
-    void composefinishedviirs();
+    void finishedviirs();
     void progressreadvalue(int progress);
 
 signals:

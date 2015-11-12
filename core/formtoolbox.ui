@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>656</width>
-    <height>1064</height>
+    <width>394</width>
+    <height>1135</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_18">
+  <layout class="QVBoxLayout" name="verticalLayout_20">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
@@ -616,1069 +616,1092 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_17">
        <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Select band</string>
+        <widget class="QTabWidget" name="tabWidgetVIIRS">
+         <property name="currentIndex">
+          <number>0</number>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_16">
-          <item>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="17" column="2">
-             <widget class="QRadioButton" name="rbM16">
-              <property name="text">
-               <string>M16 (12.013)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="2">
-             <widget class="QRadioButton" name="rbM6">
-              <property name="text">
-               <string>M6 (0.746)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="14" column="1">
-             <widget class="QComboBox" name="comboM13">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QRadioButton" name="rbM1">
-              <property name="text">
-               <string>M1 (0.412)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="14" column="2">
-             <widget class="QRadioButton" name="rbM13">
-              <property name="text">
-               <string>M13 (4.05)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="2">
-             <widget class="QRadioButton" name="rbM11">
-              <property name="text">
-               <string>M11 (2.25)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <widget class="QComboBox" name="comboM7">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="1">
-             <widget class="QComboBox" name="comboM8">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QComboBox" name="comboM6">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="16" column="1">
-             <widget class="QComboBox" name="comboM15">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QLabel" name="label_32">
-              <property name="text">
-               <string>Band ( in µm)</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1">
-             <widget class="QComboBox" name="comboM11">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QRadioButton" name="rbColorVIIRS">
-              <property name="text">
-               <string>Colors</string>
-              </property>
-             </widget>
-            </item>
-            <item row="17" column="1">
-             <widget class="QComboBox" name="comboM16">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="2">
-             <widget class="QRadioButton" name="rbM4">
-              <property name="text">
-               <string>M4 (0.555)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="15" column="2">
-             <widget class="QRadioButton" name="rbM14">
-              <property name="text">
-               <string>M14 (8.55)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="2">
-             <widget class="QRadioButton" name="rbM9">
-              <property name="text">
-               <string>M9 (1.378)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="13" column="1">
-             <widget class="QComboBox" name="comboM12">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="16" column="2">
-             <widget class="QRadioButton" name="rbM15">
-              <property name="text">
-               <string>M15 (10.763)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2">
-             <widget class="QRadioButton" name="rbM2">
-              <property name="text">
-               <string>M2 (0.445)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="2">
-             <widget class="QRadioButton" name="rbM5">
-              <property name="text">
-               <string>M5 (0.672)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="2">
-             <widget class="QRadioButton" name="rbM8">
-              <property name="text">
-               <string>M8 (1.240)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="2">
-             <widget class="QRadioButton" name="rbM7">
-              <property name="text">
-               <string>M7 (0.865)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="2">
-             <widget class="QRadioButton" name="rbM10">
-              <property name="text">
-               <string>M10 (1.61)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QComboBox" name="comboM5">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QComboBox" name="comboM3">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QComboBox" name="comboM4">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="1">
-             <widget class="QComboBox" name="comboM9">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="1">
-             <widget class="QComboBox" name="comboM10">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QComboBox" name="comboM2">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="13" column="2">
-             <widget class="QRadioButton" name="rbM12">
-              <property name="text">
-               <string>M12 (3.70)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="comboM1">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QRadioButton" name="rbM3">
-              <property name="text">
-               <string>M3 (0.488)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="15" column="1">
-             <widget class="QComboBox" name="comboM14">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_34">
-              <property name="text">
-               <string>Invert</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_52">
-              <item>
-               <spacer name="horizontalSpacer_67">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM1">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_68">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_59">
-              <item>
-               <spacer name="horizontalSpacer_81">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM2">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_82">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="4" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_57">
-              <item>
-               <spacer name="horizontalSpacer_77">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM3">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_78">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="5" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_58">
-              <item>
-               <spacer name="horizontalSpacer_79">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM4">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_80">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="6" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_60">
-              <item>
-               <spacer name="horizontalSpacer_83">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM5">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_84">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="7" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_53">
-              <item>
-               <spacer name="horizontalSpacer_69">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM6">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_70">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="8" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_61">
-              <item>
-               <spacer name="horizontalSpacer_85">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM7">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_86">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="9" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_54">
-              <item>
-               <spacer name="horizontalSpacer_71">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM8">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_72">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="10" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_62">
-              <item>
-               <spacer name="horizontalSpacer_87">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM9">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_88">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="11" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_55">
-              <item>
-               <spacer name="horizontalSpacer_73">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM10">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_74">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="12" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_56">
-              <item>
-               <spacer name="horizontalSpacer_75">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM11">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_76">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="13" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_68">
-              <item>
-               <spacer name="horizontalSpacer_97">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM12">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_98">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="14" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_67">
-              <item>
-               <spacer name="horizontalSpacer_95">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM13">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_96">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="15" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_64">
-              <item>
-               <spacer name="horizontalSpacer_89">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM14">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_90">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="16" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_65">
-              <item>
-               <spacer name="horizontalSpacer_91">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM15">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_92">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="17" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_66">
-              <item>
-               <spacer name="horizontalSpacer_93">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseM16">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_94">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="1" column="0">
-          <widget class="QPushButton" name="btnMakeVIIRSImage">
-           <property name="text">
-            <string> Make VIIRS Image </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="btnSetNaturalColors">
-           <property name="text">
-            <string> Natural Colors </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QPushButton" name="btnSetTrueColors">
-           <property name="text">
-            <string> True Colors </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <spacer name="horizontalSpacer_60">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="btnTextureVIIRS">
-           <property name="text">
-            <string>Texture</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="teVIIRS"/>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_42">
-         <property name="text">
-          <string>Window settings For DNB</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_6">
-         <item row="2" column="1">
-          <widget class="QLabel" name="lblCentreBand">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="lblTitleCentreBand">
-           <property name="text">
-            <string>Centre band </string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QScrollBar" name="sbCentreBand">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_71">
+         <widget class="QWidget" name="tabVIIRSM">
+          <attribute name="title">
+           <string>M-Band</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_19">
            <item>
-            <widget class="QLabel" name="label_39">
-             <property name="text">
-              <string>Window Band : 1.0E</string>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>Select band</string>
              </property>
+             <layout class="QVBoxLayout" name="verticalLayout_16">
+              <item>
+               <layout class="QGridLayout" name="gridLayout_2">
+                <item row="17" column="2">
+                 <widget class="QRadioButton" name="rbM16">
+                  <property name="text">
+                   <string>M16 (12.013)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="2">
+                 <widget class="QRadioButton" name="rbM6">
+                  <property name="text">
+                   <string>M6 (0.746)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="14" column="1">
+                 <widget class="QComboBox" name="comboM13">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QRadioButton" name="rbM1">
+                  <property name="text">
+                   <string>M1 (0.412)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="14" column="2">
+                 <widget class="QRadioButton" name="rbM13">
+                  <property name="text">
+                   <string>M13 (4.05)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="2">
+                 <widget class="QRadioButton" name="rbM11">
+                  <property name="text">
+                   <string>M11 (2.25)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="1">
+                 <widget class="QComboBox" name="comboM7">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <widget class="QComboBox" name="comboM8">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QComboBox" name="comboM6">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="16" column="1">
+                 <widget class="QComboBox" name="comboM15">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_32">
+                  <property name="text">
+                   <string>Band ( in µm)</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="1">
+                 <widget class="QComboBox" name="comboM11">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QRadioButton" name="rbColorVIIRS">
+                  <property name="text">
+                   <string>Colors</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="17" column="1">
+                 <widget class="QComboBox" name="comboM16">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="2">
+                 <widget class="QRadioButton" name="rbM4">
+                  <property name="text">
+                   <string>M4 (0.555)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="15" column="2">
+                 <widget class="QRadioButton" name="rbM14">
+                  <property name="text">
+                   <string>M14 (8.55)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="2">
+                 <widget class="QRadioButton" name="rbM9">
+                  <property name="text">
+                   <string>M9 (1.378)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="13" column="1">
+                 <widget class="QComboBox" name="comboM12">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="16" column="2">
+                 <widget class="QRadioButton" name="rbM15">
+                  <property name="text">
+                   <string>M15 (10.763)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QRadioButton" name="rbM2">
+                  <property name="text">
+                   <string>M2 (0.445)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QRadioButton" name="rbM5">
+                  <property name="text">
+                   <string>M5 (0.672)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="2">
+                 <widget class="QRadioButton" name="rbM8">
+                  <property name="text">
+                   <string>M8 (1.240)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="2">
+                 <widget class="QRadioButton" name="rbM7">
+                  <property name="text">
+                   <string>M7 (0.865)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="2">
+                 <widget class="QRadioButton" name="rbM10">
+                  <property name="text">
+                   <string>M10 (1.61)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QComboBox" name="comboM5">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QComboBox" name="comboM3">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QComboBox" name="comboM4">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="1">
+                 <widget class="QComboBox" name="comboM9">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="1">
+                 <widget class="QComboBox" name="comboM10">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QComboBox" name="comboM2">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="13" column="2">
+                 <widget class="QRadioButton" name="rbM12">
+                  <property name="text">
+                   <string>M12 (3.70)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QComboBox" name="comboM1">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QRadioButton" name="rbM3">
+                  <property name="text">
+                   <string>M3 (0.488)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="15" column="1">
+                 <widget class="QComboBox" name="comboM14">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_34">
+                  <property name="text">
+                   <string>Invert</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_52">
+                  <item>
+                   <spacer name="horizontalSpacer_67">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM1">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_68">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="3" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_59">
+                  <item>
+                   <spacer name="horizontalSpacer_81">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM2">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_82">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="4" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_57">
+                  <item>
+                   <spacer name="horizontalSpacer_77">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM3">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_78">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="5" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_58">
+                  <item>
+                   <spacer name="horizontalSpacer_79">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM4">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_80">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="6" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_60">
+                  <item>
+                   <spacer name="horizontalSpacer_83">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM5">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_84">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="7" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_53">
+                  <item>
+                   <spacer name="horizontalSpacer_69">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM6">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_70">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="8" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_61">
+                  <item>
+                   <spacer name="horizontalSpacer_85">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM7">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_86">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="9" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_54">
+                  <item>
+                   <spacer name="horizontalSpacer_71">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM8">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_72">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="10" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_62">
+                  <item>
+                   <spacer name="horizontalSpacer_87">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM9">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_88">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="11" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_55">
+                  <item>
+                   <spacer name="horizontalSpacer_73">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM10">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_74">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="12" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_56">
+                  <item>
+                   <spacer name="horizontalSpacer_75">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM11">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_76">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="13" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_68">
+                  <item>
+                   <spacer name="horizontalSpacer_97">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM12">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_98">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="14" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_67">
+                  <item>
+                   <spacer name="horizontalSpacer_95">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM13">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_96">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="15" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_64">
+                  <item>
+                   <spacer name="horizontalSpacer_89">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM14">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_90">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="16" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_65">
+                  <item>
+                   <spacer name="horizontalSpacer_91">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM15">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_92">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="17" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_66">
+                  <item>
+                   <spacer name="horizontalSpacer_93">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="chkInverseM16">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_94">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spbDnbWindow">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>6</number>
-             </property>
-             <property name="singleStep">
-              <number>1</number>
-             </property>
-             <property name="value">
-              <number>2</number>
-             </property>
-            </widget>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="1" column="0">
+              <widget class="QPushButton" name="btnMakeVIIRSImage">
+               <property name="text">
+                <string> Make VIIRS Image </string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="btnSetNaturalColors">
+               <property name="text">
+                <string> Natural Colors </string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="btnSetTrueColors">
+               <property name="text">
+                <string> True Colors </string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <spacer name="horizontalSpacer_60">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="btnTextureVIIRS">
+               <property name="text">
+                <string>Texture</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QLabel" name="label_40">
-             <property name="text">
-              <string>W / cm² sr</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_99">
+            <spacer name="verticalSpacer_7">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>40</width>
-               <height>20</height>
+               <width>20</width>
+               <height>40</height>
               </size>
              </property>
             </spacer>
            </item>
           </layout>
-         </item>
-        </layout>
+         </widget>
+         <widget class="QWidget" name="tabVIIRSDNB">
+          <attribute name="title">
+           <string>Day/Night Band</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_18">
+           <item>
+            <widget class="QLabel" name="lblTitleCentreBand">
+             <property name="text">
+              <string>Centre band </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QScrollBar" name="sbCentreBand">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblCentreBand">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>1</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_71">
+             <item>
+              <widget class="QLabel" name="label_39">
+               <property name="text">
+                <string>Window Band : 1.0E</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spbDnbWindow">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>6</number>
+               </property>
+               <property name="singleStep">
+                <number>1</number>
+               </property>
+               <property name="value">
+                <number>2</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_40">
+               <property name="text">
+                <string>W / cm² sr</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_99">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>571</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_7">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
+        <widget class="QTextEdit" name="teVIIRS"/>
        </item>
       </layout>
      </widget>
@@ -2718,7 +2741,7 @@
       <attribute name="title">
        <string>Projections</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_10">
+      <layout class="QVBoxLayout" name="verticalLayout_22">
        <item>
         <widget class="QFrame" name="frame_3">
          <property name="frameShape">
@@ -2802,57 +2825,6 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_21">
-         <item>
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Width :</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spbMapWidth">
-           <property name="minimum">
-            <number>100</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_18">
-           <property name="text">
-            <string>Height :</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spbMapHeight">
-           <property name="minimum">
-            <number>100</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_52">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_69">
          <item>
           <widget class="QLabel" name="label_35">
@@ -2912,21 +2884,72 @@
             <item>
              <widget class="QToolBox" name="toolBox">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>279</width>
+                 <width>335</width>
                  <height>518</height>
                 </rect>
                </property>
                <attribute name="label">
                 <string>Lambert Conformal Conic</string>
                </attribute>
-               <layout class="QVBoxLayout" name="verticalLayout_15">
+               <layout class="QVBoxLayout" name="verticalLayout_14">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_44">
+                  <item>
+                   <widget class="QLabel" name="label_36">
+                    <property name="text">
+                     <string>Width :</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spbLCCMapWidth">
+                    <property name="minimum">
+                     <number>100</number>
+                    </property>
+                    <property name="maximum">
+                     <number>10000</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_42">
+                    <property name="text">
+                     <string>Height :</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spbLCCMapHeight">
+                    <property name="minimum">
+                     <number>100</number>
+                    </property>
+                    <property name="maximum">
+                     <number>10000</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_57">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_25">
                   <item>
@@ -3128,262 +3151,263 @@
                  </widget>
                 </item>
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_14">
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_63">
-                    <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_7">
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_30">
-                        <item>
-                         <spacer name="horizontalSpacer_37">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_16">
-                          <property name="text">
-                           <string>North</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QSpinBox" name="spbNorth">
-                          <property name="minimum">
-                           <number>-90</number>
-                          </property>
-                          <property name="maximum">
-                           <number>90</number>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QPushButton" name="btnLCCMapNorth">
-                          <property name="maximumSize">
-                           <size>
-                            <width>30</width>
-                            <height>16777215</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>N</string>
-                          </property>
-                          <property name="autoRepeat">
-                           <bool>true</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_38">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_28">
-                        <item>
-                         <spacer name="horizontalSpacer_58">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                        <item>
-                         <widget class="QPushButton" name="btnLCCMapWest">
-                          <property name="maximumSize">
-                           <size>
-                            <width>30</width>
-                            <height>16777215</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>W</string>
-                          </property>
-                          <property name="autoRepeat">
-                           <bool>true</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QSpinBox" name="spbWest">
-                          <property name="wrapping">
-                           <bool>true</bool>
-                          </property>
-                          <property name="minimum">
-                           <number>-180</number>
-                          </property>
-                          <property name="maximum">
-                           <number>180</number>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QSpinBox" name="spbEast">
-                          <property name="wrapping">
-                           <bool>true</bool>
-                          </property>
-                          <property name="minimum">
-                           <number>-180</number>
-                          </property>
-                          <property name="maximum">
-                           <number>180</number>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QPushButton" name="btnLCCMapEast">
-                          <property name="maximumSize">
-                           <size>
-                            <width>30</width>
-                            <height>16777215</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>E</string>
-                          </property>
-                          <property name="autoRepeat">
-                           <bool>true</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_44">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_31">
-                        <item>
-                         <spacer name="horizontalSpacer_39">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_17">
-                          <property name="text">
-                           <string>South</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QSpinBox" name="spbSouth">
-                          <property name="minimum">
-                           <number>-90</number>
-                          </property>
-                          <property name="maximum">
-                           <number>90</number>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QPushButton" name="btnLCCMapSouth">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>30</width>
-                            <height>16777215</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>S</string>
-                          </property>
-                          <property name="autoRepeat">
-                           <bool>true</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_40">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <widget class="QScrollBar" name="scbLCCMapUpDown">
-                      <property name="minimum">
-                       <number>-90</number>
-                      </property>
-                      <property name="maximum">
-                       <number>90</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Vertical</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="QScrollBar" name="scbLCCMapLeftRight">
-                    <property name="minimum">
-                     <number>-180</number>
-                    </property>
-                    <property name="maximum">
-                     <number>180</number>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
+                 <widget class="QFrame" name="frame_7">
+                  <property name="frameShape">
+                   <enum>QFrame::StyledPanel</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_7">
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_30">
+                     <item>
+                      <spacer name="horizontalSpacer_37">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_16">
+                       <property name="text">
+                        <string>North</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spbNorth">
+                       <property name="minimum">
+                        <number>-90</number>
+                       </property>
+                       <property name="maximum">
+                        <number>90</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btnLCCMapNorth">
+                       <property name="maximumSize">
+                        <size>
+                         <width>30</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="toolTip">
+                        <string extracomment="Move map extent with mousewheel"/>
+                       </property>
+                       <property name="toolTipDuration">
+                        <number>2</number>
+                       </property>
+                       <property name="text">
+                        <string>N</string>
+                       </property>
+                       <property name="autoRepeat">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_38">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_28">
+                     <item>
+                      <spacer name="horizontalSpacer_58">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btnLCCMapWest">
+                       <property name="maximumSize">
+                        <size>
+                         <width>30</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="toolTip">
+                        <string extracomment="Move map extent with mousewheel"/>
+                       </property>
+                       <property name="toolTipDuration">
+                        <number>-2</number>
+                       </property>
+                       <property name="statusTip">
+                        <string extracomment="Move map extent with mousewheel statustip"/>
+                       </property>
+                       <property name="text">
+                        <string>W</string>
+                       </property>
+                       <property name="autoRepeat">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spbWest">
+                       <property name="wrapping">
+                        <bool>true</bool>
+                       </property>
+                       <property name="minimum">
+                        <number>-180</number>
+                       </property>
+                       <property name="maximum">
+                        <number>180</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spbEast">
+                       <property name="wrapping">
+                        <bool>true</bool>
+                       </property>
+                       <property name="minimum">
+                        <number>-180</number>
+                       </property>
+                       <property name="maximum">
+                        <number>180</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btnLCCMapEast">
+                       <property name="maximumSize">
+                        <size>
+                         <width>30</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="toolTip">
+                        <string extracomment="Move map extent with mousewheel"/>
+                       </property>
+                       <property name="toolTipDuration">
+                        <number>2</number>
+                       </property>
+                       <property name="text">
+                        <string>E</string>
+                       </property>
+                       <property name="autoRepeat">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_44">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_31">
+                     <item>
+                      <spacer name="horizontalSpacer_39">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_17">
+                       <property name="text">
+                        <string>South</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spbSouth">
+                       <property name="minimum">
+                        <number>-90</number>
+                       </property>
+                       <property name="maximum">
+                        <number>90</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btnLCCMapSouth">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>30</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="toolTip">
+                        <string extracomment="Move map extent with mousewheel"/>
+                       </property>
+                       <property name="toolTipDuration">
+                        <number>2</number>
+                       </property>
+                       <property name="text">
+                        <string>S</string>
+                       </property>
+                       <property name="autoRepeat">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_40">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_39">
@@ -3484,6 +3508,15 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_32">
                   <item>
                    <widget class="QPushButton" name="btnCreateLambert">
+                    <property name="toolTip">
+                     <string extracomment="Create Map tooltip"/>
+                    </property>
+                    <property name="toolTipDuration">
+                     <number>3</number>
+                    </property>
+                    <property name="statusTip">
+                     <string extracomment="Create Map"/>
+                    </property>
                     <property name="text">
                      <string>Create Map</string>
                     </property>
@@ -3497,23 +3530,6 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_45">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_40">
-                  <item>
                    <widget class="QPushButton" name="btnOverlayProjectionLCC">
                     <property name="text">
                      <string>Overlay</string>
@@ -3521,7 +3537,7 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_54">
+                   <spacer name="horizontalSpacer_45">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -3555,23 +3571,6 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_56">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_44">
-                  <item>
                    <widget class="QLabel" name="label_27">
                     <property name="text">
                      <string>Corr. Y-axis</string>
@@ -3589,7 +3588,7 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_57">
+                   <spacer name="horizontalSpacer_56">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -3602,6 +3601,13 @@
                    </spacer>
                   </item>
                  </layout>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="chkLCCGridOnProj">
+                  <property name="text">
+                   <string>Grid on Projection</string>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <spacer name="verticalSpacer_3">
@@ -3623,84 +3629,52 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>594</width>
-                 <height>473</height>
+                 <width>326</width>
+                 <height>269</height>
                 </rect>
                </property>
                <attribute name="label">
                 <string>General Vertical Perspective</string>
                </attribute>
-               <layout class="QVBoxLayout" name="verticalLayout_4">
+               <layout class="QVBoxLayout" name="verticalLayout_15">
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_29">
+                 <layout class="QHBoxLayout" name="horizontalLayout_50">
                   <item>
-                   <widget class="QLabel" name="label_8">
+                   <widget class="QLabel" name="label_43">
                     <property name="text">
-                     <string>Lat [°]: </string>
+                     <string>Width :</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="spbGVPlat">
-                    <property name="maximumSize">
-                     <size>
-                      <width>70</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
+                   <widget class="QSpinBox" name="spbGVPMapWidth">
                     <property name="minimum">
-                     <double>-90.000000000000000</double>
+                     <number>100</number>
                     </property>
                     <property name="maximum">
-                     <double>90.000000000000000</double>
+                     <number>10000</number>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_46">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_34">
-                  <item>
-                   <widget class="QLabel" name="label_19">
+                   <widget class="QLabel" name="label_44">
                     <property name="text">
-                     <string>Lon [°]:</string>
+                     <string>Height :</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="spbGVPlon">
-                    <property name="maximumSize">
-                     <size>
-                      <width>70</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="wrapping">
-                     <bool>true</bool>
-                    </property>
+                   <widget class="QSpinBox" name="spbGVPMapHeight">
                     <property name="minimum">
-                     <double>-180.000000000000000</double>
+                     <number>100</number>
                     </property>
                     <property name="maximum">
-                     <double>180.000000000000000</double>
+                     <number>10000</number>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_49">
+                   <spacer name="horizontalSpacer_64">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -3715,87 +3689,148 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_24">
-                  <item>
-                   <widget class="QLabel" name="label_20">
-                    <property name="text">
-                     <string>Height [km]:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="spbGVPheight">
-                    <property name="minimumSize">
-                     <size>
-                      <width>70</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>80</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>1000000000</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_50">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_35">
-                  <item>
-                   <widget class="QLabel" name="label_21">
-                    <property name="text">
-                     <string>Scale:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QDoubleSpinBox" name="spbGVPscale">
-                    <property name="singleStep">
-                     <double>0.010000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_48">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="chkShowPerspective">
-                  <property name="text">
-                   <string>Show Map Extent </string>
+                 <widget class="QFrame" name="frame_5">
+                  <property name="frameShape">
+                   <enum>QFrame::StyledPanel</enum>
                   </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_4">
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_29">
+                     <item>
+                      <widget class="QLabel" name="label_8">
+                       <property name="text">
+                        <string>Lat [°]: </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QDoubleSpinBox" name="spbGVPlat">
+                       <property name="maximumSize">
+                        <size>
+                         <width>70</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="minimum">
+                        <double>-90.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>90.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_46">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_19">
+                       <property name="text">
+                        <string>Lon [°]:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QDoubleSpinBox" name="spbGVPlon">
+                       <property name="maximumSize">
+                        <size>
+                         <width>70</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="wrapping">
+                        <bool>true</bool>
+                       </property>
+                       <property name="minimum">
+                        <double>-180.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>180.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_24">
+                     <item>
+                      <widget class="QLabel" name="label_21">
+                       <property name="text">
+                        <string>Scale:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QDoubleSpinBox" name="spbGVPscale">
+                       <property name="singleStep">
+                        <double>0.010000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_50">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_20">
+                       <property name="text">
+                        <string>Height [km]:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spbGVPheight">
+                       <property name="minimumSize">
+                        <size>
+                         <width>70</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>80</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="minimum">
+                        <number>1</number>
+                       </property>
+                       <property name="maximum">
+                        <number>1000000000</number>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="chkShowPerspective">
+                     <property name="text">
+                      <string>Show Map Extent </string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item>
@@ -3861,6 +3896,13 @@
                  </layout>
                 </item>
                 <item>
+                 <widget class="QCheckBox" name="chkGVPGridOnProj">
+                  <property name="text">
+                   <string>Grid on Projection</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <spacer name="verticalSpacer_4">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
@@ -3880,329 +3922,358 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>329</width>
-                 <height>265</height>
+                 <width>333</width>
+                 <height>291</height>
                 </rect>
                </property>
                <attribute name="label">
                 <string>Stereographic</string>
                </attribute>
-               <layout class="QVBoxLayout" name="verticalLayout_13">
+               <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_12">
+                 <layout class="QHBoxLayout" name="horizontalLayout_21">
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_46">
-                    <item>
-                     <widget class="QLabel" name="label_15">
-                      <property name="text">
-                       <string>Center Lon [°]: </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spbSGlon">
-                      <property name="maximumSize">
-                       <size>
-                        <width>70</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="wrapping">
-                       <bool>true</bool>
-                      </property>
-                      <property name="minimum">
-                       <double>-180.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>180.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_14">
-                      <property name="text">
-                       <string>Lat [°]: </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spbSGlat">
-                      <property name="maximumSize">
-                       <size>
-                        <width>70</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="minimum">
-                       <double>-90.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>90.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
+                   <widget class="QLabel" name="label_7">
+                    <property name="text">
+                     <string>Width :</string>
+                    </property>
+                   </widget>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_45">
-                    <item>
-                     <widget class="QLabel" name="label_31">
-                      <property name="text">
-                       <string>Radius [°]:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spbSGRadius">
-                      <property name="minimum">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>180.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_28">
-                      <property name="text">
-                       <string>Scale :</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spbSGScale">
-                      <property name="maximumSize">
-                       <size>
-                        <width>70</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="minimum">
-                       <double>-90.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>90.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.100000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_59">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
+                   <widget class="QSpinBox" name="spbSGMapWidth">
+                    <property name="minimum">
+                     <number>100</number>
+                    </property>
+                    <property name="maximum">
+                     <number>10000</number>
+                    </property>
+                   </widget>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_48">
-                    <item>
-                     <widget class="QPushButton" name="btnCreateStereo">
-                      <property name="text">
-                       <string>Create Map</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="btnOverlayProjectionSG">
-                      <property name="text">
-                       <string>Overlay</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="btnSGHome">
-                      <property name="text">
-                       <string>Home</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_62">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
+                   <widget class="QLabel" name="label_18">
+                    <property name="text">
+                     <string>Height :</string>
+                    </property>
+                   </widget>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_50">
-                    <item>
-                     <widget class="QPushButton" name="btnSGNorth">
-                      <property name="text">
-                       <string>North</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="btnSGSouth">
-                      <property name="text">
-                       <string>South</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="btnSGEquatorial">
-                      <property name="text">
-                       <string>Equatorial</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_64">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
+                   <widget class="QSpinBox" name="spbSGMapHeight">
+                    <property name="minimum">
+                     <number>100</number>
+                    </property>
+                    <property name="maximum">
+                     <number>10000</number>
+                    </property>
+                   </widget>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_47">
-                    <item>
-                     <widget class="QPushButton" name="btnSGClearMap">
-                      <property name="text">
-                       <string>Clear</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_61">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_51">
-                    <item>
-                     <widget class="QLabel" name="label_30">
-                      <property name="text">
-                       <string>Pan Horizontal</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSpinBox" name="spbSGPanHorizon">
-                      <property name="minimumSize">
-                       <size>
-                        <width>70</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="minimum">
-                       <number>-5000</number>
-                      </property>
-                      <property name="maximum">
-                       <number>5000</number>
-                      </property>
-                      <property name="singleStep">
-                       <number>10</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_65">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_49">
-                    <item>
-                     <widget class="QLabel" name="label_29">
-                      <property name="text">
-                       <string>Pan Vertical</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSpinBox" name="spbSGPanVert">
-                      <property name="minimumSize">
-                       <size>
-                        <width>70</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="minimum">
-                       <number>-5000</number>
-                      </property>
-                      <property name="maximum">
-                       <number>5000</number>
-                      </property>
-                      <property name="singleStep">
-                       <number>10</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_63">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <spacer name="verticalSpacer_5">
+                   <spacer name="horizontalSpacer_52">
                     <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                     <enum>Qt::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>20</width>
-                      <height>40</height>
+                      <width>40</width>
+                      <height>20</height>
                      </size>
                     </property>
                    </spacer>
                   </item>
                  </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_46">
+                  <item>
+                   <widget class="QLabel" name="label_15">
+                    <property name="text">
+                     <string>Center Lon [°]: </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="spbSGlon">
+                    <property name="maximumSize">
+                     <size>
+                      <width>70</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="wrapping">
+                     <bool>true</bool>
+                    </property>
+                    <property name="minimum">
+                     <double>-180.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>180.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_54">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_14">
+                    <property name="text">
+                     <string>Lat [°]: </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="spbSGlat">
+                    <property name="maximumSize">
+                     <size>
+                      <width>70</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="minimum">
+                     <double>-90.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>90.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_45">
+                  <item>
+                   <widget class="QLabel" name="label_31">
+                    <property name="text">
+                     <string>Radius [°]:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="spbSGRadius">
+                    <property name="minimum">
+                     <double>1.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>180.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_59">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_28">
+                    <property name="text">
+                     <string>Scale :</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="spbSGScale">
+                    <property name="maximumSize">
+                     <size>
+                      <width>70</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="minimum">
+                     <double>-90.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>90.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_48">
+                  <item>
+                   <widget class="QPushButton" name="btnCreateStereo">
+                    <property name="text">
+                     <string>Create Map</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnOverlayProjectionSG">
+                    <property name="text">
+                     <string>Overlay</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnSGHome">
+                    <property name="text">
+                     <string>Home</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_62">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_47">
+                  <item>
+                   <widget class="QPushButton" name="btnSGClearMap">
+                    <property name="text">
+                     <string>Clear</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_61">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_51">
+                  <item>
+                   <widget class="QLabel" name="label_30">
+                    <property name="text">
+                     <string>Pan Horizontal</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spbSGPanHorizon">
+                    <property name="minimumSize">
+                     <size>
+                      <width>70</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="minimum">
+                     <number>-5000</number>
+                    </property>
+                    <property name="maximum">
+                     <number>5000</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_65">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_49">
+                  <item>
+                   <widget class="QLabel" name="label_29">
+                    <property name="text">
+                     <string>Pan Vertical</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spbSGPanVert">
+                    <property name="minimumSize">
+                     <size>
+                      <width>70</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="minimum">
+                     <number>-5000</number>
+                    </property>
+                    <property name="maximum">
+                     <number>5000</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_63">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="chkSGGridOnProj">
+                  <property name="text">
+                   <string>Grid on Projection</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>252</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -4210,75 +4281,55 @@
             </item>
            </layout>
           </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame_6">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_40">
+            <item>
+             <widget class="QLabel" name="label_41">
+              <property name="text">
+               <string>Point of interest :</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboPOI">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_70">
             <item>
-             <widget class="QPushButton" name="btnCLAHEprojection">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Contrast Limited Adaptive Histogram Equalization</string>
-              </property>
+             <widget class="QPushButton" name="btnAddPOI">
               <property name="text">
-               <string>CLAHE</string>
+               <string>Add POI :</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_36">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Clip Limit : </string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="lblCLAHEprojection">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>20</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>TextLabel</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSlider" name="sliCLAHEprojection">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="minimum">
-               <number>10</number>
-              </property>
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="singleStep">
-               <number>1</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="tickPosition">
-               <enum>QSlider::TicksAbove</enum>
-              </property>
-              <property name="tickInterval">
-               <number>10</number>
+             <widget class="QLineEdit" name="lePOI">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
              </widget>
             </item>

@@ -1,8 +1,10 @@
 #include "formtoolbox.h"
 #include "ui_formtoolbox.h"
 #include "msgfileaccess.h"
+#include "poi.h"
 
 extern Options opts;
+extern Poi poi;
 extern SegmentImage *imageptrs;
 
 #include <QMutex>
@@ -39,6 +41,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     setupChannelCombo();
     setChannelComboBoxes();
+    currentAVHRRimage = 1;
 
 
     if (opts.imageontextureOnAVHRR)
@@ -97,21 +100,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
 
-    qDebug() << QString("Setting currenttoolbox = %1").arg(opts.currenttoolbox);
-
-    ui->toolBox->setCurrentIndex(opts.currenttoolbox); // in projection tab
-
-    ui->scbLCCMapLeftRight->blockSignals(true);
-    ui->scbLCCMapUpDown->blockSignals(true);
-
-    ui->scbLCCMapLeftRight->setMinimum(-1);
-    ui->scbLCCMapLeftRight->setMaximum(1);
-    ui->scbLCCMapUpDown->setMaximum(1);
-    ui->scbLCCMapUpDown->setMinimum(-1);
-
-
     QStringList listResolution;
-    listResolution << "user defined";
+    listResolution << "User defined";
     listResolution << "4:3  SVGA   800x600";
     listResolution << "4:3  XGA   1024x768";
     listResolution << "4:3  XGA+  1152x864";
@@ -126,6 +116,12 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     listResolution << "16:9 QWXGA 2048x1152";
     listResolution << "16:9 WQHD  2560x1440";
     listResolution << "16:9 UHD   3840x2160";
+
+    listResolution << "1:1  ---   1000x1000";
+    listResolution << "1:1  ---   2000x2000";
+    listResolution << "1:1  ---   3000x3000";
+    listResolution << "1:1  ---   4000x4000";
+    listResolution << "1:1  ---   5000x5000";
 
 
     resolutionX.append(800);
@@ -143,6 +139,12 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     resolutionX.append(2560);
     resolutionX.append(3840);
 
+    resolutionX.append(1000);
+    resolutionX.append(2000);
+    resolutionX.append(3000);
+    resolutionX.append(4000);
+    resolutionX.append(5000);
+
     resolutionY.append(600);
     resolutionY.append(768);
     resolutionY.append(864);
@@ -158,18 +160,23 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     resolutionY.append(1440);
     resolutionY.append(2160);
 
+    resolutionY.append(1000);
+    resolutionY.append(2000);
+    resolutionY.append(3000);
+    resolutionY.append(4000);
+    resolutionY.append(5000);
+
     ui->cbProjResolutions->addItems(listResolution);
-
-    setParameters();
-
-    ui->scbLCCMapLeftRight->blockSignals(false);
-    ui->scbLCCMapUpDown->blockSignals(false);
 
     ui->pbProgress->setValue(0);
     ui->pbProgress->setMinimum(0);
     ui->pbProgress->setMaximum(100);
 
-    on_toolBox_currentChanged(opts.currenttoolbox);
+    setPOIsettings();
+
+    qDebug() << QString("Setting currenttoolbox = %1").arg(opts.currenttoolbox);
+    ui->toolBox->setCurrentIndex(opts.currenttoolbox); // in projection tab LCC GVP or SG
+    ui->comboPOI->setCurrentIndex(0);
 
     ui->btnLCCMapNorth->installEventFilter(this);
     ui->btnLCCMapSouth->installEventFilter(this);
@@ -184,16 +191,14 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->teAVHRR->append(formimage->txtInfo);
 
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
-    ui->lblCLAHEprojection->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
-    ui->sliCLAHEprojection->setSliderPosition(opts.clahecliplimit * 10);
 
     ui->sbCentreBand->blockSignals(true);
 
     ui->sbCentreBand->setMinimum(opts.dnbsblowerlimit);
     ui->sbCentreBand->setMaximum(opts.dnbsbupperlimit);
     ui->sbCentreBand->setValue(opts.dnbsbvalue);
-
+    ui->sbCentreBand->setTracking(false);
     ui->sbCentreBand->blockSignals(false);
 
     ui->spbDnbWindow->setValue(opts.dnbspbwindowsvalue);
@@ -317,8 +322,26 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
 
+    setToolboxButtons(true);
+
     qDebug() << "constructor formtoolbox";
 
+}
+
+void FormToolbox::setPOIsettings()
+{
+    if(ui->toolBox->currentIndex() == 0)
+        ui->comboPOI->addItems(poi.strlLCCName);
+    else if(ui->toolBox->currentIndex() == 1)
+    {
+        ui->comboPOI->addItems(poi.strlGVPName);
+    }
+    else if(ui->toolBox->currentIndex() == 2)
+        ui->comboPOI->addItems(poi.strlSGName);
+
+    setLCCParameters(0);
+    setGVPParameters(0);
+    setSGParameters(0);
 }
 
 void FormToolbox::writeInfoToAVHRR(QString info)
@@ -354,6 +377,20 @@ bool FormToolbox::eventFilter(QObject *target, QEvent *event)
             } else if (!numDegrees.isNull()) {
                 QPoint numSteps = numDegrees / 15;
                 qDebug() << QString("eventFilter numSteps  x = %1 y = %2 target = %3").arg(numSteps.x()).arg(numSteps.y()).arg(target->objectName());
+                if(target->objectName() == "btnLCCMapNorth" || target->objectName() == "btnLCCMapSouth")
+                {
+                    if(numSteps.y() > 0)
+                        on_btnLCCMapNorth_clicked();
+                    else
+                        on_btnLCCMapSouth_clicked();
+                }
+                if(target->objectName() == "btnLCCMapEast" || target->objectName() == "btnLCCMapWest")
+                {
+                    if(numSteps.y() > 0)
+                        on_btnLCCMapEast_clicked();
+                    else
+                        on_btnLCCMapWest_clicked();
+                }
             }
         }
     }
@@ -638,74 +675,69 @@ QList<bool> FormToolbox::getVIIRSInvertList()
     return(viirslist);
 }
 
-void FormToolbox::setParameters()
-{
-    qDebug() << "FormToolbox::setParameters()";
+//void FormToolbox::setParameters()
+//{
+//    qDebug() << "FormToolbox::setParameters()";
 
-    ui->spbParallel1->blockSignals(true);
-    ui->spbParallel2->blockSignals(true);
-    ui->spbCentral->blockSignals(true);
-    ui->spbLatOrigin->blockSignals(true);
+//    ui->spbParallel1->blockSignals(true);
+//    ui->spbParallel2->blockSignals(true);
+//    ui->spbCentral->blockSignals(true);
+//    ui->spbLatOrigin->blockSignals(true);
 
-    ui->spbParallel1->setValue(opts.parallel1);
-    ui->spbParallel2->setValue(opts.parallel2);
-    ui->spbCentral->setValue(opts.centralmeridian);
-    ui->spbLatOrigin->setValue(opts.latitudeoforigin);
+//    ui->spbParallel1->setValue(opts.parallel1);
+//    ui->spbParallel2->setValue(opts.parallel2);
+//    ui->spbCentral->setValue(opts.centralmeridian);
+//    ui->spbLatOrigin->setValue(opts.latitudeoforigin);
 
-    ui->spbParallel1->blockSignals(false);
-    ui->spbParallel2->blockSignals(false);
-    ui->spbCentral->blockSignals(false);
-    ui->spbLatOrigin->blockSignals(false);
+//    ui->spbParallel1->blockSignals(false);
+//    ui->spbParallel2->blockSignals(false);
+//    ui->spbCentral->blockSignals(false);
+//    ui->spbLatOrigin->blockSignals(false);
 
-    ui->spbNorth->blockSignals(true);
-    ui->spbSouth->blockSignals(true);
-    ui->spbEast->blockSignals(true);
-    ui->spbWest->blockSignals(true);
+//    ui->spbNorth->blockSignals(true);
+//    ui->spbSouth->blockSignals(true);
+//    ui->spbEast->blockSignals(true);
+//    ui->spbWest->blockSignals(true);
 
-    ui->spbNorth->setValue(opts.mapextentnorth);
-    ui->spbSouth->setValue(opts.mapextentsouth);
-    ui->spbWest->setValue(opts.mapextentwest);
-    ui->spbEast->setValue(opts.mapextenteast);
+//    ui->spbNorth->setValue(opts.mapextentnorth);
+//    ui->spbSouth->setValue(opts.mapextentsouth);
+//    ui->spbWest->setValue(opts.mapextentwest);
+//    ui->spbEast->setValue(opts.mapextenteast);
 
-    ui->spbNorth->blockSignals(false);
-    ui->spbSouth->blockSignals(false);
-    ui->spbEast->blockSignals(false);
-    ui->spbWest->blockSignals(false);
+//    ui->spbNorth->blockSignals(false);
+//    ui->spbSouth->blockSignals(false);
+//    ui->spbEast->blockSignals(false);
+//    ui->spbWest->blockSignals(false);
 
-    qDebug() << QString("setParameters() north = %1").arg(ui->spbNorth->value());
-    qDebug() << QString("setParameters() south = %1").arg(ui->spbSouth->value());
-    qDebug() << QString("setParameters() west = %1").arg(ui->spbWest->value());
-    qDebug() << QString("setParameters() east = %1").arg(ui->spbEast->value());
+//    qDebug() << QString("setParameters() north = %1").arg(ui->spbNorth->value());
+//    qDebug() << QString("setParameters() south = %1").arg(ui->spbSouth->value());
+//    qDebug() << QString("setParameters() west = %1").arg(ui->spbWest->value());
+//    qDebug() << QString("setParameters() east = %1").arg(ui->spbEast->value());
 
+//    ui->chkShowLambert->setChecked(opts.mapextentlamberton);
+//    ui->chkShowPerspective->setChecked(opts.mapextentperspectiveon);
+//    ui->spbMapHeight->setValue(opts.mapheight);
+//    ui->spbMapWidth->setValue(opts.mapwidth);
 
-    ui->chkShowLambert->setChecked(opts.mapextentlamberton);
-    ui->chkShowPerspective->setChecked(opts.mapextentperspectiveon);
-    ui->spbMapHeight->setValue(opts.mapheight);
-    ui->spbMapWidth->setValue(opts.mapwidth);
+//    ui->cbProjResolutions->setCurrentIndex(searchResolution(opts.mapwidth, opts.mapheight));
 
-    ui->cbProjResolutions->setCurrentIndex(searchResolution(opts.mapwidth, opts.mapheight));
+//    ui->spbGVPlon->setValue(opts.mapgvplon);
+//    ui->spbGVPlat->setValue(opts.mapgvplat);
+//    ui->spbGVPheight->setValue(opts.mapgvpheight);
+//    ui->spbGVPscale->setValue(opts.mapgvpscale);
+//    ui->spbScaleX->setValue(opts.maplccscalex);
+//    ui->spbScaleY->setValue(opts.maplccscaley);
+//    ui->spbMeteosatGamma->setValue(opts.meteosatgamma);
+//    int val = opts.meteosatgamma * 100;
+//    ui->sliMeteosatGamma->setValue(val);
+//    ui->spbSGlat->setValue(opts.mapsglat);
+//    ui->spbSGlon->setValue(opts.mapsglon);
+//    ui->spbSGScale->setValue(opts.mapsgscale);
+//    ui->spbSGPanHorizon->setValue(opts.mapsgpanhorizon);
+//    ui->spbSGPanVert->setValue(opts.mapsgpanvert);
+//    ui->spbSGRadius->setValue(opts.mapsgradius);
 
-    ui->spbGVPlon->setValue(opts.mapgvplon);
-    ui->spbGVPlat->setValue(opts.mapgvplat);
-    ui->spbGVPheight->setValue(opts.mapgvpheight);
-    ui->spbGVPscale->setValue(opts.mapgvpscale);
-    ui->spbScaleX->setValue(opts.maplccscalex);
-    ui->spbScaleY->setValue(opts.maplccscaley);
-    ui->spbMeteosatGamma->setValue(opts.meteosatgamma);
-    int val = opts.meteosatgamma * 100;
-    ui->sliMeteosatGamma->setValue(val);
-    ui->scbLCCMapLeftRight->setValue(opts.mapextentwest);
-    ui->scbLCCMapUpDown->setValue(opts.mapextentnorth);
-    ui->scbLCCMapLeftRight->setTracking(true);
-    ui->scbLCCMapUpDown->setTracking(true);
-    ui->spbSGlat->setValue(opts.mapsglat);
-    ui->spbSGlon->setValue(opts.mapsglon);
-    ui->spbSGScale->setValue(opts.mapsgscale);
-    ui->spbSGPanHorizon->setValue(opts.mapsgpanhorizon);
-    ui->spbSGPanVert->setValue(opts.mapsgpanvert);
-    ui->spbSGRadius->setValue(opts.mapsgradius);
-
-}
+//}
 
 int FormToolbox::searchResolution(int mapwidth, int mapheight)
 {
@@ -1031,43 +1063,98 @@ FormToolbox::~FormToolbox()
     opts.currenttabwidget = ui->tabWidget->currentIndex();
     opts.currenttoolbox = ui->toolBox->currentIndex();
 
+
+    poi.strlLCCParallel1.replace(0, QString("%1").arg(ui->spbParallel1->value()));
+    poi.strlLCCParallel2.replace(0, QString("%1").arg(ui->spbParallel2->value()));
+    poi.strlLCCCentral.replace(0, QString("%1").arg(ui->spbCentral->value()));
+    poi.strlLCCLatOrigin.replace(0, QString("%1").arg(ui->spbLatOrigin->value()));
+    poi.strlLCCNorth.replace(0, QString("%1").arg(ui->spbNorth->value()));
+    poi.strlLCCSouth.replace(0, QString("%1").arg(ui->spbEast->value()));
+    poi.strlLCCEast.replace(0, QString("%1").arg(ui->spbEast->value()));
+    poi.strlLCCWest.replace(0, QString("%1").arg(ui->spbWest->value()));
+    poi.strlLCCScaleX.replace(0, QString("%1").arg(ui->spbScaleX->value(), 0, 'f', 2));
+    poi.strlLCCScaleY.replace(0, QString("%1").arg(ui->spbScaleY->value(), 0, 'f', 2));
+    poi.strlLCCMapHeight.replace(0, QString("%1").arg(ui->spbLCCMapHeight->value()));
+    poi.strlLCCMapWidth.replace(0, QString("%1").arg(ui->spbLCCMapWidth->value()));
+    poi.strlLCCGridOnProj.replace(0, QString("%1").arg(ui->chkLCCGridOnProj->isChecked()));
+
+    poi.strlGVPLat.replace(0, QString("%1").arg(ui->spbGVPlat->value(), 0, 'f', 2));
+    poi.strlGVPLon.replace(0, QString("%1").arg(ui->spbGVPlon->value(), 0, 'f', 2));
+    poi.strlGVPScale.replace(0, QString("%1").arg(ui->spbGVPscale->value(), 0, 'f', 2));
+    poi.strlGVPHeight.replace(0, QString("%1").arg(ui->spbGVPheight->value()));
+    poi.strlGVPMapHeight.replace(0, QString("%1").arg(ui->spbGVPMapHeight->value()));
+    poi.strlGVPMapWidth.replace(0, QString("%1").arg(ui->spbGVPMapWidth->value()));
+    poi.strlGVPGridOnProj.replace(0, QString("%1").arg(ui->chkGVPGridOnProj->isChecked()));
+
+
+    poi.strlSGLat.replace(0, QString("%1").arg(ui->spbSGlat->value(), 0, 'f', 2));
+    poi.strlSGLon.replace(0, QString("%1").arg(ui->spbSGlon->value(), 0, 'f', 2));
+    poi.strlSGRadius.replace(0, QString("%1").arg(ui->spbSGRadius->value(), 0, 'f', 2));
+    poi.strlSGScale.replace(0, QString("%1").arg(ui->spbSGScale->value(), 0, 'f', 2));
+    poi.strlSGPanH.replace(0, QString("%1").arg(ui->spbSGPanHorizon->value()));
+    poi.strlSGPanV.replace(0, QString("%1").arg(ui->spbSGPanVert->value()));
+    poi.strlSGMapHeight.replace(0, QString("%1").arg(ui->spbSGMapHeight->value()));
+    poi.strlSGMapWidth.replace(0, QString("%1").arg(ui->spbSGMapWidth->value()));
+    poi.strlSGGridOnProj.replace(0, QString("%1").arg(ui->chkSGGridOnProj->isChecked()));
+
     delete ui;
+}
+
+bool FormToolbox::GridOnProjLCC()
+{
+    return ui->chkLCCGridOnProj->isChecked();
+}
+
+bool FormToolbox::GridOnProjGVP()
+{
+    return ui->chkGVPGridOnProj->isChecked();
+}
+
+bool FormToolbox::GridOnProjSG()
+{
+    return ui->chkSGGridOnProj->isChecked();
 }
 
 void FormToolbox::on_btnCol_clicked()
 {
     formimage->setKindOfImage("AVHRR Color");
-    formimage->displayImage(6);
+    currentAVHRRimage = 6;
+    formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh1_clicked()
 {
     formimage->setKindOfImage("Chan 1");
-    formimage->displayImage(1);
+    currentAVHRRimage = 1;
+    formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh2_clicked()
 {
     formimage->setKindOfImage("Chan 2");
-    formimage->displayImage(2);
+    currentAVHRRimage = 2;
+    formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh3_clicked()
 {
     formimage->setKindOfImage("Chan 3");
-    formimage->displayImage(3);
+    currentAVHRRimage = 3;
+    formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh4_clicked()
 {
     formimage->setKindOfImage("Chan 4");
-    formimage->displayImage(4);
+    currentAVHRRimage = 4;
+    formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh5_clicked()
 {
     formimage->setKindOfImage("Chan 5");
-    formimage->displayImage(5);
+    currentAVHRRimage = 5;
+    formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnExpandImage_clicked()
@@ -1276,7 +1363,11 @@ void FormToolbox::setTabWidgetIndex(int index)
     ui->tabWidget->setCurrentIndex(index);
 }
 
-
+void FormToolbox::setTabWidgetVIIRSIndex(int index)
+{
+    qDebug() << "FormToolbox::setTabWidgetVIIRSIndex(int index)";
+    ui->tabWidgetVIIRS->setCurrentIndex(index);
+}
 
 void FormToolbox::setToolboxButtons(bool state)
 {
@@ -1319,8 +1410,6 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->lblGeo9->setText("   ");
         ui->lblGeo10->setText("   ");
         ui->lblGeo11->setText("   ");
-
-
 
         break;
     case SegmentListGeostationary::GOES_13:
@@ -1498,12 +1587,20 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->btnOverlayMeteosat->setEnabled(state);
     ui->btnOverlayProjectionGVP->setEnabled(state);
     ui->btnOverlayProjectionLCC->setEnabled(state);
+    ui->btnOverlayProjectionSG->setEnabled(state);
     ui->btnRotate180->setEnabled(state);
 
     ui->btnSetTrueColors->setEnabled(state);
     ui->btnSetNaturalColors->setEnabled(state);
     ui->btnMakeVIIRSImage->setEnabled(state);
     ui->btnTextureVIIRS->setEnabled(state);
+
+    ui->btnCreateLambert->setEnabled(state);
+    ui->btnCreatePerspective->setEnabled(state);
+    ui->btnCreateStereo->setEnabled(state);
+    ui->btnLCCClearMap->setEnabled(state);
+    ui->btnGVPClearMap->setEnabled(state);
+    ui->btnSGClearMap->setEnabled(state);
 
     ui->rbColorVIIRS->setEnabled(state);
     ui->rbM1->setEnabled(state);
@@ -1523,13 +1620,13 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->rbM15->setEnabled(state);
     ui->rbM16->setEnabled(state);
 
-    if(state)
-    {
-        QApplication::restoreOverrideCursor();
-        ui->pbProgress->setValue(100);
-    }
-    else
-        QApplication::setOverrideCursor( Qt::WaitCursor );
+//    if(state)
+//    {
+//        QApplication::restoreOverrideCursor();
+//        ui->pbProgress->setValue(100);
+//    }
+//    else
+//        QApplication::setOverrideCursor( Qt::WaitCursor );
 
 }
 
@@ -1766,6 +1863,8 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 void FormToolbox::on_btnGeoColor_clicked()
 {
 
+    QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateHimawari() or slotUpdateMeteosat()
+
     if(!comboColGeoOK())
     {
         QMessageBox msgBox;
@@ -1787,7 +1886,6 @@ void FormToolbox::on_btnGeoColor_clicked()
 
     if(whichgeo == SegmentListGeostationary::NOGEO)
         return;
-    emit switchstackedwidget(3);
     ui->pbProgress->reset();
     if(whichgeo == SegmentListGeostationary::MET_10)
         ui->pbProgress->setMaximum(24);
@@ -1801,11 +1899,13 @@ void FormToolbox::on_btnGeoColor_clicked()
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 ||
             whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G || whichgeo == SegmentListGeostationary::H8)
         onButtonColorHRV("VIS_IR Color");
+
 }
 
 void FormToolbox::on_btnHRV_clicked()
 {
-    emit switchstackedwidget(3);
+
+    QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateMeteosat()
 
     ui->pbProgress->reset();
 
@@ -1871,6 +1971,7 @@ void FormToolbox::onButtonColorHRV(QString type)
 
     formimage->displayImage(8);
     formimage->adjustPicSize(true);
+
 
     setToolboxButtons(false);
 
@@ -2020,7 +2121,7 @@ void FormToolbox::onButtonColorHRV(QString type)
         }
     }
 
-
+    emit switchstackedwidget(3);
     emit getmeteosatchannel(type, spectrumvector, inversevector);
 }
 
@@ -2075,7 +2176,7 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
 
     if (index == 0) //AVHHR
     {
-        formimage->displayImage(6);
+        formimage->displayImage(currentAVHRRimage);
     }
     else if (index == 1) // VIIRS
     {
@@ -2089,11 +2190,11 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     {
         if( ui->toolBox->currentIndex() == 0)
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                       ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                       ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         else if( ui->toolBox->currentIndex() == 1)
-            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbMapWidth->value(), ui->spbMapHeight->value());
+            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
         else
-            imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+            imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2113,12 +2214,31 @@ void FormToolbox::on_chkShowPerspective_stateChanged(int arg1)
     opts.mapextentperspectiveon = ui->chkShowPerspective->isChecked();
 }
 
-void FormToolbox::on_spbMapWidth_valueChanged(int arg1)
+void FormToolbox::on_spbLCCMapWidth_valueChanged(int arg1)
 {
     opts.mapwidth = arg1;
 }
 
-void FormToolbox::on_spbMapHeight_valueChanged(int arg1)
+void FormToolbox::on_spbLCCMapHeight_valueChanged(int arg1)
+{
+    opts.mapheight = arg1;
+}
+
+void FormToolbox::on_spbGVPMapWidth_valueChanged(int arg1)
+{
+    opts.mapwidth = arg1;
+}
+
+void FormToolbox::on_spbGVPMapHeight_valueChanged(int arg1)
+{
+    opts.mapheight = arg1;
+}
+void FormToolbox::on_spbSGMapWidth_valueChanged(int arg1)
+{
+    opts.mapwidth = arg1;
+}
+
+void FormToolbox::on_spbSGMapHeight_valueChanged(int arg1)
 {
     opts.mapheight = arg1;
 }
@@ -2131,7 +2251,7 @@ void FormToolbox::on_spbScaleX_valueChanged(double arg1)
     if(imageptrs->ptrimageProjection->width() > 0 && opts.currenttoolbox == TAB_LLC)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2144,7 +2264,7 @@ void FormToolbox::on_spbScaleY_valueChanged(double arg1)
     if(imageptrs->ptrimageProjection->width() > 0 && opts.currenttoolbox == TAB_LLC)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2239,7 +2359,7 @@ void FormToolbox::on_btnCreatePerspective_clicked()
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
-    imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbMapWidth->value(), ui->spbMapHeight->value());
+    imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
     if(ui->rdbAVHRRin->isChecked())
     {
         imageptrs->gvp->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
@@ -2252,7 +2372,7 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         imageptrs->gvp->CreateMapFromGeoStationary();
 
 
-    formimage->displayImage(9);
+    formimage->setPixmapToLabel(true);
     QApplication::restoreOverrideCursor();
 
 }
@@ -2290,7 +2410,7 @@ void FormToolbox::on_btnCreateLambert_clicked()
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                               ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                               ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
     if(ui->rdbAVHRRin->isChecked())
     {
         imageptrs->lcc->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
@@ -2302,7 +2422,7 @@ void FormToolbox::on_btnCreateLambert_clicked()
     else
         imageptrs->lcc->CreateMapFromGeostationary();
 
-    formimage->displayImage(9);
+    formimage->setPixmapToLabel(true);
     QApplication::restoreOverrideCursor();
 }
 
@@ -2337,7 +2457,7 @@ void FormToolbox::on_btnCreateStereo_clicked()
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
-    imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+    imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
 
     if(ui->rdbAVHRRin->isChecked())
     {
@@ -2350,8 +2470,7 @@ void FormToolbox::on_btnCreateStereo_clicked()
     else
         imageptrs->sg->CreateMapFromGeostationary();
 
-
-    formimage->displayImage(9);
+    formimage->setPixmapToLabel(true);
     QApplication::restoreOverrideCursor();
 
 }
@@ -2362,7 +2481,7 @@ void FormToolbox::on_spbParallel1_valueChanged(int arg1)
         if(imageptrs->ptrimageProjection->width() > 0)
         {
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                       ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                       ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
             //formimage->displayImage(9);
             //emit screenupdateprojection();
             formimage->slotUpdateProjection();
@@ -2376,7 +2495,7 @@ void FormToolbox::on_spbParallel2_valueChanged(int arg1)
         if(imageptrs->ptrimageProjection->width() > 0)
         {
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                       ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                       ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
             //formimage->displayImage(9);
             //emit screenupdateprojection();
             formimage->slotUpdateProjection();
@@ -2394,7 +2513,7 @@ void FormToolbox::on_spbCentral_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2411,7 +2530,7 @@ void FormToolbox::on_spbLatOrigin_valueChanged(int arg1)
         if(imageptrs->ptrimageProjection->width() > 0)
         {
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                       ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                       ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
             //formimage->displayImage(9);
             //emit screenupdateprojection();
             formimage->slotUpdateProjection();
@@ -2437,7 +2556,7 @@ void FormToolbox::on_spbSouth_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2461,7 +2580,7 @@ void FormToolbox::on_spbNorth_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2487,7 +2606,7 @@ void FormToolbox::on_spbWest_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2515,7 +2634,7 @@ void FormToolbox::on_spbEast_valueChanged(int arg1)
    if(imageptrs->ptrimageProjection->width() > 0)
    {
        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                  ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                  ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
        //formimage->displayImage(9);
        //emit screenupdateprojection();
        formimage->slotUpdateProjection();
@@ -2535,17 +2654,34 @@ void FormToolbox::on_toolBox_currentChanged(int index)
 {
     qDebug() << QString("FormToolbox::on_toolBox_currentChanged(int index) index = %1").arg(index);
 
+    ui->comboPOI->blockSignals(true);
+    ui->comboPOI->clear();
+
     opts.currenttoolbox = index;
     if (index == 0)
+    {
+        ui->comboPOI->addItems(poi.strlLCCName);
+//        on_comboPOI_currentIndexChanged(0);
+        ui->cbProjResolutions->setCurrentIndex(searchResolution(ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value()));
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(),  ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+    }
     else if(index == 1)
-        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbMapWidth->value(), ui->spbMapHeight->value());
+    {
+        ui->comboPOI->addItems(poi.strlGVPName);
+//        on_comboPOI_currentIndexChanged(0);
+        ui->cbProjResolutions->setCurrentIndex(searchResolution(ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value()));
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+    }
     else
-        imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+    {
+        ui->comboPOI->addItems(poi.strlSGName);
+//        on_comboPOI_currentIndexChanged(0);
+        ui->cbProjResolutions->setCurrentIndex(searchResolution(ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value()));
+        imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+    }
 
-    //formimage->displayImage(9);
-    //emit screenupdateprojection();
+    ui->comboPOI->blockSignals(false);
     formimage->slotUpdateProjection();
 }
 
@@ -2559,7 +2695,7 @@ void FormToolbox::on_btnGVPClearMap_clicked()
 void FormToolbox::on_btnLCCClearMap_clicked()
 {
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                               ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                               ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
 
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     formimage->displayImage(9);
@@ -2585,7 +2721,7 @@ void FormToolbox::on_btnLCCMapNorth_clicked()
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2612,7 +2748,7 @@ void FormToolbox::on_btnLCCMapSouth_clicked()
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2648,7 +2784,7 @@ void FormToolbox::on_btnLCCMapWest_clicked()
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2684,7 +2820,7 @@ void FormToolbox::on_btnLCCMapEast_clicked()
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2692,51 +2828,51 @@ void FormToolbox::on_btnLCCMapEast_clicked()
 
 }
 
-void FormToolbox::on_scbLCCMapUpDown_valueChanged(int value)
-{
-    qDebug() << "on_scbLCCMapUpDown_valueChanged(int value)";
+//void FormToolbox::on_scbLCCMapUpDown_valueChanged(int value)
+//{
+//    qDebug() << "on_scbLCCMapUpDown_valueChanged(int value)";
 
-    ui->spbNorth->setValue(ui->spbNorth->value() - value);
-    ui->spbSouth->setValue(ui->spbSouth->value() - value);
+//    ui->spbNorth->setValue(ui->spbNorth->value() - value);
+//    ui->spbSouth->setValue(ui->spbSouth->value() - value);
 
-    opts.mapextentnorth = ui->spbNorth->value();
-    opts.mapextentsouth = ui->spbSouth->value();
+//    opts.mapextentnorth = ui->spbNorth->value();
+//    opts.mapextentsouth = ui->spbSouth->value();
 
-    if(imageptrs->ptrimageProjection->width() > 0)
-    {
-        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
-    }
+//    if(imageptrs->ptrimageProjection->width() > 0)
+//    {
+//        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
+//                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+//        //formimage->displayImage(9);
+//        //emit screenupdateprojection();
+//        formimage->slotUpdateProjection();
+//    }
 
-}
+//}
 
-void FormToolbox::on_scbLCCMapLeftRight_valueChanged(int value)
-{
-    qDebug() << "on_scbLCCMapLeftRight_valueChanged(int value)";
+//void FormToolbox::on_scbLCCMapLeftRight_valueChanged(int value)
+//{
+//    qDebug() << "on_scbLCCMapLeftRight_valueChanged(int value)";
 
-    ui->spbEast->setValue(ui->spbEast->value() - value);
-    ui->spbWest->setValue(ui->spbWest->value() - value);
+//    ui->spbEast->setValue(ui->spbEast->value() - value);
+//    ui->spbWest->setValue(ui->spbWest->value() - value);
 
-    opts.mapextenteast = ui->spbEast->value();
-    opts.mapextentwest = ui->spbWest->value();
+//    opts.mapextenteast = ui->spbEast->value();
+//    opts.mapextentwest = ui->spbWest->value();
 
-    int central = ui->spbWest->value() + longitudediffdeg( ui->spbEast->value(), ui->spbWest->value())/2;
-    qDebug() << QString("FormToolbox::on_spbEast_valueChanged(int arg1) central = %1").arg(central);
+//    int central = ui->spbWest->value() + longitudediffdeg( ui->spbEast->value(), ui->spbWest->value())/2;
+//    qDebug() << QString("FormToolbox::on_spbEast_valueChanged(int arg1) central = %1").arg(central);
 
-    ui->spbCentral->setValue(adjust_lon_deg(central));
+//    ui->spbCentral->setValue(adjust_lon_deg(central));
 
-    if(imageptrs->ptrimageProjection->width() > 0)
-    {
-        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
-    }
-}
+//    if(imageptrs->ptrimageProjection->width() > 0)
+//    {
+//        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
+//                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+//        //formimage->displayImage(9);
+//        //emit screenupdateprojection();
+//        formimage->slotUpdateProjection();
+//    }
+//}
 
 
 
@@ -2812,27 +2948,6 @@ void FormToolbox::on_spbSGPanVert_valueChanged(int arg1)
 
 }
 
-void FormToolbox::on_btnSGNorth_clicked()
-{
-    double map_x, map_y;
-
-    ui->spbSGlat->setValue(90.0);
-
-    double bret = imageptrs->sg->map_forward( 0.0, 0.0, map_x, map_y);
-    qDebug() << "FormToolbox::on_btnSGNorth_clicked()  lat+0 bret = " << bret << "map_x = " << map_x << "  map_y = " << map_y;
-
-}
-
-void FormToolbox::on_btnSGSouth_clicked()
-{
-    ui->spbSGlat->setValue(-90.0);
-}
-
-void FormToolbox::on_btnSGEquatorial_clicked()
-{
-    ui->spbSGlat->setValue(0.0);
-}
-
 void FormToolbox::on_spbSGRadius_valueChanged(double arg1)
 {
     opts.mapsgradius = arg1;
@@ -2858,7 +2973,7 @@ void FormToolbox::on_spbLCCCorrX_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value()*1000, ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value()*1000, ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -2872,7 +2987,7 @@ void FormToolbox::on_spbLCCCorrY_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                   ui->spbMapWidth->value(), ui->spbMapHeight->value(), ui->spbLCCCorrX->value()*1000, ui->spbLCCCorrY->value());
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value()*1000, ui->spbLCCCorrY->value());
         //formimage->displayImage(9);
         //emit screenupdateprojection();
         formimage->slotUpdateProjection();
@@ -3046,14 +3161,6 @@ void FormToolbox::on_sliCLAHE_sliderMoved(int position)
 {
     opts.clahecliplimit = float(position)/10;
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
-    ui->lblCLAHEprojection->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
-}
-
-void FormToolbox::on_sliCLAHEprojection_sliderMoved(int position)
-{
-    opts.clahecliplimit = float(position)/10;
-    ui->lblCLAHEprojection->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
-    ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
 }
 
 void FormToolbox::createFilenamestring(QString sat, QString d, QVector<QString> spectrum)
@@ -3085,32 +3192,297 @@ void FormToolbox::createFilenamestring(QString sat, QString d, QVector<QString> 
 void FormToolbox::on_cbProjResolutions_currentIndexChanged(int index)
 {
     qDebug() << QString("on_cbProjResolutions_currentIndexChanged(int index) = %1").arg(index);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
     if(index > 0)
     {
-        ui->spbMapWidth->setValue(resolutionX.at(index-1));
-        ui->spbMapHeight->setValue(resolutionY.at(index-1));
+        if(ui->toolBox->currentIndex() == 0)
+        {
+            ui->spbLCCMapWidth->setValue(resolutionX.at(index-1));
+            ui->spbLCCMapHeight->setValue(resolutionY.at(index-1));
+            imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(),  ui->spbCentral->value(), ui->spbLatOrigin->value(),
+                                       ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+            formimage->slotUpdateProjection();
+        }
+        else if(ui->toolBox->currentIndex() == 1)
+        {
+            ui->spbGVPMapWidth->setValue(resolutionX.at(index-1));
+            ui->spbGVPMapHeight->setValue(resolutionY.at(index-1));
+            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+            formimage->slotUpdateProjection();
+        }
+        else if(ui->toolBox->currentIndex() == 2)
+        {
+            ui->spbSGMapWidth->setValue(resolutionX.at(index-1));
+            ui->spbSGMapHeight->setValue(resolutionY.at(index-1));
+            imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+            formimage->slotUpdateProjection();
+        }
     }
-}
-
-void FormToolbox::on_btnCLAHEprojection_clicked()
-{
-    QApplication::processEvents();
-    formimage->CLAHEprojection();
-    //formimage->slotUpdateMeteosat();
+    QApplication::restoreOverrideCursor();
 }
 
 void FormToolbox::on_sbCentreBand_valueChanged(int value)
 {
+    qDebug() << "FormToolbox::on_sbCentreBand_valueChanged(int value)";
+
     float fval = value/20.0;
     opts.dnbsbvalue = value;
 
+    ui->sbCentreBand->blockSignals(true);
     segs->seglviirsdnb->sliderCentreBandChanged(value);
     float fval1 = pow(10, fval);
     ui->lblCentreBand->setText(QString("%1").arg(fval1, 0, 'E', 2));
     ui->lblTitleCentreBand->setText(QString("Centre Band from %1 to %2 [W/cm² sr]").arg(fval1/pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2).arg(fval1*pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2));
+    ui->sbCentreBand->blockSignals(false);
 }
+
+
 
 void FormToolbox::on_spbDnbWindow_valueChanged(int arg1)
 {
+    qDebug() << QString("---->on_spbDnbWindow_valueChanged(int arg1) arg1 = %1").arg(arg1);
     segs->seglviirsdnb->spbWindowValueChanged(arg1, ui->sbCentreBand->value());
+}
+
+
+void FormToolbox::setLCCParameters(int strlindex)
+{
+    ui->spbParallel1->blockSignals(true);
+    ui->spbParallel2->blockSignals(true);
+    ui->spbCentral->blockSignals(true);
+    ui->spbLatOrigin->blockSignals(true);
+    ui->spbNorth->blockSignals(true);
+    ui->spbSouth->blockSignals(true);
+    ui->spbEast->blockSignals(true);
+    ui->spbWest->blockSignals(true);
+    ui->spbScaleX->blockSignals(true);
+    ui->spbScaleY->blockSignals(true);
+    ui->spbLCCMapWidth->blockSignals(true);
+    ui->spbLCCMapHeight->blockSignals(true);
+    ui->cbProjResolutions->blockSignals(true);
+    ui->chkLCCGridOnProj->blockSignals(true);
+
+    ui->spbParallel1->setValue(poi.strlLCCParallel1.at(strlindex).toInt());
+    ui->spbParallel2->setValue(poi.strlLCCParallel2.at(strlindex).toInt());
+    ui->spbCentral->setValue(poi.strlLCCCentral.at(strlindex).toInt());
+    ui->spbLatOrigin->setValue(poi.strlLCCLatOrigin.at(strlindex).toInt());
+    ui->spbNorth->setValue(poi.strlLCCNorth.at(strlindex).toInt());
+    ui->spbSouth->setValue(poi.strlLCCSouth.at(strlindex).toInt());
+    ui->spbWest->setValue(poi.strlLCCWest.at(strlindex).toInt());
+    ui->spbEast->setValue(poi.strlLCCEast.at(strlindex).toInt());
+    ui->spbScaleX->setValue(poi.strlLCCScaleX.at(strlindex).toDouble());
+    ui->spbScaleY->setValue(poi.strlLCCScaleY.at(strlindex).toDouble());
+    ui->spbLCCMapHeight->setValue(poi.strlLCCMapHeight.at(strlindex).toInt());
+    ui->spbLCCMapWidth->setValue(poi.strlLCCMapWidth.at(strlindex).toInt());
+    ui->chkLCCGridOnProj->setChecked(poi.strlLCCGridOnProj.at(strlindex).toInt());
+
+    ui->cbProjResolutions->setCurrentIndex(searchResolution(poi.strlLCCMapWidth.at(strlindex).toInt(), poi.strlLCCMapHeight.at(strlindex).toInt()));
+
+    ui->spbParallel1->blockSignals(false);
+    ui->spbParallel2->blockSignals(false);
+    ui->spbCentral->blockSignals(false);
+    ui->spbLatOrigin->blockSignals(false);
+    ui->spbNorth->blockSignals(false);
+    ui->spbSouth->blockSignals(false);
+    ui->spbEast->blockSignals(false);
+    ui->spbWest->blockSignals(false);
+    ui->spbScaleX->blockSignals(false);
+    ui->spbScaleY->blockSignals(false);
+    ui->spbLCCMapWidth->blockSignals(false);
+    ui->spbLCCMapHeight->blockSignals(false);
+    ui->cbProjResolutions->blockSignals(false);
+    ui->chkLCCGridOnProj->blockSignals(false);
+
+    opts.mapextentnorth = poi.strlLCCNorth.at(strlindex).toInt();
+    opts.mapextentsouth = poi.strlLCCSouth.at(strlindex).toInt();
+    opts.mapextenteast = poi.strlLCCEast.at(strlindex).toInt();
+    opts.mapextentwest = poi.strlLCCWest.at(strlindex).toInt();
+
+}
+
+void FormToolbox::setGVPParameters(int strlindex)
+{
+    ui->spbGVPlat->blockSignals(true);
+    ui->spbGVPlon->blockSignals(true);
+    ui->spbGVPscale->blockSignals(true);
+    ui->spbGVPheight->blockSignals(true);
+    ui->spbGVPMapWidth->blockSignals(true);
+    ui->spbGVPMapHeight->blockSignals(true);
+    ui->cbProjResolutions->blockSignals(true);
+    ui->chkGVPGridOnProj->blockSignals(true);
+
+    ui->spbGVPlat->setValue(poi.strlGVPLat.at(strlindex).toDouble());
+    ui->spbGVPlon->setValue(poi.strlGVPLon.at(strlindex).toDouble());
+    ui->spbGVPscale->setValue(poi.strlGVPScale.at(strlindex).toDouble());
+    ui->spbGVPheight->setValue(poi.strlGVPHeight.at(strlindex).toInt());
+    ui->spbGVPMapWidth->setValue(poi.strlGVPMapWidth.at(strlindex).toInt());
+    ui->spbGVPMapHeight->setValue(poi.strlGVPMapHeight.at(strlindex).toInt());
+    ui->chkGVPGridOnProj->setChecked(poi.strlGVPGridOnProj.at(strlindex).toInt());
+
+    ui->cbProjResolutions->setCurrentIndex(searchResolution(poi.strlGVPMapWidth.at(strlindex).toInt(), poi.strlGVPMapHeight.at(strlindex).toInt()));
+
+    ui->spbGVPlat->blockSignals(false);
+    ui->spbGVPlon->blockSignals(false);
+    ui->spbGVPscale->blockSignals(false);
+    ui->spbGVPheight->blockSignals(false);
+    ui->spbGVPMapWidth->blockSignals(false);
+    ui->spbGVPMapHeight->blockSignals(false);
+    ui->cbProjResolutions->blockSignals(false);
+    ui->chkGVPGridOnProj->blockSignals(false);
+
+    opts.mapgvplat = poi.strlGVPLat.at(strlindex).toDouble();
+    opts.mapgvplon = poi.strlGVPLon.at(strlindex).toDouble();
+
+
+}
+
+void FormToolbox::setSGParameters(int strlindex)
+{
+    ui->spbSGlat->blockSignals(true);
+    ui->spbSGlon->blockSignals(true);
+    ui->spbSGRadius->blockSignals(true);
+    ui->spbSGScale->blockSignals(true);
+    ui->spbSGPanHorizon->blockSignals(true);
+    ui->spbSGPanVert->blockSignals(true);
+    ui->spbSGMapWidth->blockSignals(true);
+    ui->spbSGMapHeight->blockSignals(true);
+    ui->cbProjResolutions->blockSignals(true);
+    ui->chkSGGridOnProj->blockSignals(true);
+
+    ui->spbSGlat->setValue(poi.strlSGLat.at(strlindex).toDouble());
+    ui->spbSGlon->setValue(poi.strlSGLon.at(strlindex).toDouble());
+    ui->spbSGRadius->setValue(poi.strlSGRadius.at(strlindex).toDouble());
+    ui->spbSGScale->setValue(poi.strlSGScale.at(strlindex).toDouble());
+    ui->spbSGPanHorizon->setValue(poi.strlSGPanH.at(strlindex).toDouble());
+    ui->spbSGPanVert->setValue(poi.strlSGPanV.at(strlindex).toDouble());
+    ui->spbSGMapWidth->setValue(poi.strlSGMapWidth.at(strlindex).toInt());
+    ui->spbSGMapHeight->setValue(poi.strlSGMapHeight.at(strlindex).toInt());
+    ui->chkSGGridOnProj->setChecked(poi.strlSGGridOnProj.at(strlindex).toInt());
+
+    ui->cbProjResolutions->setCurrentIndex(searchResolution(poi.strlSGMapWidth.at(strlindex).toInt(), poi.strlSGMapHeight.at(strlindex).toInt()));
+
+    ui->spbSGlat->blockSignals(false);
+    ui->spbSGlon->blockSignals(false);
+    ui->spbSGRadius->blockSignals(false);
+    ui->spbSGScale->blockSignals(false);
+    ui->spbSGPanHorizon->blockSignals(false);
+    ui->spbSGPanVert->blockSignals(false);
+    ui->spbSGMapWidth->blockSignals(false);
+    ui->spbSGMapHeight->blockSignals(false);
+    ui->cbProjResolutions->blockSignals(false);
+    ui->chkSGGridOnProj->blockSignals(false);
+}
+
+void FormToolbox::on_comboPOI_currentIndexChanged(int index)
+{
+
+    if(ui->toolBox->currentIndex() == 0) // LCC
+    {
+        setLCCParameters(index);
+        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(),  ui->spbCentral->value(), ui->spbLatOrigin->value(),
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+        formimage->slotUpdateProjection();
+    }
+    else if(ui->toolBox->currentIndex() == 1) // GVP
+    {
+        setGVPParameters(index);
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+        formimage->slotUpdateProjection();
+    }
+    else if(ui->toolBox->currentIndex() == 2) // SG
+    {
+        setSGParameters(index);
+        imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+        formimage->slotUpdateProjection();
+    }
+
+}
+
+void FormToolbox::on_chkLCCGridOnProj_clicked()
+{
+    formimage->slotUpdateProjection();
+}
+
+void FormToolbox::on_chkGVPGridOnProj_clicked()
+{
+    formimage->slotUpdateProjection();
+}
+
+void FormToolbox::on_chkSGGridOnProj_clicked()
+{
+    formimage->slotUpdateProjection();
+}
+
+void FormToolbox::on_btnAddPOI_clicked()
+{
+    if(ui->lePOI->text().length() == 0)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Fill in a name for this POI.");
+        msgBox.exec();
+        return;
+    }
+
+    ui->comboPOI->blockSignals(true);
+
+    if(ui->toolBox->currentIndex() == 0) // LCC
+    {
+        poi.strlLCCName.append(QString("%1").arg(ui->lePOI->text()));
+        poi.strlLCCParallel1.append(QString("%1").arg(ui->spbParallel1->value()));
+        poi.strlLCCParallel2.append(QString("%1").arg(ui->spbParallel2->value()));
+        poi.strlLCCCentral.append(QString("%1").arg(ui->spbCentral->value()));
+        poi.strlLCCLatOrigin.append(QString("%1").arg(ui->spbLatOrigin->value()));
+        poi.strlLCCNorth.append(QString("%1").arg(ui->spbNorth->value()));
+        poi.strlLCCSouth.append(QString("%1").arg(ui->spbEast->value()));
+        poi.strlLCCEast.append(QString("%1").arg(ui->spbEast->value()));
+        poi.strlLCCWest.append(QString("%1").arg(ui->spbWest->value()));
+        poi.strlLCCScaleX.append(QString("%1").arg(ui->spbScaleX->value(), 0, 'f', 2));
+        poi.strlLCCScaleY.append(QString("%1").arg(ui->spbScaleY->value(), 0, 'f', 2));
+        poi.strlLCCMapHeight.append(QString("%1").arg(ui->spbLCCMapHeight->value()));
+        poi.strlLCCMapWidth.append(QString("%1").arg(ui->spbLCCMapWidth->value()));
+        poi.strlLCCGridOnProj.append(QString("%1").arg(ui->chkLCCGridOnProj->isChecked()));
+
+        ui->comboPOI->clear();
+        ui->comboPOI->addItems(poi.strlLCCName);
+        ui->comboPOI->setCurrentIndex(poi.strlLCCName.count()-1);
+    }
+    else if(ui->toolBox->currentIndex() == 1) // GVP
+    {
+        poi.strlGVPName.append(QString("%1").arg(ui->lePOI->text()));
+        poi.strlGVPLat.append(QString("%1").arg(ui->spbGVPlat->value(), 0, 'f', 2));
+        poi.strlGVPLon.append(QString("%1").arg(ui->spbGVPlon->value(), 0, 'f', 2));
+        poi.strlGVPScale.append(QString("%1").arg(ui->spbGVPscale->value(), 0, 'f', 2));
+        poi.strlGVPHeight.append(QString("%1").arg(ui->spbGVPheight->value()));
+        poi.strlGVPMapHeight.append(QString("%1").arg(ui->spbGVPMapHeight->value()));
+        poi.strlGVPMapWidth.append(QString("%1").arg(ui->spbGVPMapWidth->value()));
+        poi.strlGVPGridOnProj.append(QString("%1").arg(ui->chkGVPGridOnProj->isChecked()));
+
+        ui->comboPOI->clear();
+        ui->comboPOI->addItems(poi.strlGVPName);
+        //ui->comboPOI->setCurrentIndex(poi.strlGVPName.count()-1);
+
+    }
+    else if(ui->toolBox->currentIndex() == 2) // SG
+    {
+        poi.strlSGName.append(QString("%1").arg(ui->lePOI->text()));
+        poi.strlSGLat.append(QString("%1").arg(ui->spbSGlat->value(), 0, 'f', 2));
+        poi.strlSGLon.append(QString("%1").arg(ui->spbSGlon->value(), 0, 'f', 2));
+        poi.strlSGRadius.append(QString("%1").arg(ui->spbSGRadius->value(), 0, 'f', 2));
+        poi.strlSGScale.append(QString("%1").arg(ui->spbSGScale->value(), 0, 'f', 2));
+        poi.strlSGPanH.append(QString("%1").arg(ui->spbSGPanHorizon->value()));
+        poi.strlSGPanV.append(QString("%1").arg(ui->spbSGPanVert->value()));
+        poi.strlSGMapHeight.append(QString("%1").arg(ui->spbSGMapHeight->value()));
+        poi.strlSGMapWidth.append(QString("%1").arg(ui->spbSGMapWidth->value()));
+        poi.strlSGGridOnProj.append(QString("%1").arg(ui->chkSGGridOnProj->isChecked()));
+
+        ui->comboPOI->clear();
+        ui->comboPOI->addItems(poi.strlSGName);
+        ui->comboPOI->setCurrentIndex(poi.strlSGName.count()-1);
+
+    }
+
+    ui->comboPOI->blockSignals(false);
+
+    ui->lePOI->setText("");
+
 }

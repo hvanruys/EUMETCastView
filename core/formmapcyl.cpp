@@ -91,6 +91,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                             opts.buttonMetop = false;
                             opts.buttonRealTime = false;
                             opts.buttonVIIRSDNB = false;
+                            formtoolbox->setTabWidgetVIIRSIndex(0);
                         }
                         else
                             if (opts.buttonVIIRSDNB)
@@ -101,6 +102,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                 opts.buttonMetop = false;
                                 opts.buttonRealTime = false;
                                 opts.buttonVIIRSM = false;
+                                formtoolbox->setTabWidgetVIIRSIndex(1);
                             }
 
     ui->btnMetop->setChecked(opts.buttonMetop);
@@ -601,8 +603,6 @@ void FormMapCyl::showSegmentList(int value)
         outp = QString("Real time");
     }
 
-    qDebug() << outp;
-
     emit signalSegmentChanged(outp);
     mapcyl->update();
 
@@ -714,6 +714,7 @@ void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
 {
 
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+    formtoolbox->setTabWidgetVIIRSIndex(0);
     toggleButtonVIIRSM();
     return;
 }
@@ -721,6 +722,7 @@ void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
 void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
 {
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+    formtoolbox->setTabWidgetVIIRSIndex(1);
     toggleButtonVIIRSDNB();
     return;
 }

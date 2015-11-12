@@ -6,6 +6,7 @@
 #include "mainwindow.h"
 #include "segmentimage.h"
 #include "options.h"
+#include "poi.h"
 #include "gshhsdata.h"
 #include <stdexcept>
 
@@ -17,6 +18,7 @@ using namespace std;
 QMutex g_mutex;
 
 Options opts;
+Poi poi;
 SegmentImage *imageptrs;
 gshhsData *gshhsdata;
 
@@ -85,6 +87,8 @@ int main(int argc, char *argv[])
 
 
     opts.Initialize();
+    poi.Initialize();
+
     imageptrs = new SegmentImage();
     gshhsdata = new gshhsData();
 

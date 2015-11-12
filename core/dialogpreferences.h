@@ -19,6 +19,9 @@ public:
     explicit DialogPreferences(QWidget *parent = 0);
     void setupStationsTable();
     void setupTLESourceTable();
+    void setupPOILCCTable();
+    void setupPOIGVPTable();
+    void setupPOISGTable();
 
     ~DialogPreferences();
 
@@ -34,6 +37,12 @@ private slots:
     void deleteStationRow();
     void addTLESourceRow();
     void deleteTLESourceRow();
+    void addPOILCCRow();
+    void deletePOILCCRow();
+    void addPOIGVPRow();
+    void deletePOIGVPRow();
+    void addPOISGRow();
+    void deletePOISGRow();
 
     void on_btnLocalDirRemote_clicked();
 
@@ -85,6 +94,9 @@ private:
     Ui::DialogPreferences *ui;
     QAbstractTableModel *myStationModel;
     QAbstractTableModel *myTLESourceModel;
+    QAbstractTableModel *myPOILCCModel;
+    QAbstractTableModel *myPOIGVPModel;
+    QAbstractTableModel *myPOISGModel;
     QColorDialog *colordialog;
 
 };
@@ -104,8 +116,6 @@ public:
     bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
 
 private:
-
-
 
 signals:
     void editCompleted();
@@ -127,7 +137,65 @@ public:
 
 private:
 
+signals:
+    void editCompleted();
+};
 
+class POILCCModel : public QAbstractTableModel
+{
+    Q_OBJECT
+public:
+    POILCCModel(QObject *parent);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex & index) const ;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+
+private:
+
+signals:
+    void editCompleted();
+};
+
+class POIGVPModel : public QAbstractTableModel
+{
+    Q_OBJECT
+public:
+    POIGVPModel(QObject *parent);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex & index) const ;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+
+private:
+
+signals:
+    void editCompleted();
+};
+
+class POISGModel : public QAbstractTableModel
+{
+    Q_OBJECT
+public:
+    POISGModel(QObject *parent);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex & index) const ;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+
+private:
 
 signals:
     void editCompleted();

@@ -5,6 +5,7 @@
 #include "hdf5.h"
 
 extern Options opts;
+extern Poi poi;
 extern SegmentImage *imageptrs;
 
 class SegmentListGeostationary;
@@ -154,18 +155,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->stackedWidget->addWidget(imagescrollarea);  // index 3
     ui->stackedWidget->setCurrentIndex(0);
 
-    connect(seglist->seglmetop, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglnoaa, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglhrp, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglgac, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglviirsm, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished()), formimage, SLOT(setPixmapToLabel()));
+    connect(seglist->seglmetop, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglnoaa, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglhrp, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglgac, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsm, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabelDNB(bool)));
 
-    connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglhrp, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglgac, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
-    connect(seglist->seglviirsm, SIGNAL(segmentprojectionfinished()), formimage, SLOT(setPixmapToLabel()));
+    connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglhrp, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglgac, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsm, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsdnb, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
 
     connect( formglobecyl, SIGNAL(signalSegmentChanged(QString)), this, SLOT(updateStatusBarIndicator(QString)) );
@@ -281,6 +283,7 @@ MainWindow::~MainWindow()
     delete seglist;
 
     opts.Save();
+    poi.Save();
 
     imageptrs->DeleteImagePtrs();
 

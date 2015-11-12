@@ -69,12 +69,12 @@ bool SegmentListVIIRSM::ComposeVIIRSImage(QList<bool> bandlist, QList<int> color
     qDebug() << QString("SegmentListVIIRSM::ComposeVIIRSImage");
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    watcherreadviirs = new QFutureWatcher<void>(this);
-    connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirs()));
+    watcherviirs = new QFutureWatcher<void>(this);
+    connect(watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
 
     QFuture<void> future;
     future = QtConcurrent::run(doComposeVIIRSMImageInThread, this, bandlist, colorlist, invertlist);
-    watcherreadviirs->setFuture(future);
+    watcherviirs->setFuture(future);
 
     return true;
 
@@ -224,7 +224,7 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
 
     QApplication::restoreOverrideCursor();
 
-    emit segmentlistfinished();
+    emit segmentlistfinished(true);
     emit progressCounter(100);
 
 
@@ -234,31 +234,16 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
 
 
 
-void SegmentListVIIRSM::readfinishedviirs()
+void SegmentListVIIRSM::finishedviirs()
 {
 
     qDebug() << "=============>SegmentListVIIRSM::readfinishedviirs()";
     emit progressCounter(100);
     opts.texture_changed = true;
-    QApplication::restoreOverrideCursor();
-    delete watcherreadviirs;
-
-    emit segmentlistfinished();
-}
-
-void SegmentListVIIRSM::composefinishedviirs()
-{
-
-    qDebug() << "SegmentListVIIRSM::composefinishedviirs()";
-
-    emit progressCounter(100);
-
-    delete watchercomposeviirs;
-    opts.texture_changed = true;
+    delete watcherviirs;
     QApplication::restoreOverrideCursor();
 
-    emit segmentlistfinished();
-
+    emit segmentlistfinished(true);
 }
 
 void SegmentListVIIRSM::progressreadvalue(int progress)
@@ -355,7 +340,7 @@ void SegmentListVIIRSM::ShowImageSerial(QList<bool> bandlist, QList<int> colorli
 
     QApplication::restoreOverrideCursor();
 
-    emit segmentlistfinished();
+    emit segmentlistfinished(true);
     emit progressCounter(100);
 }
 
@@ -449,33 +434,6 @@ void SegmentListVIIRSM::SmoothVIIRSImage()
         ++segsel;
         lineimage += segm->NbrOfLines;
     }
-
-//    QRgb *scanline;
-//    QRgb rgbval;
-//    long count100 = 0;
-//    long count0 = 0;
-//    long count250 = 0;
-//    long count200 = 0;
-
-//    for(int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
-//    {
-//        scanline = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(j);
-
-//        for(int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
-//        {
-//            rgbval = scanline[i];
-//            if(qAlpha(rgbval) == 100)
-//                count100++;
-//            else if(qAlpha(rgbval) == 0)
-//                count0++;
-//            else if(qAlpha(rgbval) == 200)
-//                count200++;
-//            else if(qAlpha(rgbval) == 250)
-//                count250++;
-//        }
-//    }
-
-//    qDebug() << QString("Count100 = %1  count0 = %2 count200 = %3 count250 = %4").arg(count100).arg(count0).arg(count200).arg(count250);
 
 }
 

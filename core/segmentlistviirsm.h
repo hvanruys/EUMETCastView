@@ -33,12 +33,10 @@ private:
 
 protected:
 
-    QFutureWatcher<void> *watcherreadviirs;
-    QFutureWatcher<void> *watchercomposeviirs;
+    QFutureWatcher<void> *watcherviirs;
 
 protected slots:
-    void readfinishedviirs();
-    void composefinishedviirs();
+    void finishedviirs();
     void progressreadvalue(int progress);
 
 signals:

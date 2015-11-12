@@ -661,7 +661,7 @@ void SegmentList::composefinished()
     qDebug() << QString("lon[1079,102] = %1 lat[1079,102] = %2").arg(segsselected.at(0)->earthloc_lon[1079*103 + 102]).arg(segsselected.at(0)->earthloc_lat[1079*103 + 102]);
 */
 
-    emit segmentlistfinished();
+    emit segmentlistfinished(true);
     emit progressCounter(100);
 
 }
@@ -698,7 +698,7 @@ void SegmentList::ComposeGVProjection(int inputchannel)
     while ( segit != segsselected.end() )
     {
         (*segit)->ComposeSegmentGVProjection(inputchannel);
-         emit segmentprojectionfinished();
+         emit segmentprojectionfinished(false);
         ++segit;
     }
 
@@ -722,7 +722,7 @@ void SegmentList::ComposeLCCProjection(int inputchannel)
     while ( segit != segsselected.end() )
     {
         (*segit)->ComposeSegmentLCCProjection(inputchannel);
-        emit segmentprojectionfinished();
+        emit segmentprojectionfinished(false);
         ++segit;
     }
 
@@ -735,7 +735,7 @@ void SegmentList::ComposeSGProjection(int inputchannel)
     while ( segit != segsselected.end() )
     {
         (*segit)->ComposeSegmentSGProjection(inputchannel);
-        emit segmentprojectionfinished();
+        emit segmentprojectionfinished(false);
         ++segit;
     }
 
@@ -763,7 +763,7 @@ void SegmentList::composeprojectionreadyat(int segmentnbr)
 
     qDebug() << QString("composeprojectionreadyat %1").arg(segmentnbr);
 
-    emit segmentprojectionfinished();
+    emit segmentprojectionfinished(false);
 
 }
 
@@ -1053,7 +1053,8 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext)
         if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
                 && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
                 && x11 >= -10 && x12 >= -10 && x21 >= -10 && x22 >= -10
-                && y11 >= -10 && y12 >= -10 && y21 >= -10 && y22 >= -10 )
+                && y11 >= -10 && y12 >= -10 && y21 >= -10 && y22 >= -10
+                && abs(x11 - x21) < 10)
         {
 
             minx = Min(x11, x12, x21, x22);

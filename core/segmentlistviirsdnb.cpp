@@ -82,12 +82,12 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImage(QList<bool> bandlist, QList<int> col
     qDebug() << QString("SegmentListVIIRSDNB::ComposeVIIRSImage");
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    watcherreadviirs = new QFutureWatcher<void>(this);
-    connect(watcherreadviirs, SIGNAL(finished()), this, SLOT(readfinishedviirs()));
+    watcherviirs = new QFutureWatcher<void>(this);
+    connect(watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
 
     QFuture<void> future;
     future = QtConcurrent::run(doComposeVIIRSDNBImageInThread, this);
-    watcherreadviirs->setFuture(future);
+    watcherviirs->setFuture(future);
 
     return true;
 
@@ -299,9 +299,9 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     }
     qDebug() << " SegmentListVIIRS::ComposeVIIRSDNBImageInThread Finished !!";
 
-//    QApplication::restoreOverrideCursor();
+    QApplication::restoreOverrideCursor();
 
-    emit segmentlistfinished();
+    emit segmentlistfinished(true);
     emit progressCounter(100);
 
 
@@ -622,72 +622,35 @@ bool SegmentListVIIRS::ShowImage(QList<bool> bandlist, QList<int> colorlist)
 
 #endif
 
-//void SegmentListVIIRSDNB::readfinishedviirs()
-//{
-//    qDebug() << "SegmentListVIIRS::readfinishedviirs()";
+float SegmentListVIIRSDNB::getMoonIllumination()
+{
+    qDebug() << "SegmentListVIIRSDNB::getMoonIllumination()";
+    int count = 0;
+    float totillum = 0;
 
-//    delete watcherreadviirs;
+    QList<Segment *>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        totillum += segm->MoonIllumFraction;
+        count++;
+        ++segsel;
+    }
 
-//    int cntsegments = 0;
+    return totillum/count;
 
-//    bool composecolor;
+}
 
-//    QList<Segment *>::iterator segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
-//        composecolor = segm->composeColorImage();
-
-//        for(int i = 0; i < (composecolor ? 3 : 1); i++)
-//        {
-//            if( segm->stat_max_ch[i] > this->stat_max_ch[i])
-//                this->stat_max_ch[i] = segm->stat_max_ch[i];
-//            if( segm->stat_min_ch[i] < this->stat_min_ch[i])
-//                this->stat_min_ch[i] = segm->stat_min_ch[i];
-//        }
-//        cntsegments++;
-//        ++segsel;
-//    }
-
-
-//    for(int i = 0; i < (composecolor ? 3 : 1); i++)
-//    {
-//        imageptrs->stat_max_ch[i] = this->stat_max_ch[i];
-//        imageptrs->stat_min_ch[i] = this->stat_min_ch[i];
-//    }
-
-//    CalculateLUT();
-
-//    watchercomposeviirs = new QFutureWatcher<void>(this);
-//    connect(watchercomposeviirs, SIGNAL(finished()), SLOT(composefinishedviirs()));
-//    watchercomposeviirs->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentListVIIRS::doComposeSegmentImageVIIRS));
-//}
-
-void SegmentListVIIRSDNB::readfinishedviirs()
+void SegmentListVIIRSDNB::finishedviirs()
 {
 
     qDebug() << "=============>SegmentListVIIRSDNB::readfinishedviirs()";
     emit progressCounter(100);
     opts.texture_changed = true;
     QApplication::restoreOverrideCursor();
-    delete watcherreadviirs;
+    delete watcherviirs;
 
-    emit segmentlistfinished();
-}
-
-void SegmentListVIIRSDNB::composefinishedviirs()
-{
-
-    qDebug() << "SegmentListVIIRS::composefinishedviirs()";
-
-    emit progressCounter(100);
-
-    delete watchercomposeviirs;
-    opts.texture_changed = true;
-    QApplication::restoreOverrideCursor();
-
-    emit segmentlistfinished();
-
+    emit segmentprojectionfinished(true);
 }
 
 void SegmentListVIIRSDNB::progressreadvalue(int progress)
@@ -783,7 +746,7 @@ void SegmentListVIIRSDNB::ShowImageSerial()
 
     QApplication::restoreOverrideCursor();
 
-    emit segmentlistfinished();
+    emit segmentlistfinished(true);
     emit progressCounter(100);
 }
 
@@ -879,8 +842,7 @@ void SegmentListVIIRSDNB::sliderCentreBandChanged(int val)
         segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
         ++segsel;
     }
-    emit segmentlistfinished();
-    QApplication::restoreOverrideCursor();
+    emit segmentlistfinished(true);
 
 }
 
@@ -906,7 +868,6 @@ void SegmentListVIIRSDNB::spbWindowValueChanged(int spbwindowval, int slcentreba
         segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
         ++segsel;
     }
-    emit segmentlistfinished();
-    QApplication::restoreOverrideCursor();
+    emit segmentlistfinished(true);
 
 }

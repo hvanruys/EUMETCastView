@@ -88,8 +88,8 @@ protected:
     int projectioninputchannel;
 
 signals:
-    void segmentlistfinished();
-    void segmentprojectionfinished();
+    void segmentlistfinished(bool settoolboxbuttons);
+    void segmentprojectionfinished(bool settoolboxbuttons);
 
 public slots:
 

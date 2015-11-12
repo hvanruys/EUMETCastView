@@ -23,6 +23,7 @@
 #include "segmentlistgeostationary.h"
 
 #include "options.h"
+#include "poi.h"
 
 namespace Ui {
 class MainWindow;
