@@ -51,8 +51,8 @@ void Poi::Initialize()
         strlLCCWest << "-9" << "-9";
         strlLCCScaleX << "1.0" << "1.0";
         strlLCCScaleY << "1.0" << "1.0";
-        strlLCCMapWidth << "800" << "800";
-        strlLCCMapHeight << "600" << "600";
+        strlLCCMapWidth << "1920" << "1920";
+        strlLCCMapHeight << "1080" << "1080";
         strlLCCGridOnProj << "0" << "0";
     }
     else
@@ -74,16 +74,16 @@ void Poi::Initialize()
 
     if(strlSGName.count() == 0)
     {
-        strlSGName << "User defined" << "Equatorial" << "North" << "South";
-        strlSGLat << "0.0" << "0.0" << "90.0" << "-90.0";
-        strlSGLon << "0.0" << "0.0" << "0.0" << "0.0";
-        strlSGRadius << "90.01" << "90.01" << "90.01" << "90.01";
-        strlSGScale << "13.0" << "13.0" << "13.0" << "13.0";
-        strlSGPanH << "0" << "0" << "0" << "0";
-        strlSGPanV << "0" << "0" << "0" << "0";
-        strlSGMapWidth << "1000" << "1000" << "1000" << "1000";
-        strlSGMapHeight << "1000" << "1000" << "1000" << "1000";
-        strlSGGridOnProj << "0" << "0" << "0" << "0";
+        strlSGName << "User defined" << "Equatorial 0°" << "Equatorial 180°" << "North" << "South";
+        strlSGLat << "0.0" << "0.0" << "0.0" << "90.0" << "-90.0";
+        strlSGLon << "0.0" << "0.0" << "180.0" << "0.0" << "0.0";
+        strlSGRadius << "90.01" << "90.01" << "90.01" << "90.01" << "90.01";
+        strlSGScale << "13.0" << "13.0" << "13.0" << "13.0" << "13.0";
+        strlSGPanH << "0" << "0" << "0" << "0" << "0";
+        strlSGPanV << "0" << "0" << "0" << "0" << "0";
+        strlSGMapWidth << "1000" << "1000" << "1000" << "1000" << "1000";
+        strlSGMapHeight << "1000" << "1000" << "1000" << "1000" << "1000";
+        strlSGGridOnProj << "1" << "1" << "1" << "1" << "1";
 
     }
     else
@@ -106,13 +106,6 @@ void Poi::Save()
 {
     QSettings POIsettings( "POI.ini", QSettings::IniFormat);
 
-//    strlGVPLat.replace(0, QString("%1").arg(ui->spbGVPlat->value(), 0, 'f', 2));
-//    strlGVPLon.replace(0, QString("%1").arg(ui->spbGVPlon->value(), 0, 'f', 2));
-//    strlGVPScale.replace(0, QString("%1").arg(ui->spbGVPscale->value(), 0, 'f', 2));
-//    strlGVPHeight.replace(0, QString("%1").arg(ui->spbGVPheight->value()));
-//    strlGVPMapHeight.replace(0, QString("%1").arg(ui->spbGVPMapHeight->value()));
-//    strlGVPMapWidth.replace(0, QString("%1").arg(ui->spbGVPMapWidth->value()));
-//    strlGVPGridOnProj.replace(0, QString("%1").arg(ui->chkGVPGridOnProj->isChecked()));
 
     POIsettings.setValue("/GVP/strlName", strlGVPName );
     POIsettings.setValue("/GVP/strlLat", strlGVPLat);
@@ -122,21 +115,6 @@ void Poi::Save()
     POIsettings.setValue("/GVP/strlmapwidth", strlGVPMapWidth);
     POIsettings.setValue("/GVP/strlmapheight", strlGVPMapHeight);
     POIsettings.setValue("/GVP/strlgridonproj", strlGVPGridOnProj);
-
-//    strlLCCParallel1.replace(0, QString("%1").arg(ui->spbParallel1->value()));
-//    strlLCCParallel2.replace(0, QString("%1").arg(ui->spbParallel2->value()));
-//    strlLCCCentral.replace(0, QString("%1").arg(ui->spbCentral->value()));
-//    strlLCCLatOrigin.replace(0, QString("%1").arg(ui->spbLatOrigin->value()));
-//    strlLCCNorth.replace(0, QString("%1").arg(ui->spbNorth->value()));
-//    strlLCCSouth.replace(0, QString("%1").arg(ui->spbEast->value()));
-//    strlLCCEast.replace(0, QString("%1").arg(ui->spbEast->value()));
-//    strlLCCWest.replace(0, QString("%1").arg(ui->spbWest->value()));
-//    strlLCCScaleX.replace(0, QString("%1").arg(ui->spbScaleX->value(), 0, 'f', 2));
-//    strlLCCScaleY.replace(0, QString("%1").arg(ui->spbScaleY->value(), 0, 'f', 2));
-//    strlLCCMapHeight.replace(0, QString("%1").arg(ui->spbLCCMapHeight->value()));
-//    strlLCCMapWidth.replace(0, QString("%1").arg(ui->spbLCCMapWidth->value()));
-//    strlLCCGridOnProj.replace(0, QString("%1").arg(ui->chkLCCGridOnProj->isChecked()));
-
 
     POIsettings.setValue("/LCC/strlName", strlLCCName);
     POIsettings.setValue("/LCC/strlParallel1", strlLCCParallel1);
@@ -152,16 +130,6 @@ void Poi::Save()
     POIsettings.setValue("/LCC/strlmapwidth", strlLCCMapWidth);
     POIsettings.setValue("/LCC/strlmapheight", strlLCCMapHeight);
     POIsettings.setValue("/LCC/strlgridonproj", strlLCCGridOnProj);
-
-//    strlSGLat.replace(0, QString("%1").arg(ui->spbSGlat->value(), 0, 'f', 2));
-//    strlSGLon.replace(0, QString("%1").arg(ui->spbSGlon->value(), 0, 'f', 2));
-//    strlSGRadius.replace(0, QString("%1").arg(ui->spbSGRadius->value(), 0, 'f', 2));
-//    strlSGScale.replace(0, QString("%1").arg(ui->spbSGScale->value(), 0, 'f', 2));
-//    strlSGPanH.replace(0, QString("%1").arg(ui->spbSGPanHorizon->value()));
-//    strlSGPanV.replace(0, QString("%1").arg(ui->spbSGPanVert->value()));
-//    strlSGMapHeight.replace(0, QString("%1").arg(ui->spbSGMapHeight->value()));
-//    strlSGMapWidth.replace(0, QString("%1").arg(ui->spbSGMapWidth->value()));
-//    strlSGGridOnProj.replace(0, QString("%1").arg(ui->chkSGGridOnProj->isChecked()));
 
     POIsettings.setValue("/SG/strlName", strlSGName );
     POIsettings.setValue("/SG/strlLat", strlSGLat );

@@ -43,10 +43,9 @@ void SegmentImage::CalcSatAngles()
 {
     double swath = 55.3*PI/180.0;
     double deltaphi = swath/1024;
-    Sigmadist[1024] = 0.0;
+    double deltaphigac  = swath/204.5;
     double phi, beta, d;
-    double satheight = 830;
-    double save = 0;
+    double satheight = 850;
     double delta, totdelta;
 
     for(int i = 1; i < 1024; i++)
@@ -54,14 +53,29 @@ void SegmentImage::CalcSatAngles()
         phi= deltaphi*(double)i;
         beta=PI-ArcSin((XKMPER_WGS84 + satheight)*sin(phi)/XKMPER_WGS84);
         Sigmadist[1024 - i] = Sigmadist[1024 + i] = PI - beta - phi;
-        save = PI - beta - phi;
     }
-
+    Sigmadist[1024] = 0.0;
     Sigmadist[0] = Sigmadist[1];
+
+    for(int i = 1; i < 204; i++)
+    {
+        phi= deltaphigac*(double)i;
+        beta=PI-ArcSin((XKMPER_WGS84 + satheight)*sin(phi)/XKMPER_WGS84);
+        SigmadistGAC[204 - i] = SigmadistGAC[204 + i] = PI - beta - phi;
+    }
+    SigmadistGAC[204] = 0.0;
+    SigmadistGAC[0] = SigmadistGAC[1] = SigmadistGAC[2] = SigmadistGAC[3] = 0.0;
+    SigmadistGAC[405] = SigmadistGAC[406] = SigmadistGAC[407] = SigmadistGAC[408] = 0.0;
+
 
     for(int i = 1; i < 2048; i++)
     {
         fraction[i] = 0;
+    }
+
+    for(int i = 1; i < 409; i++)
+    {
+        fractionGAC[i] = 0;
     }
 
     for(int i = 0; i < 102; i++)
@@ -74,12 +88,40 @@ void SegmentImage::CalcSatAngles()
         }
     }
 
-/*    for(int i = 0; i < 2048; i++)
+    for(int i = 0; i < 50; i++)
     {
-        qDebug() << QString("Sigmadist[%1] = %2  fraction = %3").arg(i).arg(Sigmadist[i]).arg(fraction[i]);
-
+        totdelta = fabs(SigmadistGAC[4 + i*8] - SigmadistGAC[4 + (i+1)*8]);
+        for(int j = 0; j < 8; j++)
+        {
+            delta=fabs(SigmadistGAC[4 + i*8] - SigmadistGAC[4 + i*8 + j]);
+            fractionGAC[4 + i*8 + j] = delta/totdelta;
+            if(j == 0)
+                fractionGAC[4 + i*8 + j] = 1.0;
+        }
     }
-*/
+    fractionGAC[404] = 1.0;
+
+    int cnt = 0;
+    int gacindex = 0;
+    for(int i = 4; i < 409; i++)
+    {
+        qDebug() << QString("i = %1  gacindex = %2 SigmadistGAC[%3] = %4  fractionGAC = %5").arg(i).arg(gacindex).arg(i)
+                    .arg(SigmadistGAC[i]).arg(fractionGAC[i]);
+
+      if( i == 4 || cnt % 8 == 0)
+        {
+            gacindex++;
+        }
+        if(i > 3)
+            cnt++;
+    }
+
+
+//    for(int i = 4; i < 409; i++)
+//    {
+//        qDebug() << QString("SigmadistGAC[%1] = %2  fractionGAC = %3").arg(i).arg(SigmadistGAC[i]).arg(fractionGAC[i]);
+//    }
+
 }
 
 

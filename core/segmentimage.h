@@ -76,6 +76,8 @@ public:
     void CalcSatAngles();
     double Sigmadist[2048];
     double fraction[2048];
+    double SigmadistGAC[409];
+    double fractionGAC[409];
 
 
 private:

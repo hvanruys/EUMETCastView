@@ -6,6 +6,7 @@
 #include "segmentlist.h"
 #include "avhrrsatellite.h"
 #include "options.h"
+#include <iomanip>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -784,10 +785,12 @@ void SegmentList::SmoothProjectionImageBilinear()
 
     qDebug() << "start SegmentList::SmoothProjectionImageBilinear()";
 
+
     int lineimage = 0;
 
     QList<Segment *>::iterator segsel;
     segsel = segsselected.begin();
+
 
     Segment *segmsave;
 
@@ -798,7 +801,6 @@ void SegmentList::SmoothProjectionImageBilinear()
             BilinearBetweenSegments(segmsave, segm);
         segmsave = segm;
         BilinearInterpolation(segm);
-        //printData(segm);
         ++segsel;
         lineimage += segm->NbrOfLines;
     }
@@ -823,7 +825,6 @@ void SegmentList::SmoothProjectionImageBicubic()
             BilinearBetweenSegments(segmsave, segm);
         segmsave = segm;
         BilinearInterpolation(segm);
-        //printData(segm);
         ++segsel;
         lineimage += segm->NbrOfLines;
     }
@@ -875,11 +876,23 @@ void SegmentList::BilinearInterpolation(Segment *segm)
 
     int earthviews = this->NbrOfEartviewsPerScanline();
 
-    qDebug() << "===> start SegmentList::BilinearInterpolation(Segment *segm)";
+    qDebug() << "===> start SegmentList::BilinearInterpolation(Segment *segm) for " << segm->segment_type;
+
+//    int line = 0;
+//    {
+//        for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
+//        {
+//            x11 = segm->getProjectionX(line, pixelx);
+//            qDebug() << QString("line = %1 pixelx = %2 x11 = %3").arg(line).arg(pixelx).arg(x11);
+//        }
+//    }
+
     for (int line = 0; line < segm->NbrOfLines-1; line++)
     {
         for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
         {
+            if(line == 0 && pixelx == 4)
+                int bla = 0;
             x11 = segm->getProjectionX(line, pixelx);
             y11 = segm->getProjectionY(line, pixelx);
 
@@ -936,47 +949,55 @@ void SegmentList::BilinearInterpolation(Segment *segm)
                     canvas[yc21 * dimx + xc21] = rgb21;
                     canvas[yc22 * dimx + xc22] = rgb22;
 
-
-//                    for ( int i = 0; i < dimy; i++ )
+//                    if(line == 1 && pixelx == 1)
 //                    {
-//                       for ( int j = 0; j < dimx; j++ )
-//                       {
-//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
-//                       }
-//                       std::cout << std::endl;
+//                        qDebug() << QString("rgb11 = %1 rgb12 = %2 rgb21 = %3 rgb22 = %4").arg(qRed(rgb11)).arg(qRed(rgb12)).arg(qRed(rgb21)).arg(qRed(rgb22));
+//                        for ( int i = 0; i < dimy; i++ )
+//                        {
+//                            for ( int j = 0; j < dimx; j++ )
+//                            {
+//                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
+//                            }
+//                            std::cout << std::endl;
+//                        }
+//                        std::cout << "before ....................................... line " << line << " pixelx = " << pixelx << std::endl;
 //                    }
 
-//                    std::cout << "....................................... line " << line << " pixelx = " << pixelx << std::endl;
+//                    std::flush(cout);
 
                     bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
                     bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
                     bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
                     bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
 
-//                    for ( int i = 0; i < dimy; i++ )
+//                    if(line == 1 && pixelx == 1)
 //                    {
-//                       for ( int j = 0; j < dimx; j++ )
-//                       {
-//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
-//                       }
-//                       std::cout << std::endl;
+//                        for ( int i = 0; i < dimy; i++ )
+//                        {
+//                            for ( int j = 0; j < dimx; j++ )
+//                            {
+//                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
+//                            }
+//                            std::cout << std::endl;
+//                        }
+//                        std::cout << "after -------------------------------------- line " << line << " pixelx = " << pixelx << std::endl;
 //                    }
-
-//                    std::cout << "-------------------------------------- line " << line << " pixelx = " << pixelx << std::endl;
 
                     MapInterpolation(canvas, dimx, dimy);
                     MapCanvas(canvas, anchorX, anchorY, dimx, dimy);
 
-//                    for ( int i = 0; i < dimy; i++ )
+//                    if(line == 1 && pixelx == 1)
 //                    {
-//                       for ( int j = 0; j < dimx; j++ )
-//                       {
-//                          std::cout << std::setw(6) << qRed(canvas[i * dimx + j]) << " ";
-//                       }
-//                       std::cout << std::endl;
+//                        for ( int i = 0; i < dimy; i++ )
+//                        {
+//                            for ( int j = 0; j < dimx; j++ )
+//                            {
+//                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
+//                            }
+//                            std::cout << std::endl;
+//                        }
+//                        std::cout << "================================= line " << line << " pixelx = " << pixelx << std::endl;
 //                    }
-
-//                    std::cout << "================================= line " << line << " pixelx = " << pixelx << std::endl;
 
                     delete [] canvas;
                     counterb++;
@@ -1119,7 +1140,9 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext)
 bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx)
 {
     int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
-    int deltared, deltagreen, deltablue;
+    float deltared, deltagreen, deltablue;
+    float red1, red2, green1, green2, blue1, blue2;
+
     dx=x2-x1;
     dy=y2-y1;
     dx1=abs(dx);
@@ -1127,6 +1150,12 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
     px=2*dy1-dx1;
     py=2*dx1-dy1;
 
+    red1 = qRed(rgb1);
+    red2 = qRed(rgb2);
+    green1 = qGreen(rgb1);
+    green2 = qGreen(rgb2);
+    blue1 = qBlue(rgb1);
+    blue2 = qBlue(rgb2);
 
     if(dy1<=dx1)
     {
@@ -1138,9 +1167,9 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             x=x1;
             y=y1;
             xe=x2;
-            deltared = (qRed(rgb2) - qRed(rgb1))/ dx1 ;
-            deltagreen = (qGreen(rgb2) - qGreen(rgb1))/ dx1 ;
-            deltablue = (qBlue(rgb2) - qBlue(rgb1))/ dx1 ;
+            deltared = (float)(qRed(rgb2) - qRed(rgb1))/ (float)dx1 ;
+            deltagreen = (float)(qGreen(rgb2) - qGreen(rgb1))/ (float)dx1 ;
+            deltablue = (float)(qBlue(rgb2) - qBlue(rgb1))/ (float)dx1 ;
 //            canvas[y * yy + x] = val1;
 
         }
@@ -1149,9 +1178,9 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             x=x2;
             y=y2;
             xe=x1;
-            deltared = (qRed(rgb1) - qRed(rgb2))/ dx1 ;
-            deltagreen = (qGreen(rgb1) - qGreen(rgb2))/ dx1 ;
-            deltablue = (qBlue(rgb1) - qBlue(rgb2))/ dx1 ;
+            deltared = (float)(qRed(rgb1) - qRed(rgb2))/ (float)dx1 ;
+            deltagreen = (float)(qGreen(rgb1) - qGreen(rgb2))/ (float)dx1 ;
+            deltablue = (float)(qBlue(rgb1) - qBlue(rgb2))/ (float)dx1 ;
 //            canvas[y * yy + x] = val2;
 
         }
@@ -1178,13 +1207,21 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             }
             if(dx>=0)
             {
-                rgb1 = qRgb(qRed(rgb1) + deltared, qGreen(rgb1) + deltagreen, qBlue(rgb1) + deltablue );
+                red1 += deltared;
+                green1 += deltagreen;
+                blue1 += deltablue;
+
+                rgb1 = qRgb((int)red1, (int)green1, (int)blue1 );
                 if( x != xe)
                     canvas[y * dimx + x] = rgb1;
             }
             else
             {
-                rgb2 = qRgb(qRed(rgb2) + deltared, qGreen(rgb2) + deltagreen, qBlue(rgb2) + deltablue );
+                red2 += deltared;
+                green2 += deltagreen;
+                blue2 += deltablue;
+
+                rgb2 = qRgb((int)red2, (int)green2, (int)blue2 );
                 if( x != xe)
                     canvas[y * dimx + x] = rgb2;
             }
@@ -1201,9 +1238,9 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             x=x1;
             y=y1;
             ye=y2;
-            deltared = (qRed(rgb2) - qRed(rgb1))/ dy1 ;
-            deltagreen = (qGreen(rgb2) - qGreen(rgb1))/ dy1 ;
-            deltablue = (qBlue(rgb2) - qBlue(rgb1))/ dy1 ;
+            deltared = (float)(qRed(rgb2) - qRed(rgb1))/ (float)dy1 ;
+            deltagreen = (float)(qGreen(rgb2) - qGreen(rgb1))/ (float)dy1 ;
+            deltablue = (float)(qBlue(rgb2) - qBlue(rgb1))/ (float)dy1 ;
 
 //            canvas[y * yy + x] = val1;
         }
@@ -1212,9 +1249,9 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             x=x2;
             y=y2;
             ye=y1;
-            deltared = (qRed(rgb1) - qRed(rgb2))/ dy1 ;
-            deltagreen = (qGreen(rgb1) - qGreen(rgb2))/ dy1 ;
-            deltablue = (qBlue(rgb1) - qBlue(rgb2))/ dy1 ;
+            deltared = (float)(qRed(rgb1) - qRed(rgb2))/ (float)dy1 ;
+            deltagreen = (float)(qGreen(rgb1) - qGreen(rgb2))/ (float)dy1 ;
+            deltablue = (float)(qBlue(rgb1) - qBlue(rgb2))/ (float)dy1 ;
 
 //            canvas[y * yy + x] = val2;
         }
@@ -1242,13 +1279,21 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             }
             if(dy>=0)
             {
-                rgb1 = qRgb(qRed(rgb1) + deltared, qGreen(rgb1) + deltagreen, qBlue(rgb1) + deltablue );
+                red1 += deltared;
+                green1 += deltagreen;
+                blue1 += deltablue;
+
+                rgb1 = qRgb((int)red1, (int)green1, (int)blue1 );
                 if( y != ye)
                     canvas[y * dimx + x] = rgb1;
             }
             else
             {
-                rgb2 = qRgb(qRed(rgb2) + deltared, qGreen(rgb2) + deltagreen, qBlue(rgb2) + deltablue );
+                red2 += deltared;
+                green2 += deltagreen;
+                blue2 += deltablue;
+
+                rgb2 = qRgb((int)red2, (int)green2, (int)blue2 );
                 if( y != ye)
                     canvas[y * dimx + x] = rgb2;
             }

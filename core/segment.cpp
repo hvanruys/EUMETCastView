@@ -998,8 +998,10 @@ qint32 Segment::getProjectionX(int line, int pixelx)
     case eSegmentType::SEG_METOP:
     case eSegmentType::SEG_NOAA:
     case eSegmentType::SEG_HRP:
-    case eSegmentType::SEG_GAC:
         return projectionCoordX[line * 2048 + pixelx];
+        break;
+    case eSegmentType::SEG_GAC:
+        return projectionCoordX[line * 409 + pixelx];
         break;
     case eSegmentType::SEG_VIIRSM:
         return projectionCoordX[line * 3200 + pixelx];
@@ -1017,8 +1019,10 @@ qint32 Segment::getProjectionY(int line, int pixelx)
     case eSegmentType::SEG_METOP:
     case eSegmentType::SEG_NOAA:
     case eSegmentType::SEG_HRP:
-    case eSegmentType::SEG_GAC:
         return projectionCoordY[line * 2048 + pixelx];
+        break;
+    case eSegmentType::SEG_GAC:
+        return projectionCoordY[line * 409 + pixelx];
         break;
     case eSegmentType::SEG_VIIRSM:
         return projectionCoordY[line * 3200 + pixelx];
@@ -1036,8 +1040,10 @@ QRgb Segment::getProjectionValue(int line, int pixelx)
     case eSegmentType::SEG_METOP:
     case eSegmentType::SEG_NOAA:
     case eSegmentType::SEG_HRP:
-    case eSegmentType::SEG_GAC:
         return projectionCoordValue[line * 2048 + pixelx];
+        break;
+    case eSegmentType::SEG_GAC:
+        return projectionCoordValue[line * 409 + pixelx];
         break;
     case eSegmentType::SEG_VIIRSM:
         return projectionCoordValue[line * 3200 + pixelx];

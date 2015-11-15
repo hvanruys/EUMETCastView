@@ -110,8 +110,7 @@ void GeneralVerticalPerspective::CreateMapFromAVHRR(int inputchannel, eSegmentTy
         else if( type == SEG_METOP)
             segs->seglmetop->SmoothProjectionImageBilinear();
         else if( type == SEG_GAC)
-//            segs->seglgac->SmoothProjectionImage();
-            imageptrs->SmoothProjectionImage();
+            segs->seglgac->SmoothProjectionImageBilinear();
         else if( type == SEG_HRP)
 //            segs->seglhrp->SmoothProjectionImage();
             imageptrs->SmoothProjectionImage();

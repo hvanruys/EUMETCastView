@@ -545,11 +545,11 @@ void SegmentMetop::inspectEarthLocations(QByteArray *mdr_record, int heightinseg
         earthloc_lon[heightinsegment*103 + i] = (float)llon_deg/10000;
     }
 
-//    if(num_navigation_points == 103 && (heightinsegment == 0 || heightinsegment == 540 || heightinsegment == 1079))
-//    {
-//        qDebug() << QString("------>IEL height = %1  lon[0] = %2, lon[52] = %3, lon[102] = %4").arg(heightinsegment).arg( earthloc_lon[heightinsegment*103]).arg( earthloc_lon[heightinsegment*103 + 52]).arg( earthloc_lon[heightinsegment * 103 + 102]);
-//        qDebug() << QString("------>IEL height = %1  lat[0] = %2, lat[52] = %3, lat[102] = %4").arg(heightinsegment).arg( earthloc_lat[heightinsegment*103]).arg( earthloc_lat[heightinsegment*103 + 52]).arg( earthloc_lat[heightinsegment * 103 + 102]);
-//    }
+    if(num_navigation_points == 103 && (heightinsegment == 0 || heightinsegment == 540 || heightinsegment == 1079))
+    {
+        qDebug() << QString("------>IEL height = %1  lon[0] = %2, lon[52] = %3, lon[102] = %4").arg(heightinsegment).arg( earthloc_lon[heightinsegment*103]).arg( earthloc_lon[heightinsegment*103 + 52]).arg( earthloc_lon[heightinsegment * 103 + 102]);
+        qDebug() << QString("------>IEL height = %1  lat[0] = %2, lat[52] = %3, lat[102] = %4").arg(heightinsegment).arg( earthloc_lat[heightinsegment*103]).arg( earthloc_lat[heightinsegment*103 + 52]).arg( earthloc_lat[heightinsegment * 103 + 102]);
+    }
 
 }
 
@@ -972,7 +972,7 @@ void SegmentMetop::RenderSegmentlineInSG( int channel, int nbrLine, int heightin
     double dtot;
 
     QRgb *row_col;
-    QRgb rgbvalue1 = qRgb(0,0,0);
+    QRgb rgbvalue = qRgb(0,0,0);
 
 
 
@@ -1002,13 +1002,25 @@ void SegmentMetop::RenderSegmentlineInSG( int channel, int nbrLine, int heightin
                 intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[5 + i*20 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->sg->map_forward(lonpos1, latpos1, map_x, map_y))
                 {
-                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = (int)map_y;
+
+                    //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                     {
-                        rgbvalue1 = row_col[4 + i * 20 + j];
-                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1);
-                        // qDebug() << QString("map_x = %1 map_y = %2").arg(map_x).arg(map_y);
-                     }
-                 }
+                        rgbvalue = row_col[4 + i * 20 + j];
+                        if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                        projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = rgbvalue;
+
+                    }
+                }
+                else
+                {
+                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = 65535;
+                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = 65535;
+                    projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = qRgb(0,0,0);
+                }
+
             }
         }
     }
@@ -1078,27 +1090,38 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
                 //qDebug() << QString("pixelnumber = %1 lonpos1 = %2 latpos = %3").arg(5 + i * 20 + j).arg(lonpos1*180.0/PI).arg(latpos1*180.0/PI);
                 if(imageptrs->lcc->map_forward(lonpos1, latpos1, map_x, map_y))
                 {
-                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = (int)map_y;
+
+                    //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                     {
                         if(opts.sattrackinimage)
                         {
                             if(pointx == 1022 || pointx == 1023 || pointx == 1024 || pointx == 1025 )
                             {
                                 rgbvalue = qRgb(250, 0, 0);
-                                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                             }
                             else
                             {
                                 rgbvalue =row_col[pointx];
-                                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                             }
+
                         }
                         else
                         {
                             rgbvalue =row_col[pointx];
-                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                         }
+                        if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                        projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = rgbvalue;
+
                     }
+                }
+                else
+                {
+                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = 65535;
+                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = 65535;
+                    projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = qRgb(0,0,0);
                 }
             }
         }
