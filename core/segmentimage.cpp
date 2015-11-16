@@ -101,20 +101,20 @@ void SegmentImage::CalcSatAngles()
     }
     fractionGAC[404] = 1.0;
 
-    int cnt = 0;
-    int gacindex = 0;
-    for(int i = 4; i < 409; i++)
-    {
-        qDebug() << QString("i = %1  gacindex = %2 SigmadistGAC[%3] = %4  fractionGAC = %5").arg(i).arg(gacindex).arg(i)
-                    .arg(SigmadistGAC[i]).arg(fractionGAC[i]);
+//    int cnt = 0;
+//    int gacindex = 0;
+//    for(int i = 4; i < 409; i++)
+//    {
+//        qDebug() << QString("i = %1  gacindex = %2 SigmadistGAC[%3] = %4  fractionGAC = %5").arg(i).arg(gacindex).arg(i)
+//                    .arg(SigmadistGAC[i]).arg(fractionGAC[i]);
 
-      if( i == 4 || cnt % 8 == 0)
-        {
-            gacindex++;
-        }
-        if(i > 3)
-            cnt++;
-    }
+//      if( i == 4 || cnt % 8 == 0)
+//        {
+//            gacindex++;
+//        }
+//        if(i > 3)
+//            cnt++;
+//    }
 
 
 //    for(int i = 4; i < 409; i++)

@@ -878,15 +878,12 @@ void SegmentMetop::ComposeSegmentGVProjection(int inputchannel)
 
 void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heightintotalimage )
 {
-
     double lonpos1, latpos1;
     double map_x, map_y;
     double dtot;
 
     QRgb *row_col;
     QRgb rgbvalue1 = qRgba(0,0,0,255);
-
-
 
     if (channel == 6)
         row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(heightintotalimage);
@@ -907,7 +904,6 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
         = 5 + 20 * 102 total of 103 pts
         to = 5 + 20 * 102 + 3 = 2048
     */
-
 
     if(num_navigation_points == 103)
     {

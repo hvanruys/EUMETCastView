@@ -315,6 +315,7 @@ void MainWindow::on_actionPreferences_triggered()
     pref->setAttribute(Qt::WA_DeleteOnClose);
     pref->show();
     connect(pref,SIGNAL(finished(int)), formimage, SLOT(slotRefreshOverlay()));
+    connect(pref,SIGNAL(finished(int)), formtoolbox, SLOT(setPOIsettings()));
 }
 
 void MainWindow::on_actionAbout_triggered()

@@ -60,7 +60,6 @@ private:
     void onButtonColorHRV(QString type);
     bool eventFilter(QObject *target, QEvent *event);
     int searchResolution(int mapwidth, int mapheight);
-    void setPOIsettings();
     void setLCCParameters(int strlindex);
     void setGVPParameters(int strlindex);
     void setSGParameters(int strlindex);
@@ -81,6 +80,7 @@ public slots:
     void setChannelIndex();
     void geostationarysegmentsChosen(SegmentListGeostationary::eGeoSatellite geo, QStringList tex);
     void setToolboxButtons(bool state);
+    void setPOIsettings();
 
 signals:
     void getmeteosatchannel(QString, QVector<QString>, QVector<bool>);

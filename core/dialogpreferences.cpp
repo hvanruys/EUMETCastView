@@ -1695,4 +1695,3 @@ Qt::ItemFlags POISGModel::flags(const QModelIndex & /*index*/) const
 }
 
 
-

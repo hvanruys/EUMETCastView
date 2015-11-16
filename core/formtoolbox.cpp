@@ -330,6 +330,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
 void FormToolbox::setPOIsettings()
 {
+    qDebug() << "FormToolbox::setPOIsettings()";
+
+    ui->comboPOI->blockSignals(true);
+    ui->comboPOI->clear();
+
     if(ui->toolBox->currentIndex() == 0)
         ui->comboPOI->addItems(poi.strlLCCName);
     else if(ui->toolBox->currentIndex() == 1)
@@ -342,6 +347,8 @@ void FormToolbox::setPOIsettings()
     setLCCParameters(0);
     setGVPParameters(0);
     setSGParameters(0);
+    ui->comboPOI->blockSignals(false);
+    on_comboPOI_currentIndexChanged(0);
 }
 
 void FormToolbox::writeInfoToAVHRR(QString info)
@@ -1069,7 +1076,7 @@ FormToolbox::~FormToolbox()
     poi.strlLCCCentral.replace(0, QString("%1").arg(ui->spbCentral->value()));
     poi.strlLCCLatOrigin.replace(0, QString("%1").arg(ui->spbLatOrigin->value()));
     poi.strlLCCNorth.replace(0, QString("%1").arg(ui->spbNorth->value()));
-    poi.strlLCCSouth.replace(0, QString("%1").arg(ui->spbEast->value()));
+    poi.strlLCCSouth.replace(0, QString("%1").arg(ui->spbSouth->value()));
     poi.strlLCCEast.replace(0, QString("%1").arg(ui->spbEast->value()));
     poi.strlLCCWest.replace(0, QString("%1").arg(ui->spbWest->value()));
     poi.strlLCCScaleX.replace(0, QString("%1").arg(ui->spbScaleX->value(), 0, 'f', 2));
@@ -3278,6 +3285,15 @@ void FormToolbox::setLCCParameters(int strlindex)
 
     ui->cbProjResolutions->setCurrentIndex(searchResolution(poi.strlLCCMapWidth.at(strlindex).toInt(), poi.strlLCCMapHeight.at(strlindex).toInt()));
 
+    opts.centralmeridian = poi.strlLCCCentral.at(strlindex).toInt();
+    opts.mapextentnorth = poi.strlLCCNorth.at(strlindex).toInt();
+    opts.mapextentsouth = poi.strlLCCSouth.at(strlindex).toInt();
+    opts.mapextentwest = poi.strlLCCWest.at(strlindex).toInt();
+    opts.mapextenteast = poi.strlLCCEast.at(strlindex).toInt();
+    opts.maplccscalex = poi.strlLCCScaleX.at(strlindex).toDouble();
+    opts.maplccscaley = poi.strlLCCScaleY.at(strlindex).toDouble();
+
+
     ui->spbParallel1->blockSignals(false);
     ui->spbParallel2->blockSignals(false);
     ui->spbCentral->blockSignals(false);
@@ -3433,7 +3449,7 @@ void FormToolbox::on_btnAddPOI_clicked()
         poi.strlLCCCentral.append(QString("%1").arg(ui->spbCentral->value()));
         poi.strlLCCLatOrigin.append(QString("%1").arg(ui->spbLatOrigin->value()));
         poi.strlLCCNorth.append(QString("%1").arg(ui->spbNorth->value()));
-        poi.strlLCCSouth.append(QString("%1").arg(ui->spbEast->value()));
+        poi.strlLCCSouth.append(QString("%1").arg(ui->spbSouth->value()));
         poi.strlLCCEast.append(QString("%1").arg(ui->spbEast->value()));
         poi.strlLCCWest.append(QString("%1").arg(ui->spbWest->value()));
         poi.strlLCCScaleX.append(QString("%1").arg(ui->spbScaleX->value(), 0, 'f', 2));
@@ -3459,7 +3475,7 @@ void FormToolbox::on_btnAddPOI_clicked()
 
         ui->comboPOI->clear();
         ui->comboPOI->addItems(poi.strlGVPName);
-        //ui->comboPOI->setCurrentIndex(poi.strlGVPName.count()-1);
+        ui->comboPOI->setCurrentIndex(poi.strlGVPName.count()-1);
 
     }
     else if(ui->toolBox->currentIndex() == 2) // SG

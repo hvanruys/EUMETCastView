@@ -891,8 +891,6 @@ void SegmentList::BilinearInterpolation(Segment *segm)
     {
         for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
         {
-            if(line == 0 && pixelx == 4)
-                int bla = 0;
             x11 = segm->getProjectionX(line, pixelx);
             y11 = segm->getProjectionY(line, pixelx);
 

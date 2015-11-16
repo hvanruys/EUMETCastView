@@ -90,6 +90,7 @@ private slots:
 
     void on_btnGlobeLonLatColor_clicked();
 
+
 private:
     Ui::DialogPreferences *ui;
     QAbstractTableModel *myStationModel;

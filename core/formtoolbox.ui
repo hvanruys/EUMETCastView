@@ -3184,10 +3184,10 @@
                      <item>
                       <widget class="QSpinBox" name="spbNorth">
                        <property name="minimum">
-                        <number>-90</number>
+                        <number>-85</number>
                        </property>
                        <property name="maximum">
-                        <number>90</number>
+                        <number>85</number>
                        </property>
                       </widget>
                      </item>

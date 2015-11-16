@@ -2702,6 +2702,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
         }
     }
 
+    qDebug() << QString("End FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)");
 
 
 }

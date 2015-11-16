@@ -38,6 +38,19 @@ void LambertConformalConic::Initialize(double r_maj, double r_min, double stdlat
     /* double false_east;              x offset in meters                   */
     /* double false_north;             y offset in meters                   */
 
+    qDebug()<< QString("paralel1 = %1").arg(stdlat1);
+    qDebug()<< QString("paralel2 = %1").arg(stdlat2);
+    qDebug()<< QString("c_lon    = %1").arg(c_lon);
+    qDebug()<< QString("c_lat    = %1").arg(c_lat);
+    qDebug()<< QString("imagewidth  = %1").arg(imagewidth);
+    qDebug()<< QString("imageheight = %1").arg(imageheight);
+    qDebug()<< QString("corr X      = %1").arg(corrX);
+    qDebug()<< QString("corr Y      = %1").arg(corrY);
+
+
+
+
+
     image_width = imagewidth;
     image_height = imageheight;
 
@@ -82,8 +95,6 @@ void LambertConformalConic::Initialize(double r_maj, double r_min, double stdlat
 
     map_width = mapwh;
     map_height = mapwh;
-
-    qDebug() << " mapwh = " << mapwh;
 
 
     double sin_po;                  /* sin value                            */
