@@ -44,6 +44,7 @@ public:
     bool GridOnProjLCC();
     bool GridOnProjGVP();
     bool GridOnProjSG();
+    void setPOIsettings();
 
 
     ~FormToolbox();
@@ -80,7 +81,6 @@ public slots:
     void setChannelIndex();
     void geostationarysegmentsChosen(SegmentListGeostationary::eGeoSatellite geo, QStringList tex);
     void setToolboxButtons(bool state);
-    void setPOIsettings();
 
 signals:
     void getmeteosatchannel(QString, QVector<QString>, QVector<bool>);

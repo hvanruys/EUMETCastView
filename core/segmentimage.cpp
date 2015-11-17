@@ -80,11 +80,11 @@ void SegmentImage::CalcSatAngles()
 
     for(int i = 0; i < 102; i++)
     {
-        totdelta = fabs(Sigmadist[5 + i*20] - Sigmadist[5 + (i+1)*20]);
+        totdelta = fabs(Sigmadist[4 + i*20] - Sigmadist[4 + (i+1)*20]);
         for(int j = 0; j < 20; j++)
         {
-            delta=fabs(Sigmadist[5 + i*20] - Sigmadist[5 + i*20 + j]);
-            fraction[5 + i*20 + j] = delta/totdelta;
+            delta=fabs(Sigmadist[4 + i*20] - Sigmadist[4 + i*20 + j]);
+            fraction[4 + i*20 + j] = delta/totdelta;
         }
     }
 

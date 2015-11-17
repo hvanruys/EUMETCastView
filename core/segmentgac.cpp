@@ -792,8 +792,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
 
     // qDebug() << QString("earth_views_per_scanline = %1").arg(earth_views_per_scanline);
 
-    //double deltax = delta / 204;
-    double deltax = delta / (earth_views_per_scanline / 2);
+    double deltax = delta / 204.5;
     double psix;
     double psix1, psix2;
     double dx;

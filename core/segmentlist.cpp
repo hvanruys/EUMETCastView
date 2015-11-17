@@ -904,9 +904,9 @@ void SegmentList::BilinearInterpolation(Segment *segm)
             y22 = segm->getProjectionY(line+1, pixelx+1);
 
             if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
-                    && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
-                    && x11 > -15 && x12 > -15 && x21 > -15 && x22 > -15
-                    && y11 > -15 && y12 > -15 && y21 > -15 && y22 > -15 )
+                    && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528)
+                    // && x11 > -50 && x12 > -50 && x21 > -50 && x22 > -50
+                    // && y11 > -50 && y12 > -50 && y21 > -50 && y22 > -50 )
             {
                 minx = Min(x11, x12, x21, x22);
                 miny = Min(y11, y12, y21, y22);
@@ -937,6 +937,7 @@ void SegmentList::BilinearInterpolation(Segment *segm)
                     yc12 = y12 - miny;
                     yc21 = y21 - miny;
                     yc22 = y22 - miny;
+
 
                     canvas = new QRgb[dimx * dimy];
                     for(int i = 0 ; i < dimx * dimy ; i++)
@@ -1071,9 +1072,9 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext)
 
         if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
                 && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
-                && x11 >= -10 && x12 >= -10 && x21 >= -10 && x22 >= -10
-                && y11 >= -10 && y12 >= -10 && y21 >= -10 && y22 >= -10
-                && abs(x11 - x21) < 10)
+                //&& x11 >= -20 && x12 >= -20 && x21 >= -20 && x22 >= -20
+                //&& y11 >= -20 && y12 >= -20 && y21 >= -20 && y22 >= -20
+                && abs(x11 - x21) < 100)
         {
 
             minx = Min(x11, x12, x21, x22);
@@ -1353,13 +1354,13 @@ void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
 
 
 
-        int deltared = (qRed(end) - qRed(start)) / (holecount+1);
-        int deltagreen = (qGreen(end) - qGreen(start)) / (holecount+1);
-        int deltablue = (qBlue(end) - qBlue(start)) / (holecount+1);
+        float deltared = (float)(qRed(end) - qRed(start)) / (float)(holecount+1);
+        float deltagreen = (float)(qGreen(end) - qGreen(start)) / (float)(holecount+1);
+        float deltablue = (float)(qBlue(end) - qBlue(start)) / (float)(holecount+1);
 
-        int red = qRed(start);
-        int green = qGreen(start);
-        int blue = qBlue(start);
+        float red = (float)qRed(start);
+        float green = (float)qGreen(start);
+        float blue = (float)qBlue(start);
 
         for(int w = 0; w < dimx; w++)
         {
@@ -1370,7 +1371,7 @@ void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
                 red += deltared;
                 green += deltagreen;
                 blue += deltablue;
-                canvas[h * dimx + w] = qRgba(red, green, blue, 100);
+                canvas[h * dimx + w] = qRgba((int)red, (int)green, (int)blue, 100);
             }
         }
     }
@@ -1412,13 +1413,13 @@ void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
         if(hcount == 0)
             continue;
 
-        int redstart = qRed(start);
-        int greenstart = qGreen(start);
-        int bluestart = qBlue(start);
+        float redstart = (float)qRed(start);
+        float greenstart = (float)qGreen(start);
+        float bluestart = (float)qBlue(start);
 
-        int deltared = (qRed(end) - qRed(start)) / (hcount+1);
-        int deltagreen = (qGreen(end) - qGreen(start)) / (hcount+1);
-        int deltablue = (qBlue(end) - qBlue(start)) / (hcount+1);
+        float deltared = (float)(qRed(end) - qRed(start)) / (float)(hcount+1);
+        float deltagreen = (float)(qGreen(end) - qGreen(start)) / (float)(hcount+1);
+        float deltablue = (float)(qBlue(end) - qBlue(start)) / (float)(hcount+1);
 
 
         for(int h = 0; h < dimy; h++)
@@ -1430,11 +1431,11 @@ void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
                 redstart += deltared;
                 greenstart += deltagreen;
                 bluestart += deltablue;
-                int redtotal = (qRed(canvas[h * dimx + w]) + redstart)/2;
-                int greentotal = (qGreen(canvas[h * dimx + w]) + greenstart)/2;
-                int bluetotal = (qBlue(canvas[h * dimx + w]) + bluestart)/2;
+                float redtotal = (qRed(canvas[h * dimx + w]) + redstart)/2;
+                float greentotal = (qGreen(canvas[h * dimx + w]) + greenstart)/2;
+                float bluetotal = (qBlue(canvas[h * dimx + w]) + bluestart)/2;
 
-                canvas[h * dimx + w] = qRgba(redtotal, greentotal, bluetotal, 255);
+                canvas[h * dimx + w] = qRgba((int)redtotal, (int)greentotal, (int)bluetotal, 255);
             }
         }
     }

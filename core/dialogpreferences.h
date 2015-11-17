@@ -99,6 +99,7 @@ private:
     QAbstractTableModel *myPOIGVPModel;
     QAbstractTableModel *myPOISGModel;
     QColorDialog *colordialog;
+    bool POItablechanged;
 
 };
 

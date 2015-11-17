@@ -92,6 +92,8 @@ private slots:
     void on_actionZoomout_triggered();
     void moveImage(QPoint, QPoint);
     void slotSwitchStackedWindow(int);
+    void slotPreferencesFinished(int result);
+
 
 
 public slots:

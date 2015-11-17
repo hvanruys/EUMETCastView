@@ -315,7 +315,13 @@ void MainWindow::on_actionPreferences_triggered()
     pref->setAttribute(Qt::WA_DeleteOnClose);
     pref->show();
     connect(pref,SIGNAL(finished(int)), formimage, SLOT(slotRefreshOverlay()));
-    connect(pref,SIGNAL(finished(int)), formtoolbox, SLOT(setPOIsettings()));
+    connect(pref,SIGNAL(finished(int)), this, SLOT(slotPreferencesFinished(int)));
+}
+
+void MainWindow::slotPreferencesFinished(int result)
+{
+    if(result == 2)
+        formtoolbox->setPOIsettings();
 }
 
 void MainWindow::on_actionAbout_triggered()

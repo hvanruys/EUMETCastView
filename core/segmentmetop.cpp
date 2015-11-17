@@ -912,7 +912,7 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
             dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PI/180.0 - earthloc_lat[nbrLine*103 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PI/180.0-earthloc_lon[nbrLine*103 + i+1]*PI/180.0) / 2), 2)));
             for( int j = 0; j < 20 ; j++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[5 + i*20 + j], &latpos1, &lonpos1, dtot);
+                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
@@ -995,8 +995,8 @@ void SegmentMetop::RenderSegmentlineInSG( int channel, int nbrLine, int heightin
             dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PI/180.0 - earthloc_lat[nbrLine*103 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PI/180.0-earthloc_lon[nbrLine*103 + i+1]*PI/180.0) / 2), 2)));
             for( int j = 0; j < 20 ; j++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[5 + i*20 + j], &latpos1, &lonpos1, dtot);
-                if(imageptrs->sg->map_forward(lonpos1, latpos1, map_x, map_y))
+                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
+                if(imageptrs->sg->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
                     projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = (int)map_y;
@@ -1082,9 +1082,8 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
             for( int j = 0; j < 20 ; j++ )
             {
                 pointx = 4 + i*20 + j;
-                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[5 + i*20 + j], &latpos1, &lonpos1, dtot);
-                //qDebug() << QString("pixelnumber = %1 lonpos1 = %2 latpos = %3").arg(5 + i * 20 + j).arg(lonpos1*180.0/PI).arg(latpos1*180.0/PI);
-                if(imageptrs->lcc->map_forward(lonpos1, latpos1, map_x, map_y))
+                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
+                if(imageptrs->lcc->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
                     projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = (int)map_y;
@@ -1107,9 +1106,12 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
                         {
                             rgbvalue =row_col[pointx];
                         }
+                        QColor col(rgbvalue);
+                        col.setAlpha(255);
+
                         if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                             imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-                        projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = rgbvalue;
+                        projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = col.rgb();
 
                     }
                 }

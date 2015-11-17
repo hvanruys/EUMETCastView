@@ -138,6 +138,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupPOIGVPTable();
     setupPOISGTable();
 
+    POItablechanged = false;
 
     connect(ui->listWidget,
             SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
@@ -288,33 +289,45 @@ void DialogPreferences::deleteTLESourceRow()
 
 void DialogPreferences::addPOILCCRow()
 {
+    POItablechanged = true;
+
     myPOILCCModel->insertRows(myPOILCCModel->rowCount(), 1, QModelIndex());
 }
 
 void DialogPreferences::deletePOILCCRow()
 {
+    POItablechanged = true;
+
     int row = ui->tbvPOILCC->currentIndex().row();
     myPOILCCModel->removeRow(row, QModelIndex());
 }
 
 void DialogPreferences::addPOIGVPRow()
 {
+    POItablechanged = true;
+
     myPOIGVPModel->insertRows(myPOIGVPModel->rowCount(), 1, QModelIndex());
 }
 
 void DialogPreferences::deletePOIGVPRow()
 {
+    POItablechanged = true;
+
     int row = ui->tbvPOIGVP->currentIndex().row();
     myPOIGVPModel->removeRow(row, QModelIndex());
 }
 
 void DialogPreferences::addPOISGRow()
 {
+    POItablechanged = true;
+
     myPOISGModel->insertRows(myPOISGModel->rowCount(), 1, QModelIndex());
 }
 
 void DialogPreferences::deletePOISGRow()
 {
+    POItablechanged = true;
+
     int row = ui->tbvPOISG->currentIndex().row();
     myPOISGModel->removeRow(row, QModelIndex());
 }
@@ -403,13 +416,20 @@ void DialogPreferences::dialogaccept()
     opts.obslat = ui->ledLat->text().toDouble();
     opts.obsalt = ui->ledAlt->text().toDouble();
 
-    accept();
+    if(POItablechanged)
+        done(2);
+    else
+        done(QDialog::Accepted);  // value = 1 == accept()
 }
 
 void DialogPreferences::dialogreject()
 {
     qDebug() << "in reject";
-    reject();
+    if(POItablechanged)
+        done(2);
+    else
+        done(QDialog::Rejected); // value = 0 == reject()
+
 }
 
 
