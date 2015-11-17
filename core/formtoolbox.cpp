@@ -320,6 +320,9 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->spbLower->setVisible(false);
     ui->spbUpper->setVisible(false);
 
+    ui->chkShowLambert->setChecked(opts.mapextentlamberton);
+    ui->chkShowPerspective->setChecked(opts.mapextentperspectiveon);
+
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
 
     setToolboxButtons(true);

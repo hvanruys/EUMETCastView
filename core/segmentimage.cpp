@@ -68,14 +68,14 @@ void SegmentImage::CalcSatAngles()
     SigmadistGAC[405] = SigmadistGAC[406] = SigmadistGAC[407] = SigmadistGAC[408] = 0.0;
 
 
-    for(int i = 1; i < 2048; i++)
+    for(int i = 0; i < 2048; i++)
     {
-        fraction[i] = 0;
+        fraction[i] = 0.0;
     }
 
-    for(int i = 1; i < 409; i++)
+    for(int i = 0; i < 409; i++)
     {
-        fractionGAC[i] = 0;
+        fractionGAC[i] = 0.0;
     }
 
     for(int i = 0; i < 102; i++)
@@ -95,8 +95,6 @@ void SegmentImage::CalcSatAngles()
         {
             delta=fabs(SigmadistGAC[4 + i*8] - SigmadistGAC[4 + i*8 + j]);
             fractionGAC[4 + i*8 + j] = delta/totdelta;
-            if(j == 0)
-                fractionGAC[4 + i*8 + j] = 1.0;
         }
     }
     fractionGAC[404] = 1.0;

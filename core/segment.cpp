@@ -871,8 +871,6 @@ void Segment::ComposeSegmentImage()
     quint16 R_value, G_value, B_value;
     bool ok;
 
-
-
     qDebug() << QString("start ComposeSegmentImage startLineNbr = %1 nbr of lines = %2").arg(this->startLineNbr).arg(this->NbrOfLines);
     int startheight = this->startLineNbr;
 
@@ -918,12 +916,13 @@ void Segment::ComposeSegmentImage()
             for( int k = 0; k < 5; k++)
             {
                 pixel[k] = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
+                R_value = imageptrs->lut_ch[k][pixel[k]]/4;
                 if (inverse.at(k) == "1")
-                    row_ch[k][pixelx] = qRgb(255 - (pixel[k]/4), 255 - (pixel[k]/4), 255 - (pixel[k]/4));
+                    //row_ch[k][pixelx] = qRgb(255 - (pixel[k]/4), 255 - (pixel[k]/4), 255 - (pixel[k]/4));
+                    row_ch[k][pixelx] = qRgb(255 - R_value, 255 - R_value, 255 - R_value);
                 else
                 {
                     //row_ch[k][pixelx] = qRgb(pixel[k]/4, pixel[k]/4, pixel[k]/4);
-                    R_value = imageptrs->lut_ch[k][pixel[k]]/4;
                     row_ch[k][pixelx] = qRgb(R_value, R_value, R_value);
                 }
 
@@ -932,8 +931,6 @@ void Segment::ComposeSegmentImage()
             //int B = (int)(imageptrs->lut_ch[0][pixel[0]]/4);
             //int G = (int)(imageptrs->lut_ch[1][pixel[1]]/4);
             //int R = (int)(imageptrs->lut_ch[2][pixel[2]]/4);
-
-
 
             for( int i = 0; i < 5; i++ )
             {

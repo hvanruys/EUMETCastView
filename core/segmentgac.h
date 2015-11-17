@@ -25,7 +25,9 @@ public:
     void ComposeSegmentGVProjection(int inputchannel);
     void ComposeSegmentSGProjection(int inputchannel);
 
-    void RenderSegmentlineInSG( int channel, int nbrLine, int heightintotalimage );
+    void RenderSegmentlineInSG( int channel, int nbrLine, int heightintotalimage);
+    void RenderSegmentlineInGVP( int channel, int nbrLine, int heightintotalimage);
+    void RenderSegmentlineInLCC( int channel, int nbrLine, int heightintotalimage);
 
 
     void initializeProjectionCoord();

@@ -632,13 +632,38 @@ void SegmentGAC::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTo
 
 void SegmentGAC::ComposeSegmentLCCProjection(int inputchannel)
 {
-    ComposeProjection(inputchannel, LCC);
+    qDebug() << QString("ComposeSegmentLCCProjection startLineNbr = %1").arg(this->startLineNbr);
+    int startheight = this->startLineNbr;
+
+    initializeProjectionCoord();
+
+    for (int line = 0; line < this->NbrOfLines; line++)
+    {
+        this->RenderSegmentlineInLCC( (inputchannel == 0 ? 6 : inputchannel), line, startheight + line );
+    }
+
+    QApplication::processEvents();
 }
 
 void SegmentGAC::ComposeSegmentGVProjection(int inputchannel)
 {
-    ComposeProjection(inputchannel, GVP);
+    qDebug() << QString("ComposeSegmentGVProjection startLineNbr = %1").arg(this->startLineNbr);
+    int startheight = this->startLineNbr;
+
+    initializeProjectionCoord();
+
+    for (int line = 0; line < this->NbrOfLines; line++)
+    {
+        this->RenderSegmentlineInGVP( (inputchannel == 0 ? 6 : inputchannel), line, startheight + line );
+    }
+
+    QApplication::processEvents();
 }
+
+//void SegmentGAC::ComposeSegmentGVProjection(int inputchannel)
+//{
+//    ComposeProjection(inputchannel, GVP);
+//}
 
 void SegmentGAC::ComposeSegmentSGProjection(int inputchannel)
 {
@@ -731,8 +756,168 @@ void SegmentGAC::RenderSegmentlineInSG( int channel, int nbrLine, int heightinto
             dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PI/180.0 - earthloc_lat[nbrLine*51 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PI/180.0-earthloc_lon[nbrLine*51 + i+1]*PI/180.0) / 2), 2)));
             for( int j = 0; j < 8 ; j++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PI/180.0, earthloc_lon[nbrLine*51 + i]*PI/180.0, earthloc_lat[nbrLine*51 + i+1]*PI/180.0, earthloc_lon[nbrLine*51 + i+1]*PI/180.0, imageptrs->fractionGAC[5 + i*8 + j], &latpos1, &lonpos1, dtot);
-                if(imageptrs->sg->map_forward(lonpos1, latpos1, map_x, map_y))
+                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PI/180.0, earthloc_lon[nbrLine*51 + i]*PI/180.0, earthloc_lat[nbrLine*51 + i+1]*PI/180.0, earthloc_lon[nbrLine*51 + i+1]*PI/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
+                if(imageptrs->sg->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
+                {
+                    projectionCoordX[nbrLine * 409 + i * 8 + j + 4] = (int)map_x;
+                    projectionCoordY[nbrLine * 409 + i * 8 + j + 4] = (int)map_y;
+
+                    //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                    {
+                        rgbvalue = row_col[4 + i * 8 + j];
+                        if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                        projectionCoordValue[nbrLine * 409 + i * 8 + j + 4] = rgbvalue;
+                    }
+                }
+                else
+                {
+                    projectionCoordX[nbrLine * 409 + i * 8 + j + 4] = 65535;
+                    projectionCoordY[nbrLine * 409 + i * 8 + j + 4] = 65535;
+                    projectionCoordValue[nbrLine * 409 + i * 8 + j + 4] = qRgb(0,0,0);
+                }
+            }
+        }
+    }
+
+    if(nbrLine == 0)
+    {
+        for( int i = 0; i < num_navigation_points-1; i++)
+        {
+            for( int j = 0; j < 8 ; j++ )
+            {
+
+               int mx = projectionCoordX[nbrLine * 409 + i * 8 + j + 4];
+               int my = projectionCoordY[nbrLine * 409 + i * 8 + j + 4];
+
+               qDebug() << QString("index = %1 mx = %2 my = %3").arg(nbrLine * 409 + i * 8 + j + 4).arg(mx).arg(my);
+            }
+        }
+    }
+
+    g_mutex.unlock();
+
+}
+
+void SegmentGAC::RenderSegmentlineInGVP( int channel, int nbrLine, int heightintotalimage )
+{
+
+    double lonpos1, latpos1;
+    double map_x, map_y;
+    double dtot;
+
+    QRgb *row_col;
+    QRgb rgbvalue = qRgb(0,0,0);
+
+    if (channel == 6)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(heightintotalimage);
+    else if (channel == 1)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[0]->scanLine(heightintotalimage);
+    else if (channel == 2)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[1]->scanLine(heightintotalimage);
+    else if (channel == 3)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[2]->scanLine(heightintotalimage);
+    else if (channel == 4)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[3]->scanLine(heightintotalimage);
+    else if (channel == 5)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
+
+    g_mutex.lock();
+
+    /*    from pt 5 --> pt 405
+        = 5 + 8 * 50 total of 51 pts
+        to = 5 + 8 * 50 + 4 = 409
+    */
+
+    if(num_navigation_points == 51)
+    {
+        for( int i = 0; i < num_navigation_points-1; i++)
+        {
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PI/180.0 - earthloc_lat[nbrLine*51 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PI/180.0-earthloc_lon[nbrLine*51 + i+1]*PI/180.0) / 2), 2)));
+            for( int j = 0; j < 8 ; j++ )
+            {
+                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PI/180.0, earthloc_lon[nbrLine*51 + i]*PI/180.0, earthloc_lat[nbrLine*51 + i+1]*PI/180.0, earthloc_lon[nbrLine*51 + i+1]*PI/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
+                if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
+                {
+                    projectionCoordX[nbrLine * 409 + i * 8 + j + 4] = (int)map_x;
+                    projectionCoordY[nbrLine * 409 + i * 8 + j + 4] = (int)map_y;
+
+                    //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                    {
+                        rgbvalue = row_col[4 + i * 8 + j];
+                        if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                        projectionCoordValue[nbrLine * 409 + i * 8 + j + 4] = rgbvalue;
+                    }
+                }
+                else
+                {
+                    projectionCoordX[nbrLine * 409 + i * 8 + j + 4] = 65535;
+                    projectionCoordY[nbrLine * 409 + i * 8 + j + 4] = 65535;
+                    projectionCoordValue[nbrLine * 409 + i * 8 + j + 4] = qRgb(0,0,0);
+                }
+            }
+        }
+    }
+
+    if(nbrLine == 0)
+    {
+        for( int i = 0; i < num_navigation_points-1; i++)
+        {
+            for( int j = 0; j < 8 ; j++ )
+            {
+
+               int mx = projectionCoordX[nbrLine * 409 + i * 8 + j + 4];
+               int my = projectionCoordY[nbrLine * 409 + i * 8 + j + 4];
+
+               qDebug() << QString("index = %1 mx = %2 my = %3").arg(nbrLine * 409 + i * 8 + j + 4).arg(mx).arg(my);
+            }
+        }
+    }
+
+    g_mutex.unlock();
+
+}
+
+void SegmentGAC::RenderSegmentlineInLCC( int channel, int nbrLine, int heightintotalimage )
+{
+
+    double lonpos1, latpos1;
+    double map_x, map_y;
+    double dtot;
+
+    QRgb *row_col;
+    QRgb rgbvalue = qRgb(0,0,0);
+
+    if (channel == 6)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(heightintotalimage);
+    else if (channel == 1)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[0]->scanLine(heightintotalimage);
+    else if (channel == 2)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[1]->scanLine(heightintotalimage);
+    else if (channel == 3)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[2]->scanLine(heightintotalimage);
+    else if (channel == 4)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[3]->scanLine(heightintotalimage);
+    else if (channel == 5)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
+
+    g_mutex.lock();
+
+    /*    from pt 5 --> pt 405
+        = 5 + 8 * 50 total of 51 pts
+        to = 5 + 8 * 50 + 4 = 409
+    */
+
+    if(num_navigation_points == 51)
+    {
+        for( int i = 0; i < num_navigation_points-1; i++)
+        {
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PI/180.0 - earthloc_lat[nbrLine*51 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PI/180.0-earthloc_lon[nbrLine*51 + i+1]*PI/180.0) / 2), 2)));
+            for( int j = 0; j < 8 ; j++ )
+            {
+                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PI/180.0, earthloc_lon[nbrLine*51 + i]*PI/180.0, earthloc_lat[nbrLine*51 + i+1]*PI/180.0, earthloc_lon[nbrLine*51 + i+1]*PI/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
+                if(imageptrs->lcc->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 409 + i * 8 + j + 4] = (int)map_x;
                     projectionCoordY[nbrLine * 409 + i * 8 + j + 4] = (int)map_y;
@@ -848,7 +1033,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
 
         if(proj == LCC)
         {
-            if(imageptrs->lcc->map_forward(lonpos1, latpos1, map_x, map_y))
+            if(imageptrs->lcc->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
             {
                 projectionCoordX[nbrLine * 409 + (earth_views_per_scanline/2)+pix] = (int)map_x;
                 projectionCoordY[nbrLine * 409 + (earth_views_per_scanline/2)+pix] = (int)map_y;
@@ -858,7 +1043,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
                     imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1);
             }
 
-            if(imageptrs->lcc->map_forward(lonpos2, latpos2, map_x, map_y))
+            if(imageptrs->lcc->map_forward_neg_coord(lonpos2, latpos2, map_x, map_y))
             {
                 projectionCoordX[nbrLine * 409 + (earth_views_per_scanline/2)-pix] = (int)map_x;
                 projectionCoordY[nbrLine * 409 + (earth_views_per_scanline/2)-pix] = (int)map_y;
@@ -870,7 +1055,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
         }
         else if(proj == GVP)
         {
-            if(imageptrs->gvp->map_forward(lonpos1, latpos1, map_x, map_y))
+            if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
             {
                 projectionCoordX[nbrLine * 409 + (earth_views_per_scanline/2)+pix] = (int)map_x;
                 projectionCoordY[nbrLine * 409 + (earth_views_per_scanline/2)+pix] = (int)map_y;
@@ -880,7 +1065,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
                     imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1);
             }
 
-            if(imageptrs->gvp->map_forward(lonpos2, latpos2, map_x, map_y))
+            if(imageptrs->gvp->map_forward_neg_coord(lonpos2, latpos2, map_x, map_y))
             {
                 projectionCoordX[nbrLine * 409 + (earth_views_per_scanline/2)-pix] = (int)map_x;
                 projectionCoordY[nbrLine * 409 + (earth_views_per_scanline/2)-pix] = (int)map_y;
@@ -893,7 +1078,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
         }
         else if(proj == SG)
         {
-            if(imageptrs->sg->map_forward(lonpos1, latpos1, map_x, map_y))
+            if(imageptrs->sg->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
             {
                 projectionCoordX[nbrLine * 409 + (earth_views_per_scanline/2)+pix] = (int)map_x;
                 projectionCoordY[nbrLine * 409 + (earth_views_per_scanline/2)+pix] = (int)map_y;
@@ -903,7 +1088,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
                     imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1);
             }
 
-            if(imageptrs->sg->map_forward(lonpos2, latpos2, map_x, map_y))
+            if(imageptrs->sg->map_forward_neg_coord(lonpos2, latpos2, map_x, map_y))
             {
                 projectionCoordX[nbrLine * 409 + (earth_views_per_scanline/2)-pix] = (int)map_x;
                 projectionCoordY[nbrLine * 409 + (earth_views_per_scanline/2)-pix] = (int)map_y;
