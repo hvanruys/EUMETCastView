@@ -43,7 +43,7 @@ SegmentListVIIRSDNB::SegmentListVIIRSDNB(SatelliteList *satl, QObject *parent, e
     segtype = type;
 
     earthviews = 4064;
-
+    moonillumination = 0.0;
 
 }
 
@@ -286,17 +286,25 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     float lowerlimit = pow(10, opts.dnbsbvalue/20.0)/pow(10, opts.dnbspbwindowsvalue);
     float upperlimit = pow(10, opts.dnbsbvalue/20.0)*pow(10, opts.dnbspbwindowsvalue);
 
+    int count = 0;
+    float totillum = 0;
+
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
 
         segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
+        totillum += segm->MoonIllumFraction;
+        count++;
 
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
         ++segsel;
     }
+
+    moonillumination = totillum/count;
+
     qDebug() << " SegmentListVIIRS::ComposeVIIRSDNBImageInThread Finished !!";
 
     QApplication::restoreOverrideCursor();
@@ -622,24 +630,25 @@ bool SegmentListVIIRS::ShowImage(QList<bool> bandlist, QList<int> colorlist)
 
 #endif
 
-float SegmentListVIIRSDNB::getMoonIllumination()
-{
-    qDebug() << "SegmentListVIIRSDNB::getMoonIllumination()";
-    int count = 0;
-    float totillum = 0;
+//float SegmentListVIIRSDNB::getMoonIllumination()
+//{
+//    qDebug() << "SegmentListVIIRSDNB::getMoonIllumination()";
+//    int count = 0;
+//    float totillum = 0;
 
-    QList<Segment *>::iterator segsel = segsselected.begin();
-    while ( segsel != segsselected.end() )
-    {
-        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
-        totillum += segm->MoonIllumFraction;
-        count++;
-        ++segsel;
-    }
+//    QList<Segment *>::iterator segsel = segsselected.begin();
+//    while ( segsel != segsselected.end() )
+//    {
+//        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+//        totillum += segm->MoonIllumFraction;
+//        count++;
+//        ++segsel;
+//    }
 
-    return totillum/count;
+//    return totillum/count;
 
-}
+//}
+
 
 void SegmentListVIIRSDNB::finishedviirs()
 {

@@ -552,11 +552,7 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, int nbrLine, 
                 }
             }
         }
-
-
     }
-
-
 }
 
 //void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_first, double lon_first, double lat_last, double lon_last, double altitude, eProjections proj)

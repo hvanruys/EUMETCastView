@@ -118,7 +118,6 @@ HEADERS  += mainwindow.h \
     texturewriter.h \
     sgp4sdp4.h \
     stdafx.h \
-    stb_image.h \
     qcompressor.h \
     segmentviirsm.h \
     segmentviirsdnb.h \

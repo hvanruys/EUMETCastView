@@ -196,6 +196,7 @@ private slots:
     void on_chkGVPGridOnProj_clicked();
     void on_chkSGGridOnProj_clicked();
     void on_btnAddPOI_clicked();
+    void on_spbDnbWindow_editingFinished();
 };
 
 #endif // FORMTOOLBOX_H

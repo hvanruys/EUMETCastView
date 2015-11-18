@@ -3250,8 +3250,12 @@ void FormToolbox::on_sbCentreBand_valueChanged(int value)
 
 void FormToolbox::on_spbDnbWindow_valueChanged(int arg1)
 {
+    if(opts.dnbspbwindowsvalue == arg1)
+        return;
+    ui->spbDnbWindow->blockSignals(true);
     qDebug() << QString("---->on_spbDnbWindow_valueChanged(int arg1) arg1 = %1").arg(arg1);
     segs->seglviirsdnb->spbWindowValueChanged(arg1, ui->sbCentreBand->value());
+    ui->spbDnbWindow->blockSignals(false);
 }
 
 
@@ -3503,5 +3507,13 @@ void FormToolbox::on_btnAddPOI_clicked()
     ui->comboPOI->blockSignals(false);
 
     ui->lePOI->setText("");
+
+}
+
+
+
+void FormToolbox::on_spbDnbWindow_editingFinished()
+{
+    qDebug() << "FormToolbox::on_spbDnbWindow_editingFinished()";
 
 }

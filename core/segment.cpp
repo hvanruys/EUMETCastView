@@ -407,9 +407,6 @@ void Segment::RenderPosition(QPainter *painter)
     qsgp4->getPosition(minutes_since_state_vector, qeci);
     QGeodetic qgeo = qeci.ToGeo();
 
-
-    //orbit->getPosition(minutes_since_state_vector, &eci);
-    //geo = eci.toGeo();
     double lon_1 = qgeo.longitude;
     double lat_1 = qgeo.latitude;
     double alt_1 = qgeo.altitude;
@@ -486,10 +483,7 @@ int Segment::pnpoly(int nvert, QPoint points[], int testx, int testy)
 bool Segment::ToggleSelected()
 {
     if (this->segmentselected)
-    {
         this->segmentselected = false;
-        //this->image_ready = false;
-    }
     else
         this->segmentselected = true;
     return this->segmentselected;
@@ -657,14 +651,6 @@ void Segment::NormalizeSegment()
 
 //    //qDebug() << QString("lon_first = %1 ; lat_first = %2 ; posx = %3 ; posy = %4").arg(lon_first).arg(lat_first).arg(posx).arg(posy);
 //}
-
-/*
-void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine )
-{
-
-}
-*/
-
 
 void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine )
 {
@@ -980,11 +966,7 @@ void Segment::ComposeSegmentImage()
         }
     }
 
-    //this->setImageReady();
     qDebug() << QString("--> na ComposeSegmentImage startLineNbr = %1 nbr of lines = %2 segshow = %3").arg(this->startLineNbr).arg(this->NbrOfLines).arg(this->segmentshow);
-
-    //emit segmentimagecomposed();
-
 
 }
 

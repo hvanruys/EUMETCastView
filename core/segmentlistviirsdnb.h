@@ -26,7 +26,7 @@ public:
     //static void doComposeProjection(Segment *t);
     void sliderCentreBandChanged(int val);
     void spbWindowValueChanged(int spbwindowval, int slcentreband);
-    float getMoonIllumination();
+    float getMoonIllumination() { return moonillumination; }
 
 private:
     void CalculateLUT();
@@ -38,6 +38,7 @@ private:
     int earthviews;
     float stat_max_dnb;
     float stat_min_dnb;
+    float moonillumination;
 
 
 protected:
