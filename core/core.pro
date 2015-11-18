@@ -123,7 +123,8 @@ HEADERS  += mainwindow.h \
     segmentviirsdnb.h \
     segmentlistviirsdnb.h \
     segmentlistviirsm.h \
-    poi.h
+    poi.h \
+    stb_image.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
