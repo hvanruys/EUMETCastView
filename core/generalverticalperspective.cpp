@@ -118,7 +118,7 @@ void GeneralVerticalPerspective::CreateMapFromAVHRR(int inputchannel, eSegmentTy
 
 }
 
-void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type)
+void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool combine)
 {
     if (type == SEG_VIIRSM)
         segs->seglviirsm->ComposeGVProjection(0);
@@ -130,9 +130,9 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type)
     else if(opts.smoothprojectiontype == 2)
     {
         if (type == SEG_VIIRSM)
-            segs->seglviirsm->SmoothVIIRSImage();
+            segs->seglviirsm->SmoothVIIRSImage(combine);
         else if( type == SEG_VIIRSDNB)
-            segs->seglviirsdnb->SmoothVIIRSImage();
+            segs->seglviirsdnb->SmoothVIIRSImage(combine);
     }
 }
 

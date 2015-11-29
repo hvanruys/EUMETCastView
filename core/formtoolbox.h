@@ -29,13 +29,16 @@ class FormToolbox : public QWidget
 public:
     explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, AVHRRSatellite *seglist = 0);
     int getTabWidgetIndex();
+    int getTabWidgetVIIRSIndex();
+
     QList<bool> getVIIRSBandList();
     QList<int> getVIIRSColorList();
     QList<bool> getVIIRSInvertList();
     void setTabWidgetIndex(int index);
     void setTabWidgetVIIRSIndex(int index);
     void writeInfoToAVHRR(QString info);
-    void writeInfoToVIIRS(QString info);
+    void writeInfoToVIIRSM(QString info);
+    void writeInfoToVIIRSDNB(QString info);
     void writeInfoToGeo(QString info);
     void createFilenamestring(QString sat, QString d, QVector<QString> spectrum);
     QString returnFilenamestring() { return filenamecreated; }
@@ -45,6 +48,8 @@ public:
     bool GridOnProjGVP();
     bool GridOnProjSG();
     void setPOIsettings();
+    void setMConfigsettings();
+
 
 
     ~FormToolbox();
@@ -56,7 +61,6 @@ private:
 
     void setupChannelCombo();
     void setInverseCheckBoxes();
-    void setParameters();
     void onButtonChannel(QString channel, bool bInverse);
     void onButtonColorHRV(QString type);
     bool eventFilter(QObject *target, QEvent *event);
@@ -64,6 +68,9 @@ private:
     void setLCCParameters(int strlindex);
     void setGVPParameters(int strlindex);
     void setSGParameters(int strlindex);
+    void setConfigMParameters(int strlindex);
+    void setRadioButtonsMToFalse();
+
 
     AVHRRSatellite *segs;
 
@@ -159,8 +166,6 @@ private slots:
     void on_btnLCCMapSouth_clicked();
     void on_btnLCCMapWest_clicked();
     void on_btnLCCMapEast_clicked();
-//    void on_scbLCCMapUpDown_valueChanged(int value);
-//    void on_scbLCCMapLeftRight_valueChanged(int value);
     void on_spbSGlat_valueChanged(double arg1);
     void on_spbSGlon_valueChanged(double arg1);
     void on_spbSGScale_valueChanged(double arg1);
@@ -175,8 +180,6 @@ private slots:
     void on_btnOverlayProjectionSG_clicked();
     void on_spbLCCCorrX_valueChanged(int arg1);
     void on_spbLCCCorrY_valueChanged(int arg1);
-    void on_btnSetTrueColors_clicked();
-    void on_btnSetNaturalColors_clicked();
     void on_btnMakeVIIRSImage_clicked();
     void on_rbtnAColor_clicked();
     void on_rbtnACh1_clicked();
@@ -196,7 +199,11 @@ private slots:
     void on_chkGVPGridOnProj_clicked();
     void on_chkSGGridOnProj_clicked();
     void on_btnAddPOI_clicked();
-    void on_spbDnbWindow_editingFinished();
+
+    void on_comboMConfig_currentIndexChanged(int index);
+    void on_btnAddMConfig_clicked();
+
+    void on_tabWidgetVIIRS_currentChanged(int index);
 };
 
 #endif // FORMTOOLBOX_H

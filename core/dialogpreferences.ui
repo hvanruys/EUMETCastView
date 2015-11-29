@@ -72,7 +72,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/satellite.jpg</normaloff>:/icons/icons/satellite.jpg</iconset>
+          <normaloff>:/icons/icons/home-mdk.png</normaloff>:/icons/icons/home-mdk.png</iconset>
         </property>
        </item>
        <item>
@@ -108,12 +108,21 @@
           <normaloff>:/icons/icons/image.png</normaloff>:/icons/icons/image.png</iconset>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>VIIRS M Config</string>
+        </property>
+        <property name="icon">
+         <iconset resource="EUMETCastView.qrc">
+          <normaloff>:/icons/icons/satellite.jpg</normaloff>:/icons/icons/satellite.jpg</iconset>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>6</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -791,9 +800,9 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_12">
            <item>
-            <widget class="QLabel" name="label_11">
+            <widget class="QCheckBox" name="chkWindowVectors">
              <property name="text">
-              <string/>
+              <string>Window Vectors (for testing)</string>
              </property>
             </widget>
            </item>
@@ -1497,6 +1506,64 @@
             </item>
            </layout>
           </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page">
+        <layout class="QVBoxLayout" name="verticalLayout_15">
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Band = Nbr of the channel ( 0 =  Color)     M1, M2, ...,M16 combobox index (1 = R, 2 = G, 3 = B)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTableView" name="tbvVIIRSMConfig"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_15">
+           <item>
+            <spacer name="horizontalSpacer_11">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnAddMConfig">
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnDeleteMConfig">
+             <property name="text">
+              <string>Delete</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_12">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
         </layout>
        </widget>

@@ -181,6 +181,7 @@ Segment *SegmentNoaa::ReadSegmentInMemory()
     f = fopen ( this->fileInfo.absoluteFilePath().toLatin1(), "rb" );
     if ( !f ) {
         qDebug() << QString("file %1 not found ! ").arg(this->fileInfo.absoluteFilePath());
+        segmentok = false;
         return this;
     }
 
@@ -188,6 +189,7 @@ Segment *SegmentNoaa::ReadSegmentInMemory()
 
     if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
     {
+        segmentok = false;
         qDebug() << "error in BZ2_bzopen";
     }
 

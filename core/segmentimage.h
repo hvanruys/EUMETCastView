@@ -45,10 +45,12 @@ public:
     QImage *ptrimagecomp_ch[5];
     QImage *ptrimagecomp_col;
     QImage *ptrexpand_col;
-    QImage *ptrimageViirs;
+    QImage *ptrimageViirsM;
+    QImage *ptrimageViirsDNB;
 
     QImage *ptrimageGeostationary;
     QImage *ptrimageProjection;
+    QImage *ptrimageProjectionCopy;
 
     QPixmap *pmOriginal;
     QPixmap *pmOut;
@@ -59,7 +61,6 @@ public:
     LambertConformalConic *lcc;
     StereoGraphic *sg;
 
-    unsigned long segment_stats_ch[5][1024];
     quint16 lut_ch[5][1024];
     int stat_max_ch[5];
     int stat_min_ch[5];

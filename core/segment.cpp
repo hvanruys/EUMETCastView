@@ -49,7 +49,6 @@ Segment::Segment(QObject *parent) :
 
     segmentselected = false;
     segmentshow = false;
-
 }
 
 
@@ -781,7 +780,9 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
     else if (channel == 6)
         row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(heightintotalimage);
     else if (channel == 10)
-        row_col = (QRgb*)imageptrs->ptrimageViirs->scanLine(heightintotalimage);
+        row_col = (QRgb*)imageptrs->ptrimageViirsM->scanLine(heightintotalimage);
+    else if (channel == 11)
+        row_col = (QRgb*)imageptrs->ptrimageViirsDNB->scanLine(heightintotalimage);
 
 
     QColor rgb;
@@ -1044,6 +1045,11 @@ void Segment::ComposeSegmentLCCProjection(int inputchannel)
 }
 
 void Segment::ComposeSegmentSGProjection(int inputchannel)
+{
+
+}
+
+void Segment::RecalculateProjection()
 {
 
 }

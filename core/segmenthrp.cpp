@@ -26,6 +26,7 @@ SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent)
     bool ok;
     satlist = satl;
     fileInfo.setFile(*filesegment);
+    segtype = eSegmentType::SEG_HRP;
     segment_type = "HRP";
 
     this->satname = fileInfo.baseName().mid(12, 3);

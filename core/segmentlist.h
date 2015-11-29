@@ -37,7 +37,6 @@ public:
     void GetFirstLastVisible( double *first_julian,  double *last_julian);
     void GetFirstLastVisible( QDateTime *first_date,  QDateTime *last_date);
     void GetFirstLastVisibleFilename( QString *first_filename,  QString *last_filename);
-    //virtual void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
     void RenderEarthLocationsGL();
     void ShowSegment(int value);
     bool TestForSegmentGL(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
@@ -59,11 +58,11 @@ public:
     static void doComposeGVProjection(Segment *t);
 
 protected:
-    void BilinearInterpolation(Segment *segm);
-    void BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext);
+    void BilinearInterpolation(Segment *segm, bool combine);
+    void BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext, bool combine);
     bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
     void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
-    void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy);
+    void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine);
 
     double cubicInterpolate (double p[4], double x);
     double bicubicInterpolate (double p[4][4], double x, double y);
@@ -76,7 +75,7 @@ protected:
     int indexlastvisible;
 
     QString segmenttype;
-    eSegmentType segtype;
+    eSegmentType seglisttype;
 
     QString directoryname;
     long TotalSegmentsInDirectory;

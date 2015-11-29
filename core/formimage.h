@@ -27,13 +27,11 @@ public:
     void CLAHEprojection();
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayProjection(QPainter *paint,  SegmentListGeostationary *sl);
-    void OverlayNoaaImage(QPainter *paint,  SegmentListNoaa *sl);
     bool getOverlayMeteosat() { return overlaymeteosat; }
     bool getOverlayProjection() { return overlayprojection; }
     bool toggleOverlayMeteosat();
     bool toggleOverlayProjection();
     void SetFormToolbox(FormToolbox *ptr) { formtoolbox = ptr; }
-
 
     void displayImage(int channel);
     void test();

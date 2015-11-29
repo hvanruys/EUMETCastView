@@ -12,7 +12,6 @@ class SegmentListMetop : public SegmentList
 
 public:
     explicit SegmentListMetop(QObject *parent = 0);
-    void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
     bool GetGeoLocation(double lon_rad, double lat_rad, int *x, int *y);
 
 };

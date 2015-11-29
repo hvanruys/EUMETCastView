@@ -21,7 +21,9 @@ SegmentImage::SegmentImage()
     ptrimageGeostationary = new QImage(3712, 3712, QImage::Format_ARGB32);
     ptrimageGeostationary->fill(Qt::black);
     ptrimageProjection = new QImage();
-    ptrimageViirs = new QImage();
+    ptrimageViirsM = new QImage();
+    ptrimageViirsDNB = new QImage();
+    ptrimageProjectionCopy = new QImage();
 
     CalcSatAngles();
 
@@ -137,7 +139,7 @@ void SegmentImage::DeleteImagePtrs()
         }
     }
 
-        if(ptrimagecomp_col != NULL)
+    if(ptrimagecomp_col != NULL)
     {
         delete ptrimagecomp_col;
         ptrimagecomp_col = NULL;
@@ -161,10 +163,22 @@ void SegmentImage::DeleteImagePtrs()
         ptrimageProjection = NULL;
     }
 
-    if(ptrimageViirs != NULL)
+    if(ptrimageProjectionCopy != NULL)
     {
-        delete ptrimageViirs;
-        ptrimageViirs = NULL;
+        delete ptrimageProjectionCopy;
+        ptrimageProjectionCopy = NULL;
+    }
+
+    if(ptrimageViirsM != NULL)
+    {
+        delete ptrimageViirsM;
+        ptrimageViirsM = NULL;
+    }
+
+    if(ptrimageViirsDNB != NULL)
+    {
+        delete ptrimageViirsDNB;
+        ptrimageViirsDNB = NULL;
     }
 
     ResetPtrImage();

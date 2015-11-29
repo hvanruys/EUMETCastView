@@ -25,11 +25,17 @@ public:
     void ComposeSegmentSGProjection(int inputchannel);
     void ComposeProjection(eProjections proj);
     //void ComposeProjectionConcurrent();
+    void RecalculateProjection();
 
+    void recalculateStatsInProjection();
     QString getDatasetNameFromBand();
     QString getDatasetNameFromColor(int colorindex);
     bool composeColorImage();
     int threshold[3];
+    int stat_max_projection[3];
+    int stat_min_projection[3];
+    long active_pixels_projection;
+
 
 private:
 
@@ -66,6 +72,7 @@ private:
     float lonMax;
     float latMin;
     float lonMin;
+
 
     bool invertthissegment[3];
 

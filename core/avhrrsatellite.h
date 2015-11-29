@@ -48,6 +48,7 @@ public:
     void RemoveAllSelectedAVHRR();
     void RemoveAllSelectedVIIRSM();
     void RemoveAllSelectedVIIRSDNB();
+
     QString GetOverviewSegments();
     QStringList GetOverviewSegmentsMetop();
     QStringList GetOverviewSegmentsNoaa();
@@ -78,13 +79,6 @@ public:
     SegmentListGAC *seglgac;
     SegmentListVIIRSM *seglviirsm;
     SegmentListVIIRSDNB *seglviirsdnb;
-
-    SegmentList *segmentlistnoaa;
-    SegmentList *segmentlisthrp;
-    SegmentList *segmentlistgac;
-    SegmentList *segmentlistmetop;
-    SegmentListVIIRSM *segmentlistviirsm;
-    SegmentListVIIRSDNB *segmentlistviirsdnb;
 
     SegmentListGeostationary *seglmeteosat;
     SegmentListGeostationary *seglmeteosatrss;
@@ -127,6 +121,7 @@ private:
     long countgac;
     long countviirsm;
     long countviirsdnb;
+    long countviirsmdnb;
     bool showallsegments;
 
 

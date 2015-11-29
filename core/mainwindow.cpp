@@ -414,6 +414,7 @@ void MainWindow::on_actionImage_triggered()
 {
     ui->stackedWidget->setCurrentIndex(3);
     int index = formtoolbox->getTabWidgetIndex();
+    int indexviirs = formtoolbox->getTabWidgetVIIRSIndex();
 
     qDebug() << " MainWindow::on_actionImage_triggered() index = " << index;
     if(index == -1)
@@ -421,7 +422,12 @@ void MainWindow::on_actionImage_triggered()
     else if(index == 0)
         formimage->displayImage(6); // AVHRR Color image
     else if(index == 1)
-        formimage->displayImage(10); //VIIRS image
+    {
+        if(indexviirs == 0)
+            formimage->displayImage(10); //VIIRSM image
+        else
+            formimage->displayImage(11); //VIIRSDNB image
+    }
     else if(index == 2)
         formimage->displayImage(8); //Geostationary image
     else

@@ -67,7 +67,9 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     if(opts.lastinputprojection == 0)
         ui->rdbAVHRRin->setChecked(true);
     else if(opts.lastinputprojection == 1)
-        ui->rdbVIIRSin->setChecked(true);
+        ui->rdbVIIRSMin->setChecked(true);
+    else if(opts.lastinputprojection == 2)
+        ui->rdbVIIRSDNBin->setChecked(true);
     else
         ui->rdbMeteosatin->setChecked(true);
 
@@ -99,6 +101,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     inversevector.append(false);
 
     ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
+    ui->tabWidgetVIIRS->setCurrentIndex(0); // VIIRSM
 
     QStringList listResolution;
     listResolution << "User defined";
@@ -173,6 +176,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->pbProgress->setMaximum(100);
 
     setPOIsettings();
+    setMConfigsettings();
+
 
     qDebug() << QString("Setting currenttoolbox = %1").arg(opts.currenttoolbox);
     ui->toolBox->setCurrentIndex(opts.currenttoolbox); // in projection tab LCC GVP or SG
@@ -208,41 +213,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblTitleCentreBand->setText(QString("Centre Band from %1 to %2 [W/cm² sr]").arg(fval/pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2).arg(fval*pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2));
 
 
-    if(opts.lastVIIRSband == 0)
-        ui->rbColorVIIRS->setChecked(true);
-    else if(opts.lastVIIRSband == 1)
-        ui->rbM1->setChecked(true);
-    else if(opts.lastVIIRSband == 2)
-        ui->rbM2->setChecked(true);
-    else if(opts.lastVIIRSband == 3)
-        ui->rbM3->setChecked(true);
-    else if(opts.lastVIIRSband == 4)
-        ui->rbM4->setChecked(true);
-    else if(opts.lastVIIRSband == 5)
-        ui->rbM5->setChecked(true);
-    else if(opts.lastVIIRSband == 6)
-        ui->rbM6->setChecked(true);
-    else if(opts.lastVIIRSband == 7)
-        ui->rbM7->setChecked(true);
-    else if(opts.lastVIIRSband == 8)
-        ui->rbM8->setChecked(true);
-    else if(opts.lastVIIRSband == 9)
-        ui->rbM9->setChecked(true);
-    else if(opts.lastVIIRSband == 10)
-        ui->rbM10->setChecked(true);
-    else if(opts.lastVIIRSband == 11)
-        ui->rbM11->setChecked(true);
-    else if(opts.lastVIIRSband == 12)
-        ui->rbM12->setChecked(true);
-    else if(opts.lastVIIRSband == 13)
-        ui->rbM13->setChecked(true);
-    else if(opts.lastVIIRSband == 14)
-        ui->rbM14->setChecked(true);
-    else if(opts.lastVIIRSband == 15)
-        ui->rbM15->setChecked(true);
-    else if(opts.lastVIIRSband == 16)
-        ui->rbM16->setChecked(true);
-
 
     ui->comboMet006->setCurrentIndex(opts.lastcomboMet006);
     ui->comboMet008->setCurrentIndex(opts.lastcomboMet008);
@@ -268,39 +238,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->chkInverseIR_120->setChecked(opts.lastinverseMet120);
     ui->chkInverseIR_134->setChecked(opts.lastinverseMet134);
 
-    ui->comboM1->setCurrentIndex(opts.lastcomboM1);
-    ui->comboM2->setCurrentIndex(opts.lastcomboM2);
-    ui->comboM3->setCurrentIndex(opts.lastcomboM3);
-    ui->comboM4->setCurrentIndex(opts.lastcomboM4);
-    ui->comboM5->setCurrentIndex(opts.lastcomboM5);
-    ui->comboM6->setCurrentIndex(opts.lastcomboM6);
-    ui->comboM7->setCurrentIndex(opts.lastcomboM7);
-    ui->comboM8->setCurrentIndex(opts.lastcomboM8);
-    ui->comboM9->setCurrentIndex(opts.lastcomboM9);
-    ui->comboM10->setCurrentIndex(opts.lastcomboM10);
-    ui->comboM11->setCurrentIndex(opts.lastcomboM11);
-    ui->comboM12->setCurrentIndex(opts.lastcomboM12);
-    ui->comboM13->setCurrentIndex(opts.lastcomboM13);
-    ui->comboM14->setCurrentIndex(opts.lastcomboM14);
-    ui->comboM15->setCurrentIndex(opts.lastcomboM15);
-    ui->comboM16->setCurrentIndex(opts.lastcomboM16);
-
-    ui->chkInverseM1->setChecked(opts.lastinverseM1);
-    ui->chkInverseM2->setChecked(opts.lastinverseM2);
-    ui->chkInverseM3->setChecked(opts.lastinverseM3);
-    ui->chkInverseM4->setChecked(opts.lastinverseM4);
-    ui->chkInverseM5->setChecked(opts.lastinverseM5);
-    ui->chkInverseM6->setChecked(opts.lastinverseM6);
-    ui->chkInverseM7->setChecked(opts.lastinverseM7);
-    ui->chkInverseM8->setChecked(opts.lastinverseM8);
-    ui->chkInverseM9->setChecked(opts.lastinverseM9);
-    ui->chkInverseM10->setChecked(opts.lastinverseM10);
-    ui->chkInverseM11->setChecked(opts.lastinverseM11);
-    ui->chkInverseM12->setChecked(opts.lastinverseM12);
-    ui->chkInverseM13->setChecked(opts.lastinverseM13);
-    ui->chkInverseM14->setChecked(opts.lastinverseM14);
-    ui->chkInverseM15->setChecked(opts.lastinverseM15);
-    ui->chkInverseM16->setChecked(opts.lastinverseM16);
 
     ui->lblGeo1->setText("0.635");
     ui->lblGeo2->setText("0.81");
@@ -354,16 +291,36 @@ void FormToolbox::setPOIsettings()
     on_comboPOI_currentIndexChanged(0);
 }
 
+void FormToolbox::setMConfigsettings()
+{
+    qDebug() << "FormToolbox::setMConfigsettings()";
+
+    ui->comboMConfig->blockSignals(true);
+    ui->comboMConfig->clear();
+
+    ui->comboMConfig->addItems(poi.strlConfigNameM);
+
+    setConfigMParameters(0);
+
+    ui->comboMConfig->blockSignals(false);
+}
+
 void FormToolbox::writeInfoToAVHRR(QString info)
 {
     ui->teAVHRR->clear();
     ui->teAVHRR->append(info);
 }
 
-void FormToolbox::writeInfoToVIIRS(QString info)
+void FormToolbox::writeInfoToVIIRSM(QString info)
 {
-    ui->teVIIRS->clear();
-    ui->teVIIRS->append(info);
+    ui->teVIIRSM->clear();
+    ui->teVIIRSM->append(info);
+}
+
+void FormToolbox::writeInfoToVIIRSDNB(QString info)
+{
+    ui->teVIIRSDNB->clear();
+    ui->teVIIRSDNB->append(info);
 }
 
 void FormToolbox::writeInfoToGeo(QString info)
@@ -685,69 +642,6 @@ QList<bool> FormToolbox::getVIIRSInvertList()
     return(viirslist);
 }
 
-//void FormToolbox::setParameters()
-//{
-//    qDebug() << "FormToolbox::setParameters()";
-
-//    ui->spbParallel1->blockSignals(true);
-//    ui->spbParallel2->blockSignals(true);
-//    ui->spbCentral->blockSignals(true);
-//    ui->spbLatOrigin->blockSignals(true);
-
-//    ui->spbParallel1->setValue(opts.parallel1);
-//    ui->spbParallel2->setValue(opts.parallel2);
-//    ui->spbCentral->setValue(opts.centralmeridian);
-//    ui->spbLatOrigin->setValue(opts.latitudeoforigin);
-
-//    ui->spbParallel1->blockSignals(false);
-//    ui->spbParallel2->blockSignals(false);
-//    ui->spbCentral->blockSignals(false);
-//    ui->spbLatOrigin->blockSignals(false);
-
-//    ui->spbNorth->blockSignals(true);
-//    ui->spbSouth->blockSignals(true);
-//    ui->spbEast->blockSignals(true);
-//    ui->spbWest->blockSignals(true);
-
-//    ui->spbNorth->setValue(opts.mapextentnorth);
-//    ui->spbSouth->setValue(opts.mapextentsouth);
-//    ui->spbWest->setValue(opts.mapextentwest);
-//    ui->spbEast->setValue(opts.mapextenteast);
-
-//    ui->spbNorth->blockSignals(false);
-//    ui->spbSouth->blockSignals(false);
-//    ui->spbEast->blockSignals(false);
-//    ui->spbWest->blockSignals(false);
-
-//    qDebug() << QString("setParameters() north = %1").arg(ui->spbNorth->value());
-//    qDebug() << QString("setParameters() south = %1").arg(ui->spbSouth->value());
-//    qDebug() << QString("setParameters() west = %1").arg(ui->spbWest->value());
-//    qDebug() << QString("setParameters() east = %1").arg(ui->spbEast->value());
-
-//    ui->chkShowLambert->setChecked(opts.mapextentlamberton);
-//    ui->chkShowPerspective->setChecked(opts.mapextentperspectiveon);
-//    ui->spbMapHeight->setValue(opts.mapheight);
-//    ui->spbMapWidth->setValue(opts.mapwidth);
-
-//    ui->cbProjResolutions->setCurrentIndex(searchResolution(opts.mapwidth, opts.mapheight));
-
-//    ui->spbGVPlon->setValue(opts.mapgvplon);
-//    ui->spbGVPlat->setValue(opts.mapgvplat);
-//    ui->spbGVPheight->setValue(opts.mapgvpheight);
-//    ui->spbGVPscale->setValue(opts.mapgvpscale);
-//    ui->spbScaleX->setValue(opts.maplccscalex);
-//    ui->spbScaleY->setValue(opts.maplccscaley);
-//    ui->spbMeteosatGamma->setValue(opts.meteosatgamma);
-//    int val = opts.meteosatgamma * 100;
-//    ui->sliMeteosatGamma->setValue(val);
-//    ui->spbSGlat->setValue(opts.mapsglat);
-//    ui->spbSGlon->setValue(opts.mapsglon);
-//    ui->spbSGScale->setValue(opts.mapsgscale);
-//    ui->spbSGPanHorizon->setValue(opts.mapsgpanhorizon);
-//    ui->spbSGPanVert->setValue(opts.mapsgpanvert);
-//    ui->spbSGRadius->setValue(opts.mapsgradius);
-
-//}
 
 int FormToolbox::searchResolution(int mapwidth, int mapheight)
 {
@@ -972,45 +866,13 @@ FormToolbox::~FormToolbox()
     qDebug() << "closing FormToolbox";
     if(ui->rdbAVHRRin->isChecked())
         opts.lastinputprojection = 0;
-    else if(ui->rdbVIIRSin->isChecked())
+    else if(ui->rdbVIIRSMin->isChecked())
         opts.lastinputprojection = 1;
-    else
+    else if(ui->rdbVIIRSDNBin->isChecked())
         opts.lastinputprojection = 2;
+    else
+        opts.lastinputprojection = 3;
 
-    if(ui->rbColorVIIRS->isChecked())
-        opts.lastVIIRSband = 0;
-    else if(ui->rbM1->isChecked())
-        opts.lastVIIRSband = 1;
-    else if(ui->rbM2->isChecked())
-        opts.lastVIIRSband = 2;
-    else if(ui->rbM3->isChecked())
-        opts.lastVIIRSband = 3;
-    else if(ui->rbM4->isChecked())
-        opts.lastVIIRSband = 4;
-    else if(ui->rbM5->isChecked())
-        opts.lastVIIRSband = 5;
-    else if(ui->rbM6->isChecked())
-        opts.lastVIIRSband = 6;
-    else if(ui->rbM7->isChecked())
-        opts.lastVIIRSband = 7;
-    else if(ui->rbM8->isChecked())
-        opts.lastVIIRSband = 8;
-    else if(ui->rbM9->isChecked())
-        opts.lastVIIRSband = 9;
-    else if(ui->rbM10->isChecked())
-        opts.lastVIIRSband = 10;
-    else if(ui->rbM11->isChecked())
-        opts.lastVIIRSband = 11;
-    else if(ui->rbM12->isChecked())
-        opts.lastVIIRSband = 12;
-    else if(ui->rbM13->isChecked())
-        opts.lastVIIRSband = 13;
-    else if(ui->rbM14->isChecked())
-        opts.lastVIIRSband = 14;
-    else if(ui->rbM15->isChecked())
-        opts.lastVIIRSband = 15;
-    else if(ui->rbM16->isChecked())
-        opts.lastVIIRSband = 16;
 
     opts.lastcomboMet006 = ui->comboMet006->currentIndex();
     opts.lastcomboMet008 = ui->comboMet008->currentIndex();
@@ -1036,39 +898,6 @@ FormToolbox::~FormToolbox()
     opts.lastinverseMet120 = ui->chkInverseIR_120->isChecked();
     opts.lastinverseMet134 = ui->chkInverseIR_134->isChecked();
 
-    opts.lastcomboM1 = ui->comboM1->currentIndex();
-    opts.lastcomboM2 = ui->comboM2->currentIndex();
-    opts.lastcomboM3 = ui->comboM3->currentIndex();
-    opts.lastcomboM4 = ui->comboM4->currentIndex();
-    opts.lastcomboM5 = ui->comboM5->currentIndex();
-    opts.lastcomboM6 = ui->comboM6->currentIndex();
-    opts.lastcomboM7 = ui->comboM7->currentIndex();
-    opts.lastcomboM8 = ui->comboM8->currentIndex();
-    opts.lastcomboM9 = ui->comboM9->currentIndex();
-    opts.lastcomboM10 = ui->comboM10->currentIndex();
-    opts.lastcomboM11 = ui->comboM11->currentIndex();
-    opts.lastcomboM12 = ui->comboM12->currentIndex();
-    opts.lastcomboM13 = ui->comboM13->currentIndex();
-    opts.lastcomboM14 = ui->comboM14->currentIndex();
-    opts.lastcomboM15 = ui->comboM15->currentIndex();
-    opts.lastcomboM16 = ui->comboM16->currentIndex();
-
-    opts.lastinverseM1 = ui->chkInverseM1->isChecked();
-    opts.lastinverseM2 = ui->chkInverseM2->isChecked();
-    opts.lastinverseM3 = ui->chkInverseM3->isChecked();
-    opts.lastinverseM4 = ui->chkInverseM4->isChecked();
-    opts.lastinverseM5 = ui->chkInverseM5->isChecked();
-    opts.lastinverseM6 = ui->chkInverseM6->isChecked();
-    opts.lastinverseM7 = ui->chkInverseM7->isChecked();
-    opts.lastinverseM8 = ui->chkInverseM8->isChecked();
-    opts.lastinverseM9 = ui->chkInverseM9->isChecked();
-    opts.lastinverseM10 = ui->chkInverseM10->isChecked();
-    opts.lastinverseM11 = ui->chkInverseM11->isChecked();
-    opts.lastinverseM12 = ui->chkInverseM12->isChecked();
-    opts.lastinverseM13 = ui->chkInverseM13->isChecked();
-    opts.lastinverseM14 = ui->chkInverseM14->isChecked();
-    opts.lastinverseM15 = ui->chkInverseM15->isChecked();
-    opts.lastinverseM16 = ui->chkInverseM16->isChecked();
 
     opts.currenttabwidget = ui->tabWidget->currentIndex();
     opts.currenttoolbox = ui->toolBox->currentIndex();
@@ -1106,6 +935,95 @@ FormToolbox::~FormToolbox()
     poi.strlSGMapHeight.replace(0, QString("%1").arg(ui->spbSGMapHeight->value()));
     poi.strlSGMapWidth.replace(0, QString("%1").arg(ui->spbSGMapWidth->value()));
     poi.strlSGGridOnProj.replace(0, QString("%1").arg(ui->chkSGGridOnProj->isChecked()));
+
+    if(ui->rbColorVIIRS->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("0"));
+    else if(ui->rbM1->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("1"));
+    else if(ui->rbM2->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("2"));
+    else if(ui->rbM3->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("3"));
+    else if(ui->rbM4->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("4"));
+    else if(ui->rbM5->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("5"));
+    else if(ui->rbM6->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("6"));
+    else if(ui->rbM7->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("7"));
+    else if(ui->rbM8->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("8"));
+    else if(ui->rbM9->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("9"));
+    else if(ui->rbM10->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("10"));
+    else if(ui->rbM11->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("11"));
+    else if(ui->rbM12->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("12"));
+    else if(ui->rbM13->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("13"));
+    else if(ui->rbM14->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("14"));
+    else if(ui->rbM15->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("15"));
+    else if(ui->rbM16->isChecked())
+        poi.strlColorBandM.replace(0, QString("%1").arg("16"));
+
+
+
+//    poi.strlColorsM.replace(0, QString("%1").arg(ui->rbColorVIIRS->isChecked()));
+//    poi.strlBandM1.replace(0, QString("%1").arg(ui->rbM1->isChecked()));
+//    poi.strlBandM2.replace(0, QString("%1").arg(ui->rbM2->isChecked()));
+//    poi.strlBandM3.replace(0, QString("%1").arg(ui->rbM3->isChecked()));
+//    poi.strlBandM4.replace(0, QString("%1").arg(ui->rbM4->isChecked()));
+//    poi.strlBandM5.replace(0, QString("%1").arg(ui->rbM5->isChecked()));
+//    poi.strlBandM6.replace(0, QString("%1").arg(ui->rbM6->isChecked()));
+//    poi.strlBandM7.replace(0, QString("%1").arg(ui->rbM7->isChecked()));
+//    poi.strlBandM8.replace(0, QString("%1").arg(ui->rbM8->isChecked()));
+//    poi.strlBandM9.replace(0, QString("%1").arg(ui->rbM9->isChecked()));
+//    poi.strlBandM10.replace(0, QString("%1").arg(ui->rbM10->isChecked()));
+//    poi.strlBandM11.replace(0, QString("%1").arg(ui->rbM11->isChecked()));
+//    poi.strlBandM12.replace(0, QString("%1").arg(ui->rbM12->isChecked()));
+//    poi.strlBandM13.replace(0, QString("%1").arg(ui->rbM13->isChecked()));
+//    poi.strlBandM14.replace(0, QString("%1").arg(ui->rbM14->isChecked()));
+//    poi.strlBandM15.replace(0, QString("%1").arg(ui->rbM15->isChecked()));
+//    poi.strlBandM16.replace(0, QString("%1").arg(ui->rbM16->isChecked()));
+
+    poi.strlInverseM1.replace(0, QString("%1").arg(ui->chkInverseM1->isChecked()));
+    poi.strlInverseM2.replace(0, QString("%1").arg(ui->chkInverseM2->isChecked()));
+    poi.strlInverseM3.replace(0, QString("%1").arg(ui->chkInverseM3->isChecked()));
+    poi.strlInverseM4.replace(0, QString("%1").arg(ui->chkInverseM4->isChecked()));
+    poi.strlInverseM5.replace(0, QString("%1").arg(ui->chkInverseM5->isChecked()));
+    poi.strlInverseM6.replace(0, QString("%1").arg(ui->chkInverseM6->isChecked()));
+    poi.strlInverseM7.replace(0, QString("%1").arg(ui->chkInverseM7->isChecked()));
+    poi.strlInverseM8.replace(0, QString("%1").arg(ui->chkInverseM8->isChecked()));
+    poi.strlInverseM9.replace(0, QString("%1").arg(ui->chkInverseM9->isChecked()));
+    poi.strlInverseM10.replace(0, QString("%1").arg(ui->chkInverseM10->isChecked()));
+    poi.strlInverseM11.replace(0, QString("%1").arg(ui->chkInverseM11->isChecked()));
+    poi.strlInverseM12.replace(0, QString("%1").arg(ui->chkInverseM12->isChecked()));
+    poi.strlInverseM13.replace(0, QString("%1").arg(ui->chkInverseM13->isChecked()));
+    poi.strlInverseM14.replace(0, QString("%1").arg(ui->chkInverseM14->isChecked()));
+    poi.strlInverseM15.replace(0, QString("%1").arg(ui->chkInverseM15->isChecked()));
+    poi.strlInverseM16.replace(0, QString("%1").arg(ui->chkInverseM16->isChecked()));
+
+    poi.strlComboM1.replace(0, QString("%1").arg(ui->comboM1->currentIndex()));
+    poi.strlComboM2.replace(0, QString("%1").arg(ui->comboM2->currentIndex()));
+    poi.strlComboM3.replace(0, QString("%1").arg(ui->comboM3->currentIndex()));
+    poi.strlComboM4.replace(0, QString("%1").arg(ui->comboM4->currentIndex()));
+    poi.strlComboM5.replace(0, QString("%1").arg(ui->comboM5->currentIndex()));
+    poi.strlComboM6.replace(0, QString("%1").arg(ui->comboM6->currentIndex()));
+    poi.strlComboM7.replace(0, QString("%1").arg(ui->comboM7->currentIndex()));
+    poi.strlComboM8.replace(0, QString("%1").arg(ui->comboM8->currentIndex()));
+    poi.strlComboM9.replace(0, QString("%1").arg(ui->comboM9->currentIndex()));
+    poi.strlComboM10.replace(0, QString("%1").arg(ui->comboM10->currentIndex()));
+    poi.strlComboM11.replace(0, QString("%1").arg(ui->comboM11->currentIndex()));
+    poi.strlComboM12.replace(0, QString("%1").arg(ui->comboM12->currentIndex()));
+    poi.strlComboM13.replace(0, QString("%1").arg(ui->comboM13->currentIndex()));
+    poi.strlComboM14.replace(0, QString("%1").arg(ui->comboM14->currentIndex()));
+    poi.strlComboM15.replace(0, QString("%1").arg(ui->comboM15->currentIndex()));
+    poi.strlComboM16.replace(0, QString("%1").arg(ui->comboM16->currentIndex()));
 
     delete ui;
 }
@@ -1577,20 +1495,6 @@ void FormToolbox::setToolboxButtons(bool state)
 
     }
 
-    /*    ui->btnGeoColor->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-    ui->btnVIS006->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-    ui->btnVIS008->setEnabled(state);
-    ui->btnIR016->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-    ui->btnIR039->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-    ui->btnWV062->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-    ui->btnWV073->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-    ui->btnIR087->setEnabled(state);
-    ui->btnIR097->setEnabled(state);
-    ui->btnIR108->setEnabled(state);
-    ui->btnIR120->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-    ui->btnIR134->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-    ui->btnHRV->setEnabled(state ? (whichgeo == SegmentListMeteosat::ELECTRO_N1 ? false : state) : state );
-*/
     ui->btnCLAHEavhhr->setEnabled(state);
     ui->btnCLAHEMeteosat->setEnabled(state);
     ui->btnExpandImage->setEnabled(state);
@@ -1600,8 +1504,6 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->btnOverlayProjectionSG->setEnabled(state);
     ui->btnRotate180->setEnabled(state);
 
-    ui->btnSetTrueColors->setEnabled(state);
-    ui->btnSetNaturalColors->setEnabled(state);
     ui->btnMakeVIIRSImage->setEnabled(state);
     ui->btnTextureVIIRS->setEnabled(state);
 
@@ -1629,14 +1531,6 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->rbM14->setEnabled(state);
     ui->rbM15->setEnabled(state);
     ui->rbM16->setEnabled(state);
-
-//    if(state)
-//    {
-//        QApplication::restoreOverrideCursor();
-//        ui->pbProgress->setValue(100);
-//    }
-//    else
-//        QApplication::setOverrideCursor( Qt::WaitCursor );
 
 }
 
@@ -2190,7 +2084,10 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     }
     else if (index == 1) // VIIRS
     {
-        formimage->displayImage(10);
+        if(ui->tabWidgetVIIRS->currentIndex() == 0)
+            formimage->displayImage(10);
+        else
+            formimage->displayImage(11);
     }
     else if (index == 2) // Geostationair
     {
@@ -2212,6 +2109,19 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
 
 //    opts.currenttabwidget = ui->tabWidget->currentIndex();
 //    opts.currenttoolbox = ui->toolBox->currentIndex();
+}
+
+void FormToolbox::on_tabWidgetVIIRS_currentChanged(int index)
+{
+
+    qDebug() << "on_tabWidgetVIIRS_currentChanged(int index) index = " << index;
+
+    if (index == 0) //VIIRSM
+        formimage->displayImage(10);
+    else if (index == 1) // VIIRSDNB
+        formimage->displayImage(11);
+
+
 }
 
 void FormToolbox::on_chkShowLambert_stateChanged(int arg1)
@@ -2339,6 +2249,21 @@ void FormToolbox::on_spbGVPscale_valueChanged(double arg1)
 
 void FormToolbox::on_btnCreatePerspective_clicked()
 {
+    if(ui->rdbCombine->isChecked())
+    {
+        QRgb *row, *rowcopy;
+        imageptrs->ptrimageProjectionCopy = new QImage(imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), QImage::Format_ARGB32);
+        for(int h = 0; h < imageptrs->ptrimageProjection->height(); h++ )
+        {
+            row = (QRgb*)imageptrs->ptrimageProjection->scanLine(h);
+            rowcopy = (QRgb*)imageptrs->ptrimageProjectionCopy->scanLine(h);
+            for(int w = 0; w < imageptrs->ptrimageProjection->width() ; w++)
+            {
+                rowcopy[w] = row[w];
+            }
+        }
+
+    }
 
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
     {
@@ -2350,7 +2275,7 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     }
     else if(opts.buttonVIIRSM)
     {
-        if(ui->rdbVIIRSin->isChecked())
+        if(ui->rdbVIIRSMin->isChecked())
         {
             if(!segs->SelectedVIIRSMSegments())
                 return;
@@ -2359,7 +2284,7 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     }
     else if(opts.buttonVIIRSDNB)
     {
-        if(ui->rdbVIIRSin->isChecked())
+        if(ui->rdbVIIRSDNBin->isChecked())
         {
             if(!segs->SelectedVIIRSDNBSegments())
                 return;
@@ -2371,16 +2296,16 @@ void FormToolbox::on_btnCreatePerspective_clicked()
 
     imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
     if(ui->rdbAVHRRin->isChecked())
-    {
         imageptrs->gvp->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
-    }
-    else if(ui->rdbVIIRSin->isChecked())
-    {
-        imageptrs->gvp->CreateMapFromVIIRS(formimage->getSegmentType());
-    }
+    else if(ui->rdbVIIRSMin->isChecked())
+        imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+    else if(ui->rdbVIIRSDNBin->isChecked())
+        imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
     else
         imageptrs->gvp->CreateMapFromGeoStationary();
 
+    if(ui->rdbCombine->isChecked())
+        delete imageptrs->ptrimageProjectionCopy;
 
     formimage->setPixmapToLabel(true);
     QApplication::restoreOverrideCursor();
@@ -2399,7 +2324,7 @@ void FormToolbox::on_btnCreateLambert_clicked()
     }
     else if(opts.buttonVIIRSM)
     {
-        if(ui->rdbVIIRSin->isChecked())
+        if(ui->rdbVIIRSMin->isChecked())
         {
             if(!segs->SelectedVIIRSMSegments())
                 return;
@@ -2408,7 +2333,7 @@ void FormToolbox::on_btnCreateLambert_clicked()
     }
     else if(opts.buttonVIIRSDNB)
     {
-        if(ui->rdbVIIRSin->isChecked())
+        if(ui->rdbVIIRSDNBin->isChecked())
         {
             if(!segs->SelectedVIIRSDNBSegments())
                 return;
@@ -2422,13 +2347,11 @@ void FormToolbox::on_btnCreateLambert_clicked()
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
     if(ui->rdbAVHRRin->isChecked())
-    {
         imageptrs->lcc->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
-    }
-    else if(ui->rdbVIIRSin->isChecked())
-    {
-        imageptrs->lcc->CreateMapFromVIIRS(formimage->getSegmentType());
-    }
+    else if(ui->rdbVIIRSMin->isChecked())
+        imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+    else if(ui->rdbVIIRSDNBin->isChecked())
+        imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
     else
         imageptrs->lcc->CreateMapFromGeostationary();
 
@@ -2448,7 +2371,7 @@ void FormToolbox::on_btnCreateStereo_clicked()
     }
     else if(opts.buttonVIIRSM)
     {
-        if(ui->rdbVIIRSin->isChecked())
+        if(ui->rdbVIIRSMin->isChecked())
         {
             if(!segs->SelectedVIIRSMSegments())
                 return;
@@ -2457,7 +2380,7 @@ void FormToolbox::on_btnCreateStereo_clicked()
     }
     else if(opts.buttonVIIRSDNB)
     {
-        if(ui->rdbVIIRSin->isChecked())
+        if(ui->rdbVIIRSDNBin->isChecked())
         {
             if(!segs->SelectedVIIRSDNBSegments())
                 return;
@@ -2470,13 +2393,11 @@ void FormToolbox::on_btnCreateStereo_clicked()
     imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
 
     if(ui->rdbAVHRRin->isChecked())
-    {
         imageptrs->sg->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
-    }
-    else if(ui->rdbVIIRSin->isChecked())
-    {
-        imageptrs->sg->CreateMapFromVIIRS(formimage->getSegmentType());
-    }
+    else if(ui->rdbVIIRSMin->isChecked())
+        imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+    else if(ui->rdbVIIRSDNBin->isChecked())
+        imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
     else
         imageptrs->sg->CreateMapFromGeostationary();
 
@@ -2659,6 +2580,11 @@ int FormToolbox::getTabWidgetIndex()
     return ui->tabWidget->currentIndex();
 }
 
+int FormToolbox::getTabWidgetVIIRSIndex()
+{
+    return ui->tabWidgetVIIRS->currentIndex();
+}
+
 
 void FormToolbox::on_toolBox_currentChanged(int index)
 {
@@ -2838,54 +2764,6 @@ void FormToolbox::on_btnLCCMapEast_clicked()
 
 }
 
-//void FormToolbox::on_scbLCCMapUpDown_valueChanged(int value)
-//{
-//    qDebug() << "on_scbLCCMapUpDown_valueChanged(int value)";
-
-//    ui->spbNorth->setValue(ui->spbNorth->value() - value);
-//    ui->spbSouth->setValue(ui->spbSouth->value() - value);
-
-//    opts.mapextentnorth = ui->spbNorth->value();
-//    opts.mapextentsouth = ui->spbSouth->value();
-
-//    if(imageptrs->ptrimageProjection->width() > 0)
-//    {
-//        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-//                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-//        //formimage->displayImage(9);
-//        //emit screenupdateprojection();
-//        formimage->slotUpdateProjection();
-//    }
-
-//}
-
-//void FormToolbox::on_scbLCCMapLeftRight_valueChanged(int value)
-//{
-//    qDebug() << "on_scbLCCMapLeftRight_valueChanged(int value)";
-
-//    ui->spbEast->setValue(ui->spbEast->value() - value);
-//    ui->spbWest->setValue(ui->spbWest->value() - value);
-
-//    opts.mapextenteast = ui->spbEast->value();
-//    opts.mapextentwest = ui->spbWest->value();
-
-//    int central = ui->spbWest->value() + longitudediffdeg( ui->spbEast->value(), ui->spbWest->value())/2;
-//    qDebug() << QString("FormToolbox::on_spbEast_valueChanged(int arg1) central = %1").arg(central);
-
-//    ui->spbCentral->setValue(adjust_lon_deg(central));
-
-//    if(imageptrs->ptrimageProjection->width() > 0)
-//    {
-//        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-//                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-//        //formimage->displayImage(9);
-//        //emit screenupdateprojection();
-//        formimage->slotUpdateProjection();
-//    }
-//}
-
-
-
 void FormToolbox::on_spbSGlat_valueChanged(double arg1)
 {
     qDebug() << "FormToolbox::on_spbSGlat_valueChanged(double arg1)";
@@ -3005,49 +2883,6 @@ void FormToolbox::on_spbLCCCorrY_valueChanged(int arg1)
 
 }
 
-void FormToolbox::on_btnSetTrueColors_clicked()
-{
-    ui->rbColorVIIRS->setChecked(true);
-    ui->comboM1->setCurrentIndex(0);
-    ui->comboM2->setCurrentIndex(0);
-    ui->comboM3->setCurrentIndex(3);
-    ui->comboM4->setCurrentIndex(2);
-    ui->comboM5->setCurrentIndex(1);
-    ui->comboM6->setCurrentIndex(0);
-    ui->comboM7->setCurrentIndex(0);
-    ui->comboM8->setCurrentIndex(0);
-    ui->comboM9->setCurrentIndex(0);
-    ui->comboM10->setCurrentIndex(0);
-    ui->comboM11->setCurrentIndex(0);
-    ui->comboM12->setCurrentIndex(0);
-    ui->comboM13->setCurrentIndex(0);
-    ui->comboM14->setCurrentIndex(0);
-    ui->comboM15->setCurrentIndex(0);
-    ui->comboM16->setCurrentIndex(0);
-
-}
-
-void FormToolbox::on_btnSetNaturalColors_clicked()
-{
-    ui->rbColorVIIRS->setChecked(true);
-    ui->comboM1->setCurrentIndex(0);
-    ui->comboM2->setCurrentIndex(0);
-    ui->comboM3->setCurrentIndex(0);
-    ui->comboM4->setCurrentIndex(0);
-    ui->comboM5->setCurrentIndex(3);
-    ui->comboM6->setCurrentIndex(0);
-    ui->comboM7->setCurrentIndex(2);
-    ui->comboM8->setCurrentIndex(0);
-    ui->comboM9->setCurrentIndex(0);
-    ui->comboM10->setCurrentIndex(1);
-    ui->comboM11->setCurrentIndex(0);
-    ui->comboM12->setCurrentIndex(0);
-    ui->comboM13->setCurrentIndex(0);
-    ui->comboM14->setCurrentIndex(0);
-    ui->comboM15->setCurrentIndex(0);
-    ui->comboM16->setCurrentIndex(0);
-
-}
 
 bool FormToolbox::comboColVIIRSOK()
 {
@@ -3396,6 +3231,132 @@ void FormToolbox::setSGParameters(int strlindex)
     ui->chkSGGridOnProj->blockSignals(false);
 }
 
+void FormToolbox::setConfigMParameters(int strlindex)
+{
+    qDebug() << "FormToolbox::setConfigMParameters(int strlindex)";
+
+    int theband = poi.strlColorBandM.at(strlindex).toInt();
+    if( theband == 0) // is color
+    {
+        ui->rbColorVIIRS->setChecked(true);
+        setRadioButtonsMToFalse();
+    }
+    else
+    {
+        ui->rbColorVIIRS->setChecked(false);
+        setRadioButtonsMToFalse();
+        switch (theband)
+        {
+        case 1:
+            ui->rbM1->setChecked(true);
+            break;
+        case 2:
+            ui->rbM2->setChecked(true);
+            break;
+        case 3:
+            ui->rbM3->setChecked(true);
+            break;
+        case 4:
+            ui->rbM4->setChecked(true);
+            break;
+        case 5:
+            ui->rbM5->setChecked(true);
+            break;
+        case 6:
+            ui->rbM6->setChecked(true);
+            break;
+        case 7:
+            ui->rbM7->setChecked(true);
+            break;
+        case 8:
+            ui->rbM8->setChecked(true);
+            break;
+        case 9:
+            ui->rbM9->setChecked(true);
+            break;
+        case 10:
+            ui->rbM10->setChecked(true);
+            break;
+        case 11:
+            ui->rbM11->setChecked(true);
+            break;
+        case 12:
+            ui->rbM12->setChecked(true);
+            break;
+        case 13:
+            ui->rbM13->setChecked(true);
+            break;
+        case 14:
+            ui->rbM14->setChecked(true);
+            break;
+        case 15:
+            ui->rbM15->setChecked(true);
+            break;
+        case 16:
+            ui->rbM16->setChecked(true);
+            break;
+
+        }
+
+    }
+
+    ui->chkInverseM1->setChecked(poi.strlInverseM1.at(strlindex).toInt());
+    ui->chkInverseM2->setChecked(poi.strlInverseM2.at(strlindex).toInt());
+    ui->chkInverseM3->setChecked(poi.strlInverseM3.at(strlindex).toInt());
+    ui->chkInverseM4->setChecked(poi.strlInverseM4.at(strlindex).toInt());
+    ui->chkInverseM5->setChecked(poi.strlInverseM5.at(strlindex).toInt());
+    ui->chkInverseM6->setChecked(poi.strlInverseM6.at(strlindex).toInt());
+    ui->chkInverseM7->setChecked(poi.strlInverseM7.at(strlindex).toInt());
+    ui->chkInverseM8->setChecked(poi.strlInverseM8.at(strlindex).toInt());
+    ui->chkInverseM9->setChecked(poi.strlInverseM9.at(strlindex).toInt());
+    ui->chkInverseM10->setChecked(poi.strlInverseM10.at(strlindex).toInt());
+    ui->chkInverseM11->setChecked(poi.strlInverseM11.at(strlindex).toInt());
+    ui->chkInverseM12->setChecked(poi.strlInverseM12.at(strlindex).toInt());
+    ui->chkInverseM13->setChecked(poi.strlInverseM13.at(strlindex).toInt());
+    ui->chkInverseM14->setChecked(poi.strlInverseM14.at(strlindex).toInt());
+    ui->chkInverseM15->setChecked(poi.strlInverseM15.at(strlindex).toInt());
+    ui->chkInverseM16->setChecked(poi.strlInverseM16.at(strlindex).toInt());
+
+    ui->comboM1->setCurrentIndex(poi.strlComboM1.at(strlindex).toInt());
+    ui->comboM2->setCurrentIndex(poi.strlComboM2.at(strlindex).toInt());
+    ui->comboM3->setCurrentIndex(poi.strlComboM3.at(strlindex).toInt());
+    ui->comboM4->setCurrentIndex(poi.strlComboM4.at(strlindex).toInt());
+    ui->comboM5->setCurrentIndex(poi.strlComboM5.at(strlindex).toInt());
+    ui->comboM6->setCurrentIndex(poi.strlComboM6.at(strlindex).toInt());
+    ui->comboM7->setCurrentIndex(poi.strlComboM7.at(strlindex).toInt());
+    ui->comboM8->setCurrentIndex(poi.strlComboM8.at(strlindex).toInt());
+    ui->comboM9->setCurrentIndex(poi.strlComboM9.at(strlindex).toInt());
+    ui->comboM10->setCurrentIndex(poi.strlComboM10.at(strlindex).toInt());
+    ui->comboM11->setCurrentIndex(poi.strlComboM11.at(strlindex).toInt());
+    ui->comboM12->setCurrentIndex(poi.strlComboM12.at(strlindex).toInt());
+    ui->comboM13->setCurrentIndex(poi.strlComboM13.at(strlindex).toInt());
+    ui->comboM14->setCurrentIndex(poi.strlComboM14.at(strlindex).toInt());
+    ui->comboM15->setCurrentIndex(poi.strlComboM15.at(strlindex).toInt());
+    ui->comboM16->setCurrentIndex(poi.strlComboM16.at(strlindex).toInt());
+
+
+}
+
+void FormToolbox::setRadioButtonsMToFalse()
+{
+    ui->rbM1->setChecked(false);
+    ui->rbM2->setChecked(false);
+    ui->rbM3->setChecked(false);
+    ui->rbM4->setChecked(false);
+    ui->rbM5->setChecked(false);
+    ui->rbM6->setChecked(false);
+    ui->rbM7->setChecked(false);
+    ui->rbM8->setChecked(false);
+    ui->rbM9->setChecked(false);
+    ui->rbM10->setChecked(false);
+    ui->rbM11->setChecked(false);
+    ui->rbM12->setChecked(false);
+    ui->rbM13->setChecked(false);
+    ui->rbM14->setChecked(false);
+    ui->rbM15->setChecked(false);
+    ui->rbM16->setChecked(false);
+}
+
 void FormToolbox::on_comboPOI_currentIndexChanged(int index)
 {
 
@@ -3511,9 +3472,118 @@ void FormToolbox::on_btnAddPOI_clicked()
 }
 
 
-
-void FormToolbox::on_spbDnbWindow_editingFinished()
+void FormToolbox::on_comboMConfig_currentIndexChanged(int index)
 {
-    qDebug() << "FormToolbox::on_spbDnbWindow_editingFinished()";
+    setConfigMParameters(index);
+}
+
+void FormToolbox::on_btnAddMConfig_clicked()
+{
+    if(ui->leMConfig->text().length() == 0)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Fill in a name for this Configuration.");
+        msgBox.exec();
+        return;
+    }
+
+    ui->comboMConfig->blockSignals(true);
+
+    poi.strlConfigNameM.append(QString("%1").arg(ui->leMConfig->text()));
+
+    if(ui->rbColorVIIRS->isChecked())
+        poi.strlColorBandM.append("0");
+    else if(ui->rbM1->isChecked())
+        poi.strlColorBandM.append("1");
+    else if(ui->rbM2->isChecked())
+        poi.strlColorBandM.append("2");
+    else if(ui->rbM3->isChecked())
+        poi.strlColorBandM.append("3");
+    else if(ui->rbM4->isChecked())
+        poi.strlColorBandM.append("4");
+    else if(ui->rbM5->isChecked())
+        poi.strlColorBandM.append("5");
+    else if(ui->rbM6->isChecked())
+        poi.strlColorBandM.append("6");
+    else if(ui->rbM7->isChecked())
+        poi.strlColorBandM.append("7");
+    else if(ui->rbM8->isChecked())
+        poi.strlColorBandM.append("8");
+    else if(ui->rbM9->isChecked())
+        poi.strlColorBandM.append("9");
+    else if(ui->rbM10->isChecked())
+        poi.strlColorBandM.append("10");
+    else if(ui->rbM11->isChecked())
+        poi.strlColorBandM.append("11");
+    else if(ui->rbM12->isChecked())
+        poi.strlColorBandM.append("12");
+    else if(ui->rbM13->isChecked())
+        poi.strlColorBandM.append("13");
+    else if(ui->rbM14->isChecked())
+        poi.strlColorBandM.append("14");
+    else if(ui->rbM15->isChecked())
+        poi.strlColorBandM.append("15");
+    else if(ui->rbM16->isChecked())
+        poi.strlColorBandM.append("16");
+
+//    poi.strlColorsM.append(QString("%1").arg(ui->rbColorVIIRS->isChecked()));
+
+//    poi.strlBandM1.append(QString("%1").arg(ui->rbM1->isChecked()));
+//    poi.strlBandM2.append(QString("%1").arg(ui->rbM2->isChecked()));
+//    poi.strlBandM3.append(QString("%1").arg(ui->rbM3->isChecked()));
+//    poi.strlBandM4.append(QString("%1").arg(ui->rbM4->isChecked()));
+//    poi.strlBandM5.append(QString("%1").arg(ui->rbM5->isChecked()));
+//    poi.strlBandM6.append(QString("%1").arg(ui->rbM6->isChecked()));
+//    poi.strlBandM7.append(QString("%1").arg(ui->rbM7->isChecked()));
+//    poi.strlBandM8.append(QString("%1").arg(ui->rbM8->isChecked()));
+//    poi.strlBandM9.append(QString("%1").arg(ui->rbM9->isChecked()));
+//    poi.strlBandM10.append(QString("%1").arg(ui->rbM10->isChecked()));
+//    poi.strlBandM11.append(QString("%1").arg(ui->rbM11->isChecked()));
+//    poi.strlBandM12.append(QString("%1").arg(ui->rbM12->isChecked()));
+//    poi.strlBandM13.append(QString("%1").arg(ui->rbM13->isChecked()));
+//    poi.strlBandM14.append(QString("%1").arg(ui->rbM14->isChecked()));
+//    poi.strlBandM15.append(QString("%1").arg(ui->rbM15->isChecked()));
+//    poi.strlBandM16.append(QString("%1").arg(ui->rbM16->isChecked()));
+
+    poi.strlInverseM1.append(QString("%1").arg(ui->chkInverseM1->isChecked()));
+    poi.strlInverseM2.append(QString("%1").arg(ui->chkInverseM2->isChecked()));
+    poi.strlInverseM3.append(QString("%1").arg(ui->chkInverseM3->isChecked()));
+    poi.strlInverseM4.append(QString("%1").arg(ui->chkInverseM4->isChecked()));
+    poi.strlInverseM5.append(QString("%1").arg(ui->chkInverseM5->isChecked()));
+    poi.strlInverseM6.append(QString("%1").arg(ui->chkInverseM6->isChecked()));
+    poi.strlInverseM7.append(QString("%1").arg(ui->chkInverseM7->isChecked()));
+    poi.strlInverseM8.append(QString("%1").arg(ui->chkInverseM8->isChecked()));
+    poi.strlInverseM9.append(QString("%1").arg(ui->chkInverseM9->isChecked()));
+    poi.strlInverseM10.append(QString("%1").arg(ui->chkInverseM10->isChecked()));
+    poi.strlInverseM11.append(QString("%1").arg(ui->chkInverseM11->isChecked()));
+    poi.strlInverseM12.append(QString("%1").arg(ui->chkInverseM12->isChecked()));
+    poi.strlInverseM13.append(QString("%1").arg(ui->chkInverseM13->isChecked()));
+    poi.strlInverseM14.append(QString("%1").arg(ui->chkInverseM14->isChecked()));
+    poi.strlInverseM15.append(QString("%1").arg(ui->chkInverseM15->isChecked()));
+    poi.strlInverseM16.append(QString("%1").arg(ui->chkInverseM16->isChecked()));
+
+    poi.strlComboM1.append(QString("%1").arg(ui->comboM1->currentIndex()));
+    poi.strlComboM2.append(QString("%1").arg(ui->comboM2->currentIndex()));
+    poi.strlComboM3.append(QString("%1").arg(ui->comboM3->currentIndex()));
+    poi.strlComboM4.append(QString("%1").arg(ui->comboM4->currentIndex()));
+    poi.strlComboM5.append(QString("%1").arg(ui->comboM5->currentIndex()));
+    poi.strlComboM6.append(QString("%1").arg(ui->comboM6->currentIndex()));
+    poi.strlComboM7.append(QString("%1").arg(ui->comboM7->currentIndex()));
+    poi.strlComboM8.append(QString("%1").arg(ui->comboM8->currentIndex()));
+    poi.strlComboM9.append(QString("%1").arg(ui->comboM9->currentIndex()));
+    poi.strlComboM10.append(QString("%1").arg(ui->comboM10->currentIndex()));
+    poi.strlComboM11.append(QString("%1").arg(ui->comboM11->currentIndex()));
+    poi.strlComboM12.append(QString("%1").arg(ui->comboM12->currentIndex()));
+    poi.strlComboM13.append(QString("%1").arg(ui->comboM13->currentIndex()));
+    poi.strlComboM14.append(QString("%1").arg(ui->comboM14->currentIndex()));
+    poi.strlComboM15.append(QString("%1").arg(ui->comboM15->currentIndex()));
+    poi.strlComboM16.append(QString("%1").arg(ui->comboM16->currentIndex()));
+
+    ui->comboMConfig->clear();
+    ui->comboMConfig->addItems(poi.strlConfigNameM);
+    ui->comboMConfig->setCurrentIndex(poi.strlConfigNameM.count()-1);
+    ui->comboMConfig->blockSignals(false);
+    ui->leMConfig->setText("");
 
 }
+

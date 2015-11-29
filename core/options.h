@@ -108,6 +108,7 @@ public:
     bool imageontextureOnMet;
     bool imageontextureOnAVHRR;
     bool imageontextureOnVIIRS;
+    bool windowvectors;
     bool udpmessages;
     bool gshhsglobe1On;
     bool gshhsglobe2On;
@@ -191,39 +192,7 @@ public:
     int lastinputprojection;
     int lastVIIRSband;
 
-    int lastcomboM1;
-    int lastcomboM2;
-    int lastcomboM3;
-    int lastcomboM4;
-    int lastcomboM5;
-    int lastcomboM6;
-    int lastcomboM7;
-    int lastcomboM8;
-    int lastcomboM9;
-    int lastcomboM10;
-    int lastcomboM11;
-    int lastcomboM12;
-    int lastcomboM13;
-    int lastcomboM14;
-    int lastcomboM15;
-    int lastcomboM16;
 
-    bool lastinverseM1;
-    bool lastinverseM2;
-    bool lastinverseM3;
-    bool lastinverseM4;
-    bool lastinverseM5;
-    bool lastinverseM6;
-    bool lastinverseM7;
-    bool lastinverseM8;
-    bool lastinverseM9;
-    bool lastinverseM10;
-    bool lastinverseM11;
-    bool lastinverseM12;
-    bool lastinverseM13;
-    bool lastinverseM14;
-    bool lastinverseM15;
-    bool lastinverseM16;
 
 }; 
 

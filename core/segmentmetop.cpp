@@ -709,6 +709,7 @@ Segment *SegmentMetop::ReadSegmentInMemory()
     if ( !f )
     {
         qDebug() << QString("file %1 not found ! ").arg(this->fileInfo.absoluteFilePath());
+        this->segmentok = false;
         return this;
     }
 
@@ -723,6 +724,7 @@ Segment *SegmentMetop::ReadSegmentInMemory()
 */
     if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
     {
+        this->segmentok = false;
         qDebug() << "error in BZ2_bzopen";
         return this;
     }

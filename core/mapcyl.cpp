@@ -171,7 +171,9 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
         }
     }
 
-    if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false && opts.buttonHRP == false && opts.buttonVIIRSM == false)
+
+    if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false &&
+            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false )
         showSunPosition(&painter);
 
     if (down)

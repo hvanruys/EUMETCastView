@@ -14,6 +14,7 @@ void Poi::Initialize()
     strlGVPName = POIsettings.value("/GVP/strlName").value<QStringList>();
     strlLCCName = POIsettings.value("/LCC/strlName").value<QStringList>();
     strlSGName = POIsettings.value("/SG/strlName").value<QStringList>();
+    strlConfigNameM = POIsettings.value("/MConfig/strlName").value<QStringList>();
 
     if(strlGVPName.count() == 0)
     {
@@ -99,13 +100,169 @@ void Poi::Initialize()
         strlSGGridOnProj = POIsettings.value("/SG/strlgridonproj").value<QStringList>();
     }
 
+    if(strlConfigNameM.count() == 0)
+    {
+        strlConfigNameM << "User defined" << "Natural Colors" << "True Colors" << "M13-M14-M15";
+
+        strlColorBandM << "0" << "0" << "0" << "0"; // "0" = color , "1" = M1, ..
+
+        strlComboM1 << "0" << "0" << "0" << "0";
+        strlComboM2 << "0" << "0" << "0" << "0";
+        strlComboM3 << "0" << "0" << "3" << "0";
+        strlComboM4 << "0" << "0" << "2" << "0";
+        strlComboM5 << "3" << "3" << "1" << "0";
+        strlComboM6 << "0" << "0" << "0" << "0";
+        strlComboM7 << "2" << "2" << "0" << "0";
+        strlComboM8 << "0" << "0" << "0" << "0";
+        strlComboM9 << "0" << "0" << "0" << "0";
+        strlComboM10 << "1" << "1" << "0" << "0";
+        strlComboM11 << "0" << "0" << "0" << "0";
+        strlComboM12 << "0" << "0" << "0" << "0";
+        strlComboM13 << "0" << "0" << "0" << "3";
+        strlComboM14 << "0" << "0" << "0" << "2";
+        strlComboM15 << "0" << "0" << "0" << "1";
+        strlComboM16 << "0" << "0" << "0" << "0";
+
+        strlInverseM1 << "0" << "0" << "0" << "0";
+        strlInverseM2 << "0" << "0" << "0" << "0";
+        strlInverseM3 << "0" << "0" << "0" << "0";
+        strlInverseM4 << "0" << "0" << "0" << "0";
+        strlInverseM5 << "0" << "0" << "0" << "0";
+        strlInverseM6 << "0" << "0" << "0" << "0";
+        strlInverseM7 << "0" << "0" << "0" << "0";
+        strlInverseM8 << "0" << "0" << "0" << "0";
+        strlInverseM9 << "0" << "0" << "0" << "0";
+        strlInverseM10 << "0" << "0" << "0" << "0";
+        strlInverseM11 << "1" << "1" << "1" << "1";
+        strlInverseM12 << "1" << "1" << "1" << "1";
+        strlInverseM13 << "1" << "1" << "1" << "1";
+        strlInverseM14 << "1" << "1" << "1" << "1";
+        strlInverseM15 << "1" << "1" << "1" << "1";
+        strlInverseM16 << "1" << "1" << "1" << "1";
+
+    }
+    else
+    {
+        strlColorBandM = POIsettings.value("/MConfig/strlColorBandM").value<QStringList>();
+
+//        strlBandM1 = POIsettings.value("/MConfig/strlBandM1").value<QStringList>();
+//        strlBandM2 = POIsettings.value("/MConfig/strlBandM2").value<QStringList>();
+//        strlBandM3 = POIsettings.value("/MConfig/strlBandM3").value<QStringList>();
+//        strlBandM4 = POIsettings.value("/MConfig/strlBandM4").value<QStringList>();
+//        strlBandM5 = POIsettings.value("/MConfig/strlBandM5").value<QStringList>();
+//        strlBandM6 = POIsettings.value("/MConfig/strlBandM6").value<QStringList>();
+//        strlBandM7 = POIsettings.value("/MConfig/strlBandM7").value<QStringList>();
+//        strlBandM8 = POIsettings.value("/MConfig/strlBandM8").value<QStringList>();
+//        strlBandM9 = POIsettings.value("/MConfig/strlBandM9").value<QStringList>();
+//        strlBandM10 = POIsettings.value("/MConfig/strlBandM10").value<QStringList>();
+//        strlBandM11 = POIsettings.value("/MConfig/strlBandM11").value<QStringList>();
+//        strlBandM12 = POIsettings.value("/MConfig/strlBandM12").value<QStringList>();
+//        strlBandM13 = POIsettings.value("/MConfig/strlBandM13").value<QStringList>();
+//        strlBandM14 = POIsettings.value("/MConfig/strlBandM14").value<QStringList>();
+//        strlBandM15 = POIsettings.value("/MConfig/strlBandM15").value<QStringList>();
+//        strlBandM16 = POIsettings.value("/MConfig/strlBandM16").value<QStringList>();
+
+        strlComboM1 = POIsettings.value("/MConfig/strlComboM1").value<QStringList>();
+        strlComboM2 = POIsettings.value("/MConfig/strlComboM2").value<QStringList>();
+        strlComboM3 = POIsettings.value("/MConfig/strlComboM3").value<QStringList>();
+        strlComboM4 = POIsettings.value("/MConfig/strlComboM4").value<QStringList>();
+        strlComboM5 = POIsettings.value("/MConfig/strlComboM5").value<QStringList>();
+        strlComboM6 = POIsettings.value("/MConfig/strlComboM6").value<QStringList>();
+        strlComboM7 = POIsettings.value("/MConfig/strlComboM7").value<QStringList>();
+        strlComboM8 = POIsettings.value("/MConfig/strlComboM8").value<QStringList>();
+        strlComboM9 = POIsettings.value("/MConfig/strlComboM9").value<QStringList>();
+        strlComboM10 = POIsettings.value("/MConfig/strlComboM10").value<QStringList>();
+        strlComboM11 = POIsettings.value("/MConfig/strlComboM11").value<QStringList>();
+        strlComboM12 = POIsettings.value("/MConfig/strlComboM12").value<QStringList>();
+        strlComboM13 = POIsettings.value("/MConfig/strlComboM13").value<QStringList>();
+        strlComboM14 = POIsettings.value("/MConfig/strlComboM14").value<QStringList>();
+        strlComboM15 = POIsettings.value("/MConfig/strlComboM15").value<QStringList>();
+        strlComboM16 = POIsettings.value("/MConfig/strlComboM16").value<QStringList>();
+
+        strlInverseM1 = POIsettings.value("/MConfig/strlInverseM1").value<QStringList>();
+        strlInverseM2 = POIsettings.value("/MConfig/strlInverseM2").value<QStringList>();
+        strlInverseM3 = POIsettings.value("/MConfig/strlInverseM3").value<QStringList>();
+        strlInverseM4 = POIsettings.value("/MConfig/strlInverseM4").value<QStringList>();
+        strlInverseM5 = POIsettings.value("/MConfig/strlInverseM5").value<QStringList>();
+        strlInverseM6 = POIsettings.value("/MConfig/strlInverseM6").value<QStringList>();
+        strlInverseM7 = POIsettings.value("/MConfig/strlInverseM7").value<QStringList>();
+        strlInverseM8 = POIsettings.value("/MConfig/strlInverseM8").value<QStringList>();
+        strlInverseM9 = POIsettings.value("/MConfig/strlInverseM9").value<QStringList>();
+        strlInverseM10 = POIsettings.value("/MConfig/strlInverseM10").value<QStringList>();
+        strlInverseM11 = POIsettings.value("/MConfig/strlInverseM11").value<QStringList>();
+        strlInverseM12 = POIsettings.value("/MConfig/strlInverseM12").value<QStringList>();
+        strlInverseM13 = POIsettings.value("/MConfig/strlInverseM13").value<QStringList>();
+        strlInverseM14 = POIsettings.value("/MConfig/strlInverseM14").value<QStringList>();
+        strlInverseM15 = POIsettings.value("/MConfig/strlInverseM15").value<QStringList>();
+        strlInverseM16 = POIsettings.value("/MConfig/strlInverseM16").value<QStringList>();
+
+    }
+
 }
 
+//void Poi::setBandM(int index, int val)
+//{
+
+//    setBandMToZero(index);
+//    if( val == 1)
+//        strlBandM1.replace(index, "1");
+//    else if( val == 2)
+//        strlBandM2.replace(index, "1");
+//    else if( val == 3)
+//        strlBandM3.replace(index, "1");
+//    else if( val == 4)
+//        strlBandM4.replace(index, "1");
+//    else if( val == 5)
+//        strlBandM5.replace(index, "1");
+//    else if( val == 6)
+//        strlBandM6.replace(index, "1");
+//    else if( val == 7)
+//        strlBandM7.replace(index, "1");
+//    else if( val == 8)
+//        strlBandM8.replace(index, "1");
+//    else if( val == 9)
+//        strlBandM9.replace(index, "1");
+//    else if( val == 10)
+//        strlBandM10.replace(index, "1");
+//    else if( val == 11)
+//        strlBandM11.replace(index, "1");
+//    else if( val == 12)
+//        strlBandM12.replace(index, "1");
+//    else if( val == 13)
+//        strlBandM13.replace(index, "1");
+//    else if( val == 14)
+//        strlBandM14.replace(index, "1");
+//    else if( val == 15)
+//        strlBandM15.replace(index, "1");
+//    else if( val == 16)
+//        strlBandM16.replace(index, "1");
+
+//}
+
+//void Poi::setBandMToZero(int index)
+//{
+//    strlBandM1.replace(index, "0");
+//    strlBandM2.replace(index, "0");
+//    strlBandM3.replace(index, "0");
+//    strlBandM4.replace(index, "0");
+//    strlBandM5.replace(index, "0");
+//    strlBandM6.replace(index, "0");
+//    strlBandM7.replace(index, "0");
+//    strlBandM8.replace(index, "0");
+//    strlBandM9.replace(index, "0");
+//    strlBandM10.replace(index, "0");
+//    strlBandM11.replace(index, "0");
+//    strlBandM12.replace(index, "0");
+//    strlBandM13.replace(index, "0");
+//    strlBandM14.replace(index, "0");
+//    strlBandM15.replace(index, "0");
+//    strlBandM16.replace(index, "0");
+
+//}
 
 void Poi::Save()
 {
     QSettings POIsettings( "POI.ini", QSettings::IniFormat);
-
 
     POIsettings.setValue("/GVP/strlName", strlGVPName );
     POIsettings.setValue("/GVP/strlLat", strlGVPLat);
@@ -141,6 +298,60 @@ void Poi::Save()
     POIsettings.setValue("/SG/strlmapwidth", strlSGMapWidth);
     POIsettings.setValue("/SG/strlmapheight", strlSGMapHeight);
     POIsettings.setValue("/SG/strlgridonproj", strlSGGridOnProj);
+
+    POIsettings.setValue("/MConfig/strlName", strlConfigNameM);
+    POIsettings.setValue("/MConfig/strlColorBandM", strlColorBandM);
+
+//    POIsettings.setValue("/MConfig/strlBandM1", strlBandM1);
+//    POIsettings.setValue("/MConfig/strlBandM2", strlBandM2);
+//    POIsettings.setValue("/MConfig/strlBandM3", strlBandM3);
+//    POIsettings.setValue("/MConfig/strlBandM4", strlBandM4);
+//    POIsettings.setValue("/MConfig/strlBandM5", strlBandM5);
+//    POIsettings.setValue("/MConfig/strlBandM6", strlBandM6);
+//    POIsettings.setValue("/MConfig/strlBandM7", strlBandM7);
+//    POIsettings.setValue("/MConfig/strlBandM8", strlBandM8);
+//    POIsettings.setValue("/MConfig/strlBandM9", strlBandM9);
+//    POIsettings.setValue("/MConfig/strlBandM10", strlBandM10);
+//    POIsettings.setValue("/MConfig/strlBandM11", strlBandM11);
+//    POIsettings.setValue("/MConfig/strlBandM12", strlBandM12);
+//    POIsettings.setValue("/MConfig/strlBandM13", strlBandM13);
+//    POIsettings.setValue("/MConfig/strlBandM14", strlBandM14);
+//    POIsettings.setValue("/MConfig/strlBandM15", strlBandM15);
+//    POIsettings.setValue("/MConfig/strlBandM16", strlBandM16);
+
+    POIsettings.setValue("/MConfig/strlComboM1", strlComboM1);
+    POIsettings.setValue("/MConfig/strlComboM2", strlComboM2);
+    POIsettings.setValue("/MConfig/strlComboM3", strlComboM3);
+    POIsettings.setValue("/MConfig/strlComboM4", strlComboM4);
+    POIsettings.setValue("/MConfig/strlComboM5", strlComboM5);
+    POIsettings.setValue("/MConfig/strlComboM6", strlComboM6);
+    POIsettings.setValue("/MConfig/strlComboM7", strlComboM7);
+    POIsettings.setValue("/MConfig/strlComboM8", strlComboM8);
+    POIsettings.setValue("/MConfig/strlComboM9", strlComboM9);
+    POIsettings.setValue("/MConfig/strlComboM10", strlComboM10);
+    POIsettings.setValue("/MConfig/strlComboM11", strlComboM11);
+    POIsettings.setValue("/MConfig/strlComboM12", strlComboM12);
+    POIsettings.setValue("/MConfig/strlComboM13", strlComboM13);
+    POIsettings.setValue("/MConfig/strlComboM14", strlComboM14);
+    POIsettings.setValue("/MConfig/strlComboM15", strlComboM15);
+    POIsettings.setValue("/MConfig/strlComboM16", strlComboM16);
+
+    POIsettings.setValue("/MConfig/strlInverseM1", strlInverseM1);
+    POIsettings.setValue("/MConfig/strlInverseM2", strlInverseM2);
+    POIsettings.setValue("/MConfig/strlInverseM3", strlInverseM3);
+    POIsettings.setValue("/MConfig/strlInverseM4", strlInverseM4);
+    POIsettings.setValue("/MConfig/strlInverseM5", strlInverseM5);
+    POIsettings.setValue("/MConfig/strlInverseM6", strlInverseM6);
+    POIsettings.setValue("/MConfig/strlInverseM7", strlInverseM7);
+    POIsettings.setValue("/MConfig/strlInverseM8", strlInverseM8);
+    POIsettings.setValue("/MConfig/strlInverseM9", strlInverseM9);
+    POIsettings.setValue("/MConfig/strlInverseM10", strlInverseM10);
+    POIsettings.setValue("/MConfig/strlInverseM11", strlInverseM11);
+    POIsettings.setValue("/MConfig/strlInverseM12", strlInverseM12);
+    POIsettings.setValue("/MConfig/strlInverseM13", strlInverseM13);
+    POIsettings.setValue("/MConfig/strlInverseM14", strlInverseM14);
+    POIsettings.setValue("/MConfig/strlInverseM15", strlInverseM15);
+    POIsettings.setValue("/MConfig/strlInverseM16", strlInverseM16);
 
 }
 

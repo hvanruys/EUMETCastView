@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
+    <width>423</width>
     <height>1135</height>
    </rect>
   </property>
@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabAVHHR">
       <attribute name="title">
@@ -624,7 +624,7 @@
           <attribute name="title">
            <string>M-Band</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_19">
+          <layout class="QVBoxLayout" name="verticalLayout_13">
            <item>
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
@@ -1531,61 +1531,66 @@
            </item>
            <item>
             <layout class="QGridLayout" name="gridLayout_4">
-             <item row="1" column="0">
-              <widget class="QPushButton" name="btnMakeVIIRSImage">
-               <property name="text">
-                <string> Make VIIRS Image </string>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="1">
-              <widget class="QPushButton" name="btnSetNaturalColors">
-               <property name="text">
-                <string> Natural Colors </string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QPushButton" name="btnSetTrueColors">
-               <property name="text">
-                <string> True Colors </string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <spacer name="horizontalSpacer_60">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="1" column="1">
               <widget class="QPushButton" name="btnTextureVIIRS">
                <property name="text">
                 <string>Texture</string>
                </property>
               </widget>
              </item>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="btnMakeVIIRSImage">
+               <property name="text">
+                <string>Update VIIRS Image </string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item>
-            <spacer name="verticalSpacer_7">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
+            <layout class="QHBoxLayout" name="horizontalLayout_34">
+             <item>
+              <widget class="QLabel" name="label_45">
+               <property name="text">
+                <string>Configuration</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboMConfig">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_35">
+             <item>
+              <widget class="QPushButton" name="btnAddMConfig">
+               <property name="text">
+                <string>Add Configuration</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="leMConfig">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTextEdit" name="teVIIRSM"/>
            </item>
           </layout>
          </widget>
@@ -1696,12 +1701,12 @@
              </property>
             </spacer>
            </item>
+           <item>
+            <widget class="QTextEdit" name="teVIIRSDNB"/>
+           </item>
           </layout>
          </widget>
         </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="teVIIRS"/>
        </item>
       </layout>
      </widget>
@@ -2787,11 +2792,32 @@
              </layout>
             </item>
             <item>
-             <widget class="QRadioButton" name="rdbVIIRSin">
+             <widget class="QRadioButton" name="rdbVIIRSMin">
               <property name="text">
-               <string>VIIRS Image</string>
+               <string>VIIRS M Image</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_63">
+              <item>
+               <widget class="QRadioButton" name="rdbVIIRSDNBin">
+                <property name="text">
+                 <string>VIIRS DNB image</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="rdbCombine">
+                <property name="text">
+                 <string>Combine with background</string>
+                </property>
+                <property name="autoExclusive">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QRadioButton" name="rdbMeteosatin">
@@ -2884,7 +2910,7 @@
             <item>
              <widget class="QToolBox" name="toolBox">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
@@ -2892,7 +2918,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>335</width>
-                 <height>518</height>
+                 <height>506</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -3629,8 +3655,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>326</width>
-                 <height>269</height>
+                 <width>361</width>
+                 <height>501</height>
                 </rect>
                </property>
                <attribute name="label">

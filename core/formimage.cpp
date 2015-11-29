@@ -109,36 +109,39 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
 
     switch(channelshown)
     {
-        case 1:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
-            break;
-        case 2:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
-            break;
-        case 3:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
-            break;
-        case 4:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
-            break;
-        case 5:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
-            break;
-        case 6:
-            imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
-            break;
-        case 7:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
-            break;
-        case 8:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
-            break;
-        case 9:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
-            break;
-        case 10:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirs)));
-            break;
+    case 1:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
+        break;
+    case 2:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
+        break;
+    case 3:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
+        break;
+    case 4:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
+        break;
+    case 5:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
+        break;
+    case 6:
+        imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
+        break;
+    case 7:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
+        break;
+    case 8:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+        break;
+    case 9:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
+        break;
+    case 10:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
+        break;
+    case 11:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
+        break;
 
     }
 
@@ -152,7 +155,7 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
 void FormImage::setPixmapToLabelDNB(bool settoolboxbuttons)
 {
     refreshoverlay = true;
-    imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirs)));
+    imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
     this->update();
 
 }
@@ -165,36 +168,39 @@ void FormImage::displayImage(int channel)
 
     switch(channelshown)
     {
-        case 1:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
-            break;
-        case 2:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
-            break;
-        case 3:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
-            break;
-        case 4:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
-            break;
-        case 5:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
-            break;
-        case 6:
-            imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
-            break;
-        case 7:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
-            break;
-        case 8:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
-            break;
-        case 9:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
-            break;
-        case 10:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirs)));
-            break;
+    case 1:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
+        break;
+    case 2:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
+        break;
+    case 3:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
+        break;
+    case 4:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
+        break;
+    case 5:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
+        break;
+    case 6:
+        imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
+        break;
+    case 7:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
+        break;
+    case 8:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+        break;
+    case 9:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
+        break;
+    case 10:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
+        break;
+    case 11:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
+        break;
 
     }
 
@@ -304,7 +310,7 @@ void FormImage::ComposeImage()
     {
             formtoolbox->setToolboxButtons(false);
 
-            this->displayImage(10);
+            this->displayImage(11);
             this->kindofimage = "VIIRSDNB";
             this->setSegmentType(SEG_VIIRSDNB);
             bandlist = formtoolbox->getVIIRSBandList();
@@ -372,7 +378,7 @@ bool FormImage::ShowVIIRSDNBImage()
     if (viirsdnbcount > 0)
     {
         ret = true;
-        displayImage(10);
+        displayImage(11);
 
         emit allsegmentsreceivedbuttons(false);
 
@@ -468,6 +474,7 @@ void FormImage::setZoomValue(int z)
         opts.zoomfactorprojection = z;
         break;
     case 10:
+    case 11:
         zoomValueviirs = z;
         opts.zoomfactorviirs = z;
         break;
@@ -496,6 +503,7 @@ int FormImage::getZoomValue()
         zoomValue = zoomValueprojection;
         break;
     case 10:
+    case 11:
         zoomValue = zoomValueviirs;
         break;
 
@@ -540,7 +548,7 @@ void FormImage::paintEvent( QPaintEvent * )
     if(channelshown >= 1 && channelshown <= 6)
         displayAVHRRImageInfo();
 
-    if(channelshown == 10)
+    if(channelshown == 10 || channelshown == 11)
         displayVIIRSImageInfo();
 
     if(segs->seglmeteosat->bActiveSegmentList == true)
@@ -701,28 +709,30 @@ void FormImage::displayVIIRSImageInfo()
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
                           "<body>"
-                          "<h2 style='color:blue'>Image Information</h1>"
-                          "<h3>Segment type = %1</h3>"
-                          "<h3>Nbr of segments = %2</h3>"
-                          "<h3>Image width = %3 height = %4</h3>"
-                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirs->width()).arg(imageptrs->ptrimageViirs->height());
+                          "<h3 style='color:blue'>Image Information</h3>"
+                          "<p>Segment type = %1<br>"
+                          "Nbr of segments = %2<br>"
+                          "Image width = %3 height = %4<br>"
+                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirsM->width()).arg(imageptrs->ptrimageViirsM->height());
+        formtoolbox->writeInfoToVIIRSM(txtInfo);
+
     }
-    else if(type == SEG_VIIRSDNB)
+    if(type == SEG_VIIRSDNB)
     {
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
-                          "<body style='background-color:red'>"
-                          "<h3 style='color:blue;text-align:center'>Image Information</h3>"
+                          "<body>"
+                          "<h3 style='color:blue'>Image Information</h3>"
                           "<p>Segment type = %1<br>"
                           "Nbr of segments = %2<br>"
                           "Image width = %3 height = %4<br>"
                           "Moon illumination = %5 %</p>"
-                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirs->width())
-                .arg(imageptrs->ptrimageViirs->height()).arg(moonillum, 4, 'f', 2);
+                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirsDNB->width())
+                .arg(imageptrs->ptrimageViirsDNB->height()).arg(moonillum, 4, 'f', 2);
+        formtoolbox->writeInfoToVIIRSDNB(txtInfo);
 
     }
 
-    formtoolbox->writeInfoToVIIRS(txtInfo);
 
 }
 
@@ -815,8 +825,13 @@ void FormImage::adjustPicSize(bool setwidth)
     }
     else if(channelshown == 10)
     {
-       w=imageptrs->ptrimageViirs->width();
-       h=imageptrs->ptrimageViirs->height();
+       w=imageptrs->ptrimageViirsM->width();
+       h=imageptrs->ptrimageViirsM->height();
+    }
+    else if(channelshown == 11)
+    {
+       w=imageptrs->ptrimageViirsDNB->width();
+       h=imageptrs->ptrimageViirsDNB->height();
     }
 
     mw=this->parentWidget()->width();
@@ -2168,112 +2183,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
 }
 
 
-void FormImage::OverlayNoaaImage(QPainter *paint, SegmentListNoaa *sl)
-{
-    if (imageLabel->pixmap() == 0)
-        return;
 
-    paint->setPen(qRgb(255, 0, 0));
-    paint->drawLine(0, 0, imageLabel->pixmap()->width(),  imageLabel->pixmap()->height());
-
-    int nbr = 0;
-    QList<Segment*> *slselected = sl->GetSegsSelectedptr();
-
-    if(slselected->count() == 0)
-        return;
-
-    SegmentNoaa *segm = (SegmentNoaa *)(slselected->at(0));
-
-/*    QList<Segment*>::iterator segsel = slselected->begin();
-    while ( segsel != slselected->end() )
-    {
-        SegmentNoaa *segm = (SegmentNoaa *)(*segsel);
-        qDebug() << QString("julian start = %1").arg(segm->julian_sensing_start,16, 'f', 8);
-        nbr++;
-        ++segsel;
-    }
-*/
-
-
-    QGeodetic obsgd(Util::DegreesToRadians(opts.obslat), Util::DegreesToRadians(opts.obslon), segm->qtle->radiusearthkm);
-    QGeocentric obsgc = obsgd.toGeocentric(QTle::wgs72);
-
-    double inclination = segm->qtle->Inclination();
-    qDebug() << QString("gd lon = %1 lat = %2  gc lon = %3 lat = %4").arg(Util::RadiansToDegrees(obsgd.longitude)).arg(Util::RadiansToDegrees(obsgd.latitude)).arg(Util::RadiansToDegrees(obsgc.longitude)).arg(Util::RadiansToDegrees(obsgc.latitude));
-    qDebug() << QString("inclination = %1").arg(Util::RadiansToDegrees(inclination));
-
-    QEci eci;
-    segm->qsgp4->getPosition(0.0, eci);
-    QGeocentric geoc0 = eci.ToGeocentric();
-
-    qDebug() << QString("geoc0 lon = %1 lat = %2 alt = %3").arg(Util::RadiansToDegrees(geoc0.longitude)).arg(Util::RadiansToDegrees(geoc0.latitude)).arg(geoc0.altitude);
-    qDebug() << QString("minutes since the state vector = %1").arg(segm->minutes_since_state_vector);
-
-    segm->qsgp4->getPosition(segm->minutes_since_state_vector, eci);
-    QGeocentric geoc = eci.ToGeocentric();
-    Vector3 pos = eci.GetPos();
-    double r = pos.length();
-    double phi_s_ac = ArcSin(sin(geoc.latitude)/sin(inclination));
-
-    qDebug() << QString("phi_s_ac = %1").arg(Util::RadiansToDegrees(phi_s_ac));
-
-    double angular_velocity_rad_per_sec = TWOPI/segm->qtle->Period(); // period in seconds
-    double julian_time_ascending_node = segm->julian_sensing_start - (phi_s_ac / (angular_velocity_rad_per_sec * SECONDS_PER_DAY));
-    double static_lon_s_ac = ArcCos(cos(phi_s_ac)/ cos(geoc.latitude));
-    double earth_rate_rad_per_min = Util::DegreesToRadians(0.2506845 - 0.0006844774);
-    double earth_rate_rad_per_day = earth_rate_rad_per_min * (24.0 * 60.0);
-
-    qDebug() << QString("earth_rate_rad_per_day = %1").arg(Util::RadiansToDegrees(earth_rate_rad_per_day), 18, 'f', 8);
-
-    double lon_ascending_node = static_lon_s_ac + geoc.longitude - (segm->julian_sensing_start - julian_time_ascending_node) * earth_rate_rad_per_day;
-
-    qDebug() << QString("lon_ascending_node = %1 geoc.lon = %2").arg(Util::RadiansToDegrees(lon_ascending_node), 16, 'f', 8).arg(Util::RadiansToDegrees(geoc.longitude), 16, 'f', 8);
-
-    const double delta = 1.0e-6;
-    double julian_time = segm->julian_sensing_start;
-    double static_lon_e, beta, j, psi, sinpsi;
-    double phi_s_dac, sinbeta, cosbeta;
-    double julian_proj_scan_time, julian_estimate;
-
-    //do
-    for(int i = 0; i < 5; i++)
-    {
-        static_lon_e = lon_ascending_node - geoc.longitude + (julian_time - julian_time_ascending_node) * earth_rate_rad_per_day;
-        cosbeta = cos(geoc.latitude) * cos(static_lon_e);
-        beta = ArcCos(cosbeta);
-        sinbeta = sin(beta);
-        j = ArcSin(sin(geoc.latitude) / sinbeta);
-        sinpsi = sin(j - inclination) * sinbeta;
-        psi = ArcSin(sinpsi);
-        phi_s_dac = ArcCos(cosbeta/cos(psi));
-        julian_proj_scan_time = julian_time_ascending_node + (phi_s_dac/(angular_velocity_rad_per_sec * SECONDS_PER_DAY));
-        julian_estimate = julian_proj_scan_time;
-        julian_time = julian_estimate;
-        qDebug() << QString("julian time = %1 julian sensing start = %2 psi = %3").arg(julian_time, 18, 'f', 10).arg(segm->julian_sensing_start, 18, 'f', 10).arg(Util::RadiansToDegrees(psi));
-     }
-    //while (fabs(julian_proj_scan_time - segm->julian_sensing_start) > delta);
-
-    double scan_angle = Util::AcTan(sinpsi,((r/segm->qtle->radiusearthkm) - cos(psi)));
-    qDebug() << QString("scan_angle = %1").arg(Util::RadiansToDegrees(scan_angle));
-    double time_since_sensing_start_in_sec = (segm->julian_sensing_start - julian_proj_scan_time ) * SECONDS_PER_DAY;
-    double aantal_punten_in_tijd = Util::Mod(time_since_sensing_start_in_sec, 0.166666666666667 );
-    double aantal_lijnen;
-    double aantal_punten_in_tijd1 = Util::Mod1(time_since_sensing_start_in_sec, 0.166666666666667, &aantal_lijnen );
-
-    qDebug() << QString("verschil in seconds = %1").arg(time_since_sensing_start_in_sec);
-    qDebug() << QString("in lijnen uitgedrukt = %1").arg(time_since_sensing_start_in_sec * 6);
-    qDebug() << QString("aantal punten in tijd = %1").arg(aantal_punten_in_tijd);
-    qDebug() << QString("aantal punten in tijd 1 = %1 result = %2").arg(aantal_punten_in_tijd1).arg(aantal_lijnen);
-    double aantal_punten = 2048.0 * (1.0 - 6.0 * aantal_punten_in_tijd1);
-
-    qDebug() << QString("aantal punten = %1").arg(aantal_punten);
-
-
-    paint->drawLine(0, 359, imageLabel->pixmap()->width(), 359);
-    paint->drawLine(0, 360-aantal_lijnen, imageLabel->pixmap()->width(), 360-aantal_lijnen);
-    paint->drawLine(int(aantal_punten), 0, int(aantal_punten), imageLabel->pixmap()->height());
-
-}
 
 /*
 void FormImage::OverlayAVHRRImage(QPainter *paint)

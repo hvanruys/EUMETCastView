@@ -625,7 +625,8 @@ void FormEphem::showSelectedSegmentList(void)
     QList<Segment*> *slnoaa = segs->seglnoaa->GetSegmentlistptr();
     QList<Segment*> *slgac = segs->seglgac->GetSegmentlistptr();
     QList<Segment*> *slhrp = segs->seglhrp->GetSegmentlistptr();
-    QList<Segment*> *slviirs = segs->seglviirsm->GetSegmentlistptr();
+    QList<Segment*> *slviirsm = segs->seglviirsm->GetSegmentlistptr();
+    QList<Segment*> *slviirsdnb = segs->seglviirsdnb->GetSegmentlistptr();
     QList<QTreeWidgetItem *> items;
 
     ui->selectedsegmentwidget->clear();
@@ -702,18 +703,36 @@ void FormEphem::showSelectedSegmentList(void)
     else
     if (opts.buttonVIIRSM)
     {
-        QList<Segment*>::iterator segitviirs = slviirs->begin();
-        while ( segitviirs != slviirs->end() )
+        QList<Segment*>::iterator segitviirsm = slviirsm->begin();
+        while ( segitviirsm != slviirsm->end() )
         {
-            if((*segitviirs)->IsSelected())
+            if((*segitviirsm)->IsSelected())
             {
                 QStringList nl;
-                nl << (*segitviirs)->fileInfo.fileName() << QString("%1").arg((*segitviirs)->GetNbrOfLines());
+                nl << (*segitviirsm)->fileInfo.fileName() << QString("%1").arg((*segitviirsm)->GetNbrOfLines());
 
                 items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
-                ui->selectedsegmentwidget->setHeaderLabel((*segitviirs)->fileInfo.absolutePath());
+                ui->selectedsegmentwidget->setHeaderLabel((*segitviirsm)->fileInfo.absolutePath());
             }
-            ++segitviirs;
+            ++segitviirsm;
+        }
+
+    }
+    else
+    if (opts.buttonVIIRSDNB)
+    {
+        QList<Segment*>::iterator segitviirsdnb = slviirsdnb->begin();
+        while ( segitviirsdnb != slviirsdnb->end() )
+        {
+            if((*segitviirsdnb)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segitviirsdnb)->fileInfo.fileName() << QString("%1").arg((*segitviirsdnb)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segitviirsdnb)->fileInfo.absolutePath());
+            }
+            ++segitviirsdnb;
         }
 
     }

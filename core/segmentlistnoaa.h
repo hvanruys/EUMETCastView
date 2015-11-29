@@ -13,7 +13,6 @@ class SegmentListNoaa : public SegmentList
 
 public:
     explicit SegmentListNoaa(SatelliteList *satl = 0, QObject *parent = 0);
-    void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
 private:
 
     SatelliteList *satlist;

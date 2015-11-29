@@ -11,16 +11,16 @@ class SegmentListVIIRSDNB  : public SegmentList
         Q_OBJECT
 
 public:
-    SegmentListVIIRSDNB(SatelliteList *satl = 0, QObject *parent = 0, eSegmentType type = eSegmentType::SEG_VIIRSDNB);
-    void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
+    SegmentListVIIRSDNB(SatelliteList *satl = 0, QObject *parent = 0);
     //bool ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     //bool ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     bool ComposeVIIRSImageInThread();
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+    void ComposeGVProjection(int inputchannel);
 
     //bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
     void ShowImageSerial();
-    void SmoothVIIRSImage();
+    void SmoothVIIRSImage(bool combine);
     //static void doReadSegmentInMemoryVIIRS(Segment *t);
     //static void doComposeSegmentImageVIIRS(Segment *t);
     //static void doComposeProjection(Segment *t);
@@ -40,9 +40,7 @@ private:
     float stat_min_dnb;
     float moonillumination;
 
-
 protected:
-
     QFutureWatcher<void> *watcherviirs;
 
 protected slots:
@@ -51,8 +49,6 @@ protected slots:
 
 signals:
     void progressCounter(int);
-
-
 };
 
 #endif // SEGMENTLISTVIIRS_H

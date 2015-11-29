@@ -855,7 +855,7 @@ void SegmentVIIRSM::ComposeSegmentImage()
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
-        row = (QRgb*)imageptrs->ptrimageViirs->scanLine(this->startLineNbr + line);
+        row = (QRgb*)imageptrs->ptrimageViirsM->scanLine(this->startLineNbr + line);
         for (int pixelx = 0; pixelx < 3200; pixelx++)
         {
             pixval[0] = *(this->ptrbaVIIRS[0].data() + line * 3200 + pixelx);
@@ -934,6 +934,54 @@ void SegmentVIIRSM::ComposeSegmentImage()
         }
 
     }
+}
+
+void SegmentVIIRSM::recalculateStatsInProjection()
+{
+    int pixval[3];
+    bool color = bandlist.at(0);
+    bool valok[3];
+    long count = 0;
+
+    int x, y;
+
+    int statmax[3], statmin[3];
+    long active_pixels[3];
+
+    for(int k = 0; k < 3; k++)
+    {
+        statmax[k] = 0;
+        statmin[k] = 999999;
+        active_pixels[k] = 0;
+    }
+
+    for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
+    {
+        for (int j = 0; j < 768; j++)
+        {
+            for (int i = 0; i < 3200; i++)
+            {
+                x = *(this->projectionCoordX.data() + j * 3200 + i);
+                y = *(this->projectionCoordY.data() + j * 3200 + i);
+                if(x >= 0 && x < imageptrs->ptrimageProjection->width() && y >= 0 && y < imageptrs->ptrimageProjection->height())
+                {
+                    if(ptrbaVIIRS[k][j * 3200 + i] >= statmax[k])
+                        statmax[k] = ptrbaVIIRS[k][j * 3200 + i];
+                    if(ptrbaVIIRS[k][j * 3200 + i] < statmin[k])
+                        statmin[k] = ptrbaVIIRS[k][j * 3200 + i];
+                    active_pixels[k]++;
+                }
+            }
+        }
+    }
+
+    for(int k = 0; k < 3; k++)
+    {
+        stat_max_projection[k] = statmax[k];
+        stat_min_projection[k] = statmin[k];
+    }
+    active_pixels_projection = active_pixels[0];
+
 }
 
 
@@ -1034,21 +1082,126 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj)
         }
     }
 
-    long cntcoord = 0;
-    long cnttotal = 0;
+}
+
+void SegmentVIIRSM::RecalculateProjection()
+{
+
+    int indexout[3];
+    int pixval[3];
+    int r, g, b;
+    QRgb rgbvalue = qRgb(0,0,0);
+
+    int map_x, map_y;
+
+    bool color = bandlist.at(0);
+    bool valok[3];
 
     for( int i = 0; i < this->NbrOfLines; i++)
     {
         for( int j = 0; j < this->earth_views_per_scanline ; j++ )
         {
-            if(projectionCoordX[i * 3200 + j] != 65535)
-                cntcoord++;
-            cnttotal++;
+            pixval[0] = ptrbaVIIRS[0][i * 3200 + j];
 
+            if(color)
+            {
+                pixval[1] = ptrbaVIIRS[1][i * 3200 + j];
+                pixval[2] = ptrbaVIIRS[2][i * 3200 + j];
+            }
+
+
+            map_x = projectionCoordX[i * 3200 + j];
+            map_y = projectionCoordY[i * 3200 + j];
+
+            if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
+            {
+
+
+                for(int i = 0; i < (color ? 3 : 1); i++)
+                {
+                    indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
+                    indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
+                }
+
+                if(color)
+                {
+                    if(invertthissegment[0])
+                    {
+                        r = 255 - imageptrs->lut_ch[0][indexout[0]];
+                    }
+                    else
+                        r = imageptrs->lut_ch[0][indexout[0]];
+                    if(invertthissegment[1])
+                    {
+                        g = 255 - imageptrs->lut_ch[1][indexout[1]];
+                    }
+                    else
+                        g = imageptrs->lut_ch[1][indexout[1]];
+                    if(invertthissegment[2])
+                    {
+                        b = 255 - imageptrs->lut_ch[2][indexout[2]];
+                    }
+                    else
+                        b = imageptrs->lut_ch[2][indexout[2]];
+
+                    //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
+                    rgbvalue = qRgba(r, g, b, 255);
+
+                }
+                else
+                {
+                    if(invertthissegment[0])
+                    {
+                        r = 255 - imageptrs->lut_ch[0][indexout[0]];
+                    }
+                    else
+                        r = imageptrs->lut_ch[0][indexout[0]];
+
+                    rgbvalue = qRgba(r, r, r, 255);
+                }
+
+                if(opts.sattrackinimage)
+                {
+                    if(j == 1598 || j == 1599 || j == 1600 || j == 1601 )
+                    {
+                        rgbvalue = qRgb(250, 0, 0);
+                        if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                            imageptrs->ptrimageProjection->setPixel(map_x, map_y, rgbvalue);
+                    }
+                    else
+                    {
+                        if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                            imageptrs->ptrimageProjection->setPixel(map_x, map_y, rgbvalue);
+
+                    }
+                }
+                else
+                {
+                    if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel(map_x, map_y, rgbvalue);
+                }
+
+            }
         }
     }
 
-    qDebug() << QString("Nbr of pixels in projection active = %1  ; total = %2").arg(cntcoord).arg(cnttotal);
+}
+
+//    long cntcoord = 0;
+//    long cnttotal = 0;
+
+//    for( int i = 0; i < this->NbrOfLines; i++)
+//    {
+//        for( int j = 0; j < this->earth_views_per_scanline ; j++ )
+//        {
+//            if(projectionCoordX[i * 3200 + j] != 65535)
+//                cntcoord++;
+//            cnttotal++;
+
+//        }
+//    }
+
+//    qDebug() << QString("Nbr of pixels in projection active = %1  ; total = %2").arg(cntcoord).arg(cnttotal);
 
 /*
     int maxX = 0;
@@ -1092,7 +1245,7 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj)
 
    // g_mutex.unlock();
 
-}
+
 
 //void SegmentVIIRS::ComposeProjectionConcurrent()
 //{

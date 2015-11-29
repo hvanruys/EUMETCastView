@@ -218,7 +218,6 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         }
     }
 
-
 }
 
 void SegmentGL::RenderContour(Segment *seg, QMatrix4x4 projection, QMatrix4x4 modelview, int width, int height)

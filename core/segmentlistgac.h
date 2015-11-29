@@ -11,7 +11,6 @@ class SegmentListGAC : public SegmentList
 
 public:
     explicit SegmentListGAC(QObject *parent = 0);
-    void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
     
 signals:
     

@@ -110,6 +110,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->chkImageOnTextureMet->setChecked(opts.imageontextureOnMet);
     ui->chkImageOnTextureAVHRR->setChecked(opts.imageontextureOnAVHRR);
     ui->chkImageOnTextureVIIRS->setChecked(opts.imageontextureOnVIIRS);
+    ui->chkWindowVectors->setChecked(opts.windowvectors);
     ui->chkUDPMessages->setChecked(opts.udpmessages);
 
     ui->chkGshhs1->setChecked(opts.gshhsglobe1On);
@@ -137,6 +138,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupPOILCCTable();
     setupPOIGVPTable();
     setupPOISGTable();
+    setupVIIRSMConfigTable();
 
     POItablechanged = false;
 
@@ -243,6 +245,23 @@ void DialogPreferences::setupPOISGTable()
 
 }
 
+void DialogPreferences::setupVIIRSMConfigTable()
+{
+    myVIIRSMConfigModel = new VIIRSMConfigModel(this);
+
+    ui->tbvVIIRSMConfig->setModel(myVIIRSMConfigModel);
+
+
+    QHeaderView *hheader = ui->tbvVIIRSMConfig->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddMConfig, SIGNAL(clicked()), this, SLOT(addVIIRSMConfigRow()));
+    connect(ui->btnDeleteMConfig, SIGNAL(clicked()), this, SLOT(deleteVIIRSMConfigRow()));
+
+}
+
 void DialogPreferences::addStationRow()
 {
     myStationModel->insertRows(myStationModel->rowCount(), 1, QModelIndex());
@@ -332,6 +351,20 @@ void DialogPreferences::deletePOISGRow()
     myPOISGModel->removeRow(row, QModelIndex());
 }
 
+void DialogPreferences::addVIIRSMConfigRow()
+{
+    //POItablechanged = true;
+
+    myVIIRSMConfigModel->insertRows(myVIIRSMConfigModel->rowCount(), 1, QModelIndex());
+}
+
+void DialogPreferences::deleteVIIRSMConfigRow()
+{
+    //POItablechanged = true;
+
+    int row = ui->tbvVIIRSMConfig->currentIndex().row();
+    myVIIRSMConfigModel->removeRow(row, QModelIndex());
+}
 
 void DialogPreferences::changePage(QListWidgetItem *current, QListWidgetItem *previous)
 {
@@ -393,6 +426,7 @@ void DialogPreferences::dialogaccept()
     opts.imageontextureOnMet = ui->chkImageOnTextureMet->isChecked();
     opts.imageontextureOnAVHRR = ui->chkImageOnTextureAVHRR->isChecked();
     opts.imageontextureOnVIIRS = ui->chkImageOnTextureVIIRS->isChecked();
+    opts.windowvectors = ui->chkWindowVectors->isChecked();
     opts.udpmessages = ui->chkUDPMessages->isChecked();
 
     opts.sattrackinimage = ui->rbSattrackOn->isChecked();
@@ -1710,6 +1744,274 @@ bool POISGModel::removeRows(int position, int rows, const QModelIndex &index)
 }
 
 Qt::ItemFlags POISGModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
+//-----------------------------------------------------------------
+
+VIIRSMConfigModel::VIIRSMConfigModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+
+}
+
+int VIIRSMConfigModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return poi.strlConfigNameM.count();
+}
+
+int VIIRSMConfigModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 18;
+}
+
+QVariant VIIRSMConfigModel::data(const QModelIndex &index, int role) const
+{
+
+    if (role == Qt::DisplayRole)
+    {
+        switch(index.column())
+        {
+        case 0:
+            return poi.strlConfigNameM.at(index.row());
+            break;
+        case 1:
+            return poi.strlColorBandM.at(index.row());
+            break;
+        case 2:
+            return poi.strlComboM1.at(index.row());
+            break;
+        case 3:
+            return poi.strlComboM2.at(index.row());
+            break;
+        case 4:
+            return poi.strlComboM3.at(index.row());
+            break;
+        case 5:
+            return poi.strlComboM4.at(index.row());
+            break;
+        case 6:
+            return poi.strlComboM5.at(index.row());
+            break;
+        case 7:
+            return poi.strlComboM6.at(index.row());
+            break;
+        case 8:
+            return poi.strlComboM7.at(index.row());
+            break;
+        case 9:
+            return poi.strlComboM8.at(index.row());
+            break;
+        case 10:
+            return poi.strlComboM9.at(index.row());
+            break;
+        case 11:
+            return poi.strlComboM10.at(index.row());
+            break;
+        case 12:
+            return poi.strlComboM11.at(index.row());
+            break;
+        case 13:
+            return poi.strlComboM12.at(index.row());
+            break;
+        case 14:
+            return poi.strlComboM13.at(index.row());
+            break;
+        case 15:
+            return poi.strlComboM14.at(index.row());
+            break;
+        case 16:
+            return poi.strlComboM15.at(index.row());
+            break;
+        case 17:
+            return poi.strlComboM16.at(index.row());
+            break;
+        }
+    }
+
+    return QVariant();
+
+
+}
+
+
+
+bool VIIRSMConfigModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            poi.strlConfigNameM.replace(index.row(), value.toString());
+            break;
+        case 1:
+            poi.strlColorBandM.replace(index.row(), value.toString());
+            break;
+        case 2:
+            poi.strlComboM1.replace(index.row(), value.toString());
+            break;
+        case 3:
+            poi.strlComboM2.replace(index.row(), value.toString());
+            break;
+        case 4:
+            poi.strlComboM3.replace(index.row(), value.toString());
+            break;
+        case 5:
+            poi.strlComboM4.replace(index.row(), value.toString());
+            break;
+        case 6:
+            poi.strlComboM5.replace(index.row(), value.toString());
+            break;
+        case 7:
+            poi.strlComboM6.replace(index.row(), value.toString());
+            break;
+        case 8:
+            poi.strlComboM7.replace(index.row(), value.toString());
+            break;
+        case 9:
+            poi.strlComboM8.replace(index.row(), value.toString());
+            break;
+        case 10:
+            poi.strlComboM9.replace(index.row(), value.toString());
+            break;
+        case 11:
+            poi.strlComboM10.replace(index.row(), value.toString());
+            break;
+        case 12:
+            poi.strlComboM11.replace(index.row(), value.toString());
+            break;
+        case 13:
+            poi.strlComboM12.replace(index.row(), value.toString());
+            break;
+        case 14:
+            poi.strlComboM13.replace(index.row(), value.toString());
+            break;
+        case 15:
+            poi.strlComboM14.replace(index.row(), value.toString());
+            break;
+        case 16:
+            poi.strlComboM15.replace(index.row(), value.toString());
+            break;
+        case 17:
+            poi.strlComboM16.replace(index.row(), value.toString());
+            break;
+        }
+
+        emit editCompleted();
+    }
+
+    return true;
+}
+
+QVariant VIIRSMConfigModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Name");
+
+        case 1:
+            return tr("Band");
+
+        case 2:
+            return tr("M1");
+        case 3:
+            return tr("M2");
+        case 4:
+            return tr("M3");
+        case 5:
+            return tr("M4");
+        case 6:
+            return tr("M5");
+        case 7:
+            return tr("M6");
+        case 8:
+            return tr("M7");
+        case 9:
+            return tr("M8");
+        case 10:
+            return tr("M9");
+        case 11:
+            return tr("M10");
+        case 12:
+            return tr("M11");
+        case 13:
+            return tr("M12");
+        case 14:
+            return tr("M13");
+        case 15:
+            return tr("M14");
+        case 16:
+            return tr("M15");
+        case 17:
+            return tr("M16");
+
+
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+
+}
+
+bool VIIRSMConfigModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlConfigNameM.append( " " );
+    poi.strlColorBandM.append( "0" );
+    poi.strlComboM1.append( "0" );
+    poi.strlComboM2.append( "0" );
+    poi.strlComboM3.append( "0" );
+    poi.strlComboM4.append( "0" );
+    poi.strlComboM5.append( "0" );
+    poi.strlComboM6.append( "0" );
+    poi.strlComboM7.append( "0" );
+    poi.strlComboM8.append( "0" );
+    poi.strlComboM9.append( "0" );
+    poi.strlComboM10.append( "0" );
+    poi.strlComboM11.append( "0" );
+    poi.strlComboM12.append( "0" );
+    poi.strlComboM13.append( "0" );
+    poi.strlComboM14.append( "0" );
+    poi.strlComboM15.append( "0" );
+    poi.strlComboM16.append( "0" );
+
+    endInsertRows();
+    return true;
+
+}
+
+bool VIIRSMConfigModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+//    poi.strlConfigNameM.removeAt(position);
+//    poi.strlSGMapWidth.removeAt(position);
+//    poi.strlSGMapHeight.removeAt(position);
+//    poi.strlSGLon.removeAt(position);
+//    poi.strlSGLat.removeAt(position);
+//    poi.strlSGRadius.removeAt(position);
+//    poi.strlSGScale.removeAt(position);
+//    poi.strlSGPanH.removeAt(position);
+//    poi.strlSGPanV.removeAt(position);
+//    poi.strlSGGridOnProj.removeAt(position);
+
+    endRemoveRows();
+    return true;
+
+}
+
+Qt::ItemFlags VIIRSMConfigModel::flags(const QModelIndex & /*index*/) const
 {
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }

@@ -285,6 +285,8 @@ bool SegmentList::TestForSegmentGL(int x, int realy, float distance, const QMatr
 
     bool isselected = false;
 
+    qDebug() << QString("Nbr of segments = %1").arg(segmentlist.count());
+
     QList<Segment*>::iterator segit = segmentlist.begin();
     QVector2D winvec1, winvec2, winvecend1, winvecend2, winvecend3, winvecend4;
 
@@ -294,7 +296,8 @@ bool SegmentList::TestForSegmentGL(int x, int realy, float distance, const QMatr
 
     while ( segit != segmentlist.end() )
     {
-        if(showallsegments ? true : (*segit)->segmentshow )
+//        if(showallsegments ? true : (opts.buttonVIIRSMDNB ? (*segit)->segmentshow && (*segit)->hasDNBsegment : (*segit)->segmentshow) )
+        if(showallsegments ? true : (*segit)->segmentshow)
         {
             winvec1.setX((*segit)->winvec1.x()); winvec1.setY((*segit)->winvec1.y());
             winvec2.setX((*segit)->winvec2.x()); winvec2.setY((*segit)->winvec2.y());
@@ -384,6 +387,7 @@ bool SegmentList::TestForSegmentGL(int x, int realy, float distance, const QMatr
     return isselected;
 }
 
+
 void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview)
 {
 
@@ -426,9 +430,9 @@ void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4
             //                           winvec2
 
 
-            //qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
+            qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
 
-            //if (angle < PI/2 + (asin(1/distance)))
+            if (angle < PI/2 + (asin(1/distance)))
             {
 
                 painter->drawLine((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y(), (int)winvec2.x(), (painter->device())->height() - (int)winvec2.y() );
@@ -463,7 +467,6 @@ bool SegmentList::ComposeImage(double gamma_ch[])
     {
         for (int j=0; j < 1024; j++)
         {
-            imageptrs->segment_stats_ch[i][j] = 0;
             imageptrs->lut_ch[i][j] = 0;
         }
     }
@@ -798,9 +801,9 @@ void SegmentList::SmoothProjectionImageBilinear()
     {
         Segment *segm = (Segment *)(*segsel);
         if(segsel != segsselected.begin())
-            BilinearBetweenSegments(segmsave, segm);
+            BilinearBetweenSegments(segmsave, segm, false);
         segmsave = segm;
-        BilinearInterpolation(segm);
+        BilinearInterpolation(segm, false);
         ++segsel;
         lineimage += segm->NbrOfLines;
     }
@@ -822,14 +825,14 @@ void SegmentList::SmoothProjectionImageBicubic()
     {
         Segment *segm = (Segment *)(*segsel);
         if(segsel != segsselected.begin())
-            BilinearBetweenSegments(segmsave, segm);
+            BilinearBetweenSegments(segmsave, segm, false);
         segmsave = segm;
-        BilinearInterpolation(segm);
+        BilinearInterpolation(segm, false);
         ++segsel;
         lineimage += segm->NbrOfLines;
     }
 }
-void SegmentList::BilinearInterpolation(Segment *segm)
+void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
 {
     qint32 x11;
     qint32 y11;
@@ -983,7 +986,7 @@ void SegmentList::BilinearInterpolation(Segment *segm)
 //                    }
 
                     MapInterpolation(canvas, dimx, dimy);
-                    MapCanvas(canvas, anchorX, anchorY, dimx, dimy);
+                    MapCanvas(canvas, anchorX, anchorY, dimx, dimy, combine);
 
 //                    if(line == 1 && pixelx == 1)
 //                    {
@@ -1009,7 +1012,7 @@ void SegmentList::BilinearInterpolation(Segment *segm)
 
 }
 
-void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext)
+void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext, bool combine)
 {
     qint32 x11;
     qint32 y11;
@@ -1122,7 +1125,7 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext)
                 bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
 
                 MapInterpolation(canvas, dimx, dimy);
-                MapCanvas(canvas, anchorX, anchorY, dimx, dimy);
+                MapCanvas(canvas, anchorX, anchorY, dimx, dimy, combine);
 
                 delete [] canvas;
                 counterb++;
@@ -1443,7 +1446,7 @@ void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
 
 }
 
-void SegmentList::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy)
+void SegmentList::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine)
 {
     for(int h = 0; h < dimy; h++ )
     {
@@ -1454,7 +1457,29 @@ void SegmentList::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint1
             {
                 if (anchorX + w >= 0 && anchorX + w < imageptrs->ptrimageProjection->width() &&
                         anchorY + h >= 0 && anchorY + h < imageptrs->ptrimageProjection->height())
-                    imageptrs->ptrimageProjection->setPixel(anchorX + w, anchorY + h, rgb);
+                {
+                    if(combine)
+                    {
+                        QRgb rgbproj = imageptrs->ptrimageProjectionCopy->pixel(anchorX + w, anchorY + h);
+                        int rproj = qRed(rgbproj);
+                        int gproj = qGreen(rgbproj);
+                        int bproj = qBlue(rgbproj);
+                        int dnbval  = qRed(rgb);
+
+                        float rfact = (float)((255 - rproj) * dnbval)/255.0;
+                        float gfact = (float)((255 - gproj) * dnbval)/255.0;
+                        float bfact = (float)((255 - bproj) * dnbval)/255.0;
+                        int redout = (int)rfact + rproj > 255 ? 255 : (int)rfact + rproj;
+                        int greenout = (int)gfact + gproj > 255 ? 255 : (int)gfact + gproj;
+                        int blueout = (int)bfact + bproj > 255 ? 255 : (int)bfact + bproj;
+
+                        QRgb rgbout = qRgb(redout, greenout, blueout);
+                        imageptrs->ptrimageProjection->setPixel(anchorX + w, anchorY + h, rgbout);
+
+                    }
+                    else
+                        imageptrs->ptrimageProjection->setPixel(anchorX + w, anchorY + h, rgb);
+                }
             }
         }
     }

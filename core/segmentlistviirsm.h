@@ -11,16 +11,17 @@ class SegmentListVIIRSM  : public SegmentList
         Q_OBJECT
 
 public:
-    SegmentListVIIRSM(SatelliteList *satl = 0, QObject *parent = 0, eSegmentType type = eSegmentType::SEG_VIIRSM);
-    void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
+    SegmentListVIIRSM(SatelliteList *satl = 0, QObject *parent = 0);
     bool ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
 
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    void SmoothVIIRSImage();
+    void SmoothVIIRSImage(bool combine);
+    void ComposeGVProjection(int inputchannel);
 
 private:
     void CalculateLUT();
+    void CalculateProjectionLUT();
     bool PixelOK(int pix);
     void printData(SegmentVIIRSM *segm, int linesfrom, int viewsfrom);
 
@@ -29,7 +30,6 @@ private:
     int earthviews;
     float stat_max_dnb;
     float stat_min_dnb;
-
 
 protected:
 
@@ -41,7 +41,6 @@ protected slots:
 
 signals:
     void progressCounter(int);
-
 
 };
 

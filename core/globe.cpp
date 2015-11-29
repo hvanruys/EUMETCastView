@@ -552,12 +552,19 @@ void Globe::paintGL()
     painter.endNativePainting();
 
     // Winvec
-//    painter.save();
-//    if (opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
-//        segs->seglmetop->ShowWinvec(&painter, distance, modelview );
-//    if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
-//        segs->seglnoaa->ShowWinvec(&painter, distance, modelview );
-//    painter.restore();
+    if(opts.windowvectors)
+    {
+        painter.save();
+        if (opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
+            segs->seglmetop->ShowWinvec(&painter, distance, modelview );
+        if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
+            segs->seglnoaa->ShowWinvec(&painter, distance, modelview );
+        if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
+            segs->seglviirsm->ShowWinvec(&painter, distance, modelview );
+        if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+            segs->seglviirsdnb->ShowWinvec(&painter, distance, modelview );
+        painter.restore();
+    }
 
     QString framesPerSecond;
     if (const int elapsed = m_time.elapsed()) {
@@ -627,7 +634,7 @@ void Globe::paintGL()
                 .arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2));
 
         if(segmentnameselected.mid(0,8) == "SVMC_npp")
-            painter.drawText(10, this->height() - 20, "SUOMI NPP " + segdate);
+            painter.drawText(10, this->height() - 20, "SUOMI NPP M Band " + segdate);
     }
     //SVDNBC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
     //012345678901234567890123456789012345678901234567890123456789
@@ -638,7 +645,7 @@ void Globe::paintGL()
                 .arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2));
 
         if(segmentnameselected.mid(0,10) == "SVDNBC_npp")
-            painter.drawText(10, this->height() - 20, "SUOMI NPP " + segdate);
+            painter.drawText(10, this->height() - 20, "SUOMI NPP DNB " + segdate);
     }
 
 
@@ -666,7 +673,6 @@ void Globe::paintGL()
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSDNB, segs->seglviirsdnb->GetSegmentlistptr());
     }
-
 
 
     painter.setPen(Qt::yellow);
@@ -956,6 +962,7 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
     }
 
 }
+
 
 QVector2D Globe::glhProjectf(QVector3D obj, float *modelview, float *projection, int width, int height)
   {

@@ -34,47 +34,17 @@ void doComposeVIIRSDNBImageInThread(SegmentListVIIRSDNB *t)
 //    t->ComposeProjectionConcurrent();
 //}
 
-SegmentListVIIRSDNB::SegmentListVIIRSDNB(SatelliteList *satl, QObject *parent, eSegmentType type)
+SegmentListVIIRSDNB::SegmentListVIIRSDNB(SatelliteList *satl, QObject *parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListVIIRSDNB");
 
     satlist = satl;
-    segtype = type;
+    seglisttype = eSegmentType::SEG_VIIRSDNB;
 
     earthviews = 4064;
     moonillumination = 0.0;
 
-}
-
-void SegmentListVIIRSDNB::GetFirstLastVisibleSegmentData( QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast)
-{
-
-    QString first_filename;
-    QString last_filename;
-
-    //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
-    if( segmentlist.count() > 0)
-    {
-        //segmentlist.at(indexfirstvisible)->
-        first_filename = segmentlist.at(indexfirstvisible)->fileInfo.fileName();
-        last_filename = segmentlist.at(indexlastvisible)->fileInfo.fileName();
-        if(last_filename.mid(0,10) == "SVDNBC_npp")
-        {
-            *satnamelast = last_filename.mid(5, 3);
-            *segdatelast = QString("%1-%2-%3").arg(last_filename.mid(12,4)).arg(last_filename.mid(16,2)).arg(last_filename.mid(18,2));
-            *segtimelast = QString("%1:%2:%3").arg(last_filename.mid(22,2)).arg(last_filename.mid(24,2)).arg(last_filename.mid(26,2));
-        }
-    }
-    else
-    {
-        *satnamefirst = QString("");
-        *segdatefirst = QString("");
-        *segtimefirst = QString("");
-        *satnamelast = QString("");
-        *segdatelast = QString("");
-        *segtimelast = QString("");
-    }
 }
 
 bool SegmentListVIIRSDNB::ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
@@ -90,6 +60,20 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImage(QList<bool> bandlist, QList<int> col
     watcherviirs->setFuture(future);
 
     return true;
+
+}
+
+void SegmentListVIIRSDNB::ComposeGVProjection(int inputchannel)
+{
+
+    qDebug() << "SegmentListVIIRSDNB::ComposeGVProjection()";
+    QList<Segment *>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentGVProjection(inputchannel);
+        emit segmentprojectionfinished(false);
+        ++segit;
+    }
 
 }
 
@@ -233,15 +217,14 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
         ++segsel;
     }
 
-
     // image pointers always = new QImage()
-    if(imageptrs->ptrimageViirs != NULL)
+    if(imageptrs->ptrimageViirsDNB != NULL)
     {
-        delete imageptrs->ptrimageViirs;
-        imageptrs->ptrimageViirs = NULL;
+        delete imageptrs->ptrimageViirsDNB;
+        imageptrs->ptrimageViirsDNB = NULL;
     }
 
-    imageptrs->ptrimageViirs = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
+    imageptrs->ptrimageViirsDNB = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
 
     int deltaprogress = 99 / (totalnbrofsegments*2);
     int totalprogress = 0;
@@ -312,9 +295,7 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     emit segmentlistfinished(true);
     emit progressCounter(100);
 
-
     return true;
-
 }
 
 void SegmentListVIIRSDNB::CalculateLUT()
@@ -327,7 +308,6 @@ void SegmentListVIIRSDNB::CalculateLUT()
     {
         stats_ch[j] = 0;
     }
-
 
     for( int exp = -15; exp < -4; exp++)
     {
@@ -684,7 +664,6 @@ void SegmentListVIIRSDNB::ShowImageSerial()
     {
         for (int j=0; j < 1024; j++)
         {
-            imageptrs->segment_stats_ch[i][j] = 0;
             imageptrs->lut_ch[i][j] = 0;
         }
     }
@@ -760,7 +739,7 @@ void SegmentListVIIRSDNB::ShowImageSerial()
 }
 
 
-void SegmentListVIIRSDNB::SmoothVIIRSImage()
+void SegmentListVIIRSDNB::SmoothVIIRSImage(bool combine)
 {
 
     qDebug() << "start SegmentListVIIRSDNB::SmoothVIIRSImage()";
@@ -776,9 +755,9 @@ void SegmentListVIIRSDNB::SmoothVIIRSImage()
     {
         SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
         if(segsel != segsselected.begin())
-            BilinearBetweenSegments(segmsave, segm);
+            BilinearBetweenSegments(segmsave, segm, combine);
         segmsave = segm;
-        BilinearInterpolation(segm);
+        BilinearInterpolation(segm, combine);
         ++segsel;
         lineimage += segm->NbrOfLines;
     }

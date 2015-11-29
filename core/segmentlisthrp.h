@@ -13,7 +13,6 @@ class SegmentListHRP : public SegmentList
 
 public:
     explicit SegmentListHRP(QObject *parent = 0);
-    void GetFirstLastVisibleSegmentData(QString *satnamefirst, QString *segdatefirst, QString *segtimefirst,  QString *satnamelast, QString *segdatelast, QString *segtimelast);
 private:
 
 

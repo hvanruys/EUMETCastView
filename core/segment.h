@@ -53,6 +53,8 @@ public:
     virtual void ComposeSegmentGVProjection(int inputchannel);
     virtual void ComposeSegmentSGProjection(int inputchannel);
 
+    virtual void RecalculateProjection();
+
     //void RenderSegmentContourline(float lat_first, float lon_first, float lat_last, float lon_last);
     void RenderSegmentlineInTextureRad(int channel, double earth_loc_lat_first,double earth_loc_lon_first, double earth_loc_lat_last,
                                     double earth_loc_lon_last, double earth_loc_altitude, int segmentheight);

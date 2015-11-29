@@ -132,6 +132,7 @@ void Options::Initialize()
     imageontextureOnMet = settings.value("/window/imageontextureonmet", false ).toBool();
     imageontextureOnAVHRR = settings.value("/window/imageontextureonavhrr", true ).toBool();
     imageontextureOnVIIRS = settings.value("/window/imageontextureonviirs", true ).toBool();
+    windowvectors = settings.value("/window/windowsvectors", false ).toBool();
 
     localdirremote = settings.value("/window/localdirremote", "").value<QString>();
     dirremote = settings.value("/window/dirremote", "").value<QString>();
@@ -229,39 +230,39 @@ void Options::Initialize()
     lastinverseMet134 = settings.value("/window/inverseMet134", false ).toBool();
 
 
-    lastcomboM1 = settings.value("/window/comboM1", 0 ).toInt();
-    lastcomboM2 = settings.value("/window/comboM2", 0 ).toInt();
-    lastcomboM3 = settings.value("/window/comboM3", 0 ).toInt();
-    lastcomboM4 = settings.value("/window/comboM4", 0 ).toInt();
-    lastcomboM5 = settings.value("/window/comboM5", 0 ).toInt();
-    lastcomboM6 = settings.value("/window/comboM6", 0 ).toInt();
-    lastcomboM7 = settings.value("/window/comboM7", 0 ).toInt();
-    lastcomboM8 = settings.value("/window/comboM8", 0 ).toInt();
-    lastcomboM9 = settings.value("/window/comboM9", 0 ).toInt();
-    lastcomboM10 = settings.value("/window/comboM10", 0 ).toInt();
-    lastcomboM11 = settings.value("/window/comboM11", 0 ).toInt();
-    lastcomboM12 = settings.value("/window/comboM12", 0 ).toInt();
-    lastcomboM13 = settings.value("/window/comboM13", 0 ).toInt();
-    lastcomboM14 = settings.value("/window/comboM14", 0 ).toInt();
-    lastcomboM15 = settings.value("/window/comboM15", 0 ).toInt();
-    lastcomboM16 = settings.value("/window/comboM16", 0 ).toInt();
+//    lastcomboM1 = settings.value("/window/comboM1", 0 ).toInt();
+//    lastcomboM2 = settings.value("/window/comboM2", 0 ).toInt();
+//    lastcomboM3 = settings.value("/window/comboM3", 0 ).toInt();
+//    lastcomboM4 = settings.value("/window/comboM4", 0 ).toInt();
+//    lastcomboM5 = settings.value("/window/comboM5", 0 ).toInt();
+//    lastcomboM6 = settings.value("/window/comboM6", 0 ).toInt();
+//    lastcomboM7 = settings.value("/window/comboM7", 0 ).toInt();
+//    lastcomboM8 = settings.value("/window/comboM8", 0 ).toInt();
+//    lastcomboM9 = settings.value("/window/comboM9", 0 ).toInt();
+//    lastcomboM10 = settings.value("/window/comboM10", 0 ).toInt();
+//    lastcomboM11 = settings.value("/window/comboM11", 0 ).toInt();
+//    lastcomboM12 = settings.value("/window/comboM12", 0 ).toInt();
+//    lastcomboM13 = settings.value("/window/comboM13", 0 ).toInt();
+//    lastcomboM14 = settings.value("/window/comboM14", 0 ).toInt();
+//    lastcomboM15 = settings.value("/window/comboM15", 0 ).toInt();
+//    lastcomboM16 = settings.value("/window/comboM16", 0 ).toInt();
 
-    lastinverseM1 = settings.value("/window/inverseM1", false ).toBool();
-    lastinverseM2 = settings.value("/window/inverseM2", false ).toBool();
-    lastinverseM3 = settings.value("/window/inverseM3", false ).toBool();
-    lastinverseM4 = settings.value("/window/inverseM4", false ).toBool();
-    lastinverseM5 = settings.value("/window/inverseM5", false ).toBool();
-    lastinverseM6 = settings.value("/window/inverseM6", false ).toBool();
-    lastinverseM7 = settings.value("/window/inverseM7", false ).toBool();
-    lastinverseM8 = settings.value("/window/inverseM8", false ).toBool();
-    lastinverseM9 = settings.value("/window/inverseM9", false ).toBool();
-    lastinverseM10 = settings.value("/window/inverseM10", false ).toBool();
-    lastinverseM11 = settings.value("/window/inverseM11", false ).toBool();
-    lastinverseM12 = settings.value("/window/inverseM12", false ).toBool();
-    lastinverseM13 = settings.value("/window/inverseM13", false ).toBool();
-    lastinverseM14 = settings.value("/window/inverseM14", false ).toBool();
-    lastinverseM15 = settings.value("/window/inverseM15", false ).toBool();
-    lastinverseM16 = settings.value("/window/inverseM16", false ).toBool();
+//    lastinverseM1 = settings.value("/window/inverseM1", false ).toBool();
+//    lastinverseM2 = settings.value("/window/inverseM2", false ).toBool();
+//    lastinverseM3 = settings.value("/window/inverseM3", false ).toBool();
+//    lastinverseM4 = settings.value("/window/inverseM4", false ).toBool();
+//    lastinverseM5 = settings.value("/window/inverseM5", false ).toBool();
+//    lastinverseM6 = settings.value("/window/inverseM6", false ).toBool();
+//    lastinverseM7 = settings.value("/window/inverseM7", false ).toBool();
+//    lastinverseM8 = settings.value("/window/inverseM8", false ).toBool();
+//    lastinverseM9 = settings.value("/window/inverseM9", false ).toBool();
+//    lastinverseM10 = settings.value("/window/inverseM10", false ).toBool();
+//    lastinverseM11 = settings.value("/window/inverseM11", false ).toBool();
+//    lastinverseM12 = settings.value("/window/inverseM12", false ).toBool();
+//    lastinverseM13 = settings.value("/window/inverseM13", false ).toBool();
+//    lastinverseM14 = settings.value("/window/inverseM14", false ).toBool();
+//    lastinverseM15 = settings.value("/window/inverseM15", false ).toBool();
+//    lastinverseM16 = settings.value("/window/inverseM16", false ).toBool();
 
 
 
@@ -433,6 +434,7 @@ void Options::Save()
     settings.setValue("/window/imageontextureonmet", imageontextureOnMet );
     settings.setValue("/window/imageontextureonavhrr", imageontextureOnAVHRR );
     settings.setValue("/window/imageontextureonviirs", imageontextureOnVIIRS );
+    settings.setValue("/window/windowsvectors", windowvectors );
 
     settings.setValue("/window/gshhsglobe1on", gshhsglobe1On );
     settings.setValue("/window/gshhsglobe2on", gshhsglobe2On );
@@ -528,39 +530,39 @@ void Options::Save()
     settings.setValue( "/window/lastinputprojection", lastinputprojection );
     settings.setValue( "/window/viirsband", lastVIIRSband);
 
-    settings.setValue( "/window/comboM1", lastcomboM1);
-    settings.setValue( "/window/comboM2", lastcomboM2);
-    settings.setValue( "/window/comboM3", lastcomboM3);
-    settings.setValue( "/window/comboM4", lastcomboM4);
-    settings.setValue( "/window/comboM5", lastcomboM5);
-    settings.setValue( "/window/comboM6", lastcomboM6);
-    settings.setValue( "/window/comboM7", lastcomboM7);
-    settings.setValue( "/window/comboM8", lastcomboM8);
-    settings.setValue( "/window/comboM9", lastcomboM9);
-    settings.setValue( "/window/comboM10", lastcomboM10);
-    settings.setValue( "/window/comboM11", lastcomboM11);
-    settings.setValue( "/window/comboM12", lastcomboM12);
-    settings.setValue( "/window/comboM13", lastcomboM13);
-    settings.setValue( "/window/comboM14", lastcomboM14);
-    settings.setValue( "/window/comboM15", lastcomboM15);
-    settings.setValue( "/window/comboM16", lastcomboM16);
+//    settings.setValue( "/window/comboM1", lastcomboM1);
+//    settings.setValue( "/window/comboM2", lastcomboM2);
+//    settings.setValue( "/window/comboM3", lastcomboM3);
+//    settings.setValue( "/window/comboM4", lastcomboM4);
+//    settings.setValue( "/window/comboM5", lastcomboM5);
+//    settings.setValue( "/window/comboM6", lastcomboM6);
+//    settings.setValue( "/window/comboM7", lastcomboM7);
+//    settings.setValue( "/window/comboM8", lastcomboM8);
+//    settings.setValue( "/window/comboM9", lastcomboM9);
+//    settings.setValue( "/window/comboM10", lastcomboM10);
+//    settings.setValue( "/window/comboM11", lastcomboM11);
+//    settings.setValue( "/window/comboM12", lastcomboM12);
+//    settings.setValue( "/window/comboM13", lastcomboM13);
+//    settings.setValue( "/window/comboM14", lastcomboM14);
+//    settings.setValue( "/window/comboM15", lastcomboM15);
+//    settings.setValue( "/window/comboM16", lastcomboM16);
 
-    settings.setValue( "/window/inverseM1", lastinverseM1);
-    settings.setValue( "/window/inverseM2", lastinverseM2);
-    settings.setValue( "/window/inverseM3", lastinverseM3);
-    settings.setValue( "/window/inverseM4", lastinverseM4);
-    settings.setValue( "/window/inverseM5", lastinverseM5);
-    settings.setValue( "/window/inverseM6", lastinverseM6);
-    settings.setValue( "/window/inverseM7", lastinverseM7);
-    settings.setValue( "/window/inverseM8", lastinverseM8);
-    settings.setValue( "/window/inverseM9", lastinverseM9);
-    settings.setValue( "/window/inverseM10", lastinverseM10);
-    settings.setValue( "/window/inverseM11", lastinverseM11);
-    settings.setValue( "/window/inverseM12", lastinverseM12);
-    settings.setValue( "/window/inverseM13", lastinverseM13);
-    settings.setValue( "/window/inverseM14", lastinverseM14);
-    settings.setValue( "/window/inverseM15", lastinverseM15);
-    settings.setValue( "/window/inverseM16", lastinverseM16);
+//    settings.setValue( "/window/inverseM1", lastinverseM1);
+//    settings.setValue( "/window/inverseM2", lastinverseM2);
+//    settings.setValue( "/window/inverseM3", lastinverseM3);
+//    settings.setValue( "/window/inverseM4", lastinverseM4);
+//    settings.setValue( "/window/inverseM5", lastinverseM5);
+//    settings.setValue( "/window/inverseM6", lastinverseM6);
+//    settings.setValue( "/window/inverseM7", lastinverseM7);
+//    settings.setValue( "/window/inverseM8", lastinverseM8);
+//    settings.setValue( "/window/inverseM9", lastinverseM9);
+//    settings.setValue( "/window/inverseM10", lastinverseM10);
+//    settings.setValue( "/window/inverseM11", lastinverseM11);
+//    settings.setValue( "/window/inverseM12", lastinverseM12);
+//    settings.setValue( "/window/inverseM13", lastinverseM13);
+//    settings.setValue( "/window/inverseM14", lastinverseM14);
+//    settings.setValue( "/window/inverseM15", lastinverseM15);
+//    settings.setValue( "/window/inverseM16", lastinverseM16);
 
 }
 

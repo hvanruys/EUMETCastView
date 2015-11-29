@@ -692,7 +692,7 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
-        row = (QRgb*)imageptrs->ptrimageViirs->scanLine(this->startLineNbr + line);
+        row = (QRgb*)imageptrs->ptrimageViirsDNB->scanLine(this->startLineNbr + line);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
             pixval = *(this->ptrbaVIIRSDNB.data() + line * earth_views_per_scanline + pixelx);
@@ -882,7 +882,6 @@ void SegmentVIIRSDNB::MapPixel( int lines, int views, double map_x, double map_y
     pixval = ptrbaVIIRSDNB[lines * earth_views_per_scanline + views];
 
 
-//    if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
     if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
     {
 
