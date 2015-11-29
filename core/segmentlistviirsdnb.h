@@ -46,9 +46,6 @@ protected:
 protected slots:
     void finishedviirs();
     void progressreadvalue(int progress);
-
-signals:
-    void progressCounter(int);
 };
 
 #endif // SEGMENTLISTVIIRS_H

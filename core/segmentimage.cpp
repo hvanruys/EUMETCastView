@@ -163,12 +163,6 @@ void SegmentImage::DeleteImagePtrs()
         ptrimageProjection = NULL;
     }
 
-    if(ptrimageProjectionCopy != NULL)
-    {
-        delete ptrimageProjectionCopy;
-        ptrimageProjectionCopy = NULL;
-    }
-
     if(ptrimageViirsM != NULL)
     {
         delete ptrimageViirsM;
