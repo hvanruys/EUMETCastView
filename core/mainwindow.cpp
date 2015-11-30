@@ -178,7 +178,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formephem,SIGNAL(signalDirectoriesRead()), formglobecyl, SLOT(setScrollBarMaximum()));
     connect( formglobecyl, SIGNAL(emitMakeImage()), formimage, SLOT(slotMakeImage()));
-    connect( formtoolbox, SIGNAL(emitShowVIIRSImage()), formimage, SLOT(slotShowVIIRSImage()));
+    connect( formtoolbox, SIGNAL(emitShowVIIRSImage()), formimage, SLOT(slotShowVIIRSMImage()));
 
     connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
     connect( mapcyl , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));

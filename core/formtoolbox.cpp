@@ -2936,7 +2936,7 @@ bool FormToolbox::comboColGeoOK()
 void FormToolbox::on_btnMakeVIIRSImage_clicked()
 {
 
-    if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM)
+    if(segs->seglviirsm->NbrOfSegmentsSelected() > 0)
     {
         if(!comboColVIIRSOK())
         {
@@ -2959,10 +2959,6 @@ void FormToolbox::on_btnMakeVIIRSImage_clicked()
 
         ui->pbProgress->reset();
         emit emitShowVIIRSImage();
-    }
-    else if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSDNB)
-    {
-
     }
 }
 

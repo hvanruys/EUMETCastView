@@ -179,10 +179,8 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
     {
         SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         segm->ComposeSegmentImage();
-
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
-
         QApplication::processEvents();
         ++segsel;
     }
@@ -377,6 +375,8 @@ void SegmentListVIIRSM::ShowImageSerial(QList<bool> bandlist, QList<int> colorli
     progressresultready = 0;
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
+    emit progressCounter(10);
+
     for (int i=0; i < 3; i++)
     {
         for (int j=0; j < 1024; j++)
@@ -403,11 +403,19 @@ void SegmentListVIIRSM::ShowImageSerial(QList<bool> bandlist, QList<int> colorli
         ++segsel;
     }
 
+    int totalnbrofsegments = this->NbrOfSegmentsSelected();
+
+    int deltaprogress = 99 / (totalnbrofsegments*2);
+    int totalprogress = 0;
+
+
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         segm->ReadDatasetsInMemory();
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
         ++segsel;
     }
 
@@ -448,6 +456,9 @@ void SegmentListVIIRSM::ShowImageSerial(QList<bool> bandlist, QList<int> colorli
     {
         SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
         segm->ComposeSegmentImage();
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+        QApplication::processEvents();
         ++segsel;
     }
     qDebug() << " SegmentListVIIRS::ShowImageSerialM Finished !!";

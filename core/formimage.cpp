@@ -323,13 +323,9 @@ void FormImage::ComposeImage()
         return;
 }
 
-void FormImage::slotShowVIIRSImage()
+void FormImage::slotShowVIIRSMImage()
 {
-    if(this->getSegmentType() == eSegmentType::SEG_VIIRSM)
-        this->ShowVIIRSMImage();
-    else if(this->getSegmentType() == eSegmentType::SEG_VIIRSDNB)
-        this->ShowVIIRSDNBImage();
-
+    this->ShowVIIRSMImage();
 }
 
 bool FormImage::ShowVIIRSMImage()

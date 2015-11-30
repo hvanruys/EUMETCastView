@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabAVHHR">
       <attribute name="title">
@@ -618,7 +618,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidgetVIIRS">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabVIIRSM">
           <attribute name="title">

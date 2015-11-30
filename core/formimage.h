@@ -118,7 +118,7 @@ signals:
 
 public slots:
     void slotMakeImage();
-    void slotShowVIIRSImage();
+    void slotShowVIIRSMImage();
     void setPixmapToLabel(bool settoolboxbuttons);
     void setPixmapToLabelDNB(bool settoolboxbuttons);
     void slotUpdateMeteosat();
