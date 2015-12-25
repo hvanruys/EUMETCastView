@@ -750,6 +750,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     this->countviirsdnb = 0;
     this->countviirsmdnb = 0;
 
+    imageptrs->ptrProjectionBrightnessTemp.reset();
+    imageptrs->ptrProjectionInfra.reset();
+
     QDir segmentdir;
     QDateTime datebefore;
     QString pathbefore;

@@ -3,7 +3,7 @@
 #include "options.h"
 #include "pixgeoconversion.h"
 #include <QtConcurrent/QtConcurrent>
-
+#include "equirectangular.h"
 
 #include <QDebug>
 
@@ -121,7 +121,9 @@ void GeneralVerticalPerspective::CreateMapFromAVHRR(int inputchannel, eSegmentTy
 void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool combine)
 {
     if (type == SEG_VIIRSM)
+    {
         segs->seglviirsm->ComposeGVProjection(0);
+    }
     else if( type == SEG_VIIRSDNB)
         segs->seglviirsdnb->ComposeGVProjection(0);
 
@@ -130,10 +132,14 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool comb
     else if(opts.smoothprojectiontype == 2)
     {
         if (type == SEG_VIIRSM)
+        {
             segs->seglviirsm->SmoothVIIRSImage(combine);
+            segs->seglviirsm->SmoothProjectionBrightnessTemp();
+        }
         else if( type == SEG_VIIRSDNB)
             segs->seglviirsdnb->SmoothVIIRSImage(combine);
     }
+
 }
 
 void GeneralVerticalPerspective::CreateMapFromGeoStationary()
@@ -314,7 +320,83 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
     QApplication::restoreOverrideCursor();
 }
 
+void GeneralVerticalPerspective::CreateMapFromEquirectangular()
+{
 
+    Equirectangular equi;
+    double map_x, map_y;
+    float lon_deg, lat_deg;
+
+    QRgb *row_col;
+    QRgb rgbval;
+
+    equi.Initialize(imageptrs->ptrimageEquirectangle->width(), imageptrs->ptrimageEquirectangle->height());
+
+    qDebug() << QString("GeneralVerticalPerspective::CreateMapFromEquirectangular() width = %1 height = %2")
+                .arg(imageptrs->ptrimageEquirectangle->width()).arg(imageptrs->ptrimageEquirectangle->height());
+
+    if(imageptrs->ptrimageEquirectangle->width() == 0)
+        return;
+
+    for (int j = 0; j < imageptrs->ptrimageEquirectangle->height(); j++)
+    {
+        for (int i = 0; i < imageptrs->ptrimageEquirectangle->width(); i++)
+        {
+            equi.map_inverse(i, j, lon_deg, lat_deg);
+
+            if(this->map_forward_neg_coord(lon_deg*PI/180.0, lat_deg*PI/180.0, map_x, map_y))
+            {
+                row_col = (QRgb*)imageptrs->ptrimageEquirectangle->scanLine(j);
+                rgbval = row_col[i];
+
+                equi.setProjectionX(j, i, map_x);
+                equi.setProjectionY(j, i, map_y);
+                equi.setProjectionValue(j, i, rgbval);
+
+                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                {
+                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbval);
+                }
+            }
+        }
+    }
+
+    equi.SmoothProjectionImageBilinear();
+
+}
+
+void GeneralVerticalPerspective::CreateMapFromEquirectangular1()
+{
+
+    Equirectangular equi;
+    int col, row;
+    double lon_rad, lat_rad;
+    QRgb *row_col;
+    QRgb rgbval;
+
+    equi.Initialize(imageptrs->ptrimageEquirectangle->width(), imageptrs->ptrimageEquirectangle->height());
+
+    qDebug() << QString("GeneralVerticalPerspective1::CreateMapFromEquirectangular() width = %1 height = %2")
+                .arg(imageptrs->ptrimageEquirectangle->width()).arg(imageptrs->ptrimageEquirectangle->height());
+
+    if(imageptrs->ptrimageEquirectangle->width() == 0)
+        return;
+
+    for (int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
+    {
+        for (int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
+        {
+            if (this->map_inverse(i, j, lon_rad, lat_rad))
+            {
+                equi.map_forward(lon_rad*180.0/PI, lat_rad*180.0/PI, col, row);
+                row_col = (QRgb*)imageptrs->ptrimageEquirectangle->scanLine(row);
+                rgbval = row_col[col];
+                imageptrs->ptrimageProjection->setPixel(i, j, rgbval);
+            }
+        }
+    }
+
+}
 
 bool GeneralVerticalPerspective::map_forward(double lon_rad, double lat_rad, double &map_x, double &map_y)
 {

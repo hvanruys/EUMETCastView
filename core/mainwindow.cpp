@@ -42,8 +42,18 @@ MainWindow::MainWindow(QWidget *parent) :
     imagescrollarea->setBackgroundRole(QPalette::Dark);
     imagescrollarea->setWidget(formimage);
 
-    formgeostationary->SetFormImage(formimage);
+    QVBoxLayout *verticalLayout;
 
+    imageWidget = new QWidget(this);
+    verticalLayout = new QVBoxLayout(imageWidget);
+    verticalLayout->addWidget(imagescrollarea);
+    this->infrascales = new InfraScales(this);
+    this->infrascales->setMaximumHeight(80);
+    this->infrascales->hide();
+    verticalLayout->addWidget(infrascales);
+
+
+    formgeostationary->SetFormImage(formimage);
     connect(formimage, SIGNAL(moveImage(QPoint, QPoint)), this, SLOT(moveImage(QPoint, QPoint)));
 
     for( int i = 0; i < 8; i++)
@@ -121,9 +131,12 @@ MainWindow::MainWindow(QWidget *parent) :
     imageptrs->sg = new StereoGraphic(this, seglist);
 
     formtoolbox = new FormToolbox(this, formimage, formgeostationary, seglist);
+    formtoolbox->SetInfraScales(infrascales);
     formimage->SetFormToolbox(formtoolbox);
+    formimage->SetInfraScales(infrascales);
     formgeostationary->SetFormToolBox(formtoolbox);
 
+    connect(infrascales, SIGNAL(repaintprojectionimage()), formimage, SLOT(slotRepaintProjectionImage()));
     connect(seglist->seglmeteosat, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmeteosatrss, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     //connect(seglist->seglelectro, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
@@ -153,7 +166,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->stackedWidget->addWidget(formglobecyl);  // index 2
 
-    ui->stackedWidget->addWidget(imagescrollarea);  // index 3
+//    ui->stackedWidget->addWidget(imagescrollarea);  // index 3
+    ui->stackedWidget->addWidget(imageWidget);  // index 3
     ui->stackedWidget->setCurrentIndex(0);
 
     connect(seglist->seglmetop, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -230,7 +244,7 @@ void MainWindow::createDockWindows()
     scrollArea->setWidget(formtoolbox);
     scrollArea->setWidgetResizable(true);
     dockwidget->setWidget(scrollArea);
-    dockwidget->setMinimumWidth(375);
+    dockwidget->setMinimumWidth(400);
     //dockwidget->close();
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
 }
@@ -259,14 +273,8 @@ void MainWindow::timerDone(void)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    //opts.windowheight = height();
-    //opts.windowwidth = width();
     opts.mainwindowgeometry = saveGeometry();
     opts.windowstate = saveState(0);
-
-
-    //settings.setValue("geometry", saveGeometry());
-    //settings.setValue("windowState", saveState());
     QMainWindow::closeEvent(event);
 }
 
@@ -419,20 +427,23 @@ void MainWindow::on_actionImage_triggered()
 
     qDebug() << " MainWindow::on_actionImage_triggered() index = " << index;
     if(index == -1)
-        formimage->displayImage(6);
+        formimage->displayImage(IMAGE_AVHRR_COL);
     else if(index == 0)
-        formimage->displayImage(6); // AVHRR Color image
+        formimage->displayImage(IMAGE_AVHRR_COL); // AVHRR Color image
     else if(index == 1)
     {
         if(indexviirs == 0)
-            formimage->displayImage(10); //VIIRSM image
+            formimage->displayImage(IMAGE_VIIRS_M); //VIIRSM image
         else
-            formimage->displayImage(11); //VIIRSDNB image
+            formimage->displayImage(IMAGE_VIIRS_DNB); //VIIRSDNB image
     }
-    else if(index == 2)
-        formimage->displayImage(8); //Geostationary image
+    else if(index == 2)  //Geostationary image
+        formimage->displayImage(IMAGE_GEOSTATIONARY);
+    else if(index == 3)
+        formimage->displayImage(IMAGE_EQUIRECTANGLE); // Equirectangular
     else
-        formimage->displayImage(9); //Projection image
+        formimage->displayImage(IMAGE_PROJECTION); //Projection image
+
 }
 
 void MainWindow::updateStatusBarIndicator(const QString &text)
@@ -482,22 +493,6 @@ void MainWindow::on_actionCreatePNG_triggered()
         QApplication::restoreOverrideCursor();
     }
 
-///*        if (formimage->channelshown == 1)
-//            imageptrs->ptrimagecomp_ch[0]->save(fileName, "png");
-//        else if (formimage->channelshown == 2)
-//            imageptrs->ptrimagecomp_ch[1]->save(fileName, "png");
-//        else if (formimage->channelshown == 3)
-//            imageptrs->ptrimagecomp_ch[2]->save(fileName, "png");
-//        else if (formimage->channelshown == 4)
-//            imageptrs->ptrimagecomp_ch[3]->save(fileName, "png");
-//        else if (formimage->channelshown == 5)
-//            imageptrs->ptrimagecomp_ch[4]->save(fileName, "png");
-//        else if (formimage->channelshown == 6)
-//            imageptrs->ptrimagecomp_col->save(fileName, "png");
-//        else if (formimage->channelshown == 8)
-//            imageptrs->ptrimageMeteosat->save(fileName, "png");
-//*/
-
 }
 
 void MainWindow::moveImage(QPoint d, QPoint e)
@@ -533,16 +528,6 @@ void MainWindow::moveImage(QPoint d, QPoint e)
     //qDebug() << "MainWindow::moveImage(QPoint d, QPoint e)";
 }
 
-
-//void MainWindow::imageTransformed()
-//{
-//    zoomobject->clearSizes();
-//    zoomobject->setPicSize(formimage->getPictureSize());
-//    zoomobject->setMaxSize(centralWidget()->size() - QSize(20,20));
-//    qDebug() << QString("imageTransformed() formimage size = %1 , %2").arg(formimage->getPictureSize().width()).arg(formimage->getPictureSize().height());
-//}
-//*/
-
 void MainWindow::updateWindowTitle()
 {
         QString windowTitleFormat = QString("EUMETCastView zoomLevel");
@@ -552,5 +537,4 @@ void MainWindow::updateWindowTitle()
         windowTitleFormat.replace("zoomLevel", QString("%1%").arg(formimage->getZoomValue()));
         this->setWindowTitle(windowTitleFormat);
 }
-
 

@@ -23,6 +23,24 @@ enum eSegmentType
     SEG_VIIRSDNB
 };
 
+enum eImageType
+{
+    IMAGE_NONE = 0,
+    IMAGE_AVHRR_CH1,
+    IMAGE_AVHRR_CH2,
+    IMAGE_AVHRR_CH3,
+    IMAGE_AVHRR_CH4,
+    IMAGE_AVHRR_CH5,
+    IMAGE_AVHRR_COL,
+    IMAGE_AVHRR_EXPAND,
+    IMAGE_GEOSTATIONARY,
+    IMAGE_PROJECTION,
+    IMAGE_VIIRS_M,
+    IMAGE_VIIRS_DNB,
+    IMAGE_EQUIRECTANGLE
+
+};
+
 // structures
 struct floatVector {
         float x, y, z;

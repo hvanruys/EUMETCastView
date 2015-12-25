@@ -93,6 +93,7 @@ public:
     QString projectionoverlaycolor2;
     QString projectionoverlaycolor3;
     QString projectionoverlaylonlatcolor;
+    QString equirectangulardirectory;
 
     QString skyboxup;
     QString skyboxdown;

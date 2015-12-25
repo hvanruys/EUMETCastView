@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.1.2"
+#define APPVERSION "1.1.3"
 using namespace std;
 
 QMutex g_mutex;
@@ -102,7 +102,10 @@ int main(int argc, char *argv[])
     app.setApplicationName("EUMETCastView");
     app.setApplicationVersion(APPVERSION);
 
+//    "QTabWidget::tab:disabled { width: 0; height: 0; margin: 0; padding: 0; border: none; }"
+
     app.setStyleSheet(
+    "QTabWidget::tab:default {border-color: navy;}"
     "QPushButton {"
         "border: 2px solid #8f8f91;"
         "border-radius: 6px;"

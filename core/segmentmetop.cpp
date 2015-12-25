@@ -16,6 +16,8 @@
 #include <QDate>
 #include <QFileInfo>
 #include <QDebug>
+#include <QBitArray>
+#include <QByteArray>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -418,16 +420,12 @@ int SegmentMetop::ReadNbrOfLines()
     return heightinsegment;
 }
 
-
-
-
 void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record)
 {
 
     //quint16 val1_ch[5], val2_ch[5],tot_ch[5];
     //QByteArray picture_line;
     quint16 num1=0, num2=0;
-
 
     Q_ASSERT( mdr_record->length() == 26640);
 
@@ -523,6 +521,32 @@ void SegmentMetop::inspectEarthLocations(QByteArray *mdr_record, int heightinseg
     num1 = 0xFF & mdr_record->at(20534);
     num2 = 0xFF & mdr_record->at(20535);
     num_navigation_points  = (num1 <<= 8) | num2;
+
+    char digital_b_data_1 = 0xFF & mdr_record->at(26590);
+    char digital_b_data_2 = 0xFF & mdr_record->at(26591);
+
+    QByteArray digital_b_data;
+    QBitArray bitarray(8);
+    for(int b=0; b<8;b++)
+    {
+       bitarray.setBit(b, digital_b_data_2&(1<<(7-b)));
+    }
+
+    channel_3a_3b[heightinsegment] = bitarray.testBit(0); // 0 = channel 3b , 1 = channel 3a
+                                                          // channel 3a = visible channel
+
+//    digital_b_data.append(digital_b_data_1);
+//    digital_b_data.append(digital_b_data_2);
+//    QBitArray bits(16);
+//    for(int i=0; i<2; ++i) {
+//        for(int b=0; b<8;b++) {
+//            bits.setBit(i*8+b, digital_b_data.at(i)&(1<<(7-b)));
+//        }
+//    }
+
+//    bool channel_3a_3b = bits.at(8);
+
+    //qDebug() << QString("-----------length qbytearray = %1").arg(digital_b_data.length());
 
 
     long llat_deg, llon_deg;
@@ -769,21 +793,45 @@ Segment *SegmentMetop::ReadSegmentInMemory()
 
                     for (int i=0, j=0; i < 4096; i+=2, j++)
                     {
-                        for( int k = 0, l = 0; k < 5; k++, l+=4096)
+
+                        val1_ch[0] = 0xFF & picture_line.at(i);
+                        val2_ch[0] = 0xFF & picture_line.at(i+1);
+
+                        val1_ch[1] = 0xFF & picture_line.at(i+4096);
+                        val2_ch[1] = 0xFF & picture_line.at(i+1+4096);
+
+                        val1_ch[2] = 0xFF & picture_line.at(i+8192);
+                        val2_ch[2] = 0xFF & picture_line.at(i+1+8192);
+
+                        val1_ch[3] = 0xFF & picture_line.at(i+12288);
+                        val2_ch[3] = 0xFF & picture_line.at(i+1+12288);
+
+                        val1_ch[4] = 0xFF & picture_line.at(i+16384);
+                        val2_ch[4] = 0xFF & picture_line.at(i+1+16384);
+
+                        if(val1_ch[1] == 255 && val1_ch[0] == 0)
                         {
-                            val1_ch[k] = 0xFF & picture_line.at(i+l);
-                            if(k==2 && val1_ch[k]== 255)
-                                val1_ch[k] = 0;
-                            val2_ch[k] = 0xFF & picture_line.at(i+l+1);
-                            tot_ch[k] = (val1_ch[k] <<= 8) | val2_ch[k];
-//                            if(k==2 && i==2*500)
-//                                tot_ch[k] = 0;
-//                            if(k==2 && heightinsegment==180)
-//                                tot_ch[k] = 0;
-//                            if(k==2 && i==2*500 && heightinsegment==180)
-//                                qDebug() << QString(" ----------------->>>>  val1_ch = %1 val2_ch = %2 tot_ch = %3").arg(val1_ch[k],0,16).arg(val2_ch[k],0,16).arg(tot_ch[k],0,16);
-                            *(this->ptrbaChannel[k].data() + heightinsegment * 2048 + j) = tot_ch[k];
+                            val1_ch[1] = 0;
+                            val2_ch[1] = 0;
                         }
+                        if(val1_ch[2] == 255 && val1_ch[0] == 0)
+                        {
+                            val1_ch[2] = 0;
+                            val2_ch[2] = 0;
+                        }
+
+                        tot_ch[0] = (val1_ch[0] <<= 8) | val2_ch[0];
+                        tot_ch[1] = (val1_ch[1] <<= 8) | val2_ch[1];
+                        tot_ch[2] = (val1_ch[2] <<= 8) | val2_ch[2];
+                        tot_ch[3] = (val1_ch[3] <<= 8) | val2_ch[3];
+                        tot_ch[4] = (val1_ch[4] <<= 8) | val2_ch[4];
+
+                        *(this->ptrbaChannel[0].data() + heightinsegment * 2048 + j) = tot_ch[0];
+                        *(this->ptrbaChannel[1].data() + heightinsegment * 2048 + j) = tot_ch[1];
+                        *(this->ptrbaChannel[2].data() + heightinsegment * 2048 + j) = tot_ch[2];
+                        *(this->ptrbaChannel[3].data() + heightinsegment * 2048 + j) = tot_ch[3];
+                        *(this->ptrbaChannel[4].data() + heightinsegment * 2048 + j) = tot_ch[4];
+
 
                         for (int k=0; k < 5; k++)
                         {
@@ -791,6 +839,23 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                                 stat_min_ch[k] = tot_ch[k];
                             if (tot_ch[k] > stat_max_ch[k] )
                                 stat_max_ch[k] = tot_ch[k];
+//                            if(k == 3)
+//                            {
+//                                if(channel_3a_3b[heightinsegment] == false)
+//                                {
+//                                if (tot_ch[k] < stat_3_0_min_ch )
+//                                    stat_3_0_min_ch = tot_ch[k];
+//                                if (tot_ch[k] > stat_3_0_max_ch )
+//                                    stat_3_0_max_ch = tot_ch[k];
+//                                }
+//                                else
+//                                {
+//                                    if (tot_ch[k] < stat_3_1_min_ch )
+//                                        stat_3_1_min_ch = tot_ch[k];
+//                                    if (tot_ch[k] > stat_3_1_max_ch )
+//                                        stat_3_1_max_ch = tot_ch[k];
+//                                }
+//                            }
                         }
 
                     }

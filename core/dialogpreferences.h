@@ -94,6 +94,8 @@ private slots:
     void on_btnGlobeLonLatColor_clicked();
 
 
+    void on_btnEquirectangularDirectory_clicked();
+
 private:
     Ui::DialogPreferences *ui;
     QAbstractTableModel *myStationModel;

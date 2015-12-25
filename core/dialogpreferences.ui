@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Set Preferences</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_6">
+  <layout class="QVBoxLayout" name="verticalLayout_14">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -122,7 +122,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>2</number>
+        <number>6</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -1275,7 +1275,62 @@
         </widget>
        </widget>
        <widget class="QWidget" name="pageImage">
-        <layout class="QVBoxLayout" name="verticalLayout_14">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <item>
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Equirectangular image directory :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="ledEquirectangularDirectory">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>1</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnEquirectangularDirectory">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>50</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string extracomment="Select image directory"/>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
          <item>
           <widget class="QRadioButton" name="rbSattrackOn">
            <property name="text">
@@ -1288,6 +1343,12 @@
          </item>
          <item>
           <widget class="QGroupBox" name="groupBox_2">
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <italic>false</italic>
+            </font>
+           </property>
            <property name="title">
             <string>Smoothing of projection image</string>
            </property>

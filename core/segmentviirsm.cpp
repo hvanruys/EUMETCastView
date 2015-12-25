@@ -1,7 +1,7 @@
 #include "segmentviirsm.h"
 #include "segmentimage.h"
 
-#include "hdf5.h"
+
 
 #include <QDebug>
 
@@ -132,8 +132,7 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
     int     nBuf;
     char    buf[ 32768 ];
     int     bzerror;
-    hid_t   h5_file_id, radiance_id[3], latitude_id, longitude_id;
-    hid_t   aligncoef_id, expanscoef_id;
+    hid_t   h5_file_id;
     herr_t  h5_status;
 
     bool tempfileexist;
@@ -147,123 +146,45 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
 
     qDebug() << QString("file %1  tempfileexist = %2").arg(basename).arg(tempfileexist);
 
-//    if(!tempfileexist)
-//    {
-        QFile fileout(basename);
-        fileout.open(QIODevice::WriteOnly);
-        QDataStream streamout(&fileout);
+    QFile fileout(basename);
+    fileout.open(QIODevice::WriteOnly);
+    QDataStream streamout(&fileout);
 
 
-        if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
-        {
-            qDebug() << "error in BZ2_bzopen";
-        }
-
-        bzerror = BZ_OK;
-        while ( bzerror == BZ_OK )
-        {
-            nBuf = BZ2_bzRead ( &bzerror, b, buf, 32768 );
-            if ( bzerror == BZ_OK || bzerror == BZ_STREAM_END)
-            {
-                streamout.writeRawData(buf, nBuf);
-            }
-        }
-
-        BZ2_bzclose ( b );
-
-        fileout.close();
-
-/*    }
-    else
+    if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
     {
-        qDebug() << "file " << basename << " already exist !";
+        qDebug() << "error in BZ2_bzopen";
     }
-*/
-    tiepoints_lat.reset(new float[96 * 201]);
-    tiepoints_lon.reset(new float[96 * 201]);
-    aligncoef.reset(new float[200]);
-    expanscoef.reset(new float[200]);
-    geolongitude.reset(new float[768 * 3200]);
-    geolatitude.reset(new float[768 * 3200]);
+
+    bzerror = BZ_OK;
+    while ( bzerror == BZ_OK )
+    {
+        nBuf = BZ2_bzRead ( &bzerror, b, buf, 32768 );
+        if ( bzerror == BZ_OK || bzerror == BZ_STREAM_END)
+        {
+            streamout.writeRawData(buf, nBuf);
+        }
+    }
+
+    BZ2_bzclose ( b );
+
+    fileout.close();
 
 
     if( (h5_file_id = H5Fopen(basename.toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
         qDebug() << "File " << basename << " not open !!";
 
 
-    bool iscolorimage = this->bandlist.at(0);
+    ReadVIIRSM_SDR_All(h5_file_id);
+    ReadVIIRSM_GEO_All(h5_file_id);
 
-    for(int k = 0; k < (iscolorimage ? 3 : 1) ; k++)
-    {
-        if((radiance_id[k] = H5Dopen2(h5_file_id, (iscolorimage ? getDatasetNameFromColor(k).toLatin1() : getDatasetNameFromBand().toLatin1() ), H5P_DEFAULT)) < 0)
-            qDebug() << "Dataset " << (iscolorimage ? getDatasetNameFromColor(k) : getDatasetNameFromBand()) << " is not open !!";
-        else
-            qDebug() << "Dataset " << (iscolorimage ? getDatasetNameFromColor(k) : getDatasetNameFromBand() ) << " is open !!  ok ok ok ";
-
-        if((h5_status = H5Dread (radiance_id[k], H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL,
-                                 H5P_DEFAULT, ptrbaVIIRS[k].data())) < 0)
-            qDebug() << "Unable to read radiance dataset";
-
-    }
-
-    latitude_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/Latitude", H5P_DEFAULT);
-    longitude_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/Longitude", H5P_DEFAULT);
-    aligncoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/AlignmentCoefficient", H5P_DEFAULT);
-    expanscoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/ExpansionCoefficient", H5P_DEFAULT);
-
-/*    hid_t threshold_id = H5Aopen(radiance_id[0], "Threshold", H5P_DEFAULT);
-    h5_status = H5Aread(threshold_id, H5T_NATIVE_INT, &this->threshold[0]);
-    qDebug() << "The value of the threshold = " << this->threshold[0];
-    h5_status =  H5Aclose(threshold_id);
-
-    threshold_id = H5Aopen(radiance_id[1], "Threshold", H5P_DEFAULT);
-    h5_status = H5Aread(threshold_id, H5T_NATIVE_INT, &this->threshold[1]);
-    qDebug() << "The value of the threshold = " << this->threshold[1];
-    h5_status =  H5Aclose(threshold_id);
-
-    threshold_id = H5Aopen(radiance_id[2], "Threshold", H5P_DEFAULT);
-    h5_status = H5Aread(threshold_id, H5T_NATIVE_INT, &this->threshold[2]);
-    qDebug() << "The value of the threshold = " << this->threshold[2];
-    h5_status =  H5Aclose(threshold_id);
-*/
-
-
-    if((h5_status = H5Dread (latitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, tiepoints_lat.data())) < 0)
-        fprintf(stderr, "unable to read latitude dataset");
-
-    if((h5_status = H5Dread (longitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, tiepoints_lon.data())) < 0)
-        fprintf(stderr, "unable to read longitude dataset");
-
-    if((h5_status = H5Dread (aligncoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, aligncoef.data())) < 0)
-        fprintf(stderr, "unable to read AlignmentCoefficient dataset");
-
-    if((h5_status = H5Dread (expanscoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                             H5P_DEFAULT, expanscoef.data())) < 0)
-        fprintf(stderr, "unable to read ExpansionCoefficient dataset");
 
     int i, j;
 
     for( j = 0; j < 16; j++)
         s[j] = (float)((j + 0.5)/16.0);
 
-/*
-    for (j = 0; j < 4; j++) {
-        for (i = 0; i < 6; i++)
-           cout << " " <<  ptrbaVIIRS[j * 3200 + i];
-        cout << endl;
-    }
-*/
-/*    cout  << "tie point latitude : " << endl;
-    for (j = 0; j < 2; j++) {
-        for (i = 100; i < 102; i++)
-           cout << " " <<  tiepoints_lat[j * 201 + i];
-        cout << endl;
-    }
 
-*/
     cout  << "Calc geo lat and lon" << endl;
 
     for(int itrack = 0; itrack < 48; itrack++)
@@ -275,49 +196,6 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
     }
 
     this->LonLatMax();
-
-/*    cout << "alpha voor iscan = 100 :" << endl;
-    for (j = 0; j < 16; j++) {
-        for (i = 0; i < 16; i++)
-           cout << " " <<  alpha[j][i];
-        cout << endl;
-    }
-
-
-    cout << "geolatitude  :" << endl;
-    for (j = 0; j < 16; j++) {
-        for (i = 1600; i < 1616; i++)
-           cout << " " <<  geolatitude[j * 3200 + i];
-        cout << endl;
-    }
-
-    cout << "geolatitude  :" << endl;
-    for (j = 0; j < 768; j+=767) {
-        for (i = 0; i < 3200; i+=3199)
-           cout << " " <<  geolatitude[j * 3200 + i];
-        cout << endl;
-    }
-    cout << "geolongitude  :" << endl;
-    for (j = 0; j < 768; j+=767) {
-        for (i = 0; i < 3200; i+=3199)
-           cout << " " <<  geolongitude[j * 3200 + i];
-        cout << endl;
-    }
-
-*/
-
-//    QVector<float> vlongitude;
-//    QVector<float> vlatitude;
-
-//    for (j = 0; j < 768; j+=1)
-//    {
-//        for (i = 0; i < 3200; i+=1)
-//        {
-//           vlongitude.append(geolongitude[j * 3200 + i]);
-//           vlatitude.append(geolatitude[j * 3200 + i]);
-//        }
-//    }
-
 
 
     // For a 16 bit integer we choose [1; 65527] instead of the possible range [0; 65535] as 0 is an error identificator
@@ -347,13 +225,136 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
         }
     }
 
+    minBrightnessTemp = getBrightnessTemp(stat_min_ch[0]);
+    maxBrightnessTemp = getBrightnessTemp(stat_max_ch[0]);
+
     qDebug() << QString("ptrbaVIIRS min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
+    qDebug() << QString("Radiance min = %1 W/sr*cm*cm max = %2 W/sr*cm*cm").arg(getRadiance(stat_min_ch[0])).arg(getRadiance(stat_max_ch[0]));
+    qDebug() << QString("Brightness Temp min = %1 Kelvin  max = %2 Kelvin").arg(getBrightnessTemp(stat_min_ch[0])).arg(getBrightnessTemp(stat_max_ch[0]));
+
     if(this->bandlist.at(0))
     {
         qDebug() << QString("ptrbaVIIRS min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
         qDebug() << QString("ptrbaVIIRS min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
 
     }
+
+    h5_status = H5Fclose (h5_file_id);
+
+    return this;
+}
+
+
+/************************************************************
+
+  Operator function.  Prints the name and type of the object
+  being examined.
+
+ ************************************************************/
+//herr_t SegmentVIIRSM::op_func(hid_t loc_id, const char *name, const H5L_info_t *info, void *operator_data)
+//{
+//    herr_t          status;
+//    H5O_info_t      infobuf;
+
+//    /*
+//     * Get type of the object and display its name and type.
+//     * The name of the object is passed to this function by
+//     * the Library.
+//     */
+//    status = H5Oget_info_by_name (loc_id, name, &infobuf, H5P_DEFAULT);
+//    switch (infobuf.type) {
+//        case H5O_TYPE_GROUP:
+//            printf ("  Group: %s\n", name);
+//            break;
+//        case H5O_TYPE_DATASET:
+//            printf ("  Dataset: %s\n", name);
+//            break;
+//        case H5O_TYPE_NAMED_DATATYPE:
+//            printf ("  Datatype: %s\n", name);
+//            break;
+//        default:
+//            printf ( "  Unknown: %s\n", name);
+//    }
+
+//    return 0;
+//}
+
+void SegmentVIIRSM::ReadVIIRSM_SDR_All(hid_t h5_file_id)
+{
+    hid_t   radiance_id[3];
+    hid_t   h5_id;
+    herr_t  h5_status;
+
+
+    bool iscolorimage = this->bandlist.at(0);
+
+    for(int k = 0; k < (iscolorimage ? 3 : 1) ; k++)
+    {
+        if((radiance_id[k] = H5Dopen2(h5_file_id, (iscolorimage ? getDatasetNameFromColor(k).toLatin1() : getDatasetNameFromBand().toLatin1() ), H5P_DEFAULT)) < 0)
+            qDebug() << "Dataset " << (iscolorimage ? getDatasetNameFromColor(k) : getDatasetNameFromBand()) << " is not open !!";
+        else
+            qDebug() << "Dataset " << (iscolorimage ? getDatasetNameFromColor(k) : getDatasetNameFromBand() ) << " is open !!  ok ok ok ";
+
+        if((h5_status = H5Dread (radiance_id[k], H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL,
+                                 H5P_DEFAULT, ptrbaVIIRS[k].data())) < 0)
+            qDebug() << "Unable to read radiance dataset";
+
+    }
+
+    for(int k = 0; k < (iscolorimage ? 3 : 1) ; k++)
+    {
+        h5_id = H5Aopen(radiance_id[k], "Threshold", H5P_DEFAULT);
+        h5_status = H5Aread(h5_id, H5T_NATIVE_INT, &this->threshold[k]);
+        h5_status =  H5Aclose(h5_id);
+
+        h5_id = H5Aopen(radiance_id[k], "RadianceOffsetHigh", H5P_DEFAULT);
+        h5_status = H5Aread(h5_id, H5T_NATIVE_FLOAT, &this->radianceoffsethigh[k]);
+        h5_status =  H5Aclose(h5_id);
+
+        h5_id = H5Aopen(radiance_id[k], "RadianceOffsetLow", H5P_DEFAULT);
+        h5_status = H5Aread(h5_id, H5T_NATIVE_FLOAT, &this->radianceoffsetlow[k]);
+        h5_status =  H5Aclose(h5_id);
+
+        h5_id = H5Aopen(radiance_id[k], "RadianceScaleHigh", H5P_DEFAULT);
+        h5_status = H5Aread(h5_id, H5T_NATIVE_FLOAT, &this->radiancescalehigh[k]);
+        h5_status =  H5Aclose(h5_id);
+
+        h5_id = H5Aopen(radiance_id[k], "RadianceScaleLow", H5P_DEFAULT);
+        h5_status = H5Aread(h5_id, H5T_NATIVE_FLOAT, &this->radiancescalelow[k]);
+        h5_status =  H5Aclose(h5_id);
+
+        if(H5Aexists(radiance_id[k], "BandCorrectionCoefficientA"))
+        {
+            h5_id = H5Aopen(radiance_id[k], "BandCorrectionCoefficientA", H5P_DEFAULT);
+            h5_status = H5Aread(h5_id, H5T_NATIVE_DOUBLE, &this->bandcorrectioncoefficientA[k]);
+            if(h5_status < 0)
+                qDebug() << "BandCorrectionCoefficientA not read !";
+            h5_status =  H5Aclose(h5_id);
+
+            h5_id = H5Aopen(radiance_id[k], "BandCorrectionCoefficientB", H5P_DEFAULT);
+            h5_status = H5Aread(h5_id, H5T_NATIVE_DOUBLE, &this->bandcorrectioncoefficientB[k]);
+            if(h5_status < 0)
+                qDebug() << "BandCorrectionCoefficientB not read !";
+            h5_status =  H5Aclose(h5_id);
+
+            h5_id = H5Aopen(radiance_id[k], "CentralWaveLength", H5P_DEFAULT);
+            h5_status = H5Aread(h5_id, H5T_NATIVE_DOUBLE, &this->centralwavelength[k]);
+            if(h5_status < 0)
+                qDebug() << "CentralWaveLength not read !";
+            h5_status =  H5Aclose(h5_id);
+        }
+        else
+        {
+            bandcorrectioncoefficientA[k] = 0.0;
+            bandcorrectioncoefficientB[k] = 0.0;
+            centralwavelength[k] = 0.0;
+        }
+
+    }
+
+    qDebug() << QString("BandCorrectionCoefficientA = %1").arg(bandcorrectioncoefficientA[0]);
+    qDebug() << QString("BandCorrectionCoefficientB = %1").arg(bandcorrectioncoefficientB[0]);
+    qDebug() << QString("CentralWaveLength = %1").arg(centralwavelength[0]);
 
     if(iscolorimage)
     {
@@ -363,22 +364,56 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
     }
     else
         h5_status = H5Dclose (radiance_id[0]);
+}
 
-    h5_status = H5Dclose (latitude_id);
-    h5_status = H5Dclose (longitude_id);
+void SegmentVIIRSM::ReadVIIRSM_GEO_All(hid_t h5_file_id)
+{
+    hid_t   tiepoints_lat_id, tiepoints_lon_id;
+    hid_t   aligncoef_id, expanscoef_id;
+    herr_t  h5_status;
+
+    tiepoints_lat.reset(new float[96 * 201]);
+    tiepoints_lon.reset(new float[96 * 201]);
+    aligncoef.reset(new float[200]);
+    expanscoef.reset(new float[200]);
+    geolongitude.reset(new float[768 * 3200]);
+    geolatitude.reset(new float[768 * 3200]);
+
+
+    tiepoints_lat_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/Latitude", H5P_DEFAULT);
+    tiepoints_lon_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/Longitude", H5P_DEFAULT);
+    aligncoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/AlignmentCoefficient", H5P_DEFAULT);
+    expanscoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/ExpansionCoefficient", H5P_DEFAULT);
+
+    if((h5_status = H5Dread (tiepoints_lat_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, tiepoints_lat.data())) < 0)
+        fprintf(stderr, "unable to read latitude dataset");
+
+    if((h5_status = H5Dread (tiepoints_lon_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, tiepoints_lon.data())) < 0)
+        fprintf(stderr, "unable to read longitude dataset");
+
+    if((h5_status = H5Dread (aligncoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, aligncoef.data())) < 0)
+        fprintf(stderr, "unable to read AlignmentCoefficient dataset");
+
+    if((h5_status = H5Dread (expanscoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, expanscoef.data())) < 0)
+        fprintf(stderr, "unable to read ExpansionCoefficient dataset");
+
+    h5_status = H5Dclose (tiepoints_lat_id);
+    h5_status = H5Dclose (tiepoints_lon_id);
     h5_status = H5Dclose (aligncoef_id);
     h5_status = H5Dclose (expanscoef_id);
 
-    h5_status = H5Fclose (h5_file_id);
 
-    return this;
 }
 
 Segment *SegmentVIIRSM::ReadDatasetsInMemory()
 {
     qDebug() << "Segment *SegmentVIIRS::ReadDatasetsInMemory()";
 
-    hid_t   h5_file_id, radiance_id[3];
+    hid_t   h5_file_id;
     herr_t  h5_status;
 
     bool tempfileexist;
@@ -397,28 +432,13 @@ Segment *SegmentVIIRSM::ReadDatasetsInMemory()
     else
         qDebug() << "File " << basename << " is open !! ------------";
 
-
-    bool iscolorimage = this->bandlist.at(0);
-
-    for(int k = 0; k < (iscolorimage ? 3 : 1) ; k++)
-    {
-        if((radiance_id[k] = H5Dopen2(h5_file_id, (iscolorimage ? getDatasetNameFromColor(k).toLatin1() : getDatasetNameFromBand().toLatin1() ), H5P_DEFAULT)) < 0)
-            qDebug() << "Dataset " << (iscolorimage ? getDatasetNameFromColor(k) : getDatasetNameFromBand()) << " is not open !!";
-        else
-            qDebug() << "Dataset " << (iscolorimage ? getDatasetNameFromColor(k) : getDatasetNameFromBand() ) << " is open !!  ok ok ok ";
-
-        if((h5_status = H5Dread (radiance_id[k], H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL,
-                                 H5P_DEFAULT, ptrbaVIIRS[k].data())) < 0)
-            qDebug() << "Unable to read radiance dataset";
-
-    }
+    ReadVIIRSM_SDR_All(h5_file_id);
 
     for(int k = 0; k < 3; k++)
     {
         stat_max_ch[k] = 0;
         stat_min_ch[k] = 9999999;
     }
-
 
     for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
     {
@@ -436,16 +456,15 @@ Segment *SegmentVIIRSM::ReadDatasetsInMemory()
         }
     }
 
-    if(iscolorimage)
-    {
-        h5_status = H5Dclose (radiance_id[0]);
-        h5_status = H5Dclose (radiance_id[1]);
-        h5_status = H5Dclose (radiance_id[2]);
-    }
-    else
-        h5_status = H5Dclose (radiance_id[0]);
+    minBrightnessTemp = getBrightnessTemp(stat_min_ch[0]);
+    maxBrightnessTemp = getBrightnessTemp(stat_max_ch[0]);
 
     h5_status = H5Fclose (h5_file_id);
+
+    qDebug() << QString("ptrbaVIIRS min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
+    qDebug() << QString("Radiance min = %1 W/sr*cm*cm max = %2 W/sr*cm*cm").arg(getRadiance(stat_min_ch[0])).arg(getRadiance(stat_max_ch[0]));
+    qDebug() << QString("Brightness Temp min = %1 Kelvin  max = %2 Kelvin").arg(getBrightnessTemp(stat_min_ch[0])).arg(getBrightnessTemp(stat_max_ch[0]));
+
 
     return this;
 
@@ -1044,7 +1063,6 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj)
                 valok[2] = pixval[2] > 0 && pixval[2] < 65528;
             }
 
-
             if( valok[0] && (color ? valok[1] && valok[2] : true))
             {
                 latpos1 = geolatitude[i * 3200 + j];
@@ -1077,7 +1095,6 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj)
                 projectionCoordX[i * 3200 + j] = 65535;
                 projectionCoordY[i * 3200 + j] = 65535;
                 projectionCoordValue[i * 3200 + j] = qRgba(0, 0, 0, 0);
-
             }
         }
     }
@@ -1470,8 +1487,86 @@ void SegmentVIIRSM::MapPixel( int lines, int views, double map_x, double map_y, 
                 imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
             projectionCoordValue[lines * 3200 + views] = rgbvalue;
         }
-
+        if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+        {
+            float tmp = getBrightnessTemp(lines, views);
+            imageptrs->ptrProjectionBrightnessTemp[(int)map_y * imageptrs->ptrimageProjection->width() + (int)map_x] = tmp;
+        }
     }
+}
+
+float SegmentVIIRSM::getBrightnessTemp(int lines, int views)
+{
+    float radiancefloat;
+    int radint = this->ptrbaVIIRS[0][lines * 3200 + views];
+
+    if(radint >= 0 && radint < threshold[0])
+        radiancefloat = radianceoffsetlow[0] + radiancescalelow[0] * radint;
+    else if(radint < 65527 && radint >= threshold[0])
+        radiancefloat = radianceoffsethigh[0] + radiancescalehigh[0] * radint;
+    else
+        return -1.0;
+
+    float factor1 = 1438768660.333E-11;
+    float factor2 = 119.104393402E-19;
+    double thepow = pow(centralwavelength[0], 5);
+    float ln = log(1 + factor2/(radiancefloat*10.0E4 * thepow));
+    float bt = (factor1 * bandcorrectioncoefficientA[0]/(centralwavelength[0]*ln)) + bandcorrectioncoefficientB[0];
+
+    return bt;
+}
+
+float SegmentVIIRSM::getBrightnessTemp(int radiance)
+{
+
+    float radiancefloat;
+    if(radiance >= 0 && radiance < threshold[0])
+        radiancefloat = radianceoffsetlow[0] + radiancescalelow[0] * radiance;
+    else if(radiance < 65527 && radiance >= threshold[0])
+        radiancefloat = radianceoffsethigh[0] + radiancescalehigh[0] * radiance;
+    else
+        return -1.0;
+
+    float factor1 = 1438768660.333E-11;
+    float factor2 = 119.104393402E-19;
+    double thepow = pow(centralwavelength[0], 5);
+    float ln = log(1 + factor2/(radiancefloat * 10.0E4 * thepow)); // radiance in W/sr*m*m
+    float bt = (factor1 * bandcorrectioncoefficientA[0]/(centralwavelength[0]*ln)) + bandcorrectioncoefficientB[0];
+
+    return bt;
+}
+
+float SegmentVIIRSM::getRadiance(int lines, int views) // in W/sr*cm*cm
+{
+
+    float radiancefloat;
+    int radint = this->ptrbaVIIRS[0][lines * 3200 + views];
+
+    if(radint >= 0 && radint < threshold[0])
+        radiancefloat = radianceoffsetlow[0] + radiancescalelow[0] * radint;
+    else if(radint < 65527 && radint >= threshold[0])
+        radiancefloat = radianceoffsethigh[0] + radiancescalehigh[0] * radint;
+    else
+        radiancefloat = -1.0;
+
+
+    return radiancefloat;
+
+}
+
+float SegmentVIIRSM::getRadiance(int radiance) // in W/sr*cm*cm
+{
+
+    float radiancefloat;
+    if(radiance >= 0 && radiance < threshold[0])
+        radiancefloat = radianceoffsetlow[0] + radiancescalelow[0] * radiance;
+    else if(radiance < 65527 && radiance >= threshold[0])
+        radiancefloat = radianceoffsethigh[0] + radiancescalehigh[0] * radiance;
+    else
+        radiancefloat = -1.0;
+
+    return radiancefloat;
+
 }
 
 float SegmentVIIRSM::Minf(const float v11, const float v12, const float v21, const float v22)

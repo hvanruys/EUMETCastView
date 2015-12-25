@@ -24,11 +24,11 @@
 #include "options.h"
 
 class SegmentList;
+class SegmentListGeostationary;
 class SegmentListNoaa;
 class SegmentListMetop;
 class SegmentListHRP;
 class SegmentListGAC;
-class SegmentListGeostationary;
 class SegmentListVIIRSM;
 class SegmentListVIIRSDNB;
 
@@ -123,8 +123,6 @@ private:
     long countviirsdnb;
     long countviirsmdnb;
     bool showallsegments;
-
-
 
 signals:
     void signalProgress(int progress); // in formephem

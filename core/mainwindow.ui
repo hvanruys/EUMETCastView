@@ -54,6 +54,7 @@
    <addaction name="actionNormalSize"/>
    <addaction name="actionFitWindow"/>
    <addaction name="actionFitWindowWidth"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">

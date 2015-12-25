@@ -645,6 +645,9 @@ void FormMapCyl::RemoveAllSelected()
     segs->RemoveAllSelectedVIIRSM();
     segs->RemoveAllSelectedVIIRSDNB();
 
+    imageptrs->ptrProjectionBrightnessTemp.reset();
+    imageptrs->ptrProjectionInfra.reset();
+
     mapcyl->update();
     showSegmentcount();
 
@@ -689,7 +692,6 @@ void FormMapCyl::on_btnSaveTexture_clicked()
 
     QDateTime dt;
     dt = QDateTime::currentDateTime();
-
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     imageptrs->pmOut->save("texture" + dt.toString("yyyyMMddhhmmss") + ".jpg");

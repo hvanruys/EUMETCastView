@@ -12,18 +12,10 @@ class SegmentListVIIRSDNB  : public SegmentList
 
 public:
     SegmentListVIIRSDNB(SatelliteList *satl = 0, QObject *parent = 0);
-    //bool ComposeVIIRSImageConcurrent(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    //bool ComposeVIIRSImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     bool ComposeVIIRSImageInThread();
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
-    void ComposeGVProjection(int inputchannel);
-
-    //bool ShowImage(QList<bool> bandlist, QList<int> colorlist);
     void ShowImageSerial();
     void SmoothVIIRSImage(bool combine);
-    //static void doReadSegmentInMemoryVIIRS(Segment *t);
-    //static void doComposeSegmentImageVIIRS(Segment *t);
-    //static void doComposeProjection(Segment *t);
     void sliderCentreBandChanged(int val);
     void spbWindowValueChanged(int spbwindowval, int slcentreband);
     float getMoonIllumination() { return moonillumination; }

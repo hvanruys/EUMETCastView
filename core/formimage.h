@@ -8,6 +8,7 @@
 #include "avhrrsatellite.h"
 #include "generalverticalperspective.h"
 #include "formtoolbox.h"
+#include "infrascales.h"
 
 class FormToolbox;
 
@@ -27,13 +28,18 @@ public:
     void CLAHEprojection();
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayProjection(QPainter *paint,  SegmentListGeostationary *sl);
+    void ToInfraColorProjection();
+    void FromInfraColorProjection();
+
     bool getOverlayMeteosat() { return overlaymeteosat; }
     bool getOverlayProjection() { return overlayprojection; }
     bool toggleOverlayMeteosat();
     bool toggleOverlayProjection();
     void SetFormToolbox(FormToolbox *ptr) { formtoolbox = ptr; }
+    void SetInfraScales(InfraScales *ptr) { infrascales = ptr; }
+    void showInfraScales() { changeinfraprojection = true; }
 
-    void displayImage(int channel);
+    void displayImage(eImageType channel);
     void test();
     void setKindOfImage(QString koi) { kindofimage = koi; }
     QString getKindOfImage() { return kindofimage; }
@@ -59,7 +65,7 @@ public:
     int viirsdnbcount;
 
 
-    int channelshown; // which button channel
+    eImageType channelshown; // which button channel
     QString txtInfo;
     bool refreshoverlay;
 
@@ -73,10 +79,10 @@ private:
     void displayGeoImageInfo();
     void displayGeoImageInformation(QString satname);
 
-
     SatelliteList *sats;
     AVHRRSatellite *segs;
     FormToolbox *formtoolbox;
+    InfraScales *infrascales;
 
     double metop_gamma_ch[5], noaa_gamma_ch[5], gac_gamma_ch[5], hrp_gamma_ch[5];
     double metop_gammaEqual_ch[5], noaa_gammaEqual_ch[5], gac_gammaEqual_ch[5], hrp_gammaEqual_ch[5];
@@ -84,14 +90,14 @@ private:
     bool metop_inverseEqual_ch[5], noaa_inverseEqual_ch[5], gac_inverseEqual_ch[5], hrp_inverseEqual_ch[5];
 
     QLabel *imageLabel;
-    QHBoxLayout *mainLayout;
+    QVBoxLayout *mainLayout;
 
     QPoint mousepoint;
     double scaleFactor;
 
-    QPixmap *overlay_pix;
     bool overlaymeteosat;
     bool overlayprojection;
+    bool changeinfraprojection;
 
     QString kindofimage;
     eSegmentType segmenttype;
@@ -125,6 +131,7 @@ public slots:
     void slotUpdateHimawari();
     void slotUpdateProjection();
     void slotRefreshOverlay();
+    void slotRepaintProjectionImage();
 
 protected:
     void paintEvent(QPaintEvent *);

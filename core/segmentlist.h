@@ -28,6 +28,7 @@ public:
     QString GetDirectoryName() { return directoryname; }
     QList<Segment *> *GetSegmentlistptr(void) { return &segmentlist; }
     QList<Segment *> *GetSegsSelectedptr(void) { return &segsselected; }
+    eSegmentType GetSegmentType() { return seglisttype; }
     void ClearSegments();
     int NbrOfSegments();
     int NbrOfSegmentsSelected();
@@ -62,6 +63,7 @@ protected:
     void BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext, bool combine);
     bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
     void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
+    void MapInterpolation1(QRgb *canvas, quint16 dimx, quint16 dimy);
     void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine);
 
     double cubicInterpolate (double p[4], double x);
@@ -81,10 +83,16 @@ protected:
     long TotalSegmentsInDirectory;
     long stat_max_ch[5];
     long stat_min_ch[5];
+//    long stat_3_0_max_ch;
+//    long stat_3_1_max_ch;
+//    long stat_3_0_min_ch;
+//    long stat_3_1_min_ch;
+
 
     quint16 lut_ch[5][256];
     int progressresultready; // for progresscounter
     int projectioninputchannel;
+    bool channel_3_select;
 
 signals:
     void segmentlistfinished(bool settoolboxbuttons);

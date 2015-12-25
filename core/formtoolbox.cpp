@@ -41,7 +41,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     setupChannelCombo();
     setChannelComboBoxes();
-    currentAVHRRimage = 1;
+    currentAVHRRimage = IMAGE_AVHRR_COL;
 
 
     if (opts.imageontextureOnAVHRR)
@@ -76,8 +76,13 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->cmbHRVtype->addItem("Europe");
     ui->cmbHRVtype->addItem("Full");
 
+
     connect(ui->sliMeteosatGamma, SIGNAL(sliderReleased()), this, SLOT(setMeteosatGamma()));
     connect(ui->spbMeteosatGamma, SIGNAL(valueChanged(double)), this,SLOT(setMeteosatGamma(double)));
+
+    ui->sliMeteosatGamma->setSliderPosition(opts.meteosatgamma*100);
+    ui->spbMeteosatGamma->setValue(opts.meteosatgamma);
+    //setMeteosatGamma(opts.meteosatgamma);
 
     connect(ui->comboCh1, SIGNAL(activated(int)), this, SLOT(setChannelIndex()));
     connect(ui->comboCh2, SIGNAL(activated(int)), this, SLOT(setChannelIndex()));
@@ -91,7 +96,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     connect(ui->chkInverseCh4, SIGNAL(stateChanged(int)), this, SLOT(setChannelInverse()));
     connect(ui->chkInverseCh5, SIGNAL(stateChanged(int)), this, SLOT(setChannelInverse()));
 
-    formimage->channelshown = 8;
     spectrumvector.append("");
     spectrumvector.append("");
     spectrumvector.append("");
@@ -100,6 +104,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     inversevector.append(false);
     inversevector.append(false);
 
+    formimage->channelshown = IMAGE_GEOSTATIONARY;
     ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
     ui->tabWidgetVIIRS->setCurrentIndex(0); // VIIRSM
 
@@ -263,6 +268,10 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
 
     setToolboxButtons(true);
+
+    setupEquirectangularTable();
+    ui->rdbEquirectin->hide();
+    //ui->tabWidget->setTabEnabled(3, false);
 
     qDebug() << "constructor formtoolbox";
 
@@ -613,7 +622,7 @@ void FormToolbox::setChannelComboBoxes()
 
 }
 
-QList<bool> FormToolbox::getVIIRSBandList()
+QList<bool> FormToolbox::getVIIRSMBandList()
 {
     QList<bool> viirslist;
     viirslist << ui->rbColorVIIRS->isChecked() << ui->rbM1->isChecked() << ui->rbM2->isChecked() << ui->rbM3->isChecked() << ui->rbM4->isChecked() << ui->rbM5->isChecked() << ui->rbM6->isChecked()
@@ -622,7 +631,7 @@ QList<bool> FormToolbox::getVIIRSBandList()
     return(viirslist);
 }
 
-QList<int> FormToolbox::getVIIRSColorList()
+QList<int> FormToolbox::getVIIRSMColorList()
 {
     QList<int> viirslist;
     viirslist << ui->comboM1->currentIndex() << ui->comboM2->currentIndex() << ui->comboM3->currentIndex() << ui->comboM4->currentIndex() << ui->comboM5->currentIndex()
@@ -632,7 +641,7 @@ QList<int> FormToolbox::getVIIRSColorList()
     return(viirslist);
 }
 
-QList<bool> FormToolbox::getVIIRSInvertList()
+QList<bool> FormToolbox::getVIIRSMInvertList()
 {
     QList<bool> viirslist;
     viirslist << ui->chkInverseM1->isChecked() << ui->chkInverseM2->isChecked() << ui->chkInverseM3->isChecked() << ui->chkInverseM4->isChecked() << ui->chkInverseM5->isChecked()
@@ -672,6 +681,7 @@ void FormToolbox::setMeteosatGamma(double gammaval)
     double val = ui->spbMeteosatGamma->value() * 100;
     ui->sliMeteosatGamma->setValue((int)val);
     opts.meteosatgamma = gammaval;
+    qDebug() << QString("opts.meteosatvalue = %1").arg(opts.meteosatgamma);
 
 }
 
@@ -1046,52 +1056,52 @@ bool FormToolbox::GridOnProjSG()
 void FormToolbox::on_btnCol_clicked()
 {
     formimage->setKindOfImage("AVHRR Color");
-    currentAVHRRimage = 6;
+    currentAVHRRimage = IMAGE_AVHRR_COL;
     formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh1_clicked()
 {
     formimage->setKindOfImage("Chan 1");
-    currentAVHRRimage = 1;
+    currentAVHRRimage = IMAGE_AVHRR_CH1;
     formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh2_clicked()
 {
     formimage->setKindOfImage("Chan 2");
-    currentAVHRRimage = 2;
+    currentAVHRRimage = IMAGE_AVHRR_CH2;
     formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh3_clicked()
 {
     formimage->setKindOfImage("Chan 3");
-    currentAVHRRimage = 3;
+    currentAVHRRimage = IMAGE_AVHRR_CH3;
     formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh4_clicked()
 {
     formimage->setKindOfImage("Chan 4");
-    currentAVHRRimage = 4;
+    currentAVHRRimage = IMAGE_AVHRR_CH4;
     formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnCh5_clicked()
 {
     formimage->setKindOfImage("Chan 5");
-    currentAVHRRimage = 5;
+    currentAVHRRimage = IMAGE_AVHRR_CH5;
     formimage->displayImage(currentAVHRRimage);
 }
 
 void FormToolbox::on_btnExpandImage_clicked()
 {
-    if(formimage->channelshown == 7)
+    if(formimage->channelshown == IMAGE_AVHRR_EXPAND)
         return;
     formimage->setKindOfImage("Expanded " + formimage->getKindOfImage());
     imageptrs->ExpandImage(formimage->channelshown);
-    formimage->displayImage(7);
+    formimage->displayImage(IMAGE_AVHRR_EXPAND);
 }
 
 void FormToolbox::on_btnRotate180_clicked()
@@ -1873,7 +1883,7 @@ void FormToolbox::onButtonColorHRV(QString type)
     segs->seglfy2g->setKindofImage(type);
     segs->seglh8->setKindofImage(type);
 
-    formimage->displayImage(8);
+    formimage->displayImage(IMAGE_GEOSTATIONARY);
     formimage->adjustPicSize(true);
 
 
@@ -2078,22 +2088,26 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
 {
     qDebug() << "on_tabWidget_currentChanged(int index) index = " << index;
 
-    if (index == 0) //AVHHR
+    if (index == TAB_AVHRR) //AVHHR
     {
         formimage->displayImage(currentAVHRRimage);
     }
-    else if (index == 1) // VIIRS
+    else if (index == TAB_VIIRS) // VIIRS
     {
         if(ui->tabWidgetVIIRS->currentIndex() == 0)
-            formimage->displayImage(10);
+            formimage->displayImage(IMAGE_VIIRS_M);
         else
-            formimage->displayImage(11);
+            formimage->displayImage(IMAGE_VIIRS_DNB);
     }
-    else if (index == 2) // Geostationair
+    else if (index == TAB_GEOSTATIONARY) // Geostationair
     {
-        formimage->displayImage(8);
+        formimage->displayImage(IMAGE_GEOSTATIONARY);
     }
-    else if (index == 3) // Projection
+    else if (index == TAB_EQUIRECTANGULAR) // Equirectangular
+    {
+        formimage->displayImage(IMAGE_EQUIRECTANGLE);
+    }
+    else if (index == TAB_PROJECTION) // Projection
     {
         if( ui->toolBox->currentIndex() == 0)
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
@@ -2117,9 +2131,9 @@ void FormToolbox::on_tabWidgetVIIRS_currentChanged(int index)
     qDebug() << "on_tabWidgetVIIRS_currentChanged(int index) index = " << index;
 
     if (index == 0) //VIIRSM
-        formimage->displayImage(10);
+        formimage->displayImage(IMAGE_VIIRS_M);
     else if (index == 1) // VIIRSDNB
-        formimage->displayImage(11);
+        formimage->displayImage(IMAGE_VIIRS_DNB);
 
 
 }
@@ -2262,53 +2276,111 @@ void FormToolbox::on_btnCreatePerspective_clicked()
                 rowcopy[w] = row[w];
             }
         }
-
     }
 
-    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
+    if(ui->rdbAVHRRin->isChecked())
     {
-        if(ui->rdbAVHRRin->isChecked())
+        if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
         {
             if(!segs->SelectedAVHRRSegments())
                 return;
         }
     }
-    else if(opts.buttonVIIRSM)
+    else if(ui->rdbVIIRSMin->isChecked())
     {
-        if(ui->rdbVIIRSMin->isChecked())
+        if(opts.buttonVIIRSM)
         {
             if(!segs->SelectedVIIRSMSegments())
                 return;
         }
 
     }
-    else if(opts.buttonVIIRSDNB)
+    else if(ui->rdbVIIRSDNBin->isChecked())
     {
-        if(ui->rdbVIIRSDNBin->isChecked())
+        if(opts.buttonVIIRSDNB)
         {
             if(!segs->SelectedVIIRSDNBSegments())
                 return;
         }
 
     }
+    else if(ui->rdbEquirectin->isChecked())
+    {
+
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+
+    int width = imageptrs->ptrimageProjection->width();
+    int height = imageptrs->ptrimageProjection->height();
+
+    infrascales->hide();
+
     if(ui->rdbAVHRRin->isChecked())
         imageptrs->gvp->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
     else if(ui->rdbVIIRSMin->isChecked())
+    {
+        imageptrs->ptrProjectionBrightnessTemp.reset(new float[width * height]);
+        ui->btnGVPFalseColor->setChecked(false);
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        QList<bool> blist = this->getVIIRSMBandList();
+        if(blist.at(12) || blist.at(13) || blist.at(14) || blist.at(15) || blist.at(16))
+        {
+            copyProjectionImage();
+
+            infrascales->initializeLowHigh();
+            infrascales->setMinMaxTemp( segs->seglviirsm->getMinBrightnessTemp(), segs->seglviirsm->getMaxBrightnessTemp());
+
+            qDebug() << QString("setMinMaxTemp %1 %2").arg(segs->seglviirsm->getMinBrightnessTemp()).arg(segs->seglviirsm->getMaxBrightnessTemp());
+
+            QList<bool> ilist = this->getVIIRSMInvertList();
+            if(blist.at(12))
+                infrascales->setInverse(ilist.at(11));
+            else if(blist.at(13))
+                infrascales->setInverse(ilist.at(12));
+            else if(blist.at(14))
+                infrascales->setInverse(ilist.at(13));
+            else if(blist.at(15))
+                infrascales->setInverse(ilist.at(14));
+            else if(blist.at(16))
+                infrascales->setInverse(ilist.at(15));
+        }
+    }
     else if(ui->rdbVIIRSDNBin->isChecked())
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
-    else
+    else if(ui->rdbMeteosatin->isChecked())
         imageptrs->gvp->CreateMapFromGeoStationary();
+    else if(ui->rdbEquirectin->isChecked())
+        imageptrs->gvp->CreateMapFromEquirectangular();
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
 
     formimage->setPixmapToLabel(true);
     QApplication::restoreOverrideCursor();
+
+}
+
+void FormToolbox::copyProjectionImage()
+{
+    int width = imageptrs->ptrimageProjection->width();
+    int height = imageptrs->ptrimageProjection->height();
+    QRgb *scanproj;
+    QRgb rgb;
+
+    imageptrs->ptrProjectionInfra.reset(new quint8[width * height]);
+    for(int y = 0; y < height; y++)
+    {
+        scanproj = (QRgb *)imageptrs->ptrimageProjection->scanLine(y);
+        for(int x = 0; x < width; x++)
+        {
+            rgb = scanproj[x];
+            imageptrs->ptrProjectionInfra[y * width + x] = (quint8)(qRed(rgb));
+        }
+
+    }
 
 }
 
@@ -2625,7 +2697,7 @@ void FormToolbox::on_toolBox_currentChanged(int index)
 void FormToolbox::on_btnGVPClearMap_clicked()
 {
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
-    formimage->displayImage(9);
+    formimage->displayImage(IMAGE_PROJECTION);
 }
 
 void FormToolbox::on_btnLCCClearMap_clicked()
@@ -2634,7 +2706,7 @@ void FormToolbox::on_btnLCCClearMap_clicked()
                                ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
 
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
-    formimage->displayImage(9);
+    formimage->displayImage(IMAGE_PROJECTION);
 }
 
 
@@ -2771,7 +2843,7 @@ void FormToolbox::on_spbSGlat_valueChanged(double arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-        formimage->displayImage(9);
+        formimage->displayImage(IMAGE_PROJECTION);
     }
 
 }
@@ -2782,7 +2854,7 @@ void FormToolbox::on_spbSGlon_valueChanged(double arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-        formimage->displayImage(9);
+        formimage->displayImage(IMAGE_PROJECTION);
     }
 
 }
@@ -2793,7 +2865,7 @@ void FormToolbox::on_spbSGScale_valueChanged(double arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-        formimage->displayImage(9);
+        formimage->displayImage(IMAGE_PROJECTION);
     }
 
 }
@@ -2820,7 +2892,7 @@ void FormToolbox::on_spbSGPanHorizon_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-        formimage->displayImage(9);
+        formimage->displayImage(IMAGE_PROJECTION);
     }
 
 }
@@ -2831,7 +2903,7 @@ void FormToolbox::on_spbSGPanVert_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-        formimage->displayImage(9);
+        formimage->displayImage(IMAGE_PROJECTION);
     }
 
 }
@@ -2842,7 +2914,7 @@ void FormToolbox::on_spbSGRadius_valueChanged(double arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-        formimage->displayImage(9);
+        formimage->displayImage(IMAGE_PROJECTION);
     }
 
 }
@@ -2850,7 +2922,7 @@ void FormToolbox::on_spbSGRadius_valueChanged(double arg1)
 void FormToolbox::on_btnSGClearMap_clicked()
 {
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
-    formimage->displayImage(9);
+    formimage->displayImage(IMAGE_PROJECTION);
 
 }
 
@@ -2957,6 +3029,7 @@ void FormToolbox::on_btnMakeVIIRSImage_clicked()
             return;
         }
 
+        infrascales->hide();
         ui->pbProgress->reset();
         emit emitShowVIIRSImage();
     }
@@ -3583,3 +3656,67 @@ void FormToolbox::on_btnAddMConfig_clicked()
 
 }
 
+void FormToolbox::setupEquirectangularTable()
+{
+    myEquirectangularModel = new QFileSystemModel(this);
+    QStringList imagefilter;
+    imagefilter << "*.png" << "*.jpg";
+    myEquirectangularModel->setNameFilters(imagefilter);
+
+    myEquirectangularModel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
+    myEquirectangularModel->setRootPath(opts.equirectangulardirectory); //QDir::currentPath());
+    myEquirectangularModel->sort(0);
+
+    ui->trvEquirectangular->setModel(myEquirectangularModel);
+    ui->trvEquirectangular->setRootIndex(myEquirectangularModel->index(opts.equirectangulardirectory)); //QDir::currentPath()));
+    ui->trvEquirectangular->setColumnWidth(0, 250);
+    ui->trvEquirectangular->setColumnWidth(1, 100);
+    ui->trvEquirectangular->setColumnWidth(2, 100);
+    ui->trvEquirectangular->setColumnWidth(3, 150);
+
+}
+
+
+void FormToolbox::on_trvEquirectangular_clicked(const QModelIndex &index)
+{
+    QString sPath = myEquirectangularModel->fileInfo(index).absoluteFilePath();
+    qDebug() << "Equirectangular file : " << sPath;
+    delete imageptrs->ptrimageEquirectangle;
+    imageptrs->ptrimageEquirectangle = new QImage(sPath);
+
+    qDebug() << QString("Equirectangular file : %1  width = %2  height = %3").arg(sPath).arg(imageptrs->ptrimageEquirectangle->width())
+                .arg(imageptrs->ptrimageEquirectangle->height());
+    formimage->displayImage(IMAGE_EQUIRECTANGLE);
+    formimage->adjustPicSize(false);
+}
+
+void FormToolbox::on_btnGVPFalseColor_clicked()
+{
+    if(imageptrs->ptrProjectionInfra.isNull())
+    {
+        ui->btnGVPFalseColor->setChecked(false);
+        return;
+    }
+
+    if(infrascales->isHidden())
+    {
+        QList<bool> blist = this->getVIIRSMBandList();
+        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
+                (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
+        {
+            infrascales->show();
+            infrascales->initializeLowHigh();
+            formimage->ToInfraColorProjection();
+            formimage->displayImage(IMAGE_PROJECTION);
+        }
+        else
+            ui->btnGVPFalseColor->setChecked(false);
+    }
+    else
+    {
+        infrascales->hide();
+        formimage->FromInfraColorProjection();
+        formimage->displayImage(IMAGE_PROJECTION);
+    }
+
+}

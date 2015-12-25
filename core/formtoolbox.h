@@ -2,14 +2,17 @@
 #define FORMTOOLBOX_H
 
 #include <QWidget>
+#include <QFileSystemModel>
 #include "formimage.h"
 #include "formmapcyl.h"
 #include "formgeostationary.h"
+#include "infrascales.h"
 
 #define TAB_AVHRR 0
 #define TAB_VIIRS 1
 #define TAB_GEOSTATIONARY 2
-#define TAB_PROJECTION 3
+#define TAB_EQUIRECTANGULAR 3
+#define TAB_PROJECTION 4
 
 #define TAB_LLC 0
 #define TAB_GVP 1
@@ -21,6 +24,7 @@ namespace Ui {
 
 class FormImage;
 class FormGeostationary;
+class InfraScales;
 
 class FormToolbox : public QWidget
 {
@@ -31,9 +35,9 @@ public:
     int getTabWidgetIndex();
     int getTabWidgetVIIRSIndex();
 
-    QList<bool> getVIIRSBandList();
-    QList<int> getVIIRSColorList();
-    QList<bool> getVIIRSInvertList();
+    QList<bool> getVIIRSMBandList();
+    QList<int> getVIIRSMColorList();
+    QList<bool> getVIIRSMInvertList();
     void setTabWidgetIndex(int index);
     void setTabWidgetVIIRSIndex(int index);
     void writeInfoToAVHRR(QString info);
@@ -49,6 +53,7 @@ public:
     bool GridOnProjSG();
     void setPOIsettings();
     void setMConfigsettings();
+    void SetInfraScales(InfraScales *ptr) { infrascales = ptr; }
 
 
 
@@ -57,7 +62,9 @@ public:
 private:
     Ui::FormToolbox *ui;
     FormImage *formimage;
+    InfraScales *infrascales;
     FormGeostationary *formgeostationary;
+    QFileSystemModel *myEquirectangularModel;
 
     void setupChannelCombo();
     void setInverseCheckBoxes();
@@ -70,6 +77,8 @@ private:
     void setSGParameters(int strlindex);
     void setConfigMParameters(int strlindex);
     void setRadioButtonsMToFalse();
+    void setupEquirectangularTable();
+    void copyProjectionImage();
 
 
     AVHRRSatellite *segs;
@@ -81,7 +90,7 @@ private:
     QString filenamecreated;
     QVector<int> resolutionX;
     QVector<int> resolutionY;
-    int currentAVHRRimage; // from 1 to 6 , 6 color image
+    eImageType currentAVHRRimage; // from 1 to 6 , 6 color image
 
 public slots:
     void setChannelComboBoxes();
@@ -204,7 +213,10 @@ private slots:
     void on_btnAddMConfig_clicked();
 
     void on_tabWidgetVIIRS_currentChanged(int index);
+    void on_trvEquirectangular_clicked(const QModelIndex &index);
+    void on_btnGVPFalseColor_clicked();
 };
+
 
 #endif // FORMTOOLBOX_H
 

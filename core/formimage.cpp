@@ -38,7 +38,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 {
     sats = satlist;
     segs = seglist;
-    channelshown = 8;
+    channelshown = IMAGE_GEOSTATIONARY;
     zoomIncrement = 2;
     maxZoomValue = 300;
     minZoomValue = 4;
@@ -53,7 +53,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     imageLabel = new QLabel;
     imageLabel->setScaledContents(true);
 
-    mainLayout = new QHBoxLayout;
+    mainLayout = new QVBoxLayout;
     mainLayout->addWidget(imageLabel);
     this->setLayout(mainLayout);
 
@@ -62,6 +62,8 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     overlaymeteosat = true;
     overlayprojection = true;
     refreshoverlay = true;
+    changeinfraprojection = false;
+
     this->setSegmentType(SEG_NONE);
 
     metopcount = 0;
@@ -70,6 +72,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     hrpcount = 0;
     viirsmcount = 0;
     txtInfo = "";
+
 
 }
 
@@ -109,38 +112,41 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
 
     switch(channelshown)
     {
-    case 1:
+    case IMAGE_AVHRR_CH1:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
         break;
-    case 2:
+    case IMAGE_AVHRR_CH2:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
         break;
-    case 3:
+    case IMAGE_AVHRR_CH3:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
         break;
-    case 4:
+    case IMAGE_AVHRR_CH4:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
         break;
-    case 5:
+    case IMAGE_AVHRR_CH5:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
         break;
-    case 6:
+    case IMAGE_AVHRR_COL:
         imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
         break;
-    case 7:
+    case IMAGE_AVHRR_EXPAND:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
         break;
-    case 8:
+    case IMAGE_GEOSTATIONARY:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
         break;
-    case 9:
+    case IMAGE_PROJECTION:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
         break;
-    case 10:
+    case IMAGE_VIIRS_M:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
         break;
-    case 11:
+    case IMAGE_VIIRS_DNB:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
+        break;
+    case IMAGE_EQUIRECTANGLE:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageEquirectangle)));
         break;
 
     }
@@ -160,7 +166,7 @@ void FormImage::setPixmapToLabelDNB(bool settoolboxbuttons)
 
 }
 
-void FormImage::displayImage(int channel)
+void FormImage::displayImage(eImageType channel)
 {
     this->channelshown = channel;
 
@@ -168,38 +174,41 @@ void FormImage::displayImage(int channel)
 
     switch(channelshown)
     {
-    case 1:
+    case IMAGE_AVHRR_CH1:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
         break;
-    case 2:
+    case IMAGE_AVHRR_CH2:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
         break;
-    case 3:
+    case IMAGE_AVHRR_CH3:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
         break;
-    case 4:
+    case IMAGE_AVHRR_CH4:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
         break;
-    case 5:
+    case IMAGE_AVHRR_CH5:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
         break;
-    case 6:
+    case IMAGE_AVHRR_COL:
         imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
         break;
-    case 7:
+    case IMAGE_AVHRR_EXPAND:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
         break;
-    case 8:
+    case IMAGE_GEOSTATIONARY:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
         break;
-    case 9:
+    case IMAGE_PROJECTION:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
         break;
-    case 10:
+    case IMAGE_VIIRS_M:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
         break;
-    case 11:
+    case IMAGE_VIIRS_DNB:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
+        break;
+    case IMAGE_EQUIRECTANGLE:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageEquirectangle)));
         break;
 
     }
@@ -253,7 +262,7 @@ void FormImage::ComposeImage()
     {
         if (metopcount + noaacount + hrpcount + gaccount > 0)
         {
-            displayImage(6);
+            displayImage(IMAGE_AVHRR_COL);
 
             if (metopcount > 0 && opts.buttonMetop)
             {
@@ -295,12 +304,12 @@ void FormImage::ComposeImage()
     {
             formtoolbox->setToolboxButtons(false);
 
-            this->displayImage(10);
+            this->displayImage(IMAGE_VIIRS_M);
             this->kindofimage = "VIIRSM";
             this->setSegmentType(SEG_VIIRSM);
-            bandlist = formtoolbox->getVIIRSBandList();
-            colorlist = formtoolbox->getVIIRSColorList();
-            invertlist = formtoolbox->getVIIRSInvertList();
+            bandlist = formtoolbox->getVIIRSMBandList();
+            colorlist = formtoolbox->getVIIRSMColorList();
+            invertlist = formtoolbox->getVIIRSMInvertList();
 //          in Workerthread
             segs->seglviirsm->ComposeVIIRSImage(bandlist, colorlist, invertlist);
 //          in main thread
@@ -310,12 +319,12 @@ void FormImage::ComposeImage()
     {
             formtoolbox->setToolboxButtons(false);
 
-            this->displayImage(11);
+            this->displayImage(IMAGE_VIIRS_DNB);
             this->kindofimage = "VIIRSDNB";
             this->setSegmentType(SEG_VIIRSDNB);
-            bandlist = formtoolbox->getVIIRSBandList();
-            colorlist = formtoolbox->getVIIRSColorList();
-            invertlist = formtoolbox->getVIIRSInvertList();
+            bandlist = formtoolbox->getVIIRSMBandList();
+            colorlist = formtoolbox->getVIIRSMColorList();
+            invertlist = formtoolbox->getVIIRSMInvertList();
             //          in Workerthread
             segs->seglviirsdnb->ComposeVIIRSImage(bandlist, colorlist, invertlist);
     }
@@ -344,15 +353,15 @@ bool FormImage::ShowVIIRSMImage()
     {
 
         ret = true;
-        displayImage(10);
+        displayImage(IMAGE_VIIRS_M);
 
         emit allsegmentsreceivedbuttons(false);
 
         this->kindofimage = "VIIRSM";
 
-        bandlist = formtoolbox->getVIIRSBandList();
-        colorlist = formtoolbox->getVIIRSColorList();
-        invertlist = formtoolbox->getVIIRSInvertList();
+        bandlist = formtoolbox->getVIIRSMBandList();
+        colorlist = formtoolbox->getVIIRSMColorList();
+        invertlist = formtoolbox->getVIIRSMInvertList();
 
         segs->seglviirsm->ShowImageSerial(bandlist, colorlist, invertlist);
     }
@@ -374,7 +383,7 @@ bool FormImage::ShowVIIRSDNBImage()
     if (viirsdnbcount > 0)
     {
         ret = true;
-        displayImage(11);
+        displayImage(IMAGE_VIIRS_DNB);
 
         emit allsegmentsreceivedbuttons(false);
 
@@ -474,6 +483,10 @@ void FormImage::setZoomValue(int z)
         zoomValueviirs = z;
         opts.zoomfactorviirs = z;
         break;
+    case 12:
+        zoomValueprojection = z;
+        opts.zoomfactorprojection = z;
+        break;
 
     }
 }
@@ -501,6 +514,9 @@ int FormImage::getZoomValue()
     case 10:
     case 11:
         zoomValue = zoomValueviirs;
+        break;
+    case 12:
+        zoomValue = zoomValueprojection;
         break;
 
     }
@@ -599,19 +615,24 @@ void FormImage::paintEvent( QPaintEvent * )
         return;
 
 
-    if(channelshown == 8)
+    if(channelshown == IMAGE_GEOSTATIONARY)
         displayGeoImageInfo();
 
 
-    if (channelshown == 8 && overlaymeteosat && refreshoverlay)
+    if (channelshown == IMAGE_GEOSTATIONARY && overlaymeteosat && refreshoverlay)
     {
         this->OverlayGeostationary(&painter, sl);
         refreshoverlay = false;
     }
-    if(channelshown == 9 && overlayprojection && refreshoverlay)
+    if(channelshown == IMAGE_PROJECTION && overlayprojection && refreshoverlay)
     {
         this->OverlayProjection(&painter, sl);
         refreshoverlay = false;
+    }
+
+    if(channelshown == IMAGE_PROJECTION && changeinfraprojection)
+    {
+        changeinfraprojection = false;
     }
 
     this->adjustImage();
@@ -829,6 +850,11 @@ void FormImage::adjustPicSize(bool setwidth)
        w=imageptrs->ptrimageViirsDNB->width();
        h=imageptrs->ptrimageViirsDNB->height();
     }
+    else if(channelshown == 12)
+    {
+       w=imageptrs->ptrimageEquirectangle->width();
+       h=imageptrs->ptrimageEquirectangle->height();
+    }
 
     mw=this->parentWidget()->width();
     mh=this->parentWidget()->height();
@@ -1025,7 +1051,7 @@ void FormImage::slotUpdateHimawari()
 
 void FormImage::slotUpdateProjection()
 {
-    this->displayImage(9);
+    this->displayImage(IMAGE_PROJECTION);
     this->refreshoverlay = true;
     this->update();
 }
@@ -1446,7 +1472,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                     g = quint8(inversevector[0] ? 255 - cgreen/4 : cgreen/4);
                     b = quint8(inversevector[0] ? 255 - cblue/4 : cblue/4);
 
-                    row_col[pixelx] = qRgb(255,0,0);
+                    row_col[pixelx] = qRgb(r,g,b);
                 }
             }
         }
@@ -2613,6 +2639,58 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
 
 }
 
+void FormImage::ToInfraColorProjection()
+{
+    QRgb *row;
+    float temp;
+
+    int height = imageptrs->ptrimageProjection->height();
+    int width = imageptrs->ptrimageProjection->width();
+
+    for(int y = 0; y < height; y++)
+    {
+        row = (QRgb*)imageptrs->ptrimageProjection->scanLine(y);
+
+        for(int x = 0; x < width; x++)
+        {
+            quint8 greyval = imageptrs->ptrProjectionInfra[y * width + x];
+
+            if(imageptrs->ptrProjectionBrightnessTemp.isNull())
+                return;
+            temp = imageptrs->ptrProjectionBrightnessTemp[y * width + x];
+            if(temp > 0)
+            {
+                row[x] = infrascales->infraLUT[greyval].rgb();
+            }
+
+        }
+    }
+
+    changeinfraprojection = true;
+}
+
+void FormImage::FromInfraColorProjection()
+{
+    QRgb *row;
+    float temp;
+    int height = imageptrs->ptrimageProjection->height();
+    int width = imageptrs->ptrimageProjection->width();
+
+    for(int y = 0; y < height; y++)
+    {
+        row = (QRgb*)imageptrs->ptrimageProjection->scanLine(y);
+
+        for(int x = 0; x < width; x++)
+        {
+            quint8 val = imageptrs->ptrProjectionInfra[y * width + x];
+            row[x] = qRgb(val, val, val);
+        }
+    }
+
+    changeinfraprojection = true;
+
+}
+
 
 void FormImage::test()
 {
@@ -2669,6 +2747,12 @@ void FormImage::test()
 
 void FormImage::slotRefreshOverlay()
 {
+    this->displayImage(this->channelshown);
+}
+
+void FormImage::slotRepaintProjectionImage()
+{
+    changeinfraprojection = true;
     this->displayImage(this->channelshown);
 }
 

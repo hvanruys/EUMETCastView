@@ -37,6 +37,15 @@ Segment::Segment(QObject *parent) :
         list_stat_min_ch[k] = 9999999;
     }
 
+//    list_stat_3_0_max_ch = 0;
+//    list_stat_3_1_max_ch = 0;
+//    list_stat_3_0_min_ch = 9999999;
+//    list_stat_3_1_min_ch = 9999999;
+
+//    stat_3_0_max_ch = 0;
+//    stat_3_1_max_ch = 0;
+//    stat_3_0_min_ch = 9999999;
+//    stat_3_1_min_ch = 9999999;
 
     for (int i=0; i < 5; i++)
     {
@@ -45,6 +54,11 @@ Segment::Segment(QObject *parent) :
             this->segment_stats_ch[i][j] = 0;
             this->lut_ch[i][j] = 0;
         }
+    }
+
+    for (int j=0; j < 1080; j++)
+    {
+        this->channel_3a_3b[j] = false;
     }
 
     segmentselected = false;
@@ -470,13 +484,13 @@ void Segment::RenderPosition(QPainter *painter)
 
 int Segment::pnpoly(int nvert, QPoint points[], int testx, int testy)
 {
-  int i, j, c = 0;
-  for (i = 0, j = nvert-1; i < nvert; j = i++) {
-    if ( ((points[i].y() > testy) != (points[j].y() > testy)) &&
-         (testx < (points[j].x() - points[i].x() ) * (testy-points[i].y()) / (points[j].y() - points[i].y()) + points[i].x()) )
-       c = !c;
-  }
-  return c;
+    int i, j, c = 0;
+    for (i = 0, j = nvert-1; i < nvert; j = i++) {
+        if ( ((points[i].y() > testy) != (points[j].y() > testy)) &&
+             (testx < (points[j].x() - points[i].x() ) * (testy-points[i].y()) / (points[j].y() - points[i].y()) + points[i].x()) )
+            c = !c;
+    }
+    return c;
 }
 
 bool Segment::ToggleSelected()
@@ -498,8 +512,7 @@ int Segment::ReadNbrOfLines()
     return 0;
 }
 
-
-void Segment::NormalizeSegment()
+void Segment::NormalizeSegment(bool channel_3_select)
 {
     for(int k = 0; k < 5; k++)
     {
@@ -509,7 +522,6 @@ void Segment::NormalizeSegment()
         }
     }
 
-
     for(int k = 0; k < 5; k++)
     {
         for (int line = 0; line < this->NbrOfLines; line++)
@@ -518,7 +530,15 @@ void Segment::NormalizeSegment()
             {
                 int pixel = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
                 int pixcalc = (pixel - list_stat_min_ch[k]) * 1023 / (list_stat_max_ch[k] - list_stat_min_ch[k]);
-
+//                if(k==3)
+//                {
+//                    if(channel_3_select == true)
+//                        int pixcalc = (pixel - list_stat_3_1_min_ch) * 1023 / (list_stat_3_1_max_ch - list_stat_3_1_min_ch);
+//                    else
+//                        int pixcalc = (pixel - list_stat_3_0_min_ch) * 1023 / (list_stat_3_0_max_ch - list_stat_3_0_min_ch);
+//                }
+                pixcalc = pixcalc > 1023 ? 1023 : pixcalc;
+                pixcalc = pixcalc < 0 ? 0 : pixcalc;
                 this->ptrbaChannel[k][line * earth_views_per_scanline + pixelx] = pixcalc;
                 segment_stats_ch[k][pixcalc]++;
 
@@ -551,8 +571,6 @@ void Segment::NormalizeSegment()
                 lut_ch[k][i] = 1023;
         }
     }
-
-
 }
 
 

@@ -3,6 +3,7 @@
 
 #include "satellite.h"
 #include "segment.h"
+#include "hdf5.h"
 
 class SegmentVIIRSM : public Segment
 {
@@ -31,10 +32,18 @@ public:
     QString getDatasetNameFromBand();
     QString getDatasetNameFromColor(int colorindex);
     bool composeColorImage();
-    int threshold[3];
+
+    float getBrightnessTemp(int lines, int views);
+    float getBrightnessTemp(int radiance);
+    float getRadiance(int lines, int views);
+    float getRadiance(int radiance);
+
+
     int stat_max_projection[3];
     int stat_min_projection[3];
     long active_pixels_projection;
+    float minBrightnessTemp;
+    float maxBrightnessTemp;
 
 
 private:
@@ -53,6 +62,10 @@ private:
 
     void interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
     void interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
+
+
+    void ReadVIIRSM_SDR_All(hid_t h5_file_id);
+    void ReadVIIRSM_GEO_All(hid_t h5_file_id);
 
     QScopedArrayPointer<float> tiepoints_lat;
     QScopedArrayPointer<float> tiepoints_lon;
@@ -74,6 +87,14 @@ private:
     float lonMin;
 
 
+    int threshold[3];
+    float radianceoffsethigh[3];
+    float radianceoffsetlow[3];
+    float radiancescalehigh[3];
+    float radiancescalelow[3];
+    double bandcorrectioncoefficientA[3];
+    double bandcorrectioncoefficientB[3];
+    double centralwavelength[3];
     bool invertthissegment[3];
 
 };

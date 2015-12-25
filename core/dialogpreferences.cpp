@@ -125,6 +125,8 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->ledLat->setText(QString("%1").arg(opts.obslat));
     ui->ledAlt->setText(QString("%1").arg(opts.obsalt));
 
+    ui->ledEquirectangularDirectory->setText(QString("%1").arg(opts.equirectangulardirectory));
+
     ui->rbSattrackOn->setChecked(opts.sattrackinimage);
     if(opts.smoothprojectiontype == 0)
         ui->rbNoSmoothing->setChecked(true);
@@ -444,7 +446,7 @@ void DialogPreferences::dialogaccept()
 
     opts.localdirremote = ui->ledLocalDirRemote->text();
     opts.dirremote = ui->ledDirRemote->text();
-
+    opts.equirectangulardirectory = ui->ledEquirectangularDirectory->text();
 
     opts.obslon = ui->ledLon->text().toDouble();
     opts.obslat = ui->ledLat->text().toDouble();
@@ -2017,3 +2019,17 @@ Qt::ItemFlags VIIRSMConfigModel::flags(const QModelIndex & /*index*/) const
 }
 
 
+
+void DialogPreferences::on_btnEquirectangularDirectory_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                    opts.equirectangulardirectory,
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+
+    if ( !dir.isEmpty() )
+    {
+        ui->ledEquirectangularDirectory->setText(dir);
+    }
+
+}

@@ -1135,7 +1135,7 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
             imageptrs->InitializeImageGeostationary(5500, 5500);
     }
 
-    formimage->displayImage(8);
+    formimage->displayImage(IMAGE_GEOSTATIONARY);
     //formimage->adjustPicSize(true);
 
     qDebug() << QString("FormGeostationary::CreateGeoImage kind = %1 areatype = %2").arg(type).arg(sl->areatype);

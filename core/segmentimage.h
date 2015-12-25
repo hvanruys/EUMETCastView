@@ -41,6 +41,11 @@ public:
               unsigned int uiNrBins, float fCliplimit);
     void SmoothProjectionImage();
     void showHistogram(QImage *ptr);
+    qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
+    qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
+    bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
+    void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
+    void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine);
 
     QImage *ptrimagecomp_ch[5];
     QImage *ptrimagecomp_col;
@@ -50,7 +55,11 @@ public:
 
     QImage *ptrimageGeostationary;
     QImage *ptrimageProjection;
-    QImage *ptrimageProjectionCopy;
+    QImage *ptrimageProjectionCopy; //for VIIRS M background with VIIRS DNB
+    QImage *ptrimageEquirectangle;
+
+    QScopedArrayPointer<float> ptrProjectionBrightnessTemp;
+    QScopedArrayPointer<quint8> ptrProjectionInfra; // for Infra
 
     QPixmap *pmOriginal;
     QPixmap *pmOut;
@@ -66,7 +75,8 @@ public:
     int stat_min_ch[5];
     float stat_max_dnb;
     float stat_min_dnb;
-
+    float minBrightnessTemp;
+    float maxBrightnessTemp;
     long active_pixels;
 
     quint16 *ptrRed[10];

@@ -60,7 +60,7 @@ public:
                                     double earth_loc_lon_last, double earth_loc_altitude, int segmentheight);
     // void RenderSegmentInTexture(int channel, int nbrTotalLine);
 
-    void NormalizeSegment();
+    void NormalizeSegment(bool channel_3_select);
 
     bool IsSelected() { return segmentselected; }
     QString GetTle_line1() { return line1; }
@@ -74,7 +74,6 @@ public:
     qint32 getProjectionX(int line, int pixelx);
     qint32 getProjectionY(int line, int pixelx);
     QRgb getProjectionValue(int line, int pixelx);
-
 
     bool segmentok;   // check if segment is read
     bool segmentselected; // selected for display
@@ -106,8 +105,17 @@ public:
     QString line2;
     long stat_max_ch[5];
     long stat_min_ch[5];
+//    long stat_3_0_max_ch;
+//    long stat_3_1_max_ch;
+//    long stat_3_0_min_ch;
+//    long stat_3_1_min_ch;
     long list_stat_max_ch[5];
     long list_stat_min_ch[5];
+//    long list_stat_3_0_max_ch;
+//    long list_stat_3_1_max_ch;
+//    long list_stat_3_0_min_ch;
+//    long list_stat_3_1_min_ch;
+
     long active_pixels[5];
 
     unsigned long segment_stats_ch[5][1024];
@@ -131,6 +139,9 @@ public:
     QGeodetic cornerpointlast1;
     QGeodetic cornerpointfirst2;
     QGeodetic cornerpointlast2;
+
+    bool channel_3a_3b[1080];
+
 
 protected:
 

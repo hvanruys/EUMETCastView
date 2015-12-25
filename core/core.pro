@@ -68,7 +68,10 @@ SOURCES += main.cpp \
     segmentviirsdnb.cpp \
     segmentlistviirsdnb.cpp \
     segmentlistviirsm.cpp \
-    poi.cpp
+    poi.cpp \
+    equirectangular.cpp \
+    infrascales.cpp \
+    infrawidget.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -124,7 +127,10 @@ HEADERS  += mainwindow.h \
     segmentlistviirsdnb.h \
     segmentlistviirsm.h \
     poi.h \
-    stb_image.h
+    stb_image.h \
+    equirectangular.h \
+    infrascales.h \
+    infrawidget.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

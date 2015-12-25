@@ -531,6 +531,32 @@ bool SegmentList::ComposeImage(double gamma_ch[])
 void SegmentList::readfinished()
 {
 
+    int count3a = 0;
+    int count3b = 0;
+
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        for(int i = 0; i < 1080; i++)
+        {
+            if(segm->channel_3a_3b[i])  // 0 = channel 3b, 1 = channel 3a
+                count3a++;
+            else
+                count3b++;
+        }
+
+        ++segsel;
+    }
+
+    qDebug() << QString("SegmentList::readfinished() count3a = %1 count3b = %2").arg(count3a).arg(count3b);
+
+    if(count3a > count3b)
+        channel_3_select = true;  // true = channel 3a - visible channel
+    else
+        channel_3_select = false; // false = channel 3b
+
+
     const float MAX_VALUE = 1023.0f;         // max value in 10-bit image
     int TotalLines = this->NbrOfSegmentLinesSelected();
     int nbrearthviews = NbrOfEartviewsPerScanline();
@@ -540,7 +566,7 @@ void SegmentList::readfinished()
     imageptrs->InitializeAVHRRImages( nbrearthviews, TotalLines );
 
 
-    QList<Segment*>::iterator segsel = segsselected.begin();
+    segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         Segment *segm = (Segment *)(*segsel);
@@ -552,6 +578,24 @@ void SegmentList::readfinished()
                 stat_min_ch[k] = segm->stat_min_ch[k];
             if (segm->stat_max_ch[k] > stat_max_ch[k] )
                 stat_max_ch[k] = segm->stat_max_ch[k];
+//            if(k == 3)
+//            {
+//                if(channel_3_select == false) // channel 3b
+//                {
+//                    if (segm->stat_min_ch[k] < stat_3_0_min_ch )
+//                        stat_3_0_min_ch = segm->stat_min_ch[k];
+//                    if (segm->stat_max_ch[k] > stat_3_0_max_ch )
+//                        stat_3_0_max_ch = segm->stat_max_ch[k];
+//                }
+//                else                          // channel 3a
+//                {
+//                    if (segm->stat_min_ch[k] < stat_3_1_min_ch )
+//                        stat_3_1_min_ch = segm->stat_min_ch[k];
+//                    if (segm->stat_max_ch[k] > stat_3_1_max_ch )
+//                        stat_3_1_max_ch = segm->stat_max_ch[k];
+//                }
+//            }
+
         }
         ++segsel;
     }
@@ -565,8 +609,15 @@ void SegmentList::readfinished()
         {
             segm->list_stat_min_ch[k] = stat_min_ch[k];
             segm->list_stat_max_ch[k] = stat_max_ch[k];
+//            if(k==3)
+//            {
+//                segm->list_stat_3_0_min_ch = stat_3_0_min_ch;
+//                segm->list_stat_3_0_max_ch = stat_3_0_max_ch;
+//                segm->list_stat_3_1_min_ch = stat_3_1_min_ch;
+//                segm->list_stat_3_0_max_ch = stat_3_1_max_ch;
+//            }
         }
-        segm->NormalizeSegment();
+        segm->NormalizeSegment(channel_3_select);
         ++segsel;
     }
 
@@ -832,6 +883,7 @@ void SegmentList::SmoothProjectionImageBicubic()
         lineimage += segm->NbrOfLines;
     }
 }
+
 void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
 {
     qint32 x11;
@@ -1446,6 +1498,151 @@ void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
 
 }
 
+void SegmentList::MapInterpolation1(QRgb *canvas, quint16 dimx, quint16 dimy)
+{
+
+    for(int h = 0; h < dimy; h++ )
+    {
+        QRgb start = qRgba(0,0,0,0);
+        QRgb end = qRgba(0,0,0,0);
+        bool first = false;
+        bool last = false;
+        int holecount = 0;
+        int firstindex;
+        int lastindex;
+
+        for(int w = 0; w < dimx; w++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 255)
+            {
+                firstindex = w;
+                first = true;
+                start = rgb;
+            }
+            else if(rgbalpha == 0 && first == true)
+            {
+                break;
+            }
+        }
+
+
+        for(int w = dimx - 1; w >= 0; w--)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 255 && firstindex <= w)
+            {
+                lastindex = w;
+                last = true;
+                end = rgb;
+            }
+            else if(rgbalpha == 0 && last == true)
+            {
+                break;
+            }
+        }
+
+
+        for(int w = firstindex; w < lastindex; w++)
+        {
+            if(qAlpha(canvas[h * dimx + w]) == 0)
+            {
+                canvas[h * dimx + w] = qRgba(0,0,0,100);
+                holecount++;
+            }
+        }
+
+        if(holecount == 0)
+            continue;
+
+        float deltared = (float)(qRed(end) - qRed(start)) / (float)(holecount+1);
+        float deltagreen = (float)(qGreen(end) - qGreen(start)) / (float)(holecount+1);
+        float deltablue = (float)(qBlue(end) - qBlue(start)) / (float)(holecount+1);
+
+        float red = (float)qRed(start);
+        float green = (float)qGreen(start);
+        float blue = (float)qBlue(start);
+
+        for(int w = 0; w < dimx; w++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 100)
+            {
+                red += deltared;
+                green += deltagreen;
+                blue += deltablue;
+                canvas[h * dimx + w] = qRgba((int)red, (int)green, (int)blue, 100);
+            }
+        }
+    }
+
+    for(int w = 0; w < dimx; w++)
+    {
+        QRgb start = qRgba(0,0,0,0);
+        QRgb end = qRgba(0,0,0,0);
+
+        int hcount = 0;
+
+        bool startok = false;
+
+        for(int h = 0; h < dimy; h++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 255 && !startok)
+            {
+                start = rgb;
+            }
+            else
+            {
+                if(rgbalpha == 255)
+                {
+                    end = rgb;
+                    break;
+                }
+                else if(rgbalpha == 100)
+                {
+                    startok = true;
+                    hcount++;
+                }
+
+            }
+        }
+
+        if(hcount == 0)
+            continue;
+
+        float redstart = (float)qRed(start);
+        float greenstart = (float)qGreen(start);
+        float bluestart = (float)qBlue(start);
+
+        float deltared = (float)(qRed(end) - qRed(start)) / (float)(hcount+1);
+        float deltagreen = (float)(qGreen(end) - qGreen(start)) / (float)(hcount+1);
+        float deltablue = (float)(qBlue(end) - qBlue(start)) / (float)(hcount+1);
+
+
+        for(int h = 0; h < dimy; h++)
+        {
+            QRgb rgb = canvas[h * dimx + w];
+            int rgbalpha = qAlpha(rgb);
+            if(rgbalpha == 100)
+            {
+                redstart += deltared;
+                greenstart += deltagreen;
+                bluestart += deltablue;
+                float redtotal = (qRed(canvas[h * dimx + w]) + redstart)/2;
+                float greentotal = (qGreen(canvas[h * dimx + w]) + greenstart)/2;
+                float bluetotal = (qBlue(canvas[h * dimx + w]) + bluestart)/2;
+
+                canvas[h * dimx + w] = qRgba((int)redtotal, (int)greentotal, (int)bluetotal, 255);
+            }
+        }
+    }
+}
+
 void SegmentList::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine)
 {
     for(int h = 0; h < dimy; h++ )
@@ -1484,6 +1681,7 @@ void SegmentList::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint1
         }
     }
 }
+
 
 double SegmentList::cubicInterpolate (double p[4], double x) {
     return p[1] + 0.5 * x*(p[2] - p[0] + x*(2.0*p[0] - 5.0*p[1] + 4.0*p[2] - p[3] + x*(3.0*(p[1] - p[2]) + p[3] - p[0])));

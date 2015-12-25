@@ -21,6 +21,7 @@
 #include "imagescrollarea.h"
 #include "segmentimage.h"
 #include "segmentlistgeostationary.h"
+#include "infrascales.h"
 
 #include "options.h"
 #include "poi.h"
@@ -28,6 +29,7 @@
 namespace Ui {
 class MainWindow;
 }
+class InfraScales;
 
 class MainWindow : public QMainWindow
 {
@@ -59,6 +61,8 @@ private:
     MapFieldCyl *mapcyl;
     Globe *globe;
 
+    QWidget *imageWidget;
+    InfraScales *infrascales;
 
     QTimer *timer;
     QLabel *timeLabel;
@@ -93,8 +97,6 @@ private slots:
     void moveImage(QPoint, QPoint);
     void slotSwitchStackedWindow(int);
     void slotPreferencesFinished(int result);
-
-
 
 public slots:
     void updateStatusBarIndicator(const QString &text);

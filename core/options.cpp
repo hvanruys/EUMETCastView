@@ -124,6 +124,7 @@ void Options::Initialize()
     projectionoverlaylonlatcolor=settings.value("/window/projectionoverlaylonlatcolor", "#b9b9b9").value<QString>();
 
     smoothprojectiontype = settings.value("/window/smoothprojectiontype", 0 ).toInt();
+    equirectangulardirectory=settings.value("/window/equirectangulardirectory", "").value<QString>();
 
     gridonprojection = settings.value("/window/gridonprojection", true ).toBool();
     textureOn = settings.value("/window/textureon", true ).toBool();
@@ -142,7 +143,7 @@ void Options::Initialize()
     gshhsglobe2On = settings.value("/window/gshhsglobe2on", false ).toBool();
     gshhsglobe3On = settings.value("/window/gshhsglobe3on", false ).toBool();
     graytextureOn = settings.value("/window/graytextureon", false ).toBool();
-    ephemsplittersizes = settings.value("/ephemwindow/splitterSizes").value<QByteArray>();
+    ephemsplittersizes = settings.value("/ephemwindow/splitterSizes").toByteArray(); // .value<QByteArray>();
     mainwindowgeometry = settings.value("/window/mainwindowgeometry").value<QByteArray>();
     windowstate = settings.value("/window/windowstate").value<QByteArray>();
     zoomfactoravhrr = settings.value("/window/zoomfactoravhrr", 100).toInt();
@@ -228,41 +229,6 @@ void Options::Initialize()
     lastinverseMet108 = settings.value("/window/inverseMet108", false ).toBool();
     lastinverseMet120 = settings.value("/window/inverseMet120", false ).toBool();
     lastinverseMet134 = settings.value("/window/inverseMet134", false ).toBool();
-
-
-//    lastcomboM1 = settings.value("/window/comboM1", 0 ).toInt();
-//    lastcomboM2 = settings.value("/window/comboM2", 0 ).toInt();
-//    lastcomboM3 = settings.value("/window/comboM3", 0 ).toInt();
-//    lastcomboM4 = settings.value("/window/comboM4", 0 ).toInt();
-//    lastcomboM5 = settings.value("/window/comboM5", 0 ).toInt();
-//    lastcomboM6 = settings.value("/window/comboM6", 0 ).toInt();
-//    lastcomboM7 = settings.value("/window/comboM7", 0 ).toInt();
-//    lastcomboM8 = settings.value("/window/comboM8", 0 ).toInt();
-//    lastcomboM9 = settings.value("/window/comboM9", 0 ).toInt();
-//    lastcomboM10 = settings.value("/window/comboM10", 0 ).toInt();
-//    lastcomboM11 = settings.value("/window/comboM11", 0 ).toInt();
-//    lastcomboM12 = settings.value("/window/comboM12", 0 ).toInt();
-//    lastcomboM13 = settings.value("/window/comboM13", 0 ).toInt();
-//    lastcomboM14 = settings.value("/window/comboM14", 0 ).toInt();
-//    lastcomboM15 = settings.value("/window/comboM15", 0 ).toInt();
-//    lastcomboM16 = settings.value("/window/comboM16", 0 ).toInt();
-
-//    lastinverseM1 = settings.value("/window/inverseM1", false ).toBool();
-//    lastinverseM2 = settings.value("/window/inverseM2", false ).toBool();
-//    lastinverseM3 = settings.value("/window/inverseM3", false ).toBool();
-//    lastinverseM4 = settings.value("/window/inverseM4", false ).toBool();
-//    lastinverseM5 = settings.value("/window/inverseM5", false ).toBool();
-//    lastinverseM6 = settings.value("/window/inverseM6", false ).toBool();
-//    lastinverseM7 = settings.value("/window/inverseM7", false ).toBool();
-//    lastinverseM8 = settings.value("/window/inverseM8", false ).toBool();
-//    lastinverseM9 = settings.value("/window/inverseM9", false ).toBool();
-//    lastinverseM10 = settings.value("/window/inverseM10", false ).toBool();
-//    lastinverseM11 = settings.value("/window/inverseM11", false ).toBool();
-//    lastinverseM12 = settings.value("/window/inverseM12", false ).toBool();
-//    lastinverseM13 = settings.value("/window/inverseM13", false ).toBool();
-//    lastinverseM14 = settings.value("/window/inverseM14", false ).toBool();
-//    lastinverseM15 = settings.value("/window/inverseM15", false ).toBool();
-//    lastinverseM16 = settings.value("/window/inverseM16", false ).toBool();
 
 
 
@@ -426,6 +392,7 @@ void Options::Save()
     settings.setValue("/window/projectionoverlaylonlatcolor", projectionoverlaylonlatcolor );
 
     settings.setValue("/window/smoothprojectiontype", smoothprojectiontype );
+    settings.setValue("/window/equirectangulardirectory", equirectangulardirectory );
 
     settings.setValue("/window/gridonprojection", gridonprojection );
     settings.setValue("/window/textureon", textureOn );
