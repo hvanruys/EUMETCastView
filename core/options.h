@@ -193,6 +193,11 @@ public:
     int lastinputprojection;
     int lastVIIRSband;
 
+    bool colormapMagma;
+    bool colormapInferno;
+    bool colormapPlasma;
+    bool colormapViridis;
+
 
 
 }; 

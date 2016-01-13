@@ -45,7 +45,6 @@ public:
     float minBrightnessTemp;
     float maxBrightnessTemp;
 
-
 private:
 
     void MapPixel(int lines, int views, double map_x, double map_y, bool color);

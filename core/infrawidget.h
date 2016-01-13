@@ -11,10 +11,11 @@ public:
     explicit InfraWidget(QWidget *parent = 0);
     void setlowcursor(float low);
     void sethighcursor(float high);
-    QColor getColor(double value);
+    QColor getColor(float value);
     void setInverse(bool inv) { inverse = inv; lowlimit = 0.0; highlimit = 1.0; }
     bool getInverse() { return inverse; }
     void initializeLowHigh() { lowlimit = 0.0; highlimit = 1.0; }
+    void drawInfraWidget(QPainter *paint, int x, int y, int width, int height);
     float lowlimit;
     float highlimit;
 
@@ -24,21 +25,9 @@ public slots:
 
 protected:
   void paintEvent( QPaintEvent * );
-//  void mousePressEvent( QMouseEvent *);
-//  void mouseReleaseEvent( QMouseEvent *);
-//  void mouseMoveEvent( QMouseEvent *);
-//  void resizeEvent( QResizeEvent * );
-//  void wheelEvent(QWheelEvent *event);
-//  void timerEvent(QTimerEvent *event);
-
-  QColor interpolate(QColor start,QColor end,double ratio);
-  bool down;
-  QList<QColor> colorlist;
   bool grablowlimit;
   bool grabhighlimit;
   bool inverse;
-
-
 
 };
 

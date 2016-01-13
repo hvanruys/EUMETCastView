@@ -13,14 +13,17 @@ class InfraScales : public QWidget
     Q_OBJECT
 public:
     explicit InfraScales(QWidget *parent = 0);
-    QColor getColor(double value);
+    QColor getColor(float value);
     QColor getColorLow();
     QColor getColorHigh();
     void setMinMaxTemp(float mintemp, float maxtemp);
+    void getMinMaxTemp(float *mintemp, float *maxtemp) { *mintemp = minprojectiontemp; *maxtemp = maxprojectiontemp; }
     void setInverse(bool inverse);
     bool getInverse();
-    QColor infraLUT[256];
     void initializeLowHigh();
+    QImage getScalesImage(int width);
+    void drawInfraScales(QPainter *paint, QPointF lowcursor, QPointF highcursor);
+
 
 protected:
     void mousePressEvent( QMouseEvent *e);
@@ -34,7 +37,7 @@ signals:
 public slots:
 
 private:
-    void drawMinMaxTemp(QPainter *painter);
+    void drawMinMaxTemp(QPainter *painter, QPointF lowcursor, QPointF highcursor);
 
     InfraWidget *infrawidget;
     QWidget *scalewidget;
@@ -46,10 +49,12 @@ private:
     bool grabhighcursor;
     float lowlimit; // [0, 1]
     float highlimit; // [0, 1]
-    float lowlimittemp;
-    float highlimittemp;
-
-    bool down;
+    float lowlimittemp; // temperature associated with lowlimit
+    float highlimittemp; // temperature associated with highlimit
+    float minprojectiontemp; // minimum temp. for this projection
+    float maxprojectiontemp; // maximum temp. for this projection
+    float deltaprojectiontemp; // = maxprojectiontemp - minprojectiontemp
+    bool inverse;
 };
 
 #endif // INFRASCALES_H

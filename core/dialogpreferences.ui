@@ -1275,7 +1275,7 @@
         </widget>
        </widget>
        <widget class="QWidget" name="pageImage">
-        <layout class="QVBoxLayout" name="verticalLayout_6">
+        <layout class="QVBoxLayout" name="verticalLayout_16">
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_16">
            <item>
@@ -1342,46 +1342,87 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_2">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-             <italic>false</italic>
-            </font>
-           </property>
-           <property name="title">
-            <string>Smoothing of projection image</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_10">
-            <item>
-             <widget class="QRadioButton" name="rbNoSmoothing">
-              <property name="text">
-               <string>No smoothing</string>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rbSmoothProjection">
-              <property name="text">
-               <string>Smooth image old style</string>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rbLinearInterpolation">
-              <property name="text">
-               <string>Bilinear interpolation</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_17">
+           <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <italic>false</italic>
+              </font>
+             </property>
+             <property name="title">
+              <string>Smoothing of projection image</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <widget class="QRadioButton" name="rbNoSmoothing">
+                <property name="text">
+                 <string>No smoothing</string>
+                </property>
+                <property name="autoExclusive">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="rbSmoothProjection">
+                <property name="text">
+                 <string>Smooth image old style</string>
+                </property>
+                <property name="autoExclusive">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="rbLinearInterpolation">
+                <property name="text">
+                 <string>Bilinear interpolation</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="title">
+              <string>Colormaps</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="QRadioButton" name="rbMagma">
+                <property name="text">
+                 <string>Magma</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="rbInferno">
+                <property name="text">
+                 <string>Inferno</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="rbPlasma">
+                <property name="text">
+                 <string>Plasma</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="rbViridis">
+                <property name="text">
+                 <string>Viridis</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QGroupBox" name="groupBox">

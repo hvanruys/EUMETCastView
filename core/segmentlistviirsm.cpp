@@ -163,6 +163,7 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
         if(segm->minBrightnessTemp < this->minBrightnessTemp)
             this->minBrightnessTemp = segm->minBrightnessTemp;
 
+
         for(int i = 0; i < (composecolor ? 3 : 1); i++)
         {
             if( segm->stat_max_ch[i] > this->stat_max_ch[i])
@@ -203,6 +204,19 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
     qDebug() << " SegmentListVIIRS::ComposeVIIRSMImageInThread Finished !!";
 
 
+
+//    segsel = segsselected.begin();
+//    while ( segsel != segsselected.end() )
+//    {
+//        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+//        segm->ComposeSegmentImage();
+//        totalprogress += deltaprogress;
+//        emit progressCounter(totalprogress);
+//        QApplication::processEvents();
+//        ++segsel;
+//    }
+
+
     QApplication::restoreOverrideCursor();
 
     emit segmentlistfinished(true);
@@ -224,6 +238,31 @@ void SegmentListVIIRSM::ComposeGVProjection(int inputchannel)
         emit segmentprojectionfinished(false);
         ++segit;
     }
+
+    int height = imageptrs->ptrimageProjection->height();
+    int width = imageptrs->ptrimageProjection->width() ;
+
+    float fmin = 9999999.0;
+    float fmax = 0.0;
+    for( int i = 0; i < height; i++)
+    {
+        for( int j = 0; j < width; j++ )
+        {
+            float tmp = imageptrs->ptrProjectionBrightnessTemp[i * width + j];
+            if(tmp > 0.0)
+            {
+                if(tmp>=fmax)
+                    fmax = tmp;
+                if(tmp<=fmin)
+                    fmin = tmp;
+            }
+        }
+    }
+
+    this->minBrightnessTempProjection = fmin;
+    this->maxBrightnessTempProjection = fmax;
+
+    qDebug() << QString("----> min max ptrProjectionBrightnessTemp min = %1 max = %2").arg(fmin).arg(fmax);
 
     //the following code calculates a new LUT that only takes
     //the pixels in the projection into account and not the complete segment(s).

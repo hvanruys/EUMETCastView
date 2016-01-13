@@ -719,7 +719,10 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
         {
             c = *(pixels + line * npix + pixelx);
 
-            //valgamma = pow( c, gamma) * gammafactor;
+//            //valgamma = pow( c, gamma) * gammafactor;
+//            valcontrast = ContrastStretch(c);
+
+            //valcontrast = pow( c, gamma) * gammafactor;
             valcontrast = ContrastStretch(c);
 
             if(kindofimage == "VIS_IR Color")

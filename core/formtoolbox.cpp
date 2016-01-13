@@ -1546,6 +1546,7 @@ void FormToolbox::setToolboxButtons(bool state)
 
 void FormToolbox::on_btnVIS006_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("VIS006", ui->chkInverseVIS006->isChecked());
     else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
@@ -1557,6 +1558,7 @@ void FormToolbox::on_btnVIS006_clicked()
 
 void FormToolbox::on_btnVIS008_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("VIS008", ui->chkInverseVIS008->isChecked());
     //else if(whichgeo == SegmentListGeostationary::ELECTRO_N1)
@@ -1578,6 +1580,7 @@ void FormToolbox::on_btnVIS008_clicked()
 
 void FormToolbox::on_btnIR016_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("IR_016", ui->chkInverseIR_016->isChecked());
     else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
@@ -1590,6 +1593,7 @@ void FormToolbox::on_btnIR016_clicked()
 
 void FormToolbox::on_btnIR039_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("IR_039", ui->chkInverseIR_039->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_13)
@@ -1608,6 +1612,7 @@ void FormToolbox::on_btnIR039_clicked()
 
 void FormToolbox::on_btnWV062_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("WV_062", ui->chkInverseWV_062->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_13)
@@ -1628,6 +1633,7 @@ void FormToolbox::on_btnWV062_clicked()
 
 void FormToolbox::on_btnWV073_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("WV_073", ui->chkInverseWV_073->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
@@ -1637,6 +1643,7 @@ void FormToolbox::on_btnWV073_clicked()
 
 void FormToolbox::on_btnIR087_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("IR_087", ui->chkInverseIR_087->isChecked());
     //else if(whichgeo == SegmentListGeostationary::ELECTRO_N1)
@@ -1648,6 +1655,7 @@ void FormToolbox::on_btnIR087_clicked()
 
 void FormToolbox::on_btnIR097_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("IR_097", ui->chkInverseIR_097->isChecked());
     //else if(whichgeo == SegmentListGeostationary::ELECTRO_N1)
@@ -1659,6 +1667,7 @@ void FormToolbox::on_btnIR097_clicked()
 
 void FormToolbox::on_btnIR108_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("IR_108", ui->chkInverseIR_108->isChecked());
     //else if(whichgeo == SegmentListGeostationary::ELECTRO_N1)
@@ -1676,6 +1685,7 @@ void FormToolbox::on_btnIR108_clicked()
 
 void FormToolbox::on_btnIR120_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("IR_120", ui->chkInverseIR_120->isChecked());
     else if(whichgeo == SegmentListGeostationary::MTSAT)
@@ -1689,6 +1699,7 @@ void FormToolbox::on_btnIR120_clicked()
 
 void FormToolbox::on_btnIR134_clicked()
 {
+    checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
         onButtonChannel("IR_134", ui->chkInverseIR_134->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
@@ -1777,7 +1788,7 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 void FormToolbox::on_btnGeoColor_clicked()
 {
 
-    QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateHimawari() or slotUpdateMeteosat()
+    checkSegmentDateTime();
 
     if(!comboColGeoOK())
     {
@@ -1797,6 +1808,7 @@ void FormToolbox::on_btnGeoColor_clicked()
         return;
     }
 
+    QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateHimawari() or slotUpdateMeteosat()
 
     if(whichgeo == SegmentListGeostationary::NOGEO)
         return;
@@ -1816,9 +1828,31 @@ void FormToolbox::on_btnGeoColor_clicked()
 
 }
 
+void FormToolbox::checkSegmentDateTime()
+{
+    if(ui->lblMeteosatChosen->text() == "Image Date/Time")
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Select the Image Date and Time");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
+        return;
+    }
+}
+
 void FormToolbox::on_btnHRV_clicked()
 {
 
+    checkSegmentDateTime();
     QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateMeteosat()
 
     ui->pbProgress->reset();
@@ -2323,6 +2357,17 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     else if(ui->rdbVIIRSMin->isChecked())
     {
         imageptrs->ptrProjectionBrightnessTemp.reset(new float[width * height]);
+
+        for(int y = 0; y < height; y++)
+        {
+            for(int x = 0; x < width; x++)
+            {
+                imageptrs->ptrProjectionBrightnessTemp[y * width + x] = -1.0;
+            }
+        }
+
+
+
         ui->btnGVPFalseColor->setChecked(false);
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
         QList<bool> blist = this->getVIIRSMBandList();
@@ -2331,9 +2376,9 @@ void FormToolbox::on_btnCreatePerspective_clicked()
             copyProjectionImage();
 
             infrascales->initializeLowHigh();
-            infrascales->setMinMaxTemp( segs->seglviirsm->getMinBrightnessTemp(), segs->seglviirsm->getMaxBrightnessTemp());
+            infrascales->setMinMaxTemp( segs->seglviirsm->getMinBrightnessTempProjection(), segs->seglviirsm->getMaxBrightnessTempProjection());
 
-            qDebug() << QString("setMinMaxTemp %1 %2").arg(segs->seglviirsm->getMinBrightnessTemp()).arg(segs->seglviirsm->getMaxBrightnessTemp());
+            qDebug() << QString("setMinMaxTemp %1 %2").arg(segs->seglviirsm->getMinBrightnessTempProjection()).arg(segs->seglviirsm->getMaxBrightnessTempProjection());
 
             QList<bool> ilist = this->getVIIRSMInvertList();
             if(blist.at(12))
@@ -2696,12 +2741,14 @@ void FormToolbox::on_toolBox_currentChanged(int index)
 
 void FormToolbox::on_btnGVPClearMap_clicked()
 {
+    infrascales->hide();
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     formimage->displayImage(IMAGE_PROJECTION);
 }
 
 void FormToolbox::on_btnLCCClearMap_clicked()
 {
+    infrascales->hide();
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
 
@@ -2921,6 +2968,7 @@ void FormToolbox::on_spbSGRadius_valueChanged(double arg1)
 
 void FormToolbox::on_btnSGClearMap_clicked()
 {
+    infrascales->hide();
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     formimage->displayImage(IMAGE_PROJECTION);
 
@@ -3701,7 +3749,8 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
     if(infrascales->isHidden())
     {
         QList<bool> blist = this->getVIIRSMBandList();
-        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
+//        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
+        if(ui->rdbVIIRSMin->isChecked() &&
                 (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
         {
             infrascales->show();

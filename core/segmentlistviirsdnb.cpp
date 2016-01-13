@@ -145,6 +145,8 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
         ++segsel;
     }
 
+    emit progressCounter(100);
+
     moonillumination = totillum/count;
 
     qDebug() << " SegmentListVIIRS::ComposeVIIRSDNBImageInThread Finished !!";
@@ -152,7 +154,6 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     QApplication::restoreOverrideCursor();
 
     emit segmentlistfinished(true);
-    emit progressCounter(100);
 
     return true;
 }

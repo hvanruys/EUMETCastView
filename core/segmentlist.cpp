@@ -520,7 +520,7 @@ bool SegmentList::ComposeImage(double gamma_ch[])
     emit progressCounter(10);
 
     watcherread = new QFutureWatcher<void>(this);
-    connect(watcherread, SIGNAL(resultReadyAt(int)), SLOT(resultisready(int)));
+    connect(watcherread, SIGNAL(progressValueChanged(int)), SLOT(progressvaluechanged(int)));
     connect(watcherread, SIGNAL(finished()), SLOT(readfinished()));
 
     watcherread->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentList::doReadSegmentInMemory));
@@ -656,13 +656,12 @@ void SegmentList::readfinished()
     ComposeImage1();
 }
 
-void SegmentList::resultisready(int segmentnbr)
+void SegmentList::progressvaluechanged(int segmentnbr)
 {
     int totalcount = segsselected.count();
     this->progressresultready += 100 / totalcount * 2;
 
-    qDebug() << QString("result ready %1  %2 NbrOfLines = %3").arg(segmentnbr).arg(segsselected.at(segmentnbr)->fileInfo.absoluteFilePath()).
-                arg(segsselected.at(segmentnbr)->NbrOfLines);
+    qDebug() << QString("progressvaluechanged %1").arg(segmentnbr);
     emit progressCounter(this->progressresultready);
 
 }
@@ -704,6 +703,7 @@ void SegmentList::composefinished()
     qDebug() << QString("compose stat_min_ch3 = %1  stat_max_ch3 = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
     qDebug() << QString("compose stat_min_ch4 = %1  stat_max_ch4 = %2").arg(stat_min_ch[3]).arg(stat_max_ch[3]);
     qDebug() << QString("compose stat_min_ch5 = %1  stat_max_ch5 = %2").arg(stat_min_ch[4]).arg(stat_max_ch[4]);
+
 
     emit progressCounter(100);
 

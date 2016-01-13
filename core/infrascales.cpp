@@ -52,7 +52,6 @@ InfraScales::InfraScales(QWidget *parent) : QWidget(parent)
     verticalLayout->addWidget(scalewidget);
     this->setLayout(verticalLayout);
 
-    down = false;
     grablowcursor = false;
     grabhighcursor = false;
     lowlimit = 0.0;
@@ -60,13 +59,31 @@ InfraScales::InfraScales(QWidget *parent) : QWidget(parent)
     lowlimittemp = 0.0;
     highlimittemp = 0.0;
 
-    for(int i = 0; i < 256 ; i++)
-    {
-        float val = (float)i/255.0;
-        infraLUT[i] = this->getColor(val);
-    }
+    inverse = false;
 
 }
+
+QImage InfraScales::getScalesImage(int width)
+{
+    QImage im( width, 80, QImage::Format_RGB32 );
+    im.fill(Qt::gray);
+
+    QPainter painter(&im);
+    infrawidget->drawInfraWidget(&painter, 10, 0, width-20, 50);
+
+    QPointF low, high;
+
+    low.setX(10 + lowlimit * (width-20));
+    low.setY(50);
+    high.setX(10 + highlimit * (width-20));
+    high.setY(50);
+
+    this->drawInfraScales(&painter, low, high);
+    painter.end();
+    return im;
+
+}
+
 void InfraScales::initializeLowHigh()
 {
     lowlimit = 0.0;
@@ -86,25 +103,9 @@ void InfraScales::setInverse(bool inverse)
     lowlimit = 0.0;
     highlimit = 1.0;
 
+    this->inverse = inverse;
+
     infrawidget->setInverse(inverse);
-
-    if(inverse == true)
-    {
-        for(int i = 0; i < 256 ; i++)
-        {
-            float val = (float)(255-i)/255.0;
-            infraLUT[i] = this->getColor(val);
-        }
-    }
-    else
-    {
-        for(int i = 0; i < 256 ; i++)
-        {
-
-            float val = (float)i/255.0;
-            infraLUT[i] = this->getColor(val);
-        }
-    }
 
 }
 
@@ -129,7 +130,6 @@ void InfraScales::mousePressEvent( QMouseEvent *e )
     valx = valx < 0 ? 0 : valx;
     valx = valx > 1.0 ? 1.0 : valx;
 
-    down = true;
     if(valx > lowlimit - 0.02 && valx <= lowlimit + 0.02 )
     {
         grablowcursor = true;
@@ -143,20 +143,18 @@ void InfraScales::mousePressEvent( QMouseEvent *e )
 
 void InfraScales::mouseReleaseEvent( QMouseEvent *e )
 {
-    down = false;
-    grablowcursor = false;
-    grabhighcursor = false;
-    qDebug() << QString("scales release x = %1 y = %2 lowlimit = %3 highlimit = %4").arg(e->x()).arg(e->y()).arg(lowlimit).arg(highlimit);
-
 
     QRgb *row;
-    float temp;
+    float btemp;
 
     int height = imageptrs->ptrimageProjection->height();
     int width = imageptrs->ptrimageProjection->width();
 
-    int intlow = (int)((1.0-lowlimit) * 255.0);
-    int inthigh = (int)((1.0-highlimit) * 255.0);
+    int intlow = (int)((lowlimit) * 255.0);
+    int inthigh = (int)((highlimit) * 255.0);
+    //float delta = highlimittemp - lowlimittemp; //this->maxbtemp - this->minbtemp;
+    qDebug() << QString("scales release x = %1 y = %2 lowlimit = %3 highlimit = %4").arg(e->x()).arg(e->y()).arg(lowlimit).arg(highlimit);
+    qDebug() << QString("scales release x = %1 y = %2 intlow = %3 inthigh = %4").arg(e->x()).arg(e->y()).arg(intlow).arg(inthigh);
 
     for(int y = 0; y < height; y++)
     {
@@ -168,12 +166,14 @@ void InfraScales::mouseReleaseEvent( QMouseEvent *e )
 
             if(imageptrs->ptrProjectionBrightnessTemp.isNull())
                 return;
-            temp = imageptrs->ptrProjectionBrightnessTemp[y * width + x];
-            if(temp > 0)
+            btemp = imageptrs->ptrProjectionBrightnessTemp[y * width + x];
+            if(btemp > 0)
             {
-                if(intlow >= greyval && greyval >= inthigh)
+                float fval = (btemp - minprojectiontemp)/deltaprojectiontemp ;
+
+                if(lowlimit <= fval && fval <= highlimit)
                 {
-                    row[x] = infraLUT[greyval].rgb();
+                    row[x] = getColor(fval).rgb();
                 }
                 else
                 {
@@ -183,6 +183,9 @@ void InfraScales::mouseReleaseEvent( QMouseEvent *e )
 
         }
     }
+
+    grablowcursor = false;
+    grabhighcursor = false;
 
     emit repaintprojectionimage();
     update();
@@ -244,10 +247,13 @@ void InfraScales::setMinMaxTemp(float mintemp, float maxtemp)
 {
     lowlimittemp = mintemp;
     highlimittemp = maxtemp;
+    minprojectiontemp = mintemp;
+    maxprojectiontemp = maxtemp;
+    deltaprojectiontemp = maxprojectiontemp - minprojectiontemp;
 
 }
 
-QColor InfraScales::getColor(double value)
+QColor InfraScales::getColor(float value)
 {
     return infrawidget->getColor(value);
 }
@@ -265,12 +271,16 @@ QColor InfraScales::getColorHigh()
 void InfraScales::paintEvent( QPaintEvent * )
 {
     QPainter painter(this);
+    drawInfraScales(&painter, ptlowcursor, pthighcursor);
+    painter.end();
+}
 
-    QPen     pen(Qt::black);
+void InfraScales::drawInfraScales(QPainter *paint, QPointF lowcursor, QPointF highcursor)
+{
+    QPen pen(Qt::black);
     pen.setWidth(1);
-    painter.setPen(pen);
+    paint->setPen(pen);
 
-    qDebug() << "InfraScales::paintEvent";
 
     //painter.drawLine(5, this->height()-10, this->width()-5, this->height()-10 );
     //painter.drawText(5, this->height()-5, QString("%1K°").arg(lowlimittemp, 4, 'f', 1));
@@ -278,8 +288,8 @@ void InfraScales::paintEvent( QPaintEvent * )
     //painter.drawLine(this->labelleft->width(), this->infrawidget->height(), this->labelleft->width(), this->infrawidget->height() + 5 );
     //painter.drawLine(this->labelleft->width() + this->infrawidget->width() - 1, this->infrawidget->height(), this->labelleft->width() + this->infrawidget->width() - 1, this->infrawidget->height() + 5 );
 
-    ptlowcursor.setY(this->infrawidget->height());
-    pthighcursor.setY(this->infrawidget->height());
+    lowcursor.setY(this->infrawidget->height());
+    highcursor.setY(this->infrawidget->height());
 
     static const QPointF points[3] = {
         QPointF(0.0, 0.0),
@@ -288,23 +298,23 @@ void InfraScales::paintEvent( QPaintEvent * )
     };
 
     QPointF pointstranslatelow[3] = {
-        points[0] + ptlowcursor,
-        points[1] + ptlowcursor,
-        points[2] + ptlowcursor
+        points[0] + lowcursor,
+        points[1] + lowcursor,
+        points[2] + lowcursor
     };
 
     QPointF pointstranslatehigh[3] = {
-        points[0] + pthighcursor,
-        points[1] + pthighcursor,
-        points[2] + pthighcursor
+        points[0] + highcursor,
+        points[1] + highcursor,
+        points[2] + highcursor
     };
 
-    painter.setBrush(QBrush(Qt::SolidPattern));
+    paint->setBrush(QBrush(Qt::SolidPattern));
 
-    painter.drawConvexPolygon(pointstranslatelow, 3);
-    painter.drawConvexPolygon(pointstranslatehigh, 3);
+    paint->drawConvexPolygon(pointstranslatelow, 3);
+    paint->drawConvexPolygon(pointstranslatehigh, 3);
 
-    drawMinMaxTemp(&painter);
+    drawMinMaxTemp(paint, lowcursor, highcursor);
 
     //painter.drawLine(0, this->height()/5.0, this->width(), this->height()/5.0 );
     //painter.drawLine(0, this->height()*2/5.0, this->width(), this->height()*2/5.0 );
@@ -314,11 +324,11 @@ void InfraScales::paintEvent( QPaintEvent * )
     //painter.drawLine(0, this->height()-1, this->width(), this->height()-1 );
 }
 
-void InfraScales::drawMinMaxTemp(QPainter *painter)
+void InfraScales::drawMinMaxTemp(QPainter *painter, QPointF lowcursor, QPointF highcursor)
 {
-    float deltatemp = highlimittemp - lowlimittemp;
-    QString mintemp = QString("%1K°").arg(lowlimittemp + lowlimit * deltatemp, 4, 'f', 1);
-    QString maxtemp = QString("%1K°").arg(highlimittemp + (highlimit-1) * deltatemp, 4, 'f', 1);
+    //float deltatemp = highlimittemp - lowlimittemp;
+    QString mintemp = QString("%1K°").arg(lowlimittemp + lowlimit * deltaprojectiontemp, 4, 'f', 1);
+    QString maxtemp = QString("%1K°").arg(highlimittemp + (highlimit-1) * deltaprojectiontemp, 4, 'f', 1);
     QFontMetrics metrics = QFontMetrics(font());
     int border = qMax(4, metrics.leading());
 
@@ -333,9 +343,9 @@ void InfraScales::drawMinMaxTemp(QPainter *painter)
 //    painter->drawText(this->width()- rectmax.width(), this->height()-rectmax.height(), rectmax.width(), rectmax.height(),
 //                      Qt::AlignJustify, maxtemp );
 
-    painter->drawText(ptlowcursor.x() - 10, this->height()-rectmin.height(), rectmin.width(), rectmin.height(),
+    painter->drawText(lowcursor.x() - 10, this->height()-rectmin.height(), rectmin.width(), rectmin.height(),
                       Qt::AlignJustify, mintemp );
-    painter->drawText(pthighcursor.x()-rectmax.width() + 10, this->height()-rectmax.height(), rectmax.width(), rectmax.height(),
+    painter->drawText(highcursor.x()-rectmax.width() + 10, this->height()-rectmax.height(), rectmax.width(), rectmax.height(),
                       Qt::AlignJustify, maxtemp );
 
 }

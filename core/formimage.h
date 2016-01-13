@@ -11,6 +11,7 @@
 #include "infrascales.h"
 
 class FormToolbox;
+class MyImageLabel;
 
 class FormImage : public QWidget
 {
@@ -89,7 +90,7 @@ private:
     bool metop_inverse_ch[5], noaa_inverse_ch[5], gac_inverse_ch[5], hrp_inverse_ch[5];
     bool metop_inverseEqual_ch[5], noaa_inverseEqual_ch[5], gac_inverseEqual_ch[5], hrp_inverseEqual_ch[5];
 
-    QLabel *imageLabel;
+    MyImageLabel *imageLabel;
     QVBoxLayout *mainLayout;
 
     QPoint mousepoint;
@@ -139,6 +140,18 @@ protected:
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+
+};
+
+class MyImageLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    explicit MyImageLabel(QLabel *parent = 0);
+
+public:
+protected:
+    void mouseMoveEvent(QMouseEvent *);
 
 };
 

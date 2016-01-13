@@ -97,6 +97,7 @@ protected:
 signals:
     void segmentlistfinished(bool settoolboxbuttons);
     void segmentprojectionfinished(bool settoolboxbuttons);
+    void progressCounter(int);
 
 public slots:
 
@@ -113,13 +114,11 @@ protected:
 protected slots:
     void readfinished();
     void composefinished();
-    void resultisready(int segmentnbr);
+    void progressvaluechanged(int segmentnbr);
     void resultcomposeisready(int segmentnbr);
 //    void composeprojectionfinished();
     void composeprojectionreadyat(int segmentnbr);
 
-signals:
-    void progressCounter(int);
 
 };
 

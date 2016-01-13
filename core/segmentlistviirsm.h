@@ -20,6 +20,8 @@ public:
     void SmoothProjectionBrightnessTemp();
     float getMinBrightnessTemp() { return minBrightnessTemp; }
     float getMaxBrightnessTemp() { return maxBrightnessTemp; }
+    float getMinBrightnessTempProjection() { return minBrightnessTempProjection; }
+    float getMaxBrightnessTempProjection() { return maxBrightnessTempProjection; }
 
     void ComposeGVProjection(int inputchannel);
 
@@ -42,6 +44,8 @@ private:
     float stat_min_dnb;
     float minBrightnessTemp;
     float maxBrightnessTemp;
+    float minBrightnessTempProjection;
+    float maxBrightnessTempProjection;
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> inverselist;

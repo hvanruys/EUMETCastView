@@ -50,7 +50,8 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 
     scaleFactor = (double)getZoomValue()/100;
     qDebug() << QString("FormImage::FormImage scalefactor = %1").arg(scaleFactor);
-    imageLabel = new QLabel;
+    imageLabel = new MyImageLabel;
+
     imageLabel->setScaledContents(true);
 
     mainLayout = new QVBoxLayout;
@@ -409,7 +410,11 @@ void FormImage::mousePressEvent(QMouseEvent *e)
 
 void FormImage::mouseMoveEvent(QMouseEvent *e)
 {
-     emit moveImage(e->pos(), mousepoint);
+    if(e->buttons() == Qt::LeftButton)
+    {
+        emit moveImage(e->pos(), mousepoint);
+    }
+    //qDebug() << QString("mousemoveevent pos.x = %1 pos.y = %2").arg(e->pos().x()).arg(e->pos().y());
 }
 
 void FormImage::mouseReleaseEvent(QMouseEvent *)
@@ -2642,10 +2647,48 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
 void FormImage::ToInfraColorProjection()
 {
     QRgb *row;
-    float temp;
+    float btemp;
+
+    float mintemp;
+    float maxtemp;
 
     int height = imageptrs->ptrimageProjection->height();
     int width = imageptrs->ptrimageProjection->width();
+
+    infrascales->getMinMaxTemp(&mintemp, &maxtemp);
+
+    qDebug() << QString("FormImage::ToInfraColorProjection() min temp = %1 max temp = %2").arg(mintemp).arg(maxtemp);
+
+    float delta = maxtemp - mintemp;
+
+    float min = 9999999.0;
+    float max = 0.0;
+    int valcount = 0;
+
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            if(imageptrs->ptrProjectionBrightnessTemp.isNull())
+                return;
+            btemp = imageptrs->ptrProjectionBrightnessTemp[y * width + x];
+            float fval = (btemp - mintemp)/delta;
+            int val = qRound(fval*255.0);
+            if(btemp > 0)
+            {
+                if(btemp>=max)
+                    max=btemp;
+                if(btemp<=min)
+                    min=btemp;
+            }
+
+        }
+    }
+
+    delta = max - min;
+
+    qDebug() << QString("----> ToInfraColorProjection() min = %1 max = %2 valcount = %3").arg(min).arg(max).arg(valcount);
+
 
     for(int y = 0; y < height; y++)
     {
@@ -2653,14 +2696,15 @@ void FormImage::ToInfraColorProjection()
 
         for(int x = 0; x < width; x++)
         {
-            quint8 greyval = imageptrs->ptrProjectionInfra[y * width + x];
+            //quint8 greyval = imageptrs->ptrProjectionInfra[y * width + x];
 
             if(imageptrs->ptrProjectionBrightnessTemp.isNull())
                 return;
-            temp = imageptrs->ptrProjectionBrightnessTemp[y * width + x];
-            if(temp > 0)
+            btemp = imageptrs->ptrProjectionBrightnessTemp[y * width + x];
+            float fval = (btemp - min)/delta;
+            if(btemp > 0)
             {
-                row[x] = infrascales->infraLUT[greyval].rgb();
+                row[x] = infrascales->getColor(fval).rgb();
             }
 
         }
@@ -2759,4 +2803,16 @@ void FormImage::slotRepaintProjectionImage()
 FormImage::~FormImage()
 {
 
+}
+
+MyImageLabel::MyImageLabel(QLabel *parent ) :  QLabel(parent)
+{
+    //setMouseTracking(true);
+}
+
+void MyImageLabel::mouseMoveEvent(QMouseEvent *event)
+{
+    //qDebug() << QString("myimagelabel mousemoveevent pos.x = %1 pos.y = %2").arg(event->pos().x()).arg(event->pos().y());
+
+    QLabel::mouseMoveEvent(event);
 }

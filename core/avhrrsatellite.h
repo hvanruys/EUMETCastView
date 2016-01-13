@@ -49,6 +49,8 @@ public:
     void RemoveAllSelectedVIIRSM();
     void RemoveAllSelectedVIIRSDNB();
 
+    void emitProgressCounter(int);
+
     QString GetOverviewSegments();
     QStringList GetOverviewSegmentsMetop();
     QStringList GetOverviewSegmentsNoaa();
@@ -130,6 +132,7 @@ signals:
     void signalAddedSegmentlist(void);
     void signalNothingSelected(void);
     //void signalMeteosatSegment(QString, QString, int);
+    void progressCounter(int);
 
 public slots:
     void AddSegmentsToListFromUdp(QByteArray thefilepath);

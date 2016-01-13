@@ -135,6 +135,11 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     else
         ui->rbLinearInterpolation->setChecked(true);
 
+    ui->rbMagma->setChecked(opts.colormapMagma);
+    ui->rbInferno->setChecked(opts.colormapInferno);
+    ui->rbPlasma->setChecked(opts.colormapPlasma);
+    ui->rbViridis->setChecked(opts.colormapViridis);
+
     setupStationsTable();
     setupTLESourceTable();
     setupPOILCCTable();
@@ -451,6 +456,12 @@ void DialogPreferences::dialogaccept()
     opts.obslon = ui->ledLon->text().toDouble();
     opts.obslat = ui->ledLat->text().toDouble();
     opts.obsalt = ui->ledAlt->text().toDouble();
+
+    opts.colormapMagma = ui->rbMagma->isChecked();
+    opts.colormapInferno = ui->rbInferno->isChecked();
+    opts.colormapPlasma = ui->rbPlasma->isChecked();
+    opts.colormapViridis = ui->rbViridis->isChecked();
+
 
     if(POItablechanged)
         done(2);

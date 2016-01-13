@@ -129,6 +129,11 @@ public:
     QScopedArrayPointer<float> earthloc_lon;
     QScopedArrayPointer<float> earthloc_lat;
 
+    QScopedArrayPointer<float> solar_zenith_angle; // 1080 X 103
+    QScopedArrayPointer<float> satellite_zenith_angle;
+    QScopedArrayPointer<float> solar_azimuth_angle;
+    QScopedArrayPointer<float> satellite_azimuth_angle;
+
     QScopedPointer<QTle> qtle;
     QScopedPointer<QSgp4> qsgp4;
 

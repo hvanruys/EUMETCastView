@@ -16,7 +16,7 @@ public:
 
     void SegmentMetopBz2(QFile&);
     void inspectMPHRrecord(QByteArray mphr_record);
-    void inspectSolarAngle(QByteArray *mdr_record);
+    void inspectSolarAngle(QByteArray *mdr_record,int heightinsegment);
     void inspectEarthLocations(QByteArray *mdr_record, int heightinsegment);
     quint32 get_next_header( QByteArray ba );
 
@@ -39,11 +39,12 @@ public:
 
     void intermediatePoint(double lat1, double lng1, double lat2, double lng2, double f, double *lat, double *lng, double d);
     int ReadNbrOfLines();
-
+    float getSolarZenith(int navpoint, int intpoint, int nbrLine);
 
     double earth_loc_lon_first[1080], earth_loc_lat_first[1080];
     double earth_loc_lon_last[1080], earth_loc_lat_last[1080];
     double earth_loc_altitude[1080];
+
 
 
     double subsat_latitude_start;

@@ -79,6 +79,7 @@ private:
     void setRadioButtonsMToFalse();
     void setupEquirectangularTable();
     void copyProjectionImage();
+    void checkSegmentDateTime();
 
 
     AVHRRSatellite *segs;

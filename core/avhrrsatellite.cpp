@@ -126,6 +126,12 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     showallsegments = false;
 
 }
+
+void AVHRRSatellite::emitProgressCounter(int counter)
+{
+    emit progressCounter(counter);
+}
+
 /**
  * @brief AVHRRSatellite::AddSegmentsToList
  * @param fileinfolist

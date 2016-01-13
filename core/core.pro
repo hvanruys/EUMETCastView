@@ -130,7 +130,8 @@ HEADERS  += mainwindow.h \
     stb_image.h \
     equirectangular.h \
     infrascales.h \
-    infrawidget.h
+    infrawidget.h \
+    colormaps.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

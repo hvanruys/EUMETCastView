@@ -156,6 +156,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglnoaa, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglhrp, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgac, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
 
 
     formglobecyl = new FormMapCyl( this, mapcyl, globe, formtoolbox, satlist, seglist);
@@ -487,9 +488,29 @@ void MainWindow::on_actionCreatePNG_triggered()
         if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
                 fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
             fileName.append(".jpg");
-
         pm = formimage->returnimageLabelptr()->pixmap();
-        pm->save(fileName);
+
+        if(!infrascales->isHidden())
+        {
+            QImage imresult(pm->width(), pm->height() + 80, QImage::Format_RGB32);
+
+            QImage im = pm->toImage();
+            QPainter painter(&imresult);
+
+            QImage scales = infrascales->getScalesImage(im.width());
+            //QImage scales(im.width(), 80, im.format());
+            //scales.fill(Qt::blue);
+
+            painter.drawImage(0, 0, im);
+            painter.drawImage(0, imresult.height()-80, scales);
+
+            painter.end();
+            imresult.save(fileName);
+        }
+        else
+        {
+            pm->save(fileName);
+        }
         QApplication::restoreOverrideCursor();
     }
 
@@ -525,7 +546,6 @@ void MainWindow::moveImage(QPoint d, QPoint e)
     imagescrollarea->horizontalScrollBar()->setValue(imagescrollarea->horizontalScrollBar()->value() + deltaX);
     imagescrollarea->verticalScrollBar()->setValue(imagescrollarea->verticalScrollBar()->value() + deltaY);
 
-    //qDebug() << "MainWindow::moveImage(QPoint d, QPoint e)";
 }
 
 void MainWindow::updateWindowTitle()

@@ -420,7 +420,7 @@ int SegmentMetop::ReadNbrOfLines()
     return heightinsegment;
 }
 
-void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record)
+void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record, int heightinsegment)
 {
 
     //quint16 val1_ch[5], val2_ch[5],tot_ch[5];
@@ -444,10 +444,11 @@ void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record)
     //qDebug() << QString("earth views per scanline = %1 num navigation points = %2").arg(earth_views).arg(num_navigation_points);
 
 
-    qint16 solar_zenith_angle[103];
-    qint16 satellite_zenith_angle[103];
-    qint16 solar_azimuth_angle[103];
-    qint16 satellite_azimuth_angle[103];
+//    qint16 solar_zenith_angle[103];
+//    qint16 satellite_zenith_angle[103];
+//    qint16 solar_azimuth_angle[103];
+//    qint16 satellite_azimuth_angle[103];
+
 
     // nbr_navigation_points = 103
     // 5 + (20 x {0 ... 102})
@@ -460,27 +461,30 @@ void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record)
     {
         num1 = 0xFF & mdr_record->at(20536 + i*8);
         num2 = 0xFF & mdr_record->at(20537 + i*8);
-        solar_zenith_angle[i] = (num1 <<= 8) | num2;
+        quint16 zangle  = (num1 <<= 8) | num2;
+        solar_zenith_angle[i] = (float)zangle/100.0;
+    }
 
-        num1 = 0xFF & mdr_record->at(20538 + i*8);
-        num2 = 0xFF & mdr_record->at(20539 + i*8);
-        satellite_zenith_angle[i] = (num1 <<= 8) | num2;
+//        solar_zenith_angle[i] = (num1 <<= 8) | num2;
 
-        num1 = 0xFF & mdr_record->at(20540 + i*8);
-        num2 = 0xFF & mdr_record->at(20541 + i*8);
-        solar_azimuth_angle[i] = (num1 <<= 8) | num2;
+//        num1 = 0xFF & mdr_record->at(20538 + i*8);
+//        num2 = 0xFF & mdr_record->at(20539 + i*8);
+//        satellite_zenith_angle[i] = (num1 <<= 8) | num2;
 
-        num1 = 0xFF & mdr_record->at(20542 + i*8);
-        num2 = 0xFF & mdr_record->at(20543 + i*8);
-        satellite_azimuth_angle[i] = (num1 <<= 8) | num2;
+//        num1 = 0xFF & mdr_record->at(20540 + i*8);
+//        num2 = 0xFF & mdr_record->at(20541 + i*8);
+//        solar_azimuth_angle[i] = (num1 <<= 8) | num2;
+
+//        num1 = 0xFF & mdr_record->at(20542 + i*8);
+//        num2 = 0xFF & mdr_record->at(20543 + i*8);
+//        satellite_azimuth_angle[i] = (num1 <<= 8) | num2;
 
 //        for( int s = 5 + 20*i; (s <= 5 + 20*(i+1)) && (s <= 2048); s++)
 //        {
 //            dsolar = (double)solar_zenith_angle[i]/9000;
 //            solar_factor[s] = (double)2 * dsolar + 1;
 //        }
-
-    }
+//    }
 
 //    for( int s = 0; s < 5; s++)
 //    {
@@ -757,6 +761,8 @@ Segment *SegmentMetop::ReadSegmentInMemory()
 
     earthloc_lon.reset(new float[1080*103]);
     earthloc_lat.reset(new float[1080*103]);
+    solar_zenith_angle.reset(new float[1080*103]);
+
 
     while ( bzerror == BZ_OK )
     {
@@ -783,7 +789,7 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                     QByteArray mdr_record = QByteArray::fromRawData(buf, nBuf);
                     //qDebug() << QString("line at 0 = mdr heightintotalimage = %1").arg(heightintotalimage);
                     //qDebug() << QString("mdr_record length = %1").arg(mdr_record.length());
-                    //inspectSolarAngle(&mdr_record);
+                    inspectSolarAngle(&mdr_record, heightinsegment);
                     inspectEarthLocations(&mdr_record, heightinsegment);
 
                     //mdr_record = QByteArray::fromRawData(buf, nBuf);
@@ -902,6 +908,8 @@ Segment *SegmentMetop::ReadSegmentInMemory()
       }
     }
 
+    for(int i = 0; i < 5; i++)
+        qDebug() << QString("stat_min_ch[%1] = %2  stat_max_ch[%3] = %4").arg(i).arg(stat_min_ch[i]).arg(i).arg(stat_max_ch[i]);
     BZ2_bzclose ( b );
     fclose(f);
 
@@ -980,6 +988,9 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
             for( int j = 0; j < 20 ; j++ )
             {
                 intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
+                float solarzenith = getSolarZenith(i, j, nbrLine);
+                if( i == 50 && nbrLine == 0)
+                    qDebug() << QString("solarzenith[%1] = %2").arg(j).arg(solarzenith);
                 if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
@@ -988,10 +999,14 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
                     //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                     {
                         rgbvalue1 = row_col[4 + i * 20 + j];
+                        int red = qRed(rgbvalue1)/cos(solarzenith*PI/180.0);
+                        int green = qGreen(rgbvalue1)/cos(solarzenith*PI/180.0);
+                        int blue = qBlue(rgbvalue1)/cos(solarzenith*PI/180.0);
+                        QRgb rgbresult = qRgba(red, green, blue, 255);
                         QColor col(rgbvalue1);
-                        col.setAlpha(255);
+                        //col.setAlpha(255);
                         if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
-                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, col.rgb());
+                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1); // col.rgb());
                         projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = col.rgb();
                     }
                 }
@@ -1006,6 +1021,54 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
     }
 
     g_mutex.unlock();
+
+}
+
+float SegmentMetop::getSolarZenith(int navpoint, int intpoint, int nbrLine) //navpoint = [0, 101] intpoint = [0, 19] nbrLine = [0, 1079]
+{
+    // second order Lagrange interpolation ==> 3 points
+    float a, k, s, t;
+    float x[3];
+    float y[3];
+
+    int n = 3;
+    if(navpoint == 0)
+    {
+        y[0] = solar_zenith_angle[nbrLine*103];
+        y[1] = solar_zenith_angle[nbrLine*103 + 1];
+        y[2] = solar_zenith_angle[nbrLine*103 + 2];
+        x[0] = 4;
+        x[1] = 24;
+        x[2] = 44;
+    }
+    else
+    {
+        y[0] = solar_zenith_angle[nbrLine*103 + navpoint - 1];
+        y[1] = solar_zenith_angle[nbrLine*103 + navpoint];
+        y[2] = solar_zenith_angle[nbrLine*103 + navpoint + 1];
+        x[0] = (navpoint-1) * 20 + 4;
+        x[1] = navpoint * 20 + 4;
+        x[2] = (navpoint+1) * 20 + 4;
+    }
+
+    k = 0;
+    a = navpoint * 20 + intpoint + 4;
+
+    for(int i=0; i<n; i++)
+    {
+        s=1;
+        t=1;
+        for(int j=0; j<n; j++)
+        {
+            if(j!=i)
+            {
+                s=s*(a-x[j]);
+                t=t*(x[i]-x[j]);
+            }
+        }
+        k=k+((s/t)*y[i]);
+    }
+    return k;
 
 }
 

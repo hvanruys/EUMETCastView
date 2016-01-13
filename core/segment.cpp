@@ -247,6 +247,7 @@ void Segment::resetMemory()
 
     earthloc_lon.reset();
     earthloc_lat.reset();
+    solar_zenith_angle.reset();
 
     projectionCoordX.reset();
     projectionCoordY.reset();
@@ -947,22 +948,24 @@ void Segment::ComposeSegmentImage()
                     if (inverse.at(i) == "1")
                         R_value = 255 - (pixel[i]/4);
                     else
-                        R_value = imageptrs->lut_ch[i][pixel[i]]/4;
-                     //R_value = pixel[i]/4;
+                    {
+                        //if(i==2)
+                        //    R_value = imageptrs->lut_ch[1][pixel[i]]/4;
+                        //else
+                            R_value = imageptrs->lut_ch[i][pixel[i]]/4;
+                    }
                      break;
                 case 2:
                     if (inverse.at(i) == "1")
                         G_value = 255 - (pixel[i]/4);
                     else
                         G_value = imageptrs->lut_ch[i][pixel[i]]/4;
-                     //G_value = pixel[i]/4;
                      break;
                 case 3:
                     if (inverse.at(i) == "1")
                         B_value = 255 - (pixel[i]/4);
                     else
                         B_value = imageptrs->lut_ch[i][pixel[i]]/4;
-                     //B_value = pixel[i]/4;
                      break;
                 }
             }
@@ -1081,6 +1084,8 @@ Segment *Segment::ReadSegmentInMemory()
 {
     return this;
 }
+
+
 
 /*
 Distance between points
