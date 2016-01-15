@@ -80,6 +80,7 @@ private:
     void setupEquirectangularTable();
     void copyProjectionImage();
     void checkSegmentDateTime();
+    void initializeScales();
 
 
     AVHRRSatellite *segs;
@@ -216,6 +217,8 @@ private slots:
     void on_tabWidgetVIIRS_currentChanged(int index);
     void on_trvEquirectangular_clicked(const QModelIndex &index);
     void on_btnGVPFalseColor_clicked();
+    void on_btnLCCFalseColor_clicked();
+    void on_btnSGFalseColor_clicked();
 };
 
 

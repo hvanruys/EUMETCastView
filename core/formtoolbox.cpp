@@ -2122,6 +2122,11 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
 {
     qDebug() << "on_tabWidget_currentChanged(int index) index = " << index;
 
+    infrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
+
     if (index == TAB_AVHRR) //AVHHR
     {
         formimage->displayImage(currentAVHRRimage);
@@ -2163,6 +2168,11 @@ void FormToolbox::on_tabWidgetVIIRS_currentChanged(int index)
 {
 
     qDebug() << "on_tabWidgetVIIRS_currentChanged(int index) index = " << index;
+
+    infrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
 
     if (index == 0) //VIIRSM
         formimage->displayImage(IMAGE_VIIRS_M);
@@ -2351,6 +2361,10 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     int height = imageptrs->ptrimageProjection->height();
 
     infrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
+
 
     if(ui->rdbAVHRRin->isChecked())
         imageptrs->gvp->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
@@ -2366,32 +2380,10 @@ void FormToolbox::on_btnCreatePerspective_clicked()
             }
         }
 
-
-
         ui->btnGVPFalseColor->setChecked(false);
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
-        QList<bool> blist = this->getVIIRSMBandList();
-        if(blist.at(12) || blist.at(13) || blist.at(14) || blist.at(15) || blist.at(16))
-        {
-            copyProjectionImage();
+        initializeScales();
 
-            infrascales->initializeLowHigh();
-            infrascales->setMinMaxTemp( segs->seglviirsm->getMinBrightnessTempProjection(), segs->seglviirsm->getMaxBrightnessTempProjection());
-
-            qDebug() << QString("setMinMaxTemp %1 %2").arg(segs->seglviirsm->getMinBrightnessTempProjection()).arg(segs->seglviirsm->getMaxBrightnessTempProjection());
-
-            QList<bool> ilist = this->getVIIRSMInvertList();
-            if(blist.at(12))
-                infrascales->setInverse(ilist.at(11));
-            else if(blist.at(13))
-                infrascales->setInverse(ilist.at(12));
-            else if(blist.at(14))
-                infrascales->setInverse(ilist.at(13));
-            else if(blist.at(15))
-                infrascales->setInverse(ilist.at(14));
-            else if(blist.at(16))
-                infrascales->setInverse(ilist.at(15));
-        }
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
@@ -2405,6 +2397,33 @@ void FormToolbox::on_btnCreatePerspective_clicked()
 
     formimage->setPixmapToLabel(true);
     QApplication::restoreOverrideCursor();
+
+}
+
+void FormToolbox::initializeScales()
+{
+    QList<bool> blist = this->getVIIRSMBandList();
+    if(blist.at(12) || blist.at(13) || blist.at(14) || blist.at(15) || blist.at(16))
+    {
+        copyProjectionImage();
+
+        infrascales->initializeLowHigh();
+        infrascales->setMinMaxTemp( segs->seglviirsm->getMinBrightnessTempProjection(), segs->seglviirsm->getMaxBrightnessTempProjection());
+
+        qDebug() << QString("setMinMaxTemp %1 %2").arg(segs->seglviirsm->getMinBrightnessTempProjection()).arg(segs->seglviirsm->getMaxBrightnessTempProjection());
+
+        QList<bool> ilist = this->getVIIRSMInvertList();
+        if(blist.at(12))
+            infrascales->setInverse(ilist.at(11));
+        else if(blist.at(13))
+            infrascales->setInverse(ilist.at(12));
+        else if(blist.at(14))
+            infrascales->setInverse(ilist.at(13));
+        else if(blist.at(15))
+            infrascales->setInverse(ilist.at(14));
+        else if(blist.at(16))
+            infrascales->setInverse(ilist.at(15));
+    }
 
 }
 
@@ -2431,6 +2450,21 @@ void FormToolbox::copyProjectionImage()
 
 void FormToolbox::on_btnCreateLambert_clicked()
 {
+    if(ui->rdbCombine->isChecked())
+    {
+        QRgb *row, *rowcopy;
+        imageptrs->ptrimageProjectionCopy = new QImage(imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), QImage::Format_ARGB32);
+        for(int h = 0; h < imageptrs->ptrimageProjection->height(); h++ )
+        {
+            row = (QRgb*)imageptrs->ptrimageProjection->scanLine(h);
+            rowcopy = (QRgb*)imageptrs->ptrimageProjectionCopy->scanLine(h);
+            for(int w = 0; w < imageptrs->ptrimageProjection->width() ; w++)
+            {
+                rowcopy[w] = row[w];
+            }
+        }
+    }
+
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
     {
         if(ui->rdbAVHRRin->isChecked())
@@ -2461,16 +2495,43 @@ void FormToolbox::on_btnCreateLambert_clicked()
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
+
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+
+    int width = imageptrs->ptrimageProjection->width();
+    int height = imageptrs->ptrimageProjection->height();
+
+    infrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
+
     if(ui->rdbAVHRRin->isChecked())
         imageptrs->lcc->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
     else if(ui->rdbVIIRSMin->isChecked())
+    {
+        imageptrs->ptrProjectionBrightnessTemp.reset(new float[width * height]);
+
+        for(int y = 0; y < height; y++)
+        {
+            for(int x = 0; x < width; x++)
+            {
+                imageptrs->ptrProjectionBrightnessTemp[y * width + x] = -1.0;
+            }
+        }
+
+        ui->btnLCCFalseColor->setChecked(false);
         imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        initializeScales();
+    }
     else if(ui->rdbVIIRSDNBin->isChecked())
         imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
     else
         imageptrs->lcc->CreateMapFromGeostationary();
+
+    if(ui->rdbCombine->isChecked())
+        delete imageptrs->ptrimageProjectionCopy;
 
     formimage->setPixmapToLabel(true);
     QApplication::restoreOverrideCursor();
@@ -2478,6 +2539,21 @@ void FormToolbox::on_btnCreateLambert_clicked()
 
 void FormToolbox::on_btnCreateStereo_clicked()
 {
+    if(ui->rdbCombine->isChecked())
+    {
+        QRgb *row, *rowcopy;
+        imageptrs->ptrimageProjectionCopy = new QImage(imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), QImage::Format_ARGB32);
+        for(int h = 0; h < imageptrs->ptrimageProjection->height(); h++ )
+        {
+            row = (QRgb*)imageptrs->ptrimageProjection->scanLine(h);
+            rowcopy = (QRgb*)imageptrs->ptrimageProjectionCopy->scanLine(h);
+            for(int w = 0; w < imageptrs->ptrimageProjection->width() ; w++)
+            {
+                rowcopy[w] = row[w];
+            }
+        }
+    }
+
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
     {
         if(ui->rdbAVHRRin->isChecked())
@@ -2509,14 +2585,40 @@ void FormToolbox::on_btnCreateStereo_clicked()
 
     imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
 
+    int width = imageptrs->ptrimageProjection->width();
+    int height = imageptrs->ptrimageProjection->height();
+
+    infrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
+
     if(ui->rdbAVHRRin->isChecked())
         imageptrs->sg->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
     else if(ui->rdbVIIRSMin->isChecked())
+    {
+        imageptrs->ptrProjectionBrightnessTemp.reset(new float[width * height]);
+
+        for(int y = 0; y < height; y++)
+        {
+            for(int x = 0; x < width; x++)
+            {
+                imageptrs->ptrProjectionBrightnessTemp[y * width + x] = -1.0;
+            }
+        }
+
+        ui->btnSGFalseColor->setChecked(false);
+
         imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        initializeScales();
+    }
     else if(ui->rdbVIIRSDNBin->isChecked())
         imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
     else
         imageptrs->sg->CreateMapFromGeostationary();
+
+    if(ui->rdbCombine->isChecked())
+        delete imageptrs->ptrimageProjectionCopy;
 
     formimage->setPixmapToLabel(true);
     QApplication::restoreOverrideCursor();
@@ -2710,6 +2812,8 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     ui->comboPOI->blockSignals(true);
     ui->comboPOI->clear();
 
+    //infrascales->hide();
+
     opts.currenttoolbox = index;
     if (index == 0)
     {
@@ -2742,6 +2846,10 @@ void FormToolbox::on_toolBox_currentChanged(int index)
 void FormToolbox::on_btnGVPClearMap_clicked()
 {
     infrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
+
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     formimage->displayImage(IMAGE_PROJECTION);
 }
@@ -2749,6 +2857,10 @@ void FormToolbox::on_btnGVPClearMap_clicked()
 void FormToolbox::on_btnLCCClearMap_clicked()
 {
     infrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
+
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
 
@@ -2969,6 +3081,10 @@ void FormToolbox::on_spbSGRadius_valueChanged(double arg1)
 void FormToolbox::on_btnSGClearMap_clicked()
 {
     infrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
+
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     formimage->displayImage(IMAGE_PROJECTION);
 
@@ -3078,6 +3194,10 @@ void FormToolbox::on_btnMakeVIIRSImage_clicked()
         }
 
         infrascales->hide();
+        ui->btnGVPFalseColor->setChecked(false);
+        ui->btnSGFalseColor->setChecked(false);
+        ui->btnLCCFalseColor->setChecked(false);
+
         ui->pbProgress->reset();
         emit emitShowVIIRSImage();
     }
@@ -3740,6 +3860,7 @@ void FormToolbox::on_trvEquirectangular_clicked(const QModelIndex &index)
 
 void FormToolbox::on_btnGVPFalseColor_clicked()
 {
+
     if(imageptrs->ptrProjectionInfra.isNull())
     {
         ui->btnGVPFalseColor->setChecked(false);
@@ -3753,6 +3874,7 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
         if(ui->rdbVIIRSMin->isChecked() &&
                 (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
         {
+            ui->btnGVPFalseColor->setChecked(true);
             infrascales->show();
             infrascales->initializeLowHigh();
             formimage->ToInfraColorProjection();
@@ -3763,7 +3885,88 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
     }
     else
     {
+        ui->btnGVPFalseColor->setChecked(false);
         infrascales->hide();
+        ui->btnGVPFalseColor->setChecked(false);
+        ui->btnSGFalseColor->setChecked(false);
+        ui->btnLCCFalseColor->setChecked(false);
+
+        formimage->FromInfraColorProjection();
+        formimage->displayImage(IMAGE_PROJECTION);
+    }
+
+}
+
+void FormToolbox::on_btnLCCFalseColor_clicked()
+{
+    if(imageptrs->ptrProjectionInfra.isNull())
+    {
+        ui->btnLCCFalseColor->setChecked(false);
+        return;
+    }
+
+    if(infrascales->isHidden())
+    {
+        QList<bool> blist = this->getVIIRSMBandList();
+//        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
+        if(ui->rdbVIIRSMin->isChecked() &&
+                (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
+        {
+            ui->btnLCCFalseColor->setChecked(true);
+            infrascales->show();
+            infrascales->initializeLowHigh();
+            formimage->ToInfraColorProjection();
+            formimage->displayImage(IMAGE_PROJECTION);
+        }
+        else
+            ui->btnLCCFalseColor->setChecked(false);
+    }
+    else
+    {
+        ui->btnLCCFalseColor->setChecked(false);
+        infrascales->hide();
+        ui->btnGVPFalseColor->setChecked(false);
+        ui->btnSGFalseColor->setChecked(false);
+        ui->btnLCCFalseColor->setChecked(false);
+
+        formimage->FromInfraColorProjection();
+        formimage->displayImage(IMAGE_PROJECTION);
+    }
+
+}
+
+void FormToolbox::on_btnSGFalseColor_clicked()
+{
+    if(imageptrs->ptrProjectionInfra.isNull())
+    {
+        ui->btnSGFalseColor->setChecked(false);
+        return;
+    }
+
+    if(infrascales->isHidden())
+    {
+        QList<bool> blist = this->getVIIRSMBandList();
+//        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
+        if(ui->rdbVIIRSMin->isChecked() &&
+                (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
+        {
+            ui->btnSGFalseColor->setChecked(true);
+            infrascales->show();
+            infrascales->initializeLowHigh();
+            formimage->ToInfraColorProjection();
+            formimage->displayImage(IMAGE_PROJECTION);
+        }
+        else
+            ui->btnSGFalseColor->setChecked(false);
+    }
+    else
+    {
+        ui->btnSGFalseColor->setChecked(false);
+        infrascales->hide();
+        ui->btnGVPFalseColor->setChecked(false);
+        ui->btnSGFalseColor->setChecked(false);
+        ui->btnLCCFalseColor->setChecked(false);
+
         formimage->FromInfraColorProjection();
         formimage->displayImage(IMAGE_PROJECTION);
     }

@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>423</width>
+    <width>471</width>
     <height>1135</height>
    </rect>
   </property>
@@ -3401,14 +3401,14 @@
             <item>
              <widget class="QToolBox" name="toolBox">
               <property name="currentIndex">
-               <number>1</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>335</width>
+                 <width>398</width>
                  <height>506</height>
                 </rect>
                </property>
@@ -4054,17 +4054,14 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_45">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                   <widget class="QPushButton" name="btnLCCFalseColor">
+                    <property name="text">
+                     <string>False Color</string>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
+                    <property name="checkable">
+                     <bool>true</bool>
                     </property>
-                   </spacer>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -4146,7 +4143,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>361</width>
+                 <width>409</width>
                  <height>473</height>
                 </rect>
                </property>
@@ -4449,8 +4446,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>333</width>
-                 <height>291</height>
+                 <width>409</width>
+                 <height>473</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -4654,6 +4651,16 @@
                    <widget class="QPushButton" name="btnSGHome">
                     <property name="text">
                      <string>Home</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnSGFalseColor">
+                    <property name="text">
+                     <string>False Color</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>

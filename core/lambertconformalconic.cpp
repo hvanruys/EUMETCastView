@@ -205,13 +205,15 @@ void LambertConformalConic::CreateMapFromVIIRS(eSegmentType type, bool combine)
     else if(opts.smoothprojectiontype == 2)
     {
         if (type == SEG_VIIRSM)
+        {
             segs->seglviirsm->SmoothVIIRSImage(combine);
+            segs->seglviirsm->SmoothProjectionBrightnessTemp();
+        }
         else if( type == SEG_VIIRSDNB)
             segs->seglviirsdnb->SmoothVIIRSImage(combine);
     }
 
 }
-
 
 void LambertConformalConic::CreateMapFromGeostationary()
 {

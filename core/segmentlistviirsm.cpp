@@ -239,6 +239,53 @@ void SegmentListVIIRSM::ComposeGVProjection(int inputchannel)
         ++segit;
     }
 
+    initBrightnessTemp();
+
+    //the following code calculates a new LUT that only takes
+    //the pixels in the projection into account and not the complete segment(s).
+//   CalculateProjectionLUT();
+//   segit = segsselected.begin();
+//   while ( segit != segsselected.end() )
+//   {
+//       (*segit)->RecalculateProjection();
+//        emit segmentprojectionfinished(false);
+//       ++segit;
+//   }
+
+}
+
+void SegmentListVIIRSM::ComposeLCCProjection(int inputchannel)
+{
+
+    qDebug() << "SegmentListVIIRSM::ComposeLCCProjection()";
+    QList<Segment *>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentLCCProjection(inputchannel);
+        emit segmentprojectionfinished(false);
+        ++segit;
+    }
+
+    initBrightnessTemp();
+}
+
+void SegmentListVIIRSM::ComposeSGProjection(int inputchannel)
+{
+
+    qDebug() << "SegmentListVIIRSM::ComposeSGProjection()";
+    QList<Segment *>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentSGProjection(inputchannel);
+        emit segmentprojectionfinished(false);
+        ++segit;
+    }
+
+    initBrightnessTemp();
+}
+
+void SegmentListVIIRSM::initBrightnessTemp()
+{
     int height = imageptrs->ptrimageProjection->height();
     int width = imageptrs->ptrimageProjection->width() ;
 
@@ -263,18 +310,6 @@ void SegmentListVIIRSM::ComposeGVProjection(int inputchannel)
     this->maxBrightnessTempProjection = fmax;
 
     qDebug() << QString("----> min max ptrProjectionBrightnessTemp min = %1 max = %2").arg(fmin).arg(fmax);
-
-    //the following code calculates a new LUT that only takes
-    //the pixels in the projection into account and not the complete segment(s).
-//   CalculateProjectionLUT();
-//   segit = segsselected.begin();
-//   while ( segit != segsselected.end() )
-//   {
-//       (*segit)->RecalculateProjection();
-//        emit segmentprojectionfinished(false);
-//       ++segit;
-//   }
-
 
 }
 

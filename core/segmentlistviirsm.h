@@ -24,6 +24,8 @@ public:
     float getMaxBrightnessTempProjection() { return maxBrightnessTempProjection; }
 
     void ComposeGVProjection(int inputchannel);
+    void ComposeLCCProjection(int inputchannel);
+    void ComposeSGProjection(int inputchannel);
 
 private:
     void CalculateLUT();
@@ -36,6 +38,7 @@ private:
     bool bhm_line_float(int x1, int y1, int x2, int y2, float bt1, float bt2, float *canvas, int *canvas1, int dimx);
     void MapInterpolationFloat(float *canvas, int *canvas1, quint16 dimx, quint16 dimy);
     void MapCanvasFloat(float *canvas, int *canvas1, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy);
+    void initBrightnessTemp();
 
     SatelliteList *satlist;
     int lut[256];
