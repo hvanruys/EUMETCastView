@@ -42,17 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
     imagescrollarea->setBackgroundRole(QPalette::Dark);
     imagescrollarea->setWidget(formimage);
 
-    QVBoxLayout *verticalLayout;
-
-    imageWidget = new QWidget(this);
-    verticalLayout = new QVBoxLayout(imageWidget);
-    verticalLayout->addWidget(imagescrollarea);
-    this->infrascales = new InfraScales(this);
-    this->infrascales->setMaximumHeight(80);
-    this->infrascales->hide();
-    verticalLayout->addWidget(infrascales);
-
-
     formgeostationary->SetFormImage(formimage);
     connect(formimage, SIGNAL(moveImage(QPoint, QPoint)), this, SLOT(moveImage(QPoint, QPoint)));
 
@@ -131,6 +120,17 @@ MainWindow::MainWindow(QWidget *parent) :
     imageptrs->sg = new StereoGraphic(this, seglist);
 
     formtoolbox = new FormToolbox(this, formimage, formgeostationary, seglist);
+
+
+    QVBoxLayout *verticalLayout;
+    imageWidget = new QWidget(this);
+    verticalLayout = new QVBoxLayout(imageWidget);
+    verticalLayout->addWidget(imagescrollarea);
+    this->infrascales = new InfraScales(this);
+    this->infrascales->setMaximumHeight(80);
+    this->infrascales->hide();
+    verticalLayout->addWidget(infrascales);
+
     formtoolbox->SetInfraScales(infrascales);
     formimage->SetFormToolbox(formtoolbox);
     formimage->SetInfraScales(infrascales);

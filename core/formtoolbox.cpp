@@ -273,6 +273,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->rdbEquirectin->hide();
     //ui->tabWidget->setTabEnabled(3, false);
 
+    infrascales = NULL;
+
     qDebug() << "constructor formtoolbox";
 
 }
@@ -2812,7 +2814,10 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     ui->comboPOI->blockSignals(true);
     ui->comboPOI->clear();
 
-    //infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
+    imageptrs->ptrProjectionInfra.reset();
+    imageptrs->ptrProjectionBrightnessTemp.reset();
 
     opts.currenttoolbox = index;
     if (index == 0)
