@@ -2124,7 +2124,9 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
 {
     qDebug() << "on_tabWidget_currentChanged(int index) index = " << index;
 
-    infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
+
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2816,6 +2818,7 @@ void FormToolbox::on_toolBox_currentChanged(int index)
 
     if(infrascales != NULL)
         infrascales->hide();
+
     imageptrs->ptrProjectionInfra.reset();
     imageptrs->ptrProjectionBrightnessTemp.reset();
 
