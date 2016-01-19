@@ -2173,7 +2173,8 @@ void FormToolbox::on_tabWidgetVIIRS_currentChanged(int index)
 
     qDebug() << "on_tabWidgetVIIRS_currentChanged(int index) index = " << index;
 
-    infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2364,7 +2365,8 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     int width = imageptrs->ptrimageProjection->width();
     int height = imageptrs->ptrimageProjection->height();
 
-    infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2506,7 +2508,8 @@ void FormToolbox::on_btnCreateLambert_clicked()
     int width = imageptrs->ptrimageProjection->width();
     int height = imageptrs->ptrimageProjection->height();
 
-    infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2592,7 +2595,8 @@ void FormToolbox::on_btnCreateStereo_clicked()
     int width = imageptrs->ptrimageProjection->width();
     int height = imageptrs->ptrimageProjection->height();
 
-    infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2853,7 +2857,8 @@ void FormToolbox::on_toolBox_currentChanged(int index)
 
 void FormToolbox::on_btnGVPClearMap_clicked()
 {
-    infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2864,7 +2869,8 @@ void FormToolbox::on_btnGVPClearMap_clicked()
 
 void FormToolbox::on_btnLCCClearMap_clicked()
 {
-    infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -3088,7 +3094,8 @@ void FormToolbox::on_spbSGRadius_valueChanged(double arg1)
 
 void FormToolbox::on_btnSGClearMap_clicked()
 {
-    infrascales->hide();
+    if(infrascales != NULL)
+        infrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -3201,7 +3208,8 @@ void FormToolbox::on_btnMakeVIIRSImage_clicked()
             return;
         }
 
-        infrascales->hide();
+        if(infrascales != NULL)
+            infrascales->hide();
         ui->btnGVPFalseColor->setChecked(false);
         ui->btnSGFalseColor->setChecked(false);
         ui->btnLCCFalseColor->setChecked(false);
@@ -3894,7 +3902,8 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
     else
     {
         ui->btnGVPFalseColor->setChecked(false);
-        infrascales->hide();
+        if(infrascales != NULL)
+            infrascales->hide();
         ui->btnGVPFalseColor->setChecked(false);
         ui->btnSGFalseColor->setChecked(false);
         ui->btnLCCFalseColor->setChecked(false);
@@ -3932,7 +3941,8 @@ void FormToolbox::on_btnLCCFalseColor_clicked()
     else
     {
         ui->btnLCCFalseColor->setChecked(false);
-        infrascales->hide();
+        if(infrascales != NULL)
+            infrascales->hide();
         ui->btnGVPFalseColor->setChecked(false);
         ui->btnSGFalseColor->setChecked(false);
         ui->btnLCCFalseColor->setChecked(false);
@@ -3970,7 +3980,8 @@ void FormToolbox::on_btnSGFalseColor_clicked()
     else
     {
         ui->btnSGFalseColor->setChecked(false);
-        infrascales->hide();
+        if(infrascales != NULL)
+            infrascales->hide();
         ui->btnGVPFalseColor->setChecked(false);
         ui->btnSGFalseColor->setChecked(false);
         ui->btnLCCFalseColor->setChecked(false);

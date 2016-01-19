@@ -126,6 +126,7 @@ MainWindow::MainWindow(QWidget *parent) :
     imageWidget = new QWidget(this);
     verticalLayout = new QVBoxLayout(imageWidget);
     verticalLayout->addWidget(imagescrollarea);
+    this->infrascales = NULL;
     this->infrascales = new InfraScales(this);
     this->infrascales->setMaximumHeight(80);
     this->infrascales->hide();
