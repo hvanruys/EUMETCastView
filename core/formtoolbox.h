@@ -32,7 +32,7 @@ class FormToolbox : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, AVHRRSatellite *seglist = 0);
+    explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, FormInfraScales *p_forminfrascales = 0, AVHRRSatellite *seglist = 0);
     int getTabWidgetIndex();
     int getTabWidgetVIIRSIndex();
 
@@ -54,14 +54,13 @@ public:
     bool GridOnProjSG();
     void setPOIsettings();
     void setMConfigsettings();
-    void SetDockWidgetInfraScales(FormInfraScales *ptr) { dockinfrascales = ptr; }
 
     ~FormToolbox();
 
 private:
     Ui::FormToolbox *ui;
     FormImage *formimage;
-    FormInfraScales *dockinfrascales;
+    FormInfraScales *forminfrascales;
     FormGeostationary *formgeostationary;
     QFileSystemModel *myEquirectangularModel;
 

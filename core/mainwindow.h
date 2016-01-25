@@ -22,7 +22,6 @@
 #include "imagescrollarea.h"
 #include "segmentimage.h"
 #include "segmentlistgeostationary.h"
-//#include "infrascales.h"
 
 #include "options.h"
 #include "poi.h"
@@ -62,8 +61,7 @@ private:
     MapFieldCyl *mapcyl;
     Globe *globe;
 
-    //InfraScales *infrascales;
-    FormInfraScales *dockwidgetinfrascales;
+    FormInfraScales *forminfrascales;
 
     QTimer *timer;
     QLabel *timeLabel;

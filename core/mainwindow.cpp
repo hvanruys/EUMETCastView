@@ -120,7 +120,13 @@ MainWindow::MainWindow(QWidget *parent) :
     imageptrs->lcc = new LambertConformalConic(this, seglist);
     imageptrs->sg = new StereoGraphic(this, seglist);
 
-    formtoolbox = new FormToolbox(this, formimage, formgeostationary, seglist);
+    QMainWindow::setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    QMainWindow::setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
+    forminfrascales = new FormInfraScales();
+    formtoolbox = new FormToolbox(this, formimage, formgeostationary, forminfrascales, seglist);
 
 
     formimage->SetFormToolbox(formtoolbox);
@@ -152,22 +158,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(seglist, SIGNAL(signalNothingSelected()), formglobecyl, SLOT(slotNothingSelected()));
 
-
-    QMainWindow::setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    QMainWindow::setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
-    QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
-
     createDockWidget();
 
-    dockwidgetinfrascales = new FormInfraScales();
-    dockwidgetinfrascales->setFormImage(formimage);
+    forminfrascales->setFormImage(formimage);
 
-    addDockWidget(Qt::BottomDockWidgetArea, dockwidgetinfrascales);
-    dockwidgetinfrascales->hide();
+    addDockWidget(Qt::BottomDockWidgetArea, forminfrascales);
+    forminfrascales->hide();
 
-    formtoolbox->SetDockWidgetInfraScales(dockwidgetinfrascales);
-    formimage->SetDockWidgetInfraScales(dockwidgetinfrascales);
+    formimage->SetDockWidgetInfraScales(forminfrascales);
 
     ui->stackedWidget->addWidget(formglobecyl);  // index 2
 
@@ -492,14 +490,14 @@ void MainWindow::on_actionCreatePNG_triggered()
             fileName.append(".jpg");
         pm = formimage->returnimageLabelptr()->pixmap();
 
-        if(!dockwidgetinfrascales->isHidden())
+        if(!forminfrascales->isHidden())
         {
             QImage imresult(pm->width(), pm->height() + 80, QImage::Format_RGB32);
 
             QImage im = pm->toImage();
             QPainter painter(&imresult);
 
-            QImage scales = dockwidgetinfrascales->getScalesImage(im.width());
+            QImage scales = forminfrascales->getScalesImage(im.width());
             //QImage scales(im.width(), 80, im.format());
             //scales.fill(Qt::blue);
 
