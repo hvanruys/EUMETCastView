@@ -7,6 +7,7 @@
 extern Options opts;
 extern Poi poi;
 extern SegmentImage *imageptrs;
+extern QFile loggingFile;
 
 class SegmentListGeostationary;
 
@@ -122,22 +123,9 @@ MainWindow::MainWindow(QWidget *parent) :
     formtoolbox = new FormToolbox(this, formimage, formgeostationary, seglist);
 
 
-    QVBoxLayout *verticalLayout;
-    imageWidget = new QWidget(this);
-    verticalLayout = new QVBoxLayout(imageWidget);
-    verticalLayout->addWidget(imagescrollarea);
-    this->infrascales = NULL;
-    this->infrascales = new InfraScales(this);
-    this->infrascales->setMaximumHeight(80);
-    this->infrascales->hide();
-    verticalLayout->addWidget(infrascales);
-
-    formtoolbox->SetInfraScales(infrascales);
     formimage->SetFormToolbox(formtoolbox);
-    formimage->SetInfraScales(infrascales);
     formgeostationary->SetFormToolBox(formtoolbox);
 
-    connect(infrascales, SIGNAL(repaintprojectionimage()), formimage, SLOT(slotRepaintProjectionImage()));
     connect(seglist->seglmeteosat, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmeteosatrss, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     //connect(seglist->seglelectro, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
@@ -164,12 +152,26 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(seglist, SIGNAL(signalNothingSelected()), formglobecyl, SLOT(slotNothingSelected()));
 
-    createDockWindows();
+
+    QMainWindow::setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    QMainWindow::setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
+    createDockWidget();
+
+    dockwidgetinfrascales = new FormInfraScales();
+    dockwidgetinfrascales->setFormImage(formimage);
+
+    addDockWidget(Qt::BottomDockWidgetArea, dockwidgetinfrascales);
+    dockwidgetinfrascales->hide();
+
+    formtoolbox->SetDockWidgetInfraScales(dockwidgetinfrascales);
+    formimage->SetDockWidgetInfraScales(dockwidgetinfrascales);
 
     ui->stackedWidget->addWidget(formglobecyl);  // index 2
 
-//    ui->stackedWidget->addWidget(imagescrollarea);  // index 3
-    ui->stackedWidget->addWidget(imageWidget);  // index 3
+    ui->stackedWidget->addWidget(imagescrollarea);  // index 3
     ui->stackedWidget->setCurrentIndex(0);
 
     connect(seglist->seglmetop, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -237,7 +239,7 @@ void MainWindow::slotSwitchStackedWindow(int ind)
     ui->stackedWidget->setCurrentIndex(ind);
 }
 
-void MainWindow::createDockWindows()
+void MainWindow::createDockWidget()
 {
     dockwidget = new QDockWidget(tr("Toolbox"),this,Qt::Widget|Qt::WindowStaysOnTopHint|Qt::X11BypassWindowManagerHint);
     dockwidget->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
@@ -250,8 +252,6 @@ void MainWindow::createDockWindows()
     //dockwidget->close();
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
 }
-
-
 
 void MainWindow::timerDone(void)
 {
@@ -317,6 +317,7 @@ MainWindow::~MainWindow()
     }
 
     qDebug() << "================closing MainWindow================";
+    loggingFile.close();
 
 }
 
@@ -491,14 +492,14 @@ void MainWindow::on_actionCreatePNG_triggered()
             fileName.append(".jpg");
         pm = formimage->returnimageLabelptr()->pixmap();
 
-        if(!infrascales->isHidden())
+        if(!dockwidgetinfrascales->isHidden())
         {
             QImage imresult(pm->width(), pm->height() + 80, QImage::Format_RGB32);
 
             QImage im = pm->toImage();
             QPainter painter(&imresult);
 
-            QImage scales = infrascales->getScalesImage(im.width());
+            QImage scales = dockwidgetinfrascales->getScalesImage(im.width());
             //QImage scales(im.width(), 80, im.format());
             //scales.fill(Qt::blue);
 

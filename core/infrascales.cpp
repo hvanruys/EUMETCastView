@@ -150,6 +150,9 @@ void InfraScales::mouseReleaseEvent( QMouseEvent *e )
     int height = imageptrs->ptrimageProjection->height();
     int width = imageptrs->ptrimageProjection->width();
 
+    if(imageptrs->ptrProjectionInfra.isNull())
+        return;
+
     int intlow = (int)((lowlimit) * 255.0);
     int inthigh = (int)((highlimit) * 255.0);
     //float delta = highlimittemp - lowlimittemp; //this->maxbtemp - this->minbtemp;

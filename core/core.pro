@@ -71,7 +71,8 @@ SOURCES += main.cpp \
     poi.cpp \
     equirectangular.cpp \
     infrascales.cpp \
-    infrawidget.cpp
+    infrawidget.cpp \
+    forminfrascales.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -131,7 +132,8 @@ HEADERS  += mainwindow.h \
     equirectangular.h \
     infrascales.h \
     infrawidget.h \
-    colormaps.h
+    colormaps.h \
+    forminfrascales.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

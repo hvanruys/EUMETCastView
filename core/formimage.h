@@ -8,9 +8,10 @@
 #include "avhrrsatellite.h"
 #include "generalverticalperspective.h"
 #include "formtoolbox.h"
-#include "infrascales.h"
+#include "forminfrascales.h"
 
 class FormToolbox;
+class FormInfraScales;
 class MyImageLabel;
 
 class FormImage : public QWidget
@@ -37,7 +38,7 @@ public:
     bool toggleOverlayMeteosat();
     bool toggleOverlayProjection();
     void SetFormToolbox(FormToolbox *ptr) { formtoolbox = ptr; }
-    void SetInfraScales(InfraScales *ptr) { infrascales = ptr; }
+    void SetDockWidgetInfraScales(FormInfraScales *ptr) { dockinfrascales = ptr; }
     void showInfraScales() { changeinfraprojection = true; }
 
     void displayImage(eImageType channel);
@@ -83,7 +84,7 @@ private:
     SatelliteList *sats;
     AVHRRSatellite *segs;
     FormToolbox *formtoolbox;
-    InfraScales *infrascales;
+    FormInfraScales *dockinfrascales;
 
     double metop_gamma_ch[5], noaa_gamma_ch[5], gac_gamma_ch[5], hrp_gamma_ch[5];
     double metop_gammaEqual_ch[5], noaa_gammaEqual_ch[5], gac_gammaEqual_ch[5], hrp_gammaEqual_ch[5];

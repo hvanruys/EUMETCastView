@@ -169,6 +169,8 @@ void FormImage::setPixmapToLabelDNB(bool settoolboxbuttons)
 
 void FormImage::displayImage(eImageType channel)
 {
+    qDebug() << QString("FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
+
     this->channelshown = channel;
 
     g_mutex.lock();
@@ -2655,7 +2657,7 @@ void FormImage::ToInfraColorProjection()
     int height = imageptrs->ptrimageProjection->height();
     int width = imageptrs->ptrimageProjection->width();
 
-    infrascales->getMinMaxTemp(&mintemp, &maxtemp);
+    dockinfrascales->getMinMaxTemp(&mintemp, &maxtemp);
 
     qDebug() << QString("FormImage::ToInfraColorProjection() min temp = %1 max temp = %2").arg(mintemp).arg(maxtemp);
 
@@ -2704,7 +2706,7 @@ void FormImage::ToInfraColorProjection()
             float fval = (btemp - min)/delta;
             if(btemp > 0)
             {
-                row[x] = infrascales->getColor(fval).rgb();
+                row[x] = dockinfrascales->getColor(fval).rgb();
             }
 
         }

@@ -273,7 +273,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->rdbEquirectin->hide();
     //ui->tabWidget->setTabEnabled(3, false);
 
-    infrascales = NULL;
+    //infrascales = NULL;
 
     qDebug() << "constructor formtoolbox";
 
@@ -2124,12 +2124,17 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
 {
     qDebug() << "on_tabWidget_currentChanged(int index) index = " << index;
 
-    if(infrascales != NULL)
-        infrascales->hide();
+//    if(ui->tabWidgetVIIRS->currentIndex() == 0)
+//        qDebug() << "begin ui->tabWidgetVIIRS->currentIndex() == 0";
+
+    if(!dockinfrascales->isHidden())
+        dockinfrascales->hide();
 
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
+
+    //qDebug() << "1";
 
     if (index == TAB_AVHRR) //AVHHR
     {
@@ -2137,10 +2142,23 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     }
     else if (index == TAB_VIIRS) // VIIRS
     {
+        //qDebug() << "2";
+
+        //qDebug() << "index == TAB_VIIRS";
         if(ui->tabWidgetVIIRS->currentIndex() == 0)
+        {
+            //qDebug() << "3";
+
+            //qDebug() << "ui->tabWidgetVIIRS->currentIndex() == 0";
             formimage->displayImage(IMAGE_VIIRS_M);
+        }
         else
+        {
+            //qDebug() << "4";
+
+            //qDebug() << "ui->tabWidgetVIIRS->currentIndex() == 1";
             formimage->displayImage(IMAGE_VIIRS_DNB);
+        }
     }
     else if (index == TAB_GEOSTATIONARY) // Geostationair
     {
@@ -2173,8 +2191,8 @@ void FormToolbox::on_tabWidgetVIIRS_currentChanged(int index)
 
     qDebug() << "on_tabWidgetVIIRS_currentChanged(int index) index = " << index;
 
-    if(infrascales != NULL)
-        infrascales->hide();
+    if(!dockinfrascales->isHidden())
+        dockinfrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2365,8 +2383,8 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     int width = imageptrs->ptrimageProjection->width();
     int height = imageptrs->ptrimageProjection->height();
 
-    if(infrascales != NULL)
-        infrascales->hide();
+    if(!dockinfrascales->isHidden())
+        dockinfrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2413,22 +2431,22 @@ void FormToolbox::initializeScales()
     {
         copyProjectionImage();
 
-        infrascales->initializeLowHigh();
-        infrascales->setMinMaxTemp( segs->seglviirsm->getMinBrightnessTempProjection(), segs->seglviirsm->getMaxBrightnessTempProjection());
+        dockinfrascales->initializeLowHigh();
+        dockinfrascales->setMinMaxTemp( segs->seglviirsm->getMinBrightnessTempProjection(), segs->seglviirsm->getMaxBrightnessTempProjection());
 
         qDebug() << QString("setMinMaxTemp %1 %2").arg(segs->seglviirsm->getMinBrightnessTempProjection()).arg(segs->seglviirsm->getMaxBrightnessTempProjection());
 
         QList<bool> ilist = this->getVIIRSMInvertList();
         if(blist.at(12))
-            infrascales->setInverse(ilist.at(11));
+            dockinfrascales->setInverse(ilist.at(11));
         else if(blist.at(13))
-            infrascales->setInverse(ilist.at(12));
+            dockinfrascales->setInverse(ilist.at(12));
         else if(blist.at(14))
-            infrascales->setInverse(ilist.at(13));
+            dockinfrascales->setInverse(ilist.at(13));
         else if(blist.at(15))
-            infrascales->setInverse(ilist.at(14));
+            dockinfrascales->setInverse(ilist.at(14));
         else if(blist.at(16))
-            infrascales->setInverse(ilist.at(15));
+            dockinfrascales->setInverse(ilist.at(15));
     }
 
 }
@@ -2508,8 +2526,9 @@ void FormToolbox::on_btnCreateLambert_clicked()
     int width = imageptrs->ptrimageProjection->width();
     int height = imageptrs->ptrimageProjection->height();
 
-    if(infrascales != NULL)
-        infrascales->hide();
+    if(!dockinfrascales->isHidden())
+        dockinfrascales->hide();
+
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2595,8 +2614,8 @@ void FormToolbox::on_btnCreateStereo_clicked()
     int width = imageptrs->ptrimageProjection->width();
     int height = imageptrs->ptrimageProjection->height();
 
-    if(infrascales != NULL)
-        infrascales->hide();
+    if(!dockinfrascales->isHidden())
+        dockinfrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2820,8 +2839,8 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     ui->comboPOI->blockSignals(true);
     ui->comboPOI->clear();
 
-    if(infrascales != NULL)
-        infrascales->hide();
+//    if(!dockinfrascales->isHidden())
+//        dockinfrascales->hide();
 
     imageptrs->ptrProjectionInfra.reset();
     imageptrs->ptrProjectionBrightnessTemp.reset();
@@ -2857,8 +2876,8 @@ void FormToolbox::on_toolBox_currentChanged(int index)
 
 void FormToolbox::on_btnGVPClearMap_clicked()
 {
-    if(infrascales != NULL)
-        infrascales->hide();
+    if(!dockinfrascales->isHidden())
+        dockinfrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -2869,8 +2888,8 @@ void FormToolbox::on_btnGVPClearMap_clicked()
 
 void FormToolbox::on_btnLCCClearMap_clicked()
 {
-    if(infrascales != NULL)
-        infrascales->hide();
+    if(!dockinfrascales->isHidden())
+        dockinfrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -3094,8 +3113,8 @@ void FormToolbox::on_spbSGRadius_valueChanged(double arg1)
 
 void FormToolbox::on_btnSGClearMap_clicked()
 {
-    if(infrascales != NULL)
-        infrascales->hide();
+    if(!dockinfrascales->isHidden())
+        dockinfrascales->hide();
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
@@ -3208,8 +3227,8 @@ void FormToolbox::on_btnMakeVIIRSImage_clicked()
             return;
         }
 
-        if(infrascales != NULL)
-            infrascales->hide();
+        if(!dockinfrascales->isHidden())
+            dockinfrascales->hide();
         ui->btnGVPFalseColor->setChecked(false);
         ui->btnSGFalseColor->setChecked(false);
         ui->btnLCCFalseColor->setChecked(false);
@@ -3883,7 +3902,7 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
         return;
     }
 
-    if(infrascales->isHidden())
+    if(dockinfrascales->isHidden())
     {
         QList<bool> blist = this->getVIIRSMBandList();
 //        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
@@ -3891,8 +3910,8 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
                 (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
         {
             ui->btnGVPFalseColor->setChecked(true);
-            infrascales->show();
-            infrascales->initializeLowHigh();
+            dockinfrascales->show();
+            dockinfrascales->initializeLowHigh();
             formimage->ToInfraColorProjection();
             formimage->displayImage(IMAGE_PROJECTION);
         }
@@ -3902,8 +3921,8 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
     else
     {
         ui->btnGVPFalseColor->setChecked(false);
-        if(infrascales != NULL)
-            infrascales->hide();
+        if(!dockinfrascales->isHidden())
+            dockinfrascales->hide();
         ui->btnGVPFalseColor->setChecked(false);
         ui->btnSGFalseColor->setChecked(false);
         ui->btnLCCFalseColor->setChecked(false);
@@ -3922,7 +3941,7 @@ void FormToolbox::on_btnLCCFalseColor_clicked()
         return;
     }
 
-    if(infrascales->isHidden())
+    if(dockinfrascales->isHidden())
     {
         QList<bool> blist = this->getVIIRSMBandList();
 //        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
@@ -3930,8 +3949,8 @@ void FormToolbox::on_btnLCCFalseColor_clicked()
                 (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
         {
             ui->btnLCCFalseColor->setChecked(true);
-            infrascales->show();
-            infrascales->initializeLowHigh();
+            dockinfrascales->show();
+            dockinfrascales->initializeLowHigh();
             formimage->ToInfraColorProjection();
             formimage->displayImage(IMAGE_PROJECTION);
         }
@@ -3941,8 +3960,8 @@ void FormToolbox::on_btnLCCFalseColor_clicked()
     else
     {
         ui->btnLCCFalseColor->setChecked(false);
-        if(infrascales != NULL)
-            infrascales->hide();
+        if(!dockinfrascales->isHidden())
+            dockinfrascales->hide();
         ui->btnGVPFalseColor->setChecked(false);
         ui->btnSGFalseColor->setChecked(false);
         ui->btnLCCFalseColor->setChecked(false);
@@ -3961,7 +3980,7 @@ void FormToolbox::on_btnSGFalseColor_clicked()
         return;
     }
 
-    if(infrascales->isHidden())
+    if(dockinfrascales->isHidden())
     {
         QList<bool> blist = this->getVIIRSMBandList();
 //        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
@@ -3969,8 +3988,8 @@ void FormToolbox::on_btnSGFalseColor_clicked()
                 (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
         {
             ui->btnSGFalseColor->setChecked(true);
-            infrascales->show();
-            infrascales->initializeLowHigh();
+            dockinfrascales->show();
+            dockinfrascales->initializeLowHigh();
             formimage->ToInfraColorProjection();
             formimage->displayImage(IMAGE_PROJECTION);
         }
@@ -3980,8 +3999,8 @@ void FormToolbox::on_btnSGFalseColor_clicked()
     else
     {
         ui->btnSGFalseColor->setChecked(false);
-        if(infrascales != NULL)
-            infrascales->hide();
+        if(!dockinfrascales->isHidden())
+            dockinfrascales->hide();
         ui->btnGVPFalseColor->setChecked(false);
         ui->btnSGFalseColor->setChecked(false);
         ui->btnLCCFalseColor->setChecked(false);

@@ -32,8 +32,6 @@ protected:
     void paintEvent( QPaintEvent * );
     void resizeEvent(QResizeEvent * e);
     void hideEvent(QHideEvent * event);
-signals:
-    void repaintprojectionimage();
 public slots:
 
 private:
@@ -55,6 +53,9 @@ private:
     float maxprojectiontemp; // maximum temp. for this projection
     float deltaprojectiontemp; // = maxprojectiontemp - minprojectiontemp
     bool inverse;
+signals:
+    void repaintprojectionimage();
+
 };
 
 #endif // INFRASCALES_H

@@ -185,8 +185,6 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
         s[j] = (float)((j + 0.5)/16.0);
 
 
-    cout  << "Calc geo lat and lon" << endl;
-
     for(int itrack = 0; itrack < 48; itrack++)
     {
         for(int iscan = 0; iscan < 200; iscan++)

@@ -32,6 +32,12 @@ void InfraWidget::drawInfraWidget(QPainter *paint, int x, int y, int width, int 
     pen.setWidth(1);
     paint->setPen(pen);
 
+//    qDebug() << QString("InfraWidget::drawInfraWidget(QPainter *paint, int x, int y, int width, int height)");
+//    qDebug() << QString("magma = %1").arg(opts.colormapMagma);
+//    qDebug() << QString("inferno = %1").arg(opts.colormapInferno);
+//    qDebug() << QString("plasma = %1").arg(opts.colormapPlasma);
+//    qDebug() << QString("viridis = %1").arg(opts.colormapViridis);
+
     //painter.drawRect(this->geometry());
 
     QLinearGradient gradientcol;

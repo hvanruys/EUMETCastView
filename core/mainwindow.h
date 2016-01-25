@@ -14,6 +14,7 @@
 #include "dialogpreferences.h"
 #include "satellite.h"
 #include "formgeostationary.h"
+#include "forminfrascales.h"
 
 #include "mapcyl.h"
 #include "globe.h"
@@ -21,7 +22,7 @@
 #include "imagescrollarea.h"
 #include "segmentimage.h"
 #include "segmentlistgeostationary.h"
-#include "infrascales.h"
+//#include "infrascales.h"
 
 #include "options.h"
 #include "poi.h"
@@ -45,7 +46,7 @@ public:
 private:
 
     void setupStatusBar();
-    void createDockWindows();
+    void createDockWidget();
     void closeEvent(QCloseEvent *event);
 
     Ui::MainWindow *ui;
@@ -61,8 +62,8 @@ private:
     MapFieldCyl *mapcyl;
     Globe *globe;
 
-    QWidget *imageWidget;
-    InfraScales *infrascales;
+    //InfraScales *infrascales;
+    FormInfraScales *dockwidgetinfrascales;
 
     QTimer *timer;
     QLabel *timeLabel;

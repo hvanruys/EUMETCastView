@@ -21,59 +21,84 @@ Options opts;
 Poi poi;
 SegmentImage *imageptrs;
 gshhsData *gshhsdata;
+QFile loggingFile;
+QTextStream out(&loggingFile);
+bool doLogging;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    QByteArray localMsg = msg.toLocal8Bit();
 
 
 #ifdef NDEBUG
    // release mode code
+    QString strout;
     switch (type) {
     case QtDebugMsg:
-        fprintf(stderr, "Release Debug: %s\n", localMsg.constData());
+        strout = "Release Debug: " + msg + "\n";
         break;
     case QtInfoMsg:
-        fprintf(stderr, "Release Info: %s\n", localMsg.constData());
+        strout = "Release Info: " + msg + "\n";
         break;
     case QtWarningMsg:
-        fprintf(stderr, "Release Warning: %s\n", localMsg.constData());
+        strout = "Release Warning: " + msg + "\n";
         break;
     case QtCriticalMsg:
-        fprintf(stderr, "Release Critical: %s\n", localMsg.constData());
+        strout = "Release Critical: " + msg + "\n";
         break;
     case QtFatalMsg:
-        fprintf(stderr, "Release Fatal: %s\n", localMsg.constData());
+        strout = "Release Fatal: " + msg + "\n";
         abort();
     }
+
+    if(doLogging)
+    {
+        out << strout;
+        out.flush();
+    }
+    else
+        fprintf(stderr, strout.toStdString().c_str());
+
 #else
   // debug mode code
-
+    QString strout;
     switch (type) {
     case QtDebugMsg:
-        fprintf(stderr, "Debug Debug: %s\n", localMsg.constData());
-        //fprintf(stderr, "           : %s:%u\n", context.file, context.line);
-        //fprintf(stderr, "           : %s:%u, %s\n", context.file, context.line, context.function);
+        strout = "Debug Debug: " + msg + "\n";
         break;
     case QtInfoMsg:
-        fprintf(stderr, "Debug Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        strout = "Debug Info: " + msg + "\n";
         break;
     case QtWarningMsg:
-        fprintf(stderr, "Debug Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        strout = "Debug Warning: " + msg + "\n";
         break;
     case QtCriticalMsg:
-        fprintf(stderr, "Debug Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        strout = "Debug Critical: " + msg + "\n";
         break;
     case QtFatalMsg:
-        fprintf(stderr, "Debug Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        strout = "Debug Fatal: " + msg + "\n";
         abort();
     }
+
+    if(doLogging)
+    {
+        out << strout;
+        out.flush();
+    }
+    else
+        fprintf(stderr, strout.toStdString().c_str());
+
+
 #endif
 
 }
 
 int main(int argc, char *argv[])
 {
+    doLogging = false;
+    loggingFile.setFileName("logging.txt");
+    if (!loggingFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        return 0;
+
     qInstallMessageHandler(myMessageOutput);
 
     QApplication app(argc, argv);
@@ -85,6 +110,9 @@ int main(int argc, char *argv[])
 
     app.setStyle(QStyleFactory::create("Fusion"));
 
+    if (QCoreApplication::arguments().contains(QStringLiteral("--logging")) ||
+        QCoreApplication::arguments().contains(QStringLiteral("-l")) )
+        doLogging = true;
 
     opts.Initialize();
     poi.Initialize();

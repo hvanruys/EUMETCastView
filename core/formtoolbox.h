@@ -2,11 +2,12 @@
 #define FORMTOOLBOX_H
 
 #include <QWidget>
+#include <QDockWidget>
 #include <QFileSystemModel>
 #include "formimage.h"
 #include "formmapcyl.h"
 #include "formgeostationary.h"
-#include "infrascales.h"
+#include "forminfrascales.h"
 
 #define TAB_AVHRR 0
 #define TAB_VIIRS 1
@@ -24,7 +25,7 @@ namespace Ui {
 
 class FormImage;
 class FormGeostationary;
-class InfraScales;
+class FormInfraScales;
 
 class FormToolbox : public QWidget
 {
@@ -53,16 +54,14 @@ public:
     bool GridOnProjSG();
     void setPOIsettings();
     void setMConfigsettings();
-    void SetInfraScales(InfraScales *ptr) { infrascales = ptr; }
-
-
+    void SetDockWidgetInfraScales(FormInfraScales *ptr) { dockinfrascales = ptr; }
 
     ~FormToolbox();
 
 private:
     Ui::FormToolbox *ui;
     FormImage *formimage;
-    InfraScales *infrascales;
+    FormInfraScales *dockinfrascales;
     FormGeostationary *formgeostationary;
     QFileSystemModel *myEquirectangularModel;
 

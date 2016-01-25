@@ -292,7 +292,6 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     }
 
 */
-    cout  << "Calc geo lat and lon" << endl;
     int pscan = 0;
     for(int i = 0; i < 64 ; i++)
     {

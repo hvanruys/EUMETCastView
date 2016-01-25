@@ -3401,15 +3401,15 @@
             <item>
              <widget class="QToolBox" name="toolBox">
               <property name="currentIndex">
-               <number>2</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>398</width>
-                 <height>506</height>
+                 <width>396</width>
+                 <height>541</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -4040,20 +4040,6 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnLCCClearMap">
-                    <property name="text">
-                     <string>Clear</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="btnOverlayProjectionLCC">
-                    <property name="text">
-                     <string>Overlay</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <widget class="QPushButton" name="btnLCCFalseColor">
                     <property name="text">
                      <string>False Color</string>
@@ -4062,6 +4048,50 @@
                      <bool>true</bool>
                     </property>
                    </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_45">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_73">
+                  <item>
+                   <widget class="QPushButton" name="btnOverlayProjectionLCC">
+                    <property name="text">
+                     <string>Overlay</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnLCCClearMap">
+                    <property name="text">
+                     <string>Clear</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_49">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -4641,13 +4671,6 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnOverlayProjectionSG">
-                    <property name="text">
-                     <string>Overlay</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <widget class="QPushButton" name="btnSGHome">
                     <property name="text">
                      <string>Home</string>
@@ -4681,6 +4704,13 @@
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_47">
+                  <item>
+                   <widget class="QPushButton" name="btnOverlayProjectionSG">
+                    <property name="text">
+                     <string>Overlay</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item>
                    <widget class="QPushButton" name="btnSGClearMap">
                     <property name="text">

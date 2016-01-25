@@ -13,6 +13,8 @@ Options::Options()
 
 void Options::Initialize()
 {
+    qDebug() << "Options::Initialize()";
+
     QSettings settings( "EUMETCastView.ini", QSettings::IniFormat);
     obslon = settings.value("/observer/longitude", 0.0 ).toDouble();
     obslat = settings.value("/observer/latitude", 0.0 ).toDouble();
@@ -33,7 +35,6 @@ void Options::Initialize()
     noaa_invlist=settings.value("/segments/noaa_invlist").value<QStringList>();
     gac_invlist=settings.value("/segments/gac_invlist").value<QStringList>();
     hrp_invlist=settings.value("/segments/hrp_invlist").value<QStringList>();
-    viirs_invlist=settings.value("/segments/viirs_invlist").value<QStringList>();
 
     sattrackinimage=settings.value("/segments/sattrackinimage", false ).toBool();
 
@@ -79,28 +80,27 @@ void Options::Initialize()
     channellistnoaa=settings.value("/segments/channellistnoaa").value<QStringList>();
     channellistgac=settings.value("/segments/channellistGAC").value<QStringList>();
     channellisthrp=settings.value("/segments/channellistHRP").value<QStringList>();
-    channellistviirs=settings.value("/segments/channellistVIIRS").value<QStringList>();
 
     stationlistname=settings.value("/window/stationlistname").value<QStringList>();
     stationlistlon=settings.value("/window/stationlistlon").value<QStringList>();
     stationlistlat=settings.value("/window/stationlistlat").value<QStringList>();
-    backgroundimage2D=settings.value("/window/backgroundimage2D", "").value<QString>();
-    backgroundimage3D=settings.value("/window/backgroundimage3D", "").value<QString>();
+    backgroundimage2D=settings.value("/window/backgroundimage2D", "images/Topography.jpg").value<QString>();
+    backgroundimage3D=settings.value("/window/backgroundimage3D", "images/NE2_50M_SR_W_4096.jpg").value<QString>();
     tlesources=settings.value("/satellite/tlesources").value<QStringList>();
 
-    gshhsglobe1=settings.value("/window/gshhsglobe1", "").value<QString>();
-    gshhsglobe2=settings.value("/window/gshhsglobe2", "").value<QString>();
-    gshhsglobe3=settings.value("/window/gshhsglobe3", "").value<QString>();
-    gshhsoverlay1=settings.value("/window/gshhsoverlay1", "").value<QString>();
-    gshhsoverlay2=settings.value("/window/gshhsoverlay2", "").value<QString>();
+    gshhsglobe1=settings.value("/window/gshhsglobe1", "gshhs2_3_4/gshhs_i.b").value<QString>();
+    gshhsglobe2=settings.value("/window/gshhsglobe2", "gshhs2_3_4/wdb_borders_i.b").value<QString>();
+    gshhsglobe3=settings.value("/window/gshhsglobe3", "gshhs2_3_4/wdb_rivers_i.b").value<QString>();
+    gshhsoverlay1=settings.value("/window/gshhsoverlay1", "gshhs2_3_4/gshhs_i.b").value<QString>();
+    gshhsoverlay2=settings.value("/window/gshhsoverlay2", "gshhs2_3_4/wdb_borders_i.b").value<QString>();
     gshhsoverlay3=settings.value("/window/gshhsoverlay3", "").value<QString>();
 
-    skyboxup=settings.value("/window/skyboxup", "").value<QString>();
-    skyboxdown=settings.value("/window/skyboxdown", "").value<QString>();
-    skyboxleft=settings.value("/window/skyboxleft", "").value<QString>();
-    skyboxright=settings.value("/window/skyboxright", "").value<QString>();
-    skyboxfront=settings.value("/window/skyboxfront", "").value<QString>();
-    skyboxback=settings.value("/window/skyboxback", "").value<QString>();
+    skyboxup=settings.value("/window/skyboxup", "images/ulukai/corona_up.png").value<QString>();
+    skyboxdown=settings.value("/window/skyboxdown", "images/ulukai/corona_dn.png").value<QString>();
+    skyboxleft=settings.value("/window/skyboxleft", "images/ulukai/corona_lf.png").value<QString>();
+    skyboxright=settings.value("/window/skyboxright", "images/ulukai/corona_rt.png").value<QString>();
+    skyboxfront=settings.value("/window/skyboxfront", "images/ulukai/corona_ft.png").value<QString>();
+    skyboxback=settings.value("/window/skyboxback", "images/ulukai/corona_bk.png").value<QString>();
 
     sathorizoncolor=settings.value("/window/sathorizoncolor", "#ffff00").value<QString>();
     sattrackcolor=settings.value("/window/sattrackcolor", "#dcdc00").value<QString>();
@@ -108,19 +108,19 @@ void Options::Initialize()
     satsegmentcolor=settings.value("/window/satsegmentcolor", "#00aa00").value<QString>();
     satsegmentcolorsel=settings.value("/window/satsegmentcolorsel", "#ff0e42").value<QString>();
 
-    globeoverlaycolor1=settings.value("/window/globeoverlaycolor1", "#aa0000").value<QString>();
-    globeoverlaycolor2=settings.value("/window/globeoverlaycolor2", "#7c0000").value<QString>();
-    globeoverlaycolor3=settings.value("/window/globeoverlaycolor3", "#670000").value<QString>();
-    imageoverlaycolor1=settings.value("/window/imageoverlaycolor1", "#aa0000").value<QString>();
-    imageoverlaycolor2=settings.value("/window/imageoverlaycolor2", "#7c0000").value<QString>();
-    imageoverlaycolor3=settings.value("/window/imageoverlaycolor3", "#670000").value<QString>();
+    globeoverlaycolor1=settings.value("/window/globeoverlaycolor1", "#afaf47").value<QString>();
+    globeoverlaycolor2=settings.value("/window/globeoverlaycolor2", "#898969").value<QString>();
+    globeoverlaycolor3=settings.value("/window/globeoverlaycolor3", "#54686d").value<QString>();
+    imageoverlaycolor1=settings.value("/window/imageoverlaycolor1", "#959559").value<QString>();
+    imageoverlaycolor2=settings.value("/window/imageoverlaycolor2", "#929274").value<QString>();
+    imageoverlaycolor3=settings.value("/window/imageoverlaycolor3", "#63696f").value<QString>();
 
     globelonlatcolor=settings.value("/window/globelonlatcolor", "#b9b9b9").value<QString>();
-    maplccextentcolor=settings.value("/window/maplccextentcolor", "#b9b9b9").value<QString>();
-    mapgvpextentcolor=settings.value("/window/mapgvpextentcolor", "#b9b9b9").value<QString>();
-    projectionoverlaycolor1=settings.value("/window/projectionoverlaycolor1", "#b9b9b9").value<QString>();
-    projectionoverlaycolor2=settings.value("/window/projectionoverlaycolor2", "#b9b9b9").value<QString>();
-    projectionoverlaycolor3=settings.value("/window/projectionoverlaycolor3", "#b9b9b9").value<QString>();
+    maplccextentcolor=settings.value("/window/maplccextentcolor", "#152ce7").value<QString>();
+    mapgvpextentcolor=settings.value("/window/mapgvpextentcolor", "#dc2cc2").value<QString>();
+    projectionoverlaycolor1=settings.value("/window/projectionoverlaycolor1", "#a0a351").value<QString>();
+    projectionoverlaycolor2=settings.value("/window/projectionoverlaycolor2", "#7d7b60").value<QString>();
+    projectionoverlaycolor3=settings.value("/window/projectionoverlaycolor3", "#75749b").value<QString>();
     projectionoverlaylonlatcolor=settings.value("/window/projectionoverlaylonlatcolor", "#b9b9b9").value<QString>();
 
     smoothprojectiontype = settings.value("/window/smoothprojectiontype", 0 ).toInt();
@@ -139,8 +139,8 @@ void Options::Initialize()
     dirremote = settings.value("/window/dirremote", "").value<QString>();
     udpmessages = settings.value("/window/udpmessages", false).toBool();
 
-    gshhsglobe1On = settings.value("/window/gshhsglobe1on", false ).toBool();
-    gshhsglobe2On = settings.value("/window/gshhsglobe2on", false ).toBool();
+    gshhsglobe1On = settings.value("/window/gshhsglobe1on", true ).toBool();
+    gshhsglobe2On = settings.value("/window/gshhsglobe2on", true ).toBool();
     gshhsglobe3On = settings.value("/window/gshhsglobe3on", false ).toBool();
     graytextureOn = settings.value("/window/graytextureon", false ).toBool();
     ephemsplittersizes = settings.value("/ephemwindow/splitterSizes").toByteArray(); // .value<QByteArray>();
@@ -234,8 +234,6 @@ void Options::Initialize()
     colormapInferno = settings.value("/projection/colormapinferno", false ).toBool();
     colormapPlasma = settings.value("/projection/colormapplasma", true ).toBool();
     colormapViridis = settings.value("/projection/colormapviridis", false ).toBool();
-
-
 
     checkStringListValues();
     fbo_changed = false;
@@ -343,7 +341,6 @@ void Options::Save()
     settings.setValue("/segments/noaa_invlist", noaa_invlist);
     settings.setValue("/segments/gac_invlist", gac_invlist);
     settings.setValue("/segments/hrp_invlist", hrp_invlist);
-    settings.setValue("/segments/viirs_invlist", viirs_invlist);
 
     settings.setValue( "/segments/sattrackinimage", sattrackinimage );
 
@@ -351,7 +348,6 @@ void Options::Save()
     settings.setValue("/segments/channellistnoaa", channellistnoaa);
     settings.setValue("/segments/channellistGAC", channellistgac);
     settings.setValue("/segments/channellistHRP", channellisthrp);
-    settings.setValue("/segments/channellistVIIRS", channellistviirs);
 
     settings.setValue("/window/stationlistname", stationlistname );
     settings.setValue("/window/stationlistlon", stationlistlon );

@@ -40,7 +40,7 @@ public:
     int nbrofhours;
 
 
-    QStringList metop_invlist, noaa_invlist, gac_invlist, hrp_invlist, viirs_invlist;
+    QStringList metop_invlist, noaa_invlist, gac_invlist, hrp_invlist;
     bool sattrackinimage;
 
     double getObsLat() { return(obslat); }
@@ -57,7 +57,6 @@ public:
     QStringList channellistnoaa;
     QStringList channellistgac;
     QStringList channellisthrp;
-    QStringList channellistviirs;
 
     QStringList stationlistname;
     QStringList stationlistlon;
