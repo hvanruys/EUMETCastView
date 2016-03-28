@@ -62,10 +62,8 @@ public:
     QStringList GetOverviewSegmentsMeteosat();
     QStringList GetOverviewSegmentsMeteosatRss();
     QStringList GetOverviewSegmentsMeteosat7();
-    // QStringList GetOverviewSegmentsElectro();
     QStringList GetOverviewSegmentsGOES13();
     QStringList GetOverviewSegmentsGOES15();
-    QStringList GetOverviewSegmentsMTSAT();
     QStringList GetOverviewSegmentsFY2E();
     QStringList GetOverviewSegmentsFY2G();
     QStringList GetOverviewSegmentsH8();
@@ -88,10 +86,8 @@ public:
     //SegmentListGeostationary *seglelectro;
     SegmentListGeostationary *seglgoes13dc3;
     SegmentListGeostationary *seglgoes15dc3;
-    SegmentListGeostationary *seglmtsatdc3;
     SegmentListGeostationary *seglgoes13dc4;
     SegmentListGeostationary *seglgoes15dc4;
-    SegmentListGeostationary *seglmtsatdc4;
     SegmentListGeostationary *seglfy2e;
     SegmentListGeostationary *seglfy2g;
     SegmentListGeostationary *seglh8;
@@ -99,13 +95,10 @@ public:
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmeteosat;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmeteosatrss;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmet7;
-    //QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapelectro;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes13dc3;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes15dc3;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmtsatdc3;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes13dc4;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes15dc4;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmtsatdc4;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2e;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2g;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmaph8;

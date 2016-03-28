@@ -88,10 +88,6 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         connect(&seglist->seglgoes15dc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
     }
-    for( int i = 0; i < 6; i++)
-    {
-        connect(&seglist->seglmtsatdc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-    }
 
     for( int i = 0; i < 7; i++)
     {
@@ -100,10 +96,6 @@ MainWindow::MainWindow(QWidget *parent) :
     for( int i = 0; i < 7; i++)
     {
         connect(&seglist->seglgoes15dc4->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-    }
-    for( int i = 0; i < 6; i++)
-    {
-        connect(&seglist->seglmtsatdc4->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
     }
 
     connect(seglist->seglfy2e, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateMeteosat()));
@@ -138,10 +130,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglmet7, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes13dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes15dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglmtsatdc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes13dc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes15dc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglmtsatdc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglfy2e, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglfy2g, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglh8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));

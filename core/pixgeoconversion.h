@@ -65,9 +65,6 @@ const long    LOFF_NONHRV_MET7  =        2500;      /* scaling coefficients (see
 const long    COFF_NONHRV_GOES  =        1408;      /* scaling coefficients (see note above)  */
 const long    LOFF_NONHRV_GOES  =        1408;      /* scaling coefficients (see note above)  */
 
-const long    COFF_NONHRV_MTSAT =        1376;      /* scaling coefficients (see note above)  */
-const long    LOFF_NONHRV_MTSAT =        1376;      /* scaling coefficients (see note above)  */
-
 const long    COFF_NONHRV_H8 =        2750;      /* scaling coefficients (see note above)  */
 const long    LOFF_NONHRV_H8 =        2750;      /* scaling coefficients (see note above)  */
 

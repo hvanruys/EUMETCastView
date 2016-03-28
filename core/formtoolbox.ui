@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>2</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -2179,80 +2179,15 @@
          <layout class="QHBoxLayout" name="horizontalLayout_20">
           <item>
            <layout class="QGridLayout" name="gridLayout_3">
-            <item row="10" column="2">
-             <widget class="QPushButton" name="btnIR120">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
+            <item row="7" column="3">
+             <widget class="QLabel" name="lblGeo7">
               <property name="text">
-               <string>IR_120</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QComboBox" name="comboMet039">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="2">
-             <widget class="QPushButton" name="btnIR087">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>IR_087</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QPushButton" name="btnIR039">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>IR_039</string>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="2">
-             <widget class="QPushButton" name="btnHRV">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>HRV</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QComboBox" name="comboMet087">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
+               <string>text</string>
               </property>
              </widget>
             </item>
             <item row="9" column="1">
-             <widget class="QComboBox" name="comboMet108">
+             <widget class="QComboBox" name="comboGeo9">
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -2261,8 +2196,8 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="QComboBox" name="comboMet008">
+            <item row="7" column="1">
+             <widget class="QComboBox" name="comboGeo7">
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -2272,7 +2207,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QComboBox" name="comboMet016">
+             <widget class="QComboBox" name="comboGeo3">
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -2281,8 +2216,8 @@
               </property>
              </widget>
             </item>
-            <item row="11" column="1">
-             <widget class="QComboBox" name="comboMet134">
+            <item row="2" column="1">
+             <widget class="QComboBox" name="comboGeo2">
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -2291,118 +2226,29 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="comboMet006">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <spacer name="horizontalSpacer_21">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseWV_062">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_22">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="12" column="0">
-             <widget class="QComboBox" name="cmbHRVtype"/>
-            </item>
-            <item row="7" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_15">
-              <item>
-               <spacer name="horizontalSpacer_25">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseIR_087">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_26">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="btnGeoColor">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
+            <item row="6" column="3">
+             <widget class="QLabel" name="lblGeo6">
               <property name="text">
-               <string>Col</string>
+               <string>text</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
-             <widget class="QComboBox" name="comboMet062">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
+            <item row="8" column="3">
+             <widget class="QLabel" name="lblGeo8">
+              <property name="text">
+               <string>text</string>
               </property>
              </widget>
             </item>
-            <item row="3" column="2">
-             <widget class="QPushButton" name="btnIR016">
+            <item row="10" column="3">
+             <widget class="QLabel" name="lblGeo10">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="2">
+             <widget class="QPushButton" name="btnGeo9">
               <property name="maximumSize">
                <size>
                 <width>60</width>
@@ -2410,251 +2256,7 @@
                </size>
               </property>
               <property name="text">
-               <string>IR_016</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_13">
-              <item>
-               <spacer name="horizontalSpacer_23">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseWV_073">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_24">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="10" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_18">
-              <item>
-               <spacer name="horizontalSpacer_31">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseIR_120">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_32">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="5" column="2">
-             <widget class="QPushButton" name="btnWV062">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>WV_062</string>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="1">
-             <widget class="QComboBox" name="comboMet120">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QPushButton" name="btnVIS008">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>VIS008</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QComboBox" name="comboMet073">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_42">
-              <item>
-               <widget class="QCheckBox" name="chkColorHRV">
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string>Color</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="9" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_17">
-              <item>
-               <spacer name="horizontalSpacer_29">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseIR_108">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_30">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="11" column="2">
-             <widget class="QPushButton" name="btnIR134">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>IR_134</string>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_19">
-              <item>
-               <spacer name="horizontalSpacer_33">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseIR_134">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_34">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="6" column="2">
-             <widget class="QPushButton" name="btnWV073">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>WV_073</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <widget class="QComboBox" name="comboMet097">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
+               <string>IR_108</string>
               </property>
              </widget>
             </item>
@@ -2668,82 +2270,8 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <spacer name="horizontalSpacer_19">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseIR_039">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_20">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <spacer name="horizontalSpacer_17">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseIR_016">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_18">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="2">
-             <widget class="QPushButton" name="btnVIS006">
+            <item row="10" column="2">
+             <widget class="QPushButton" name="btnGeo10">
               <property name="maximumSize">
                <size>
                 <width>60</width>
@@ -2751,70 +2279,7 @@
                </size>
               </property>
               <property name="text">
-               <string>VIS006</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <spacer name="horizontalSpacer_15">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkInverseVIS008">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_16">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="9" column="2">
-             <widget class="QPushButton" name="btnIR108">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>IR_108</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="2">
-             <widget class="QPushButton" name="btnIR097">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>IR_097</string>
+               <string>IR_120</string>
               </property>
              </widget>
             </item>
@@ -2834,7 +2299,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QCheckBox" name="chkInverseIR_097">
+               <widget class="QCheckBox" name="chkInverseGeo8">
                 <property name="text">
                  <string/>
                 </property>
@@ -2855,6 +2320,421 @@
               </item>
              </layout>
             </item>
+            <item row="3" column="3">
+             <widget class="QLabel" name="lblGeo3">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QLabel" name="label_37">
+              <property name="text">
+               <string>in µm</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QComboBox" name="comboGeo6">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="2">
+             <widget class="QPushButton" name="btnGeo6">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>WV_073</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLabel" name="lblGeo1">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_15">
+              <item>
+               <spacer name="horizontalSpacer_25">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo7">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_26">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="5" column="3">
+             <widget class="QLabel" name="lblGeo5">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="3">
+             <widget class="QLabel" name="lblGeo4">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <item>
+               <spacer name="horizontalSpacer_29">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo9">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_30">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="5" column="1">
+             <widget class="QComboBox" name="comboGeo5">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="13" column="0">
+             <widget class="QComboBox" name="cmbHRVtype"/>
+            </item>
+            <item row="11" column="1">
+             <widget class="QComboBox" name="comboGeo11">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="btnGeoColor">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Col</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="comboGeo1">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_19">
+              <item>
+               <spacer name="horizontalSpacer_33">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo11">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_34">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="5" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <spacer name="horizontalSpacer_21">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo5">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_22">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="13" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_42">
+              <item>
+               <widget class="QCheckBox" name="chkColorHRV">
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string>Color</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="2">
+             <widget class="QPushButton" name="btnGeo4">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>IR_039</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="2">
+             <widget class="QPushButton" name="btnGeo5">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>WV_062</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QPushButton" name="btnGeo3">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>IR_016</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QLabel" name="lblGeo2">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QComboBox" name="comboGeo4">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <spacer name="horizontalSpacer_17">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo3">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_18">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="btnGeo2">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>VIS008</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="2">
+             <widget class="QPushButton" name="btnGeo7">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>IR_087</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="1">
+             <widget class="QComboBox" name="comboGeo10">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="3">
+             <widget class="QLabel" name="lblGeo9">
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
+            </item>
+            <item row="13" column="2">
+             <widget class="QPushButton" name="btnHRV">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>HRV</string>
+              </property>
+             </widget>
+            </item>
             <item row="1" column="0">
              <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
@@ -2871,7 +2751,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QCheckBox" name="chkInverseVIS006">
+               <widget class="QCheckBox" name="chkInverseGeo1">
                 <property name="text">
                  <string/>
                 </property>
@@ -2892,66 +2772,26 @@
               </item>
              </layout>
             </item>
-            <item row="1" column="3">
-             <widget class="QLabel" name="lblGeo1">
-              <property name="text">
-               <string>text</string>
+            <item row="8" column="1">
+             <widget class="QComboBox" name="comboGeo8">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
               </property>
              </widget>
             </item>
-            <item row="2" column="3">
-             <widget class="QLabel" name="lblGeo2">
-              <property name="text">
-               <string>text</string>
+            <item row="11" column="2">
+             <widget class="QPushButton" name="btnGeo11">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
               </property>
-             </widget>
-            </item>
-            <item row="4" column="3">
-             <widget class="QLabel" name="lblGeo4">
               <property name="text">
-               <string>text</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="3">
-             <widget class="QLabel" name="lblGeo5">
-              <property name="text">
-               <string>text</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="3">
-             <widget class="QLabel" name="lblGeo6">
-              <property name="text">
-               <string>text</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="3">
-             <widget class="QLabel" name="lblGeo7">
-              <property name="text">
-               <string>text</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="3">
-             <widget class="QLabel" name="lblGeo8">
-              <property name="text">
-               <string>text</string>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="3">
-             <widget class="QLabel" name="lblGeo9">
-              <property name="text">
-               <string>text</string>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="3">
-             <widget class="QLabel" name="lblGeo10">
-              <property name="text">
-               <string>text</string>
+               <string>IR_134</string>
               </property>
              </widget>
             </item>
@@ -2962,19 +2802,42 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="3">
-             <widget class="QLabel" name="lblGeo3">
-              <property name="text">
-               <string>text</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QLabel" name="label_37">
-              <property name="text">
-               <string>in µm</string>
-              </property>
-             </widget>
+            <item row="10" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_18">
+              <item>
+               <spacer name="horizontalSpacer_31">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo10">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_32">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
             <item row="0" column="2">
              <widget class="QLabel" name="label_38">
@@ -2983,6 +2846,210 @@
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <spacer name="horizontalSpacer_15">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo2">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_16">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="2">
+             <widget class="QPushButton" name="btnGeo1">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>VIS006</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_13">
+              <item>
+               <spacer name="horizontalSpacer_23">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo6">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_24">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <spacer name="horizontalSpacer_19">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo4">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_20">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="8" column="2">
+             <widget class="QPushButton" name="btnGeo8">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>IR_097</string>
+              </property>
+             </widget>
+            </item>
+            <item row="12" column="1">
+             <widget class="QComboBox" name="comboGeo12">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="12" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_74">
+              <item>
+               <spacer name="horizontalSpacer_60">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkInverseGeo12">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_100">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="12" column="2">
+             <widget class="QPushButton" name="btnGeo12">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="12" column="3">
+             <widget class="QLabel" name="lblGeo12">
+              <property name="text">
+               <string>text</string>
               </property>
              </widget>
             </item>
@@ -3408,7 +3475,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>396</width>
+                 <width>335</width>
                  <height>541</height>
                 </rect>
                </property>
@@ -4173,8 +4240,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>409</width>
-                 <height>473</height>
+                 <width>326</width>
+                 <height>269</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -4476,8 +4543,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>409</width>
-                 <height>473</height>
+                 <width>333</width>
+                 <height>291</height>
                 </rect>
                </property>
                <attribute name="label">

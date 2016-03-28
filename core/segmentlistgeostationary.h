@@ -19,7 +19,6 @@ public:
         FY2G,
         GOES_13,
         GOES_15,
-        MTSAT,
         H8,
         ELECTRO_N1,
         NOGEO
