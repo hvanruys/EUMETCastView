@@ -137,6 +137,7 @@ private slots:
     void on_btnGeo9_clicked();
     void on_btnGeo10_clicked();
     void on_btnGeo11_clicked();
+    void on_btnGeo12_clicked();
     void on_btnTextureMet_clicked();
     void on_btnTextureAVHRR_clicked();
     void on_tabWidget_currentChanged(int index);

@@ -144,6 +144,8 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     char    buf[ 32768 ];
     int     bzerror;
     hid_t   h5_file_id, radiance_id, latitude_id, longitude_id;
+    hid_t   lunar_azimuth_id, solar_azimuth_id;
+    hid_t   lunar_zenith_id, solar_zenith_id;
     hid_t   aligncoef_id, expanscoef_id;
     hid_t   NumberOfTiePointZonesScan_id;
     hid_t   TiePointZoneGroupLocationScanCompact_id;
@@ -185,6 +187,10 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 
     tiepoints_lat.reset(new float[96 * 316]);
     tiepoints_lon.reset(new float[96 * 316]);
+    tiepoints_lunar_azimuth.reset(new float[96 * 316]);
+    tiepoints_lunar_zenith.reset(new float[96 * 316]);
+    tiepoints_solar_azimuth.reset(new float[96 * 316]);
+    tiepoints_solar_zenith.reset(new float[96 * 316]);
     aligncoef.reset(new float[252]);
     expanscoef.reset(new float[252]);
     NumberOfTiePointZonesScan.reset(new int[64]);
@@ -192,6 +198,10 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 
     geolongitude.reset(new float[NbrOfLines * earth_views_per_scanline]);
     geolatitude.reset(new float[NbrOfLines * earth_views_per_scanline]);
+    lunar_azimuth.reset(new float[NbrOfLines * earth_views_per_scanline]);
+    lunar_zenith.reset(new float[NbrOfLines * earth_views_per_scanline]);
+    solar_azimuth.reset(new float[NbrOfLines * earth_views_per_scanline]);
+    solar_zenith.reset(new float[NbrOfLines * earth_views_per_scanline]);
 
 
     if( (h5_file_id = H5Fopen(basename.toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
@@ -210,6 +220,12 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 
     latitude_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/Latitude", H5P_DEFAULT);
     longitude_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/Longitude", H5P_DEFAULT);
+    lunar_azimuth_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/LunarAzimuthAngle", H5P_DEFAULT);
+    lunar_zenith_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/LunarZenithAngle", H5P_DEFAULT);
+    solar_azimuth_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/SolarAzimuthAngle", H5P_DEFAULT);
+    solar_zenith_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/SolarZenithAngle", H5P_DEFAULT);
+
+
     aligncoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/AlignmentCoefficient", H5P_DEFAULT);
     expanscoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/ExpansionCoefficient", H5P_DEFAULT);
     NumberOfTiePointZonesScan_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-DNB-GEO_All/NumberOfTiePointZonesScan", H5P_DEFAULT);
@@ -224,6 +240,22 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     if((h5_status = H5Dread (longitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
                              H5P_DEFAULT, tiepoints_lon.data())) < 0)
         fprintf(stderr, "unable to read longitude dataset");
+
+    if((h5_status = H5Dread (lunar_azimuth_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, tiepoints_lunar_azimuth.data())) < 0)
+        fprintf(stderr, "unable to read lunar azimuth dataset");
+
+    if((h5_status = H5Dread (lunar_zenith_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, tiepoints_lunar_zenith.data())) < 0)
+        fprintf(stderr, "unable to read lunar zenith dataset");
+
+    if((h5_status = H5Dread (solar_azimuth_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, tiepoints_solar_azimuth.data())) < 0)
+        fprintf(stderr, "unable to read solar azimuth dataset");
+
+    if((h5_status = H5Dread (solar_zenith_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, tiepoints_solar_zenith.data())) < 0)
+        fprintf(stderr, "unable to read solar zenith dataset");
 
     if((h5_status = H5Dread (aligncoef_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
                              H5P_DEFAULT, aligncoef.data())) < 0)
@@ -250,6 +282,10 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     h5_status = H5Dclose (radiance_id);
     h5_status = H5Dclose (latitude_id);
     h5_status = H5Dclose (longitude_id);
+    h5_status = H5Dclose (lunar_azimuth_id);
+    h5_status = H5Dclose (lunar_zenith_id);
+    h5_status = H5Dclose (solar_azimuth_id);
+    h5_status = H5Dclose (solar_zenith_id);
     h5_status = H5Dclose (aligncoef_id);
     h5_status = H5Dclose (expanscoef_id);
     h5_status = H5Dclose (NumberOfTiePointZonesScan_id);
@@ -322,7 +358,7 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 
         for(int igroupscan = 0; igroupscan < 64; igroupscan++)
         {
-            CalcGeoLocationsPerGroup(itrack, igroupscan, indexfrom);
+            CalcInterpolationPerGroup(itrack, igroupscan, indexfrom);
             indexfrom += NumberOfTiePointZonesScan[igroupscan];
         }
     }
@@ -361,6 +397,10 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 
     tiepoints_lat.reset();
     tiepoints_lon.reset();
+    tiepoints_lunar_azimuth.reset();
+    tiepoints_lunar_zenith.reset();
+    tiepoints_solar_azimuth.reset();
+    tiepoints_solar_zenith.reset();
     aligncoef.reset();
     expanscoef.reset();
     NumberOfTiePointZonesScan.reset();
@@ -370,7 +410,8 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     return this;
 }
 
-void SegmentVIIRSDNB::CalcGeoLocationsPerGroup(int itrack, int igroupscan, int indexfrom)
+
+void SegmentVIIRSDNB::CalcInterpolationPerGroup(int itrack, int igroupscan, int indexfrom)
 {
 
 
@@ -378,21 +419,25 @@ void SegmentVIIRSDNB::CalcGeoLocationsPerGroup(int itrack, int igroupscan, int i
     for(int iscan = TiePointZoneGroupLocationScanCompact[igroupscan];
         iscan < TiePointZoneGroupLocationScanCompact[igroupscan] + NumberOfTiePointZonesScan[igroupscan]; iscan++)
     {
-        CalcGeoLocationsInTPZ(itrack, iscan, index, igroupscan);
+        CalcInterpolationInTPZ(itrack, iscan, index, igroupscan);
         index++;
     }
 }
 
 
 
-void SegmentVIIRSDNB::CalcGeoLocationsInTPZ(int itrack, int iscan, int indexfrom, int igroupscan)
+
+void SegmentVIIRSDNB::CalcInterpolationInTPZ(int itrack, int iscan, int indexfrom, int igroupscan)
 {
     int iA, iB, iC, iD;
     int jA, jB, jC, jD;
     float lat_A, lat_B, lat_C, lat_D;
     float lon_A, lon_B, lon_C, lon_D;
-    float val_A, val_B, val_C, val_D;
-
+    // float val_A, val_B, val_C, val_D;
+    float lunar_azimuth_A, lunar_azimuth_B, lunar_azimuth_C, lunar_azimuth_D;
+    float lunar_zenith_A, lunar_zenith_B, lunar_zenith_C, lunar_zenith_D;
+    float solar_azimuth_A, solar_azimuth_B, solar_azimuth_C, solar_azimuth_D;
+    float solar_zenith_A, solar_zenith_B, solar_zenith_C, solar_zenith_D;
 
     iA = 2 * itrack;
     jA = iscan;
@@ -420,6 +465,25 @@ void SegmentVIIRSDNB::CalcGeoLocationsInTPZ(int itrack, int iscan, int indexfrom
     lon_C = tiepoints_lon[iC * 316 + jC];
     lon_D = tiepoints_lon[iD * 316 + jD];
 
+    lunar_azimuth_A = tiepoints_lunar_azimuth[iA * 316 + jA];
+    lunar_azimuth_B = tiepoints_lunar_azimuth[iB * 316 + jB];
+    lunar_azimuth_C = tiepoints_lunar_azimuth[iC * 316 + jC];
+    lunar_azimuth_D = tiepoints_lunar_azimuth[iD * 316 + jD];
+
+    lunar_zenith_A = tiepoints_lunar_zenith[iA * 316 + jA];
+    lunar_zenith_B = tiepoints_lunar_zenith[iB * 316 + jB];
+    lunar_zenith_C = tiepoints_lunar_zenith[iC * 316 + jC];
+    lunar_zenith_D = tiepoints_lunar_zenith[iD * 316 + jD];
+
+    solar_azimuth_A = tiepoints_solar_azimuth[iA * 316 + jA];
+    solar_azimuth_B = tiepoints_solar_azimuth[iB * 316 + jB];
+    solar_azimuth_C = tiepoints_solar_azimuth[iC * 316 + jC];
+    solar_azimuth_D = tiepoints_solar_azimuth[iD * 316 + jD];
+
+    solar_zenith_A = tiepoints_solar_zenith[iA * 316 + jA];
+    solar_zenith_B = tiepoints_solar_zenith[iB * 316 + jB];
+    solar_zenith_C = tiepoints_solar_zenith[iC * 316 + jC];
+    solar_zenith_D = tiepoints_solar_zenith[iD * 316 + jD];
 
 //    val_A = ptrbaVIIRSDNB[((itrack * 16)) * earth_views_per_scanline + (iscan * zscan)];
 //    val_B = ptrbaVIIRSDNB[((itrack * 16)) * earth_views_per_scanline + (iscan * zscan) + zscan - 1];
@@ -443,21 +507,31 @@ void SegmentVIIRSDNB::CalcGeoLocationsInTPZ(int itrack, int iscan, int indexfrom
 ////    if(itrack == 0)
 ////        qDebug() << QString("itrack = %1 iscan = %2 Lon tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lon_A).arg(lon_B).arg(lon_C).arg(lon_D);
 
-    float themin = Minf(lon_A, lon_B, lon_C, lon_D);
-    float themax = Maxf(lon_A, lon_B, lon_C, lon_D);
+    float min_lon = Minf(lon_A, lon_B, lon_C, lon_D);
+    float max_lon = Maxf(lon_A, lon_B, lon_C, lon_D);
 
 
-//    if (Maxf(abs(lat_A), abs(lat_B), abs(lat_C), abs(lat_D)) > 60.0 || (themax - themin) > 90.0)
-//        interpolateViaVector(itrack, indexfrom, igroupscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
-//    else
-        interpolateViaLonLat(itrack, indexfrom, igroupscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+    if (Maxf(abs(lat_A), abs(lat_B), abs(lat_C), abs(lat_D)) > 60.0 || (max_lon - min_lon) > 90.0)
+        interpolateLonLatViaVector(itrack, indexfrom, igroupscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+    else
+        interpolateLonLatDirect(itrack, indexfrom, igroupscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
 
 //    if(itrack == 0)
 //        qDebug() << QString("itrack = %1 iscan = %2 indexfrom = %3 igroupscan = 4").arg(itrack).arg(iscan).arg(indexfrom).arg(igroupscan);
 
+    float min_solar_azimuth = Minf(solar_azimuth_A, solar_azimuth_B, solar_azimuth_C, solar_azimuth_D);
+    float max_solar_azimuth = Maxf(solar_azimuth_A, solar_azimuth_B, solar_azimuth_C, solar_azimuth_D);
+
+    if (Minf(solar_zenith_A, solar_zenith_B, solar_zenith_C, solar_zenith_D) < 10.0 || (max_solar_azimuth - min_solar_azimuth) > 5.0 ||
+            Maxf(abs(lat_A), abs(lat_B), abs(lat_C), abs(lat_D)) > 80.0 )
+        interpolateSolarViaVector(itrack, indexfrom, igroupscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D, solar_zenith_A, solar_zenith_B, solar_zenith_C, solar_zenith_D, solar_azimuth_A, solar_azimuth_B, solar_azimuth_C, solar_azimuth_D);
+    else
+       interpolateSolarDirect(itrack, indexfrom, igroupscan, solar_zenith_A, solar_zenith_B, solar_zenith_C, solar_zenith_D, solar_azimuth_A, solar_azimuth_B, solar_azimuth_C, solar_azimuth_D);
+
 }
 
-void SegmentVIIRSDNB::interpolateViaLonLat(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+
+void SegmentVIIRSDNB::interpolateLonLatDirect(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
 {
 
     float ascan, atrack;
@@ -509,18 +583,49 @@ void SegmentVIIRSDNB::interpolateViaLonLat(int itrack, int indexfrom, int igroup
 }
 
 
-
-void SegmentVIIRSDNB::interpolateViaVector(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+void SegmentVIIRSDNB::interpolateSolarDirect(int itrack, int indexfrom, int igroupscan, float solar_zenith_A, float solar_zenith_B, float solar_zenith_C, float solar_zenith_D, float solar_azimuth_A, float solar_azimuth_B, float solar_azimuth_C, float solar_azimuth_D)
 {
+
     float ascan, atrack;
-    float lon, lat;
+    float azimuth_1, azimuth_2, azimuth;
+    float zenith_1, zenith_2, zenith;
 
     int zscan = Zscan[igroupscan];
-    int nscan = NumberOfTiePointZonesScan[igroupscan];
-    int pscan = Pscan[igroupscan];
     int ptpzscan = Ptpzscan[indexfrom];
 
-    // Earth Centred vectors
+
+    for(int relt = 0; relt < 16; relt++)
+    {
+        for(int rels = 0; rels < zscan; rels++)
+        {
+            GetAlpha(ascan, atrack, rels, relt, indexfrom, zscan);
+            // 96 x 316
+            // 48 * 16 = 768
+            azimuth_1 = (1 - ascan) * solar_azimuth_A + ascan * solar_azimuth_B;
+            azimuth_2 = (1 - ascan) * solar_azimuth_D + ascan * solar_azimuth_C;
+            azimuth = (1 - atrack) * azimuth_1 + atrack * azimuth_2;
+
+            zenith_1 = (1 - ascan) * solar_zenith_A + ascan * solar_zenith_B;
+            zenith_2 = (1 - ascan) * solar_zenith_D + ascan * solar_zenith_C;
+            zenith = (1 - atrack) * zenith_1 + atrack * zenith_2;
+
+            solar_azimuth[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = azimuth;
+            solar_zenith[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = zenith;
+        }
+    }
+
+}
+
+
+
+void SegmentVIIRSDNB::interpolateLonLatViaVector(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+{
+
+    float ascan, atrack;
+
+    int zscan = Zscan[igroupscan];
+    int ptpzscan = Ptpzscan[indexfrom];
+
     float lat_A_rad = lat_A * PI / 180.0;
     float lon_A_rad = lon_A * PI / 180.0;
     float lat_B_rad = lat_B * PI / 180.0;
@@ -530,21 +635,21 @@ void SegmentVIIRSDNB::interpolateViaVector(int itrack, int indexfrom, int igroup
     float lat_D_rad = lat_D * PI / 180.0;
     float lon_D_rad = lon_D * PI / 180.0;
 
-    float x_A_ec = cos(lat_A_rad) * cos(lon_A_rad);
-    float y_A_ec = cos(lat_A_rad) * sin(lon_A_rad);
-    float z_A_ec = sin(lat_A_rad);
+    float x_A_unit = cos(lat_A_rad) * cos(lon_A_rad);
+    float y_A_unit = cos(lat_A_rad) * sin(lon_A_rad);
+    float z_A_unit = sin(lat_A_rad);
 
-    float x_B_ec = cos(lat_B_rad) * cos(lon_B_rad);
-    float y_B_ec = cos(lat_B_rad) * sin(lon_B_rad);
-    float z_B_ec = sin(lat_B_rad);
+    float x_B_unit = cos(lat_B_rad) * cos(lon_B_rad);
+    float y_B_unit = cos(lat_B_rad) * sin(lon_B_rad);
+    float z_B_unit = sin(lat_B_rad);
 
-    float x_C_ec = cos(lat_C_rad) * cos(lon_C_rad);
-    float y_C_ec = cos(lat_C_rad) * sin(lon_C_rad);
-    float z_C_ec = sin(lat_C_rad);
+    float x_C_unit = cos(lat_C_rad) * cos(lon_C_rad);
+    float y_C_unit = cos(lat_C_rad) * sin(lon_C_rad);
+    float z_C_unit = sin(lat_C_rad);
 
-    float x_D_ec = cos(lat_D_rad) * cos(lon_D_rad);
-    float y_D_ec = cos(lat_D_rad) * sin(lon_D_rad);
-    float z_D_ec = sin(lat_D_rad);
+    float x_D_unit = cos(lat_D_rad) * cos(lon_D_rad);
+    float y_D_unit = cos(lat_D_rad) * sin(lon_D_rad);
+    float z_D_unit = sin(lat_D_rad);
 
 
     float x1, y1, z1;
@@ -559,13 +664,13 @@ void SegmentVIIRSDNB::interpolateViaVector(int itrack, int indexfrom, int igroup
             GetAlpha(ascan, atrack, rels, relt, indexfrom, zscan);
             // 96 x 201
 
-            x1 = (1 - ascan) * x_A_ec + ascan * x_B_ec;
-            y1 = (1 - ascan) * y_A_ec + ascan * y_B_ec;
-            z1 = (1 - ascan) * z_A_ec + ascan * z_B_ec;
+            x1 = (1 - ascan) * x_A_unit + ascan * x_B_unit;
+            y1 = (1 - ascan) * y_A_unit + ascan * y_B_unit;
+            z1 = (1 - ascan) * z_A_unit + ascan * z_B_unit;
 
-            x2 = (1 - ascan) * x_D_ec + ascan * x_C_ec;
-            y2 = (1 - ascan) * y_D_ec + ascan * y_C_ec;
-            z2 = (1 - ascan) * z_D_ec + ascan * z_C_ec;
+            x2 = (1 - ascan) * x_D_unit + ascan * x_C_unit;
+            y2 = (1 - ascan) * y_D_unit + ascan * y_C_unit;
+            z2 = (1 - ascan) * z_D_unit + ascan * z_C_unit;
 
             x = (1 - atrack) * x1 + atrack * x2;
             y = (1 - atrack) * y1 + atrack * y2;
@@ -597,6 +702,171 @@ void SegmentVIIRSDNB::interpolateViaVector(int itrack, int indexfrom, int igroup
 //        }
 //    }
 
+}
+
+void SegmentVIIRSDNB::interpolateSolarViaVector(int itrack, int indexfrom, int igroupscan,
+              float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D,
+              float solar_zenith_A, float solar_zenith_B, float solar_zenith_C, float solar_zenith_D,
+              float solar_azimuth_A, float solar_azimuth_B, float solar_azimuth_C, float solar_azimuth_D)
+{
+
+    qDebug() << "-------------> interpolateSolarViaVector";
+
+    float ascan, atrack;
+
+    int zscan = Zscan[igroupscan];
+    int ptpzscan = Ptpzscan[indexfrom];
+
+    float solar_azimuth_A_rad = solar_azimuth_A * PI / 180.0;
+    float solar_zenith_A_rad = solar_zenith_A * PI / 180.0;
+    float solar_azimuth_B_rad = solar_azimuth_B * PI / 180.0;
+    float solar_zenith_B_rad = solar_zenith_B * PI / 180.0;
+    float solar_azimuth_C_rad = solar_azimuth_C * PI / 180.0;
+    float solar_zenith_C_rad = solar_zenith_C * PI / 180.0;
+    float solar_azimuth_D_rad = solar_azimuth_D * PI / 180.0;
+    float solar_zenith_D_rad = solar_zenith_D * PI / 180.0;
+
+    float x_A_unit = sin(solar_zenith_A_rad) * sin(solar_azimuth_A_rad);
+    float y_A_unit = sin(solar_zenith_A_rad) * cos(solar_azimuth_A_rad);
+    float z_A_unit = cos(solar_zenith_A_rad);
+
+    float x_B_unit = sin(solar_zenith_B_rad) * sin(solar_azimuth_B_rad);
+    float y_B_unit = sin(solar_zenith_B_rad) * cos(solar_azimuth_B_rad);
+    float z_B_unit = cos(solar_zenith_B_rad);
+
+    float x_C_unit = sin(solar_zenith_C_rad) * sin(solar_azimuth_C_rad);
+    float y_C_unit = sin(solar_zenith_C_rad) * cos(solar_azimuth_C_rad);
+    float z_C_unit = cos(solar_zenith_C_rad);
+
+    float x_D_unit = sin(solar_zenith_D_rad) * sin(solar_azimuth_D_rad);
+    float y_D_unit = sin(solar_zenith_D_rad) * cos(solar_azimuth_D_rad);
+    float z_D_unit = cos(solar_zenith_D_rad);
+
+
+
+    float m00_A = -sin(lon_A);
+    float m01_A = cos(lon_A);
+    float m02_A = 0;
+    float m10_A = -sin(lat_A) * cos(lon_A);
+    float m11_A = -sin(lat_A) * sin(lon_A);
+    float m12_A = cos(lat_A);
+    float m20_A = cos(lat_A) * cos(lon_A);
+    float m21_A = cos(lat_A) * sin(lon_A);
+    float m22_A = sin(lat_A);
+
+    float m00_B = -sin(lon_B);
+    float m01_B = cos(lon_B);
+    float m02_B = 0;
+    float m10_B = -sin(lat_B) * cos(lon_B);
+    float m11_B = -sin(lat_B) * sin(lon_B);
+    float m12_B = cos(lat_B);
+    float m20_B = cos(lat_B) * cos(lon_B);
+    float m21_B = cos(lat_B) * sin(lon_B);
+    float m22_B = sin(lat_B);
+
+    float m00_C = -sin(lon_C);
+    float m01_C = cos(lon_C);
+    float m02_C = 0;
+    float m10_C = -sin(lat_C) * cos(lon_C);
+    float m11_C = -sin(lat_C) * sin(lon_C);
+    float m12_C = cos(lat_C);
+    float m20_C = cos(lat_C) * cos(lon_C);
+    float m21_C = cos(lat_C) * sin(lon_C);
+    float m22_C = sin(lat_C);
+
+    float m00_D = -sin(lon_D);
+    float m01_D = cos(lon_D);
+    float m02_D = 0;
+    float m10_D = -sin(lat_D) * cos(lon_D);
+    float m11_D = -sin(lat_D) * sin(lon_D);
+    float m12_D = cos(lat_D);
+    float m20_D = cos(lat_D) * cos(lon_D);
+    float m21_D = cos(lat_D) * sin(lon_D);
+    float m22_D = sin(lat_D);
+
+    // From PC to EC
+    float x_A_ec = m00_A * x_A_unit + m01_A * y_A_unit + m02_A * z_A_unit;
+    float y_A_ec = m10_A * x_A_unit + m11_A * y_A_unit + m12_A * z_A_unit;
+    float z_A_ec = m20_A * x_A_unit + m21_A * y_A_unit + m22_A * z_A_unit;
+
+    float x_B_ec = m00_B * x_B_unit + m01_B * y_B_unit + m02_B * z_B_unit;
+    float y_B_ec = m10_B * x_B_unit + m11_B * y_B_unit + m12_B * z_B_unit;
+    float z_B_ec = m20_B * x_B_unit + m21_B * y_B_unit + m22_B * z_B_unit;
+
+    float x_C_ec = m00_C * x_C_unit + m01_C * y_C_unit + m02_C * z_C_unit;
+    float y_C_ec = m10_C * x_C_unit + m11_C * y_C_unit + m12_C * z_C_unit;
+    float z_C_ec = m20_C * x_C_unit + m21_C * y_C_unit + m22_C * z_C_unit;
+
+    float x_D_ec = m00_D * x_D_unit + m01_D * y_D_unit + m02_D * z_D_unit;
+    float y_D_ec = m10_D * x_D_unit + m11_D * y_D_unit + m12_D * z_D_unit;
+    float z_D_ec = m20_D * x_D_unit + m21_D * y_D_unit + m22_D * z_D_unit;
+
+
+    float x1, y1, z1;
+    float x2, y2, z2;
+    float x_ec, y_ec, z_ec;
+    float azimuth_deg, zenith_deg;
+
+    for(int relt = 0; relt < 16; relt++)
+    {
+        for(int rels = 0; rels < zscan; rels++)
+        {
+            GetAlpha(ascan, atrack, rels, relt, indexfrom, zscan);
+            // 96 x 201
+
+            x1 = (1 - ascan) * x_A_ec + ascan * x_B_ec;
+            y1 = (1 - ascan) * y_A_ec + ascan * y_B_ec;
+            z1 = (1 - ascan) * z_A_ec + ascan * z_B_ec;
+
+            x2 = (1 - ascan) * x_D_ec + ascan * x_C_ec;
+            y2 = (1 - ascan) * y_D_ec + ascan * y_C_ec;
+            z2 = (1 - ascan) * z_D_ec + ascan * z_C_ec;
+
+            x_ec = (1 - atrack) * x1 + atrack * x2;
+            y_ec = (1 - atrack) * y1 + atrack * y2;
+            z_ec = (1 - atrack) * z1 + atrack * z2;
+
+            float lat = geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels];
+            float lon = geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels];
+
+            float m00 = -sin(lon);
+            float m01 = cos(lon);
+            float m02 = 0;
+            float m10 = -sin(lat) * cos(lon);
+            float m11 = -sin(lat) * sin(lon);
+            float m12 = cos(lat);
+            float m20 = cos(lat) * cos(lon);
+            float m21 = cos(lat) * sin(lon);
+            float m22 = sin(lat);
+
+            // from EC to PC
+            float x_pc = m00 * x_ec + m10 * y_ec + m20 * z_ec;
+            float y_pc = m01 * x_ec + m11 * y_ec + m21 * z_ec;
+            float z_pc = m02 * x_ec + m12 * y_ec + m22 * z_ec;
+
+            azimuth_deg = atan2(x_pc, y_pc) * 180.0/PI;
+            zenith_deg = (PI/2 - atan2(z_pc, sqrt(x_pc * x_pc + y_pc * y_pc))) * 180.0/PI;
+
+            solar_azimuth[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = azimuth_deg;
+            solar_zenith[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = zenith_deg;
+        }
+    }
+
+//    if( itrack == 0)
+//    {
+//        cout << "solar_azimuth" << endl;
+//        for (int relt = 0; relt < 16; relt++) {
+//            for (int rels = 0; rels < zscan; rels++)
+//                cout << " " <<  solar_azimuth[((itrack * 16) + relt) * earth_views_per_scanline + rels]; // + (iscan * zscan)];
+//            cout << endl;
+//        }
+//        cout << "solar_zenith" << endl;
+//        for (int relt = 0; relt < 16; relt++) {
+//            for (int rels = 0; rels < zscan; rels++)
+//                cout << " " <<  solar_zenith[((itrack * 16) + relt) * earth_views_per_scanline + rels]; // + (iscan * zscan)];
+//            cout << endl;
+//        }
+//    }
 }
 
 
@@ -694,12 +964,16 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
         row = (QRgb*)imageptrs->ptrimageViirsDNB->scanLine(this->startLineNbr + line);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
+            float zenith = solar_zenith[line * earth_views_per_scanline + pixelx];
             pixval = *(this->ptrbaVIIRSDNB.data() + line * earth_views_per_scanline + pixelx);
             indexout =  (int)(255 * ( pixval - lowerlimit ) / (upperlimit - lowerlimit));
             indexout = indexout > 255 ? 255 : indexout;
             indexout = indexout < 0 ? 0 : indexout;
             r = indexout;
-            row[pixelx] = qRgb(r, r, r );
+            if((zenith >= 90.0 && zenith < 90.01) || (zenith >= 95.0 && zenith < 95.01) || (zenith >= 100.0 && zenith < 100.01))
+                row[pixelx] = qRgb(0, 255, 0);
+            else
+                row[pixelx] = qRgb(r, r, r );
         }
     }
 }
@@ -1016,18 +1290,18 @@ qint32 SegmentVIIRSDNB::Max(const qint32 v11, const qint32 v12, const qint32 v21
 //    float m22_D = sin(lat_D);
 
 //// Pixel centred
-//    float x_A_pc = m00_A * x_A_ec + m10_A * y_A_ec + m20_A * z_A_ec;
-//    float y_A_pc = m01_A * x_A_ec + m11_A * y_A_ec + m21_A * z_A_ec;
-//    float z_A_pc = m02_A * x_A_ec + m12_A * y_A_ec + m22_A * z_A_ec;
+//    float x_A_pc = m00_A * x_A_unit + m10_A * y_A_unit + m20_A * z_A_unit;
+//    float y_A_pc = m01_A * x_A_unit + m11_A * y_A_unit + m21_A * z_A_unit;
+//    float z_A_pc = m02_A * x_A_unit + m12_A * y_A_unit + m22_A * z_A_unit;
 
-//    float x_B_pc = m00_B * x_B_ec + m10_B * y_B_ec + m20_B * z_B_ec;
-//    float y_B_pc = m01_B * x_B_ec + m11_B * y_B_ec + m21_B * z_B_ec;
-//    float z_B_pc = m02_B * x_B_ec + m12_B * y_B_ec + m22_B * z_B_ec;
+//    float x_B_pc = m00_B * x_B_unit + m10_B * y_B_unit + m20_B * z_B_unit;
+//    float y_B_pc = m01_B * x_B_unit + m11_B * y_B_unit + m21_B * z_B_unit;
+//    float z_B_pc = m02_B * x_B_unit + m12_B * y_B_unit + m22_B * z_B_unit;
 
-//    float x_C_pc = m00_C * x_C_ec + m10_C * y_C_ec + m20_C * z_C_ec;
-//    float y_C_pc = m01_C * x_C_ec + m11_C * y_C_ec + m21_C * z_C_ec;
-//    float z_C_pc = m02_C * x_C_ec + m12_C * y_C_ec + m22_C * z_C_ec;
+//    float x_C_pc = m00_C * x_C_unit + m10_C * y_C_unit + m20_C * z_C_unit;
+//    float y_C_pc = m01_C * x_C_unit + m11_C * y_C_unit + m21_C * z_C_unit;
+//    float z_C_pc = m02_C * x_C_unit + m12_C * y_C_unit + m22_C * z_C_unit;
 
-//    float x_D_pc = m00_D * x_D_ec + m10_D * y_D_ec + m20_D * z_D_ec;
-//    float y_D_pc = m01_D * x_D_ec + m11_D * y_D_ec + m21_D * z_D_ec;
-//    float z_D_pc = m02_D * x_D_ec + m12_D * y_D_ec + m22_D * z_D_ec;
+//    float x_D_pc = m00_D * x_D_unit + m10_D * y_D_unit + m20_D * z_D_unit;
+//    float y_D_pc = m01_D * x_D_unit + m11_D * y_D_unit + m21_D * z_D_unit;
+//    float z_D_pc = m02_D * x_D_unit + m12_D * y_D_unit + m22_D * z_D_unit;

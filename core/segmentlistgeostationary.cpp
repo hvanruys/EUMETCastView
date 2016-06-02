@@ -1973,7 +1973,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
 
     if (this->getKindofImage() == "VIS_IR Color")
     {
-        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9)
+        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == H8)
         {
             for(int i = (m_GeoSatellite == MET_9 ? 5 : 0) ; i < 8; i++)
             {
@@ -2024,15 +2024,6 @@ bool SegmentListGeostationary::allSegmentsReceived()
                     return false;
             }
         }
-/*        else if(m_GeoSatellite == ELECTRO_N1)
-        {
-            for(int i = 0; i < 6; i++)
-            {
-                if (isPresentMono[i] && issegmentcomposedMono[i] == false)
-                    return false;
-            }
-        }
-*/
         else if(m_GeoSatellite == GOES_13)
         {
             for(int i = 0; i < 7; i++)
@@ -2063,8 +2054,6 @@ bool SegmentListGeostationary::allSegmentsReceived()
                     return false;
             }
         }
-
-
     }
     else if (this->getKindofImage() == "HRV" || this->getKindofImage() == "HRV Color")
     {

@@ -305,44 +305,6 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
             }
         }
-/*        else if (fileInfo.fileName().mid( 0, 11) == "H-000-GOMS1" && fileInfo.fileName().mid( 59, 2) == "C_")
-        {
-            //H-000-GOMS1_-GOMS1_4_____-00_9_076E-000001___-201312231100-C_
-            //H-000-MSG1__-MSG1________-IR_016___-000007___-201307011145-C_
-            //0123456789012345678901234567890123456789012345678901234567890
-            //H-000-MSG1__-MSG1_RSS____-HRV______-000016___-201211210610-C_
-            //H-000-GOMS1_-GOMS1_4_____-_________-PRO______-201403311030-__
-            int filenbr = fileInfo.fileName().mid(36, 6).toInt();
-            QString strspectrum = fileInfo.fileName().mid(26, 6);
-            QString strdate = fileInfo.fileName().mid(46, 12);
-            //qDebug() << strdate << strspectrum << QString("%1").arg(filenbr);
-
-            if (strspectrum != "______")
-            {
-                seglelectro->setImagePath(fileInfo.absolutePath());
-
-                QMap<int, QFileInfo> hashfile;
-                QMap<QString, QMap<int, QFileInfo> > hashspectrum;
-
-                if (segmentlistmapelectro.contains(strdate))
-                {
-                    hashspectrum = segmentlistmapelectro.value(strdate);
-                    if (hashspectrum.contains(strspectrum))
-                        hashfile = hashspectrum.value(strspectrum);
-                    hashfile.insert( filenbr, fileInfo );
-                    hashspectrum.insert( strspectrum, hashfile);
-                    segmentlistmapelectro.insert(strdate, hashspectrum);
-                }
-                else
-                {
-                    hashfile.insert( filenbr, fileInfo );
-                    hashspectrum.insert(strspectrum, hashfile);
-                    segmentlistmapelectro.insert( strdate, hashspectrum );
-                }
-
-            }
-        }
-*/
         else if (fileInfo.fileName().mid( 0, 17) == "L-000-MTP___-MET7" && fileInfo.fileName().mid( 59, 2) == "C_") // Data Channel 3
         {
             //L-000-MTP___-MET7________-06_4_057E-000004___-201403300930-C_
@@ -377,8 +339,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 }
 
             }
-        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" &&
-                   fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))  // Data Channel 3
+        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_")
+                   // && fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))  // Data Channel 3
         {
             //L-000-MSG3__-GOES13______-00_7_075W-000001___-201404031200-C_
             //L-000-MSG3__-GOES13______-00_7_075W-PRO______-201404031200-__
@@ -386,7 +348,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             int filenbr = fileInfo.fileName().mid(36, 6).toInt();
             QString strspectrum = fileInfo.fileName().mid(26, 6);
             QString strdate = fileInfo.fileName().mid(46, 12);
-            //qDebug() << "GOES13 " << strdate << " " << strspectrum << " " << QString("%1").arg(filenbr);
+            qDebug() << "Data Channel 3 - GOES13 " << strdate << " " << strspectrum << " " << QString("%1").arg(filenbr);
 
             if (strspectrum != "______")
             {
@@ -412,42 +374,44 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 }
 
             }
-        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_"  &&
-                   fileInfo.absolutePath().contains("Data Channel 4", Qt::CaseInsensitive))  // Data Channel 4
-        {
-            //L-000-MSG3__-GOES13______-00_7_075W-000001___-201404031200-C_
-            //L-000-MSG3__-GOES13______-00_7_075W-PRO______-201404031200-__
+        }
+//        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_"
+//                   && fileInfo.absolutePath().contains("Data Channel 4", Qt::CaseInsensitive))  // Data Channel 4
+//        {
+//            //L-000-MSG3__-GOES13______-00_7_075W-000001___-201404031200-C_
+//            //L-000-MSG3__-GOES13______-00_7_075W-PRO______-201404031200-__
 
-            int filenbr = fileInfo.fileName().mid(36, 6).toInt();
-            QString strspectrum = fileInfo.fileName().mid(26, 6);
-            QString strdate = fileInfo.fileName().mid(46, 12);
-            //qDebug() << "GOES13 " << strdate << " " << strspectrum << " " << QString("%1").arg(filenbr);
+//            int filenbr = fileInfo.fileName().mid(36, 6).toInt();
+//            QString strspectrum = fileInfo.fileName().mid(26, 6);
+//            QString strdate = fileInfo.fileName().mid(46, 12);
+//            qDebug() << "Data Channel 4 - GOES13 " << strdate << " " << strspectrum << " " << QString("%1").arg(filenbr);
 
-            if (strspectrum != "______")
-            {
-                seglgoes13dc4->setImagePath(fileInfo.absolutePath());
+//            if (strspectrum != "______")
+//            {
+//                seglgoes13dc4->setImagePath(fileInfo.absolutePath());
 
-                QMap<int, QFileInfo> hashfile;
-                QMap<QString, QMap<int, QFileInfo> > hashspectrum;
+//                QMap<int, QFileInfo> hashfile;
+//                QMap<QString, QMap<int, QFileInfo> > hashspectrum;
 
-                if (segmentlistmapgoes13dc4.contains(strdate))
-                {
-                    hashspectrum = segmentlistmapgoes13dc4.value(strdate);
-                    if (hashspectrum.contains(strspectrum))
-                        hashfile = hashspectrum.value(strspectrum);
-                    hashfile.insert( filenbr, fileInfo );
-                    hashspectrum.insert( strspectrum, hashfile);
-                    segmentlistmapgoes13dc4.insert(strdate, hashspectrum);
-                }
-                else
-                {
-                    hashfile.insert( filenbr, fileInfo );
-                    hashspectrum.insert(strspectrum, hashfile);
-                    segmentlistmapgoes13dc4.insert( strdate, hashspectrum );
-                }
+//                if (segmentlistmapgoes13dc4.contains(strdate))
+//                {
+//                    hashspectrum = segmentlistmapgoes13dc4.value(strdate);
+//                    if (hashspectrum.contains(strspectrum))
+//                        hashfile = hashspectrum.value(strspectrum);
+//                    hashfile.insert( filenbr, fileInfo );
+//                    hashspectrum.insert( strspectrum, hashfile);
+//                    segmentlistmapgoes13dc4.insert(strdate, hashspectrum);
+//                }
+//                else
+//                {
+//                    hashfile.insert( filenbr, fileInfo );
+//                    hashspectrum.insert(strspectrum, hashfile);
+//                    segmentlistmapgoes13dc4.insert( strdate, hashspectrum );
+//                }
 
-            }
-        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileInfo.fileName().mid( 59, 2) == "C_" &&
+//            }
+//        }
+        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileInfo.fileName().mid( 59, 2) == "C_" &&
                    fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))   // Data Channel 3
         {
             //L-000-MSG3__-GOES15______-00_7_135W-000001___-201404031500-C_
@@ -956,6 +920,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             filedate.setTime(t);
             if(hoursbefore == 0)
                 fileok = true;
+            qDebug() << "inserttomap " << fileinfo.fileName();
         }
         else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_")
         {
@@ -1718,12 +1683,6 @@ SegmentListGeostationary *AVHRRSatellite::getActiveSegmentList()
         activelist = "Meteosat-9";
         sl = seglmeteosatrss;
     }
-/*
-    else if(seglelectro->bActiveSegmentList == true)
-    {
-        sl = seglelectro;
-    }
-*/
     else if(seglmet7->bActiveSegmentList == true)
     {
         activelist = "Meteosat-7";

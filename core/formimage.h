@@ -130,7 +130,7 @@ public slots:
     void setPixmapToLabel(bool settoolboxbuttons);
     void setPixmapToLabelDNB(bool settoolboxbuttons);
     void slotUpdateMeteosat();
-    void slotUpdateHimawari();
+    // void slotUpdateHimawari();
     void slotUpdateProjection();
     void slotRefreshOverlay();
     void slotRepaintProjectionImage();

@@ -70,11 +70,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(&seglist->seglmeteosatrss->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
     }
 
-/*    for( int i = 0; i < 6; i++)
-    {
-        connect(&seglist->seglelectro->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-    }
-*/
     for( int i = 0; i < 10; i++)
     {
         connect(&seglist->seglmet7->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
@@ -103,9 +98,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for( int i = 0; i < 10; i++)
     {
-        connect(&seglist->seglh8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateHimawari()));
-        connect(&seglist->seglh8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateHimawari()));
-        connect(&seglist->seglh8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateHimawari()));
+        connect(&seglist->seglh8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglh8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglh8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
     }
 
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
@@ -337,7 +332,7 @@ void MainWindow::on_actionAbout_triggered()
     "<p>Meteosat-10, Meteosat-9, Meteosat7</p>"
     "<p>FengYun 2E, FengYun 2G</p>"
     "<p>GOES-13, GOES-15</p>"
-    "<p>MTSAT-2, Himawari-8</p>"
+    "<p>Himawari-8</p>"
     "<ul>"
     "<li>Made by Hugo Van Ruyskensvelde.</li>"
     "</HTML>";

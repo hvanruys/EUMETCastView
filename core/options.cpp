@@ -264,12 +264,25 @@ void Options::checkStringListValues()
                           "-20.91" << "55.759" << "23.59" << "69.65" << "21.33" << "25.74" << "-75.166667" << "37.815";
     }
 
+//    enum eGeoSatellite {
+//        MET_10 =0,
+//        MET_9,
+//        MET_7,
+//        FY2E,
+//        FY2G,
+//        GOES_13,
+//        GOES_15,
+//        H8,
+//        ELECTRO_N1,
+//        NOGEO
+//    };
+
     //if(geostationarylistname.count() == 0)
     {
         geostationarylistname.clear();
         geostationarylistlon.clear();
-        geostationarylistname << "Meteosat-10" << "Meteosat-9" << "Meteosat-7" << "FY2E" << "FY2G" << "GOES13" << "GOES15" << "MTSAT2" << "Himawari-8";
-        geostationarylistlon << "0.0" << "9.5" << "57" << "86.5" << "104.5" << "-74.9" << "-135.2" << "145" << "140.7";
+        geostationarylistname << "Meteosat-10" << "Meteosat-9" << "Meteosat-7" << "FY2E" << "FY2G" << "GOES13" << "GOES15" << "Himawari-8";
+        geostationarylistlon << "0.0" << "9.5" << "57" << "86.5" << "104.5" << "-74.9" << "-135.2" << "140.7";
     }
 
     if(tlesources.count() == 0)

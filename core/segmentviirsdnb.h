@@ -37,8 +37,8 @@ private:
     void MapPixel(int lines, int views, double map_x, double map_y);
 
     void GetAlpha(float &ascan, float &atrack, int rels, int relt, int index, int zscan);
-    void CalcGeoLocationsPerGroup(int itrack, int igroupscan, int indexfrom);
-    void CalcGeoLocationsInTPZ(int itrack, int iscan, int indexfrom, int igroupscan);
+    void CalcInterpolationPerGroup(int itrack, int igroupscan, int indexfrom);
+    void CalcInterpolationInTPZ(int itrack, int iscan, int indexfrom, int igroupscan);
 
     void RenderSegmentlineInTextureVIIRS( int nbrTotalLine, QRgb *row );
     void LonLatMax();
@@ -47,11 +47,20 @@ private:
     qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
     qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
 
-    void interpolateViaVector(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
-    void interpolateViaLonLat(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
+    void interpolateLonLatViaVector(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
+    void interpolateSolarViaVector(int itrack, int indexfrom, int igroupscan,
+                  float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D,
+                  float solar_zenith_A, float solar_zenith_B, float solar_zenith_C, float solar_zenith_D,
+                  float solar_azimuth_A, float solar_azimuth_B, float solar_azimuth_C, float solar_azimuth_D);
+    void interpolateLonLatDirect(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
+    void interpolateSolarDirect(int itrack, int indexfrom, int igroupscan, float solar_zenith_A, float solar_zenith_B, float solar_zenith_C, float solar_zenith_D, float solar_azimuth_A, float solar_azimuth_B, float solar_azimuth_C, float solar_azimuth_D);
 
     QScopedArrayPointer<float> tiepoints_lat;
     QScopedArrayPointer<float> tiepoints_lon;
+    QScopedArrayPointer<float> tiepoints_lunar_azimuth;
+    QScopedArrayPointer<float> tiepoints_lunar_zenith;
+    QScopedArrayPointer<float> tiepoints_solar_azimuth;
+    QScopedArrayPointer<float> tiepoints_solar_zenith;
     QScopedArrayPointer<float> aligncoef;
     QScopedArrayPointer<float> expanscoef;
     QScopedArrayPointer<int> NumberOfTiePointZonesScan;
@@ -78,6 +87,10 @@ private:
 
     QScopedArrayPointer<float> geolatitude;
     QScopedArrayPointer<float> geolongitude;
+    QScopedArrayPointer<float> lunar_zenith;
+    QScopedArrayPointer<float> solar_zenith;
+    QScopedArrayPointer<float> lunar_azimuth;
+    QScopedArrayPointer<float> solar_azimuth;
 
     QList<bool> bandlist;
     QList<int> colorlist;

@@ -343,7 +343,7 @@ void FormEphem::showAvailSat()
                     QTreeWidgetItem *det = item( line1.mid(2, 5) + QString(" | ") + line.trimmed(), titem );
                     det->setCheckState(0, Qt::Unchecked );
                     for ( QStringList::Iterator itc = opts.catnbrlist.begin(); itc != opts.catnbrlist.end(); ++itc )
-                    {showavailsat :
+                    {
                         if ( (*itc).toInt( &ok, 10) == line1.mid(2, 5).toInt( &ok, 10 ) )
                         {
                             det->setCheckState(0, Qt::Checked);
@@ -564,6 +564,7 @@ void FormEphem::on_btnDelsegmentdir_clicked()
 
 void FormEphem::showSegmentDirectoryList(void)
 {
+
     //QList<QTreeWidgetItem *> dirItemList;
     QStringList::Iterator itd = opts.segmentdirectorylist.begin();
     QStringList::Iterator itc = opts.segmentdirectorylistinc.begin();
@@ -604,6 +605,7 @@ void FormEphem::showSegmentDirectoryList(void)
     }
 
     ui->segmentdirectorywidget->expandAll();
+
 
 }
 
