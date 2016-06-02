@@ -339,8 +339,16 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 }
 
             }
-        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_")
-                   // && fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))  // Data Channel 3
+        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" &&
+           //        && fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))  // Data Channel 3
+                   (fileInfo.fileName().mid(54, 4) == "0000" ||
+                    fileInfo.fileName().mid(54, 4) == "0300" ||
+                    fileInfo.fileName().mid(54, 4) == "0600" ||
+                    fileInfo.fileName().mid(54, 4) == "0900" ||
+                    fileInfo.fileName().mid(54, 4) == "1200" ||
+                    fileInfo.fileName().mid(54, 4) == "1500" ||
+                    fileInfo.fileName().mid(54, 4) == "1800" ||
+                    fileInfo.fileName().mid(54, 4) == "2100"))
         {
             //L-000-MSG3__-GOES13______-00_7_075W-000001___-201404031200-C_
             //L-000-MSG3__-GOES13______-00_7_075W-PRO______-201404031200-__
@@ -348,7 +356,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             int filenbr = fileInfo.fileName().mid(36, 6).toInt();
             QString strspectrum = fileInfo.fileName().mid(26, 6);
             QString strdate = fileInfo.fileName().mid(46, 12);
-            qDebug() << "Data Channel 3 - GOES13 " << strdate << " " << strspectrum << " " << QString("%1").arg(filenbr);
+            // qDebug() << "Data Channel 3 - GOES13 " << strdate << " " << strspectrum << " " << QString("%1").arg(filenbr);
 
             if (strspectrum != "______")
             {
@@ -375,44 +383,69 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
             }
         }
-//        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_"
-//                   && fileInfo.absolutePath().contains("Data Channel 4", Qt::CaseInsensitive))  // Data Channel 4
-//        {
-//            //L-000-MSG3__-GOES13______-00_7_075W-000001___-201404031200-C_
-//            //L-000-MSG3__-GOES13______-00_7_075W-PRO______-201404031200-__
+        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" &&
+              //     && fileInfo.absolutePath().contains("Data Channel 4", Qt::CaseInsensitive))  // Data Channel 4
+                 (fileInfo.fileName().mid(54, 4) == "0100" ||
+                  fileInfo.fileName().mid(54, 4) == "0200" ||
+                  fileInfo.fileName().mid(54, 4) == "0400" ||
+                  fileInfo.fileName().mid(54, 4) == "0500" ||
+                  fileInfo.fileName().mid(54, 4) == "0700" ||
+                  fileInfo.fileName().mid(54, 4) == "0800" ||
+                  fileInfo.fileName().mid(54, 4) == "1000" ||
+                  fileInfo.fileName().mid(54, 4) == "1100" ||
+                  fileInfo.fileName().mid(54, 4) == "1300" ||
+                  fileInfo.fileName().mid(54, 4) == "1400" ||
+                  fileInfo.fileName().mid(54, 4) == "1600" ||
+                  fileInfo.fileName().mid(54, 4) == "1700" ||
+                  fileInfo.fileName().mid(54, 4) == "1900" ||
+                  fileInfo.fileName().mid(54, 4) == "2000" ||
+                  fileInfo.fileName().mid(54, 4) == "2200" ||
+                  fileInfo.fileName().mid(54, 4) == "2300"))
 
-//            int filenbr = fileInfo.fileName().mid(36, 6).toInt();
-//            QString strspectrum = fileInfo.fileName().mid(26, 6);
-//            QString strdate = fileInfo.fileName().mid(46, 12);
-//            qDebug() << "Data Channel 4 - GOES13 " << strdate << " " << strspectrum << " " << QString("%1").arg(filenbr);
+        {
+            //L-000-MSG3__-GOES13______-00_7_075W-000001___-201404031200-C_
+            //L-000-MSG3__-GOES13______-00_7_075W-PRO______-201404031200-__
 
-//            if (strspectrum != "______")
-//            {
-//                seglgoes13dc4->setImagePath(fileInfo.absolutePath());
+            int filenbr = fileInfo.fileName().mid(36, 6).toInt();
+            QString strspectrum = fileInfo.fileName().mid(26, 6);
+            QString strdate = fileInfo.fileName().mid(46, 12);
 
-//                QMap<int, QFileInfo> hashfile;
-//                QMap<QString, QMap<int, QFileInfo> > hashspectrum;
+            if (strspectrum != "______")
+            {
+                seglgoes13dc4->setImagePath(fileInfo.absolutePath());
 
-//                if (segmentlistmapgoes13dc4.contains(strdate))
-//                {
-//                    hashspectrum = segmentlistmapgoes13dc4.value(strdate);
-//                    if (hashspectrum.contains(strspectrum))
-//                        hashfile = hashspectrum.value(strspectrum);
-//                    hashfile.insert( filenbr, fileInfo );
-//                    hashspectrum.insert( strspectrum, hashfile);
-//                    segmentlistmapgoes13dc4.insert(strdate, hashspectrum);
-//                }
-//                else
-//                {
-//                    hashfile.insert( filenbr, fileInfo );
-//                    hashspectrum.insert(strspectrum, hashfile);
-//                    segmentlistmapgoes13dc4.insert( strdate, hashspectrum );
-//                }
+                QMap<int, QFileInfo> hashfile;
+                QMap<QString, QMap<int, QFileInfo> > hashspectrum;
 
-//            }
-//        }
+                if (segmentlistmapgoes13dc4.contains(strdate))
+                {
+                    hashspectrum = segmentlistmapgoes13dc4.value(strdate);
+                    if (hashspectrum.contains(strspectrum))
+                        hashfile = hashspectrum.value(strspectrum);
+                    hashfile.insert( filenbr, fileInfo );
+                    hashspectrum.insert( strspectrum, hashfile);
+                    segmentlistmapgoes13dc4.insert(strdate, hashspectrum);
+                }
+                else
+                {
+                    hashfile.insert( filenbr, fileInfo );
+                    hashspectrum.insert(strspectrum, hashfile);
+                    segmentlistmapgoes13dc4.insert( strdate, hashspectrum );
+                }
+
+            }
+        }
         else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileInfo.fileName().mid( 59, 2) == "C_" &&
-                   fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))   // Data Channel 3
+              //     fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))   // Data Channel 3
+                 (fileInfo.fileName().mid(54, 4) == "0000" ||
+                  fileInfo.fileName().mid(54, 4) == "0300" ||
+                  fileInfo.fileName().mid(54, 4) == "0600" ||
+                  fileInfo.fileName().mid(54, 4) == "0900" ||
+                  fileInfo.fileName().mid(54, 4) == "1200" ||
+                  fileInfo.fileName().mid(54, 4) == "1500" ||
+                  fileInfo.fileName().mid(54, 4) == "1800" ||
+                  fileInfo.fileName().mid(54, 4) == "2100"))
+
         {
             //L-000-MSG3__-GOES15______-00_7_135W-000001___-201404031500-C_
             //L-000-MSG3__-GOES15______-00_7_135W-PRO______-201404031500-__
@@ -447,7 +480,24 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
             }
         } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileInfo.fileName().mid( 59, 2) == "C_" &&
-                   fileInfo.absolutePath().contains("Data Channel 4", Qt::CaseInsensitive))   // Data Channel 4
+                //   fileInfo.absolutePath().contains("Data Channel 4", Qt::CaseInsensitive))   // Data Channel 4
+                   (fileInfo.fileName().mid(54, 4) == "0100" ||
+                    fileInfo.fileName().mid(54, 4) == "0200" ||
+                    fileInfo.fileName().mid(54, 4) == "0400" ||
+                    fileInfo.fileName().mid(54, 4) == "0500" ||
+                    fileInfo.fileName().mid(54, 4) == "0700" ||
+                    fileInfo.fileName().mid(54, 4) == "0800" ||
+                    fileInfo.fileName().mid(54, 4) == "1000" ||
+                    fileInfo.fileName().mid(54, 4) == "1100" ||
+                    fileInfo.fileName().mid(54, 4) == "1300" ||
+                    fileInfo.fileName().mid(54, 4) == "1400" ||
+                    fileInfo.fileName().mid(54, 4) == "1600" ||
+                    fileInfo.fileName().mid(54, 4) == "1700" ||
+                    fileInfo.fileName().mid(54, 4) == "1900" ||
+                    fileInfo.fileName().mid(54, 4) == "2000" ||
+                    fileInfo.fileName().mid(54, 4) == "2200" ||
+                    fileInfo.fileName().mid(54, 4) == "2300"))
+
         {
             //L-000-MSG3__-GOES15______-00_7_135W-000001___-201404031500-C_
             //L-000-MSG3__-GOES15______-00_7_135W-PRO______-201404031500-__
@@ -801,9 +851,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                                                         segmentlistmapmeteosat.size()+segmentlistmapmeteosatrss.size() +
                                                         segmentlistmapmet7.size() +
                                                         segmentlistmapfy2e.size() + segmentlistmapfy2g.size() +
-                                                        segmentlistmapgoes13dc3.size()+segmentlistmapgoes15dc3.size() +
-                                                        segmentlistmapgoes13dc4.size() + segmentlistmapgoes15dc4.size()
-                                                        +segmentlistmaph8.size());
+                                                        segmentlistmapgoes13dc3.size() + segmentlistmapgoes13dc4.size() +
+                                                        segmentlistmapgoes15dc3.size() + segmentlistmapgoes15dc4.size() +
+                                                        segmentlistmaph8.size());
     emit signalResetProgressbar(1, strtot);
     emit signalNothingSelected();
 }
@@ -920,7 +970,6 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             filedate.setTime(t);
             if(hoursbefore == 0)
                 fileok = true;
-            qDebug() << "inserttomap " << fileinfo.fileName();
         }
         else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_")
         {

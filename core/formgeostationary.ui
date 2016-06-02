@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabGeostationary">
      <property name="currentIndex">
-      <number>8</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="tabMeteosat">
       <attribute name="title">

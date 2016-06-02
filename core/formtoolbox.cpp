@@ -1166,7 +1166,6 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 ||
         whichgeo == SegmentListGeostationary::MET_7 || whichgeo == SegmentListGeostationary::GOES_13 ||
         whichgeo == SegmentListGeostationary::GOES_15 )
-
     {
         ui->btnGeo1->setText("VIS006");
         ui->btnGeo2->setText("VIS008");
@@ -1182,7 +1181,8 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
         ui->btnGeo12->setText("");
         ui->btnHRV->setText("HRV");
     }
-    else if(whichgeo == SegmentListGeostationary::MET_7)
+
+    if(whichgeo == SegmentListGeostationary::MET_7)
     {
         if(rowchosen.at(3).toInt() == 0)
             ui->btnGeo2->setEnabled(false);

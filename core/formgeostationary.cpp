@@ -1030,6 +1030,9 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     long lCFAC;
     long lLFAC;
 
+
+    QApplication::setOverrideCursor(( Qt::WaitCursor));
+
     SegmentListGeostationary::eGeoSatellite whichgeo = sl->getGeoSatellite();
 
     filetiming = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2) + tex.mid(13, 2) + tex.mid(16, 2);
