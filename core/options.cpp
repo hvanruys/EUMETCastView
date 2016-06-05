@@ -144,8 +144,10 @@ void Options::Initialize()
     gshhsglobe3On = settings.value("/window/gshhsglobe3on", false ).toBool();
     graytextureOn = settings.value("/window/graytextureon", false ).toBool();
     ephemsplittersizes = settings.value("/ephemwindow/splitterSizes").toByteArray(); // .value<QByteArray>();
-    mainwindowgeometry = settings.value("/window/mainwindowgeometry").value<QByteArray>();
-    windowstate = settings.value("/window/windowstate").value<QByteArray>();
+
+    //mainwindowgeometry = settings.value("/window/mainwindowgeometry").value<QByteArray>();
+    //windowstate = settings.value("/window/windowstate").value<QByteArray>();
+
     zoomfactoravhrr = settings.value("/window/zoomfactoravhrr", 100).toInt();
     if( zoomfactoravhrr < 5 || zoomfactoravhrr > 500 )
         zoomfactoravhrr = 100;
@@ -428,8 +430,10 @@ void Options::Save()
 
 
     settings.setValue("/ephemwindow/splitterSizes", ephemsplittersizes );
-    settings.setValue("/window/mainwindowgeometry", mainwindowgeometry );
-    settings.setValue("/window/windowstate", windowstate );
+
+    //settings.setValue("/window/mainwindowgeometry", mainwindowgeometry );
+    //settings.setValue("/window/windowstate", windowstate );
+
     settings.setValue("/window/zoomfactoravhrr", zoomfactoravhrr );
     settings.setValue("/window/zoomfactormeteosat", zoomfactormeteosat );
     settings.setValue("/window/zoomfactorprojection", zoomfactorprojection );

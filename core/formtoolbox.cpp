@@ -3842,7 +3842,6 @@ void FormToolbox::setupEquirectangularTable()
 
 }
 
-
 void FormToolbox::on_trvEquirectangular_clicked(const QModelIndex &index)
 {
     QString sPath = myEquirectangularModel->fileInfo(index).absoluteFilePath();
@@ -3861,6 +3860,10 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
 
     if(imageptrs->ptrProjectionInfra.isNull())
     {
+        QMessageBox msgBox;
+        msgBox.setText("Only for VIIRS channels M12 to M16.");
+        msgBox.exec();
+
         ui->btnGVPFalseColor->setChecked(false);
         return;
     }
@@ -3879,7 +3882,12 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
             formimage->displayImage(IMAGE_PROJECTION);
         }
         else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Only for VIIRS channels M12 to M16.");
+            msgBox.exec();
             ui->btnGVPFalseColor->setChecked(false);
+        }
     }
     else
     {
@@ -3918,7 +3926,12 @@ void FormToolbox::on_btnLCCFalseColor_clicked()
             formimage->displayImage(IMAGE_PROJECTION);
         }
         else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Only for VIIRS channels M12 to M16.");
+            msgBox.exec();
             ui->btnLCCFalseColor->setChecked(false);
+        }
     }
     else
     {
@@ -3957,7 +3970,12 @@ void FormToolbox::on_btnSGFalseColor_clicked()
             formimage->displayImage(IMAGE_PROJECTION);
         }
         else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Only for VIIRS channels M12 to M16.");
+            msgBox.exec();
             ui->btnSGFalseColor->setChecked(false);
+        }
     }
     else
     {

@@ -153,8 +153,10 @@ public:
     int dnbspbwindowsvalue;
 
     QByteArray ephemsplittersizes;
-    QByteArray mainwindowgeometry;
-    QByteArray windowstate;
+
+    //QByteArray mainwindowgeometry;
+    //QByteArray windowstate;
+
     QString localdirremote;
     QString dirremote;
 	double obslat, obslon, obsalt;
