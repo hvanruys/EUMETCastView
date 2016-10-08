@@ -4,6 +4,7 @@
 #include <QObject>
 #include "segmentviirsdnb.h"
 #include "segmentlist.h"
+#include "qcustomplot.h"
 
 class SatelliteList;
 class SegmentListVIIRSDNB  : public SegmentList
@@ -20,10 +21,15 @@ public:
     void spbWindowValueChanged(int spbwindowval, int slcentreband);
     float getMoonIllumination() { return moonillumination; }
 
+    QScopedArrayPointer<long> graphvalues;
+    QVector<double> xDNBcurve;
+    QVector<double> yDNBcurve;
+
 private:
     void CalculateLUT();
     bool PixelOK(int pix);
     void printData(SegmentVIIRSDNB *segm, int linesfrom, int viewsfrom);
+    void fitDNBCurve();
 
     SatelliteList *satlist;
     int lut[256];
@@ -38,6 +44,9 @@ protected:
 protected slots:
     void finishedviirs();
     void progressreadvalue(int progress);
+
+signals:
+    void displayDNBGraph();
 };
 
 #endif // SEGMENTLISTVIIRS_H

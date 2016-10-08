@@ -2,7 +2,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "hdf5.h"
+#include <hdf5/serial/hdf5.h>
 
 extern Options opts;
 extern Poi poi;
@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(&seglist->seglmeteosat->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
     }
 
+
     for( int i = 0; i < 8; i++)
     {
         connect(&seglist->seglmeteosatrss->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
@@ -69,6 +70,19 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         connect(&seglist->seglmeteosatrss->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
     }
+
+    for( int i = 0; i < 8; i++)
+    {
+        connect(&seglist->seglmet8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmet8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmet8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+    }
+
+    for( int i = 0; i < 24; i++)
+    {
+        connect(&seglist->seglmet8->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+    }
+
 
     for( int i = 0; i < 10; i++)
     {
@@ -120,7 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(seglist->seglmeteosat, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmeteosatrss, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    //connect(seglist->seglelectro, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglmet8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmet7, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes13dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes15dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
@@ -136,6 +150,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglhrp, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgac, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+
+    connect(seglist->seglviirsdnb, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
 
 
     formglobecyl = new FormMapCyl( this, mapcyl, globe, formtoolbox, satlist, seglist);
@@ -213,6 +229,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qDebug() << QString("HDF5 library %1.%2.%3").arg(majnum).arg(minnum).arg(relnum);
 
+
     loadLayout();
 }
 
@@ -250,10 +267,6 @@ void MainWindow::timerDone(void)
     strncat(tempstr, asctime(&utc), 20 );
     timeLabel->setText(QString(tempstr));
 }
-
-
-
-
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
@@ -333,7 +346,7 @@ void MainWindow::on_actionAbout_triggered()
     "<p>supports the following satellites</p>"
     "<p>Metop-A, Metop-B </p>"
     "<p>Noaa, SUOMI NPP (M-Band and Day/Night Band)</p>"
-    "<p>Meteosat-10, Meteosat-9, Meteosat7</p>"
+    "<p>Meteosat-10, Meteosat-9, Meteosat-8, Meteosat-7</p>"
     "<p>FengYun 2E, FengYun 2G</p>"
     "<p>GOES-13, GOES-15</p>"
     "<p>Himawari-8</p>"

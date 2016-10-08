@@ -37,6 +37,7 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImage(QList<bool> bandlist, QList<int> col
 {
     qDebug() << QString("SegmentListVIIRSDNB::ComposeVIIRSImage");
 
+
     QApplication::setOverrideCursor(( Qt::WaitCursor));
     watcherviirs = new QFutureWatcher<void>(this);
     connect(watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
@@ -118,12 +119,20 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     {
         SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
         segm->ReadSegmentInMemory();
-
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
         ++segsel;
     }
 
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
+        segm->CalcGraph(&graphvalues);
+        ++segsel;
+    }
+
+    fitDNBCurve();
 
     float lowerlimit = pow(10, opts.dnbsbvalue/20.0)/pow(10, opts.dnbspbwindowsvalue);
     float upperlimit = pow(10, opts.dnbsbvalue/20.0)*pow(10, opts.dnbspbwindowsvalue);
@@ -131,12 +140,18 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     int count = 0;
     float totillum = 0;
 
+    for(int i = 0; i < xDNBcurve.length(); i ++)
+    {
+        qDebug() << QString("x = %1   y = %2").arg(xDNBcurve.at(i)).arg(yDNBcurve.at(i));
+    }
+
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
 
-        segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
+//        segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
+        segm->ComposeSegmentImageWindowFromCurve(&xDNBcurve, &yDNBcurve);
         totillum += segm->MoonIllumFraction;
         count++;
 
@@ -145,7 +160,8 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
         ++segsel;
     }
 
-    emit progressCounter(100);
+    //emit progressCounter(100);
+    emit displayDNBGraph();
 
     moonillumination = totillum/count;
 
@@ -156,6 +172,67 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     emit segmentlistfinished(true);
 
     return true;
+}
+
+void SegmentListVIIRSDNB::fitDNBCurve()
+{
+
+
+    QVector<double> xmax(180), ymax(180); // initialize with entries 0..100
+
+//    for(int i = 149; i >= 0; i--)
+//    {
+
+//            double lowind = (double)(i % 10 + 1)/10.0;
+//            double upperind = (double)(i % 10)/10.0;
+//            double lowerlimit2 = pow(10, -lowind - (int)(i/10.0));
+//            double upperlimit2 = pow(10, -upperind - (int)(i/10.0));
+//            int index = 149 - i;
+//            qDebug() << QString("---- index = %1 lowelimit2 = %2  upperlimit2 = %3")
+//                        .arg(index).arg(lowerlimit2).arg(upperlimit2);
+//    }
+
+
+    for(int xzenith = 0; xzenith < 180; xzenith++)
+    {
+        xmax[xzenith] = xzenith;
+        ymax[xzenith] = 0;
+        double radval = 0;
+        long maxval = 0;
+        int jmax = 0;
+
+        for(int j = 149; j >= 0; j--)
+        {
+            int index = j * 180 + xzenith;
+            long val = this->graphvalues.operator [](index);
+            if(val > maxval)
+            {
+                maxval = val;
+                jmax = 149 - j;
+            }
+        }
+        //qDebug() << QString("maxval = %1 jmax = %2").arg(maxval).arg(jmax);
+
+        if(maxval > 0)
+        {
+            double lowind = (double)((jmax % 10) + 1)/10.0;
+            double upperind = (double)(jmax % 10)/10.0;
+            double lowerlimit = pow(10, -lowind - (int)(jmax/10));
+            double upperlimit = pow(10, -upperind - (int)(jmax/10));
+
+            ymax[xzenith] = upperlimit;
+          //  qDebug() << QString("lowlimit = %1   upperlimit = %2").arg(lowerlimit, 0, 'E', 3).arg(upperlimit, 0, 'E', 3);
+        }
+    }
+
+    for(int i = 0; i < 180; i++)
+    {
+        if(ymax[i] > 0)
+        {
+            xDNBcurve.append(xmax.at(i));
+            yDNBcurve.append(ymax.at(i));
+        }
+    }
 }
 
 void SegmentListVIIRSDNB::CalculateLUT()
@@ -447,12 +524,13 @@ void SegmentListVIIRSDNB::sliderCentreBandChanged(int val)
     float fval = val/20.0;
     qDebug() << QString("Value sliderCentreBandChanged value = %1").arg(pow(10,fval));
 
-
     float lowerlimit = pow(10, val/20.0)/pow(10, opts.dnbspbwindowsvalue);
     float upperlimit = pow(10, val/20.0)*pow(10, opts.dnbspbwindowsvalue);
 
-    qDebug() << QString("lowerlimit = %1").arg(lowerlimit);
-    qDebug() << QString("upperlimit = %1").arg(upperlimit);
+    qDebug() << QString("dnbsbvalue = %1, dnbspbwindowsvalue = %2").arg(opts.dnbsbvalue).arg(opts.dnbspbwindowsvalue);
+
+    qDebug() << QString("lowerlimit = %1").arg(lowerlimit, 0, 'E', 2);
+    qDebug() << QString("upperlimit = %1").arg(upperlimit, 0, 'E', 2);
 
     QList<Segment*>::iterator segsel = segsselected.begin();
     while ( segsel != segsselected.end() )

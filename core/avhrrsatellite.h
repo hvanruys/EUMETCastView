@@ -62,6 +62,7 @@ public:
     QStringList GetOverviewSegmentsMeteosat();
     QStringList GetOverviewSegmentsMeteosatRss();
     QStringList GetOverviewSegmentsMeteosat7();
+    QStringList GetOverviewSegmentsMeteosat8();
     QStringList GetOverviewSegmentsGOES13();
     QStringList GetOverviewSegmentsGOES15();
     QStringList GetOverviewSegmentsFY2E();
@@ -83,7 +84,7 @@ public:
     SegmentListGeostationary *seglmeteosat;
     SegmentListGeostationary *seglmeteosatrss;
     SegmentListGeostationary *seglmet7;
-    //SegmentListGeostationary *seglelectro;
+    SegmentListGeostationary *seglmet8;
     SegmentListGeostationary *seglgoes13dc3;
     SegmentListGeostationary *seglgoes15dc3;
     SegmentListGeostationary *seglgoes13dc4;
@@ -95,6 +96,7 @@ public:
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmeteosat;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmeteosatrss;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmet7;
+    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmet8;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes13dc3;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes15dc3;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes13dc4;
@@ -102,6 +104,8 @@ public:
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2e;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2g;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmaph8;
+
+
 
 
 private:

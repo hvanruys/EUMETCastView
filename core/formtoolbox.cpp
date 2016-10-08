@@ -257,7 +257,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblGeo10->setText("12.00");
     ui->lblGeo11->setText("13.40");
     ui->lblGeo12->setText("");
-
+    ui->lblGeo13->setText("");
 
     ui->lblUpper->setVisible(false);
     ui->lblLower->setVisible(false);
@@ -276,6 +276,62 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     //ui->tabWidget->setTabEnabled(3, false);
 
     //infrascales = NULL;
+
+
+    double valuerange1;
+    double valuerange2;
+
+    colorMap = new QCPColorMap(ui->graph->xAxis, ui->graph->yAxis);
+    ui->graph->addPlottable(colorMap);
+
+    colorMap->data()->setSize(180, 150);
+    colorMap->data()->setRange(QCPRange(0, 179), QCPRange(1.0E-15, 1.0));
+    valuerange1 = 1.0E-15;
+    valuerange2 = 1.0;
+    valueRangeDNBGraph = log10(valuerange2) - log10(valuerange1);
+
+    ui->graph->xAxis->setLabel("Solar Zenith Angle (deg)");
+    ui->graph->yAxis->setLabel("radiance");
+
+    ui->graph->yAxis->setScaleType(QCPAxis::stLogarithmic);
+    ui->graph->yAxis->setScaleLogBase(10.0);
+    ui->graph->yAxis->setAutoTicks(false);
+    ui->graph->yAxis->setSubTickCount(8);
+    QVector<double> tick;
+    tick << 1.0E-15 << 1.0E-14 << 1.0E-13 << 1.0E-12 << 1.0E-11 << 1.0E-10
+         << 1.0E-9 << 1.0E-8 << 1.0E-7 << 1.0E-6 << 1.0E-5 << 1.0E-4 << 1.0E-3 << 0.01 << 0.1 << 1 ;
+    ui->graph->yAxis->setTickVector(tick);
+
+
+    ui->graph->setInteractions(QCP::iRangeDrag|QCP::iRangeZoom);
+    ui->graph->axisRect()->setupFullAxesBox(true);
+
+
+    // add a color scale:
+    QCPColorScale *colorScale = new QCPColorScale(ui->graph);
+    ui->graph->plotLayout()->addElement(0, 1, colorScale); // add it to the right of the main axis rect
+    colorScale->setType(QCPAxis::atRight); // scale shall be vertical bar with tick/axis labels right (actually atRight is already the default)
+    colorMap->setColorScale(colorScale); // associate the color map with the color scale
+    colorScale->axis()->setLabel("Radiance Distribution");
+
+
+    QCPColorGradient gradient = QCPColorGradient::gpPolar;
+    gradient.setLevelCount(12);
+
+    colorMap->setGradient(gradient);
+
+
+    // make sure the axis rect and color scale synchronize their bottom and top margins (so they line up):
+    QCPMarginGroup *marginGroup = new QCPMarginGroup(ui->graph);
+    ui->graph->axisRect()->setMarginGroup(QCP::msBottom|QCP::msTop, marginGroup);
+    colorScale->setMarginGroup(QCP::msBottom|QCP::msTop, marginGroup);
+
+
+    colorMap->rescaleDataRange(true);
+    ui->graph->rescaleAxes();
+    ui->graph->replot();
+
+
 
     qDebug() << "constructor formtoolbox";
 
@@ -472,6 +528,11 @@ void FormToolbox::setupChannelCombo()
     ui->comboGeo12->addItem(tr("R"));
     ui->comboGeo12->addItem(tr("G"));
     ui->comboGeo12->addItem(tr("B"));
+
+    ui->comboGeo13->addItem(tr("-"));
+    ui->comboGeo13->addItem(tr("R"));
+    ui->comboGeo13->addItem(tr("G"));
+    ui->comboGeo13->addItem(tr("B"));
 
     ui->comboM1->addItem(tr("-"));
     ui->comboM1->addItem(tr("R"));
@@ -1163,7 +1224,7 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
 
     this->setToolboxButtons(true);
 
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 ||
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8 ||
         whichgeo == SegmentListGeostationary::MET_7 || whichgeo == SegmentListGeostationary::GOES_13 ||
         whichgeo == SegmentListGeostationary::GOES_15 )
     {
@@ -1179,6 +1240,7 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
         ui->btnGeo10->setText("IR_120");
         ui->btnGeo11->setText("IR_134");
         ui->btnGeo12->setText("");
+        ui->btnGeo13->setText("");
         ui->btnHRV->setText("HRV");
     }
 
@@ -1186,35 +1248,35 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
     {
         if(rowchosen.at(3).toInt() == 0)
             ui->btnGeo2->setEnabled(false);
-        else if(rowchosen.at(4).toInt() == 0)
+        if(rowchosen.at(4).toInt() == 0)
             ui->btnGeo5->setEnabled(false);
-        else if(rowchosen.at(5).toInt() == 0)
+        if(rowchosen.at(5).toInt() == 0)
             ui->btnGeo10->setEnabled(false);
     }
     else if(whichgeo == SegmentListGeostationary::GOES_13 || whichgeo == SegmentListGeostationary::GOES_15)
     {
         if(rowchosen.at(3).toInt() == 0)
             ui->btnGeo2->setEnabled(false);
-        else if(rowchosen.at(4).toInt() == 0)
+        if(rowchosen.at(4).toInt() == 0)
             ui->btnGeo4->setEnabled(false);
-        else if(rowchosen.at(5).toInt() == 0)
+        if(rowchosen.at(5).toInt() == 0)
             ui->btnGeo5->setEnabled(false);
-        else if(rowchosen.at(6).toInt() == 0)
+        if(rowchosen.at(6).toInt() == 0)
             ui->btnGeo9->setEnabled(false);
     }
     else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
     {
         if(rowchosen.at(3).toInt() == 0)
             ui->btnGeo1->setEnabled(false);
-        else if(rowchosen.at(4).toInt() == 0)
+        if(rowchosen.at(4).toInt() == 0)
             ui->btnGeo2->setEnabled(false);
-        else if(rowchosen.at(5).toInt() == 0)
+        if(rowchosen.at(5).toInt() == 0)
             ui->btnGeo3->setEnabled(false);
-        else if(rowchosen.at(6).toInt() == 0)
+        if(rowchosen.at(6).toInt() == 0)
             ui->btnGeo4->setEnabled(false);
-        else if(rowchosen.at(7).toInt() == 0)
+        if(rowchosen.at(7).toInt() == 0)
             ui->btnGeo5->setEnabled(false);
-        else if(rowchosen.at(8).toInt() == 0)
+        if(rowchosen.at(8).toInt() == 0)
             ui->btnHRV->setEnabled(false);
         ui->btnGeo1->setText("VIS");
         ui->btnGeo2->setText("IR4");
@@ -1228,45 +1290,52 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
         ui->btnGeo10->setText("");
         ui->btnGeo11->setText("");
         ui->btnGeo12->setText("");
+        ui->btnGeo13->setText("");
         ui->btnHRV->setText("VIS1KM");
     }
     else if(whichgeo == SegmentListGeostationary::H8)
     {
-        if(rowchosen.at(13).toInt() == 0)
+
+        if(rowchosen.at(15).toInt() == 0)
             ui->btnGeo1->setEnabled(false);
-        else if(rowchosen.at(7).toInt() == 0)
+        if(rowchosen.at(7).toInt() == 0)
             ui->btnGeo2->setEnabled(false);
-        else if(rowchosen.at(8).toInt() == 0)
+        if(rowchosen.at(8).toInt() == 0)
             ui->btnGeo3->setEnabled(false);
-        else if(rowchosen.at(6).toInt() == 0)
+        if(rowchosen.at(9).toInt() == 0)
             ui->btnGeo4->setEnabled(false);
-        else if(rowchosen.at(5).toInt() == 0)
+        if(rowchosen.at(6).toInt() == 0)
             ui->btnGeo5->setEnabled(false);
-        else if(rowchosen.at(9).toInt() == 0)
+        if(rowchosen.at(5).toInt() == 0)
             ui->btnGeo6->setEnabled(false);
-        else if(rowchosen.at(10).toInt() == 0)
+        if(rowchosen.at(10).toInt() == 0)
             ui->btnGeo7->setEnabled(false);
-        else if(rowchosen.at(3).toInt() == 0)
+        if(rowchosen.at(11).toInt() == 0)
             ui->btnGeo8->setEnabled(false);
-        else if(rowchosen.at(11).toInt() == 0)
+        if(rowchosen.at(12).toInt() == 0)
             ui->btnGeo9->setEnabled(false);
-        else if(rowchosen.at(4).toInt() == 0)
+        if(rowchosen.at(3).toInt() == 0)
             ui->btnGeo10->setEnabled(false);
-        else if(rowchosen.at(12).toInt() == 0)
+        if(rowchosen.at(13).toInt() == 0)
             ui->btnGeo11->setEnabled(false);
+        if(rowchosen.at(4).toInt() == 0)
+            ui->btnGeo12->setEnabled(false);
+        if(rowchosen.at(14).toInt() == 0)
+            ui->btnGeo13->setEnabled(false);
 
         ui->btnGeo1->setText("VIS");
         ui->btnGeo2->setText("B04");
         ui->btnGeo3->setText("B05");
-        ui->btnGeo4->setText("IR4");
-        ui->btnGeo5->setText("IR3");
-        ui->btnGeo6->setText("B09");
-        ui->btnGeo7->setText("B10");
-        ui->btnGeo8->setText("B11");
-        ui->btnGeo9->setText("IR1");
-        ui->btnGeo10->setText("B14");
-        ui->btnGeo11->setText("IR2");
-        ui->btnGeo12->setText("B16");
+        ui->btnGeo4->setText("B06");
+        ui->btnGeo5->setText("IR4");
+        ui->btnGeo6->setText("IR3");
+        ui->btnGeo7->setText("B09");
+        ui->btnGeo8->setText("B10");
+        ui->btnGeo9->setText("B11");
+        ui->btnGeo10->setText("IR1");
+        ui->btnGeo11->setText("B14");
+        ui->btnGeo12->setText("IR2");
+        ui->btnGeo13->setText("B16");
         ui->btnHRV->setText("");
     }
 
@@ -1333,6 +1402,8 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnGeo10->setEnabled(state);
         ui->btnGeo11->setEnabled(false);
         ui->btnGeo12->setEnabled(false);
+        ui->btnGeo13->setEnabled(false);
+
         ui->btnHRV->setEnabled(false);
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
@@ -1349,6 +1420,8 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->lblGeo10->setText("   ");
         ui->lblGeo11->setText("   ");
         ui->lblGeo12->setText("   ");
+        ui->lblGeo13->setText("   ");
+
 
         break;
     case SegmentListGeostationary::GOES_13:
@@ -1366,6 +1439,7 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnGeo10->setEnabled(false);
         ui->btnGeo11->setEnabled(false);
         ui->btnGeo12->setEnabled(false);
+        ui->btnGeo13->setEnabled(false);
         ui->btnHRV->setEnabled(false);
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
@@ -1382,6 +1456,7 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->lblGeo10->setText("   ");
         ui->lblGeo11->setText("   ");
         ui->lblGeo12->setText("   ");
+        ui->lblGeo13->setText("   ");
 
 
         break;
@@ -1400,6 +1475,7 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnGeo10->setEnabled(false);
         ui->btnGeo11->setEnabled(false);
         ui->btnGeo12->setEnabled(false);
+        ui->btnGeo13->setEnabled(false);
         ui->btnHRV->setEnabled(state);
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
@@ -1416,6 +1492,7 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->lblGeo10->setText("   ");
         ui->lblGeo11->setText("   ");
         ui->lblGeo12->setText("   ");
+        ui->lblGeo13->setText("   ");
 
         break;
     case SegmentListGeostationary::H8:
@@ -1432,6 +1509,7 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnGeo10->setEnabled(state);
         ui->btnGeo11->setEnabled(state);
         ui->btnGeo12->setEnabled(state);
+        ui->btnGeo13->setEnabled(state);
         ui->btnHRV->setEnabled(false);
         ui->cmbHRVtype->setEnabled(false);
         ui->chkColorHRV->setEnabled(false);
@@ -1439,15 +1517,16 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->lblGeo1->setText("0.64");
         ui->lblGeo2->setText("0.86");
         ui->lblGeo3->setText("1.6");
-        ui->lblGeo4->setText("3.9");
-        ui->lblGeo5->setText("6.2");
-        ui->lblGeo6->setText("6.9");
-        ui->lblGeo7->setText("7.3");
-        ui->lblGeo8->setText("8.6");
-        ui->lblGeo9->setText("10.4");
-        ui->lblGeo10->setText("11.2");
-        ui->lblGeo11->setText("12.4");
-        ui->lblGeo12->setText("13.3");
+        ui->lblGeo4->setText("2.3");
+        ui->lblGeo5->setText("3.9");
+        ui->lblGeo6->setText("6.2");
+        ui->lblGeo7->setText("6.9");
+        ui->lblGeo8->setText("7.3");
+        ui->lblGeo9->setText("8.6");
+        ui->lblGeo10->setText("10.4");
+        ui->lblGeo11->setText("11.2");
+        ui->lblGeo12->setText("12.4");
+        ui->lblGeo13->setText("13.3");
 
         break;
 
@@ -1464,7 +1543,8 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->btnGeo9->setEnabled(state);
         ui->btnGeo10->setEnabled(state);
         ui->btnGeo11->setEnabled(state);
-        ui->btnGeo12->setEnabled(state);
+        ui->btnGeo12->setEnabled(false);
+        ui->btnGeo13->setEnabled(false);
         ui->btnHRV->setEnabled(state);
         ui->cmbHRVtype->setEnabled(state);
         ui->chkColorHRV->setEnabled(state);
@@ -1481,6 +1561,7 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->lblGeo10->setText("12.00");
         ui->lblGeo11->setText("13.40");
         ui->lblGeo12->setText("     ");
+        ui->lblGeo13->setText("     ");
 
     }
 
@@ -1526,7 +1607,7 @@ void FormToolbox::setToolboxButtons(bool state)
 void FormToolbox::on_btnGeo1_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("VIS006", ui->chkInverseGeo1->isChecked());
     else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
         onButtonChannel("VIS", ui->chkInverseGeo1->isChecked());
@@ -1538,7 +1619,7 @@ void FormToolbox::on_btnGeo1_clicked()
 void FormToolbox::on_btnGeo2_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("VIS008", ui->chkInverseGeo2->isChecked());
     //else if(whichgeo == SegmentListGeostationary::ELECTRO_N1)
     //    onButtonChannel("00_9_0", ui->chkInverseGeo2->isChecked());
@@ -1558,7 +1639,7 @@ void FormToolbox::on_btnGeo2_clicked()
 void FormToolbox::on_btnGeo3_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_016", ui->chkInverseGeo3->isChecked());
     else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
         onButtonChannel("IR3", ui->chkInverseGeo3->isChecked());
@@ -1571,7 +1652,7 @@ void FormToolbox::on_btnGeo3_clicked()
 void FormToolbox::on_btnGeo4_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_039", ui->chkInverseGeo4->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_13)
         onButtonChannel("03_9_0", ui->chkInverseGeo4->isChecked());
@@ -1580,7 +1661,7 @@ void FormToolbox::on_btnGeo4_clicked()
     else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
         onButtonChannel("IR4", ui->chkInverseGeo4->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("IR4", ui->chkInverseGeo4->isChecked());
+        onButtonChannel("B06", ui->chkInverseGeo4->isChecked());
 
 
 }
@@ -1588,7 +1669,7 @@ void FormToolbox::on_btnGeo4_clicked()
 void FormToolbox::on_btnGeo5_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("WV_062", ui->chkInverseGeo5->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_13)
         onButtonChannel("06_6_0", ui->chkInverseGeo5->isChecked());
@@ -1599,7 +1680,7 @@ void FormToolbox::on_btnGeo5_clicked()
     else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
         onButtonChannel("VIS", ui->chkInverseGeo5->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("IR3", ui->chkInverseGeo5->isChecked());
+        onButtonChannel("IR4", ui->chkInverseGeo5->isChecked());
 
 
 }
@@ -1607,66 +1688,66 @@ void FormToolbox::on_btnGeo5_clicked()
 void FormToolbox::on_btnGeo6_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("WV_073", ui->chkInverseGeo6->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("B09", ui->chkInverseGeo6->isChecked());
+        onButtonChannel("IR3", ui->chkInverseGeo6->isChecked());
 
 }
 
 void FormToolbox::on_btnGeo7_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_087", ui->chkInverseGeo7->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("B10", ui->chkInverseGeo7->isChecked());
+        onButtonChannel("B09", ui->chkInverseGeo7->isChecked());
 
 }
 
 void FormToolbox::on_btnGeo8_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_097", ui->chkInverseGeo8->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("B11", ui->chkInverseGeo8->isChecked());
+        onButtonChannel("B10", ui->chkInverseGeo8->isChecked());
 
 }
 
 void FormToolbox::on_btnGeo9_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_108", ui->chkInverseGeo9->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_13)
         onButtonChannel("10_7_0", ui->chkInverseGeo9->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_15)
         onButtonChannel("10_7_1", ui->chkInverseGeo9->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("IR1", ui->chkInverseGeo9->isChecked());
+        onButtonChannel("B11", ui->chkInverseGeo9->isChecked());
 
 }
 
 void FormToolbox::on_btnGeo10_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_120", ui->chkInverseGeo10->isChecked());
     else if(whichgeo == SegmentListGeostationary::MET_7)
         onButtonChannel("11_5_0", ui->chkInverseGeo10->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("B14", ui->chkInverseGeo10->isChecked());
+        onButtonChannel("IR1", ui->chkInverseGeo10->isChecked());
 
 }
 
 void FormToolbox::on_btnGeo11_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_134", ui->chkInverseGeo11->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("IR2", ui->chkInverseGeo11->isChecked());
+        onButtonChannel("B14", ui->chkInverseGeo11->isChecked());
 
 }
 
@@ -1674,10 +1755,17 @@ void FormToolbox::on_btnGeo12_clicked()
 {
     checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("B16", ui->chkInverseGeo12->isChecked());
+        onButtonChannel("IR2", ui->chkInverseGeo12->isChecked());
 
 }
 
+void FormToolbox::on_btnGeo13_clicked()
+{
+    checkSegmentDateTime();
+    if(whichgeo == SegmentListGeostationary::H8)
+        onButtonChannel("B16", ui->chkInverseGeo13->isChecked());
+
+}
 
 void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 {
@@ -1685,7 +1773,7 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 
     ui->pbProgress->reset();
 
-    if(whichgeo == SegmentListGeostationary::MET_10)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_8)
         ui->pbProgress->setMaximum(8);
     else if(whichgeo == SegmentListGeostationary::MET_9)
         ui->pbProgress->setMaximum(3);
@@ -1707,6 +1795,7 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 
     segs->seglmeteosat->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglmeteosatrss->areatype = ui->cmbHRVtype->currentIndex();
+    segs->seglmet8->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglmet7->areatype = 1;
     segs->seglgoes13dc3->areatype = 1;
     segs->seglgoes15dc3->areatype = 1;
@@ -1719,6 +1808,7 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
     formimage->setKindOfImage(channel);
     segs->seglmeteosat->setKindofImage("VIS_IR");
     segs->seglmeteosatrss->setKindofImage("VIS_IR");
+    segs->seglmet8->setKindofImage("VIS_IR");
     segs->seglmet7->setKindofImage("VIS_IR");
     segs->seglgoes13dc3->setKindofImage("VIS_IR");
     segs->seglgoes15dc3->setKindofImage("VIS_IR");
@@ -1773,7 +1863,7 @@ void FormToolbox::on_btnGeoColor_clicked()
     if(whichgeo == SegmentListGeostationary::NOGEO)
         return;
     ui->pbProgress->reset();
-    if(whichgeo == SegmentListGeostationary::MET_10)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_8)
         ui->pbProgress->setMaximum(24);
     else if(whichgeo == SegmentListGeostationary::MET_9)
         ui->pbProgress->setMaximum(9);
@@ -1782,7 +1872,7 @@ void FormToolbox::on_btnGeoColor_clicked()
     else if(whichgeo == SegmentListGeostationary::H8)
         ui->pbProgress->setMaximum(30);
 
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 ||
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8 ||
             whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G || whichgeo == SegmentListGeostationary::H8)
         onButtonColorHRV("VIS_IR Color");
 
@@ -1817,7 +1907,7 @@ void FormToolbox::on_btnHRV_clicked()
 
     ui->pbProgress->reset();
 
-    if(whichgeo == SegmentListGeostationary::MET_10)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_8)
     {
         if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
             ui->pbProgress->setMaximum(5);
@@ -1846,7 +1936,7 @@ void FormToolbox::on_btnHRV_clicked()
         ui->pbProgress->setMaximum(100);
     }
 
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
     {
 
         if (ui->chkColorHRV->isChecked())
@@ -1868,14 +1958,16 @@ void FormToolbox::onButtonColorHRV(QString type)
 
     segs->seglmeteosat->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglmeteosatrss->areatype = ui->cmbHRVtype->currentIndex();
+    segs->seglmet8->areatype = ui->cmbHRVtype->currentIndex();
 
-
-    formimage->setKindOfImage(type);
     segs->seglmeteosat->setKindofImage(type);
     segs->seglmeteosatrss->setKindofImage(type);
+    segs->seglmet8->setKindofImage(type);
     segs->seglfy2e->setKindofImage(type);
     segs->seglfy2g->setKindofImage(type);
     segs->seglh8->setKindofImage(type);
+
+    formimage->setKindOfImage(type);
 
     formimage->displayImage(IMAGE_GEOSTATIONARY);
     formimage->adjustPicSize(true);
@@ -1883,7 +1975,7 @@ void FormToolbox::onButtonColorHRV(QString type)
 
     setToolboxButtons(false);
 
-    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9)
+    if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
@@ -3991,3 +4083,140 @@ void FormToolbox::on_btnSGFalseColor_clicked()
     }
 
 }
+
+void FormToolbox::slotDisplayDNBGraph()
+{
+
+    qDebug() << QString("FormToolbox::slotDisplayDNBGraph() valuerange = %1").arg(valueRangeDNBGraph);
+
+    long valmax = 0;
+
+    for(int j = 0; j < 150; j++)
+    {
+        for(int xzenith = 0; xzenith < 180; xzenith++)
+        {
+            int index = j * 180 + xzenith;
+            long val = segs->seglviirsdnb->graphvalues.operator [](index);
+            if(val > valmax)
+                valmax = val;
+        }
+    }
+
+    qDebug() << QString("FormToolbox::slotDisplayDNBGraph() valmax = %1").arg(valmax);
+
+    for(int j = 0; j < 150; j++)
+    {
+        for(int xzenith = 0; xzenith < 180; xzenith++)
+        {
+            colorMap->data()->setCell(xzenith, j, -valmax);
+        }
+    }
+
+    for(int j = 0; j < 150; j++)
+    {
+        for(int xzenith = 0; xzenith < 180; xzenith++)
+        {
+            int index = j * 180 + xzenith;
+            long val = segs->seglviirsdnb->graphvalues.operator [](index);
+            if(val > 0)
+                colorMap->data()->setCell(xzenith, j, val);
+        }
+    }
+
+
+
+    ui->graph->addLayer("mylayer");
+    ui->graph->setCurrentLayer("mylayer");
+    fitCurve();
+
+    colorMap->rescaleDataRange(true);
+    ui->graph->rescaleAxes();
+    ui->graph->replot();
+
+    setValueProgressBar(100);
+}
+
+void FormToolbox::setLogValue(int deg, double rad)
+{
+    int y = trunc(round((valueRangeDNBGraph + log10(rad)) * 149 / valueRangeDNBGraph));
+    colorMap->data()->setCell(deg, y, 1);
+}
+
+void FormToolbox::fitCurve()
+{
+
+
+//    QVector<double> xmax(180), ymax(180); // initialize with entries 0..100
+//    QVector<double> x, y;
+
+////    for(int i = 149; i >= 0; i--)
+////    {
+
+////            double lowind = (double)(i % 10 + 1)/10.0;
+////            double upperind = (double)(i % 10)/10.0;
+////            double lowerlimit2 = pow(10, -lowind - (int)(i/10.0));
+////            double upperlimit2 = pow(10, -upperind - (int)(i/10.0));
+////            int index = 149 - i;
+////            qDebug() << QString("---- index = %1 lowelimit2 = %2  upperlimit2 = %3")
+////                        .arg(index).arg(lowerlimit2).arg(upperlimit2);
+////    }
+
+
+//    for(int xzenith = 0; xzenith < 180; xzenith++)
+//    {
+//        xmax[xzenith] = xzenith;
+//        ymax[xzenith] = 0;
+//        double radval = 0;
+//        long maxval = 0;
+//        int jmax = 0;
+
+//        for(int j = 149; j >= 0; j--)
+//        {
+//            int index = j * 180 + xzenith;
+//            long val = segs->seglviirsdnb->graphvalues.operator [](index);
+//            if(val > maxval)
+//            {
+//                maxval = val;
+//                jmax = 149 - j;
+//            }
+//        }
+//        //qDebug() << QString("maxval = %1 jmax = %2").arg(maxval).arg(jmax);
+
+//        if(maxval > 0)
+//        {
+//            double lowind = (double)((jmax % 10) + 1)/10.0;
+//            double upperind = (double)(jmax % 10)/10.0;
+//            double lowerlimit = pow(10, -lowind - (int)(jmax/10));
+//            double upperlimit = pow(10, -upperind - (int)(jmax/10));
+
+//            ymax[xzenith] = upperlimit;
+//          //  qDebug() << QString("lowlimit = %1   upperlimit = %2").arg(lowerlimit, 0, 'E', 3).arg(upperlimit, 0, 'E', 3);
+//        }
+//    }
+
+//    for(int i = 0; i < 180; i++)
+//    {
+//        if(ymax[i] > 0)
+//        {
+//            x.append(xmax.at(i));
+//            y.append(ymax.at(i));
+//        }
+//    }
+    // create graph and assign data to it:
+    ui->graph->addGraph();
+    ui->graph->graph(0)->setData(segs->seglviirsdnb->xDNBcurve, segs->seglviirsdnb->yDNBcurve);
+
+    ui->graph->graph(0)->setLineStyle(QCPGraph::lsLine );
+
+    QCPScatterStyle myScatter;
+    myScatter.setShape(QCPScatterStyle::ssCross); // ssCircle);
+    myScatter.setPen(QPen(Qt::blue));
+    // myScatter.setBrush(Qt::red);
+    myScatter.setSize(5);
+    ui->graph->graph(0)->setScatterStyle(myScatter);
+
+
+}
+
+
+

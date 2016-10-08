@@ -1229,6 +1229,15 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::
                 fb_painter.drawPoint(x, y);
             }
         }
+        else if(sat == SegmentListGeostationary::MET_8)
+        {
+            if(pixconv.pixcoord2geocoord(segs->seglmet8->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
+            {
+                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                fb_painter.setPen(rgbval);
+                fb_painter.drawPoint(x, y);
+            }
+        }
         else if(sat == SegmentListGeostationary::MET_7)
         {
             if(pixconv.pixcoord2geocoord(segs->seglmet7->geosatlon, pix, heightinimage, COFF_NONHRV_MET7, LOFF_NONHRV_MET7, CFAC_NONHRV_MET7, LFAC_NONHRV_MET7, &lat_deg, &lon_deg) == 0)
@@ -1350,9 +1359,9 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, SegmentListGeostationar
                 rainbow.append(qBlue(rgbval));
             }
         }
-/*        else if(sat == SegmentListGeostationary::ELECTRO_N1)
+        else if(sat == SegmentListGeostationary::MET_8)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglelectro->geosatlon, pix, heightinimage, COFF_NONHRV_ELECTRO, LOFF_NONHRV_ELECTRO, CFAC_NONHRV_ELECTRO, LFAC_NONHRV_ELECTRO, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglmet8->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
@@ -1363,7 +1372,6 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, SegmentListGeostationar
                 rainbow.append(qBlue(rgbval));
             }
         }
-*/
         else if(sat == SegmentListGeostationary::MET_7)
         {
             if(pixconv.pixcoord2geocoord(segs->seglmet7->geosatlon, pix, heightinimage, COFF_NONHRV_MET7, LOFF_NONHRV_MET7, CFAC_NONHRV_MET7, LFAC_NONHRV_MET7, &lat_deg, &lon_deg) == 0)

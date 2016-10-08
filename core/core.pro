@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network widgets
+QT       += core gui network widgets printsupport
 QT       += concurrent
 unix:TARGET = ../EUMETCastView
 else:win32:TARGET = ../../EUMETCastView
@@ -72,7 +72,8 @@ SOURCES += main.cpp \
     equirectangular.cpp \
     infrascales.cpp \
     infrawidget.cpp \
-    forminfrascales.cpp
+    forminfrascales.cpp \
+    qcustomplot.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -133,7 +134,8 @@ HEADERS  += mainwindow.h \
     infrascales.h \
     infrawidget.h \
     colormaps.h \
-    forminfrascales.h
+    forminfrascales.h \
+    qcustomplot.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
@@ -155,8 +157,8 @@ else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.15\include" ../bz
 CONFIG(release, debug|release) {
     #This is a release build
     unix:LIBS += -lpthread -lz -L/usr/ \
-        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
-        -L/usr/local/hdf5/lib -lhdf5
+        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial
+        #-L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += \
         -L$$PWD/../../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
         -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5
@@ -164,8 +166,8 @@ CONFIG(release, debug|release) {
 } else {
     #This is a debug build
 unix:LIBS += -lpthread -lz -L/usr/ \
-    -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
-    -L/usr/local/hdf5/lib -lhdf5
+    -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial
+    #-L/usr/local/hdf5/lib -lhdf5
 else:win32:LIBS += \
     -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
     -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5

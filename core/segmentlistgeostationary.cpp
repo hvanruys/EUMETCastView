@@ -4,7 +4,7 @@
 #include "segmentlistgeostationary.h"
 #include "segmentimage.h"
 #include "qcompressor.h"
-#include "hdf5.h"
+#include <hdf5/serial/hdf5.h>
 
 #include "MSG_HRIT.h"
 #include <QMutex>
@@ -167,7 +167,7 @@ bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QStr
         QFuture<void> future = QtConcurrent::run(doComposeGeostationaryXRIT, this, fileinfo.filePath(), 0, spectrumvector, inversevector);
         watcherMono[filesequence].setFuture(future);
     }
-    else if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9)
+    else if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8)
     {
         if( spectrumvector.at(1) == "" && spectrumvector.at(2) == "")
         {
@@ -286,7 +286,7 @@ bool SegmentListGeostationary::ComposeImageHDFSerial(QFileInfo fileinfo, QVector
 void SegmentListGeostationary::InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence)
 {
     qDebug() << QString("InsertPresent ; spectrum %1 %2 %3    filespectrum  %4  fileseq %5").arg(spectrumvector[0]).arg(spectrumvector[1]).arg(spectrumvector[2]).arg(filespectrum).arg(filesequence);
-    if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == H8)
+    if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8 || m_GeoSatellite == H8)
     {
         if(spectrumvector.at(0) == filespectrum)
         {
@@ -791,6 +791,8 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
             this->issegmentcomposedGreen[filesequence] = true;
         else if(channelindex == 2)
             this->issegmentcomposedBlue[filesequence] = true;
+
+        qDebug() << QString("channelindex = %1 filesequence = %2 ").arg(channelindex).arg(filesequence);
     }
 
     if(kindofimage == "HRV Color" && allHRVColorSegmentsReceived())
@@ -946,9 +948,6 @@ void SegmentListGeostationary::ComposeSegmentImageXRITHimawari( QString filepath
     }
 
 
-    quint16 stat_min;
-    quint16 stat_max;
-
     if(kindofimage == "VIS_IR")
         CalculateMinMaxHimawari(5500, 550, imageptrs->ptrRed[filesequence], minvalueRed[filesequence], maxvalueRed[filesequence]);
     else if(kindofimage == "VIS_IR Color")
@@ -968,7 +967,6 @@ void SegmentListGeostationary::ComposeSegmentImageXRITHimawari( QString filepath
 
     for(int line = 0; line < nlin; line++)
     {
-
         row_col = (QRgb*)im->scanLine(nlin * filesequence + line);
 
         for (int pixelx = 0 ; pixelx < npix; pixelx++)
@@ -1667,7 +1665,7 @@ void SegmentListGeostationary::ComposeColorHRV()
     size_t npix = 3712*3712;
     size_t npixHRV;
 
-    if(m_GeoSatellite == MET_10)
+    if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_8)
     {
         if (this->areatype == 1)
             npixHRV = 5568*11136;
@@ -1830,7 +1828,7 @@ bool SegmentListGeostationary::allHRVColorSegmentsReceived()
 {
     qDebug() << QString("SegmentListGeostationary::allHRVColorSegmentsReceived()");
 
-    if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9)
+    if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8)
     {
     for(int i = (m_GeoSatellite == MET_9 ? 5 : 0); i < 8; i++)
     {
@@ -1866,7 +1864,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
         {
             return true;
         }
-        else if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9)
+        else if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8)
         {
             for(int i = (m_GeoSatellite == MET_9 ? 5 : 0) ; i < 8; i++)
             {
@@ -1893,10 +1891,14 @@ bool SegmentListGeostationary::allSegmentsReceived()
     }
     else if (this->getKindofImage() == "VIS_IR" )
     {
-        if(m_GeoSatellite == MET_10)
+        qDebug() << QString("getKindofImage = VIS_IR");
+
+        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_8)
         {
+            qDebug() << QString("m_GeoSatellite == MET_10 || m_GeoSatellite == MET_8");
             for(int i = 0; i < 8; i++)
             {
+                qDebug() << QString("i = %1 isPresentRed = %2 issegmentcomposedRed = %3").arg(i).arg(isPresentRed[i]).arg(issegmentcomposedRed[i]);
                 if (isPresentRed[i] && issegmentcomposedRed[i] == true)
                     pbCounter++;
             }
@@ -1917,7 +1919,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
                     pbCounter++;
             }
         }
-        else if(m_GeoSatellite == GOES_13) // || m_GeoSatellite == ELECTRO_N1)
+        else if(m_GeoSatellite == GOES_13)
         {
             for(int i = 0; i < 7; i++)
             {
@@ -1943,7 +1945,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
     }
     else if (this->getKindofImage() == "HRV" || this->getKindofImage() == "HRV Color")
     {
-        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9)
+        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8)
         {
             for(int i = (m_GeoSatellite == MET_9 ? 5 : 0) ; i < 8; i++)
             {
@@ -1973,7 +1975,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
 
     if (this->getKindofImage() == "VIS_IR Color")
     {
-        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == H8)
+        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8 || m_GeoSatellite == H8)
         {
             for(int i = (m_GeoSatellite == MET_9 ? 5 : 0) ; i < 8; i++)
             {
@@ -2000,7 +2002,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
     }
     else if (this->getKindofImage() == "VIS_IR" )
     {
-        if(m_GeoSatellite == MET_10)
+        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_8)
         {
             for(int i = 0; i < 8; i++)
             {
@@ -2057,7 +2059,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
     }
     else if (this->getKindofImage() == "HRV" || this->getKindofImage() == "HRV Color")
     {
-        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9)
+        if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8)
         {
 
             for(int i = 19; i < 24; i++)
@@ -2075,6 +2077,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
 
     qDebug() << "SegmentListGeostationary::allSegmentsReceived() returns true";
 
+    emit progressCounter(100);
     return true;
 }
 

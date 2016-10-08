@@ -63,6 +63,7 @@ private:
     FormInfraScales *forminfrascales;
     FormGeostationary *formgeostationary;
     QFileSystemModel *myEquirectangularModel;
+    QCPColorMap *colorMap;
 
     void setupChannelCombo();
     void setInverseCheckBoxes();
@@ -79,6 +80,8 @@ private:
     void copyProjectionImage();
     void checkSegmentDateTime();
     void initializeScales();
+    void setLogValue(int deg, double rad);
+    void fitCurve();
 
 
     AVHRRSatellite *segs;
@@ -91,12 +94,14 @@ private:
     QVector<int> resolutionX;
     QVector<int> resolutionY;
     eImageType currentAVHRRimage; // from 1 to 6 , 6 color image
+    double valueRangeDNBGraph;
 
 public slots:
     void setChannelComboBoxes();
     void setChannelIndex();
     void geostationarysegmentsChosen(SegmentListGeostationary::eGeoSatellite geo, QStringList tex);
     void setToolboxButtons(bool state);
+    void slotDisplayDNBGraph();
 
 signals:
     void getmeteosatchannel(QString, QVector<QString>, QVector<bool>);
@@ -218,6 +223,8 @@ private slots:
     void on_btnGVPFalseColor_clicked();
     void on_btnLCCFalseColor_clicked();
     void on_btnSGFalseColor_clicked();
+
+    void on_btnGeo13_clicked();
 };
 
 

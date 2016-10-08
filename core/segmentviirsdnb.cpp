@@ -1,7 +1,7 @@
 #include "segmentviirsdnb.h"
 #include "segmentimage.h"
 
-#include "hdf5.h"
+#include <hdf5/serial/hdf5.h>
 
 #include <QDebug>
 
@@ -363,6 +363,23 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
         }
     }
 
+    float max_zenith = 0;
+    float min_zenith = 999.0;
+
+    for (int line = 0; line < this->NbrOfLines; line++)
+    {
+        for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
+        {
+            float zenith = solar_zenith[line * earth_views_per_scanline + pixelx];
+            if(zenith > max_zenith)
+                max_zenith = zenith;
+            if(zenith < min_zenith)
+                min_zenith = zenith;
+        }
+    }
+
+    qDebug() << QString("min_zenith = %1   max_zenith = %2").arg(min_zenith).arg(max_zenith);
+
     //this->LonLatMax();
 
     /*    cout << "alpha voor iscan = 100 :" << endl;
@@ -710,8 +727,6 @@ void SegmentVIIRSDNB::interpolateSolarViaVector(int itrack, int indexfrom, int i
               float solar_azimuth_A, float solar_azimuth_B, float solar_azimuth_C, float solar_azimuth_D)
 {
 
-    qDebug() << "-------------> interpolateSolarViaVector";
-
     float ascan, atrack;
 
     int zscan = Zscan[igroupscan];
@@ -954,7 +969,60 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
 {
 
     QRgb *row;
-    int indexout;
+    long indexout;
+
+    long countneg = 0;
+
+    float pixval;
+    int r;
+
+//    upperlimit = 0.8E-2;
+//    lowerlimit = 2.0E-4;
+
+    qDebug() << QString("lowerlimit = %1").arg(lowerlimit, 0, 'E', 2);
+    qDebug() << QString("upperlimit = %1").arg(upperlimit, 0, 'E', 2);
+
+    for (int line = 0; line < this->NbrOfLines; line++)
+    {
+        row = (QRgb*)imageptrs->ptrimageViirsDNB->scanLine(this->startLineNbr + line);
+        for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
+        {
+            float zenith = solar_zenith[line * earth_views_per_scanline + pixelx];
+            pixval = *(this->ptrbaVIIRSDNB.data() + line * earth_views_per_scanline + pixelx);
+//            if(pixval > 0)
+//            {
+                indexout =  (long)(255 * ( pixval - lowerlimit ) / (upperlimit - lowerlimit));
+                indexout = indexout > 255 ? 255 : indexout;
+                indexout = indexout < 0 ? 0 : indexout;
+                r = indexout;
+                if((zenith >= 95.0 && zenith < 95.01) || (zenith >= 100.0 && zenith < 100.01))
+                    row[pixelx] = qRgb(0, 255, 0);
+                else if(zenith >= 90.0 && zenith < 90.01)
+                    row[pixelx] = qRgb(0, 255, 255);
+                else if((zenith >= 80.0 && zenith < 80.01) || (zenith >= 85.0 && zenith < 85.01) )
+                    row[pixelx] = qRgb(255, 0, 0);
+                else
+                    row[pixelx] = qRgb(r, r, r );
+//            }
+//            else
+//                row[pixelx] = qRgb(255, 0, 0 );
+        }
+    }
+
+    qDebug() << QString("Count neg = %1").arg(countneg);
+
+
+}
+
+void SegmentVIIRSDNB::ComposeSegmentImageWindowFromCurve(QVector<double> *x, QVector<double> *y)
+{
+
+    QRgb *row;
+    long indexout;
+    float upperlimit;
+    float lowerlimit;
+    float radlimit;
+    long countneg = 0;
 
     float pixval;
     int r;
@@ -965,23 +1033,100 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
             float zenith = solar_zenith[line * earth_views_per_scanline + pixelx];
+
+            int xzenith = floor(zenith);
+
+            radlimit = getRadianceFromCurve(xzenith, x, y);
+            upperlimit = radlimit * 100.0;
+            lowerlimit = radlimit / 100.0;
+
+
             pixval = *(this->ptrbaVIIRSDNB.data() + line * earth_views_per_scanline + pixelx);
-            indexout =  (int)(255 * ( pixval - lowerlimit ) / (upperlimit - lowerlimit));
-            indexout = indexout > 255 ? 255 : indexout;
-            indexout = indexout < 0 ? 0 : indexout;
-            r = indexout;
-            if((zenith >= 95.0 && zenith < 95.01) || (zenith >= 100.0 && zenith < 100.01))
-                row[pixelx] = qRgb(0, 255, 0);
-            else if(zenith >= 90.0 && zenith < 90.01)
-                row[pixelx] = qRgb(255, 255, 255);
-            else if((zenith >= 80.0 && zenith < 80.01) || (zenith >= 85.0 && zenith < 85.01) )
-                row[pixelx] = qRgb(255, 0, 0);
-            else
-                row[pixelx] = qRgb(r, r, r );
+//            if(pixval > 0)
+//            {
+                indexout =  (long)(255 * ( pixval - lowerlimit ) / (upperlimit - lowerlimit));
+                indexout = indexout > 255 ? 255 : indexout;
+                indexout = indexout < 0 ? 0 : indexout;
+                r = indexout;
+                if((zenith >= 95.0 && zenith < 95.01) || (zenith >= 100.0 && zenith < 100.01))
+                    row[pixelx] = qRgb(0, 255, 0);
+                else if(zenith >= 90.0 && zenith < 90.01)
+                    row[pixelx] = qRgb(0, 255, 255);
+                else if((zenith >= 80.0 && zenith < 80.01) || (zenith >= 85.0 && zenith < 85.01) )
+                    row[pixelx] = qRgb(255, 0, 0);
+                else
+                    row[pixelx] = qRgb(r, r, r );
+//            }
+//            else
+//                row[pixelx] = qRgb(255, 0, 0 );
+        }
+    }
+
+    qDebug() << QString("Count neg = %1").arg(countneg);
+
+
+}
+
+float SegmentVIIRSDNB::getRadianceFromCurve(int xzenith, QVector<double> *x, QVector<double> *y)
+{
+
+    if(x->length() == 0)
+        return 0.0;
+
+    for(int i = 0; i < x->length()-1; i++)
+    {
+        if(xzenith > x->at(i) && xzenith <= x->at(i+1))
+            return y->at(i);
+    }
+
+    return 0.0;
+}
+
+void SegmentVIIRSDNB::CalcGraph(QScopedArrayPointer<long> *graph)
+{
+
+    QRgb *row;
+    float radiance;
+
+    for (int line = 0; line < this->NbrOfLines; line++)
+    {
+        row = (QRgb*)imageptrs->ptrimageViirsDNB->scanLine(this->startLineNbr + line);
+        for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx = pixelx + 10)
+        {
+            int xzenith = (int)solar_zenith[line * earth_views_per_scanline + pixelx];
+            radiance = *(this->ptrbaVIIRSDNB.data() + line * earth_views_per_scanline + pixelx);
+            if(radiance > 0)
+                CalcGraphPockets(xzenith, radiance, graph);
+        }
+    }
+
+}
+
+void SegmentVIIRSDNB::CalcGraphPockets(int xzenith, float radiance, QScopedArrayPointer<long> *graph)
+{
+
+    for(int i = 14; i >= 0; i--)
+    {
+        double upperlimit1 = pow(10, -i);
+        double lowerlimit1 = pow(10, -i - 1);
+
+        if(radiance >= lowerlimit1 && radiance < upperlimit1)
+        {
+            for(int j = 0; j < 10; j++)
+            {
+                double lowind = (double)(j + 1)/10.0;
+                double upperind = (double)(j)/10.0;
+                double lowerlimit2 = pow(10, -lowind - i);
+                double upperlimit2 = pow(10, -upperind - i);
+                if( radiance >= lowerlimit2 && radiance < upperlimit2)
+                {
+                    int index = 149 - ((i*10) + j);
+                    graph->operator [](index*180+xzenith) = graph->operator [](index*180+xzenith) + 1;
+                }
+            }
         }
     }
 }
-
 
 void SegmentVIIRSDNB::ComposeSegmentLCCProjection(int inputchannel)
 {

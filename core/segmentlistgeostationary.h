@@ -20,7 +20,7 @@ public:
         GOES_13,
         GOES_15,
         H8,
-        ELECTRO_N1,
+        MET_8,
         NOGEO
     };
 

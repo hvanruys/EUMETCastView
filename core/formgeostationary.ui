@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabGeostationary">
      <property name="currentIndex">
-      <number>5</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tabMeteosat">
       <attribute name="title">
@@ -42,6 +42,22 @@
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QTreeWidget" name="SegmenttreeWidgetRSS">
+         <column>
+          <property name="text">
+           <string notr="true">1</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabMeteosat8">
+      <attribute name="title">
+       <string>MET-8</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QTreeWidget" name="SegmenttreeWidgetMet8">
          <column>
           <property name="text">
            <string notr="true">1</string>
@@ -163,7 +179,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="tabHimawari8">
       <attribute name="title">
        <string>Himawari-8</string>
       </attribute>

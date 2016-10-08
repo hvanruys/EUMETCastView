@@ -25,6 +25,10 @@ public:
     void ComposeSegmentSGProjection(int inputchannel);
     void ComposeProjection(eProjections proj);
     void ComposeSegmentImageWindow(float lowerlimit, float upperlimit);
+    void ComposeSegmentImageWindowFromCurve(QVector<double> *x, QVector<double> *y);
+
+    void CalcGraph(QScopedArrayPointer<long> *graph);
+
 
     float MoonIllumFraction;
 
@@ -54,6 +58,9 @@ private:
                   float solar_azimuth_A, float solar_azimuth_B, float solar_azimuth_C, float solar_azimuth_D);
     void interpolateLonLatDirect(int itrack, int indexfrom, int igroupscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
     void interpolateSolarDirect(int itrack, int indexfrom, int igroupscan, float solar_zenith_A, float solar_zenith_B, float solar_zenith_C, float solar_zenith_D, float solar_azimuth_A, float solar_azimuth_B, float solar_azimuth_C, float solar_azimuth_D);
+
+    void CalcGraphPockets(int xzenith, float val, QScopedArrayPointer<long> *graph);
+    float getRadianceFromCurve(int xzenith, QVector<double> *x, QVector<double> *y);
 
     QScopedArrayPointer<float> tiepoints_lat;
     QScopedArrayPointer<float> tiepoints_lon;
