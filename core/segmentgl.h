@@ -20,7 +20,11 @@ public:
 
 private:
     void RenderContour(Segment *seg, QMatrix4x4 projection, QMatrix4x4 modelview, int width, int height);
+    void RenderContourDetail(Segment *seg, QMatrix4x4 projection, QMatrix4x4 modelview, int width, int height);
+
     void CalculateSegmentContour(QVector<GLfloat> *positions, float lat_first, float lon_first, float lat_last, float lon_last);
+    void CalculateSegmentContour(QVector<GLfloat> *positions, QGeodetic first, QGeodetic last);
+
     QVector2D glhProjectf(QVector3D obj, float *modelview, float *projection, int width, int height);
 
     SatelliteList *sats;
@@ -32,6 +36,7 @@ private:
     QOpenGLVertexArrayObject vaotrail;
     QOpenGLBuffer positionsTrail;
     int nbrOfVertices;
+    int howdetailed;
 
 };
 

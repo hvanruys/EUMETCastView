@@ -60,6 +60,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     else
         ui->btnTextureVIIRS->setText("Texture Off");
 
+    if (opts.imageontextureOnOLCIefr)
+        ui->btnTextureOLCIefr->setText("Texture On");
+    else
+        ui->btnTextureOLCIefr->setText("Texture Off");
+
     ui->btnOverlayMeteosat->setText("Overlay On");
     ui->btnOverlayProjectionGVP->setText("Overlay On");
     ui->btnOverlayProjectionLCC->setText("Overlay On");
@@ -71,6 +76,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         ui->rdbVIIRSMin->setChecked(true);
     else if(opts.lastinputprojection == 2)
         ui->rdbVIIRSDNBin->setChecked(true);
+    else if(opts.lastinputprojection == 3)
+        ui->rdbOLCIefrin->setChecked(true);
     else
         ui->rdbMeteosatin->setChecked(true);
 
@@ -107,7 +114,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     formimage->channelshown = IMAGE_GEOSTATIONARY;
     ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
-    ui->tabWidgetVIIRS->setCurrentIndex(0); // VIIRSM
+    ui->tabWidgetVIIRS->setCurrentIndex(0);
+    ui->tabWidgetOLCI->setCurrentIndex(0);
 
     QStringList listResolution;
     listResolution << "User defined";
@@ -183,6 +191,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     setPOIsettings();
     setMConfigsettings();
+    setOLCIefrConfigsettings();
 
 
     qDebug() << QString("Setting currenttoolbox = %1").arg(opts.currenttoolbox);
@@ -270,13 +279,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     whichgeo = SegmentListGeostationary::eGeoSatellite::NOGEO;
 
     setToolboxButtons(true);
-
-    setupEquirectangularTable();
-    ui->rdbEquirectin->hide();
-    //ui->tabWidget->setTabEnabled(3, false);
-
-    //infrascales = NULL;
-
 
     double valuerange1;
     double valuerange2;
@@ -374,6 +376,20 @@ void FormToolbox::setMConfigsettings()
     ui->comboMConfig->blockSignals(false);
 }
 
+void FormToolbox::setOLCIefrConfigsettings()
+{
+    qDebug() << "FormToolbox::setOLCIefrConfigsettings()";
+
+    ui->comboOLCIConfig->blockSignals(true);
+    ui->comboOLCIConfig->clear();
+
+    ui->comboOLCIConfig->addItems(poi.strlConfigNameOLCIefr);
+
+    setConfigOLCIParameters(0); // 0 = User Defines
+
+    ui->comboOLCIConfig->blockSignals(false);
+}
+
 void FormToolbox::writeInfoToAVHRR(QString info)
 {
     ui->teAVHRR->clear();
@@ -396,6 +412,12 @@ void FormToolbox::writeInfoToGeo(QString info)
 {
     ui->teGeo->clear();
     ui->teGeo->append(info);
+}
+
+void FormToolbox::writeInfoToOLCI(QString info)
+{
+    ui->teOLCI->clear();
+    ui->teOLCI->append(info);
 }
 
 bool FormToolbox::eventFilter(QObject *target, QEvent *event)
@@ -444,175 +466,63 @@ void FormToolbox::setupChannelCombo()
 {
     qDebug() << "FormToolbox::setupChannelCombo()";
 
-    ui->comboCh1->addItem(tr("-"));
-    ui->comboCh1->addItem(tr("R"));
-    ui->comboCh1->addItem(tr("G"));
-    ui->comboCh1->addItem(tr("B"));
+    ui->comboCh1->addItem(tr("-"));ui->comboCh1->addItem(tr("R"));ui->comboCh1->addItem(tr("G"));ui->comboCh1->addItem(tr("B"));
+    ui->comboCh2->addItem(tr("-"));ui->comboCh2->addItem(tr("R"));ui->comboCh2->addItem(tr("G"));ui->comboCh2->addItem(tr("B"));
+    ui->comboCh3->addItem(tr("-"));ui->comboCh3->addItem(tr("R"));ui->comboCh3->addItem(tr("G"));ui->comboCh3->addItem(tr("B"));
+    ui->comboCh4->addItem(tr("-"));ui->comboCh4->addItem(tr("R"));ui->comboCh4->addItem(tr("G"));ui->comboCh4->addItem(tr("B"));
+    ui->comboCh5->addItem(tr("-"));ui->comboCh5->addItem(tr("R"));ui->comboCh5->addItem(tr("G"));ui->comboCh5->addItem(tr("B"));
+    ui->comboGeo1->addItem(tr("-"));ui->comboGeo1->addItem(tr("R"));ui->comboGeo1->addItem(tr("G"));ui->comboGeo1->addItem(tr("B"));
+    ui->comboGeo2->addItem(tr("-"));ui->comboGeo2->addItem(tr("R"));ui->comboGeo2->addItem(tr("G"));ui->comboGeo2->addItem(tr("B"));
+    ui->comboGeo3->addItem(tr("-"));ui->comboGeo3->addItem(tr("R"));ui->comboGeo3->addItem(tr("G"));ui->comboGeo3->addItem(tr("B"));
+    ui->comboGeo4->addItem(tr("-"));ui->comboGeo4->addItem(tr("R"));ui->comboGeo4->addItem(tr("G"));ui->comboGeo4->addItem(tr("B"));
+    ui->comboGeo5->addItem(tr("-"));ui->comboGeo5->addItem(tr("R"));ui->comboGeo5->addItem(tr("G"));ui->comboGeo5->addItem(tr("B"));
+    ui->comboGeo6->addItem(tr("-"));ui->comboGeo6->addItem(tr("R"));ui->comboGeo6->addItem(tr("G"));ui->comboGeo6->addItem(tr("B"));
+    ui->comboGeo7->addItem(tr("-"));ui->comboGeo7->addItem(tr("R"));ui->comboGeo7->addItem(tr("G"));ui->comboGeo7->addItem(tr("B"));
+    ui->comboGeo8->addItem(tr("-"));ui->comboGeo8->addItem(tr("R"));ui->comboGeo8->addItem(tr("G"));ui->comboGeo8->addItem(tr("B"));
+    ui->comboGeo9->addItem(tr("-"));ui->comboGeo9->addItem(tr("R"));ui->comboGeo9->addItem(tr("G"));ui->comboGeo9->addItem(tr("B"));
+    ui->comboGeo10->addItem(tr("-"));ui->comboGeo10->addItem(tr("R"));ui->comboGeo10->addItem(tr("G"));ui->comboGeo10->addItem(tr("B"));
+    ui->comboGeo11->addItem(tr("-"));ui->comboGeo11->addItem(tr("R"));ui->comboGeo11->addItem(tr("G"));ui->comboGeo11->addItem(tr("B"));
+    ui->comboGeo12->addItem(tr("-"));ui->comboGeo12->addItem(tr("R"));ui->comboGeo12->addItem(tr("G"));ui->comboGeo12->addItem(tr("B"));
+    ui->comboGeo13->addItem(tr("-"));ui->comboGeo13->addItem(tr("R"));ui->comboGeo13->addItem(tr("G"));ui->comboGeo13->addItem(tr("B"));
 
-    ui->comboCh2->addItem(tr("-"));
-    ui->comboCh2->addItem(tr("R"));
-    ui->comboCh2->addItem(tr("G"));
-    ui->comboCh2->addItem(tr("B"));
+    ui->comboM1->addItem(tr("-"));ui->comboM1->addItem(tr("R"));ui->comboM1->addItem(tr("G"));ui->comboM1->addItem(tr("B"));
+    ui->comboM2->addItem(tr("-"));ui->comboM2->addItem(tr("R"));ui->comboM2->addItem(tr("G"));ui->comboM2->addItem(tr("B"));
+    ui->comboM3->addItem(tr("-"));ui->comboM3->addItem(tr("R"));ui->comboM3->addItem(tr("G"));ui->comboM3->addItem(tr("B"));
+    ui->comboM4->addItem(tr("-"));ui->comboM4->addItem(tr("R"));ui->comboM4->addItem(tr("G"));ui->comboM4->addItem(tr("B"));
+    ui->comboM5->addItem(tr("-"));ui->comboM5->addItem(tr("R"));ui->comboM5->addItem(tr("G"));ui->comboM5->addItem(tr("B"));
+    ui->comboM6->addItem(tr("-"));ui->comboM6->addItem(tr("R"));ui->comboM6->addItem(tr("G"));ui->comboM6->addItem(tr("B"));
+    ui->comboM7->addItem(tr("-"));ui->comboM7->addItem(tr("R"));ui->comboM7->addItem(tr("G"));ui->comboM7->addItem(tr("B"));
+    ui->comboM8->addItem(tr("-"));ui->comboM8->addItem(tr("R"));ui->comboM8->addItem(tr("G"));ui->comboM8->addItem(tr("B"));
+    ui->comboM9->addItem(tr("-"));ui->comboM9->addItem(tr("R"));ui->comboM9->addItem(tr("G"));ui->comboM9->addItem(tr("B"));
+    ui->comboM10->addItem(tr("-"));ui->comboM10->addItem(tr("R"));ui->comboM10->addItem(tr("G"));ui->comboM10->addItem(tr("B"));
+    ui->comboM11->addItem(tr("-"));ui->comboM11->addItem(tr("R"));ui->comboM11->addItem(tr("G"));ui->comboM11->addItem(tr("B"));
+    ui->comboM12->addItem(tr("-"));ui->comboM12->addItem(tr("R"));ui->comboM12->addItem(tr("G"));ui->comboM12->addItem(tr("B"));
+    ui->comboM13->addItem(tr("-"));ui->comboM13->addItem(tr("R"));ui->comboM13->addItem(tr("G"));ui->comboM13->addItem(tr("B"));
+    ui->comboM14->addItem(tr("-"));ui->comboM14->addItem(tr("R"));ui->comboM14->addItem(tr("G"));ui->comboM14->addItem(tr("B"));
+    ui->comboM15->addItem(tr("-"));ui->comboM15->addItem(tr("R"));ui->comboM15->addItem(tr("G"));ui->comboM15->addItem(tr("B"));
+    ui->comboM16->addItem(tr("-"));ui->comboM16->addItem(tr("R"));ui->comboM16->addItem(tr("G"));ui->comboM16->addItem(tr("B"));
 
-    ui->comboCh3->addItem(tr("-"));
-    ui->comboCh3->addItem(tr("R"));
-    ui->comboCh3->addItem(tr("G"));
-    ui->comboCh3->addItem(tr("B"));
-
-    ui->comboCh4->addItem(tr("-"));
-    ui->comboCh4->addItem(tr("R"));
-    ui->comboCh4->addItem(tr("G"));
-    ui->comboCh4->addItem(tr("B"));
-
-    ui->comboCh5->addItem(tr("-"));
-    ui->comboCh5->addItem(tr("R"));
-    ui->comboCh5->addItem(tr("G"));
-    ui->comboCh5->addItem(tr("B"));
-
-    ui->comboGeo1->addItem(tr("-"));
-    ui->comboGeo1->addItem(tr("R"));
-    ui->comboGeo1->addItem(tr("G"));
-    ui->comboGeo1->addItem(tr("B"));
-
-    ui->comboGeo2->addItem(tr("-"));
-    ui->comboGeo2->addItem(tr("R"));
-    ui->comboGeo2->addItem(tr("G"));
-    ui->comboGeo2->addItem(tr("B"));
-
-    ui->comboGeo3->addItem(tr("-"));
-    ui->comboGeo3->addItem(tr("R"));
-    ui->comboGeo3->addItem(tr("G"));
-    ui->comboGeo3->addItem(tr("B"));
-
-    ui->comboGeo4->addItem(tr("-"));
-    ui->comboGeo4->addItem(tr("R"));
-    ui->comboGeo4->addItem(tr("G"));
-    ui->comboGeo4->addItem(tr("B"));
-
-    ui->comboGeo5->addItem(tr("-"));
-    ui->comboGeo5->addItem(tr("R"));
-    ui->comboGeo5->addItem(tr("G"));
-    ui->comboGeo5->addItem(tr("B"));
-
-    ui->comboGeo6->addItem(tr("-"));
-    ui->comboGeo6->addItem(tr("R"));
-    ui->comboGeo6->addItem(tr("G"));
-    ui->comboGeo6->addItem(tr("B"));
-
-    ui->comboGeo7->addItem(tr("-"));
-    ui->comboGeo7->addItem(tr("R"));
-    ui->comboGeo7->addItem(tr("G"));
-    ui->comboGeo7->addItem(tr("B"));
-
-    ui->comboGeo8->addItem(tr("-"));
-    ui->comboGeo8->addItem(tr("R"));
-    ui->comboGeo8->addItem(tr("G"));
-    ui->comboGeo8->addItem(tr("B"));
-
-    ui->comboGeo9->addItem(tr("-"));
-    ui->comboGeo9->addItem(tr("R"));
-    ui->comboGeo9->addItem(tr("G"));
-    ui->comboGeo9->addItem(tr("B"));
-
-    ui->comboGeo10->addItem(tr("-"));
-    ui->comboGeo10->addItem(tr("R"));
-    ui->comboGeo10->addItem(tr("G"));
-    ui->comboGeo10->addItem(tr("B"));
-
-    ui->comboGeo11->addItem(tr("-"));
-    ui->comboGeo11->addItem(tr("R"));
-    ui->comboGeo11->addItem(tr("G"));
-    ui->comboGeo11->addItem(tr("B"));
-
-    ui->comboGeo12->addItem(tr("-"));
-    ui->comboGeo12->addItem(tr("R"));
-    ui->comboGeo12->addItem(tr("G"));
-    ui->comboGeo12->addItem(tr("B"));
-
-    ui->comboGeo13->addItem(tr("-"));
-    ui->comboGeo13->addItem(tr("R"));
-    ui->comboGeo13->addItem(tr("G"));
-    ui->comboGeo13->addItem(tr("B"));
-
-    ui->comboM1->addItem(tr("-"));
-    ui->comboM1->addItem(tr("R"));
-    ui->comboM1->addItem(tr("G"));
-    ui->comboM1->addItem(tr("B"));
-
-    ui->comboM2->addItem(tr("-"));
-    ui->comboM2->addItem(tr("R"));
-    ui->comboM2->addItem(tr("G"));
-    ui->comboM2->addItem(tr("B"));
-
-    ui->comboM3->addItem(tr("-"));
-    ui->comboM3->addItem(tr("R"));
-    ui->comboM3->addItem(tr("G"));
-    ui->comboM3->addItem(tr("B"));
-
-    ui->comboM4->addItem(tr("-"));
-    ui->comboM4->addItem(tr("R"));
-    ui->comboM4->addItem(tr("G"));
-    ui->comboM4->addItem(tr("B"));
-
-    ui->comboM5->addItem(tr("-"));
-    ui->comboM5->addItem(tr("R"));
-    ui->comboM5->addItem(tr("G"));
-    ui->comboM5->addItem(tr("B"));
-
-    ui->comboM6->addItem(tr("-"));
-    ui->comboM6->addItem(tr("R"));
-    ui->comboM6->addItem(tr("G"));
-    ui->comboM6->addItem(tr("B"));
-
-    ui->comboM7->addItem(tr("-"));
-    ui->comboM7->addItem(tr("R"));
-    ui->comboM7->addItem(tr("G"));
-    ui->comboM7->addItem(tr("B"));
-
-    ui->comboM8->addItem(tr("-"));
-    ui->comboM8->addItem(tr("R"));
-    ui->comboM8->addItem(tr("G"));
-    ui->comboM8->addItem(tr("B"));
-
-    ui->comboM9->addItem(tr("-"));
-    ui->comboM9->addItem(tr("R"));
-    ui->comboM9->addItem(tr("G"));
-    ui->comboM9->addItem(tr("B"));
-
-    ui->comboM10->addItem(tr("-"));
-    ui->comboM10->addItem(tr("R"));
-    ui->comboM10->addItem(tr("G"));
-    ui->comboM10->addItem(tr("B"));
-
-    ui->comboM11->addItem(tr("-"));
-    ui->comboM11->addItem(tr("R"));
-    ui->comboM11->addItem(tr("G"));
-    ui->comboM11->addItem(tr("B"));
-
-    ui->comboM12->addItem(tr("-"));
-    ui->comboM12->addItem(tr("R"));
-    ui->comboM12->addItem(tr("G"));
-    ui->comboM12->addItem(tr("B"));
-
-    ui->comboM13->addItem(tr("-"));
-    ui->comboM13->addItem(tr("R"));
-    ui->comboM13->addItem(tr("G"));
-    ui->comboM13->addItem(tr("B"));
-
-    ui->comboM14->addItem(tr("-"));
-    ui->comboM14->addItem(tr("R"));
-    ui->comboM14->addItem(tr("G"));
-    ui->comboM14->addItem(tr("B"));
-
-    ui->comboM15->addItem(tr("-"));
-    ui->comboM15->addItem(tr("R"));
-    ui->comboM15->addItem(tr("G"));
-    ui->comboM15->addItem(tr("B"));
-
-    ui->comboM16->addItem(tr("-"));
-    ui->comboM16->addItem(tr("R"));
-    ui->comboM16->addItem(tr("G"));
-    ui->comboM16->addItem(tr("B"));
+    ui->cmbOLCIefr01->addItem(tr("-"));ui->cmbOLCIefr01->addItem(tr("R"));ui->cmbOLCIefr01->addItem(tr("G"));ui->cmbOLCIefr01->addItem(tr("B"));
+    ui->cmbOLCIefr02->addItem(tr("-"));ui->cmbOLCIefr02->addItem(tr("R"));ui->cmbOLCIefr02->addItem(tr("G"));ui->cmbOLCIefr02->addItem(tr("B"));
+    ui->cmbOLCIefr03->addItem(tr("-"));ui->cmbOLCIefr03->addItem(tr("R"));ui->cmbOLCIefr03->addItem(tr("G"));ui->cmbOLCIefr03->addItem(tr("B"));
+    ui->cmbOLCIefr04->addItem(tr("-"));ui->cmbOLCIefr04->addItem(tr("R"));ui->cmbOLCIefr04->addItem(tr("G"));ui->cmbOLCIefr04->addItem(tr("B"));
+    ui->cmbOLCIefr05->addItem(tr("-"));ui->cmbOLCIefr05->addItem(tr("R"));ui->cmbOLCIefr05->addItem(tr("G"));ui->cmbOLCIefr05->addItem(tr("B"));
+    ui->cmbOLCIefr06->addItem(tr("-"));ui->cmbOLCIefr06->addItem(tr("R"));ui->cmbOLCIefr06->addItem(tr("G"));ui->cmbOLCIefr06->addItem(tr("B"));
+    ui->cmbOLCIefr07->addItem(tr("-"));ui->cmbOLCIefr07->addItem(tr("R"));ui->cmbOLCIefr07->addItem(tr("G"));ui->cmbOLCIefr07->addItem(tr("B"));
+    ui->cmbOLCIefr08->addItem(tr("-"));ui->cmbOLCIefr08->addItem(tr("R"));ui->cmbOLCIefr08->addItem(tr("G"));ui->cmbOLCIefr08->addItem(tr("B"));
+    ui->cmbOLCIefr09->addItem(tr("-"));ui->cmbOLCIefr09->addItem(tr("R"));ui->cmbOLCIefr09->addItem(tr("G"));ui->cmbOLCIefr09->addItem(tr("B"));
+    ui->cmbOLCIefr10->addItem(tr("-"));ui->cmbOLCIefr10->addItem(tr("R"));ui->cmbOLCIefr10->addItem(tr("G"));ui->cmbOLCIefr10->addItem(tr("B"));
+    ui->cmbOLCIefr11->addItem(tr("-"));ui->cmbOLCIefr11->addItem(tr("R"));ui->cmbOLCIefr11->addItem(tr("G"));ui->cmbOLCIefr11->addItem(tr("B"));
+    ui->cmbOLCIefr12->addItem(tr("-"));ui->cmbOLCIefr12->addItem(tr("R"));ui->cmbOLCIefr12->addItem(tr("G"));ui->cmbOLCIefr12->addItem(tr("B"));
+    ui->cmbOLCIefr13->addItem(tr("-"));ui->cmbOLCIefr13->addItem(tr("R"));ui->cmbOLCIefr13->addItem(tr("G"));ui->cmbOLCIefr13->addItem(tr("B"));
+    ui->cmbOLCIefr14->addItem(tr("-"));ui->cmbOLCIefr14->addItem(tr("R"));ui->cmbOLCIefr14->addItem(tr("G"));ui->cmbOLCIefr14->addItem(tr("B"));
+    ui->cmbOLCIefr15->addItem(tr("-"));ui->cmbOLCIefr15->addItem(tr("R"));ui->cmbOLCIefr15->addItem(tr("G"));ui->cmbOLCIefr15->addItem(tr("B"));
+    ui->cmbOLCIefr16->addItem(tr("-"));ui->cmbOLCIefr16->addItem(tr("R"));ui->cmbOLCIefr16->addItem(tr("G"));ui->cmbOLCIefr16->addItem(tr("B"));
+    ui->cmbOLCIefr17->addItem(tr("-"));ui->cmbOLCIefr17->addItem(tr("R"));ui->cmbOLCIefr17->addItem(tr("G"));ui->cmbOLCIefr17->addItem(tr("B"));
+    ui->cmbOLCIefr18->addItem(tr("-"));ui->cmbOLCIefr18->addItem(tr("R"));ui->cmbOLCIefr18->addItem(tr("G"));ui->cmbOLCIefr18->addItem(tr("B"));
+    ui->cmbOLCIefr19->addItem(tr("-"));ui->cmbOLCIefr19->addItem(tr("R"));ui->cmbOLCIefr19->addItem(tr("G"));ui->cmbOLCIefr19->addItem(tr("B"));
+    ui->cmbOLCIefr20->addItem(tr("-"));ui->cmbOLCIefr20->addItem(tr("R"));ui->cmbOLCIefr20->addItem(tr("G"));ui->cmbOLCIefr20->addItem(tr("B"));
+    ui->cmbOLCIefr21->addItem(tr("-"));ui->cmbOLCIefr21->addItem(tr("R"));ui->cmbOLCIefr21->addItem(tr("G"));ui->cmbOLCIefr21->addItem(tr("B"));
 
 }
 
@@ -721,6 +631,42 @@ QList<bool> FormToolbox::getVIIRSMInvertList()
     return(viirslist);
 }
 
+QList<bool> FormToolbox::getOLCIefrBandList()
+{
+    QList<bool> olcilist;
+    olcilist << ui->rbColorOLCIefr->isChecked() << ui->rbOLCIefr01->isChecked() << ui->rbOLCIefr02->isChecked() << ui->rbOLCIefr03->isChecked()
+             << ui->rbOLCIefr04->isChecked() << ui->rbOLCIefr05->isChecked() << ui->rbOLCIefr06->isChecked() << ui->rbOLCIefr07->isChecked()
+             << ui->rbOLCIefr08->isChecked() << ui->rbOLCIefr09->isChecked() << ui->rbOLCIefr10->isChecked() << ui->rbOLCIefr11->isChecked()
+             << ui->rbOLCIefr12->isChecked() << ui->rbOLCIefr13->isChecked() << ui->rbOLCIefr14->isChecked() << ui->rbOLCIefr15->isChecked()
+             << ui->rbOLCIefr16->isChecked() << ui->rbOLCIefr17->isChecked() << ui->rbOLCIefr18->isChecked() << ui->rbOLCIefr19->isChecked()
+             << ui->rbOLCIefr20->isChecked() << ui->rbOLCIefr21->isChecked();
+
+    return(olcilist);
+}
+
+QList<int> FormToolbox::getOLCIefrColorList()
+{
+    QList<int> olcilist;
+    olcilist << ui->cmbOLCIefr01->currentIndex() << ui->cmbOLCIefr02->currentIndex() << ui->cmbOLCIefr03->currentIndex() << ui->cmbOLCIefr04->currentIndex()
+             << ui->cmbOLCIefr05->currentIndex() << ui->cmbOLCIefr06->currentIndex() << ui->cmbOLCIefr07->currentIndex() << ui->cmbOLCIefr08->currentIndex()
+             << ui->cmbOLCIefr09->currentIndex() << ui->cmbOLCIefr10->currentIndex() << ui->cmbOLCIefr11->currentIndex() << ui->cmbOLCIefr12->currentIndex()
+             << ui->cmbOLCIefr13->currentIndex() << ui->cmbOLCIefr14->currentIndex() << ui->cmbOLCIefr15->currentIndex() << ui->cmbOLCIefr16->currentIndex()
+             << ui->cmbOLCIefr17->currentIndex() << ui->cmbOLCIefr18->currentIndex() << ui->cmbOLCIefr19->currentIndex() << ui->cmbOLCIefr20->currentIndex()
+             << ui->cmbOLCIefr21->currentIndex();
+    return(olcilist);
+}
+
+QList<bool> FormToolbox::getOLCIefrInvertList()
+{
+    QList<bool> olcilist;
+    olcilist << ui->chkInverseOLCIefr01->isChecked() << ui->chkInverseOLCIefr02->isChecked() << ui->chkInverseOLCIefr03->isChecked() << ui->chkInverseOLCIefr04->isChecked()
+              << ui->chkInverseOLCIefr05->isChecked() << ui->chkInverseOLCIefr06->isChecked() << ui->chkInverseOLCIefr07->isChecked() << ui->chkInverseOLCIefr08->isChecked()
+              << ui->chkInverseOLCIefr09->isChecked() << ui->chkInverseOLCIefr10->isChecked() << ui->chkInverseOLCIefr11->isChecked() << ui->chkInverseOLCIefr12->isChecked()
+              << ui->chkInverseOLCIefr13->isChecked() << ui->chkInverseOLCIefr14->isChecked() << ui->chkInverseOLCIefr15->isChecked() << ui->chkInverseOLCIefr16->isChecked()
+              << ui->chkInverseOLCIefr17->isChecked() << ui->chkInverseOLCIefr18->isChecked() << ui->chkInverseOLCIefr19->isChecked() << ui->chkInverseOLCIefr20->isChecked()
+              << ui->chkInverseOLCIefr21->isChecked();
+    return(olcilist);
+}
 
 int FormToolbox::searchResolution(int mapwidth, int mapheight)
 {
@@ -950,8 +896,10 @@ FormToolbox::~FormToolbox()
         opts.lastinputprojection = 1;
     else if(ui->rdbVIIRSDNBin->isChecked())
         opts.lastinputprojection = 2;
-    else
+    else if(ui->rdbOLCIefrin->isChecked())
         opts.lastinputprojection = 3;
+    else
+        opts.lastinputprojection = 4;
 
 
     opts.lastcomboMet006 = ui->comboGeo1->currentIndex();
@@ -1052,25 +1000,6 @@ FormToolbox::~FormToolbox()
         poi.strlColorBandM.replace(0, QString("%1").arg("16"));
 
 
-
-//    poi.strlColorsM.replace(0, QString("%1").arg(ui->rbColorVIIRS->isChecked()));
-//    poi.strlBandM1.replace(0, QString("%1").arg(ui->rbM1->isChecked()));
-//    poi.strlBandM2.replace(0, QString("%1").arg(ui->rbM2->isChecked()));
-//    poi.strlBandM3.replace(0, QString("%1").arg(ui->rbM3->isChecked()));
-//    poi.strlBandM4.replace(0, QString("%1").arg(ui->rbM4->isChecked()));
-//    poi.strlBandM5.replace(0, QString("%1").arg(ui->rbM5->isChecked()));
-//    poi.strlBandM6.replace(0, QString("%1").arg(ui->rbM6->isChecked()));
-//    poi.strlBandM7.replace(0, QString("%1").arg(ui->rbM7->isChecked()));
-//    poi.strlBandM8.replace(0, QString("%1").arg(ui->rbM8->isChecked()));
-//    poi.strlBandM9.replace(0, QString("%1").arg(ui->rbM9->isChecked()));
-//    poi.strlBandM10.replace(0, QString("%1").arg(ui->rbM10->isChecked()));
-//    poi.strlBandM11.replace(0, QString("%1").arg(ui->rbM11->isChecked()));
-//    poi.strlBandM12.replace(0, QString("%1").arg(ui->rbM12->isChecked()));
-//    poi.strlBandM13.replace(0, QString("%1").arg(ui->rbM13->isChecked()));
-//    poi.strlBandM14.replace(0, QString("%1").arg(ui->rbM14->isChecked()));
-//    poi.strlBandM15.replace(0, QString("%1").arg(ui->rbM15->isChecked()));
-//    poi.strlBandM16.replace(0, QString("%1").arg(ui->rbM16->isChecked()));
-
     poi.strlInverseM1.replace(0, QString("%1").arg(ui->chkInverseM1->isChecked()));
     poi.strlInverseM2.replace(0, QString("%1").arg(ui->chkInverseM2->isChecked()));
     poi.strlInverseM3.replace(0, QString("%1").arg(ui->chkInverseM3->isChecked()));
@@ -1104,6 +1033,98 @@ FormToolbox::~FormToolbox()
     poi.strlComboM14.replace(0, QString("%1").arg(ui->comboM14->currentIndex()));
     poi.strlComboM15.replace(0, QString("%1").arg(ui->comboM15->currentIndex()));
     poi.strlComboM16.replace(0, QString("%1").arg(ui->comboM16->currentIndex()));
+
+
+    if(ui->rbColorOLCIefr->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("0"));
+    else if(ui->rbOLCIefr01->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("1"));
+    else if(ui->rbOLCIefr02->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("2"));
+    else if(ui->rbOLCIefr03->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("3"));
+    else if(ui->rbOLCIefr04->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("4"));
+    else if(ui->rbOLCIefr05->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("5"));
+    else if(ui->rbOLCIefr06->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("6"));
+    else if(ui->rbOLCIefr07->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("7"));
+    else if(ui->rbOLCIefr08->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("8"));
+    else if(ui->rbOLCIefr09->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("9"));
+    else if(ui->rbOLCIefr10->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("10"));
+    else if(ui->rbOLCIefr11->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("11"));
+    else if(ui->rbOLCIefr12->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("12"));
+    else if(ui->rbOLCIefr13->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("13"));
+    else if(ui->rbOLCIefr14->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("14"));
+    else if(ui->rbOLCIefr15->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("15"));
+    else if(ui->rbOLCIefr16->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("16"));
+    else if(ui->rbOLCIefr17->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("17"));
+    else if(ui->rbOLCIefr18->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("18"));
+    else if(ui->rbOLCIefr19->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("19"));
+    else if(ui->rbOLCIefr20->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("20"));
+    else if(ui->rbOLCIefr21->isChecked())
+        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("21"));
+
+
+    poi.strlInverseOLCIefr01.replace(0, QString("%1").arg(ui->chkInverseOLCIefr01->isChecked()));
+    poi.strlInverseOLCIefr02.replace(0, QString("%1").arg(ui->chkInverseOLCIefr02->isChecked()));
+    poi.strlInverseOLCIefr03.replace(0, QString("%1").arg(ui->chkInverseOLCIefr03->isChecked()));
+    poi.strlInverseOLCIefr04.replace(0, QString("%1").arg(ui->chkInverseOLCIefr04->isChecked()));
+    poi.strlInverseOLCIefr05.replace(0, QString("%1").arg(ui->chkInverseOLCIefr05->isChecked()));
+    poi.strlInverseOLCIefr06.replace(0, QString("%1").arg(ui->chkInverseOLCIefr06->isChecked()));
+    poi.strlInverseOLCIefr07.replace(0, QString("%1").arg(ui->chkInverseOLCIefr07->isChecked()));
+    poi.strlInverseOLCIefr08.replace(0, QString("%1").arg(ui->chkInverseOLCIefr08->isChecked()));
+    poi.strlInverseOLCIefr09.replace(0, QString("%1").arg(ui->chkInverseOLCIefr09->isChecked()));
+    poi.strlInverseOLCIefr10.replace(0, QString("%1").arg(ui->chkInverseOLCIefr10->isChecked()));
+    poi.strlInverseOLCIefr11.replace(0, QString("%1").arg(ui->chkInverseOLCIefr11->isChecked()));
+    poi.strlInverseOLCIefr12.replace(0, QString("%1").arg(ui->chkInverseOLCIefr12->isChecked()));
+    poi.strlInverseOLCIefr13.replace(0, QString("%1").arg(ui->chkInverseOLCIefr13->isChecked()));
+    poi.strlInverseOLCIefr14.replace(0, QString("%1").arg(ui->chkInverseOLCIefr14->isChecked()));
+    poi.strlInverseOLCIefr15.replace(0, QString("%1").arg(ui->chkInverseOLCIefr15->isChecked()));
+    poi.strlInverseOLCIefr16.replace(0, QString("%1").arg(ui->chkInverseOLCIefr16->isChecked()));
+    poi.strlInverseOLCIefr17.replace(0, QString("%1").arg(ui->chkInverseOLCIefr17->isChecked()));
+    poi.strlInverseOLCIefr18.replace(0, QString("%1").arg(ui->chkInverseOLCIefr18->isChecked()));
+    poi.strlInverseOLCIefr19.replace(0, QString("%1").arg(ui->chkInverseOLCIefr19->isChecked()));
+    poi.strlInverseOLCIefr20.replace(0, QString("%1").arg(ui->chkInverseOLCIefr20->isChecked()));
+    poi.strlInverseOLCIefr21.replace(0, QString("%1").arg(ui->chkInverseOLCIefr21->isChecked()));
+
+    poi.strlComboOLCIefr01.replace(0, QString("%1").arg(ui->cmbOLCIefr01->currentIndex()));
+    poi.strlComboOLCIefr02.replace(0, QString("%1").arg(ui->cmbOLCIefr02->currentIndex()));
+    poi.strlComboOLCIefr03.replace(0, QString("%1").arg(ui->cmbOLCIefr03->currentIndex()));
+    poi.strlComboOLCIefr04.replace(0, QString("%1").arg(ui->cmbOLCIefr04->currentIndex()));
+    poi.strlComboOLCIefr05.replace(0, QString("%1").arg(ui->cmbOLCIefr05->currentIndex()));
+    poi.strlComboOLCIefr06.replace(0, QString("%1").arg(ui->cmbOLCIefr06->currentIndex()));
+    poi.strlComboOLCIefr07.replace(0, QString("%1").arg(ui->cmbOLCIefr07->currentIndex()));
+    poi.strlComboOLCIefr08.replace(0, QString("%1").arg(ui->cmbOLCIefr08->currentIndex()));
+    poi.strlComboOLCIefr09.replace(0, QString("%1").arg(ui->cmbOLCIefr09->currentIndex()));
+    poi.strlComboOLCIefr10.replace(0, QString("%1").arg(ui->cmbOLCIefr10->currentIndex()));
+    poi.strlComboOLCIefr11.replace(0, QString("%1").arg(ui->cmbOLCIefr11->currentIndex()));
+    poi.strlComboOLCIefr12.replace(0, QString("%1").arg(ui->cmbOLCIefr12->currentIndex()));
+    poi.strlComboOLCIefr13.replace(0, QString("%1").arg(ui->cmbOLCIefr13->currentIndex()));
+    poi.strlComboOLCIefr14.replace(0, QString("%1").arg(ui->cmbOLCIefr14->currentIndex()));
+    poi.strlComboOLCIefr15.replace(0, QString("%1").arg(ui->cmbOLCIefr15->currentIndex()));
+    poi.strlComboOLCIefr16.replace(0, QString("%1").arg(ui->cmbOLCIefr16->currentIndex()));
+    poi.strlComboOLCIefr17.replace(0, QString("%1").arg(ui->cmbOLCIefr17->currentIndex()));
+    poi.strlComboOLCIefr18.replace(0, QString("%1").arg(ui->cmbOLCIefr18->currentIndex()));
+    poi.strlComboOLCIefr19.replace(0, QString("%1").arg(ui->cmbOLCIefr19->currentIndex()));
+    poi.strlComboOLCIefr20.replace(0, QString("%1").arg(ui->cmbOLCIefr20->currentIndex()));
+    poi.strlComboOLCIefr21.replace(0, QString("%1").arg(ui->cmbOLCIefr21->currentIndex()));
+
 
     delete ui;
 }
@@ -1375,6 +1396,12 @@ void FormToolbox::setTabWidgetVIIRSIndex(int index)
     ui->tabWidgetVIIRS->setCurrentIndex(index);
 }
 
+void FormToolbox::setTabWidgetOLCIIndex(int index)
+{
+    qDebug() << "FormToolbox::setTabWidgetOLCIIndex(int index)";
+    ui->tabWidgetOLCI->setCurrentIndex(index);
+}
+
 void FormToolbox::setToolboxButtons(bool state)
 {
     qDebug() << QString("FormToolbox::setToolboxButtons state = %1").arg(state);
@@ -1574,7 +1601,8 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->btnOverlayProjectionSG->setEnabled(state);
     ui->btnRotate180->setEnabled(state);
 
-    ui->btnMakeVIIRSImage->setEnabled(state);
+    ui->btnUpdateVIIRSImage->setEnabled(state);
+    ui->btnUpdateOLCIefrImage->setEnabled(state);
     ui->btnTextureVIIRS->setEnabled(state);
 
     ui->btnCreateLambert->setEnabled(state);
@@ -1601,6 +1629,29 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->rbM14->setEnabled(state);
     ui->rbM15->setEnabled(state);
     ui->rbM16->setEnabled(state);
+
+    ui->rbColorOLCIefr->setEnabled(state);
+    ui->rbOLCIefr01->setEnabled(state);
+    ui->rbOLCIefr02->setEnabled(state);
+    ui->rbOLCIefr03->setEnabled(state);
+    ui->rbOLCIefr04->setEnabled(state);
+    ui->rbOLCIefr05->setEnabled(state);
+    ui->rbOLCIefr06->setEnabled(state);
+    ui->rbOLCIefr07->setEnabled(state);
+    ui->rbOLCIefr08->setEnabled(state);
+    ui->rbOLCIefr09->setEnabled(state);
+    ui->rbOLCIefr10->setEnabled(state);
+    ui->rbOLCIefr11->setEnabled(state);
+    ui->rbOLCIefr12->setEnabled(state);
+    ui->rbOLCIefr13->setEnabled(state);
+    ui->rbOLCIefr14->setEnabled(state);
+    ui->rbOLCIefr15->setEnabled(state);
+    ui->rbOLCIefr16->setEnabled(state);
+    ui->rbOLCIefr17->setEnabled(state);
+    ui->rbOLCIefr18->setEnabled(state);
+    ui->rbOLCIefr19->setEnabled(state);
+    ui->rbOLCIefr20->setEnabled(state);
+    ui->rbOLCIefr21->setEnabled(state);
 
 }
 
@@ -2175,6 +2226,21 @@ void FormToolbox::on_btnTextureVIIRS_clicked()
 
 }
 
+void FormToolbox::on_btnTextureOLCIefr_clicked()
+{
+    if (opts.imageontextureOnOLCIefr)
+    {
+        opts.imageontextureOnOLCIefr = false;
+        ui->btnTextureOLCIefr->setText("Texture Off");
+    }
+    else
+    {
+        opts.imageontextureOnOLCIefr = true;
+        ui->btnTextureOLCIefr->setText("Texture On");
+    }
+
+}
+
 void FormToolbox::on_tabWidget_currentChanged(int index)
 {
     qDebug() << "on_tabWidget_currentChanged(int index) index = " << index;
@@ -2197,31 +2263,29 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     }
     else if (index == TAB_VIIRS) // VIIRS
     {
-        //qDebug() << "2";
-
-        //qDebug() << "index == TAB_VIIRS";
         if(ui->tabWidgetVIIRS->currentIndex() == 0)
         {
-            //qDebug() << "3";
-
-            //qDebug() << "ui->tabWidgetVIIRS->currentIndex() == 0";
             formimage->displayImage(IMAGE_VIIRS_M);
         }
         else
         {
-            //qDebug() << "4";
-
-            //qDebug() << "ui->tabWidgetVIIRS->currentIndex() == 1";
             formimage->displayImage(IMAGE_VIIRS_DNB);
+        }
+    }
+    else if (index == TAB_OLCI) // OLCI
+    {
+        if(ui->tabWidgetOLCI->currentIndex() == 0)
+        {
+            formimage->displayImage(IMAGE_OLCI_EFR);
+        }
+        else
+        {
+            formimage->displayImage(IMAGE_OLCI_ERR);
         }
     }
     else if (index == TAB_GEOSTATIONARY) // Geostationair
     {
         formimage->displayImage(IMAGE_GEOSTATIONARY);
-    }
-    else if (index == TAB_EQUIRECTANGULAR) // Equirectangular
-    {
-        formimage->displayImage(IMAGE_EQUIRECTANGLE);
     }
     else if (index == TAB_PROJECTION) // Projection
     {
@@ -2426,8 +2490,13 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         }
 
     }
-    else if(ui->rdbEquirectin->isChecked())
+    else if(ui->rdbOLCIefrin->isChecked())
     {
+        if(opts.buttonOLCIefr)
+        {
+            if(!segs->SelectedOLCIefrSegments())
+                return;
+        }
 
     }
 
@@ -2466,10 +2535,10 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+    else if(ui->rdbOLCIefrin->isChecked())
+        imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, false);
     else if(ui->rdbMeteosatin->isChecked())
         imageptrs->gvp->CreateMapFromGeoStationary();
-    else if(ui->rdbEquirectin->isChecked())
-        imageptrs->gvp->CreateMapFromEquirectangular();
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -2886,6 +2955,10 @@ int FormToolbox::getTabWidgetVIIRSIndex()
     return ui->tabWidgetVIIRS->currentIndex();
 }
 
+int FormToolbox::getTabWidgetOLCIIndex()
+{
+    return ui->tabWidgetOLCI->currentIndex();
+}
 
 void FormToolbox::on_toolBox_currentChanged(int index)
 {
@@ -3236,6 +3309,37 @@ bool FormToolbox::comboColVIIRSOK()
         return false;
 }
 
+bool FormToolbox::comboColOLCIefrOK()
+{
+    int cnt = 0;
+
+    cnt += ui->cmbOLCIefr01->currentIndex();
+    cnt += ui->cmbOLCIefr02->currentIndex();
+    cnt += ui->cmbOLCIefr03->currentIndex();
+    cnt += ui->cmbOLCIefr04->currentIndex();
+    cnt += ui->cmbOLCIefr05->currentIndex();
+    cnt += ui->cmbOLCIefr06->currentIndex();
+    cnt += ui->cmbOLCIefr07->currentIndex();
+    cnt += ui->cmbOLCIefr08->currentIndex();
+    cnt += ui->cmbOLCIefr09->currentIndex();
+    cnt += ui->cmbOLCIefr10->currentIndex();
+    cnt += ui->cmbOLCIefr11->currentIndex();
+    cnt += ui->cmbOLCIefr12->currentIndex();
+    cnt += ui->cmbOLCIefr13->currentIndex();
+    cnt += ui->cmbOLCIefr14->currentIndex();
+    cnt += ui->cmbOLCIefr15->currentIndex();
+    cnt += ui->cmbOLCIefr16->currentIndex();
+    cnt += ui->cmbOLCIefr17->currentIndex();
+    cnt += ui->cmbOLCIefr18->currentIndex();
+    cnt += ui->cmbOLCIefr19->currentIndex();
+    cnt += ui->cmbOLCIefr20->currentIndex();
+    cnt += ui->cmbOLCIefr21->currentIndex();
+
+    if(cnt == 6)
+        return true;
+    else
+        return false;
+}
 bool FormToolbox::comboColGeoOK()
 {
     int cnt = 0;
@@ -3258,7 +3362,7 @@ bool FormToolbox::comboColGeoOK()
         return false;
 }
 
-void FormToolbox::on_btnMakeVIIRSImage_clicked()
+void FormToolbox::on_btnUpdateVIIRSImage_clicked()
 {
 
     if(segs->seglviirsm->NbrOfSegmentsSelected() > 0)
@@ -3290,6 +3394,39 @@ void FormToolbox::on_btnMakeVIIRSImage_clicked()
 
         ui->pbProgress->reset();
         emit emitShowVIIRSImage();
+    }
+}
+
+void FormToolbox::on_btnUpdateOLCIefrImage_clicked()
+{
+
+    if(segs->seglolciefr->NbrOfSegmentsSelected() > 0)
+    {
+        if(!comboColOLCIefrOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the OLCI efr tab.");
+            //msgBox.setInformativeText("Do you want to save your changes?");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        ui->btnGVPFalseColor->setChecked(false);
+        ui->btnSGFalseColor->setChecked(false);
+        ui->btnLCCFalseColor->setChecked(false);
+
+        ui->pbProgress->reset();
+        emit emitShowOLCIefrImage();
     }
 }
 
@@ -3565,8 +3702,8 @@ void FormToolbox::setConfigMParameters(int strlindex)
     int theband = poi.strlColorBandM.at(strlindex).toInt();
     if( theband == 0) // is color
     {
-        ui->rbColorVIIRS->setChecked(true);
         setRadioButtonsMToFalse();
+        ui->rbColorVIIRS->setChecked(true);
     }
     else
     {
@@ -3682,6 +3819,162 @@ void FormToolbox::setRadioButtonsMToFalse()
     ui->rbM14->setChecked(false);
     ui->rbM15->setChecked(false);
     ui->rbM16->setChecked(false);
+}
+
+void FormToolbox::setConfigOLCIParameters(int strlindex)
+{
+    qDebug() << "FormToolbox::setConfigOLCIParameters(int strlindex)";
+
+    int theband = poi.strlColorBandOLCIefr.at(strlindex).toInt();
+    if( theband == 0) // is color
+    {
+        setRadioButtonsOLCIefrToFalse();
+        ui->rbColorOLCIefr->setChecked(true);
+    }
+    else
+    {
+        ui->rbColorOLCIefr->setChecked(false);
+        setRadioButtonsOLCIefrToFalse();
+        switch (theband)
+        {
+        case 1:
+            ui->rbOLCIefr01->setChecked(true);
+            break;
+        case 2:
+            ui->rbOLCIefr02->setChecked(true);
+            break;
+        case 3:
+            ui->rbOLCIefr03->setChecked(true);
+            break;
+        case 4:
+            ui->rbOLCIefr04->setChecked(true);
+            break;
+        case 5:
+            ui->rbOLCIefr05->setChecked(true);
+            break;
+        case 6:
+            ui->rbOLCIefr06->setChecked(true);
+            break;
+        case 7:
+            ui->rbOLCIefr07->setChecked(true);
+            break;
+        case 8:
+            ui->rbOLCIefr08->setChecked(true);
+            break;
+        case 9:
+            ui->rbOLCIefr09->setChecked(true);
+            break;
+        case 10:
+            ui->rbOLCIefr10->setChecked(true);
+            break;
+        case 11:
+            ui->rbOLCIefr11->setChecked(true);
+            break;
+        case 12:
+            ui->rbOLCIefr12->setChecked(true);
+            break;
+        case 13:
+            ui->rbOLCIefr13->setChecked(true);
+            break;
+        case 14:
+            ui->rbOLCIefr14->setChecked(true);
+            break;
+        case 15:
+            ui->rbOLCIefr15->setChecked(true);
+            break;
+        case 16:
+            ui->rbOLCIefr16->setChecked(true);
+            break;
+        case 17:
+            ui->rbOLCIefr17->setChecked(true);
+            break;
+        case 18:
+            ui->rbOLCIefr18->setChecked(true);
+            break;
+        case 19:
+            ui->rbOLCIefr19->setChecked(true);
+            break;
+        case 20:
+            ui->rbOLCIefr20->setChecked(true);
+            break;
+        case 21:
+            ui->rbOLCIefr21->setChecked(true);
+            break;
+
+        }
+
+    }
+
+    qDebug() << "FormToolbox::setConfigOLCIefrParameters(int strlindex) 2";
+
+    ui->chkInverseOLCIefr01->setChecked(poi.strlInverseOLCIefr01.at(strlindex).toInt());
+    ui->chkInverseOLCIefr02->setChecked(poi.strlInverseOLCIefr02.at(strlindex).toInt());
+    ui->chkInverseOLCIefr03->setChecked(poi.strlInverseOLCIefr03.at(strlindex).toInt());
+    ui->chkInverseOLCIefr04->setChecked(poi.strlInverseOLCIefr04.at(strlindex).toInt());
+    ui->chkInverseOLCIefr05->setChecked(poi.strlInverseOLCIefr05.at(strlindex).toInt());
+    ui->chkInverseOLCIefr06->setChecked(poi.strlInverseOLCIefr06.at(strlindex).toInt());
+    ui->chkInverseOLCIefr07->setChecked(poi.strlInverseOLCIefr07.at(strlindex).toInt());
+    ui->chkInverseOLCIefr08->setChecked(poi.strlInverseOLCIefr08.at(strlindex).toInt());
+    ui->chkInverseOLCIefr09->setChecked(poi.strlInverseOLCIefr09.at(strlindex).toInt());
+    ui->chkInverseOLCIefr10->setChecked(poi.strlInverseOLCIefr10.at(strlindex).toInt());
+    ui->chkInverseOLCIefr11->setChecked(poi.strlInverseOLCIefr11.at(strlindex).toInt());
+    ui->chkInverseOLCIefr12->setChecked(poi.strlInverseOLCIefr12.at(strlindex).toInt());
+    ui->chkInverseOLCIefr13->setChecked(poi.strlInverseOLCIefr13.at(strlindex).toInt());
+    ui->chkInverseOLCIefr14->setChecked(poi.strlInverseOLCIefr14.at(strlindex).toInt());
+    ui->chkInverseOLCIefr15->setChecked(poi.strlInverseOLCIefr15.at(strlindex).toInt());
+    ui->chkInverseOLCIefr16->setChecked(poi.strlInverseOLCIefr16.at(strlindex).toInt());
+    ui->chkInverseOLCIefr17->setChecked(poi.strlInverseOLCIefr17.at(strlindex).toInt());
+    ui->chkInverseOLCIefr18->setChecked(poi.strlInverseOLCIefr18.at(strlindex).toInt());
+    ui->chkInverseOLCIefr19->setChecked(poi.strlInverseOLCIefr19.at(strlindex).toInt());
+    ui->chkInverseOLCIefr20->setChecked(poi.strlInverseOLCIefr20.at(strlindex).toInt());
+    ui->chkInverseOLCIefr21->setChecked(poi.strlInverseOLCIefr21.at(strlindex).toInt());
+
+    qDebug() << "FormToolbox::setConfigOLCIefrParameters(int strlindex) 3";
+
+    ui->cmbOLCIefr01->setCurrentIndex(poi.strlComboOLCIefr01.at(strlindex).toInt());
+    ui->cmbOLCIefr02->setCurrentIndex(poi.strlComboOLCIefr02.at(strlindex).toInt());
+    ui->cmbOLCIefr03->setCurrentIndex(poi.strlComboOLCIefr03.at(strlindex).toInt());
+    ui->cmbOLCIefr04->setCurrentIndex(poi.strlComboOLCIefr04.at(strlindex).toInt());
+    ui->cmbOLCIefr05->setCurrentIndex(poi.strlComboOLCIefr05.at(strlindex).toInt());
+    ui->cmbOLCIefr06->setCurrentIndex(poi.strlComboOLCIefr06.at(strlindex).toInt());
+    ui->cmbOLCIefr07->setCurrentIndex(poi.strlComboOLCIefr07.at(strlindex).toInt());
+    ui->cmbOLCIefr08->setCurrentIndex(poi.strlComboOLCIefr08.at(strlindex).toInt());
+    ui->cmbOLCIefr09->setCurrentIndex(poi.strlComboOLCIefr09.at(strlindex).toInt());
+    ui->cmbOLCIefr10->setCurrentIndex(poi.strlComboOLCIefr10.at(strlindex).toInt());
+    ui->cmbOLCIefr11->setCurrentIndex(poi.strlComboOLCIefr11.at(strlindex).toInt());
+    ui->cmbOLCIefr12->setCurrentIndex(poi.strlComboOLCIefr12.at(strlindex).toInt());
+    ui->cmbOLCIefr13->setCurrentIndex(poi.strlComboOLCIefr13.at(strlindex).toInt());
+    ui->cmbOLCIefr14->setCurrentIndex(poi.strlComboOLCIefr14.at(strlindex).toInt());
+    ui->cmbOLCIefr15->setCurrentIndex(poi.strlComboOLCIefr15.at(strlindex).toInt());
+    ui->cmbOLCIefr16->setCurrentIndex(poi.strlComboOLCIefr16.at(strlindex).toInt());
+    ui->cmbOLCIefr17->setCurrentIndex(poi.strlComboOLCIefr17.at(strlindex).toInt());
+    ui->cmbOLCIefr18->setCurrentIndex(poi.strlComboOLCIefr18.at(strlindex).toInt());
+    ui->cmbOLCIefr19->setCurrentIndex(poi.strlComboOLCIefr19.at(strlindex).toInt());
+    ui->cmbOLCIefr20->setCurrentIndex(poi.strlComboOLCIefr20.at(strlindex).toInt());
+    ui->cmbOLCIefr21->setCurrentIndex(poi.strlComboOLCIefr21.at(strlindex).toInt());
+
+    qDebug() << "FormToolbox::setConfigOLCIefrParameters(int strlindex) 4";
+
+}
+
+void FormToolbox::setRadioButtonsOLCIefrToFalse()
+{
+    ui->rbOLCIefr01->setChecked(false);
+    ui->rbOLCIefr02->setChecked(false);
+    ui->rbOLCIefr03->setChecked(false);
+    ui->rbOLCIefr04->setChecked(false);
+    ui->rbOLCIefr05->setChecked(false);
+    ui->rbOLCIefr06->setChecked(false);
+    ui->rbOLCIefr07->setChecked(false);
+    ui->rbOLCIefr08->setChecked(false);
+    ui->rbOLCIefr09->setChecked(false);
+    ui->rbOLCIefr10->setChecked(false);
+    ui->rbOLCIefr11->setChecked(false);
+    ui->rbOLCIefr12->setChecked(false);
+    ui->rbOLCIefr13->setChecked(false);
+    ui->rbOLCIefr14->setChecked(false);
+    ui->rbOLCIefr15->setChecked(false);
+    ui->rbOLCIefr16->setChecked(false);
 }
 
 void FormToolbox::on_comboPOI_currentIndexChanged(int index)
@@ -3804,6 +4097,11 @@ void FormToolbox::on_comboMConfig_currentIndexChanged(int index)
     setConfigMParameters(index);
 }
 
+void FormToolbox::on_comboOLCIConfig_currentIndexChanged(int index)
+{
+    setConfigOLCIParameters(index);
+}
+
 void FormToolbox::on_btnAddMConfig_clicked()
 {
     if(ui->leMConfig->text().length() == 0)
@@ -3914,38 +4212,6 @@ void FormToolbox::on_btnAddMConfig_clicked()
 
 }
 
-void FormToolbox::setupEquirectangularTable()
-{
-    myEquirectangularModel = new QFileSystemModel(this);
-    QStringList imagefilter;
-    imagefilter << "*.png" << "*.jpg";
-    myEquirectangularModel->setNameFilters(imagefilter);
-
-    myEquirectangularModel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
-    myEquirectangularModel->setRootPath(opts.equirectangulardirectory); //QDir::currentPath());
-    myEquirectangularModel->sort(0);
-
-    ui->trvEquirectangular->setModel(myEquirectangularModel);
-    ui->trvEquirectangular->setRootIndex(myEquirectangularModel->index(opts.equirectangulardirectory)); //QDir::currentPath()));
-    ui->trvEquirectangular->setColumnWidth(0, 250);
-    ui->trvEquirectangular->setColumnWidth(1, 100);
-    ui->trvEquirectangular->setColumnWidth(2, 100);
-    ui->trvEquirectangular->setColumnWidth(3, 150);
-
-}
-
-void FormToolbox::on_trvEquirectangular_clicked(const QModelIndex &index)
-{
-    QString sPath = myEquirectangularModel->fileInfo(index).absoluteFilePath();
-    qDebug() << "Equirectangular file : " << sPath;
-    delete imageptrs->ptrimageEquirectangle;
-    imageptrs->ptrimageEquirectangle = new QImage(sPath);
-
-    qDebug() << QString("Equirectangular file : %1  width = %2  height = %3").arg(sPath).arg(imageptrs->ptrimageEquirectangle->width())
-                .arg(imageptrs->ptrimageEquirectangle->height());
-    formimage->displayImage(IMAGE_EQUIRECTANGLE);
-    formimage->adjustPicSize(false);
-}
 
 void FormToolbox::on_btnGVPFalseColor_clicked()
 {
@@ -4217,6 +4483,4 @@ void FormToolbox::fitCurve()
 
 
 }
-
-
 

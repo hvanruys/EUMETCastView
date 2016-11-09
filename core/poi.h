@@ -49,8 +49,12 @@ public:
     QStringList strlSGMapWidth;
 
     QStringList strlConfigNameM;
-
     QStringList strlColorBandM; // 0 = color , 1 = M1 , 2 = M2 , ...
+
+    QStringList strlConfigNameOLCIefr;
+    QStringList strlColorBandOLCIefr; // 0 = color , 1 = Oa01 , 2 = Oa02 , ...
+
+
 
 //    QStringList strlColorsM;
 //    QStringList strlBandM1;
@@ -104,6 +108,49 @@ public:
     QStringList strlInverseM15;
     QStringList strlInverseM16;
 
+    QStringList strlComboOLCIefr01;
+    QStringList strlComboOLCIefr02;
+    QStringList strlComboOLCIefr03;
+    QStringList strlComboOLCIefr04;
+    QStringList strlComboOLCIefr05;
+    QStringList strlComboOLCIefr06;
+    QStringList strlComboOLCIefr07;
+    QStringList strlComboOLCIefr08;
+    QStringList strlComboOLCIefr09;
+    QStringList strlComboOLCIefr10;
+    QStringList strlComboOLCIefr11;
+    QStringList strlComboOLCIefr12;
+    QStringList strlComboOLCIefr13;
+    QStringList strlComboOLCIefr14;
+    QStringList strlComboOLCIefr15;
+    QStringList strlComboOLCIefr16;
+    QStringList strlComboOLCIefr17;
+    QStringList strlComboOLCIefr18;
+    QStringList strlComboOLCIefr19;
+    QStringList strlComboOLCIefr20;
+    QStringList strlComboOLCIefr21;
+
+    QStringList strlInverseOLCIefr01;
+    QStringList strlInverseOLCIefr02;
+    QStringList strlInverseOLCIefr03;
+    QStringList strlInverseOLCIefr04;
+    QStringList strlInverseOLCIefr05;
+    QStringList strlInverseOLCIefr06;
+    QStringList strlInverseOLCIefr07;
+    QStringList strlInverseOLCIefr08;
+    QStringList strlInverseOLCIefr09;
+    QStringList strlInverseOLCIefr10;
+    QStringList strlInverseOLCIefr11;
+    QStringList strlInverseOLCIefr12;
+    QStringList strlInverseOLCIefr13;
+    QStringList strlInverseOLCIefr14;
+    QStringList strlInverseOLCIefr15;
+    QStringList strlInverseOLCIefr16;
+    QStringList strlInverseOLCIefr17;
+    QStringList strlInverseOLCIefr18;
+    QStringList strlInverseOLCIefr19;
+    QStringList strlInverseOLCIefr20;
+    QStringList strlInverseOLCIefr21;
 
 }; 
 

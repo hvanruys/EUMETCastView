@@ -22,6 +22,8 @@ public:
 
     void CreateMapFromAVHRR(int inputchannel, eSegmentType type);
     void CreateMapFromVIIRS(eSegmentType type, bool combine);
+    void CreateMapFromOLCI(eSegmentType type, bool combine);
+
     void CreateMapFromGeoStationary();
     void CreateMapFromEquirectangular();
     void CreateMapFromEquirectangular1();

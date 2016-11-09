@@ -75,6 +75,7 @@ protected:
     int nbrofvisiblesegments;
     int indexfirstvisible;
     int indexlastvisible;
+    int earth_views_per_scanline;
 
     QString segmenttype;
     eSegmentType seglisttype;

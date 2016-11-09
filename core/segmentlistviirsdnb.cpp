@@ -150,8 +150,8 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     {
         SegmentVIIRSDNB *segm = (SegmentVIIRSDNB *)(*segsel);
 
-//        segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
-        segm->ComposeSegmentImageWindowFromCurve(&xDNBcurve, &yDNBcurve);
+        segm->ComposeSegmentImageWindow(lowerlimit, upperlimit);
+//        segm->ComposeSegmentImageWindowFromCurve(&xDNBcurve, &yDNBcurve);
         totillum += segm->MoonIllumFraction;
         count++;
 

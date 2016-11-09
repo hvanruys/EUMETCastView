@@ -226,11 +226,19 @@ void FormEphem::setSegmentsShownValue()
 
 void FormEphem::getSegmentsForCalendar()
 {
-    QTreeWidgetItem *newitem;
 
     segs->ReadDirectories(ui->calendar->selectedDate(), ui->sliNbrOfHours->value());
 
     ui->segmentoverview->clear();
+
+    NewSegmentOverviewItem();
+
+    emit signalDirectoriesRead();
+}
+
+void FormEphem::NewSegmentOverviewItem()
+{
+    QTreeWidgetItem *newitem;
 
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetop(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa(), 0  );
@@ -238,6 +246,8 @@ void FormEphem::getSegmentsForCalendar()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGAC(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSM(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSDNB(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIefr(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIerr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosatRss(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat8(), 0  );
@@ -248,29 +258,12 @@ void FormEphem::getSegmentsForCalendar()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2G(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsH8(), 0  );
 
-    emit signalDirectoriesRead();
 }
-
 
 void FormEphem::showSegmentsAdded()
 {
-    QTreeWidgetItem *newitem;
-
     ui->segmentoverview->clear();
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetop(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsHRP(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGAC(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSM(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosatRss(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat8(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat7(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES13(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES15(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2E(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2G(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsH8(), 0  );
+    NewSegmentOverviewItem();
 
 }
 
@@ -632,6 +625,8 @@ void FormEphem::showSelectedSegmentList(void)
     QList<Segment*> *slhrp = segs->seglhrp->GetSegmentlistptr();
     QList<Segment*> *slviirsm = segs->seglviirsm->GetSegmentlistptr();
     QList<Segment*> *slviirsdnb = segs->seglviirsdnb->GetSegmentlistptr();
+    QList<Segment*> *slolciefr = segs->seglolciefr->GetSegmentlistptr();
+    QList<Segment*> *slolcierr = segs->seglolcierr->GetSegmentlistptr();
     QList<QTreeWidgetItem *> items;
 
     ui->selectedsegmentwidget->clear();
@@ -741,10 +736,44 @@ void FormEphem::showSelectedSegmentList(void)
         }
 
     }
+    else
+    if (opts.buttonOLCIefr)
+    {
+        QList<Segment*>::iterator segitolciefr = slolciefr->begin();
+        while ( segitolciefr != slolciefr->end() )
+        {
+            if((*segitolciefr)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segitolciefr)->fileInfo.fileName() << QString("%1").arg((*segitolciefr)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segitolciefr)->fileInfo.absolutePath());
+            }
+            ++segitolciefr;
+        }
+
+    }
+    else
+    if (opts.buttonOLCIerr)
+    {
+        QList<Segment*>::iterator segitolcierr = slolcierr->begin();
+        while ( segitolcierr != slolcierr->end() )
+        {
+            if((*segitolcierr)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segitolcierr)->fileInfo.fileName() << QString("%1").arg((*segitolcierr)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segitolcierr)->fileInfo.absolutePath());
+            }
+            ++segitolcierr;
+        }
+
+    }
 
     ui->selectedsegmentwidget->insertTopLevelItems(0, items);
-
-
 }
 
 void FormEphem::on_btnUpdateTLE_clicked()

@@ -36,6 +36,7 @@ private:
     void updateSatelliteEphem(void);
     void showSegmentDirectoryList(void);
     void AddRootDirectoryWidgetItem(QString segname, Qt::CheckState checkstate);
+    void NewSegmentOverviewItem();
 
     int metopcount;
     int noaacount;

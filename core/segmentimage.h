@@ -52,6 +52,8 @@ public:
     QImage *ptrexpand_col;
     QImage *ptrimageViirsM;
     QImage *ptrimageViirsDNB;
+    QImage *ptrimageOLCIefr;
+    QImage *ptrimageOLCIerr;
 
     QImage *ptrimageGeostationary;
     QImage *ptrimageProjection;

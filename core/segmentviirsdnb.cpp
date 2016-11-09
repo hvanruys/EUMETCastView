@@ -995,13 +995,13 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
                 indexout = indexout > 255 ? 255 : indexout;
                 indexout = indexout < 0 ? 0 : indexout;
                 r = indexout;
-                if((zenith >= 95.0 && zenith < 95.01) || (zenith >= 100.0 && zenith < 100.01))
-                    row[pixelx] = qRgb(0, 255, 0);
-                else if(zenith >= 90.0 && zenith < 90.01)
-                    row[pixelx] = qRgb(0, 255, 255);
-                else if((zenith >= 80.0 && zenith < 80.01) || (zenith >= 85.0 && zenith < 85.01) )
-                    row[pixelx] = qRgb(255, 0, 0);
-                else
+//                if((zenith >= 95.0 && zenith < 95.01) || (zenith >= 100.0 && zenith < 100.01))
+//                    row[pixelx] = qRgb(0, 255, 0);
+//                else if(zenith >= 90.0 && zenith < 90.01)
+//                    row[pixelx] = qRgb(0, 255, 255);
+//                else if((zenith >= 80.0 && zenith < 80.01) || (zenith >= 85.0 && zenith < 85.01) )
+//                    row[pixelx] = qRgb(255, 0, 0);
+//                else
                     row[pixelx] = qRgb(r, r, r );
 //            }
 //            else

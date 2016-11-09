@@ -24,6 +24,8 @@ SegmentImage::SegmentImage()
     ptrimageProjectionCopy = new QImage();
     ptrimageViirsM = new QImage();
     ptrimageViirsDNB = new QImage();
+    ptrimageOLCIefr = new QImage();
+    ptrimageOLCIerr = new QImage();
     ptrimageEquirectangle = new QImage();
     ptrProjectionBrightnessTemp.reset();
 
@@ -175,6 +177,18 @@ void SegmentImage::DeleteImagePtrs()
     {
         delete ptrimageViirsDNB;
         ptrimageViirsDNB = NULL;
+    }
+
+    if(ptrimageOLCIefr != NULL)
+    {
+        delete ptrimageOLCIefr;
+        ptrimageOLCIefr = NULL;
+    }
+
+    if(ptrimageOLCIerr != NULL)
+    {
+        delete ptrimageOLCIerr;
+        ptrimageOLCIerr = NULL;
     }
 
     if(ptrimageEquirectangle != NULL)

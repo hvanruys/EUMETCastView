@@ -49,6 +49,8 @@ private slots:
     void toggleButtonHRP();
     void toggleButtonVIIRSM();
     void toggleButtonVIIRSDNB();
+    void toggleButton(eSegmentType segtype);
+
     void toggleButtonRealTime();
     void updatesatmap(int);
     void setScrollBarMaximum();
@@ -82,6 +84,10 @@ private slots:
     void on_btnPhong_clicked();
 
     void on_btnVIIRSDNB_clicked();
+
+    void on_btnOLCIefr_clicked();
+
+    void on_btnOLCIerr_clicked();
 
 public slots:
       void showSegmentList(int);

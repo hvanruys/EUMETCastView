@@ -11,8 +11,8 @@
 
 #define TAB_AVHRR 0
 #define TAB_VIIRS 1
-#define TAB_GEOSTATIONARY 2
-#define TAB_EQUIRECTANGULAR 3
+#define TAB_OLCI 2
+#define TAB_GEOSTATIONARY 3
 #define TAB_PROJECTION 4
 
 #define TAB_LLC 0
@@ -35,25 +35,33 @@ public:
     explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, FormInfraScales *p_forminfrascales = 0, AVHRRSatellite *seglist = 0);
     int getTabWidgetIndex();
     int getTabWidgetVIIRSIndex();
+    int getTabWidgetOLCIIndex();
 
     QList<bool> getVIIRSMBandList();
     QList<int> getVIIRSMColorList();
     QList<bool> getVIIRSMInvertList();
+    QList<bool> getOLCIefrBandList();
+    QList<int> getOLCIefrColorList();
+    QList<bool> getOLCIefrInvertList();
     void setTabWidgetIndex(int index);
     void setTabWidgetVIIRSIndex(int index);
+    void setTabWidgetOLCIIndex(int index);
     void writeInfoToAVHRR(QString info);
     void writeInfoToVIIRSM(QString info);
     void writeInfoToVIIRSDNB(QString info);
     void writeInfoToGeo(QString info);
+    void writeInfoToOLCI(QString info);
     void createFilenamestring(QString sat, QString d, QVector<QString> spectrum);
     QString returnFilenamestring() { return filenamecreated; }
     bool comboColVIIRSOK();
+    bool comboColOLCIefrOK();
     bool comboColGeoOK();
     bool GridOnProjLCC();
     bool GridOnProjGVP();
     bool GridOnProjSG();
     void setPOIsettings();
     void setMConfigsettings();
+    void setOLCIefrConfigsettings();
 
     ~FormToolbox();
 
@@ -62,7 +70,6 @@ private:
     FormImage *formimage;
     FormInfraScales *forminfrascales;
     FormGeostationary *formgeostationary;
-    QFileSystemModel *myEquirectangularModel;
     QCPColorMap *colorMap;
 
     void setupChannelCombo();
@@ -76,7 +83,8 @@ private:
     void setSGParameters(int strlindex);
     void setConfigMParameters(int strlindex);
     void setRadioButtonsMToFalse();
-    void setupEquirectangularTable();
+    void setConfigOLCIParameters(int strlindex);
+    void setRadioButtonsOLCIefrToFalse();
     void copyProjectionImage();
     void checkSegmentDateTime();
     void initializeScales();
@@ -108,6 +116,7 @@ signals:
     void overlaycorrection(int,int);
     void switchstackedwidget(int);
     void emitShowVIIRSImage();
+    void emitShowOLCIefrImage();
     void screenupdateprojection();
 
 
@@ -195,7 +204,8 @@ private slots:
     void on_btnOverlayProjectionSG_clicked();
     void on_spbLCCCorrX_valueChanged(int arg1);
     void on_spbLCCCorrY_valueChanged(int arg1);
-    void on_btnMakeVIIRSImage_clicked();
+    void on_btnUpdateVIIRSImage_clicked();
+    void on_btnUpdateOLCIefrImage_clicked();
     void on_rbtnAColor_clicked();
     void on_rbtnACh1_clicked();
     void on_rbtnACh2_clicked();
@@ -203,6 +213,7 @@ private slots:
     void on_rbtnACh4_clicked();
     void on_rbtnACh5_clicked();
     void on_btnTextureVIIRS_clicked();
+    void on_btnTextureOLCIefr_clicked();
     void on_sliCLAHE_sliderMoved(int position);
 
     void on_cbProjResolutions_currentIndexChanged(int index);
@@ -216,10 +227,10 @@ private slots:
     void on_btnAddPOI_clicked();
 
     void on_comboMConfig_currentIndexChanged(int index);
+    void on_comboOLCIConfig_currentIndexChanged(int index);
     void on_btnAddMConfig_clicked();
 
     void on_tabWidgetVIIRS_currentChanged(int index);
-    void on_trvEquirectangular_clicked(const QModelIndex &index);
     void on_btnGVPFalseColor_clicked();
     void on_btnLCCFalseColor_clicked();
     void on_btnSGFalseColor_clicked();

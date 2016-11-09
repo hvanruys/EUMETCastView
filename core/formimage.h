@@ -24,6 +24,7 @@ public:
     void ComposeImage();
     bool ShowVIIRSMImage();
     bool ShowVIIRSDNBImage();
+    bool ShowOLCIefrImage();
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
@@ -65,6 +66,8 @@ public:
     int hrpcount;
     int viirsmcount;
     int viirsdnbcount;
+    int olciefrcount;
+    int olcierrcount;
 
 
     eImageType channelshown; // which button channel
@@ -78,6 +81,7 @@ private:
 
     void displayAVHRRImageInfo();
     void displayVIIRSImageInfo();
+    void displayOLCIImageInfo();
     void displayGeoImageInfo();
     void displayGeoImageInformation(QString satname);
 
@@ -127,6 +131,7 @@ signals:
 public slots:
     void slotMakeImage();
     void slotShowVIIRSMImage();
+    void slotShowOLCIefrImage();
     void setPixmapToLabel(bool settoolboxbuttons);
     void setPixmapToLabelDNB(bool settoolboxbuttons);
     void slotUpdateMeteosat();

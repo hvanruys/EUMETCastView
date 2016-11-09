@@ -79,7 +79,6 @@ void Segment::CalculateCornerPoints()
 
     QVector3D pos;
     QVector3D d3pos = qeci.GetPos_f();
-
     QVector3D d3vel = qeci.GetVel_f();
 
     LonLat2PointRad(qgeo.latitude, qgeo.longitude, &pos, 1.001f);
@@ -89,9 +88,7 @@ void Segment::CalculateCornerPoints()
     vec1.normalize();
 
     QVector3D d3posnorm = d3pos.normalized();
-
     QMatrix4x4 mat;
-
     QVector3D d3scan;
 
     double e = qtle->Eccenticity();
@@ -105,7 +102,7 @@ void Segment::CalculateCornerPoints()
     double PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
 
-    if (segment_type == "HRP" || segment_type == "Metop")
+    if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR")
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = 0.00089 * sin(PSO);
@@ -126,24 +123,37 @@ void Segment::CalculateCornerPoints()
     // VIIRS swath = 112.56°
     //
     //double delta = 0.0009439882 * 1023.5;// (in rad) for AVHRR
-    double delta;
+    double delta1;
+    double delta2;
+
     if(segment_type == "VIIRS")
-        delta = 56.28 * PI / 180.0;  // (in rad) for VIIRS
+    {
+        delta1 = 56.28 * PI / 180.0;  // (in rad) for VIIRS
+        delta2 = delta1;
+    }
+    else if(segment_type == "OLCIEFR" || segment_type == "OLCIERR")
+    {
+        delta2 = 22.1 * PI / 180.0;  // see page 97 of Sentinel-3 User Handbook
+        delta1 = 46.5 * PI / 180.0;
+    }
     else
-        delta = 0.0009439882 * 1023.5;
+    {
+        delta1 = 0.0009439882 * 1023.5;
+        delta2 = delta1;
+    }
 
     double r = d3pos.length();
-    double sindelta = sin(-delta);
-    double dd = r * cos(-delta) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
-    QVector3D d3d = - d3posnorm * cos(-delta) * dd + d3scannorm * sin(-delta) * dd;
+    double sindelta = sin(-delta1);
+    double dd = r * cos(-delta1) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
+    QVector3D d3d = - d3posnorm * cos(-delta1) * dd + d3scannorm * sin(-delta1) * dd;
     QVector3D d3earthposfirst = d3pos + d3d;
 
     QEci qecifirst1(d3earthposfirst, d3vel, qsensingstart);
     cornerpointfirst1 = qecifirst1.ToGeo();
 
-    sindelta = sin(delta);
-    dd = r * cos(delta) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
-    d3d = - d3posnorm * cos(delta) * dd + d3scannorm * sin(delta) * dd;
+    sindelta = sin(delta2);
+    dd = r * cos(delta2) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
+    d3d = - d3posnorm * cos(delta2) * dd + d3scannorm * sin(delta2) * dd;
 
     QVector3D d3earthposlast = d3pos + d3d;
 
@@ -173,7 +183,7 @@ void Segment::CalculateCornerPoints()
     PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
 
-    if (segment_type == "HRP" || segment_type == "Metop")
+    if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR")
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = 0.00089 * sin(PSO);
@@ -192,17 +202,17 @@ void Segment::CalculateCornerPoints()
     d3scannorm = d3scan.normalized();
 
     r = d3pos.length();
-    sindelta = sin(-delta);
-    dd = r * cos(-delta) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
-    d3d = - d3posnorm * cos(-delta) * dd + d3scannorm * sin(-delta) * dd;
+    sindelta = sin(-delta1);
+    dd = r * cos(-delta1) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
+    d3d = - d3posnorm * cos(-delta1) * dd + d3scannorm * sin(-delta1) * dd;
     d3earthposfirst = d3pos + d3d;
 
     QEci qecifirst2(d3earthposfirst, d3vel, qsensingend);
     cornerpointfirst2 = qecifirst2.ToGeo();
 
-    sindelta = sin(delta);
-    dd = r * cos(delta) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
-    d3d = - d3posnorm * cos(delta) * dd + d3scannorm * sin(delta) * dd;
+    sindelta = sin(delta2);
+    dd = r * cos(delta2) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
+    d3d = - d3posnorm * cos(delta2) * dd + d3scannorm * sin(delta2) * dd;
 
     d3earthposlast = d3pos + d3d;
 
@@ -238,6 +248,7 @@ void Segment::resetMemory()
     for(int k = 0; k < 3; k++)
     {
         ptrbaVIIRS[k].reset();
+        ptrbaOLCI[k].reset();
     }
 
     projectionCoordX.reset();
@@ -255,6 +266,10 @@ void Segment::resetMemory()
 
 }
 
+bool Segment::composeColorImage()
+{
+    return(bandlist.at(0));
+}
 
 void Segment::RenderSatPath(QPainter *painter, QColor color)
 {
@@ -1010,6 +1025,9 @@ qint32 Segment::getProjectionX(int line, int pixelx)
     case eSegmentType::SEG_VIIRSDNB:
         return projectionCoordX[line * 4064 + pixelx];
         break;
+    case eSegmentType::SEG_OLCIEFR:
+        return projectionCoordX[line * earth_views_per_scanline + pixelx];
+        break;
     }
 }
 
@@ -1030,6 +1048,9 @@ qint32 Segment::getProjectionY(int line, int pixelx)
         break;
     case eSegmentType::SEG_VIIRSDNB:
         return projectionCoordY[line * 4064 + pixelx];
+        break;
+    case eSegmentType::SEG_OLCIEFR:
+        return projectionCoordY[line * earth_views_per_scanline + pixelx];
         break;
     }
 }
@@ -1052,7 +1073,17 @@ QRgb Segment::getProjectionValue(int line, int pixelx)
     case eSegmentType::SEG_VIIRSDNB:
         return projectionCoordValue[line * 4064 + pixelx];
         break;
+    case eSegmentType::SEG_OLCIEFR:
+        return projectionCoordValue[line * earth_views_per_scanline + pixelx];
+        break;
     }
+}
+
+void Segment::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)
+{
+    bandlist = band;
+    colorlist = color;
+    invertlist = invert;
 }
 
 void Segment::ComposeSegmentGVProjection(int inputchannel)

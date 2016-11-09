@@ -142,6 +142,25 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool comb
 
 }
 
+void GeneralVerticalPerspective::CreateMapFromOLCI(eSegmentType type, bool combine)
+{
+    if (type == SEG_OLCIEFR)
+    {
+        segs->seglolciefr->ComposeGVProjection(0);
+    }
+    else if( type == SEG_OLCIERR)
+        segs->seglolcierr->ComposeGVProjection(0);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+    {
+        if( type == SEG_OLCIEFR)
+            segs->seglolciefr->SmoothOLCIImage(combine);
+    }
+
+}
+
 void GeneralVerticalPerspective::CreateMapFromGeoStationary()
 {
     QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time

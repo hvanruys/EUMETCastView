@@ -11,6 +11,8 @@
 #include "segmentgac.h"
 #include "segmentviirsm.h"
 #include "segmentviirsdnb.h"
+#include "segmentolciefr.h"
+#include "segmentolcierr.h"
 
 #include "segmentlistmetop.h"
 #include "segmentlistnoaa.h"
@@ -19,6 +21,8 @@
 #include "segmentlistgeostationary.h"
 #include "segmentlistviirsm.h"
 #include "segmentlistviirsdnb.h"
+#include "segmentlistolciefr.h"
+#include "segmentlistolcierr.h"
 
 #include "segmentimage.h"
 #include "options.h"
@@ -31,6 +35,8 @@ class SegmentListHRP;
 class SegmentListGAC;
 class SegmentListVIIRSM;
 class SegmentListVIIRSDNB;
+class SegmentListOLCIefr;
+class SegmentListOLCIerr;
 
 class AVHRRSatellite  : public QObject
 {
@@ -44,10 +50,14 @@ public:
     bool SelectedAVHRRSegments();
     bool SelectedVIIRSMSegments();
     bool SelectedVIIRSDNBSegments();
+    bool SelectedOLCIefrSegments();
+    bool SelectedOLCIerrSegments();
 
     void RemoveAllSelectedAVHRR();
     void RemoveAllSelectedVIIRSM();
     void RemoveAllSelectedVIIRSDNB();
+    void RemoveAllSelectedOLCIefr();
+    void RemoveAllSelectedOLCIerr();
 
     void emitProgressCounter(int);
 
@@ -58,6 +68,8 @@ public:
     QStringList GetOverviewSegmentsHRP();
     QStringList GetOverviewSegmentsVIIRSM();
     QStringList GetOverviewSegmentsVIIRSDNB();
+    QStringList GetOverviewSegmentsOLCIefr();
+    QStringList GetOverviewSegmentsOLCIerr();
 
     QStringList GetOverviewSegmentsMeteosat();
     QStringList GetOverviewSegmentsMeteosatRss();
@@ -80,6 +92,8 @@ public:
     SegmentListGAC *seglgac;
     SegmentListVIIRSM *seglviirsm;
     SegmentListVIIRSDNB *seglviirsdnb;
+    SegmentListOLCIefr *seglolciefr;
+    SegmentListOLCIerr *seglolcierr;
 
     SegmentListGeostationary *seglmeteosat;
     SegmentListGeostationary *seglmeteosatrss;
@@ -110,7 +124,7 @@ public:
 
 private:
 
-    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, int hoursbefore);
+    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, QDate seldate, int hoursbefore);
 
     SatelliteList *satlist;
     long nbrofpointsselected;
@@ -121,6 +135,8 @@ private:
     long countviirsm;
     long countviirsdnb;
     long countviirsmdnb;
+    long countolciefr;
+    long countolcierr;
     bool showallsegments;
 
 signals:

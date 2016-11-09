@@ -84,6 +84,9 @@
    <addaction name="actionShowToolbox"/>
   </widget>
   <action name="actionSatSelection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
@@ -129,6 +132,9 @@
    </property>
   </action>
   <action name="actionCylindricalEquidistant">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/icons/Equi_projection_48x48.png</normaloff>:/icons/icons/Equi_projection_48x48.png</iconset>
@@ -141,6 +147,9 @@
    </property>
   </action>
   <action name="action3DGlobe">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/icons/Globe_48x48.png</normaloff>:/icons/icons/Globe_48x48.png</iconset>
@@ -153,6 +162,9 @@
    </property>
   </action>
   <action name="actionImage">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/icons/image.png</normaloff>:/icons/icons/image.png</iconset>
@@ -189,6 +201,9 @@
    </property>
   </action>
   <action name="actionMeteosat">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/icons/satell2.png</normaloff>:/icons/icons/satell2.png</iconset>

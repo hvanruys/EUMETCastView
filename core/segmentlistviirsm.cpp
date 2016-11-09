@@ -83,7 +83,7 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
     this->minBrightnessTemp = 9999999.9;
     this->maxBrightnessTemp = 0.0;
 
-    // Reset memory ; segselected can be metop, noaa , hrp, gac, viirsm viirsdnb
+    // Reset memory ; segselected can be metop, noaa , hrp, gac, viirsm, viirsdnb, olciefr and olcierr
     QList<Segment*>::iterator segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {

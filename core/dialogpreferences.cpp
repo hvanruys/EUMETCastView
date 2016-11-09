@@ -110,6 +110,8 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->chkImageOnTextureMet->setChecked(opts.imageontextureOnMet);
     ui->chkImageOnTextureAVHRR->setChecked(opts.imageontextureOnAVHRR);
     ui->chkImageOnTextureVIIRS->setChecked(opts.imageontextureOnVIIRS);
+    ui->chkImageOnTextureOLCIefr->setChecked(opts.imageontextureOnOLCIefr);
+    ui->chkImageOnTextureOLCIerr->setChecked(opts.imageontextureOnOLCIerr);
     ui->chkWindowVectors->setChecked(opts.windowvectors);
     ui->chkUDPMessages->setChecked(opts.udpmessages);
 
@@ -146,6 +148,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupPOIGVPTable();
     setupPOISGTable();
     setupVIIRSMConfigTable();
+    setupOLCIefrConfigTable();
 
     POItablechanged = false;
 
@@ -257,7 +260,10 @@ void DialogPreferences::setupVIIRSMConfigTable()
     myVIIRSMConfigModel = new VIIRSMConfigModel(this);
 
     ui->tbvVIIRSMConfig->setModel(myVIIRSMConfigModel);
+    ui->tbvVIIRSMConfig->setColumnWidth(0, 100);
 
+    for(int i = 1; i < 18; i++)
+        ui->tbvVIIRSMConfig->setColumnWidth(i, 50);
 
     QHeaderView *hheader = ui->tbvVIIRSMConfig->horizontalHeader();
     hheader->setStretchLastSection(true);
@@ -266,6 +272,26 @@ void DialogPreferences::setupVIIRSMConfigTable()
 
     connect(ui->btnAddMConfig, SIGNAL(clicked()), this, SLOT(addVIIRSMConfigRow()));
     connect(ui->btnDeleteMConfig, SIGNAL(clicked()), this, SLOT(deleteVIIRSMConfigRow()));
+
+}
+
+void DialogPreferences::setupOLCIefrConfigTable()
+{
+    myOLCIefrConfigModel = new OLCIefrConfigModel(this);
+
+    ui->tbvOLCIefrConfig->setModel(myOLCIefrConfigModel);
+    ui->tbvOLCIefrConfig->setColumnWidth(0, 100);
+
+    for(int i = 1; i < 23; i++)
+        ui->tbvOLCIefrConfig->setColumnWidth(i, 50);
+
+    QHeaderView *hheader = ui->tbvOLCIefrConfig->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddOLCIefrConfig, SIGNAL(clicked()), this, SLOT(addOLCIefrConfigRow()));
+    connect(ui->btnDeleteOLCIefrConfig, SIGNAL(clicked()), this, SLOT(deleteOLCIefrConfigRow()));
 
 }
 
@@ -373,6 +399,21 @@ void DialogPreferences::deleteVIIRSMConfigRow()
     myVIIRSMConfigModel->removeRow(row, QModelIndex());
 }
 
+void DialogPreferences::addOLCIefrConfigRow()
+{
+    //POItablechanged = true;
+
+    myOLCIefrConfigModel->insertRows(myOLCIefrConfigModel->rowCount(), 1, QModelIndex());
+}
+
+void DialogPreferences::deleteOLCIefrConfigRow()
+{
+    //POItablechanged = true;
+
+    int row = ui->tbvOLCIefrConfig->currentIndex().row();
+    myOLCIefrConfigModel->removeRow(row, QModelIndex());
+}
+
 void DialogPreferences::changePage(QListWidgetItem *current, QListWidgetItem *previous)
 {
     if (!current)
@@ -433,6 +474,8 @@ void DialogPreferences::dialogaccept()
     opts.imageontextureOnMet = ui->chkImageOnTextureMet->isChecked();
     opts.imageontextureOnAVHRR = ui->chkImageOnTextureAVHRR->isChecked();
     opts.imageontextureOnVIIRS = ui->chkImageOnTextureVIIRS->isChecked();
+    opts.imageontextureOnOLCIefr = ui->chkImageOnTextureOLCIefr->isChecked();
+    opts.imageontextureOnOLCIerr = ui->chkImageOnTextureOLCIerr->isChecked();
     opts.windowvectors = ui->chkWindowVectors->isChecked();
     opts.udpmessages = ui->chkUDPMessages->isChecked();
 
@@ -939,6 +982,20 @@ void DialogPreferences::on_btnGlobeLonLatColor_clicked()
         ui->lblGlobeLonLatColor->setAutoFillBackground(true);
         opts.globelonlatcolor = ui->btnGlobeLonLatColor->text();
     }
+}
+
+void DialogPreferences::on_btnEquirectangularDirectory_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                    opts.equirectangulardirectory,
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+
+    if ( !dir.isEmpty() )
+    {
+        ui->ledEquirectangularDirectory->setText(dir);
+    }
+
 }
 
 //-----------------------------------------------------------------
@@ -1762,7 +1819,7 @@ Qt::ItemFlags POISGModel::flags(const QModelIndex & /*index*/) const
 }
 
 //-----------------------------------------------------------------
-
+//-----------------------------------------------------------------
 VIIRSMConfigModel::VIIRSMConfigModel(QObject *parent)
     :QAbstractTableModel(parent)
 {
@@ -2029,18 +2086,326 @@ Qt::ItemFlags VIIRSMConfigModel::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
 
-
-
-void DialogPreferences::on_btnEquirectangularDirectory_clicked()
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+OLCIefrConfigModel::OLCIefrConfigModel(QObject *parent)
+    :QAbstractTableModel(parent)
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                    opts.equirectangulardirectory,
-                                                    QFileDialog::ShowDirsOnly
-                                                    | QFileDialog::DontResolveSymlinks);
-
-    if ( !dir.isEmpty() )
-    {
-        ui->ledEquirectangularDirectory->setText(dir);
-    }
 
 }
+
+int OLCIefrConfigModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return poi.strlConfigNameOLCIefr.count();
+}
+
+int OLCIefrConfigModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 23;
+}
+
+QVariant OLCIefrConfigModel::data(const QModelIndex &index, int role) const
+{
+
+    if (role == Qt::DisplayRole)
+    {
+        switch(index.column())
+        {
+        case 0:
+            return poi.strlConfigNameOLCIefr.at(index.row());
+            break;
+        case 1:
+            return poi.strlColorBandOLCIefr.at(index.row());
+            break;
+        case 2:
+            return poi.strlComboOLCIefr01.at(index.row());
+            break;
+        case 3:
+            return poi.strlComboOLCIefr02.at(index.row());
+            break;
+        case 4:
+            return poi.strlComboOLCIefr03.at(index.row());
+            break;
+        case 5:
+            return poi.strlComboOLCIefr04.at(index.row());
+            break;
+        case 6:
+            return poi.strlComboOLCIefr05.at(index.row());
+            break;
+        case 7:
+            return poi.strlComboOLCIefr06.at(index.row());
+            break;
+        case 8:
+            return poi.strlComboOLCIefr07.at(index.row());
+            break;
+        case 9:
+            return poi.strlComboOLCIefr08.at(index.row());
+            break;
+        case 10:
+            return poi.strlComboOLCIefr09.at(index.row());
+            break;
+        case 11:
+            return poi.strlComboOLCIefr10.at(index.row());
+            break;
+        case 12:
+            return poi.strlComboOLCIefr11.at(index.row());
+            break;
+        case 13:
+            return poi.strlComboOLCIefr12.at(index.row());
+            break;
+        case 14:
+            return poi.strlComboOLCIefr13.at(index.row());
+            break;
+        case 15:
+            return poi.strlComboOLCIefr14.at(index.row());
+            break;
+        case 16:
+            return poi.strlComboOLCIefr15.at(index.row());
+            break;
+        case 17:
+            return poi.strlComboOLCIefr16.at(index.row());
+            break;
+        case 18:
+            return poi.strlComboOLCIefr17.at(index.row());
+            break;
+        case 19:
+            return poi.strlComboOLCIefr18.at(index.row());
+            break;
+        case 20:
+            return poi.strlComboOLCIefr19.at(index.row());
+            break;
+        case 21:
+            return poi.strlComboOLCIefr20.at(index.row());
+            break;
+        case 22:
+            return poi.strlComboOLCIefr21.at(index.row());
+            break;
+        }
+    }
+
+    return QVariant();
+
+
+}
+
+
+
+bool OLCIefrConfigModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            poi.strlConfigNameOLCIefr.replace(index.row(), value.toString());
+            break;
+        case 1:
+            poi.strlColorBandOLCIefr.replace(index.row(), value.toString());
+            break;
+        case 2:
+            poi.strlComboOLCIefr01.replace(index.row(), value.toString());
+            break;
+        case 3:
+            poi.strlComboOLCIefr02.replace(index.row(), value.toString());
+            break;
+        case 4:
+            poi.strlComboOLCIefr03.replace(index.row(), value.toString());
+            break;
+        case 5:
+            poi.strlComboOLCIefr04.replace(index.row(), value.toString());
+            break;
+        case 6:
+            poi.strlComboOLCIefr05.replace(index.row(), value.toString());
+            break;
+        case 7:
+            poi.strlComboOLCIefr06.replace(index.row(), value.toString());
+            break;
+        case 8:
+            poi.strlComboOLCIefr07.replace(index.row(), value.toString());
+            break;
+        case 9:
+            poi.strlComboOLCIefr08.replace(index.row(), value.toString());
+            break;
+        case 10:
+            poi.strlComboOLCIefr09.replace(index.row(), value.toString());
+            break;
+        case 11:
+            poi.strlComboOLCIefr10.replace(index.row(), value.toString());
+            break;
+        case 12:
+            poi.strlComboOLCIefr11.replace(index.row(), value.toString());
+            break;
+        case 13:
+            poi.strlComboOLCIefr12.replace(index.row(), value.toString());
+            break;
+        case 14:
+            poi.strlComboOLCIefr13.replace(index.row(), value.toString());
+            break;
+        case 15:
+            poi.strlComboOLCIefr14.replace(index.row(), value.toString());
+            break;
+        case 16:
+            poi.strlComboOLCIefr15.replace(index.row(), value.toString());
+            break;
+        case 17:
+            poi.strlComboOLCIefr16.replace(index.row(), value.toString());
+            break;
+        case 18:
+            poi.strlComboOLCIefr17.replace(index.row(), value.toString());
+            break;
+        case 19:
+            poi.strlComboOLCIefr18.replace(index.row(), value.toString());
+            break;
+        case 20:
+            poi.strlComboOLCIefr19.replace(index.row(), value.toString());
+            break;
+        case 21:
+            poi.strlComboOLCIefr20.replace(index.row(), value.toString());
+            break;
+        case 22:
+            poi.strlComboOLCIefr21.replace(index.row(), value.toString());
+            break;
+        }
+
+        emit editCompleted();
+    }
+
+    return true;
+}
+
+QVariant OLCIefrConfigModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Name");
+        case 1:
+            return tr("Band");
+        case 2:
+            return tr("Oa01");
+        case 3:
+            return tr("Oa02");
+        case 4:
+            return tr("Oa03");
+        case 5:
+            return tr("Oa04");
+        case 6:
+            return tr("Oa05");
+        case 7:
+            return tr("Oa06");
+        case 8:
+            return tr("Oa07");
+        case 9:
+            return tr("Oa08");
+        case 10:
+            return tr("Oa09");
+        case 11:
+            return tr("Oa10");
+        case 12:
+            return tr("Oa11");
+        case 13:
+            return tr("Oa12");
+        case 14:
+            return tr("Oa13");
+        case 15:
+            return tr("Oa14");
+        case 16:
+            return tr("Oa15");
+        case 17:
+            return tr("Oa16");
+        case 18:
+            return tr("Oa17");
+        case 19:
+            return tr("Oa18");
+        case 20:
+            return tr("Oa19");
+        case 21:
+            return tr("Oa20");
+        case 22:
+            return tr("Oa21");
+
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+
+}
+
+bool OLCIefrConfigModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlConfigNameOLCIefr.append( " " );
+    poi.strlColorBandOLCIefr.append( "0" );
+    poi.strlComboOLCIefr01.append( "0" );
+    poi.strlComboOLCIefr02.append( "0" );
+    poi.strlComboOLCIefr03.append( "0" );
+    poi.strlComboOLCIefr04.append( "0" );
+    poi.strlComboOLCIefr05.append( "0" );
+    poi.strlComboOLCIefr06.append( "0" );
+    poi.strlComboOLCIefr07.append( "0" );
+    poi.strlComboOLCIefr08.append( "0" );
+    poi.strlComboOLCIefr09.append( "0" );
+    poi.strlComboOLCIefr10.append( "0" );
+    poi.strlComboOLCIefr11.append( "0" );
+    poi.strlComboOLCIefr12.append( "0" );
+    poi.strlComboOLCIefr13.append( "0" );
+    poi.strlComboOLCIefr14.append( "0" );
+    poi.strlComboOLCIefr15.append( "0" );
+    poi.strlComboOLCIefr16.append( "0" );
+    poi.strlComboOLCIefr17.append( "0" );
+    poi.strlComboOLCIefr18.append( "0" );
+    poi.strlComboOLCIefr19.append( "0" );
+    poi.strlComboOLCIefr20.append( "0" );
+    poi.strlComboOLCIefr21.append( "0" );
+
+    poi.strlInverseOLCIefr01.append( "0" );
+    poi.strlInverseOLCIefr02.append( "0" );
+    poi.strlInverseOLCIefr03.append( "0" );
+    poi.strlInverseOLCIefr04.append( "0" );
+    poi.strlInverseOLCIefr05.append( "0" );
+    poi.strlInverseOLCIefr06.append( "0" );
+    poi.strlInverseOLCIefr07.append( "0" );
+    poi.strlInverseOLCIefr08.append( "0" );
+    poi.strlInverseOLCIefr09.append( "0" );
+    poi.strlInverseOLCIefr10.append( "0" );
+    poi.strlInverseOLCIefr11.append( "0" );
+    poi.strlInverseOLCIefr12.append( "0" );
+    poi.strlInverseOLCIefr13.append( "0" );
+    poi.strlInverseOLCIefr14.append( "0" );
+    poi.strlInverseOLCIefr15.append( "0" );
+    poi.strlInverseOLCIefr16.append( "0" );
+    poi.strlInverseOLCIefr17.append( "0" );
+    poi.strlInverseOLCIefr18.append( "0" );
+    poi.strlInverseOLCIefr19.append( "0" );
+    poi.strlInverseOLCIefr20.append( "0" );
+    poi.strlInverseOLCIefr21.append( "0" );
+
+
+    endInsertRows();
+    return true;
+
+}
+
+bool OLCIefrConfigModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+    endRemoveRows();
+    return true;
+
+}
+
+Qt::ItemFlags OLCIefrConfigModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
+

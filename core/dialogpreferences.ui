@@ -117,12 +117,21 @@
           <normaloff>:/icons/icons/satellite.jpg</normaloff>:/icons/icons/satellite.jpg</iconset>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>OLCI efr Config</string>
+        </property>
+        <property name="icon">
+         <iconset resource="EUMETCastView.qrc">
+          <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>6</number>
+        <number>8</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -798,6 +807,24 @@
           </layout>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_18">
+           <item>
+            <widget class="QCheckBox" name="chkImageOnTextureOLCIefr">
+             <property name="text">
+              <string>OLCI efr Image on Texture</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="chkImageOnTextureOLCIerr">
+             <property name="text">
+              <string>OLCI err Image on Texture</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_12">
            <item>
             <widget class="QCheckBox" name="chkWindowVectors">
@@ -1274,7 +1301,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="pageImage">
+       <widget class="QWidget" name="pageProjection">
         <layout class="QVBoxLayout" name="verticalLayout_16">
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -1611,7 +1638,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page">
+       <widget class="QWidget" name="pageVIIRSMConfig">
         <layout class="QVBoxLayout" name="verticalLayout_15">
          <item>
           <widget class="QLabel" name="label_5">
@@ -1654,6 +1681,64 @@
            </item>
            <item>
             <spacer name="horizontalSpacer_12">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pageOLCIConfig">
+        <layout class="QVBoxLayout" name="verticalLayout_17">
+         <item>
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Band = Nbr of the channel ( 0 =  Color)     Oa01,Oa02, ...,Oa21 combobox index (1 = R, 2 = G, 3 = B)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTableView" name="tbvOLCIefrConfig"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_19">
+           <item>
+            <spacer name="horizontalSpacer_13">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnAddOLCIefrConfig">
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnDeleteOLCIefrConfig">
+             <property name="text">
+              <string>Delete</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_14">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>

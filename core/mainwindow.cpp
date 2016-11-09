@@ -145,6 +145,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglh8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglviirsm, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglviirsdnb, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglolciefr, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglolcierr, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmetop, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglnoaa, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglhrp, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
@@ -178,6 +180,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglgac, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglviirsm, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabelDNB(bool)));
+    connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabelDNB(bool)));
 
     connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -185,6 +189,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglgac, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglviirsm, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglviirsdnb, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
 
     connect( formglobecyl, SIGNAL(signalSegmentChanged(QString)), this, SLOT(updateStatusBarIndicator(QString)) );
@@ -195,6 +201,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formephem,SIGNAL(signalDirectoriesRead()), formglobecyl, SLOT(setScrollBarMaximum()));
     connect( formglobecyl, SIGNAL(emitMakeImage()), formimage, SLOT(slotMakeImage()));
     connect( formtoolbox, SIGNAL(emitShowVIIRSImage()), formimage, SLOT(slotShowVIIRSMImage()));
+    connect( formtoolbox, SIGNAL(emitShowOLCIefrImage()), formimage, SLOT(slotShowOLCIefrImage()));
 
     connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
     connect( mapcyl , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
@@ -346,6 +353,7 @@ void MainWindow::on_actionAbout_triggered()
     "<p>supports the following satellites</p>"
     "<p>Metop-A, Metop-B </p>"
     "<p>Noaa, SUOMI NPP (M-Band and Day/Night Band)</p>"
+    "<p>, Sentinel-3A</p>"
     "<p>Meteosat-10, Meteosat-9, Meteosat-8, Meteosat-7</p>"
     "<p>FengYun 2E, FengYun 2G</p>"
     "<p>GOES-13, GOES-15</p>"
@@ -401,12 +409,25 @@ void MainWindow::setupStatusBar()
 
 void MainWindow::on_actionSatSelection_triggered()
 {
+    ui->actionSatSelection->setChecked(true);
     ui->stackedWidget->setCurrentIndex(0);
+
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(false);
+
 }
 
 void MainWindow::on_actionMeteosat_triggered()
 {
      ui->stackedWidget->setCurrentIndex(1);
+
+     ui->actionSatSelection->setChecked(false);
+     ui->actionCylindricalEquidistant->setChecked(false);
+     ui->action3DGlobe->setChecked(false);
+     ui->actionImage->setChecked(false);
+
 }
 
 
@@ -414,12 +435,24 @@ void MainWindow::on_actionCylindricalEquidistant_triggered()
 {
     ui->stackedWidget->setCurrentIndex(2);
     formglobecyl->setCylOrGlobe(0);
+
+    ui->actionSatSelection->setChecked(false);
+    ui->actionMeteosat->setChecked(false);
+    ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(false);
+
 }
 
 void MainWindow::on_action3DGlobe_triggered()
 {
     ui->stackedWidget->setCurrentIndex(2);
     formglobecyl->setCylOrGlobe(1);
+
+    ui->actionSatSelection->setChecked(false);
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->actionImage->setChecked(false);
+
 }
 
 void MainWindow::on_actionImage_triggered()
@@ -427,6 +460,9 @@ void MainWindow::on_actionImage_triggered()
     ui->stackedWidget->setCurrentIndex(3);
     int index = formtoolbox->getTabWidgetIndex();
     int indexviirs = formtoolbox->getTabWidgetVIIRSIndex();
+    int indexolci = formtoolbox->getTabWidgetOLCIIndex();
+
+    Q_ASSERT(index < 5);
 
     qDebug() << " MainWindow::on_actionImage_triggered() index = " << index;
     if(index == -1)
@@ -440,12 +476,24 @@ void MainWindow::on_actionImage_triggered()
         else
             formimage->displayImage(IMAGE_VIIRS_DNB); //VIIRSDNB image
     }
-    else if(index == 2)  //Geostationary image
+    else if(index == 2)
+    {
+        if(indexolci == 0)
+            formimage->displayImage(IMAGE_OLCI_EFR); //OLCI efr image
+        else
+            formimage->displayImage(IMAGE_OLCI_ERR); //OLCI err image
+    }
+    else if(index == 3)  //Geostationary image
         formimage->displayImage(IMAGE_GEOSTATIONARY);
-    else if(index == 3)
-        formimage->displayImage(IMAGE_EQUIRECTANGLE); // Equirectangular
-    else
+    else if(index == 4)
         formimage->displayImage(IMAGE_PROJECTION); //Projection image
+
+    ui->actionSatSelection->setChecked(false);
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->action3DGlobe->setChecked(false);
+
+
 
 }
 

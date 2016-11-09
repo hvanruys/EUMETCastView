@@ -25,6 +25,8 @@ void Options::Initialize()
     buttonHRP=settings.value("/window/buttonhrp", false ).toBool();
     buttonVIIRSM=settings.value("/window/buttonviirs", false ).toBool();
     buttonVIIRSDNB=settings.value("/window/buttonviirsdnb", false ).toBool();
+    buttonOLCIefr=settings.value("/window/buttonolciefr", false ).toBool();
+    buttonOLCIerr=settings.value("/window/buttonolcierr", false ).toBool();
 
     buttonRealTime=settings.value("/window/buttonrealtime", true ).toBool();
     buttonEqualization=settings.value("/window/buttonequalization", false ).toBool();
@@ -133,6 +135,8 @@ void Options::Initialize()
     imageontextureOnMet = settings.value("/window/imageontextureonmet", false ).toBool();
     imageontextureOnAVHRR = settings.value("/window/imageontextureonavhrr", true ).toBool();
     imageontextureOnVIIRS = settings.value("/window/imageontextureonviirs", true ).toBool();
+    imageontextureOnOLCIefr = settings.value("/window/imageontextureonolciefr", true ).toBool();
+    imageontextureOnOLCIerr = settings.value("/window/imageontextureonolcierr", true ).toBool();
     windowvectors = settings.value("/window/windowsvectors", false ).toBool();
 
     localdirremote = settings.value("/window/localdirremote", "").value<QString>();
@@ -345,6 +349,8 @@ void Options::Save()
     settings.setValue( "/window/buttonhrp", buttonHRP );
     settings.setValue( "/window/buttonviirs", buttonVIIRSM );
     settings.setValue( "/window/buttonviirsdnb", buttonVIIRSDNB );
+    settings.setValue( "/window/buttonolciefr", buttonOLCIefr );
+    settings.setValue( "/window/buttonolcierr", buttonOLCIerr );
 
     settings.setValue( "/window/buttonrealtime", buttonRealTime );
     settings.setValue( "/window/buttonequalization", buttonEqualization );
@@ -417,6 +423,8 @@ void Options::Save()
     settings.setValue("/window/imageontextureonmet", imageontextureOnMet );
     settings.setValue("/window/imageontextureonavhrr", imageontextureOnAVHRR );
     settings.setValue("/window/imageontextureonviirs", imageontextureOnVIIRS );
+    settings.setValue("/window/imageontextureonolciefr", imageontextureOnOLCIefr );
+    settings.setValue("/window/imageontextureonolcierr", imageontextureOnOLCIerr );
     settings.setValue("/window/windowsvectors", windowvectors );
 
     settings.setValue("/window/gshhsglobe1on", gshhsglobe1On );

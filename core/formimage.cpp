@@ -72,6 +72,9 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     gaccount = 0;
     hrpcount = 0;
     viirsmcount = 0;
+    viirsdnbcount = 0;
+    olciefrcount = 0;
+    olcierrcount = 0;
     txtInfo = "";
 
 
@@ -146,8 +149,11 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
     case IMAGE_VIIRS_DNB:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
         break;
-    case IMAGE_EQUIRECTANGLE:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageEquirectangle)));
+    case IMAGE_OLCI_EFR:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCIefr)));
+        break;
+    case IMAGE_OLCI_ERR:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCIerr)));
         break;
 
     }
@@ -172,6 +178,17 @@ void FormImage::displayImage(eImageType channel)
     qDebug() << QString("FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
 
     this->channelshown = channel;
+
+    switch(channelshown)
+    {
+    case IMAGE_VIIRS_M:
+         if(imageptrs->ptrimagecomp_ch[0]->isNull())
+         {
+             qDebug() << "IMAGE_VIIRS_M is Null !!!!!!!";
+             return;
+         }
+        break;
+    }
 
     g_mutex.lock();
 
@@ -210,17 +227,28 @@ void FormImage::displayImage(eImageType channel)
     case IMAGE_VIIRS_DNB:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
         break;
-    case IMAGE_EQUIRECTANGLE:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageEquirectangle)));
+    case IMAGE_OLCI_EFR:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCIefr)));
+        break;
+    case IMAGE_OLCI_ERR:
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCIerr)));
         break;
 
     }
 
     this->update();
+    qDebug() << QString("after update() FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
+
     this->adjustImage();
+    qDebug() << QString("after adjustImage() FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
+
     g_mutex.unlock();
+    qDebug() << QString("after mutex.unlock() FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
 
     refreshoverlay = true;
+
+    qDebug() << QString("after FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
+
 
 }
 
@@ -247,6 +275,14 @@ void FormImage::ComposeImage()
     {
         viirsdnbcount = segs->seglviirsdnb->NbrOfSegmentsSelected();
     }
+    else if(opts.buttonOLCIefr)
+    {
+        olciefrcount = segs->seglolciefr->NbrOfSegmentsSelected();
+    }
+    else if(opts.buttonOLCIerr)
+    {
+        olcierrcount = segs->seglolcierr->NbrOfSegmentsSelected();
+    }
     else
         return;
 
@@ -260,6 +296,8 @@ void FormImage::ComposeImage()
     qDebug() << QString("in FormImage::ComposeImage nbr of gac segments selected = %1").arg(gaccount);
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsm segments selected = %1").arg(viirsmcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnb segments selected = %1").arg(viirsdnbcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of olciefr segments selected = %1").arg(olciefrcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of olcierr segments selected = %1").arg(olcierrcount);
 
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonGAC || opts.buttonHRP)
     {
@@ -329,11 +367,28 @@ void FormImage::ComposeImage()
             this->displayImage(IMAGE_VIIRS_DNB);
             this->kindofimage = "VIIRSDNB";
             this->setSegmentType(SEG_VIIRSDNB);
+
             bandlist = formtoolbox->getVIIRSMBandList();
             colorlist = formtoolbox->getVIIRSMColorList();
             invertlist = formtoolbox->getVIIRSMInvertList();
             //          in Workerthread
             segs->seglviirsdnb->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+    }
+    else if(olciefrcount > 0 && opts.buttonOLCIefr)
+    {
+            formtoolbox->setToolboxButtons(false);
+
+            this->displayImage(IMAGE_OLCI_EFR);
+            this->kindofimage = "OLCIEFR";
+            this->setSegmentType(SEG_OLCIEFR);
+
+            bandlist = formtoolbox->getOLCIefrBandList();
+            colorlist = formtoolbox->getOLCIefrColorList();
+            invertlist = formtoolbox->getOLCIefrInvertList();
+
+
+            //          in Workerthread
+            segs->seglolciefr->ComposeOLCIefrImage(bandlist, colorlist, invertlist, true);
     }
     else
         return;
@@ -379,6 +434,46 @@ bool FormImage::ShowVIIRSMImage()
 
 }
 
+void FormImage::slotShowOLCIefrImage()
+{
+    this->ShowOLCIefrImage();
+}
+
+bool FormImage::ShowOLCIefrImage()
+{
+    bool ret = false;
+
+    olciefrcount = segs->seglolciefr->NbrOfSegmentsSelected();
+
+    QList<bool> bandlist;
+    QList<int> colorlist;
+    QList<bool> invertlist;
+
+    qDebug() << QString("in FormImage::ShowOLCIefrImage nbr of olci efr segments selected = %1").arg(olciefrcount);
+
+    if (olciefrcount > 0)
+    {
+
+        ret = true;
+        displayImage(IMAGE_OLCI_EFR);
+
+        emit allsegmentsreceivedbuttons(false);
+
+        this->kindofimage = "OLCIEFR";
+
+        bandlist = formtoolbox->getOLCIefrBandList();
+        colorlist = formtoolbox->getOLCIefrColorList();
+        invertlist = formtoolbox->getOLCIefrInvertList();
+
+        segs->seglolciefr->ComposeOLCIefrImage(bandlist, colorlist, invertlist, false);
+    }
+    else
+        ret = false;
+
+    return ret;
+
+}
+
 bool FormImage::ShowVIIRSDNBImage()
 {
     bool ret = false;
@@ -386,7 +481,6 @@ bool FormImage::ShowVIIRSDNBImage()
     viirsdnbcount = segs->seglviirsdnb->NbrOfSegmentsSelected();
 
     qDebug() << QString("in FormImage::ShowVIIRSDNBImage nbr of viirs segments selected = %1").arg(viirsdnbcount);
-
     if (viirsdnbcount > 0)
     {
         ret = true;
@@ -570,9 +664,10 @@ void FormImage::paintEvent( QPaintEvent * )
 
     if(channelshown >= 1 && channelshown <= 6)
         displayAVHRRImageInfo();
-
-    if(channelshown == 10 || channelshown == 11)
+    if(channelshown == IMAGE_VIIRS_M || channelshown == IMAGE_VIIRS_DNB)
         displayVIIRSImageInfo();
+    if(channelshown == IMAGE_OLCI_EFR || channelshown == IMAGE_OLCI_ERR)
+        displayOLCIImageInfo();
 
     if(segs->seglmeteosat->bActiveSegmentList == true)
     {
@@ -815,9 +910,86 @@ void FormImage::displayGeoImageInformation(QString satname)
     formtoolbox->writeInfoToGeo(txtInfo);
 }
 
+void FormImage::displayOLCIImageInfo()
+{
+    QString segtype;
+    eSegmentType type;
+    int nbrselected;
+
+
+    type = getSegmentType();
+    switch(type)
+    {
+    case SEG_NONE:
+        segtype = "None";
+        break;
+    case SEG_OLCIEFR:
+        segtype = "OLCI efr";
+        nbrselected = segs->seglolciefr->NbrOfSegmentsSelected();
+
+        break;
+    case SEG_OLCIERR:
+        segtype = "OLCI err";
+        nbrselected = segs->seglolcierr->NbrOfSegmentsSelected();
+
+        break;
+    default:
+        segtype = "NA";
+        break;
+    }
+
+
+    if(type == SEG_OLCIEFR)
+    {
+        txtInfo = QString("<!DOCTYPE html>"
+                          "<html><head><title>Info</title></head>"
+                          "<body>"
+                          "<h3 style='color:blue'>Image Information</h3>"
+                          "<p>Segment type = %1<br>"
+                          "Nbr of segments = %2<br>"
+                          "Image width = %3 height = %4<br>"
+                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageOLCIefr->width()).arg(imageptrs->ptrimageOLCIefr->height());
+        formtoolbox->writeInfoToOLCI(txtInfo);
+
+    }
+    if(type == SEG_OLCIERR)
+    {
+        txtInfo = QString("<!DOCTYPE html>"
+                          "<html><head><title>Info</title></head>"
+                          "<body>"
+                          "<h3 style='color:blue'>Image Information</h3>"
+                          "<p>Segment type = %1<br>"
+                          "Nbr of segments = %2<br>"
+                          "Image width = %3 height = %4<br>"
+                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageOLCIerr->width())
+                .arg(imageptrs->ptrimageOLCIerr->height());
+        formtoolbox->writeInfoToOLCI(txtInfo);
+
+    }
+
+
+}
+
 
 void FormImage::adjustPicSize(bool setwidth)
 {
+
+//    IMAGE_NONE = 0,
+//    IMAGE_AVHRR_CH1,
+//    IMAGE_AVHRR_CH2,
+//    IMAGE_AVHRR_CH3,
+//    IMAGE_AVHRR_CH4,
+//    IMAGE_AVHRR_CH5,
+//    IMAGE_AVHRR_COL,
+//    IMAGE_AVHRR_EXPAND,
+//    IMAGE_GEOSTATIONARY,
+//    IMAGE_PROJECTION,
+//    IMAGE_VIIRS_M,
+//    IMAGE_VIIRS_DNB,
+//    IMAGE_OLCI_EFR,
+//    IMAGE_OLCI_ERR,
+//    IMAGE_EQUIRECTANGLE
+
     QSize met;
 
     met.setWidth(imageptrs->ptrimageGeostationary->width());
@@ -829,35 +1001,40 @@ void FormImage::adjustPicSize(bool setwidth)
         w=imageptrs->ptrimagecomp_ch[0]->width();
         h=imageptrs->ptrimagecomp_ch[0]->height();
     }
-    else if(channelshown == 7)
+    else if(channelshown == IMAGE_AVHRR_EXPAND)
     {
        w=imageptrs->ptrexpand_col->width();
        h=imageptrs->ptrexpand_col->height();
     }
-    else if(channelshown == 8)
+    else if(channelshown == IMAGE_GEOSTATIONARY)
     {
        w=imageptrs->ptrimageGeostationary->width();
        h=imageptrs->ptrimageGeostationary->height();
     }
-    else if(channelshown == 9)
+    else if(channelshown == IMAGE_PROJECTION)
     {
        w=imageptrs->ptrimageProjection->width();
        h=imageptrs->ptrimageProjection->height();
     }
-    else if(channelshown == 10)
+    else if(channelshown == IMAGE_VIIRS_M)
     {
        w=imageptrs->ptrimageViirsM->width();
        h=imageptrs->ptrimageViirsM->height();
     }
-    else if(channelshown == 11)
+    else if(channelshown == IMAGE_VIIRS_DNB)
     {
        w=imageptrs->ptrimageViirsDNB->width();
        h=imageptrs->ptrimageViirsDNB->height();
     }
-    else if(channelshown == 12)
+    else if(channelshown == IMAGE_OLCI_EFR)
     {
-       w=imageptrs->ptrimageEquirectangle->width();
-       h=imageptrs->ptrimageEquirectangle->height();
+       w=imageptrs->ptrimageOLCIefr->width();
+       h=imageptrs->ptrimageOLCIefr->height();
+    }
+    else if(channelshown == IMAGE_OLCI_ERR)
+    {
+       w=imageptrs->ptrimageOLCIerr->width();
+       h=imageptrs->ptrimageOLCIerr->height();
     }
 
     mw=this->parentWidget()->width();

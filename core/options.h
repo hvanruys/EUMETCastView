@@ -33,6 +33,8 @@ public:
     bool buttonHRP;
     bool buttonVIIRSM;
     bool buttonVIIRSDNB;
+    bool buttonOLCIefr;
+    bool buttonOLCIerr;
     bool buttonRealTime;
     bool buttonEqualization;
     int nbrofvisiblesegments;
@@ -108,6 +110,8 @@ public:
     bool imageontextureOnMet;
     bool imageontextureOnAVHRR;
     bool imageontextureOnVIIRS;
+    bool imageontextureOnOLCIefr;
+    bool imageontextureOnOLCIerr;
     bool windowvectors;
     bool udpmessages;
     bool gshhsglobe1On;
@@ -116,7 +120,7 @@ public:
     bool graytextureOn;
 
     int currenttoolbox; // LLC - GVP - Stereographic
-    int currenttabwidget; // AVHRR - VIIRS - Geostationary - Projections
+    int currenttabwidget; // AVHRR - VIIRS - OLCI - Geostationary - Projections
     int parallel1;
     int parallel2;
     int centralmeridian;

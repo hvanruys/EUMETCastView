@@ -117,13 +117,6 @@ void SegmentVIIRSM::initializeMemory()
     }
 }
 
-void SegmentVIIRSM::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)
-{
-    bandlist = band;
-    colorlist = color;
-    invertlist = invert;
-}
-
 Segment *SegmentVIIRSM::ReadSegmentInMemory()
 {
 
@@ -471,6 +464,7 @@ Segment *SegmentVIIRSM::ReadDatasetsInMemory()
 
 QString SegmentVIIRSM::getDatasetNameFromBand()
 {
+
     if(bandlist.at(1))
     {
         invertthissegment[0] = invertlist.at(0);
@@ -845,11 +839,6 @@ void SegmentVIIRSM::interpolateViaVector(int itrack, int iscan, float lon_A, flo
 int SegmentVIIRSM::ReadNbrOfLines()
 {
     return NbrOfLines;
-}
-
-bool SegmentVIIRSM::composeColorImage()
-{
-    return(bandlist.at(0));
 }
 
 void SegmentVIIRSM::ComposeSegmentImage()

@@ -62,6 +62,8 @@ public:
 
     void NormalizeSegment(bool channel_3_select);
 
+    void setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert);
+    bool composeColorImage();
     bool IsSelected() { return segmentselected; }
     QString GetTle_line1() { return line1; }
     QString GetTle_line2() { return line2; }
@@ -99,6 +101,7 @@ public:
 
     QScopedArrayPointer<unsigned short> ptrbaChannel[5];
     QScopedArrayPointer<unsigned short> ptrbaVIIRS[3];
+    QScopedArrayPointer<unsigned short> ptrbaOLCI[3];
     QScopedArrayPointer<float> ptrbaVIIRSDNB;
 
     QString line1;
@@ -145,7 +148,12 @@ public:
     QGeodetic cornerpointfirst2;
     QGeodetic cornerpointlast2;
 
+
     bool channel_3a_3b[1080];
+
+    QVector<QGeodetic> vectorfirst;
+    QVector<QGeodetic> vectorlast;
+
 
 
 protected:
@@ -179,6 +187,12 @@ protected:
     QScopedArrayPointer<int> projectionCoordX;
     QScopedArrayPointer<int> projectionCoordY;
     QScopedArrayPointer<QRgb> projectionCoordValue;
+
+    QList<bool> bandlist;
+    QList<int> colorlist;
+    QList<bool> invertlist;
+
+
 
 signals:
     //void segmentimagecomposed();

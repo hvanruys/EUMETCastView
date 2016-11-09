@@ -30,8 +30,11 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnHRP->setCheckable(true);
     ui->btnVIIRSM->setCheckable(true);
     ui->btnVIIRSDNB->setCheckable(true);
+    ui->btnOLCIefr->setCheckable(true);
+    ui->btnOLCIerr->setCheckable(true);
     ui->btnRealTime->setCheckable(true);
     ui->btnPhong->setCheckable(true);
+
 
     if (opts.buttonMetop)
     {
@@ -40,6 +43,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
         opts.buttonHRP = false;
         opts.buttonVIIRSM = false;
         opts.buttonVIIRSDNB = false;
+        opts.buttonOLCIefr = false;
+        opts.buttonOLCIerr = false;
         opts.buttonRealTime = false;
     }
     else
@@ -50,6 +55,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
             opts.buttonHRP = false;
             opts.buttonVIIRSM = false;
             opts.buttonVIIRSDNB = false;
+            opts.buttonOLCIefr = false;
+            opts.buttonOLCIerr = false;
             opts.buttonRealTime = false;
         }
         else
@@ -60,6 +67,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                 opts.buttonHRP = false;
                 opts.buttonVIIRSM = false;
                 opts.buttonVIIRSDNB = false;
+                opts.buttonOLCIefr = false;
+                opts.buttonOLCIerr = false;
                 opts.buttonRealTime = false;
             }
             else
@@ -70,6 +79,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                     opts.buttonMetop = false;
                     opts.buttonVIIRSM = false;
                     opts.buttonVIIRSDNB = false;
+                    opts.buttonOLCIefr = false;
+                    opts.buttonOLCIerr = false;
                     opts.buttonRealTime = false;
                 }
                 else
@@ -81,6 +92,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                         opts.buttonMetop = false;
                         opts.buttonVIIRSM = false;
                         opts.buttonVIIRSDNB = false;
+                        opts.buttonOLCIefr = false;
+                        opts.buttonOLCIerr = false;
                     }
                     else
                         if (opts.buttonVIIRSM)
@@ -91,6 +104,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                             opts.buttonMetop = false;
                             opts.buttonRealTime = false;
                             opts.buttonVIIRSDNB = false;
+                            opts.buttonOLCIefr = false;
+                            opts.buttonOLCIerr = false;
+                            formtoolbox->setTabWidgetIndex(TAB_VIIRS);
                             formtoolbox->setTabWidgetVIIRSIndex(0);
                         }
                         else
@@ -102,8 +118,39 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                 opts.buttonMetop = false;
                                 opts.buttonRealTime = false;
                                 opts.buttonVIIRSM = false;
+                                opts.buttonOLCIefr = false;
+                                opts.buttonOLCIerr = false;
+                                formtoolbox->setTabWidgetIndex(TAB_VIIRS);
                                 formtoolbox->setTabWidgetVIIRSIndex(1);
                             }
+                            else
+                                if (opts.buttonOLCIefr)
+                                {
+                                    opts.buttonNoaa = false;
+                                    opts.buttonGAC = false;
+                                    opts.buttonHRP = false;
+                                    opts.buttonMetop = false;
+                                    opts.buttonRealTime = false;
+                                    opts.buttonVIIRSM = false;
+                                    opts.buttonVIIRSDNB = false;
+                                    opts.buttonOLCIerr = false;
+                                    formtoolbox->setTabWidgetIndex(TAB_OLCI);
+                                    formtoolbox->setTabWidgetOLCIIndex(0);
+                                }
+                                else
+                                    if (opts.buttonOLCIerr)
+                                    {
+                                        opts.buttonNoaa = false;
+                                        opts.buttonGAC = false;
+                                        opts.buttonHRP = false;
+                                        opts.buttonMetop = false;
+                                        opts.buttonRealTime = false;
+                                        opts.buttonVIIRSM = false;
+                                        opts.buttonVIIRSDNB = false;
+                                        opts.buttonOLCIefr = false;
+                                        formtoolbox->setTabWidgetIndex(TAB_OLCI);
+                                        formtoolbox->setTabWidgetOLCIIndex(1);
+                                    }
 
     ui->btnMetop->setChecked(opts.buttonMetop);
     ui->btnNoaa->setChecked(opts.buttonNoaa);
@@ -111,6 +158,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnHRP->setChecked(opts.buttonHRP);
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
     ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
+    ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
+    ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
     ui->btnPhong->setChecked(true);
 
@@ -173,6 +222,8 @@ void FormMapCyl::showSegmentcount()
     int cntselgac = segs->seglgac->NbrOfSegmentsSelected();
     int cntselviirsm = segs->seglviirsm->NbrOfSegmentsSelected();
     int cntselviirsdnb = segs->seglviirsdnb->NbrOfSegmentsSelected();
+    int cntselolciefr = segs->seglolciefr->NbrOfSegmentsSelected();
+    int cntselolcierr = segs->seglolcierr->NbrOfSegmentsSelected();
 
     int cntmetop = segs->seglmetop->NbrOfSegments();
     int cntnoaa = segs->seglnoaa->NbrOfSegments();
@@ -180,9 +231,11 @@ void FormMapCyl::showSegmentcount()
     int cntgac = segs->seglgac->NbrOfSegments();
     int cntviirsm = segs->seglviirsm->NbrOfSegments();
     int cntviirsdnb = segs->seglviirsdnb->NbrOfSegments();
+    int cntolciefr = segs->seglolciefr->NbrOfSegments();
+    int cntolcierr = segs->seglolcierr->NbrOfSegments();
 
-    long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb;
-    long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb;
+    long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb + cntolciefr + cntolcierr;
+    long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb + cntselolciefr + cntselolcierr;
 
     if ( totsegsel  > 0)
     {
@@ -200,6 +253,10 @@ void FormMapCyl::showSegmentcount()
 
     ui->btnVIIRSM->setText((QString("VIIRS M tracks # %1/%2").arg(cntselviirsm).arg(cntviirsm)));
     ui->btnVIIRSDNB->setText((QString("VIIRS DNB tracks # %1/%2").arg(cntselviirsdnb).arg(cntviirsdnb)));
+
+    ui->btnOLCIefr->setText((QString("S3A OLCI EFR tracks # %1/%2").arg(cntselolciefr).arg(cntolciefr)));
+    ui->btnOLCIerr->setText((QString("S3A OLCI ERR tracks # %1/%2").arg(cntselolcierr).arg(cntolcierr)));
+
 
 }
 
@@ -247,6 +304,14 @@ void FormMapCyl::updatesatmap(int index)
         if (opts.buttonVIIRSDNB)
         {
             segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
+        }
+        if (opts.buttonOLCIefr)
+        {
+            segs->seglolciefr->ShowSegment(ui->verticalScrollBar->value());
+        }
+        if (opts.buttonOLCIerr)
+        {
+            segs->seglolcierr->ShowSegment(ui->verticalScrollBar->value());
         }
 
         mapcyl->update();
@@ -306,6 +371,39 @@ void FormMapCyl::updatesatmap(int index)
 */
      }
 }
+
+void FormMapCyl::toggleButton(eSegmentType segtype)
+{
+
+    opts.buttonMetop = segtype == eSegmentType::SEG_METOP ? true : false;
+    opts.buttonNoaa = segtype == eSegmentType::SEG_NOAA ? true : false;
+    opts.buttonGAC = segtype == eSegmentType::SEG_GAC ? true : false;
+    opts.buttonHRP = segtype == eSegmentType::SEG_HRP ? true : false;
+    opts.buttonVIIRSM = segtype == eSegmentType::SEG_VIIRSM ? true : false;
+    opts.buttonVIIRSDNB = segtype == eSegmentType::SEG_VIIRSDNB ? true : false;
+    opts.buttonOLCIefr = segtype == eSegmentType::SEG_OLCIEFR ? true : false;
+    opts.buttonOLCIerr = segtype == eSegmentType::SEG_OLCIERR ? true : false;
+    opts.buttonRealTime = segtype == eSegmentType::SEG_NONE ? true : false;
+
+    ui->btnMetop->setChecked(opts.buttonMetop);
+    ui->btnNoaa->setChecked(opts.buttonNoaa);
+    ui->btnGAC->setChecked(opts.buttonGAC);
+    ui->btnHRP->setChecked(opts.buttonHRP);
+    ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
+    ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
+    ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
+    ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
+    ui->btnRealTime->setChecked(opts.buttonRealTime);
+    this->showSegmentList(0);
+
+    //imagetab->SetGammaSpinboxes();
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+
+
+    return;
+}
+
 
 void FormMapCyl::toggleButtonMetop()
 {
@@ -564,6 +662,16 @@ void FormMapCyl::setScrollBarMaximum()
         ui->verticalScrollBar->setMaximum(segs->seglviirsdnb->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum VIIRSDNB = %1").arg(segs->seglviirsdnb->NbrOfSegments());
     }
+    else if (opts.buttonOLCIefr)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglolciefr->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum OLCIefr = %1").arg(segs->seglolciefr->NbrOfSegments());
+    }
+    else if (opts.buttonOLCIerr)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglolcierr->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum OLCIerr = %1").arg(segs->seglolcierr->NbrOfSegments());
+    }
     else if (opts.buttonRealTime)
     {
         ui->verticalScrollBar->setMaximum(0);
@@ -629,6 +737,22 @@ void FormMapCyl::showSegmentList(int value)
 
         outp = QString("VIIRSDNB From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
+    else if(opts.buttonOLCIefr)
+    {
+        segs->seglolciefr->ShowSegment(value);
+        segs->seglolciefr->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglolciefr->NbrOfSegments();
+
+        outp = QString("OLCI EFR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    else if(opts.buttonOLCIerr)
+    {
+        segs->seglolcierr->ShowSegment(value);
+        segs->seglolcierr->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglolcierr->NbrOfSegments();
+
+        outp = QString("OLCI ERR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
     else if(opts.buttonRealTime)
     {
         outp = QString("Real time");
@@ -644,6 +768,8 @@ void FormMapCyl::RemoveAllSelected()
     segs->RemoveAllSelectedAVHRR();
     segs->RemoveAllSelectedVIIRSM();
     segs->RemoveAllSelectedVIIRSDNB();
+    segs->RemoveAllSelectedOLCIefr();
+    segs->RemoveAllSelectedOLCIerr();
 
     imageptrs->ptrProjectionBrightnessTemp.reset();
     imageptrs->ptrProjectionInfra.reset();
@@ -717,30 +843,42 @@ void FormMapCyl::on_verticalScrollBar_valueChanged(int value)
 void FormMapCyl::on_btnNoaa_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButtonNoaa();
+    toggleButton(eSegmentType::SEG_NOAA);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+
 }
 
 void FormMapCyl::on_btnMetop_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButtonMetop();
+    toggleButton(eSegmentType::SEG_METOP);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
 }
 
 void FormMapCyl::on_btnHRP_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButtonHRP();
+    toggleButton(eSegmentType::SEG_HRP);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
 }
 
 void FormMapCyl::on_btnGAC_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButtonGAC();
+    toggleButton(eSegmentType::SEG_GAC);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
 }
 
 void FormMapCyl::on_btnRealTime_clicked()
 {
-    toggleButtonRealTime();
+    toggleButton(eSegmentType::SEG_NONE);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+
 }
 
 void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
@@ -748,7 +886,11 @@ void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
 
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
     formtoolbox->setTabWidgetVIIRSIndex(0);
-    toggleButtonVIIRSM();
+    toggleButton(eSegmentType::SEG_VIIRSM);
+    segs->RemoveAllSelectedAVHRR();
+    mapcyl->update();
+    this->showSegmentcount();
+    this->setScrollBarMaximum();
     return;
 }
 
@@ -756,7 +898,35 @@ void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
 {
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
     formtoolbox->setTabWidgetVIIRSIndex(1);
-    toggleButtonVIIRSDNB();
+    toggleButton(eSegmentType::SEG_VIIRSDNB);
+    segs->RemoveAllSelectedAVHRR();
+    mapcyl->update();
+    this->showSegmentcount();
+    this->setScrollBarMaximum();
+    return;
+}
+
+void FormMapCyl::on_btnOLCIefr_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_OLCI);
+    formtoolbox->setTabWidgetOLCIIndex(0);
+    toggleButton(eSegmentType::SEG_OLCIEFR);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+
+    return;
+}
+
+
+
+void FormMapCyl::on_btnOLCIerr_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_OLCI);
+    formtoolbox->setTabWidgetOLCIIndex(1);
+    toggleButton(eSegmentType::SEG_OLCIERR);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+
     return;
 }
 

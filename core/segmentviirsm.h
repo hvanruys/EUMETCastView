@@ -19,7 +19,6 @@ public:
     Segment *ReadDatasetsInMemory();
     int ReadNbrOfLines();
 
-    void setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert);
     void ComposeSegmentImage();
     void ComposeSegmentLCCProjection(int inputchannel);
     void ComposeSegmentGVProjection(int inputchannel);
@@ -31,7 +30,6 @@ public:
     void recalculateStatsInProjection();
     QString getDatasetNameFromBand();
     QString getDatasetNameFromColor(int colorindex);
-    bool composeColorImage();
 
     float getBrightnessTemp(int lines, int views);
     float getBrightnessTemp(int radiance);
@@ -76,9 +74,6 @@ private:
     QScopedArrayPointer<float> geolongitude;
 
 
-    QList<bool> bandlist;
-    QList<int> colorlist;
-    QList<bool> invertlist;
 
     float latMax;
     float lonMax;

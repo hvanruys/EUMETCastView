@@ -169,6 +169,8 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->seglviirsm->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonVIIRSDNB)
             isselected = segs->seglviirsdnb->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonOLCIefr)
+            isselected = segs->seglolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
 
         emit mapClicked();
 
@@ -501,6 +503,16 @@ void Globe::paintGL()
             segs->seglviirsdnb->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglviirsdnb->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         }
+        if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
+        {
+            segs->seglolciefr->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglolciefr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        }
+        if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
+        {
+            segs->seglolcierr->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglolcierr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        }
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -563,6 +575,10 @@ void Globe::paintGL()
             segs->seglviirsm->ShowWinvec(&painter, distance, modelview );
         if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
             segs->seglviirsdnb->ShowWinvec(&painter, distance, modelview );
+        if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
+            segs->seglolciefr->ShowWinvec(&painter, distance, modelview );
+        if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
+            segs->seglolcierr->ShowWinvec(&painter, distance, modelview );
         painter.restore();
     }
 
@@ -647,6 +663,30 @@ void Globe::paintGL()
         if(segmentnameselected.mid(0,10) == "SVDNBC_npp")
             painter.drawText(10, this->height() - 20, "SUOMI NPP DNB " + segdate);
     }
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+    //0         1         2         3         4         5         6         7         8         9         10
+    //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
+    else if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
+                .arg(segmentnameselected.mid(25, 2)).arg(segmentnameselected.mid(27, 2)).arg(segmentnameselected.mid(29, 2));
+
+        if(segmentnameselected.mid(0,12) == "S3A_OL_1_EFR")
+            painter.drawText(10, this->height() - 20, "Sentinel-3A EFR" + segdate);
+    }
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+    //0         1         2         3         4         5         6         7         8         9         10
+    //S3A_OL_1_ERR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
+    else if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
+                .arg(segmentnameselected.mid(25, 2)).arg(segmentnameselected.mid(27, 2)).arg(segmentnameselected.mid(29, 2));
+
+        if(segmentnameselected.mid(0,12) == "S3A_OL_1_ERR")
+            painter.drawText(10, this->height() - 20, "Sentinel-3A ERR" + segdate);
+    }
 
 
     if (bSegmentNames && opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
@@ -672,6 +712,14 @@ void Globe::paintGL()
     else if (bSegmentNames && opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSDNB, segs->seglviirsdnb->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_OLCIEFR, segs->seglolciefr->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_OLCIERR, segs->seglolcierr->GetSegmentlistptr());
     }
 
 
@@ -877,7 +925,8 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
     //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
     //012345678901234567890123456789012345678901234567890123456789
     //avhrr_20131111_011500_noaa19.hrp.bz2
-    //012345678901234567890123456789012345678901234567890123456789
+    //01234567890123456789012345678901234567890123456789012345678901234567890
+    //S3A_OL_1_EFR____20161026T123116_20161026T123118_20161026T163843_0002_010_166_3059_MAR_O_NR_002.SEN3.tar
 
     float mvmatrix[16], projmatrix[16];
     QVector2D win;
@@ -948,6 +997,14 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 else if(seg == eSegmentType::SEG_VIIRSDNB)
                 {
                     renderout = QString("DNB %1:%2").arg((*segit)->fileInfo.fileName().mid(22, 2)).arg((*segit)->fileInfo.fileName().mid(24, 2));
+                }
+                else if(seg == eSegmentType::SEG_OLCIEFR)
+                {
+                    renderout = QString("EFR %1:%2").arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
+                }
+                else if(seg == eSegmentType::SEG_OLCIERR)
+                {
+                    renderout = QString("ERR %1:%2").arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
                 }
                 else
                 {
