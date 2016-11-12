@@ -227,7 +227,6 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
             if(segs->getShowAllSegments())
             {
                 RenderContour(*segit, projection, modelview, width, height);
-
             }
             else
             {
@@ -248,7 +247,6 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
             if(segs->getShowAllSegments())
             {
                 RenderContourDetail(*segit, projection, modelview, width, height);
-
             }
             else
             {
@@ -323,6 +321,18 @@ void SegmentGL::RenderContour(Segment *seg, QMatrix4x4 projection, QMatrix4x4 mo
     for(int i = 0; i < 16; i++)
         projmatrix[i] = *(ptr + i);
 
+    //                           winvec1
+    //  winvecend1 ------------------------------------ winvecend3
+    //      | p03                   | p00               | p05
+    //      |                       |                   |
+    //      |                       |                   |
+    //      |                       |                   |
+    //      |                       |                   |
+    //      |                       |                   |
+    //      | p02                   | p01               | p04
+    //  winvecend2 ------------------------------------ winvecend4
+    //                           winvec2
+
     QVector2D win;
 
     LonLat2PointRad((float)seg->cornerpointfirst1.latitude, (float)seg->cornerpointfirst1.longitude, &vec, 1.0);
@@ -359,12 +369,10 @@ void SegmentGL::RenderContourDetail(Segment *seg, QMatrix4x4 projection, QMatrix
 
 
     CalculateSegmentContour(&positions, seg->vectorfirst.first(), seg->vectorlast.first()); // +10
-
     for(int i = 0; i < seg->vectorfirst.length()-1; i++)
     {
         CalculateSegmentContour(&positions,seg->vectorlast.at(i), seg->vectorlast.at(i+1)); // + (10 * (length-1))
     }
-
     CalculateSegmentContour(&positions, seg->vectorlast.last(), seg->vectorfirst.last()); // + 10
 
     for(int i = seg->vectorfirst.length()-1; i > 0; i--)
@@ -406,6 +414,59 @@ void SegmentGL::RenderContourDetail(Segment *seg, QMatrix4x4 projection, QMatrix
     glDrawArrays(GL_LINE_LOOP, 0, 20 + 2 * (10 * (seg->vectorfirst.length()-1)));
     // glDrawArrays(GL_LINE_STRIP, nbrOfVertices - howdetailed, howdetailed);
 
+
+    // calculating winvec vectors
+    float mvmatrix[16], projmatrix[16];
+    QMatrix4x4 MVP;
+    MVP = projection * modelview;
+
+    float *ptr = modelview.data();
+    for(int i = 0; i < 16; i++)
+        mvmatrix[i] = *(ptr + i);
+
+    ptr = projection.data();
+    for(int i = 0; i < 16; i++)
+        projmatrix[i] = *(ptr + i);
+
+    QVector2D win;
+
+//    LonLat2PointRad((float)seg->cornerpointfirst1.latitude, (float)seg->cornerpointfirst1.longitude, &vec, 1.0);
+//    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+//    seg->winvecend1 = win;
+
+//    LonLat2PointRad((float)seg->cornerpointfirst2.latitude, (float)seg->cornerpointfirst2.longitude, &vec, 1.0);
+//    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+//    seg->winvecend2 = win;
+
+//    LonLat2PointRad((float)seg->cornerpointlast1.latitude, (float)seg->cornerpointlast1.longitude, &vec, 1.0);
+//    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+//    seg->winvecend3 = win;
+
+//    LonLat2PointRad((float)seg->cornerpointlast2.latitude, (float)seg->cornerpointlast2.longitude, &vec, 1.0);
+//    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+//    seg->winvecend4 = win;
+
+//    win = glhProjectf (seg->vec1, mvmatrix, projmatrix, width, height);
+//    seg->winvec1 = win;
+
+//    win = glhProjectf (seg->vec2, mvmatrix, projmatrix, width, height);
+//    seg->winvec2 = win;
+
+
+    seg->winvectorfirst.clear();
+    seg->winvectorlast.clear();
+    for(int i = 0; i < seg->vectorfirst.length()-1; i++)
+    {
+        LonLat2PointRad((float)seg->vectorfirst.at(i).latitude, (float)seg->vectorfirst.at(i).longitude, &vec, 1.0);
+        win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+        seg->winvectorfirst.append(win);
+    }
+    for(int i = 0; i < seg->vectorlast.length()-1; i++)
+    {
+        LonLat2PointRad((float)seg->vectorlast.at(i).latitude, (float)seg->vectorlast.at(i).longitude, &vec, 1.0);
+        win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+        seg->winvectorlast.append(win);
+    }
 
 
 }

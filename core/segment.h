@@ -154,7 +154,9 @@ public:
     QVector<QGeodetic> vectorfirst;
     QVector<QGeodetic> vectorlast;
 
-
+    QVector<QVector2D> winvectorfirst;
+    QVector<QVector2D> winvectorlast;
+    QVector<QVector3D> vecvector;
 
 protected:
 

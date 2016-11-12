@@ -171,6 +171,8 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->seglviirsdnb->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonOLCIefr)
             isselected = segs->seglolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonOLCIerr)
+            isselected = segs->seglolcierr->TestForSegmentGLerr( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
 
         emit mapClicked();
 

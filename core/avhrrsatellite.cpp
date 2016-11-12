@@ -35,8 +35,8 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     seglgac = new SegmentListGAC();
     seglviirsm = new SegmentListVIIRSM();
     seglviirsdnb = new SegmentListVIIRSDNB();
-    seglolciefr = new SegmentListOLCIefr();
-    seglolcierr = new SegmentListOLCIerr();
+    seglolciefr = new SegmentListOLCI(SEG_OLCIEFR);
+    seglolcierr = new SegmentListOLCI(SEG_OLCIERR);
 
     seglmeteosat = new SegmentListGeostationary();
     seglmeteosat->bisRSS = false;
@@ -140,8 +140,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     SegmentGAC *seggac;
     SegmentVIIRSM *segviirsm;
     SegmentVIIRSDNB *segviirsdnb;
-    SegmentOLCIefr *segolciefr;
-    SegmentOLCIerr *segolcierr;
+    SegmentOLCI *segolciefr;
+    SegmentOLCI *segolcierr;
 
 
     QList<Segment*> *slmetop = seglmetop->GetSegmentlistptr();
@@ -248,7 +248,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0         1         2         3         4         5         6         7         8         9         10
             seglolciefr->SetDirectoryName(fileInfo.absolutePath());
             QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
-            segolciefr = new SegmentOLCIefr(&file, satlist);
+            segolciefr = new SegmentOLCI(SEG_OLCIEFR, &file, satlist);
             if(segolciefr->segmentok == true)
             {
                 slolciefr->append(segolciefr);
@@ -263,7 +263,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0         1         2         3         4         5         6         7         8         9         10
             seglolcierr->SetDirectoryName(fileInfo.absolutePath());
             QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
-            segolcierr = new SegmentOLCIerr(&file, satlist);
+            segolcierr = new SegmentOLCI(SEG_OLCIERR, &file, satlist);
             if(segolcierr->segmentok == true)
             {
                 slolcierr->append(segolcierr);
@@ -1553,6 +1553,28 @@ bool AVHRRSatellite::SelectedOLCIefrSegments()
     bool selsegs = false;
 
     QList<Segment*> *slolci = seglolciefr->GetSegmentlistptr();
+
+
+    QList<Segment*>::iterator segitolci = slolci->begin();
+    while ( segitolci != slolci->end() )
+    {
+        if((*segitolci)->IsSelected())
+            return true;
+
+        ++segitolci;
+    }
+
+    return false;
+
+}
+
+bool AVHRRSatellite::SelectedOLCIerrSegments()
+{
+    qDebug() << "AVHRRSatellite::SelectedOLCIerrSegments()";
+
+    bool selsegs = false;
+
+    QList<Segment*> *slolci = seglolcierr->GetSegmentlistptr();
 
 
     QList<Segment*>::iterator segitolci = slolci->begin();

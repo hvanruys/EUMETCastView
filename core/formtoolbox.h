@@ -40,12 +40,11 @@ public:
     QList<bool> getVIIRSMBandList();
     QList<int> getVIIRSMColorList();
     QList<bool> getVIIRSMInvertList();
-    QList<bool> getOLCIefrBandList();
-    QList<int> getOLCIefrColorList();
-    QList<bool> getOLCIefrInvertList();
+    QList<bool> getOLCIBandList();
+    QList<int> getOLCIColorList();
+    QList<bool> getOLCIInvertList();
     void setTabWidgetIndex(int index);
     void setTabWidgetVIIRSIndex(int index);
-    void setTabWidgetOLCIIndex(int index);
     void writeInfoToAVHRR(QString info);
     void writeInfoToVIIRSM(QString info);
     void writeInfoToVIIRSDNB(QString info);
@@ -54,7 +53,7 @@ public:
     void createFilenamestring(QString sat, QString d, QVector<QString> spectrum);
     QString returnFilenamestring() { return filenamecreated; }
     bool comboColVIIRSOK();
-    bool comboColOLCIefrOK();
+    bool comboColOLCIOK();
     bool comboColGeoOK();
     bool GridOnProjLCC();
     bool GridOnProjGVP();
@@ -117,6 +116,7 @@ signals:
     void switchstackedwidget(int);
     void emitShowVIIRSImage();
     void emitShowOLCIefrImage();
+    void emitShowOLCIerrImage();
     void screenupdateprojection();
 
 
@@ -205,7 +205,7 @@ private slots:
     void on_spbLCCCorrX_valueChanged(int arg1);
     void on_spbLCCCorrY_valueChanged(int arg1);
     void on_btnUpdateVIIRSImage_clicked();
-    void on_btnUpdateOLCIefrImage_clicked();
+    void on_btnUpdateOLCIImage_clicked();
     void on_rbtnAColor_clicked();
     void on_rbtnACh1_clicked();
     void on_rbtnACh2_clicked();

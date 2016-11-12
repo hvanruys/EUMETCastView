@@ -2096,7 +2096,7 @@ OLCIefrConfigModel::OLCIefrConfigModel(QObject *parent)
 
 int OLCIefrConfigModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return poi.strlConfigNameOLCIefr.count();
+    return poi.strlConfigNameOLCI.count();
 }
 
 int OLCIefrConfigModel::columnCount(const QModelIndex & /*parent*/) const
@@ -2112,73 +2112,73 @@ QVariant OLCIefrConfigModel::data(const QModelIndex &index, int role) const
         switch(index.column())
         {
         case 0:
-            return poi.strlConfigNameOLCIefr.at(index.row());
+            return poi.strlConfigNameOLCI.at(index.row());
             break;
         case 1:
-            return poi.strlColorBandOLCIefr.at(index.row());
+            return poi.strlColorBandOLCI.at(index.row());
             break;
         case 2:
-            return poi.strlComboOLCIefr01.at(index.row());
+            return poi.strlComboOLCI01.at(index.row());
             break;
         case 3:
-            return poi.strlComboOLCIefr02.at(index.row());
+            return poi.strlComboOLCI02.at(index.row());
             break;
         case 4:
-            return poi.strlComboOLCIefr03.at(index.row());
+            return poi.strlComboOLCI03.at(index.row());
             break;
         case 5:
-            return poi.strlComboOLCIefr04.at(index.row());
+            return poi.strlComboOLCI04.at(index.row());
             break;
         case 6:
-            return poi.strlComboOLCIefr05.at(index.row());
+            return poi.strlComboOLCI05.at(index.row());
             break;
         case 7:
-            return poi.strlComboOLCIefr06.at(index.row());
+            return poi.strlComboOLCI06.at(index.row());
             break;
         case 8:
-            return poi.strlComboOLCIefr07.at(index.row());
+            return poi.strlComboOLCI07.at(index.row());
             break;
         case 9:
-            return poi.strlComboOLCIefr08.at(index.row());
+            return poi.strlComboOLCI08.at(index.row());
             break;
         case 10:
-            return poi.strlComboOLCIefr09.at(index.row());
+            return poi.strlComboOLCI09.at(index.row());
             break;
         case 11:
-            return poi.strlComboOLCIefr10.at(index.row());
+            return poi.strlComboOLCI10.at(index.row());
             break;
         case 12:
-            return poi.strlComboOLCIefr11.at(index.row());
+            return poi.strlComboOLCI11.at(index.row());
             break;
         case 13:
-            return poi.strlComboOLCIefr12.at(index.row());
+            return poi.strlComboOLCI12.at(index.row());
             break;
         case 14:
-            return poi.strlComboOLCIefr13.at(index.row());
+            return poi.strlComboOLCI13.at(index.row());
             break;
         case 15:
-            return poi.strlComboOLCIefr14.at(index.row());
+            return poi.strlComboOLCI14.at(index.row());
             break;
         case 16:
-            return poi.strlComboOLCIefr15.at(index.row());
+            return poi.strlComboOLCI15.at(index.row());
             break;
         case 17:
-            return poi.strlComboOLCIefr16.at(index.row());
+            return poi.strlComboOLCI16.at(index.row());
             break;
         case 18:
-            return poi.strlComboOLCIefr17.at(index.row());
+            return poi.strlComboOLCI17.at(index.row());
             break;
         case 19:
-            return poi.strlComboOLCIefr18.at(index.row());
+            return poi.strlComboOLCI18.at(index.row());
             break;
         case 20:
-            return poi.strlComboOLCIefr19.at(index.row());
+            return poi.strlComboOLCI19.at(index.row());
             break;
         case 21:
-            return poi.strlComboOLCIefr20.at(index.row());
+            return poi.strlComboOLCI20.at(index.row());
             break;
         case 22:
-            return poi.strlComboOLCIefr21.at(index.row());
+            return poi.strlComboOLCI21.at(index.row());
             break;
         }
     }
@@ -2198,73 +2198,73 @@ bool OLCIefrConfigModel::setData(const QModelIndex & index, const QVariant & val
         switch(index.column())
         {
         case 0:
-            poi.strlConfigNameOLCIefr.replace(index.row(), value.toString());
+            poi.strlConfigNameOLCI.replace(index.row(), value.toString());
             break;
         case 1:
-            poi.strlColorBandOLCIefr.replace(index.row(), value.toString());
+            poi.strlColorBandOLCI.replace(index.row(), value.toString());
             break;
         case 2:
-            poi.strlComboOLCIefr01.replace(index.row(), value.toString());
+            poi.strlComboOLCI01.replace(index.row(), value.toString());
             break;
         case 3:
-            poi.strlComboOLCIefr02.replace(index.row(), value.toString());
+            poi.strlComboOLCI02.replace(index.row(), value.toString());
             break;
         case 4:
-            poi.strlComboOLCIefr03.replace(index.row(), value.toString());
+            poi.strlComboOLCI03.replace(index.row(), value.toString());
             break;
         case 5:
-            poi.strlComboOLCIefr04.replace(index.row(), value.toString());
+            poi.strlComboOLCI04.replace(index.row(), value.toString());
             break;
         case 6:
-            poi.strlComboOLCIefr05.replace(index.row(), value.toString());
+            poi.strlComboOLCI05.replace(index.row(), value.toString());
             break;
         case 7:
-            poi.strlComboOLCIefr06.replace(index.row(), value.toString());
+            poi.strlComboOLCI06.replace(index.row(), value.toString());
             break;
         case 8:
-            poi.strlComboOLCIefr07.replace(index.row(), value.toString());
+            poi.strlComboOLCI07.replace(index.row(), value.toString());
             break;
         case 9:
-            poi.strlComboOLCIefr08.replace(index.row(), value.toString());
+            poi.strlComboOLCI08.replace(index.row(), value.toString());
             break;
         case 10:
-            poi.strlComboOLCIefr09.replace(index.row(), value.toString());
+            poi.strlComboOLCI09.replace(index.row(), value.toString());
             break;
         case 11:
-            poi.strlComboOLCIefr10.replace(index.row(), value.toString());
+            poi.strlComboOLCI10.replace(index.row(), value.toString());
             break;
         case 12:
-            poi.strlComboOLCIefr11.replace(index.row(), value.toString());
+            poi.strlComboOLCI11.replace(index.row(), value.toString());
             break;
         case 13:
-            poi.strlComboOLCIefr12.replace(index.row(), value.toString());
+            poi.strlComboOLCI12.replace(index.row(), value.toString());
             break;
         case 14:
-            poi.strlComboOLCIefr13.replace(index.row(), value.toString());
+            poi.strlComboOLCI13.replace(index.row(), value.toString());
             break;
         case 15:
-            poi.strlComboOLCIefr14.replace(index.row(), value.toString());
+            poi.strlComboOLCI14.replace(index.row(), value.toString());
             break;
         case 16:
-            poi.strlComboOLCIefr15.replace(index.row(), value.toString());
+            poi.strlComboOLCI15.replace(index.row(), value.toString());
             break;
         case 17:
-            poi.strlComboOLCIefr16.replace(index.row(), value.toString());
+            poi.strlComboOLCI16.replace(index.row(), value.toString());
             break;
         case 18:
-            poi.strlComboOLCIefr17.replace(index.row(), value.toString());
+            poi.strlComboOLCI17.replace(index.row(), value.toString());
             break;
         case 19:
-            poi.strlComboOLCIefr18.replace(index.row(), value.toString());
+            poi.strlComboOLCI18.replace(index.row(), value.toString());
             break;
         case 20:
-            poi.strlComboOLCIefr19.replace(index.row(), value.toString());
+            poi.strlComboOLCI19.replace(index.row(), value.toString());
             break;
         case 21:
-            poi.strlComboOLCIefr20.replace(index.row(), value.toString());
+            poi.strlComboOLCI20.replace(index.row(), value.toString());
             break;
         case 22:
-            poi.strlComboOLCIefr21.replace(index.row(), value.toString());
+            poi.strlComboOLCI21.replace(index.row(), value.toString());
             break;
         }
 
@@ -2341,51 +2341,51 @@ bool OLCIefrConfigModel::insertRows(int position, int rows, const QModelIndex &i
     Q_UNUSED(index);
     beginInsertRows(QModelIndex(), position, position+rows-1);
 
-    poi.strlConfigNameOLCIefr.append( " " );
-    poi.strlColorBandOLCIefr.append( "0" );
-    poi.strlComboOLCIefr01.append( "0" );
-    poi.strlComboOLCIefr02.append( "0" );
-    poi.strlComboOLCIefr03.append( "0" );
-    poi.strlComboOLCIefr04.append( "0" );
-    poi.strlComboOLCIefr05.append( "0" );
-    poi.strlComboOLCIefr06.append( "0" );
-    poi.strlComboOLCIefr07.append( "0" );
-    poi.strlComboOLCIefr08.append( "0" );
-    poi.strlComboOLCIefr09.append( "0" );
-    poi.strlComboOLCIefr10.append( "0" );
-    poi.strlComboOLCIefr11.append( "0" );
-    poi.strlComboOLCIefr12.append( "0" );
-    poi.strlComboOLCIefr13.append( "0" );
-    poi.strlComboOLCIefr14.append( "0" );
-    poi.strlComboOLCIefr15.append( "0" );
-    poi.strlComboOLCIefr16.append( "0" );
-    poi.strlComboOLCIefr17.append( "0" );
-    poi.strlComboOLCIefr18.append( "0" );
-    poi.strlComboOLCIefr19.append( "0" );
-    poi.strlComboOLCIefr20.append( "0" );
-    poi.strlComboOLCIefr21.append( "0" );
+    poi.strlConfigNameOLCI.append( " " );
+    poi.strlColorBandOLCI.append( "0" );
+    poi.strlComboOLCI01.append( "0" );
+    poi.strlComboOLCI02.append( "0" );
+    poi.strlComboOLCI03.append( "0" );
+    poi.strlComboOLCI04.append( "0" );
+    poi.strlComboOLCI05.append( "0" );
+    poi.strlComboOLCI06.append( "0" );
+    poi.strlComboOLCI07.append( "0" );
+    poi.strlComboOLCI08.append( "0" );
+    poi.strlComboOLCI09.append( "0" );
+    poi.strlComboOLCI10.append( "0" );
+    poi.strlComboOLCI11.append( "0" );
+    poi.strlComboOLCI12.append( "0" );
+    poi.strlComboOLCI13.append( "0" );
+    poi.strlComboOLCI14.append( "0" );
+    poi.strlComboOLCI15.append( "0" );
+    poi.strlComboOLCI16.append( "0" );
+    poi.strlComboOLCI17.append( "0" );
+    poi.strlComboOLCI18.append( "0" );
+    poi.strlComboOLCI19.append( "0" );
+    poi.strlComboOLCI20.append( "0" );
+    poi.strlComboOLCI21.append( "0" );
 
-    poi.strlInverseOLCIefr01.append( "0" );
-    poi.strlInverseOLCIefr02.append( "0" );
-    poi.strlInverseOLCIefr03.append( "0" );
-    poi.strlInverseOLCIefr04.append( "0" );
-    poi.strlInverseOLCIefr05.append( "0" );
-    poi.strlInverseOLCIefr06.append( "0" );
-    poi.strlInverseOLCIefr07.append( "0" );
-    poi.strlInverseOLCIefr08.append( "0" );
-    poi.strlInverseOLCIefr09.append( "0" );
-    poi.strlInverseOLCIefr10.append( "0" );
-    poi.strlInverseOLCIefr11.append( "0" );
-    poi.strlInverseOLCIefr12.append( "0" );
-    poi.strlInverseOLCIefr13.append( "0" );
-    poi.strlInverseOLCIefr14.append( "0" );
-    poi.strlInverseOLCIefr15.append( "0" );
-    poi.strlInverseOLCIefr16.append( "0" );
-    poi.strlInverseOLCIefr17.append( "0" );
-    poi.strlInverseOLCIefr18.append( "0" );
-    poi.strlInverseOLCIefr19.append( "0" );
-    poi.strlInverseOLCIefr20.append( "0" );
-    poi.strlInverseOLCIefr21.append( "0" );
+    poi.strlInverseOLCI01.append( "0" );
+    poi.strlInverseOLCI02.append( "0" );
+    poi.strlInverseOLCI03.append( "0" );
+    poi.strlInverseOLCI04.append( "0" );
+    poi.strlInverseOLCI05.append( "0" );
+    poi.strlInverseOLCI06.append( "0" );
+    poi.strlInverseOLCI07.append( "0" );
+    poi.strlInverseOLCI08.append( "0" );
+    poi.strlInverseOLCI09.append( "0" );
+    poi.strlInverseOLCI10.append( "0" );
+    poi.strlInverseOLCI11.append( "0" );
+    poi.strlInverseOLCI12.append( "0" );
+    poi.strlInverseOLCI13.append( "0" );
+    poi.strlInverseOLCI14.append( "0" );
+    poi.strlInverseOLCI15.append( "0" );
+    poi.strlInverseOLCI16.append( "0" );
+    poi.strlInverseOLCI17.append( "0" );
+    poi.strlInverseOLCI18.append( "0" );
+    poi.strlInverseOLCI19.append( "0" );
+    poi.strlInverseOLCI20.append( "0" );
+    poi.strlInverseOLCI21.append( "0" );
 
 
     endInsertRows();

@@ -51,28 +51,8 @@ public:
     QStringList strlConfigNameM;
     QStringList strlColorBandM; // 0 = color , 1 = M1 , 2 = M2 , ...
 
-    QStringList strlConfigNameOLCIefr;
-    QStringList strlColorBandOLCIefr; // 0 = color , 1 = Oa01 , 2 = Oa02 , ...
-
-
-
-//    QStringList strlColorsM;
-//    QStringList strlBandM1;
-//    QStringList strlBandM2;
-//    QStringList strlBandM3;
-//    QStringList strlBandM4;
-//    QStringList strlBandM5;
-//    QStringList strlBandM6;
-//    QStringList strlBandM7;
-//    QStringList strlBandM8;
-//    QStringList strlBandM9;
-//    QStringList strlBandM10;
-//    QStringList strlBandM11;
-//    QStringList strlBandM12;
-//    QStringList strlBandM13;
-//    QStringList strlBandM14;
-//    QStringList strlBandM15;
-//    QStringList strlBandM16;
+    QStringList strlConfigNameOLCI;
+    QStringList strlColorBandOLCI; // 0 = color , 1 = Oa01 , 2 = Oa02 , ...
 
     QStringList strlComboM1;
     QStringList strlComboM2;
@@ -108,49 +88,49 @@ public:
     QStringList strlInverseM15;
     QStringList strlInverseM16;
 
-    QStringList strlComboOLCIefr01;
-    QStringList strlComboOLCIefr02;
-    QStringList strlComboOLCIefr03;
-    QStringList strlComboOLCIefr04;
-    QStringList strlComboOLCIefr05;
-    QStringList strlComboOLCIefr06;
-    QStringList strlComboOLCIefr07;
-    QStringList strlComboOLCIefr08;
-    QStringList strlComboOLCIefr09;
-    QStringList strlComboOLCIefr10;
-    QStringList strlComboOLCIefr11;
-    QStringList strlComboOLCIefr12;
-    QStringList strlComboOLCIefr13;
-    QStringList strlComboOLCIefr14;
-    QStringList strlComboOLCIefr15;
-    QStringList strlComboOLCIefr16;
-    QStringList strlComboOLCIefr17;
-    QStringList strlComboOLCIefr18;
-    QStringList strlComboOLCIefr19;
-    QStringList strlComboOLCIefr20;
-    QStringList strlComboOLCIefr21;
+    QStringList strlComboOLCI01;
+    QStringList strlComboOLCI02;
+    QStringList strlComboOLCI03;
+    QStringList strlComboOLCI04;
+    QStringList strlComboOLCI05;
+    QStringList strlComboOLCI06;
+    QStringList strlComboOLCI07;
+    QStringList strlComboOLCI08;
+    QStringList strlComboOLCI09;
+    QStringList strlComboOLCI10;
+    QStringList strlComboOLCI11;
+    QStringList strlComboOLCI12;
+    QStringList strlComboOLCI13;
+    QStringList strlComboOLCI14;
+    QStringList strlComboOLCI15;
+    QStringList strlComboOLCI16;
+    QStringList strlComboOLCI17;
+    QStringList strlComboOLCI18;
+    QStringList strlComboOLCI19;
+    QStringList strlComboOLCI20;
+    QStringList strlComboOLCI21;
 
-    QStringList strlInverseOLCIefr01;
-    QStringList strlInverseOLCIefr02;
-    QStringList strlInverseOLCIefr03;
-    QStringList strlInverseOLCIefr04;
-    QStringList strlInverseOLCIefr05;
-    QStringList strlInverseOLCIefr06;
-    QStringList strlInverseOLCIefr07;
-    QStringList strlInverseOLCIefr08;
-    QStringList strlInverseOLCIefr09;
-    QStringList strlInverseOLCIefr10;
-    QStringList strlInverseOLCIefr11;
-    QStringList strlInverseOLCIefr12;
-    QStringList strlInverseOLCIefr13;
-    QStringList strlInverseOLCIefr14;
-    QStringList strlInverseOLCIefr15;
-    QStringList strlInverseOLCIefr16;
-    QStringList strlInverseOLCIefr17;
-    QStringList strlInverseOLCIefr18;
-    QStringList strlInverseOLCIefr19;
-    QStringList strlInverseOLCIefr20;
-    QStringList strlInverseOLCIefr21;
+    QStringList strlInverseOLCI01;
+    QStringList strlInverseOLCI02;
+    QStringList strlInverseOLCI03;
+    QStringList strlInverseOLCI04;
+    QStringList strlInverseOLCI05;
+    QStringList strlInverseOLCI06;
+    QStringList strlInverseOLCI07;
+    QStringList strlInverseOLCI08;
+    QStringList strlInverseOLCI09;
+    QStringList strlInverseOLCI10;
+    QStringList strlInverseOLCI11;
+    QStringList strlInverseOLCI12;
+    QStringList strlInverseOLCI13;
+    QStringList strlInverseOLCI14;
+    QStringList strlInverseOLCI15;
+    QStringList strlInverseOLCI16;
+    QStringList strlInverseOLCI17;
+    QStringList strlInverseOLCI18;
+    QStringList strlInverseOLCI19;
+    QStringList strlInverseOLCI20;
+    QStringList strlInverseOLCI21;
 
 }; 
 

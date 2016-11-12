@@ -37,21 +37,9 @@ private:
     FormToolbox *formtoolbox;
     void RemoveAllSelected();
 
-    //void ShowSegment(int value);
-
-
-
-
 private slots:
-    void toggleButtonMetop();
-    void toggleButtonNoaa();
-    void toggleButtonGAC();
-    void toggleButtonHRP();
-    void toggleButtonVIIRSM();
-    void toggleButtonVIIRSDNB();
-    void toggleButton(eSegmentType segtype);
 
-    void toggleButtonRealTime();
+    void toggleButton(eSegmentType segtype);
     void updatesatmap(int);
     void setScrollBarMaximum();
     void slotNothingSelected();

@@ -25,8 +25,6 @@ public:
     void CreateMapFromOLCI(eSegmentType type, bool combine);
 
     void CreateMapFromGeoStationary();
-    void CreateMapFromEquirectangular();
-    void CreateMapFromEquirectangular1();
 
     bool map_forward(double lon_rad, double lat_rad, double &map_x, double &map_y);
     bool map_forward_neg_coord(double lon_rad, double lat_rad, double &map_x, double &map_y);

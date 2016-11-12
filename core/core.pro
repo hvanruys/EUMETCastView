@@ -74,10 +74,8 @@ SOURCES += main.cpp \
     infrawidget.cpp \
     forminfrascales.cpp \
     qcustomplot.cpp \
-    segmentolciefr.cpp \
-    segmentlistolciefr.cpp \
-    segmentolcierr.cpp \
-    segmentlistolcierr.cpp
+    segmentlistolci.cpp \
+    segmentolci.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -140,10 +138,8 @@ HEADERS  += mainwindow.h \
     colormaps.h \
     forminfrascales.h \
     qcustomplot.h \
-    segmentolciefr.h \
-    segmentlistolciefr.h \
-    segmentolcierr.h \
-    segmentlistolcierr.h
+    segmentlistolci.h \
+    segmentolci.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

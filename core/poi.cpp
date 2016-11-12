@@ -15,7 +15,7 @@ void Poi::Initialize()
     strlLCCName = POIsettings.value("/LCC/strlName").value<QStringList>();
     strlSGName = POIsettings.value("/SG/strlName").value<QStringList>();
     strlConfigNameM = POIsettings.value("/MConfig/strlName").value<QStringList>();
-    strlConfigNameOLCIefr = POIsettings.value("/OLCIefrConfig/strlName").value<QStringList>();
+    strlConfigNameOLCI = POIsettings.value("/OLCIConfig/strlName").value<QStringList>();
 
     if(strlGVPName.count() == 0)
     {
@@ -182,103 +182,103 @@ void Poi::Initialize()
 
     }
 
-    if(strlConfigNameOLCIefr.count() == 0)
+    if(strlConfigNameOLCI.count() == 0)
     {
-        strlConfigNameOLCIefr << "User defined" << "Natural Colors" << "True Colors";
-        strlColorBandOLCIefr << "0" << "0" << "0"; // "0" = color , "1" = Oa01, ..
+        strlConfigNameOLCI << "User defined" << "Natural Colors" << "True Colors";
+        strlColorBandOLCI << "0" << "0" << "0"; // "0" = color , "1" = Oa01, ..
 
-        strlComboOLCIefr01 << "0" << "0" << "0";
-        strlComboOLCIefr02 << "0" << "0" << "0";
-        strlComboOLCIefr03 << "0" << "0" << "0";
-        strlComboOLCIefr04 << "0" << "0" << "0";
-        strlComboOLCIefr05 << "0" << "0" << "0";
-        strlComboOLCIefr06 << "0" << "0" << "0";
-        strlComboOLCIefr07 << "0" << "0" << "0";
-        strlComboOLCIefr08 << "0" << "0" << "0";
-        strlComboOLCIefr09 << "0" << "0" << "0";
-        strlComboOLCIefr10 << "0" << "0" << "0";
-        strlComboOLCIefr11 << "0" << "0" << "0";
-        strlComboOLCIefr12 << "0" << "0" << "0";
-        strlComboOLCIefr13 << "0" << "0" << "0";
-        strlComboOLCIefr14 << "0" << "0" << "0";
-        strlComboOLCIefr15 << "0" << "0" << "0";
-        strlComboOLCIefr16 << "0" << "0" << "0";
-        strlComboOLCIefr17 << "0" << "0" << "0";
-        strlComboOLCIefr18 << "0" << "0" << "0";
-        strlComboOLCIefr19 << "0" << "0" << "0";
-        strlComboOLCIefr20 << "0" << "0" << "0";
-        strlComboOLCIefr21 << "0" << "0" << "0";
+        strlComboOLCI01 << "0" << "0" << "0";
+        strlComboOLCI02 << "0" << "0" << "0";
+        strlComboOLCI03 << "0" << "0" << "3";
+        strlComboOLCI04 << "0" << "0" << "0";
+        strlComboOLCI05 << "0" << "0" << "0";
+        strlComboOLCI06 << "0" << "0" << "2";
+        strlComboOLCI07 << "0" << "0" << "0";
+        strlComboOLCI08 << "0" << "0" << "0";
+        strlComboOLCI09 << "0" << "3" << "0";
+        strlComboOLCI10 << "0" << "0" << "1";
+        strlComboOLCI11 << "0" << "0" << "0";
+        strlComboOLCI12 << "0" << "0" << "0";
+        strlComboOLCI13 << "0" << "0" << "0";
+        strlComboOLCI14 << "0" << "0" << "0";
+        strlComboOLCI15 << "0" << "0" << "0";
+        strlComboOLCI16 << "0" << "0" << "0";
+        strlComboOLCI17 << "0" << "2" << "0";
+        strlComboOLCI18 << "0" << "0" << "0";
+        strlComboOLCI19 << "0" << "0" << "0";
+        strlComboOLCI20 << "0" << "0" << "0";
+        strlComboOLCI21 << "0" << "1" << "0";
 
-        strlInverseOLCIefr01 << "0" << "0" << "0";
-        strlInverseOLCIefr02 << "0" << "0" << "0";
-        strlInverseOLCIefr03 << "0" << "0" << "0";
-        strlInverseOLCIefr04 << "0" << "0" << "0";
-        strlInverseOLCIefr05 << "0" << "0" << "0";
-        strlInverseOLCIefr06 << "0" << "0" << "0";
-        strlInverseOLCIefr07 << "0" << "0" << "0";
-        strlInverseOLCIefr08 << "0" << "0" << "0";
-        strlInverseOLCIefr09 << "0" << "0" << "0";
-        strlInverseOLCIefr10 << "0" << "0" << "0";
-        strlInverseOLCIefr11 << "0" << "0" << "0";
-        strlInverseOLCIefr12 << "0" << "0" << "0";
-        strlInverseOLCIefr13 << "0" << "0" << "0";
-        strlInverseOLCIefr14 << "0" << "0" << "0";
-        strlInverseOLCIefr15 << "0" << "0" << "0";
-        strlInverseOLCIefr16 << "0" << "0" << "0";
-        strlInverseOLCIefr17 << "0" << "0" << "0";
-        strlInverseOLCIefr18 << "0" << "0" << "0";
-        strlInverseOLCIefr19 << "0" << "0" << "0";
-        strlInverseOLCIefr20 << "0" << "0" << "0";
-        strlInverseOLCIefr21 << "0" << "0" << "0";
+        strlInverseOLCI01 << "0" << "0" << "0";
+        strlInverseOLCI02 << "0" << "0" << "0";
+        strlInverseOLCI03 << "0" << "0" << "0";
+        strlInverseOLCI04 << "0" << "0" << "0";
+        strlInverseOLCI05 << "0" << "0" << "0";
+        strlInverseOLCI06 << "0" << "0" << "0";
+        strlInverseOLCI07 << "0" << "0" << "0";
+        strlInverseOLCI08 << "0" << "0" << "0";
+        strlInverseOLCI09 << "0" << "0" << "0";
+        strlInverseOLCI10 << "0" << "0" << "0";
+        strlInverseOLCI11 << "0" << "0" << "0";
+        strlInverseOLCI12 << "0" << "0" << "0";
+        strlInverseOLCI13 << "0" << "0" << "0";
+        strlInverseOLCI14 << "0" << "0" << "0";
+        strlInverseOLCI15 << "0" << "0" << "0";
+        strlInverseOLCI16 << "0" << "0" << "0";
+        strlInverseOLCI17 << "0" << "0" << "0";
+        strlInverseOLCI18 << "0" << "0" << "0";
+        strlInverseOLCI19 << "0" << "0" << "0";
+        strlInverseOLCI20 << "0" << "0" << "0";
+        strlInverseOLCI21 << "0" << "0" << "0";
 
 
     }
     else
     {
-        strlColorBandOLCIefr = POIsettings.value("/OLCIefrConfig/strlColorBandOLCIefr").value<QStringList>();
-        strlComboOLCIefr01 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr01").value<QStringList>();
-        strlComboOLCIefr02 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr02").value<QStringList>();
-        strlComboOLCIefr03 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr03").value<QStringList>();
-        strlComboOLCIefr04 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr04").value<QStringList>();
-        strlComboOLCIefr05 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr05").value<QStringList>();
-        strlComboOLCIefr06 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr06").value<QStringList>();
-        strlComboOLCIefr07 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr07").value<QStringList>();
-        strlComboOLCIefr08 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr08").value<QStringList>();
-        strlComboOLCIefr09 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr09").value<QStringList>();
-        strlComboOLCIefr10 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr10").value<QStringList>();
-        strlComboOLCIefr11 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr11").value<QStringList>();
-        strlComboOLCIefr12 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr12").value<QStringList>();
-        strlComboOLCIefr13 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr13").value<QStringList>();
-        strlComboOLCIefr14 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr14").value<QStringList>();
-        strlComboOLCIefr15 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr15").value<QStringList>();
-        strlComboOLCIefr16 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr16").value<QStringList>();
-        strlComboOLCIefr17 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr17").value<QStringList>();
-        strlComboOLCIefr18 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr18").value<QStringList>();
-        strlComboOLCIefr19 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr19").value<QStringList>();
-        strlComboOLCIefr20 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr20").value<QStringList>();
-        strlComboOLCIefr21 = POIsettings.value("/OLCIefrConfig/strlComboOLCIefr21").value<QStringList>();
+        strlColorBandOLCI = POIsettings.value("/OLCIConfig/strlColorBandOLCI").value<QStringList>();
+        strlComboOLCI01 = POIsettings.value("/OLCIConfig/strlComboOLCI01").value<QStringList>();
+        strlComboOLCI02 = POIsettings.value("/OLCIConfig/strlComboOLCI02").value<QStringList>();
+        strlComboOLCI03 = POIsettings.value("/OLCIConfig/strlComboOLCI03").value<QStringList>();
+        strlComboOLCI04 = POIsettings.value("/OLCIConfig/strlComboOLCI04").value<QStringList>();
+        strlComboOLCI05 = POIsettings.value("/OLCIConfig/strlComboOLCI05").value<QStringList>();
+        strlComboOLCI06 = POIsettings.value("/OLCIConfig/strlComboOLCI06").value<QStringList>();
+        strlComboOLCI07 = POIsettings.value("/OLCIConfig/strlComboOLCI07").value<QStringList>();
+        strlComboOLCI08 = POIsettings.value("/OLCIConfig/strlComboOLCI08").value<QStringList>();
+        strlComboOLCI09 = POIsettings.value("/OLCIConfig/strlComboOLCI09").value<QStringList>();
+        strlComboOLCI10 = POIsettings.value("/OLCIConfig/strlComboOLCI10").value<QStringList>();
+        strlComboOLCI11 = POIsettings.value("/OLCIConfig/strlComboOLCI11").value<QStringList>();
+        strlComboOLCI12 = POIsettings.value("/OLCIConfig/strlComboOLCI12").value<QStringList>();
+        strlComboOLCI13 = POIsettings.value("/OLCIConfig/strlComboOLCI13").value<QStringList>();
+        strlComboOLCI14 = POIsettings.value("/OLCIConfig/strlComboOLCI14").value<QStringList>();
+        strlComboOLCI15 = POIsettings.value("/OLCIConfig/strlComboOLCI15").value<QStringList>();
+        strlComboOLCI16 = POIsettings.value("/OLCIConfig/strlComboOLCI16").value<QStringList>();
+        strlComboOLCI17 = POIsettings.value("/OLCIConfig/strlComboOLCI17").value<QStringList>();
+        strlComboOLCI18 = POIsettings.value("/OLCIConfig/strlComboOLCI18").value<QStringList>();
+        strlComboOLCI19 = POIsettings.value("/OLCIConfig/strlComboOLCI19").value<QStringList>();
+        strlComboOLCI20 = POIsettings.value("/OLCIConfig/strlComboOLCI20").value<QStringList>();
+        strlComboOLCI21 = POIsettings.value("/OLCIConfig/strlComboOLCI21").value<QStringList>();
 
-        strlInverseOLCIefr01 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr01").value<QStringList>();
-        strlInverseOLCIefr02 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr02").value<QStringList>();
-        strlInverseOLCIefr03 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr03").value<QStringList>();
-        strlInverseOLCIefr04 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr04").value<QStringList>();
-        strlInverseOLCIefr05 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr05").value<QStringList>();
-        strlInverseOLCIefr06 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr06").value<QStringList>();
-        strlInverseOLCIefr07 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr07").value<QStringList>();
-        strlInverseOLCIefr08 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr08").value<QStringList>();
-        strlInverseOLCIefr09 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr09").value<QStringList>();
-        strlInverseOLCIefr10 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr10").value<QStringList>();
-        strlInverseOLCIefr11 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr11").value<QStringList>();
-        strlInverseOLCIefr12 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr12").value<QStringList>();
-        strlInverseOLCIefr13 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr13").value<QStringList>();
-        strlInverseOLCIefr14 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr14").value<QStringList>();
-        strlInverseOLCIefr15 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr15").value<QStringList>();
-        strlInverseOLCIefr16 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr16").value<QStringList>();
-        strlInverseOLCIefr17 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr17").value<QStringList>();
-        strlInverseOLCIefr18 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr18").value<QStringList>();
-        strlInverseOLCIefr19 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr19").value<QStringList>();
-        strlInverseOLCIefr20 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr20").value<QStringList>();
-        strlInverseOLCIefr21 = POIsettings.value("/OLCIefrConfig/strlInverseOLCIefr21").value<QStringList>();
+        strlInverseOLCI01 = POIsettings.value("/OLCIConfig/strlInverseOLCI01").value<QStringList>();
+        strlInverseOLCI02 = POIsettings.value("/OLCIConfig/strlInverseOLCI02").value<QStringList>();
+        strlInverseOLCI03 = POIsettings.value("/OLCIConfig/strlInverseOLCI03").value<QStringList>();
+        strlInverseOLCI04 = POIsettings.value("/OLCIConfig/strlInverseOLCI04").value<QStringList>();
+        strlInverseOLCI05 = POIsettings.value("/OLCIConfig/strlInverseOLCI05").value<QStringList>();
+        strlInverseOLCI06 = POIsettings.value("/OLCIConfig/strlInverseOLCI06").value<QStringList>();
+        strlInverseOLCI07 = POIsettings.value("/OLCIConfig/strlInverseOLCI07").value<QStringList>();
+        strlInverseOLCI08 = POIsettings.value("/OLCIConfig/strlInverseOLCI08").value<QStringList>();
+        strlInverseOLCI09 = POIsettings.value("/OLCIConfig/strlInverseOLCI09").value<QStringList>();
+        strlInverseOLCI10 = POIsettings.value("/OLCIConfig/strlInverseOLCI10").value<QStringList>();
+        strlInverseOLCI11 = POIsettings.value("/OLCIConfig/strlInverseOLCI11").value<QStringList>();
+        strlInverseOLCI12 = POIsettings.value("/OLCIConfig/strlInverseOLCI12").value<QStringList>();
+        strlInverseOLCI13 = POIsettings.value("/OLCIConfig/strlInverseOLCI13").value<QStringList>();
+        strlInverseOLCI14 = POIsettings.value("/OLCIConfig/strlInverseOLCI14").value<QStringList>();
+        strlInverseOLCI15 = POIsettings.value("/OLCIConfig/strlInverseOLCI15").value<QStringList>();
+        strlInverseOLCI16 = POIsettings.value("/OLCIConfig/strlInverseOLCI16").value<QStringList>();
+        strlInverseOLCI17 = POIsettings.value("/OLCIConfig/strlInverseOLCI17").value<QStringList>();
+        strlInverseOLCI18 = POIsettings.value("/OLCIConfig/strlInverseOLCI18").value<QStringList>();
+        strlInverseOLCI19 = POIsettings.value("/OLCIConfig/strlInverseOLCI19").value<QStringList>();
+        strlInverseOLCI20 = POIsettings.value("/OLCIConfig/strlInverseOLCI20").value<QStringList>();
+        strlInverseOLCI21 = POIsettings.value("/OLCIConfig/strlInverseOLCI21").value<QStringList>();
 
 
     }
@@ -362,52 +362,52 @@ void Poi::Save()
     POIsettings.setValue("/MConfig/strlInverseM15", strlInverseM15);
     POIsettings.setValue("/MConfig/strlInverseM16", strlInverseM16);
 
-    POIsettings.setValue("/OLCIefrConfig/strlName", strlConfigNameOLCIefr);
-    POIsettings.setValue("/OLCIefrConfig/strlColorBandOLCIefr", strlColorBandOLCIefr);
+    POIsettings.setValue("/OLCIConfig/strlName", strlConfigNameOLCI);
+    POIsettings.setValue("/OLCIConfig/strlColorBandOLCI", strlColorBandOLCI);
 
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr01", strlComboOLCIefr01);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr02", strlComboOLCIefr02);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr03", strlComboOLCIefr03);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr04", strlComboOLCIefr04);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr05", strlComboOLCIefr05);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr06", strlComboOLCIefr06);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr07", strlComboOLCIefr07);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr08", strlComboOLCIefr08);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr09", strlComboOLCIefr09);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr10", strlComboOLCIefr10);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr11", strlComboOLCIefr11);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr12", strlComboOLCIefr12);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr13", strlComboOLCIefr13);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr14", strlComboOLCIefr14);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr15", strlComboOLCIefr15);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr16", strlComboOLCIefr16);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr17", strlComboOLCIefr17);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr18", strlComboOLCIefr18);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr19", strlComboOLCIefr19);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr20", strlComboOLCIefr20);
-    POIsettings.setValue("/OLCIefrConfig/strlComboOLCIefr21", strlComboOLCIefr21);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI01", strlComboOLCI01);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI02", strlComboOLCI02);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI03", strlComboOLCI03);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI04", strlComboOLCI04);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI05", strlComboOLCI05);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI06", strlComboOLCI06);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI07", strlComboOLCI07);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI08", strlComboOLCI08);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI09", strlComboOLCI09);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI10", strlComboOLCI10);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI11", strlComboOLCI11);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI12", strlComboOLCI12);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI13", strlComboOLCI13);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI14", strlComboOLCI14);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI15", strlComboOLCI15);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI16", strlComboOLCI16);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI17", strlComboOLCI17);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI18", strlComboOLCI18);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI19", strlComboOLCI19);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI20", strlComboOLCI20);
+    POIsettings.setValue("/OLCIConfig/strlComboOLCI21", strlComboOLCI21);
 
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr01", strlInverseOLCIefr01);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr02", strlInverseOLCIefr02);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr03", strlInverseOLCIefr03);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr04", strlInverseOLCIefr04);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr05", strlInverseOLCIefr05);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr06", strlInverseOLCIefr06);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr07", strlInverseOLCIefr07);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr08", strlInverseOLCIefr08);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr09", strlInverseOLCIefr09);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr10", strlInverseOLCIefr10);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr11", strlInverseOLCIefr11);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr12", strlInverseOLCIefr12);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr13", strlInverseOLCIefr13);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr14", strlInverseOLCIefr14);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr15", strlInverseOLCIefr15);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr16", strlInverseOLCIefr16);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr17", strlInverseOLCIefr17);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr18", strlInverseOLCIefr18);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr19", strlInverseOLCIefr19);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr20", strlInverseOLCIefr20);
-    POIsettings.setValue("/OLCIefrConfig/strlInverseOLCIefr21", strlInverseOLCIefr21);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI01", strlInverseOLCI01);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI02", strlInverseOLCI02);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI03", strlInverseOLCI03);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI04", strlInverseOLCI04);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI05", strlInverseOLCI05);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI06", strlInverseOLCI06);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI07", strlInverseOLCI07);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI08", strlInverseOLCI08);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI09", strlInverseOLCI09);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI10", strlInverseOLCI10);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI11", strlInverseOLCI11);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI12", strlInverseOLCI12);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI13", strlInverseOLCI13);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI14", strlInverseOLCI14);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI15", strlInverseOLCI15);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI16", strlInverseOLCI16);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI17", strlInverseOLCI17);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI18", strlInverseOLCI18);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI19", strlInverseOLCI19);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI20", strlInverseOLCI20);
+    POIsettings.setValue("/OLCIConfig/strlInverseOLCI21", strlInverseOLCI21);
 
 
 }

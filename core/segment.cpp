@@ -1026,6 +1026,7 @@ qint32 Segment::getProjectionX(int line, int pixelx)
         return projectionCoordX[line * 4064 + pixelx];
         break;
     case eSegmentType::SEG_OLCIEFR:
+    case eSegmentType::SEG_OLCIERR:
         return projectionCoordX[line * earth_views_per_scanline + pixelx];
         break;
     }
@@ -1050,6 +1051,7 @@ qint32 Segment::getProjectionY(int line, int pixelx)
         return projectionCoordY[line * 4064 + pixelx];
         break;
     case eSegmentType::SEG_OLCIEFR:
+    case eSegmentType::SEG_OLCIERR:
         return projectionCoordY[line * earth_views_per_scanline + pixelx];
         break;
     }

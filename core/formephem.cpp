@@ -218,6 +218,10 @@ void FormEphem::setSegmentsShownValue()
         segs->seglviirsm->SetNbrOfVisibleSegments(ui->segmentsslider->value());
     else if (opts.buttonVIIRSDNB)
         segs->seglviirsdnb->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonOLCIefr)
+        segs->seglolciefr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonOLCIerr)
+        segs->seglolcierr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
 
     opts.nbrofvisiblesegments = ui->segmentsslider->value();
 

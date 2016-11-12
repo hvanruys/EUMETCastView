@@ -11,8 +11,7 @@
 #include "segmentgac.h"
 #include "segmentviirsm.h"
 #include "segmentviirsdnb.h"
-#include "segmentolciefr.h"
-#include "segmentolcierr.h"
+#include "segmentolci.h"
 
 #include "segmentlistmetop.h"
 #include "segmentlistnoaa.h"
@@ -21,8 +20,7 @@
 #include "segmentlistgeostationary.h"
 #include "segmentlistviirsm.h"
 #include "segmentlistviirsdnb.h"
-#include "segmentlistolciefr.h"
-#include "segmentlistolcierr.h"
+#include "segmentlistolci.h"
 
 #include "segmentimage.h"
 #include "options.h"
@@ -35,8 +33,7 @@ class SegmentListHRP;
 class SegmentListGAC;
 class SegmentListVIIRSM;
 class SegmentListVIIRSDNB;
-class SegmentListOLCIefr;
-class SegmentListOLCIerr;
+class SegmentListOLCI;
 
 class AVHRRSatellite  : public QObject
 {
@@ -92,8 +89,8 @@ public:
     SegmentListGAC *seglgac;
     SegmentListVIIRSM *seglviirsm;
     SegmentListVIIRSDNB *seglviirsdnb;
-    SegmentListOLCIefr *seglolciefr;
-    SegmentListOLCIerr *seglolcierr;
+    SegmentListOLCI *seglolciefr;
+    SegmentListOLCI *seglolcierr;
 
     SegmentListGeostationary *seglmeteosat;
     SegmentListGeostationary *seglmeteosatrss;

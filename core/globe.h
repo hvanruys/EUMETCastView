@@ -138,7 +138,7 @@ private:
     GeometryEngine *geometries;
     GeometryEngine *sun;
     SkyBox *skybox;
-    Soc *soc;
+    //Soc *soc;
     SatGL *satgl;
     SegmentGL *segmentgl;
     Octahedron *octa;

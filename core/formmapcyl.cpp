@@ -135,7 +135,6 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                     opts.buttonVIIRSDNB = false;
                                     opts.buttonOLCIerr = false;
                                     formtoolbox->setTabWidgetIndex(TAB_OLCI);
-                                    formtoolbox->setTabWidgetOLCIIndex(0);
                                 }
                                 else
                                     if (opts.buttonOLCIerr)
@@ -149,7 +148,6 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                         opts.buttonVIIRSDNB = false;
                                         opts.buttonOLCIefr = false;
                                         formtoolbox->setTabWidgetIndex(TAB_OLCI);
-                                        formtoolbox->setTabWidgetOLCIIndex(1);
                                     }
 
     ui->btnMetop->setChecked(opts.buttonMetop);
@@ -338,6 +336,12 @@ void FormMapCyl::updatesatmap(int index)
         }  else if (opts.buttonVIIRSDNB)
         {
             tit = "VIIRSDNB ";
+        } else if (opts.buttonOLCIefr)
+        {
+            tit = "OLCI EFR ";
+        }  else if (opts.buttonOLCIerr)
+        {
+            tit = "OLCI ERR ";
         }
 /*
         switch(imagetab->GetChannelShown())
@@ -405,229 +409,6 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
 }
 
 
-void FormMapCyl::toggleButtonMetop()
-{
-
-
-    if (opts.buttonMetop == true)
-        opts.buttonMetop = false;
-    else
-    {
-        opts.buttonMetop = true;
-        opts.buttonNoaa = false;
-        opts.buttonGAC = false;
-        opts.buttonHRP = false;
-        opts.buttonRealTime = false;
-        opts.buttonVIIRSM = false;
-        opts.buttonVIIRSDNB = false;
-
-        ui->btnMetop->setChecked(opts.buttonMetop);
-        ui->btnNoaa->setChecked(opts.buttonNoaa);
-        ui->btnGAC->setChecked(opts.buttonGAC);
-        ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
-        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
-        ui->btnRealTime->setChecked(opts.buttonRealTime);
-        this->showSegmentList(0);
-    }
-
-    //imagetab->SetGammaSpinboxes();
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-
-}
-
-void FormMapCyl::toggleButtonNoaa()
-{
-
-    if (opts.buttonNoaa == true)
-        opts.buttonNoaa = false;
-    else
-    {
-        opts.buttonMetop = false;
-        opts.buttonNoaa = true;
-        opts.buttonGAC = false;
-        opts.buttonHRP = false;
-        opts.buttonRealTime = false;
-        opts.buttonVIIRSM = false;
-        opts.buttonVIIRSDNB = false;
-
-        ui->btnMetop->setChecked(opts.buttonMetop);
-        ui->btnNoaa->setChecked(opts.buttonNoaa);
-        ui->btnGAC->setChecked(opts.buttonGAC);
-        ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
-        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
-        ui->btnRealTime->setChecked(opts.buttonRealTime);
-
-        this->showSegmentList(0);
-    }
-
-    //imagetab->SetGammaSpinboxes();
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-
-
-void FormMapCyl::toggleButtonGAC()
-{
-
-    if (opts.buttonGAC == true)
-        opts.buttonGAC = false;
-    else
-    {
-        opts.buttonMetop = false;
-        opts.buttonNoaa = false;
-        opts.buttonGAC = true;
-        opts.buttonHRP = false;
-        opts.buttonRealTime = false;
-        opts.buttonVIIRSM = false;
-        opts.buttonVIIRSDNB = false;
-
-        ui->btnMetop->setChecked(opts.buttonMetop);
-        ui->btnNoaa->setChecked(opts.buttonNoaa);
-        ui->btnGAC->setChecked(opts.buttonGAC);
-        ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
-        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
-        ui->btnRealTime->setChecked(opts.buttonRealTime);
-
-        this->showSegmentList(0);
-    }
-
-    //imagetab->SetGammaSpinboxes();
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-
-void FormMapCyl::toggleButtonHRP()
-{
-
-    if (opts.buttonHRP == true)
-        opts.buttonHRP = false;
-    else
-    {
-        opts.buttonMetop = false;
-        opts.buttonNoaa = false;
-        opts.buttonGAC = false;
-        opts.buttonHRP = true;
-        opts.buttonVIIRSM = false;
-        opts.buttonVIIRSDNB = false;
-        opts.buttonRealTime = false;
-
-        ui->btnMetop->setChecked(opts.buttonMetop);
-        ui->btnNoaa->setChecked(opts.buttonNoaa);
-        ui->btnGAC->setChecked(opts.buttonGAC);
-        ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
-        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
-        ui->btnRealTime->setChecked(opts.buttonRealTime);
-
-        this->showSegmentList(0);
-    }
-    //imagetab->SetGammaSpinboxes();
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-
-void FormMapCyl::toggleButtonVIIRSM()
-{
-
-    qDebug() << "FormMapCyl::toggleButtonVIIRSM()";
-
-    if (opts.buttonVIIRSM == true)
-        opts.buttonVIIRSM = false;
-    else
-    {
-        opts.buttonMetop = false;
-        opts.buttonNoaa = false;
-        opts.buttonGAC = false;
-        opts.buttonHRP = false;
-        opts.buttonVIIRSM = true;
-        opts.buttonVIIRSDNB = false;
-        opts.buttonRealTime = false;
-
-        ui->btnMetop->setChecked(opts.buttonMetop);
-        ui->btnNoaa->setChecked(opts.buttonNoaa);
-        ui->btnGAC->setChecked(opts.buttonGAC);
-        ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
-        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
-        ui->btnRealTime->setChecked(opts.buttonRealTime);
-
-
-        this->showSegmentList(0);
-    }
-
-    segs->RemoveAllSelectedAVHRR();
-    mapcyl->update();
-    this->showSegmentcount();
-    this->setScrollBarMaximum();
-
-}
-
-void FormMapCyl::toggleButtonVIIRSDNB()
-{
-
-    qDebug() << "FormMapCyl::toggleButtonVIIRSDNB()";
-
-    if (opts.buttonVIIRSDNB == true)
-        opts.buttonVIIRSDNB = false;
-    else
-    {
-        opts.buttonMetop = false;
-        opts.buttonNoaa = false;
-        opts.buttonGAC = false;
-        opts.buttonHRP = false;
-        opts.buttonVIIRSM = false;
-        opts.buttonVIIRSDNB = true;
-        opts.buttonRealTime = false;
-
-        ui->btnMetop->setChecked(opts.buttonMetop);
-        ui->btnNoaa->setChecked(opts.buttonNoaa);
-        ui->btnGAC->setChecked(opts.buttonGAC);
-        ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
-        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
-        ui->btnRealTime->setChecked(opts.buttonRealTime);
-
-        this->showSegmentList(0);
-    }
-
-    segs->RemoveAllSelectedAVHRR();
-    mapcyl->update();
-    this->showSegmentcount();
-    this->setScrollBarMaximum();
-}
-
-
-void FormMapCyl::toggleButtonRealTime()
-{
-    if (opts.buttonRealTime == true)
-        opts.buttonRealTime = false;
-    else
-    {
-        opts.buttonMetop = false;
-        opts.buttonNoaa = false;
-        opts.buttonGAC = false;
-        opts.buttonHRP = false;
-        opts.buttonVIIRSM = false;
-        opts.buttonVIIRSDNB = false;
-        opts.buttonRealTime = true;
-
-        ui->btnMetop->setChecked(opts.buttonMetop);
-        ui->btnNoaa->setChecked(opts.buttonNoaa);
-        ui->btnGAC->setChecked(opts.buttonGAC);
-        ui->btnHRP->setChecked(opts.buttonHRP);
-        ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
-        ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
-        ui->btnRealTime->setChecked(opts.buttonRealTime);
-
-    }
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-
 void FormMapCyl::setScrollBarMaximum()
 {
 
@@ -677,7 +458,7 @@ void FormMapCyl::setScrollBarMaximum()
         ui->verticalScrollBar->setMaximum(0);
     }
 
-    //showSegmentList(0);
+    showSegmentList(0);
 }
 
 void FormMapCyl::showSegmentList(int value)
@@ -705,8 +486,6 @@ void FormMapCyl::showSegmentList(int value)
     }
     else if(opts.buttonHRP)
     {
-        qDebug() << "in showsegmentlist opts.buttonHRP";
-
         segs->seglhrp->ShowSegment(value);
         segs->seglhrp->GetFirstLastVisible(&first, &last);
         nbrseg = segs->seglhrp->NbrOfSegments();
@@ -909,9 +688,10 @@ void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
 void FormMapCyl::on_btnOLCIefr_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_OLCI);
-    formtoolbox->setTabWidgetOLCIIndex(0);
     toggleButton(eSegmentType::SEG_OLCIEFR);
     this->RemoveAllSelected();
+    mapcyl->update();
+    this->showSegmentcount();
     this->setScrollBarMaximum();
 
     return;
@@ -922,9 +702,10 @@ void FormMapCyl::on_btnOLCIefr_clicked()
 void FormMapCyl::on_btnOLCIerr_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_OLCI);
-    formtoolbox->setTabWidgetOLCIIndex(1);
     toggleButton(eSegmentType::SEG_OLCIERR);
     this->RemoveAllSelected();
+    mapcyl->update();
+    this->showSegmentcount();
     this->setScrollBarMaximum();
 
     return;

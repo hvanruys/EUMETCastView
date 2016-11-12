@@ -1,4 +1,4 @@
-#include "segmentolciefr.h"
+#include "segmentolci.h"
 #include "segmentimage.h"
 #include "options.h"
 #include <QDebug>
@@ -15,7 +15,7 @@ extern SegmentImage *imageptrs;
 extern QMutex g_mutex;
 
 
-SegmentOLCIefr::SegmentOLCIefr(QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentOLCI::SegmentOLCI(eSegmentType type, QFile *filesegment, SatelliteList *satl, QObject *parent) :
   Segment(parent)
 {
 
@@ -24,8 +24,16 @@ SegmentOLCIefr::SegmentOLCIefr(QFile *filesegment, SatelliteList *satl, QObject 
     satlist = satl;
 
     fileInfo.setFile(*filesegment);
-    segment_type = "OLCIEFR";
-    segtype = eSegmentType::SEG_OLCIEFR;
+    if(type == SEG_OLCIEFR)
+    {
+        segment_type = "OLCIEFR";
+        segtype = eSegmentType::SEG_OLCIEFR;
+    }
+    else if(type == SEG_OLCIERR)
+    {
+        segment_type = "OLCIERR";
+        segtype = eSegmentType::SEG_OLCIERR;
+    }
 
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
     //0         1         2         3         4         5         6         7         8         9         10
@@ -105,6 +113,9 @@ SegmentOLCIefr::SegmentOLCIefr(QFile *filesegment, SatelliteList *satl, QObject 
     // qDebug() << QString("---> lon = %1 lat = %2  hours_since_state_vector = %3").arg(lon_start_deg).arg(lat_start_deg).arg( hours_since_state_vector);
 
     CalculateCornerPoints();
+    if(segtype == SEG_OLCIERR)
+        CalculateDetailCornerPoints();
+
 
     invertthissegment[0] = false;
     invertthissegment[1] = false;
@@ -113,7 +124,7 @@ SegmentOLCIefr::SegmentOLCIefr(QFile *filesegment, SatelliteList *satl, QObject 
 
 }
 
-Segment *SegmentOLCIefr::ReadSegmentInMemory()
+Segment *SegmentOLCI::ReadSegmentInMemory()
 {
 
     QString fname1;
@@ -419,7 +430,7 @@ Segment *SegmentOLCIefr::ReadSegmentInMemory()
 
 }
 
-void SegmentOLCIefr::getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename)
+void SegmentOLCI::getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename)
 {
     qDebug() << "getDatasetNameFromColor colorindex = " << colorindex;
 
@@ -554,7 +565,7 @@ void SegmentOLCIefr::getDatasetNameFromColor(int colorindex, QString *datasetnam
     }
 }
 
-void SegmentOLCIefr::getDatasetNameFromBand(QString *datasetname, QString *variablename)
+void SegmentOLCI::getDatasetNameFromBand(QString *datasetname, QString *variablename)
 {
     if(bandlist.at(1))
     {
@@ -686,7 +697,7 @@ void SegmentOLCIefr::getDatasetNameFromBand(QString *datasetname, QString *varia
 }
 
 
-void SegmentOLCIefr::RenderSegmentlineInTextureOLCIefr( int nbrLine, QRgb *row )
+void SegmentOLCI::RenderSegmentlineInTextureOLCIefr( int nbrLine, QRgb *row )
 {
 
     QColor rgb;
@@ -740,7 +751,7 @@ void SegmentOLCIefr::RenderSegmentlineInTextureOLCIefr( int nbrLine, QRgb *row )
     g_mutex.unlock();
 }
 
-int SegmentOLCIefr::UntarSegmentToTemp()
+int SegmentOLCI::UntarSegmentToTemp()
 {
 
     int flags = ARCHIVE_EXTRACT_TIME;
@@ -814,7 +825,7 @@ int SegmentOLCIefr::UntarSegmentToTemp()
 }
 
 
-int SegmentOLCIefr::copy_data(struct archive *ar, struct archive *aw)
+int SegmentOLCI::copy_data(struct archive *ar, struct archive *aw)
 {
     int r;
     const void *buff;
@@ -840,7 +851,7 @@ int SegmentOLCIefr::copy_data(struct archive *ar, struct archive *aw)
     }
 }
 
-void SegmentOLCIefr::initializeMemory()
+void SegmentOLCI::initializeMemory()
 {
     qDebug() << "Initializing OLCI memory";
 
@@ -860,7 +871,7 @@ void SegmentOLCIefr::initializeMemory()
 
 
 
-void SegmentOLCIefr::ComposeSegmentImage()
+void SegmentOLCI::ComposeSegmentImage()
 {
 
     QRgb *row;
@@ -880,7 +891,7 @@ void SegmentOLCIefr::ComposeSegmentImage()
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
-        row = (QRgb*)imageptrs->ptrimageOLCIefr->scanLine(this->startLineNbr + line);
+        row = (QRgb*)imageptrs->ptrimageOLCI->scanLine(this->startLineNbr + line);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
             pixval[0] = *(this->ptrbaOLCI[0].data() + line * earth_views_per_scanline + pixelx);
@@ -970,12 +981,12 @@ void SegmentOLCIefr::ComposeSegmentImage()
     }
 }
 
-void SegmentOLCIefr::ComposeSegmentGVProjection(int inputchannel)
+void SegmentOLCI::ComposeSegmentGVProjection(int inputchannel)
 {
     ComposeProjection(GVP);
 }
 
-void SegmentOLCIefr::ComposeProjection(eProjections proj)
+void SegmentOLCI::ComposeProjection(eProjections proj)
 {
 
     double map_x, map_y;
@@ -1057,7 +1068,7 @@ void SegmentOLCIefr::ComposeProjection(eProjections proj)
 
 }
 
-void SegmentOLCIefr::MapPixel( int lines, int views, double map_x, double map_y, bool color)
+void SegmentOLCI::MapPixel( int lines, int views, double map_x, double map_y, bool color)
 {
     int indexout[3];
     int pixval[3];
@@ -1145,7 +1156,102 @@ void SegmentOLCIefr::MapPixel( int lines, int views, double map_x, double map_y,
     }
 }
 
-SegmentOLCIefr::~SegmentOLCIefr()
+void SegmentOLCI::CalculateDetailCornerPoints()
+{
+
+
+    double statevec = minutes_since_state_vector;
+    QSgp4Date sensing = qsensingstart;
+    while(statevec <= minutes_since_state_vector + minutes_sensing)
+    {
+        setupVector(statevec, sensing);
+        statevec = statevec + 1.0;
+        sensing.AddMin(1.0);
+    }
+
+}
+
+
+void SegmentOLCI::setupVector(double statevec, QSgp4Date sensing)
+{
+
+
+
+    QEci qeci;
+
+    if(qsgp4.isNull())
+        qDebug() << "qsgp4 is NULL !!!";
+    qsgp4->getPosition(statevec, qeci);
+    QGeodetic qgeo = qeci.ToGeo();
+
+    QVector3D pos;
+    QVector3D d3pos = qeci.GetPos_f();
+    QVector3D d3vel = qeci.GetVel_f();
+
+    QVector3D d3posnorm = d3pos.normalized();
+    QMatrix4x4 mat;
+    QVector3D d3scan;
+
+    LonLat2PointRad(qgeo.latitude, qgeo.longitude, &pos, 1.001f);
+    QVector3D vec;
+    vec.setX(pos.x());
+    vec.setY(pos.y());
+    vec.setZ(pos.z());
+    vec.normalize();
+
+    vecvector.append(vec);
+
+    double e = qtle->Eccenticity();
+    double epow2 = e * e;
+    double epow3 = e * e * e;
+
+    double span = qeci.GetDate().spanSec(qtle->Epoch());
+    double M = fmod(qtle->MeanAnomaly() + (TWOPI * (span/qtle->Period())), TWOPI);
+    double C = (2*e - epow3/4)*sin(M) + (5*epow2/4)*sin(2*M) + (13*epow3/12)*sin(3*M);
+    double trueAnomaly = M + C;
+    double PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
+
+    double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
+    double roll_steering_angle = 0.00089 * sin(PSO);
+    double yaw_factor = 0.068766 * cos(PSO);
+    double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
+
+    mat.setToIdentity();
+    mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
+    mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
+    mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+    d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
+
+    //d3scan = QVector3D::crossProduct(d3pos,d3vel);
+
+    QVector3D d3scannorm = d3scan.normalized();
+
+    double delta2 = 23.0 * PI / 180.0;
+    double delta1 = 47.0 * PI / 180.0;
+
+
+    double r = d3pos.length();
+    double sindelta = sin(-delta1);
+    double cosdelta = cos(-delta1);
+    double dd = r * cosdelta - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
+    QVector3D d3d = - d3posnorm * cosdelta * dd + d3scannorm * sindelta * dd;
+    QVector3D d3earthposfirst = d3pos + d3d;
+
+    QEci qecifirst(d3earthposfirst, d3vel, sensing);
+    vectorfirst.append(qecifirst.ToGeo());
+
+    sindelta = sin(delta2);
+    cosdelta = cos(delta2);
+    dd = r * cosdelta - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
+    d3d = - d3posnorm * cosdelta * dd + d3scannorm * sindelta * dd;
+
+    QVector3D d3earthposlast = d3pos + d3d;
+
+    QEci qecilast(d3earthposlast, d3vel, sensing);
+    vectorlast.append(qecilast.ToGeo());
+}
+
+SegmentOLCI::~SegmentOLCI()
 {
     resetMemory();
 }

@@ -24,9 +24,7 @@ SegmentImage::SegmentImage()
     ptrimageProjectionCopy = new QImage();
     ptrimageViirsM = new QImage();
     ptrimageViirsDNB = new QImage();
-    ptrimageOLCIefr = new QImage();
-    ptrimageOLCIerr = new QImage();
-    ptrimageEquirectangle = new QImage();
+    ptrimageOLCI = new QImage();
     ptrProjectionBrightnessTemp.reset();
 
     CalcSatAngles();
@@ -179,22 +177,10 @@ void SegmentImage::DeleteImagePtrs()
         ptrimageViirsDNB = NULL;
     }
 
-    if(ptrimageOLCIefr != NULL)
+    if(ptrimageOLCI != NULL)
     {
-        delete ptrimageOLCIefr;
-        ptrimageOLCIefr = NULL;
-    }
-
-    if(ptrimageOLCIerr != NULL)
-    {
-        delete ptrimageOLCIerr;
-        ptrimageOLCIerr = NULL;
-    }
-
-    if(ptrimageEquirectangle != NULL)
-    {
-        delete ptrimageEquirectangle;
-        ptrimageEquirectangle = NULL;
+        delete ptrimageOLCI;
+        ptrimageOLCI = NULL;
     }
 
     ResetPtrImage();

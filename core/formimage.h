@@ -25,6 +25,7 @@ public:
     bool ShowVIIRSMImage();
     bool ShowVIIRSDNBImage();
     bool ShowOLCIefrImage();
+    bool ShowOLCIerrImage();
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
@@ -132,6 +133,7 @@ public slots:
     void slotMakeImage();
     void slotShowVIIRSMImage();
     void slotShowOLCIefrImage();
+    void slotShowOLCIerrImage();
     void setPixmapToLabel(bool settoolboxbuttons);
     void setPixmapToLabelDNB(bool settoolboxbuttons);
     void slotUpdateMeteosat();

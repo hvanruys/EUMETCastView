@@ -7,12 +7,12 @@
 #include "satellite.h"
 
 
-class SegmentOLCIefr : public Segment
+class SegmentOLCI : public Segment
 {
     Q_OBJECT
 
 public:
-    explicit SegmentOLCIefr(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentOLCI(eSegmentType type, QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
     Segment *ReadSegmentInMemory();
 
     void ComposeSegmentImage();
@@ -21,7 +21,11 @@ public:
 
     void initializeMemory();
     int getEarthViewsPerScanline() { return this->earth_views_per_scanline; }
-    ~SegmentOLCIefr();
+
+    void CalculateDetailCornerPoints();
+    void setupVector(double statevec, QSgp4Date sensing);
+
+    ~SegmentOLCI();
 
     int UntarSegmentToTemp();
 

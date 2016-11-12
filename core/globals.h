@@ -39,8 +39,7 @@ enum eImageType
     IMAGE_PROJECTION,
     IMAGE_VIIRS_M,
     IMAGE_VIIRS_DNB,
-    IMAGE_OLCI_EFR,
-    IMAGE_OLCI_ERR
+    IMAGE_OLCI
 };
 
 // structures

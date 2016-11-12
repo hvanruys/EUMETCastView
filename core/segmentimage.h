@@ -52,13 +52,11 @@ public:
     QImage *ptrexpand_col;
     QImage *ptrimageViirsM;
     QImage *ptrimageViirsDNB;
-    QImage *ptrimageOLCIefr;
-    QImage *ptrimageOLCIerr;
+    QImage *ptrimageOLCI;
 
     QImage *ptrimageGeostationary;
     QImage *ptrimageProjection;
     QImage *ptrimageProjectionCopy; //for VIIRS M background with VIIRS DNB
-    QImage *ptrimageEquirectangle;
 
     QScopedArrayPointer<float> ptrProjectionBrightnessTemp;
     QScopedArrayPointer<quint8> ptrProjectionInfra; // for Infra

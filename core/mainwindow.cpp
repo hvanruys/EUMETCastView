@@ -181,7 +181,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglviirsm, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabelDNB(bool)));
     connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabelDNB(bool)));
+    connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
     connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -202,6 +202,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formglobecyl, SIGNAL(emitMakeImage()), formimage, SLOT(slotMakeImage()));
     connect( formtoolbox, SIGNAL(emitShowVIIRSImage()), formimage, SLOT(slotShowVIIRSMImage()));
     connect( formtoolbox, SIGNAL(emitShowOLCIefrImage()), formimage, SLOT(slotShowOLCIefrImage()));
+    connect( formtoolbox, SIGNAL(emitShowOLCIerrImage()), formimage, SLOT(slotShowOLCIerrImage()));
 
     connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
     connect( mapcyl , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
@@ -412,21 +413,11 @@ void MainWindow::on_actionSatSelection_triggered()
     ui->actionSatSelection->setChecked(true);
     ui->stackedWidget->setCurrentIndex(0);
 
-    ui->actionMeteosat->setChecked(false);
-    ui->actionCylindricalEquidistant->setChecked(false);
-    ui->action3DGlobe->setChecked(false);
-    ui->actionImage->setChecked(false);
-
 }
 
 void MainWindow::on_actionMeteosat_triggered()
 {
      ui->stackedWidget->setCurrentIndex(1);
-
-     ui->actionSatSelection->setChecked(false);
-     ui->actionCylindricalEquidistant->setChecked(false);
-     ui->action3DGlobe->setChecked(false);
-     ui->actionImage->setChecked(false);
 
 }
 
@@ -436,22 +427,12 @@ void MainWindow::on_actionCylindricalEquidistant_triggered()
     ui->stackedWidget->setCurrentIndex(2);
     formglobecyl->setCylOrGlobe(0);
 
-    ui->actionSatSelection->setChecked(false);
-    ui->actionMeteosat->setChecked(false);
-    ui->action3DGlobe->setChecked(false);
-    ui->actionImage->setChecked(false);
-
 }
 
 void MainWindow::on_action3DGlobe_triggered()
 {
     ui->stackedWidget->setCurrentIndex(2);
     formglobecyl->setCylOrGlobe(1);
-
-    ui->actionSatSelection->setChecked(false);
-    ui->actionMeteosat->setChecked(false);
-    ui->actionCylindricalEquidistant->setChecked(false);
-    ui->actionImage->setChecked(false);
 
 }
 
@@ -460,15 +441,16 @@ void MainWindow::on_actionImage_triggered()
     ui->stackedWidget->setCurrentIndex(3);
     int index = formtoolbox->getTabWidgetIndex();
     int indexviirs = formtoolbox->getTabWidgetVIIRSIndex();
-    int indexolci = formtoolbox->getTabWidgetOLCIIndex();
 
     Q_ASSERT(index < 5);
 
     qDebug() << " MainWindow::on_actionImage_triggered() index = " << index;
-    if(index == -1)
+
+
+    if(index == -1 || index == 0)
+    {
         formimage->displayImage(IMAGE_AVHRR_COL);
-    else if(index == 0)
-        formimage->displayImage(IMAGE_AVHRR_COL); // AVHRR Color image
+    }
     else if(index == 1)
     {
         if(indexviirs == 0)
@@ -478,13 +460,10 @@ void MainWindow::on_actionImage_triggered()
     }
     else if(index == 2)
     {
-        if(indexolci == 0)
-            formimage->displayImage(IMAGE_OLCI_EFR); //OLCI efr image
-        else
-            formimage->displayImage(IMAGE_OLCI_ERR); //OLCI err image
+        formimage->displayImage(IMAGE_OLCI); //OLCI image
     }
-    else if(index == 3)  //Geostationary image
-        formimage->displayImage(IMAGE_GEOSTATIONARY);
+    else if(index == 3)
+        formimage->displayImage(IMAGE_GEOSTATIONARY); //Geostationary image
     else if(index == 4)
         formimage->displayImage(IMAGE_PROJECTION); //Projection image
 

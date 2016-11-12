@@ -78,6 +78,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         ui->rdbVIIRSDNBin->setChecked(true);
     else if(opts.lastinputprojection == 3)
         ui->rdbOLCIefrin->setChecked(true);
+    else if(opts.lastinputprojection == 4)
+        ui->rdbOLCIerrin->setChecked(true);
     else
         ui->rdbMeteosatin->setChecked(true);
 
@@ -115,7 +117,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     formimage->channelshown = IMAGE_GEOSTATIONARY;
     ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
     ui->tabWidgetVIIRS->setCurrentIndex(0);
-    ui->tabWidgetOLCI->setCurrentIndex(0);
 
     QStringList listResolution;
     listResolution << "User defined";
@@ -125,7 +126,13 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     listResolution << "4:3  SXGA  1280x960";
     listResolution << "4:3  SVGA+ 1400x1050";
     listResolution << "4:3  UXGA  1600x1200";
-    listResolution << "4:3  ----  3200x2400";
+    listResolution << "4:3  ----  1000x750";
+    listResolution << "4:3  ----  2000x1500";
+    listResolution << "4:3  ----  3000x2250";
+    listResolution << "4:3  ----  4000x3000";
+    listResolution << "4:3  ----  5000x3750";
+
+
     listResolution << "16:9 WXGA  1280x720";
     listResolution << "16:9 HD    1360x768";
     listResolution << "16:9 HD+   1600x900";
@@ -147,7 +154,12 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     resolutionX.append(1280);
     resolutionX.append(1400);
     resolutionX.append(1600);
-    resolutionX.append(3200);
+    resolutionX.append(1000);
+    resolutionX.append(2000);
+    resolutionX.append(3000);
+    resolutionX.append(4000);
+    resolutionX.append(5000);
+
     resolutionX.append(1280);
     resolutionX.append(1360);
     resolutionX.append(1600);
@@ -168,7 +180,12 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     resolutionY.append(960);
     resolutionY.append(1050);
     resolutionY.append(1200);
-    resolutionY.append(2400);
+    resolutionY.append(750);
+    resolutionY.append(1500);
+    resolutionY.append(2250);
+    resolutionY.append(3000);
+    resolutionY.append(3750);
+
     resolutionY.append(720);
     resolutionY.append(768);
     resolutionY.append(900);
@@ -383,7 +400,7 @@ void FormToolbox::setOLCIefrConfigsettings()
     ui->comboOLCIConfig->blockSignals(true);
     ui->comboOLCIConfig->clear();
 
-    ui->comboOLCIConfig->addItems(poi.strlConfigNameOLCIefr);
+    ui->comboOLCIConfig->addItems(poi.strlConfigNameOLCI);
 
     setConfigOLCIParameters(0); // 0 = User Defines
 
@@ -502,27 +519,27 @@ void FormToolbox::setupChannelCombo()
     ui->comboM15->addItem(tr("-"));ui->comboM15->addItem(tr("R"));ui->comboM15->addItem(tr("G"));ui->comboM15->addItem(tr("B"));
     ui->comboM16->addItem(tr("-"));ui->comboM16->addItem(tr("R"));ui->comboM16->addItem(tr("G"));ui->comboM16->addItem(tr("B"));
 
-    ui->cmbOLCIefr01->addItem(tr("-"));ui->cmbOLCIefr01->addItem(tr("R"));ui->cmbOLCIefr01->addItem(tr("G"));ui->cmbOLCIefr01->addItem(tr("B"));
-    ui->cmbOLCIefr02->addItem(tr("-"));ui->cmbOLCIefr02->addItem(tr("R"));ui->cmbOLCIefr02->addItem(tr("G"));ui->cmbOLCIefr02->addItem(tr("B"));
-    ui->cmbOLCIefr03->addItem(tr("-"));ui->cmbOLCIefr03->addItem(tr("R"));ui->cmbOLCIefr03->addItem(tr("G"));ui->cmbOLCIefr03->addItem(tr("B"));
-    ui->cmbOLCIefr04->addItem(tr("-"));ui->cmbOLCIefr04->addItem(tr("R"));ui->cmbOLCIefr04->addItem(tr("G"));ui->cmbOLCIefr04->addItem(tr("B"));
-    ui->cmbOLCIefr05->addItem(tr("-"));ui->cmbOLCIefr05->addItem(tr("R"));ui->cmbOLCIefr05->addItem(tr("G"));ui->cmbOLCIefr05->addItem(tr("B"));
-    ui->cmbOLCIefr06->addItem(tr("-"));ui->cmbOLCIefr06->addItem(tr("R"));ui->cmbOLCIefr06->addItem(tr("G"));ui->cmbOLCIefr06->addItem(tr("B"));
-    ui->cmbOLCIefr07->addItem(tr("-"));ui->cmbOLCIefr07->addItem(tr("R"));ui->cmbOLCIefr07->addItem(tr("G"));ui->cmbOLCIefr07->addItem(tr("B"));
-    ui->cmbOLCIefr08->addItem(tr("-"));ui->cmbOLCIefr08->addItem(tr("R"));ui->cmbOLCIefr08->addItem(tr("G"));ui->cmbOLCIefr08->addItem(tr("B"));
-    ui->cmbOLCIefr09->addItem(tr("-"));ui->cmbOLCIefr09->addItem(tr("R"));ui->cmbOLCIefr09->addItem(tr("G"));ui->cmbOLCIefr09->addItem(tr("B"));
-    ui->cmbOLCIefr10->addItem(tr("-"));ui->cmbOLCIefr10->addItem(tr("R"));ui->cmbOLCIefr10->addItem(tr("G"));ui->cmbOLCIefr10->addItem(tr("B"));
-    ui->cmbOLCIefr11->addItem(tr("-"));ui->cmbOLCIefr11->addItem(tr("R"));ui->cmbOLCIefr11->addItem(tr("G"));ui->cmbOLCIefr11->addItem(tr("B"));
-    ui->cmbOLCIefr12->addItem(tr("-"));ui->cmbOLCIefr12->addItem(tr("R"));ui->cmbOLCIefr12->addItem(tr("G"));ui->cmbOLCIefr12->addItem(tr("B"));
-    ui->cmbOLCIefr13->addItem(tr("-"));ui->cmbOLCIefr13->addItem(tr("R"));ui->cmbOLCIefr13->addItem(tr("G"));ui->cmbOLCIefr13->addItem(tr("B"));
-    ui->cmbOLCIefr14->addItem(tr("-"));ui->cmbOLCIefr14->addItem(tr("R"));ui->cmbOLCIefr14->addItem(tr("G"));ui->cmbOLCIefr14->addItem(tr("B"));
-    ui->cmbOLCIefr15->addItem(tr("-"));ui->cmbOLCIefr15->addItem(tr("R"));ui->cmbOLCIefr15->addItem(tr("G"));ui->cmbOLCIefr15->addItem(tr("B"));
-    ui->cmbOLCIefr16->addItem(tr("-"));ui->cmbOLCIefr16->addItem(tr("R"));ui->cmbOLCIefr16->addItem(tr("G"));ui->cmbOLCIefr16->addItem(tr("B"));
-    ui->cmbOLCIefr17->addItem(tr("-"));ui->cmbOLCIefr17->addItem(tr("R"));ui->cmbOLCIefr17->addItem(tr("G"));ui->cmbOLCIefr17->addItem(tr("B"));
-    ui->cmbOLCIefr18->addItem(tr("-"));ui->cmbOLCIefr18->addItem(tr("R"));ui->cmbOLCIefr18->addItem(tr("G"));ui->cmbOLCIefr18->addItem(tr("B"));
-    ui->cmbOLCIefr19->addItem(tr("-"));ui->cmbOLCIefr19->addItem(tr("R"));ui->cmbOLCIefr19->addItem(tr("G"));ui->cmbOLCIefr19->addItem(tr("B"));
-    ui->cmbOLCIefr20->addItem(tr("-"));ui->cmbOLCIefr20->addItem(tr("R"));ui->cmbOLCIefr20->addItem(tr("G"));ui->cmbOLCIefr20->addItem(tr("B"));
-    ui->cmbOLCIefr21->addItem(tr("-"));ui->cmbOLCIefr21->addItem(tr("R"));ui->cmbOLCIefr21->addItem(tr("G"));ui->cmbOLCIefr21->addItem(tr("B"));
+    ui->cmbOLCI01->addItem(tr("-"));ui->cmbOLCI01->addItem(tr("R"));ui->cmbOLCI01->addItem(tr("G"));ui->cmbOLCI01->addItem(tr("B"));
+    ui->cmbOLCI02->addItem(tr("-"));ui->cmbOLCI02->addItem(tr("R"));ui->cmbOLCI02->addItem(tr("G"));ui->cmbOLCI02->addItem(tr("B"));
+    ui->cmbOLCI03->addItem(tr("-"));ui->cmbOLCI03->addItem(tr("R"));ui->cmbOLCI03->addItem(tr("G"));ui->cmbOLCI03->addItem(tr("B"));
+    ui->cmbOLCI04->addItem(tr("-"));ui->cmbOLCI04->addItem(tr("R"));ui->cmbOLCI04->addItem(tr("G"));ui->cmbOLCI04->addItem(tr("B"));
+    ui->cmbOLCI05->addItem(tr("-"));ui->cmbOLCI05->addItem(tr("R"));ui->cmbOLCI05->addItem(tr("G"));ui->cmbOLCI05->addItem(tr("B"));
+    ui->cmbOLCI06->addItem(tr("-"));ui->cmbOLCI06->addItem(tr("R"));ui->cmbOLCI06->addItem(tr("G"));ui->cmbOLCI06->addItem(tr("B"));
+    ui->cmbOLCI07->addItem(tr("-"));ui->cmbOLCI07->addItem(tr("R"));ui->cmbOLCI07->addItem(tr("G"));ui->cmbOLCI07->addItem(tr("B"));
+    ui->cmbOLCI08->addItem(tr("-"));ui->cmbOLCI08->addItem(tr("R"));ui->cmbOLCI08->addItem(tr("G"));ui->cmbOLCI08->addItem(tr("B"));
+    ui->cmbOLCI09->addItem(tr("-"));ui->cmbOLCI09->addItem(tr("R"));ui->cmbOLCI09->addItem(tr("G"));ui->cmbOLCI09->addItem(tr("B"));
+    ui->cmbOLCI10->addItem(tr("-"));ui->cmbOLCI10->addItem(tr("R"));ui->cmbOLCI10->addItem(tr("G"));ui->cmbOLCI10->addItem(tr("B"));
+    ui->cmbOLCI11->addItem(tr("-"));ui->cmbOLCI11->addItem(tr("R"));ui->cmbOLCI11->addItem(tr("G"));ui->cmbOLCI11->addItem(tr("B"));
+    ui->cmbOLCI12->addItem(tr("-"));ui->cmbOLCI12->addItem(tr("R"));ui->cmbOLCI12->addItem(tr("G"));ui->cmbOLCI12->addItem(tr("B"));
+    ui->cmbOLCI13->addItem(tr("-"));ui->cmbOLCI13->addItem(tr("R"));ui->cmbOLCI13->addItem(tr("G"));ui->cmbOLCI13->addItem(tr("B"));
+    ui->cmbOLCI14->addItem(tr("-"));ui->cmbOLCI14->addItem(tr("R"));ui->cmbOLCI14->addItem(tr("G"));ui->cmbOLCI14->addItem(tr("B"));
+    ui->cmbOLCI15->addItem(tr("-"));ui->cmbOLCI15->addItem(tr("R"));ui->cmbOLCI15->addItem(tr("G"));ui->cmbOLCI15->addItem(tr("B"));
+    ui->cmbOLCI16->addItem(tr("-"));ui->cmbOLCI16->addItem(tr("R"));ui->cmbOLCI16->addItem(tr("G"));ui->cmbOLCI16->addItem(tr("B"));
+    ui->cmbOLCI17->addItem(tr("-"));ui->cmbOLCI17->addItem(tr("R"));ui->cmbOLCI17->addItem(tr("G"));ui->cmbOLCI17->addItem(tr("B"));
+    ui->cmbOLCI18->addItem(tr("-"));ui->cmbOLCI18->addItem(tr("R"));ui->cmbOLCI18->addItem(tr("G"));ui->cmbOLCI18->addItem(tr("B"));
+    ui->cmbOLCI19->addItem(tr("-"));ui->cmbOLCI19->addItem(tr("R"));ui->cmbOLCI19->addItem(tr("G"));ui->cmbOLCI19->addItem(tr("B"));
+    ui->cmbOLCI20->addItem(tr("-"));ui->cmbOLCI20->addItem(tr("R"));ui->cmbOLCI20->addItem(tr("G"));ui->cmbOLCI20->addItem(tr("B"));
+    ui->cmbOLCI21->addItem(tr("-"));ui->cmbOLCI21->addItem(tr("R"));ui->cmbOLCI21->addItem(tr("G"));ui->cmbOLCI21->addItem(tr("B"));
 
 }
 
@@ -631,40 +648,40 @@ QList<bool> FormToolbox::getVIIRSMInvertList()
     return(viirslist);
 }
 
-QList<bool> FormToolbox::getOLCIefrBandList()
+QList<bool> FormToolbox::getOLCIBandList()
 {
     QList<bool> olcilist;
-    olcilist << ui->rbColorOLCIefr->isChecked() << ui->rbOLCIefr01->isChecked() << ui->rbOLCIefr02->isChecked() << ui->rbOLCIefr03->isChecked()
-             << ui->rbOLCIefr04->isChecked() << ui->rbOLCIefr05->isChecked() << ui->rbOLCIefr06->isChecked() << ui->rbOLCIefr07->isChecked()
-             << ui->rbOLCIefr08->isChecked() << ui->rbOLCIefr09->isChecked() << ui->rbOLCIefr10->isChecked() << ui->rbOLCIefr11->isChecked()
-             << ui->rbOLCIefr12->isChecked() << ui->rbOLCIefr13->isChecked() << ui->rbOLCIefr14->isChecked() << ui->rbOLCIefr15->isChecked()
-             << ui->rbOLCIefr16->isChecked() << ui->rbOLCIefr17->isChecked() << ui->rbOLCIefr18->isChecked() << ui->rbOLCIefr19->isChecked()
-             << ui->rbOLCIefr20->isChecked() << ui->rbOLCIefr21->isChecked();
+    olcilist << ui->rbColorOLCI->isChecked() << ui->rbOLCI01->isChecked() << ui->rbOLCI02->isChecked() << ui->rbOLCI03->isChecked()
+             << ui->rbOLCI04->isChecked() << ui->rbOLCI05->isChecked() << ui->rbOLCI06->isChecked() << ui->rbOLCI07->isChecked()
+             << ui->rbOLCI08->isChecked() << ui->rbOLCI09->isChecked() << ui->rbOLCI10->isChecked() << ui->rbOLCI11->isChecked()
+             << ui->rbOLCI12->isChecked() << ui->rbOLCI13->isChecked() << ui->rbOLCI14->isChecked() << ui->rbOLCI15->isChecked()
+             << ui->rbOLCI16->isChecked() << ui->rbOLCI17->isChecked() << ui->rbOLCI18->isChecked() << ui->rbOLCI19->isChecked()
+             << ui->rbOLCI20->isChecked() << ui->rbOLCI21->isChecked();
 
     return(olcilist);
 }
 
-QList<int> FormToolbox::getOLCIefrColorList()
+QList<int> FormToolbox::getOLCIColorList()
 {
     QList<int> olcilist;
-    olcilist << ui->cmbOLCIefr01->currentIndex() << ui->cmbOLCIefr02->currentIndex() << ui->cmbOLCIefr03->currentIndex() << ui->cmbOLCIefr04->currentIndex()
-             << ui->cmbOLCIefr05->currentIndex() << ui->cmbOLCIefr06->currentIndex() << ui->cmbOLCIefr07->currentIndex() << ui->cmbOLCIefr08->currentIndex()
-             << ui->cmbOLCIefr09->currentIndex() << ui->cmbOLCIefr10->currentIndex() << ui->cmbOLCIefr11->currentIndex() << ui->cmbOLCIefr12->currentIndex()
-             << ui->cmbOLCIefr13->currentIndex() << ui->cmbOLCIefr14->currentIndex() << ui->cmbOLCIefr15->currentIndex() << ui->cmbOLCIefr16->currentIndex()
-             << ui->cmbOLCIefr17->currentIndex() << ui->cmbOLCIefr18->currentIndex() << ui->cmbOLCIefr19->currentIndex() << ui->cmbOLCIefr20->currentIndex()
-             << ui->cmbOLCIefr21->currentIndex();
+    olcilist << ui->cmbOLCI01->currentIndex() << ui->cmbOLCI02->currentIndex() << ui->cmbOLCI03->currentIndex() << ui->cmbOLCI04->currentIndex()
+             << ui->cmbOLCI05->currentIndex() << ui->cmbOLCI06->currentIndex() << ui->cmbOLCI07->currentIndex() << ui->cmbOLCI08->currentIndex()
+             << ui->cmbOLCI09->currentIndex() << ui->cmbOLCI10->currentIndex() << ui->cmbOLCI11->currentIndex() << ui->cmbOLCI12->currentIndex()
+             << ui->cmbOLCI13->currentIndex() << ui->cmbOLCI14->currentIndex() << ui->cmbOLCI15->currentIndex() << ui->cmbOLCI16->currentIndex()
+             << ui->cmbOLCI17->currentIndex() << ui->cmbOLCI18->currentIndex() << ui->cmbOLCI19->currentIndex() << ui->cmbOLCI20->currentIndex()
+             << ui->cmbOLCI21->currentIndex();
     return(olcilist);
 }
 
-QList<bool> FormToolbox::getOLCIefrInvertList()
+QList<bool> FormToolbox::getOLCIInvertList()
 {
     QList<bool> olcilist;
-    olcilist << ui->chkInverseOLCIefr01->isChecked() << ui->chkInverseOLCIefr02->isChecked() << ui->chkInverseOLCIefr03->isChecked() << ui->chkInverseOLCIefr04->isChecked()
-              << ui->chkInverseOLCIefr05->isChecked() << ui->chkInverseOLCIefr06->isChecked() << ui->chkInverseOLCIefr07->isChecked() << ui->chkInverseOLCIefr08->isChecked()
-              << ui->chkInverseOLCIefr09->isChecked() << ui->chkInverseOLCIefr10->isChecked() << ui->chkInverseOLCIefr11->isChecked() << ui->chkInverseOLCIefr12->isChecked()
-              << ui->chkInverseOLCIefr13->isChecked() << ui->chkInverseOLCIefr14->isChecked() << ui->chkInverseOLCIefr15->isChecked() << ui->chkInverseOLCIefr16->isChecked()
-              << ui->chkInverseOLCIefr17->isChecked() << ui->chkInverseOLCIefr18->isChecked() << ui->chkInverseOLCIefr19->isChecked() << ui->chkInverseOLCIefr20->isChecked()
-              << ui->chkInverseOLCIefr21->isChecked();
+    olcilist << ui->chkInverseOLCI01->isChecked() << ui->chkInverseOLCI02->isChecked() << ui->chkInverseOLCI03->isChecked() << ui->chkInverseOLCI04->isChecked()
+              << ui->chkInverseOLCI05->isChecked() << ui->chkInverseOLCI06->isChecked() << ui->chkInverseOLCI07->isChecked() << ui->chkInverseOLCI08->isChecked()
+              << ui->chkInverseOLCI09->isChecked() << ui->chkInverseOLCI10->isChecked() << ui->chkInverseOLCI11->isChecked() << ui->chkInverseOLCI12->isChecked()
+              << ui->chkInverseOLCI13->isChecked() << ui->chkInverseOLCI14->isChecked() << ui->chkInverseOLCI15->isChecked() << ui->chkInverseOLCI16->isChecked()
+              << ui->chkInverseOLCI17->isChecked() << ui->chkInverseOLCI18->isChecked() << ui->chkInverseOLCI19->isChecked() << ui->chkInverseOLCI20->isChecked()
+              << ui->chkInverseOLCI21->isChecked();
     return(olcilist);
 }
 
@@ -898,8 +915,10 @@ FormToolbox::~FormToolbox()
         opts.lastinputprojection = 2;
     else if(ui->rdbOLCIefrin->isChecked())
         opts.lastinputprojection = 3;
+    else if(ui->rdbOLCIerrin->isChecked())
+        opts.lastinputprojection = 3;
     else
-        opts.lastinputprojection = 4;
+        opts.lastinputprojection = 5;
 
 
     opts.lastcomboMet006 = ui->comboGeo1->currentIndex();
@@ -1035,95 +1054,95 @@ FormToolbox::~FormToolbox()
     poi.strlComboM16.replace(0, QString("%1").arg(ui->comboM16->currentIndex()));
 
 
-    if(ui->rbColorOLCIefr->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("0"));
-    else if(ui->rbOLCIefr01->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("1"));
-    else if(ui->rbOLCIefr02->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("2"));
-    else if(ui->rbOLCIefr03->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("3"));
-    else if(ui->rbOLCIefr04->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("4"));
-    else if(ui->rbOLCIefr05->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("5"));
-    else if(ui->rbOLCIefr06->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("6"));
-    else if(ui->rbOLCIefr07->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("7"));
-    else if(ui->rbOLCIefr08->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("8"));
-    else if(ui->rbOLCIefr09->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("9"));
-    else if(ui->rbOLCIefr10->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("10"));
-    else if(ui->rbOLCIefr11->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("11"));
-    else if(ui->rbOLCIefr12->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("12"));
-    else if(ui->rbOLCIefr13->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("13"));
-    else if(ui->rbOLCIefr14->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("14"));
-    else if(ui->rbOLCIefr15->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("15"));
-    else if(ui->rbOLCIefr16->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("16"));
-    else if(ui->rbOLCIefr17->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("17"));
-    else if(ui->rbOLCIefr18->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("18"));
-    else if(ui->rbOLCIefr19->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("19"));
-    else if(ui->rbOLCIefr20->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("20"));
-    else if(ui->rbOLCIefr21->isChecked())
-        poi.strlColorBandOLCIefr.replace(0, QString("%1").arg("21"));
+    if(ui->rbColorOLCI->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("0"));
+    else if(ui->rbOLCI01->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("1"));
+    else if(ui->rbOLCI02->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("2"));
+    else if(ui->rbOLCI03->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("3"));
+    else if(ui->rbOLCI04->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("4"));
+    else if(ui->rbOLCI05->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("5"));
+    else if(ui->rbOLCI06->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("6"));
+    else if(ui->rbOLCI07->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("7"));
+    else if(ui->rbOLCI08->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("8"));
+    else if(ui->rbOLCI09->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("9"));
+    else if(ui->rbOLCI10->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("10"));
+    else if(ui->rbOLCI11->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("11"));
+    else if(ui->rbOLCI12->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("12"));
+    else if(ui->rbOLCI13->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("13"));
+    else if(ui->rbOLCI14->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("14"));
+    else if(ui->rbOLCI15->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("15"));
+    else if(ui->rbOLCI16->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("16"));
+    else if(ui->rbOLCI17->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("17"));
+    else if(ui->rbOLCI18->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("18"));
+    else if(ui->rbOLCI19->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("19"));
+    else if(ui->rbOLCI20->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("20"));
+    else if(ui->rbOLCI21->isChecked())
+        poi.strlColorBandOLCI.replace(0, QString("%1").arg("21"));
 
 
-    poi.strlInverseOLCIefr01.replace(0, QString("%1").arg(ui->chkInverseOLCIefr01->isChecked()));
-    poi.strlInverseOLCIefr02.replace(0, QString("%1").arg(ui->chkInverseOLCIefr02->isChecked()));
-    poi.strlInverseOLCIefr03.replace(0, QString("%1").arg(ui->chkInverseOLCIefr03->isChecked()));
-    poi.strlInverseOLCIefr04.replace(0, QString("%1").arg(ui->chkInverseOLCIefr04->isChecked()));
-    poi.strlInverseOLCIefr05.replace(0, QString("%1").arg(ui->chkInverseOLCIefr05->isChecked()));
-    poi.strlInverseOLCIefr06.replace(0, QString("%1").arg(ui->chkInverseOLCIefr06->isChecked()));
-    poi.strlInverseOLCIefr07.replace(0, QString("%1").arg(ui->chkInverseOLCIefr07->isChecked()));
-    poi.strlInverseOLCIefr08.replace(0, QString("%1").arg(ui->chkInverseOLCIefr08->isChecked()));
-    poi.strlInverseOLCIefr09.replace(0, QString("%1").arg(ui->chkInverseOLCIefr09->isChecked()));
-    poi.strlInverseOLCIefr10.replace(0, QString("%1").arg(ui->chkInverseOLCIefr10->isChecked()));
-    poi.strlInverseOLCIefr11.replace(0, QString("%1").arg(ui->chkInverseOLCIefr11->isChecked()));
-    poi.strlInverseOLCIefr12.replace(0, QString("%1").arg(ui->chkInverseOLCIefr12->isChecked()));
-    poi.strlInverseOLCIefr13.replace(0, QString("%1").arg(ui->chkInverseOLCIefr13->isChecked()));
-    poi.strlInverseOLCIefr14.replace(0, QString("%1").arg(ui->chkInverseOLCIefr14->isChecked()));
-    poi.strlInverseOLCIefr15.replace(0, QString("%1").arg(ui->chkInverseOLCIefr15->isChecked()));
-    poi.strlInverseOLCIefr16.replace(0, QString("%1").arg(ui->chkInverseOLCIefr16->isChecked()));
-    poi.strlInverseOLCIefr17.replace(0, QString("%1").arg(ui->chkInverseOLCIefr17->isChecked()));
-    poi.strlInverseOLCIefr18.replace(0, QString("%1").arg(ui->chkInverseOLCIefr18->isChecked()));
-    poi.strlInverseOLCIefr19.replace(0, QString("%1").arg(ui->chkInverseOLCIefr19->isChecked()));
-    poi.strlInverseOLCIefr20.replace(0, QString("%1").arg(ui->chkInverseOLCIefr20->isChecked()));
-    poi.strlInverseOLCIefr21.replace(0, QString("%1").arg(ui->chkInverseOLCIefr21->isChecked()));
+    poi.strlInverseOLCI01.replace(0, QString("%1").arg(ui->chkInverseOLCI01->isChecked()));
+    poi.strlInverseOLCI02.replace(0, QString("%1").arg(ui->chkInverseOLCI02->isChecked()));
+    poi.strlInverseOLCI03.replace(0, QString("%1").arg(ui->chkInverseOLCI03->isChecked()));
+    poi.strlInverseOLCI04.replace(0, QString("%1").arg(ui->chkInverseOLCI04->isChecked()));
+    poi.strlInverseOLCI05.replace(0, QString("%1").arg(ui->chkInverseOLCI05->isChecked()));
+    poi.strlInverseOLCI06.replace(0, QString("%1").arg(ui->chkInverseOLCI06->isChecked()));
+    poi.strlInverseOLCI07.replace(0, QString("%1").arg(ui->chkInverseOLCI07->isChecked()));
+    poi.strlInverseOLCI08.replace(0, QString("%1").arg(ui->chkInverseOLCI08->isChecked()));
+    poi.strlInverseOLCI09.replace(0, QString("%1").arg(ui->chkInverseOLCI09->isChecked()));
+    poi.strlInverseOLCI10.replace(0, QString("%1").arg(ui->chkInverseOLCI10->isChecked()));
+    poi.strlInverseOLCI11.replace(0, QString("%1").arg(ui->chkInverseOLCI11->isChecked()));
+    poi.strlInverseOLCI12.replace(0, QString("%1").arg(ui->chkInverseOLCI12->isChecked()));
+    poi.strlInverseOLCI13.replace(0, QString("%1").arg(ui->chkInverseOLCI13->isChecked()));
+    poi.strlInverseOLCI14.replace(0, QString("%1").arg(ui->chkInverseOLCI14->isChecked()));
+    poi.strlInverseOLCI15.replace(0, QString("%1").arg(ui->chkInverseOLCI15->isChecked()));
+    poi.strlInverseOLCI16.replace(0, QString("%1").arg(ui->chkInverseOLCI16->isChecked()));
+    poi.strlInverseOLCI17.replace(0, QString("%1").arg(ui->chkInverseOLCI17->isChecked()));
+    poi.strlInverseOLCI18.replace(0, QString("%1").arg(ui->chkInverseOLCI18->isChecked()));
+    poi.strlInverseOLCI19.replace(0, QString("%1").arg(ui->chkInverseOLCI19->isChecked()));
+    poi.strlInverseOLCI20.replace(0, QString("%1").arg(ui->chkInverseOLCI20->isChecked()));
+    poi.strlInverseOLCI21.replace(0, QString("%1").arg(ui->chkInverseOLCI21->isChecked()));
 
-    poi.strlComboOLCIefr01.replace(0, QString("%1").arg(ui->cmbOLCIefr01->currentIndex()));
-    poi.strlComboOLCIefr02.replace(0, QString("%1").arg(ui->cmbOLCIefr02->currentIndex()));
-    poi.strlComboOLCIefr03.replace(0, QString("%1").arg(ui->cmbOLCIefr03->currentIndex()));
-    poi.strlComboOLCIefr04.replace(0, QString("%1").arg(ui->cmbOLCIefr04->currentIndex()));
-    poi.strlComboOLCIefr05.replace(0, QString("%1").arg(ui->cmbOLCIefr05->currentIndex()));
-    poi.strlComboOLCIefr06.replace(0, QString("%1").arg(ui->cmbOLCIefr06->currentIndex()));
-    poi.strlComboOLCIefr07.replace(0, QString("%1").arg(ui->cmbOLCIefr07->currentIndex()));
-    poi.strlComboOLCIefr08.replace(0, QString("%1").arg(ui->cmbOLCIefr08->currentIndex()));
-    poi.strlComboOLCIefr09.replace(0, QString("%1").arg(ui->cmbOLCIefr09->currentIndex()));
-    poi.strlComboOLCIefr10.replace(0, QString("%1").arg(ui->cmbOLCIefr10->currentIndex()));
-    poi.strlComboOLCIefr11.replace(0, QString("%1").arg(ui->cmbOLCIefr11->currentIndex()));
-    poi.strlComboOLCIefr12.replace(0, QString("%1").arg(ui->cmbOLCIefr12->currentIndex()));
-    poi.strlComboOLCIefr13.replace(0, QString("%1").arg(ui->cmbOLCIefr13->currentIndex()));
-    poi.strlComboOLCIefr14.replace(0, QString("%1").arg(ui->cmbOLCIefr14->currentIndex()));
-    poi.strlComboOLCIefr15.replace(0, QString("%1").arg(ui->cmbOLCIefr15->currentIndex()));
-    poi.strlComboOLCIefr16.replace(0, QString("%1").arg(ui->cmbOLCIefr16->currentIndex()));
-    poi.strlComboOLCIefr17.replace(0, QString("%1").arg(ui->cmbOLCIefr17->currentIndex()));
-    poi.strlComboOLCIefr18.replace(0, QString("%1").arg(ui->cmbOLCIefr18->currentIndex()));
-    poi.strlComboOLCIefr19.replace(0, QString("%1").arg(ui->cmbOLCIefr19->currentIndex()));
-    poi.strlComboOLCIefr20.replace(0, QString("%1").arg(ui->cmbOLCIefr20->currentIndex()));
-    poi.strlComboOLCIefr21.replace(0, QString("%1").arg(ui->cmbOLCIefr21->currentIndex()));
+    poi.strlComboOLCI01.replace(0, QString("%1").arg(ui->cmbOLCI01->currentIndex()));
+    poi.strlComboOLCI02.replace(0, QString("%1").arg(ui->cmbOLCI02->currentIndex()));
+    poi.strlComboOLCI03.replace(0, QString("%1").arg(ui->cmbOLCI03->currentIndex()));
+    poi.strlComboOLCI04.replace(0, QString("%1").arg(ui->cmbOLCI04->currentIndex()));
+    poi.strlComboOLCI05.replace(0, QString("%1").arg(ui->cmbOLCI05->currentIndex()));
+    poi.strlComboOLCI06.replace(0, QString("%1").arg(ui->cmbOLCI06->currentIndex()));
+    poi.strlComboOLCI07.replace(0, QString("%1").arg(ui->cmbOLCI07->currentIndex()));
+    poi.strlComboOLCI08.replace(0, QString("%1").arg(ui->cmbOLCI08->currentIndex()));
+    poi.strlComboOLCI09.replace(0, QString("%1").arg(ui->cmbOLCI09->currentIndex()));
+    poi.strlComboOLCI10.replace(0, QString("%1").arg(ui->cmbOLCI10->currentIndex()));
+    poi.strlComboOLCI11.replace(0, QString("%1").arg(ui->cmbOLCI11->currentIndex()));
+    poi.strlComboOLCI12.replace(0, QString("%1").arg(ui->cmbOLCI12->currentIndex()));
+    poi.strlComboOLCI13.replace(0, QString("%1").arg(ui->cmbOLCI13->currentIndex()));
+    poi.strlComboOLCI14.replace(0, QString("%1").arg(ui->cmbOLCI14->currentIndex()));
+    poi.strlComboOLCI15.replace(0, QString("%1").arg(ui->cmbOLCI15->currentIndex()));
+    poi.strlComboOLCI16.replace(0, QString("%1").arg(ui->cmbOLCI16->currentIndex()));
+    poi.strlComboOLCI17.replace(0, QString("%1").arg(ui->cmbOLCI17->currentIndex()));
+    poi.strlComboOLCI18.replace(0, QString("%1").arg(ui->cmbOLCI18->currentIndex()));
+    poi.strlComboOLCI19.replace(0, QString("%1").arg(ui->cmbOLCI19->currentIndex()));
+    poi.strlComboOLCI20.replace(0, QString("%1").arg(ui->cmbOLCI20->currentIndex()));
+    poi.strlComboOLCI21.replace(0, QString("%1").arg(ui->cmbOLCI21->currentIndex()));
 
 
     delete ui;
@@ -1396,12 +1415,6 @@ void FormToolbox::setTabWidgetVIIRSIndex(int index)
     ui->tabWidgetVIIRS->setCurrentIndex(index);
 }
 
-void FormToolbox::setTabWidgetOLCIIndex(int index)
-{
-    qDebug() << "FormToolbox::setTabWidgetOLCIIndex(int index)";
-    ui->tabWidgetOLCI->setCurrentIndex(index);
-}
-
 void FormToolbox::setToolboxButtons(bool state)
 {
     qDebug() << QString("FormToolbox::setToolboxButtons state = %1").arg(state);
@@ -1602,7 +1615,7 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->btnRotate180->setEnabled(state);
 
     ui->btnUpdateVIIRSImage->setEnabled(state);
-    ui->btnUpdateOLCIefrImage->setEnabled(state);
+    ui->btnUpdateOLCIImage->setEnabled(state);
     ui->btnTextureVIIRS->setEnabled(state);
 
     ui->btnCreateLambert->setEnabled(state);
@@ -1630,28 +1643,28 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->rbM15->setEnabled(state);
     ui->rbM16->setEnabled(state);
 
-    ui->rbColorOLCIefr->setEnabled(state);
-    ui->rbOLCIefr01->setEnabled(state);
-    ui->rbOLCIefr02->setEnabled(state);
-    ui->rbOLCIefr03->setEnabled(state);
-    ui->rbOLCIefr04->setEnabled(state);
-    ui->rbOLCIefr05->setEnabled(state);
-    ui->rbOLCIefr06->setEnabled(state);
-    ui->rbOLCIefr07->setEnabled(state);
-    ui->rbOLCIefr08->setEnabled(state);
-    ui->rbOLCIefr09->setEnabled(state);
-    ui->rbOLCIefr10->setEnabled(state);
-    ui->rbOLCIefr11->setEnabled(state);
-    ui->rbOLCIefr12->setEnabled(state);
-    ui->rbOLCIefr13->setEnabled(state);
-    ui->rbOLCIefr14->setEnabled(state);
-    ui->rbOLCIefr15->setEnabled(state);
-    ui->rbOLCIefr16->setEnabled(state);
-    ui->rbOLCIefr17->setEnabled(state);
-    ui->rbOLCIefr18->setEnabled(state);
-    ui->rbOLCIefr19->setEnabled(state);
-    ui->rbOLCIefr20->setEnabled(state);
-    ui->rbOLCIefr21->setEnabled(state);
+    ui->rbColorOLCI->setEnabled(state);
+    ui->rbOLCI01->setEnabled(state);
+    ui->rbOLCI02->setEnabled(state);
+    ui->rbOLCI03->setEnabled(state);
+    ui->rbOLCI04->setEnabled(state);
+    ui->rbOLCI05->setEnabled(state);
+    ui->rbOLCI06->setEnabled(state);
+    ui->rbOLCI07->setEnabled(state);
+    ui->rbOLCI08->setEnabled(state);
+    ui->rbOLCI09->setEnabled(state);
+    ui->rbOLCI10->setEnabled(state);
+    ui->rbOLCI11->setEnabled(state);
+    ui->rbOLCI12->setEnabled(state);
+    ui->rbOLCI13->setEnabled(state);
+    ui->rbOLCI14->setEnabled(state);
+    ui->rbOLCI15->setEnabled(state);
+    ui->rbOLCI16->setEnabled(state);
+    ui->rbOLCI17->setEnabled(state);
+    ui->rbOLCI18->setEnabled(state);
+    ui->rbOLCI19->setEnabled(state);
+    ui->rbOLCI20->setEnabled(state);
+    ui->rbOLCI21->setEnabled(state);
 
 }
 
@@ -2274,14 +2287,7 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     }
     else if (index == TAB_OLCI) // OLCI
     {
-        if(ui->tabWidgetOLCI->currentIndex() == 0)
-        {
-            formimage->displayImage(IMAGE_OLCI_EFR);
-        }
-        else
-        {
-            formimage->displayImage(IMAGE_OLCI_ERR);
-        }
+        formimage->displayImage(IMAGE_OLCI);
     }
     else if (index == TAB_GEOSTATIONARY) // Geostationair
     {
@@ -2499,6 +2505,15 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         }
 
     }
+    else if(ui->rdbOLCIerrin->isChecked())
+    {
+        if(opts.buttonOLCIerr)
+        {
+            if(!segs->SelectedOLCIerrSegments())
+                return;
+        }
+
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -2537,6 +2552,8 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
     else if(ui->rdbOLCIefrin->isChecked())
         imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, false);
+    else if(ui->rdbOLCIerrin->isChecked())
+        imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, false);
     else if(ui->rdbMeteosatin->isChecked())
         imageptrs->gvp->CreateMapFromGeoStationary();
 
@@ -2955,11 +2972,6 @@ int FormToolbox::getTabWidgetVIIRSIndex()
     return ui->tabWidgetVIIRS->currentIndex();
 }
 
-int FormToolbox::getTabWidgetOLCIIndex()
-{
-    return ui->tabWidgetOLCI->currentIndex();
-}
-
 void FormToolbox::on_toolBox_currentChanged(int index)
 {
     qDebug() << QString("FormToolbox::on_toolBox_currentChanged(int index) index = %1").arg(index);
@@ -3309,31 +3321,31 @@ bool FormToolbox::comboColVIIRSOK()
         return false;
 }
 
-bool FormToolbox::comboColOLCIefrOK()
+bool FormToolbox::comboColOLCIOK()
 {
     int cnt = 0;
 
-    cnt += ui->cmbOLCIefr01->currentIndex();
-    cnt += ui->cmbOLCIefr02->currentIndex();
-    cnt += ui->cmbOLCIefr03->currentIndex();
-    cnt += ui->cmbOLCIefr04->currentIndex();
-    cnt += ui->cmbOLCIefr05->currentIndex();
-    cnt += ui->cmbOLCIefr06->currentIndex();
-    cnt += ui->cmbOLCIefr07->currentIndex();
-    cnt += ui->cmbOLCIefr08->currentIndex();
-    cnt += ui->cmbOLCIefr09->currentIndex();
-    cnt += ui->cmbOLCIefr10->currentIndex();
-    cnt += ui->cmbOLCIefr11->currentIndex();
-    cnt += ui->cmbOLCIefr12->currentIndex();
-    cnt += ui->cmbOLCIefr13->currentIndex();
-    cnt += ui->cmbOLCIefr14->currentIndex();
-    cnt += ui->cmbOLCIefr15->currentIndex();
-    cnt += ui->cmbOLCIefr16->currentIndex();
-    cnt += ui->cmbOLCIefr17->currentIndex();
-    cnt += ui->cmbOLCIefr18->currentIndex();
-    cnt += ui->cmbOLCIefr19->currentIndex();
-    cnt += ui->cmbOLCIefr20->currentIndex();
-    cnt += ui->cmbOLCIefr21->currentIndex();
+    cnt += ui->cmbOLCI01->currentIndex();
+    cnt += ui->cmbOLCI02->currentIndex();
+    cnt += ui->cmbOLCI03->currentIndex();
+    cnt += ui->cmbOLCI04->currentIndex();
+    cnt += ui->cmbOLCI05->currentIndex();
+    cnt += ui->cmbOLCI06->currentIndex();
+    cnt += ui->cmbOLCI07->currentIndex();
+    cnt += ui->cmbOLCI08->currentIndex();
+    cnt += ui->cmbOLCI09->currentIndex();
+    cnt += ui->cmbOLCI10->currentIndex();
+    cnt += ui->cmbOLCI11->currentIndex();
+    cnt += ui->cmbOLCI12->currentIndex();
+    cnt += ui->cmbOLCI13->currentIndex();
+    cnt += ui->cmbOLCI14->currentIndex();
+    cnt += ui->cmbOLCI15->currentIndex();
+    cnt += ui->cmbOLCI16->currentIndex();
+    cnt += ui->cmbOLCI17->currentIndex();
+    cnt += ui->cmbOLCI18->currentIndex();
+    cnt += ui->cmbOLCI19->currentIndex();
+    cnt += ui->cmbOLCI20->currentIndex();
+    cnt += ui->cmbOLCI21->currentIndex();
 
     if(cnt == 6)
         return true;
@@ -3397,36 +3409,53 @@ void FormToolbox::on_btnUpdateVIIRSImage_clicked()
     }
 }
 
-void FormToolbox::on_btnUpdateOLCIefrImage_clicked()
+void FormToolbox::on_btnUpdateOLCIImage_clicked()
 {
 
-    if(segs->seglolciefr->NbrOfSegmentsSelected() > 0)
+    if(!comboColOLCIOK())
     {
-        if(!comboColOLCIefrOK())
-        {
-            QMessageBox msgBox;
-            msgBox.setText("Need color choices for 3 different bands in the OLCI efr tab.");
-            //msgBox.setInformativeText("Do you want to save your changes?");
-            msgBox.setStandardButtons(QMessageBox::Ok);
-            msgBox.setIcon(QMessageBox::Warning);
-            int ret = msgBox.exec();
+        QMessageBox msgBox;
+        msgBox.setText("Need color choices for 3 different bands in the OLCI efr tab.");
+        //msgBox.setInformativeText("Do you want to save your changes?");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
 
-            switch (ret) {
-            case QMessageBox::Ok:
-                break;
-            default:
-                break;
-            }
-
-            return;
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
         }
 
-        ui->btnGVPFalseColor->setChecked(false);
-        ui->btnSGFalseColor->setChecked(false);
-        ui->btnLCCFalseColor->setChecked(false);
+        return;
+    }
 
-        ui->pbProgress->reset();
-        emit emitShowOLCIefrImage();
+    if(opts.buttonOLCIefr)
+    {
+        if(segs->seglolciefr->NbrOfSegmentsSelected() > 0)
+        {
+
+            ui->btnGVPFalseColor->setChecked(false);
+            ui->btnSGFalseColor->setChecked(false);
+            ui->btnLCCFalseColor->setChecked(false);
+
+            ui->pbProgress->reset();
+            emit emitShowOLCIefrImage();
+        }
+    }
+    else if(opts.buttonOLCIerr)
+    {
+        if(segs->seglolcierr->NbrOfSegmentsSelected() > 0)
+        {
+
+            ui->btnGVPFalseColor->setChecked(false);
+            ui->btnSGFalseColor->setChecked(false);
+            ui->btnLCCFalseColor->setChecked(false);
+
+            ui->pbProgress->reset();
+            emit emitShowOLCIerrImage();
+        }
     }
 }
 
@@ -3825,133 +3854,131 @@ void FormToolbox::setConfigOLCIParameters(int strlindex)
 {
     qDebug() << "FormToolbox::setConfigOLCIParameters(int strlindex)";
 
-    int theband = poi.strlColorBandOLCIefr.at(strlindex).toInt();
+    int theband = poi.strlColorBandOLCI.at(strlindex).toInt();
     if( theband == 0) // is color
     {
         setRadioButtonsOLCIefrToFalse();
-        ui->rbColorOLCIefr->setChecked(true);
+        ui->rbColorOLCI->setChecked(true);
     }
     else
     {
-        ui->rbColorOLCIefr->setChecked(false);
+        ui->rbColorOLCI->setChecked(false);
         setRadioButtonsOLCIefrToFalse();
         switch (theband)
         {
         case 1:
-            ui->rbOLCIefr01->setChecked(true);
+            ui->rbOLCI01->setChecked(true);
             break;
         case 2:
-            ui->rbOLCIefr02->setChecked(true);
+            ui->rbOLCI02->setChecked(true);
             break;
         case 3:
-            ui->rbOLCIefr03->setChecked(true);
+            ui->rbOLCI03->setChecked(true);
             break;
         case 4:
-            ui->rbOLCIefr04->setChecked(true);
+            ui->rbOLCI04->setChecked(true);
             break;
         case 5:
-            ui->rbOLCIefr05->setChecked(true);
+            ui->rbOLCI05->setChecked(true);
             break;
         case 6:
-            ui->rbOLCIefr06->setChecked(true);
+            ui->rbOLCI06->setChecked(true);
             break;
         case 7:
-            ui->rbOLCIefr07->setChecked(true);
+            ui->rbOLCI07->setChecked(true);
             break;
         case 8:
-            ui->rbOLCIefr08->setChecked(true);
+            ui->rbOLCI08->setChecked(true);
             break;
         case 9:
-            ui->rbOLCIefr09->setChecked(true);
+            ui->rbOLCI09->setChecked(true);
             break;
         case 10:
-            ui->rbOLCIefr10->setChecked(true);
+            ui->rbOLCI10->setChecked(true);
             break;
         case 11:
-            ui->rbOLCIefr11->setChecked(true);
+            ui->rbOLCI11->setChecked(true);
             break;
         case 12:
-            ui->rbOLCIefr12->setChecked(true);
+            ui->rbOLCI12->setChecked(true);
             break;
         case 13:
-            ui->rbOLCIefr13->setChecked(true);
+            ui->rbOLCI13->setChecked(true);
             break;
         case 14:
-            ui->rbOLCIefr14->setChecked(true);
+            ui->rbOLCI14->setChecked(true);
             break;
         case 15:
-            ui->rbOLCIefr15->setChecked(true);
+            ui->rbOLCI15->setChecked(true);
             break;
         case 16:
-            ui->rbOLCIefr16->setChecked(true);
+            ui->rbOLCI16->setChecked(true);
             break;
         case 17:
-            ui->rbOLCIefr17->setChecked(true);
+            ui->rbOLCI17->setChecked(true);
             break;
         case 18:
-            ui->rbOLCIefr18->setChecked(true);
+            ui->rbOLCI18->setChecked(true);
             break;
         case 19:
-            ui->rbOLCIefr19->setChecked(true);
+            ui->rbOLCI19->setChecked(true);
             break;
         case 20:
-            ui->rbOLCIefr20->setChecked(true);
+            ui->rbOLCI20->setChecked(true);
             break;
         case 21:
-            ui->rbOLCIefr21->setChecked(true);
+            ui->rbOLCI21->setChecked(true);
             break;
 
         }
 
     }
 
-    qDebug() << "FormToolbox::setConfigOLCIefrParameters(int strlindex) 2";
-
-    ui->chkInverseOLCIefr01->setChecked(poi.strlInverseOLCIefr01.at(strlindex).toInt());
-    ui->chkInverseOLCIefr02->setChecked(poi.strlInverseOLCIefr02.at(strlindex).toInt());
-    ui->chkInverseOLCIefr03->setChecked(poi.strlInverseOLCIefr03.at(strlindex).toInt());
-    ui->chkInverseOLCIefr04->setChecked(poi.strlInverseOLCIefr04.at(strlindex).toInt());
-    ui->chkInverseOLCIefr05->setChecked(poi.strlInverseOLCIefr05.at(strlindex).toInt());
-    ui->chkInverseOLCIefr06->setChecked(poi.strlInverseOLCIefr06.at(strlindex).toInt());
-    ui->chkInverseOLCIefr07->setChecked(poi.strlInverseOLCIefr07.at(strlindex).toInt());
-    ui->chkInverseOLCIefr08->setChecked(poi.strlInverseOLCIefr08.at(strlindex).toInt());
-    ui->chkInverseOLCIefr09->setChecked(poi.strlInverseOLCIefr09.at(strlindex).toInt());
-    ui->chkInverseOLCIefr10->setChecked(poi.strlInverseOLCIefr10.at(strlindex).toInt());
-    ui->chkInverseOLCIefr11->setChecked(poi.strlInverseOLCIefr11.at(strlindex).toInt());
-    ui->chkInverseOLCIefr12->setChecked(poi.strlInverseOLCIefr12.at(strlindex).toInt());
-    ui->chkInverseOLCIefr13->setChecked(poi.strlInverseOLCIefr13.at(strlindex).toInt());
-    ui->chkInverseOLCIefr14->setChecked(poi.strlInverseOLCIefr14.at(strlindex).toInt());
-    ui->chkInverseOLCIefr15->setChecked(poi.strlInverseOLCIefr15.at(strlindex).toInt());
-    ui->chkInverseOLCIefr16->setChecked(poi.strlInverseOLCIefr16.at(strlindex).toInt());
-    ui->chkInverseOLCIefr17->setChecked(poi.strlInverseOLCIefr17.at(strlindex).toInt());
-    ui->chkInverseOLCIefr18->setChecked(poi.strlInverseOLCIefr18.at(strlindex).toInt());
-    ui->chkInverseOLCIefr19->setChecked(poi.strlInverseOLCIefr19.at(strlindex).toInt());
-    ui->chkInverseOLCIefr20->setChecked(poi.strlInverseOLCIefr20.at(strlindex).toInt());
-    ui->chkInverseOLCIefr21->setChecked(poi.strlInverseOLCIefr21.at(strlindex).toInt());
+    ui->chkInverseOLCI01->setChecked(poi.strlInverseOLCI01.at(strlindex).toInt());
+    ui->chkInverseOLCI02->setChecked(poi.strlInverseOLCI02.at(strlindex).toInt());
+    ui->chkInverseOLCI03->setChecked(poi.strlInverseOLCI03.at(strlindex).toInt());
+    ui->chkInverseOLCI04->setChecked(poi.strlInverseOLCI04.at(strlindex).toInt());
+    ui->chkInverseOLCI05->setChecked(poi.strlInverseOLCI05.at(strlindex).toInt());
+    ui->chkInverseOLCI06->setChecked(poi.strlInverseOLCI06.at(strlindex).toInt());
+    ui->chkInverseOLCI07->setChecked(poi.strlInverseOLCI07.at(strlindex).toInt());
+    ui->chkInverseOLCI08->setChecked(poi.strlInverseOLCI08.at(strlindex).toInt());
+    ui->chkInverseOLCI09->setChecked(poi.strlInverseOLCI09.at(strlindex).toInt());
+    ui->chkInverseOLCI10->setChecked(poi.strlInverseOLCI10.at(strlindex).toInt());
+    ui->chkInverseOLCI11->setChecked(poi.strlInverseOLCI11.at(strlindex).toInt());
+    ui->chkInverseOLCI12->setChecked(poi.strlInverseOLCI12.at(strlindex).toInt());
+    ui->chkInverseOLCI13->setChecked(poi.strlInverseOLCI13.at(strlindex).toInt());
+    ui->chkInverseOLCI14->setChecked(poi.strlInverseOLCI14.at(strlindex).toInt());
+    ui->chkInverseOLCI15->setChecked(poi.strlInverseOLCI15.at(strlindex).toInt());
+    ui->chkInverseOLCI16->setChecked(poi.strlInverseOLCI16.at(strlindex).toInt());
+    ui->chkInverseOLCI17->setChecked(poi.strlInverseOLCI17.at(strlindex).toInt());
+    ui->chkInverseOLCI18->setChecked(poi.strlInverseOLCI18.at(strlindex).toInt());
+    ui->chkInverseOLCI19->setChecked(poi.strlInverseOLCI19.at(strlindex).toInt());
+    ui->chkInverseOLCI20->setChecked(poi.strlInverseOLCI20.at(strlindex).toInt());
+    ui->chkInverseOLCI21->setChecked(poi.strlInverseOLCI21.at(strlindex).toInt());
 
     qDebug() << "FormToolbox::setConfigOLCIefrParameters(int strlindex) 3";
 
-    ui->cmbOLCIefr01->setCurrentIndex(poi.strlComboOLCIefr01.at(strlindex).toInt());
-    ui->cmbOLCIefr02->setCurrentIndex(poi.strlComboOLCIefr02.at(strlindex).toInt());
-    ui->cmbOLCIefr03->setCurrentIndex(poi.strlComboOLCIefr03.at(strlindex).toInt());
-    ui->cmbOLCIefr04->setCurrentIndex(poi.strlComboOLCIefr04.at(strlindex).toInt());
-    ui->cmbOLCIefr05->setCurrentIndex(poi.strlComboOLCIefr05.at(strlindex).toInt());
-    ui->cmbOLCIefr06->setCurrentIndex(poi.strlComboOLCIefr06.at(strlindex).toInt());
-    ui->cmbOLCIefr07->setCurrentIndex(poi.strlComboOLCIefr07.at(strlindex).toInt());
-    ui->cmbOLCIefr08->setCurrentIndex(poi.strlComboOLCIefr08.at(strlindex).toInt());
-    ui->cmbOLCIefr09->setCurrentIndex(poi.strlComboOLCIefr09.at(strlindex).toInt());
-    ui->cmbOLCIefr10->setCurrentIndex(poi.strlComboOLCIefr10.at(strlindex).toInt());
-    ui->cmbOLCIefr11->setCurrentIndex(poi.strlComboOLCIefr11.at(strlindex).toInt());
-    ui->cmbOLCIefr12->setCurrentIndex(poi.strlComboOLCIefr12.at(strlindex).toInt());
-    ui->cmbOLCIefr13->setCurrentIndex(poi.strlComboOLCIefr13.at(strlindex).toInt());
-    ui->cmbOLCIefr14->setCurrentIndex(poi.strlComboOLCIefr14.at(strlindex).toInt());
-    ui->cmbOLCIefr15->setCurrentIndex(poi.strlComboOLCIefr15.at(strlindex).toInt());
-    ui->cmbOLCIefr16->setCurrentIndex(poi.strlComboOLCIefr16.at(strlindex).toInt());
-    ui->cmbOLCIefr17->setCurrentIndex(poi.strlComboOLCIefr17.at(strlindex).toInt());
-    ui->cmbOLCIefr18->setCurrentIndex(poi.strlComboOLCIefr18.at(strlindex).toInt());
-    ui->cmbOLCIefr19->setCurrentIndex(poi.strlComboOLCIefr19.at(strlindex).toInt());
-    ui->cmbOLCIefr20->setCurrentIndex(poi.strlComboOLCIefr20.at(strlindex).toInt());
-    ui->cmbOLCIefr21->setCurrentIndex(poi.strlComboOLCIefr21.at(strlindex).toInt());
+    ui->cmbOLCI01->setCurrentIndex(poi.strlComboOLCI01.at(strlindex).toInt());
+    ui->cmbOLCI02->setCurrentIndex(poi.strlComboOLCI02.at(strlindex).toInt());
+    ui->cmbOLCI03->setCurrentIndex(poi.strlComboOLCI03.at(strlindex).toInt());
+    ui->cmbOLCI04->setCurrentIndex(poi.strlComboOLCI04.at(strlindex).toInt());
+    ui->cmbOLCI05->setCurrentIndex(poi.strlComboOLCI05.at(strlindex).toInt());
+    ui->cmbOLCI06->setCurrentIndex(poi.strlComboOLCI06.at(strlindex).toInt());
+    ui->cmbOLCI07->setCurrentIndex(poi.strlComboOLCI07.at(strlindex).toInt());
+    ui->cmbOLCI08->setCurrentIndex(poi.strlComboOLCI08.at(strlindex).toInt());
+    ui->cmbOLCI09->setCurrentIndex(poi.strlComboOLCI09.at(strlindex).toInt());
+    ui->cmbOLCI10->setCurrentIndex(poi.strlComboOLCI10.at(strlindex).toInt());
+    ui->cmbOLCI11->setCurrentIndex(poi.strlComboOLCI11.at(strlindex).toInt());
+    ui->cmbOLCI12->setCurrentIndex(poi.strlComboOLCI12.at(strlindex).toInt());
+    ui->cmbOLCI13->setCurrentIndex(poi.strlComboOLCI13.at(strlindex).toInt());
+    ui->cmbOLCI14->setCurrentIndex(poi.strlComboOLCI14.at(strlindex).toInt());
+    ui->cmbOLCI15->setCurrentIndex(poi.strlComboOLCI15.at(strlindex).toInt());
+    ui->cmbOLCI16->setCurrentIndex(poi.strlComboOLCI16.at(strlindex).toInt());
+    ui->cmbOLCI17->setCurrentIndex(poi.strlComboOLCI17.at(strlindex).toInt());
+    ui->cmbOLCI18->setCurrentIndex(poi.strlComboOLCI18.at(strlindex).toInt());
+    ui->cmbOLCI19->setCurrentIndex(poi.strlComboOLCI19.at(strlindex).toInt());
+    ui->cmbOLCI20->setCurrentIndex(poi.strlComboOLCI20.at(strlindex).toInt());
+    ui->cmbOLCI21->setCurrentIndex(poi.strlComboOLCI21.at(strlindex).toInt());
 
     qDebug() << "FormToolbox::setConfigOLCIefrParameters(int strlindex) 4";
 
@@ -3959,22 +3986,22 @@ void FormToolbox::setConfigOLCIParameters(int strlindex)
 
 void FormToolbox::setRadioButtonsOLCIefrToFalse()
 {
-    ui->rbOLCIefr01->setChecked(false);
-    ui->rbOLCIefr02->setChecked(false);
-    ui->rbOLCIefr03->setChecked(false);
-    ui->rbOLCIefr04->setChecked(false);
-    ui->rbOLCIefr05->setChecked(false);
-    ui->rbOLCIefr06->setChecked(false);
-    ui->rbOLCIefr07->setChecked(false);
-    ui->rbOLCIefr08->setChecked(false);
-    ui->rbOLCIefr09->setChecked(false);
-    ui->rbOLCIefr10->setChecked(false);
-    ui->rbOLCIefr11->setChecked(false);
-    ui->rbOLCIefr12->setChecked(false);
-    ui->rbOLCIefr13->setChecked(false);
-    ui->rbOLCIefr14->setChecked(false);
-    ui->rbOLCIefr15->setChecked(false);
-    ui->rbOLCIefr16->setChecked(false);
+    ui->rbOLCI01->setChecked(false);
+    ui->rbOLCI02->setChecked(false);
+    ui->rbOLCI03->setChecked(false);
+    ui->rbOLCI04->setChecked(false);
+    ui->rbOLCI05->setChecked(false);
+    ui->rbOLCI06->setChecked(false);
+    ui->rbOLCI07->setChecked(false);
+    ui->rbOLCI08->setChecked(false);
+    ui->rbOLCI09->setChecked(false);
+    ui->rbOLCI10->setChecked(false);
+    ui->rbOLCI11->setChecked(false);
+    ui->rbOLCI12->setChecked(false);
+    ui->rbOLCI13->setChecked(false);
+    ui->rbOLCI14->setChecked(false);
+    ui->rbOLCI15->setChecked(false);
+    ui->rbOLCI16->setChecked(false);
 }
 
 void FormToolbox::on_comboPOI_currentIndexChanged(int index)

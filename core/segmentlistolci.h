@@ -1,21 +1,23 @@
-#ifndef SEGMENTLISTOLCIEFR_H
-#define SEGMENTLISTOLCIEFR_H
+#ifndef SEGMENTLISTOLCI_H
+#define SEGMENTLISTOLCI_H
 
 #include <QObject>
 #include "segmentlist.h"
 
 class SatelliteList;
 
-class SegmentListOLCIefr : public SegmentList
+class SegmentListOLCI : public SegmentList
 {
     Q_OBJECT
 
 public:
-    SegmentListOLCIefr(SatelliteList *satl = 0, QObject *parent = 0);
+    SegmentListOLCI(eSegmentType type = SEG_OLCIEFR, SatelliteList *satl = 0, QObject *parent = 0);
     bool ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
-    bool ComposeOLCIefrImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
+    bool ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
     void ComposeGVProjection(int inputchannel);
     void SmoothOLCIImage(bool combine);
+    void ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview);
+    bool TestForSegmentGLerr(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
 
 private:
 
@@ -38,4 +40,4 @@ protected slots:
 
 };
 
-#endif // SEGMENTLISTOLCIEFR_H
+#endif // SEGMENTLISTOLCI_H

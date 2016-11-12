@@ -296,7 +296,6 @@ bool SegmentList::TestForSegmentGL(int x, int realy, float distance, const QMatr
 
     while ( segit != segmentlist.end() )
     {
-//        if(showallsegments ? true : (opts.buttonVIIRSMDNB ? (*segit)->segmentshow && (*segit)->hasDNBsegment : (*segit)->segmentshow) )
         if(showallsegments ? true : (*segit)->segmentshow)
         {
             winvec1.setX((*segit)->winvec1.x()); winvec1.setY((*segit)->winvec1.y());

@@ -119,7 +119,7 @@
        </item>
        <item>
         <property name="text">
-         <string>OLCI efr Config</string>
+         <string>OLCI Config</string>
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
