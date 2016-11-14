@@ -4,9 +4,9 @@
 #include <QDebug>
 #include "archive_entry.h"
 #include <netcdf>
-using namespace std;
-using namespace netCDF;
-using namespace netCDF::exceptions;
+//using namespace std;
+//using namespace netCDF;
+//using namespace netCDF::exceptions;
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -124,6 +124,7 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFile *filesegment, SatelliteList *s
 
 }
 
+
 Segment *SegmentOLCI::ReadSegmentInMemory()
 {
 
@@ -133,48 +134,64 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     QByteArray array1;
     QByteArray array2;
     QByteArray array3;
-    const char* pfname1;
-    const char* pfname2;
-    const char* pfname3;
+    const char* pfile1;
+    const char* pfile2;
+    const char* pfile3;
     QString var1;
     QString var2;
     QString var3;
     const char* pvar1;
     const char* pvar2;
     const char* pvar3;
-    NcVar radiance1;
-    NcVar radiance2;
-    NcVar radiance3;
+
+    int retval;
+    int ncgeofileid, ncfile1id, ncfile2id, ncfile3id;
+    int radiance1id, radiance2id, radiance3id;
+
+    int columnsid, rowsid;
+    size_t columnslength, rowslength;
+
+    int longitudeid, latitudeid;
 
     bool iscolorimage = this->bandlist.at(0);
-
-
-    qDebug() << "Starting netCDF geo_coordinates";
-
 
     QString geofile = this->fileInfo.baseName() + ".SEN3/geo_coordinates.nc";
     QByteArray arraygeo = geofile.toUtf8();
     const char *pgeofile = arraygeo.constData();
-    NcFile geoFile(pgeofile, NcFile::read);
-    if(geoFile.isNull()) qDebug() << "error opening geoFile";
+
+    qDebug() << "Starting netCDF geo_coordinates";
+    retval = nc_open(pgeofile, NC_NOWRITE, &ncgeofileid);
+    if(retval != NC_NOERR) qDebug() << "error opening geofile";
+
+    retval = nc_inq_dimid(ncgeofileid, "columns", &columnsid);
+    if(retval != NC_NOERR) qDebug() << "error reading columns id geofile";
+    retval = nc_inq_dimlen(ncgeofileid, columnsid, &columnslength);
+    if(retval != NC_NOERR) qDebug() << "error reading columns length geofile";
+
+    retval = nc_inq_dimid(ncgeofileid, "rows", &rowsid);
+    if(retval != NC_NOERR) qDebug() << "error reading rows id geofile";
+    retval = nc_inq_dimlen(ncgeofileid, rowsid, &rowslength);
+    if(retval != NC_NOERR) qDebug() << "error reading rows length geofile";
 
 
-    NcDim coldim = geoFile.getDim("columns");
-    NcDim rowdim = geoFile.getDim("rows");
-    int columns = coldim.getSize();
-    int rows = rowdim.getSize();
+
+    this->longitude.reset(new int[columnslength * rowslength]);
+    this->latitude.reset(new int[columnslength * rowslength]);
 
 
-    this->longitude.reset(new int[columns * rows]);
-    this->latitude.reset(new int[columns * rows]);
+    retval = nc_inq_varid(ncgeofileid, "longitude", &longitudeid);
+    if (retval != NC_NOERR) qDebug() << "error reading longitude id";
+    retval = nc_get_var_int(ncgeofileid, longitudeid, this->longitude.data());
+    if (retval != NC_NOERR) qDebug() << "error reading longitude values";
 
-    NcVar geolon = geoFile.getVar("longitude");
-    if(geolon.isNull()) qDebug() << "error getVar geolon";
-    geolon.getVar(this->longitude.data());
+    retval = nc_inq_varid(ncgeofileid, "latitude", &latitudeid);
+    if (retval != NC_NOERR) qDebug() << "error reading latitude id";
+    retval = nc_get_var_int(ncgeofileid, latitudeid, this->latitude.data());
+    if (retval != NC_NOERR) qDebug() << "error reading latitude values";
 
-    NcVar geolat = geoFile.getVar("latitude");
-    if(geolat.isNull()) qDebug() << "error getVar geolat";
-    geolat.getVar(this->latitude.data());
+    retval = nc_close(ncgeofileid);
+    if (retval != NC_NOERR) qDebug() << "error closing geofile";
+
 
     if(iscolorimage)
     {
@@ -191,25 +208,29 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         array1 = fname1.toUtf8();
         array2 = fname2.toUtf8();
         array3 = fname3.toUtf8();
-        pfname1 = array1.constData();
-        pfname2 = array2.constData();
-        pfname3 = array3.constData();
+        pfile1 = array1.constData();
+        pfile2 = array2.constData();
+        pfile3 = array3.constData();
 
-        NcFile dataFile1(pfname1, NcFile::read);
-        if(dataFile1.isNull()) qDebug() << "error opening dataFile1";
+        retval = nc_open(pfile1, NC_NOWRITE, &ncfile1id);
+        if(retval != NC_NOERR) qDebug() << "error opening file1";
+        retval = nc_open(pfile2, NC_NOWRITE, &ncfile2id);
+        if(retval != NC_NOERR) qDebug() << "error opening file2";
+        retval = nc_open(pfile3, NC_NOWRITE, &ncfile3id);
+        if(retval != NC_NOERR) qDebug() << "error opening file3";
 
-        NcFile dataFile2(pfname2, NcFile::read);
-        if(dataFile2.isNull()) qDebug() << "error opening dataFile2";
+        retval = nc_inq_dimid(ncfile1id, "columns", &columnsid);
+        if(retval != NC_NOERR) qDebug() << "error reading columns id file1";
+        retval = nc_inq_dimlen(ncfile1id, columnsid, &columnslength);
+        if(retval != NC_NOERR) qDebug() << "error reading columns length file1";
 
-        NcFile dataFile3(pfname3, NcFile::read);
-        if(dataFile3.isNull()) qDebug() << "error opening dataFile3";
+        retval = nc_inq_dimid(ncfile1id, "rows", &rowsid);
+        if(retval != NC_NOERR) qDebug() << "error reading rows id file1";
+        retval = nc_inq_dimlen(ncfile1id, rowsid, &rowslength);
+        if(retval != NC_NOERR) qDebug() << "error reading rows length file1";
 
-
-        NcDim coldim = dataFile1.getDim("columns");
-        NcDim rowdim = dataFile1.getDim("rows");
-        this->earth_views_per_scanline = coldim.getSize();
-        this->NbrOfLines = rowdim.getSize();
-
+        this->earth_views_per_scanline = columnslength;
+        this->NbrOfLines = rowslength;
 
         this->initializeMemory();
 
@@ -228,44 +249,60 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         pvar2 = array2.constData();
         pvar3 = array3.constData();
 
+        retval = nc_inq_varid(ncfile1id, pvar1, &radiance1id);
+        if (retval != NC_NOERR) qDebug() << "error reading radiance1 id";
+        retval = nc_get_var_ushort(ncfile1id, radiance1id, ptrbaOLCI[0].data());
+        if (retval != NC_NOERR) qDebug() << "error reading radiance1 values";
 
-        radiance1 = dataFile1.getVar(pvar1);
-        if(radiance1.isNull()) qDebug() << "error getVar radiance1";
-        radiance1.getVar(ptrbaOLCI[0].data());
+        retval = nc_inq_varid(ncfile2id, pvar2, &radiance2id);
+        if (retval != NC_NOERR) qDebug() << "error reading radiance2 id";
+        retval = nc_get_var_ushort(ncfile2id, radiance2id, ptrbaOLCI[1].data());
+        if (retval != NC_NOERR) qDebug() << "error reading radiance2 values";
 
-        radiance2 = dataFile2.getVar(pvar2);
-        if(radiance2.isNull()) qDebug() << "error getVar radiance2";
-        radiance2.getVar(ptrbaOLCI[1].data());
+        retval = nc_inq_varid(ncfile3id, pvar3, &radiance3id);
+        if (retval != NC_NOERR) qDebug() << "error reading radiance3 id";
+        retval = nc_get_var_ushort(ncfile3id, radiance3id, ptrbaOLCI[2].data());
+        if (retval != NC_NOERR) qDebug() << "error reading radiance3 values";
 
-        radiance3 = dataFile3.getVar(pvar3);
-        if(radiance3.isNull()) qDebug() << "error getVar radiance3";
-        radiance3.getVar(ptrbaOLCI[2].data());
+        retval = nc_close(ncfile1id);
+        if (retval != NC_NOERR) qDebug() << "error closing file1";
+
+        retval = nc_close(ncfile2id);
+        if (retval != NC_NOERR) qDebug() << "error closing file2";
+
+        retval = nc_close(ncfile3id);
+        if (retval != NC_NOERR) qDebug() << "error closing file3";
+
 
     }
     else
     {
         qDebug() << "Starting netCDF mono";
+        getDatasetNameFromColor(0, &fname1, &var1);
 
-        getDatasetNameFromBand(&fname1, &var1);
         qDebug() << "getDatasetNameFromBand fname1 = " << fname1 << " var1 = " << var1;
+
         array1 = fname1.toUtf8();
-        pfname1 = array1.constData();
-        NcFile dataFile1(pfname1, NcFile::read);
-        if(dataFile1.isNull()) qDebug() << "error opening dataFile1";
+        pfile1 = array1.constData();
 
+        retval = nc_open(pfile1, NC_NOWRITE, &ncfile1id);
+        if(retval != NC_NOERR) qDebug() << "error opening file1";
 
-        NcDim coldim = dataFile1.getDim("columns");
-        NcDim rowdim = dataFile1.getDim("rows");
-        this->earth_views_per_scanline = coldim.getSize();
-        this->NbrOfLines = rowdim.getSize();
+        retval = nc_inq_dimid(ncfile1id, "columns", &columnsid);
+        if(retval != NC_NOERR) qDebug() << "error reading columns id file1";
+        retval = nc_inq_dimlen(ncfile1id, columnsid, &columnslength);
+        if(retval != NC_NOERR) qDebug() << "error reading columns length file1";
 
-        qDebug() << QString("num_dims = %1 num_vars = %2 num_atts = %3 group_dim = %4")
-                            .arg(dataFile1.getDimCount())
-                            .arg(dataFile1.getVarCount())
-                            .arg(dataFile1.getAttCount())
-                            .arg(dataFile1.getGroupCount());
+        retval = nc_inq_dimid(ncfile1id, "rows", &rowsid);
+        if(retval != NC_NOERR) qDebug() << "error reading rows id file1";
+        retval = nc_inq_dimlen(ncfile1id, rowsid, &rowslength);
+        if(retval != NC_NOERR) qDebug() << "error reading rows length file1";
+
+        this->earth_views_per_scanline = columnslength;
+        this->NbrOfLines = rowslength;
 
         this->initializeMemory();
+
         for(int k = 0; k < 3; k++)
         {
             stat_max_ch[k] = 0;
@@ -273,132 +310,20 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
             active_pixels[k] = 0;
         }
 
+
         array1 = var1.toUtf8();
         pvar1 = array1.constData();
 
-        radiance1 = dataFile1.getVar(pvar1);
-        if(radiance1.isNull()) qDebug() << "error getVar radiance1";
-        radiance1.getVar(ptrbaOLCI[0].data());
+        retval = nc_inq_varid(ncfile1id, pvar1, &radiance1id);
+        if (retval != NC_NOERR) qDebug() << "error reading radiance1 id";
+        retval = nc_get_var_ushort(ncfile1id, radiance1id, ptrbaOLCI[0].data());
+        if (retval != NC_NOERR) qDebug() << "error reading radiance1 values";
+
+        retval = nc_close(ncfile1id);
+        if (retval != NC_NOERR) qDebug() << "error closing file1";
+
 
     }
-
-
-//    for(int k = 0; k < (iscolorimage ? 3 : 1) ; k++)
-//    {
-//        fname[k] = iscolorimage ? getDatasetNameFromColor(k).toLatin1() : getDatasetNameFromBand().toLatin1();
-
-//        qDebug() << "fname[k] = " << fname[k];
-
-//      //  ncFile[k].setFileName(fname[k]);
-//      //  tempfileexist = ncFile[k].exists();
-
-//        QByteArray array = fname[k].toUtf8();
-//        const char* pfname = array.constData();    bool tempfileexist;
-//        mydataFile("S3A_OL_1_EFR____20161103T102748_20161103T103048_20161103T122733_0179_010_279_2160_MAR_O_NR_002.SEN3/Oa10_radiance.nc", NcFile::read);
-
-
-//        if(mydataFile.isNull())
-//            qDebug() << "error";
-//        else
-//            qDebug() << "file open";
-
-
-//    try {
-//        qDebug() << QString("num_dims = %1 num_vars = %2 num_atts = %3 group_dim = %4")
-//                    .arg(mydataFile.getDimCount())
-//                    .arg(mydataFile.getVarCount())
-//                    .arg(mydataFile.getAttCount())
-//                    .arg(mydataFile.getGroupCount());
-//    }catch(NcException& e)
-//         {
-//           e.what();
-//           cout<<"FAILURE*************************************"<<endl;
-//           }
-
-//        NcDim coldim = mydataFile.getDim("columns");
-//        NcDim rowdim = mydataFile.getDim("rows");
-//        this->earth_views_per_scanline = coldim.getSize();
-//        this->NbrOfLines = rowdim.getSize();
-//    }
-
-//    this->initializeMemory();
-//    for(int k = 0; k < 3; k++)
-//    {
-//        stat_max_ch[k] = 0;
-//        stat_min_ch[k] = 9999999;
-//        active_pixels[k] = 0;
-//    }
-
-
-//    for(int k = 0; k < (iscolorimage ? 3 : 1) ; k++)
-//    {
-
-//        QString varName = getVariableNameFromBand();
-
-//        qDebug() << "varName = " << varName;
-//        QByteArray array = varName.toUtf8();
-//        const char* pvarname = array.constData();
-
-
-//        radiance[k] = dataFile[k].getVar(pvarname);
-//        if(radiance[k].isNull()) qDebug() << "error getVar";
-//        radiance[k].getVar(ptrbaOLCI[k].data());
-//    }
-
-//    for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
-//    {
-//        for(int j=0; j < NbrOfLines; j++)
-//        {
-//            for(int i=0; i < earth_views_per_scanline; i++)
-//            {
-//                if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < 65535)
-//                {
-//                    if(ptrbaOLCI[k][j*earth_views_per_scanline + i] > stat_max_ch[k])
-//                        stat_max_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
-//                    if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < stat_min_ch[k])
-//                        stat_min_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
-//                    active_pixels[k]++;
-//                }
-
-//            }
-//        }
-//    }
-
-
-
-//    try
-//    {
-
-//        NcFile dataFile (pfname, NcFile::read);
-//        if(dataFile.isNull())
-//            qDebug() << "error";
-//        else
-//            qDebug() << "file open";
-//        qDebug() << QString("num_dims = %1 num_vars = %2 num_atts = %3 group_dim = %4")
-//                    .arg(dataFile.getDimCount())
-//                    .arg(dataFile.getVarCount())
-//                    .arg(dataFile.getAttCount())
-//                    .arg(dataFile.getGroupCount());
-
-
-//        NcDim coldim = dataFile.getDim("columns");
-//        NcDim rowdim = dataFile.getDim("rows");
-//        this->earth_views_per_scanline = coldim.getSize();
-//        this->NbrOfLines = rowdim.getSize();
-
-//        this->initializeMemory();
-
-//        for(int k = 0; k < 3; k++)
-//        {
-//            stat_max_ch[k] = 0;
-//            stat_min_ch[k] = 9999999;
-//            active_pixels[k] = 0;
-//        }
-
-//        qDebug() <<  "Retrieve the variable named 'Oa01_radiance' ";
-//        NcVar radiance = dataFile.getVar("Oa03_radiance");
-//        if(radiance.isNull()) qDebug() << "error getVar";
-//        radiance.getVar(ptrbaOLCI[0].data());
 
     for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
     {
@@ -428,7 +353,198 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     }
 
 
+
 }
+
+//Segment *SegmentOLCI::ReadSegmentInMemory()
+//{
+
+//    QString fname1;
+//    QString fname2;
+//    QString fname3;
+//    QByteArray array1;
+//    QByteArray array2;
+//    QByteArray array3;
+//    const char* pfname1;
+//    const char* pfname2;
+//    const char* pfname3;
+//    QString var1;
+//    QString var2;
+//    QString var3;
+//    const char* pvar1;
+//    const char* pvar2;
+//    const char* pvar3;
+//    NcVar radiance1;
+//    NcVar radiance2;
+//    NcVar radiance3;
+
+//    bool iscolorimage = this->bandlist.at(0);
+
+
+//    qDebug() << "Starting netCDF geo_coordinates";
+
+
+//    QString geofile = this->fileInfo.baseName() + ".SEN3/geo_coordinates.nc";
+//    QByteArray arraygeo = geofile.toUtf8();
+//    const char *pgeofile = arraygeo.constData();
+//    NcFile geoFile(pgeofile, NcFile::read);
+//    if(geoFile.isNull()) qDebug() << "error opening geoFile";
+
+
+//    NcDim coldim = geoFile.getDim("columns");
+//    NcDim rowdim = geoFile.getDim("rows");
+//    int columns = coldim.getSize();
+//    int rows = rowdim.getSize();
+
+
+//    this->longitude.reset(new int[columns * rows]);
+//    this->latitude.reset(new int[columns * rows]);
+
+//    NcVar geolon = geoFile.getVar("longitude");
+//    if(geolon.isNull()) qDebug() << "error getVar geolon";
+//    geolon.getVar(this->longitude.data());
+
+//    NcVar geolat = geoFile.getVar("latitude");
+//    if(geolat.isNull()) qDebug() << "error getVar geolat";
+//    geolat.getVar(this->latitude.data());
+
+//    if(iscolorimage)
+//    {
+//        qDebug() << "Starting netCDF color";
+//        getDatasetNameFromColor(0, &fname1, &var1);
+//        getDatasetNameFromColor(1, &fname2, &var2);
+//        getDatasetNameFromColor(2, &fname3, &var3);
+
+//        qDebug() << "getDatasetNameFromBand fname1 = " << fname1 << " var1 = " << var1;
+//        qDebug() << "getDatasetNameFromBand fname2 = " << fname2 << " var2 = " << var2;
+//        qDebug() << "getDatasetNameFromBand fname3 = " << fname3 << " var3 = " << var3;
+
+
+//        array1 = fname1.toUtf8();
+//        array2 = fname2.toUtf8();
+//        array3 = fname3.toUtf8();
+//        pfname1 = array1.constData();
+//        pfname2 = array2.constData();
+//        pfname3 = array3.constData();
+
+//        NcFile dataFile1(pfname1, NcFile::read);
+//        if(dataFile1.isNull()) qDebug() << "error opening dataFile1";
+
+//        NcFile dataFile2(pfname2, NcFile::read);
+//        if(dataFile2.isNull()) qDebug() << "error opening dataFile2";
+
+//        NcFile dataFile3(pfname3, NcFile::read);
+//        if(dataFile3.isNull()) qDebug() << "error opening dataFile3";
+
+
+//        NcDim coldim = dataFile1.getDim("columns");
+//        NcDim rowdim = dataFile1.getDim("rows");
+//        this->earth_views_per_scanline = coldim.getSize();
+//        this->NbrOfLines = rowdim.getSize();
+
+
+//        this->initializeMemory();
+
+//        for(int k = 0; k < 3; k++)
+//        {
+//            stat_max_ch[k] = 0;
+//            stat_min_ch[k] = 9999999;
+//            active_pixels[k] = 0;
+//        }
+
+
+//        array1 = var1.toUtf8();
+//        array2 = var2.toUtf8();
+//        array3 = var3.toUtf8();
+//        pvar1 = array1.constData();
+//        pvar2 = array2.constData();
+//        pvar3 = array3.constData();
+
+
+//        radiance1 = dataFile1.getVar(pvar1);
+//        if(radiance1.isNull()) qDebug() << "error getVar radiance1";
+//        radiance1.getVar(ptrbaOLCI[0].data());
+
+//        radiance2 = dataFile2.getVar(pvar2);
+//        if(radiance2.isNull()) qDebug() << "error getVar radiance2";
+//        radiance2.getVar(ptrbaOLCI[1].data());
+
+//        radiance3 = dataFile3.getVar(pvar3);
+//        if(radiance3.isNull()) qDebug() << "error getVar radiance3";
+//        radiance3.getVar(ptrbaOLCI[2].data());
+
+//    }
+//    else
+//    {
+//        qDebug() << "Starting netCDF mono";
+
+//        getDatasetNameFromBand(&fname1, &var1);
+//        qDebug() << "getDatasetNameFromBand fname1 = " << fname1 << " var1 = " << var1;
+//        array1 = fname1.toUtf8();
+//        pfname1 = array1.constData();
+//        NcFile dataFile1(pfname1, NcFile::read);
+//        if(dataFile1.isNull()) qDebug() << "error opening dataFile1";
+
+
+//        NcDim coldim = dataFile1.getDim("columns");
+//        NcDim rowdim = dataFile1.getDim("rows");
+//        this->earth_views_per_scanline = coldim.getSize();
+//        this->NbrOfLines = rowdim.getSize();
+
+//        qDebug() << QString("num_dims = %1 num_vars = %2 num_atts = %3 group_dim = %4")
+//                            .arg(dataFile1.getDimCount())
+//                            .arg(dataFile1.getVarCount())
+//                            .arg(dataFile1.getAttCount())
+//                            .arg(dataFile1.getGroupCount());
+
+//        this->initializeMemory();
+//        for(int k = 0; k < 3; k++)
+//        {
+//            stat_max_ch[k] = 0;
+//            stat_min_ch[k] = 9999999;
+//            active_pixels[k] = 0;
+//        }
+
+//        array1 = var1.toUtf8();
+//        pvar1 = array1.constData();
+
+//        radiance1 = dataFile1.getVar(pvar1);
+//        if(radiance1.isNull()) qDebug() << "error getVar radiance1";
+//        radiance1.getVar(ptrbaOLCI[0].data());
+
+//    }
+
+
+
+//    for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
+//    {
+//        for(int j=0; j < NbrOfLines; j++)
+//        {
+//            for(int i=0; i < earth_views_per_scanline; i++)
+//            {
+//                if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < 65535)
+//                {
+//                    if(ptrbaOLCI[k][j*earth_views_per_scanline + i] > stat_max_ch[k])
+//                        stat_max_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
+//                    if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < stat_min_ch[k])
+//                        stat_min_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
+//                    active_pixels[k]++;
+//                }
+
+//            }
+//        }
+//    }
+
+//    qDebug() << QString("ptrbaOLCI min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
+//    if(iscolorimage)
+//    {
+//        qDebug() << QString("ptrbaOLCI min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
+//        qDebug() << QString("ptrbaOLCI min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
+
+//    }
+
+
+//}
 
 void SegmentOLCI::getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename)
 {

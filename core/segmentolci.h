@@ -43,8 +43,6 @@ private:
     QScopedArrayPointer<int> latitude;
     QScopedArrayPointer<int> longitude;
 
-
-
 };
 
 #endif // SEGMENTOLCIEFR_H

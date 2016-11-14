@@ -155,14 +155,14 @@ RESOURCES += \
     EUMETCastView.qrc \
     shaders.qrc
 
-unix:INCLUDEPATH += /home/hugo/libarchive-master/libarchive /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
+unix:INCLUDEPATH += /home/hugo/TAR_LIBS/libarchive-master/libarchive /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
 else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.15\include" ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4
 
 CONFIG(release, debug|release) {
     #This is a release build
     unix:LIBS += -lpthread -lz -L/usr/ \
         -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive \
-        -L/usr/lib/x86_64-linux-gnu/ -lnetcdf_c++4
+        -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
         #-L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += \
         -L$$PWD/../../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
@@ -172,7 +172,7 @@ CONFIG(release, debug|release) {
     #This is a debug build
 unix:LIBS += -lpthread -lz -L/usr/ \
     -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive \
-    -L/usr/lib/x86_64-linux-gnu/ -lnetcdf_c++4
+    -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
     #-L/usr/local/hdf5/lib -lhdf5
 else:win32:LIBS += \
     -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
