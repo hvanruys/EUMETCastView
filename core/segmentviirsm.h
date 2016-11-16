@@ -3,7 +3,12 @@
 
 #include "satellite.h"
 #include "segment.h"
+
+#ifdef _WIN32
+#include <hdf5>
+#else
 #include <hdf5/serial/hdf5.h>
+#endif
 
 class SegmentVIIRSM : public Segment
 {

@@ -3,7 +3,8 @@
 #include "options.h"
 #include <QDebug>
 #include "archive_entry.h"
-#include <netcdf>
+#include <netcdf.h>
+
 //using namespace std;
 //using namespace netCDF;
 //using namespace netCDF::exceptions;
@@ -352,7 +353,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
     }
 
-
+    return this;
 
 }
 

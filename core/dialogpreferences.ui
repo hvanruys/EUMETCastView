@@ -1699,6 +1699,13 @@
        <widget class="QWidget" name="pageOLCIConfig">
         <layout class="QVBoxLayout" name="verticalLayout_17">
          <item>
+          <widget class="QRadioButton" name="rdbRemoveS3ADirs">
+           <property name="text">
+            <string>Remove the created S3A directories</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label_11">
            <property name="text">
             <string>Band = Nbr of the channel ( 0 =  Color)     Oa01,Oa02, ...,Oa21 combobox index (1 = R, 2 = G, 3 = B)</string>

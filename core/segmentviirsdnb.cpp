@@ -1,7 +1,11 @@
 #include "segmentviirsdnb.h"
 #include "segmentimage.h"
 
+#ifdef _WIN32
+#include <hdf5>
+#else
 #include <hdf5/serial/hdf5.h>
+#endif
 
 #include <QDebug>
 

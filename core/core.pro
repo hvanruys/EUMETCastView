@@ -11,7 +11,7 @@ else:win32:TARGET = ../../EUMETCastView
 TEMPLATE = app
 CONFIG += static
 CONFIG += c++11
-
+DEFINES += LIBARCHIVE_STATIC
 
 SOURCES += main.cpp \
     mainwindow.cpp \
@@ -143,6 +143,7 @@ HEADERS  += mainwindow.h \
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
+#win32:QMAKE_LFLAGS += /NODEFAULTLIB:MSVCRT
 
 FORMS    += mainwindow.ui \
     dialogpreferences.ui \
@@ -156,27 +157,42 @@ RESOURCES += \
     shaders.qrc
 
 unix:INCLUDEPATH += /home/hugo/TAR_LIBS/libarchive-master/libarchive /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
-else:win32:INCLUDEPATH += "C:\Program Files\HDF_Group\HDF5\1.8.15\include" ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4
+else:win32:INCLUDEPATH += "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/libarchive" \
+                ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4 \
+                "C:/Program Files/netCDF 4.4.1/include" "C:/Program Files/HDF_Group/HDF5/1.8.16/include"
 
 CONFIG(release, debug|release) {
-    #This is a release build
+#This is a release build
     unix:LIBS += -lpthread -lz -L/usr/ \
         -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive \
         -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
         #-L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += \
-        -L$$PWD/../../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
-        -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5
+        -L"C:/Program Files/HDF_Group/HDF5/1.8.16/lib/" libszip.lib libzlib.lib libhdf5.lib \
+        "C:/Program Files/netCDF 4.4.1/lib/netcdf.lib" \
+        -L$$PWD/../../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
+        "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/x64/Release/archive_static.lib" \
+        Advapi32.lib
 
 } else {
-    #This is a debug build
+#This is a debug build
 unix:LIBS += -lpthread -lz -L/usr/ \
     -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive \
     -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
     #-L/usr/local/hdf5/lib -lhdf5
 else:win32:LIBS += \
-    -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lzlib \
-    -L"C:\Program Files\HDF_Group\HDF5\1.8.15\lib" -lhdf5
+        -L"C:/Program Files/HDF_Group/HDF5/1.8.16/lib/" libszip.lib libzlib.lib libhdf5.lib \
+        "C:/Program Files/netCDF 4.4.1/lib/netcdf.lib" \
+        -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
+        "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/x64/Release/archive_static.lib" \
+        Advapi32.lib
+
+else:win32:LIBS += \
+    Advapi32.lib "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/x64/Release/archive_static.lib" \
+    -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
+    -L"C:/Program Files/HDF_Group/HDF5/1.8.16/lib/" libszip.lib libzlib.lib libhdf5.lib \
+    "C:/Program Files/netCDF 4.4.1/lib/netcdf.lib"
+
 }
 
 CONFIG(release, debug|release): DEFINES += NDEBUG

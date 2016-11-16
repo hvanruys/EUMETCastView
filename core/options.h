@@ -203,7 +203,7 @@ public:
     bool colormapPlasma;
     bool colormapViridis;
 
-
+    bool remove_S3A_dirs;
 
 }; 
 

@@ -142,6 +142,8 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->rbPlasma->setChecked(opts.colormapPlasma);
     ui->rbViridis->setChecked(opts.colormapViridis);
 
+    ui->rdbRemoveS3ADirs->setChecked(opts.remove_S3A_dirs);
+
     setupStationsTable();
     setupTLESourceTable();
     setupPOILCCTable();
@@ -505,6 +507,7 @@ void DialogPreferences::dialogaccept()
     opts.colormapPlasma = ui->rbPlasma->isChecked();
     opts.colormapViridis = ui->rbViridis->isChecked();
 
+    opts.remove_S3A_dirs = ui->rdbRemoveS3ADirs->isChecked();
 
     if(POItablechanged)
         done(2);

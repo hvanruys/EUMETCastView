@@ -189,14 +189,14 @@ void Poi::Initialize()
 
         strlComboOLCI01 << "0" << "0" << "0";
         strlComboOLCI02 << "0" << "0" << "0";
-        strlComboOLCI03 << "0" << "0" << "3";
+        strlComboOLCI03 << "3" << "0" << "3";
         strlComboOLCI04 << "0" << "0" << "0";
         strlComboOLCI05 << "0" << "0" << "0";
-        strlComboOLCI06 << "0" << "0" << "2";
+        strlComboOLCI06 << "2" << "0" << "2";
         strlComboOLCI07 << "0" << "0" << "0";
         strlComboOLCI08 << "0" << "0" << "0";
         strlComboOLCI09 << "0" << "3" << "0";
-        strlComboOLCI10 << "0" << "0" << "1";
+        strlComboOLCI10 << "1" << "0" << "1";
         strlComboOLCI11 << "0" << "0" << "0";
         strlComboOLCI12 << "0" << "0" << "0";
         strlComboOLCI13 << "0" << "0" << "0";

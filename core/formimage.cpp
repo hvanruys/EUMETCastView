@@ -364,68 +364,122 @@ void FormImage::ComposeImage()
     }
     else if(viirsmcount > 0 && opts.buttonVIIRSM)
     {
-            formtoolbox->setToolboxButtons(false);
+        if(!formtoolbox->comboColVIIRSOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the VIIRS tab.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
 
-            this->displayImage(IMAGE_VIIRS_M);
-            this->kindofimage = "VIIRSM";
-            this->setSegmentType(SEG_VIIRSM);
-            bandlist = formtoolbox->getVIIRSMBandList();
-            colorlist = formtoolbox->getVIIRSMColorList();
-            invertlist = formtoolbox->getVIIRSMInvertList();
-//          in Workerthread
-            segs->seglviirsm->ComposeVIIRSImage(bandlist, colorlist, invertlist);
-//          in main thread
-//            segs->seglviirsm->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        formtoolbox->setToolboxButtons(false);
+
+        this->displayImage(IMAGE_VIIRS_M);
+        this->kindofimage = "VIIRSM";
+        this->setSegmentType(SEG_VIIRSM);
+        bandlist = formtoolbox->getVIIRSMBandList();
+        colorlist = formtoolbox->getVIIRSMColorList();
+        invertlist = formtoolbox->getVIIRSMInvertList();
+        //          in Workerthread
+        segs->seglviirsm->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+        //          in main thread
+        //            segs->seglviirsm->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
     }
     else if(viirsdnbcount > 0 && opts.buttonVIIRSDNB)
     {
-            formtoolbox->setToolboxButtons(false);
-            segs->seglviirsdnb->graphvalues.reset(new long[150 * 180]);
-            for(int i = 0; i < 150 * 180; i++)
-                segs->seglviirsdnb->graphvalues[i] = 0;
+        formtoolbox->setToolboxButtons(false);
+        segs->seglviirsdnb->graphvalues.reset(new long[150 * 180]);
+        for(int i = 0; i < 150 * 180; i++)
+            segs->seglviirsdnb->graphvalues[i] = 0;
 
 
-            this->displayImage(IMAGE_VIIRS_DNB);
-            this->kindofimage = "VIIRSDNB";
-            this->setSegmentType(SEG_VIIRSDNB);
+        this->displayImage(IMAGE_VIIRS_DNB);
+        this->kindofimage = "VIIRSDNB";
+        this->setSegmentType(SEG_VIIRSDNB);
 
-            bandlist = formtoolbox->getVIIRSMBandList();
-            colorlist = formtoolbox->getVIIRSMColorList();
-            invertlist = formtoolbox->getVIIRSMInvertList();
-            //          in Workerthread
-            segs->seglviirsdnb->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+        bandlist = formtoolbox->getVIIRSMBandList();
+        colorlist = formtoolbox->getVIIRSMColorList();
+        invertlist = formtoolbox->getVIIRSMInvertList();
+        //          in Workerthread
+        segs->seglviirsdnb->ComposeVIIRSImage(bandlist, colorlist, invertlist);
     }
     else if(olciefrcount > 0 && opts.buttonOLCIefr)
     {
-            formtoolbox->setToolboxButtons(false);
+        if(!formtoolbox->comboColOLCIOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the OLCI tab.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
 
-            this->displayImage(IMAGE_OLCI);
-            this->kindofimage = "OLCIEFR";
-            this->setSegmentType(SEG_OLCIEFR);
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
 
-            bandlist = formtoolbox->getOLCIBandList();
-            colorlist = formtoolbox->getOLCIColorList();
-            invertlist = formtoolbox->getOLCIInvertList();
+            return;
+        }
+
+        formtoolbox->setToolboxButtons(false);
+
+        this->displayImage(IMAGE_OLCI);
+        this->kindofimage = "OLCIEFR";
+        this->setSegmentType(SEG_OLCIEFR);
+
+        bandlist = formtoolbox->getOLCIBandList();
+        colorlist = formtoolbox->getOLCIColorList();
+        invertlist = formtoolbox->getOLCIInvertList();
 
 
-            //          in Workerthread
-            segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
+        //          in Workerthread
+        segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
     }
     else if(olcierrcount > 0 && opts.buttonOLCIerr)
     {
-            formtoolbox->setToolboxButtons(false);
+        if(!formtoolbox->comboColOLCIOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the OLCI tab.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
 
-            this->displayImage(IMAGE_OLCI);
-            this->kindofimage = "OLCIERR";
-            this->setSegmentType(SEG_OLCIERR);
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
 
-            bandlist = formtoolbox->getOLCIBandList();
-            colorlist = formtoolbox->getOLCIColorList();
-            invertlist = formtoolbox->getOLCIInvertList();
+            return;
+        }
+
+        formtoolbox->setToolboxButtons(false);
+
+        this->displayImage(IMAGE_OLCI);
+        this->kindofimage = "OLCIERR";
+        this->setSegmentType(SEG_OLCIERR);
+
+        bandlist = formtoolbox->getOLCIBandList();
+        colorlist = formtoolbox->getOLCIColorList();
+        invertlist = formtoolbox->getOLCIInvertList();
 
 
-            //          in Workerthread
-            segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
+        //          in Workerthread
+        segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
     }
     else
         return;

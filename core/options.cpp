@@ -241,6 +241,8 @@ void Options::Initialize()
     colormapPlasma = settings.value("/projection/colormapplasma", true ).toBool();
     colormapViridis = settings.value("/projection/colormapviridis", false ).toBool();
 
+    remove_S3A_dirs = settings.value("/parameters/removes3adirs", false).toBool();
+
     checkStringListValues();
     fbo_changed = false;
     texture_changed = false;
@@ -527,6 +529,8 @@ void Options::Save()
     settings.setValue( "/projection/colormapinferno", colormapInferno);
     settings.setValue( "/projection/colormapplasma", colormapPlasma);
     settings.setValue( "/projection/colormapviridis", colormapViridis);
+
+    settings.setValue("/parameters/removes3adirs", remove_S3A_dirs);
 
 
 }

@@ -2,6 +2,7 @@
 #include "ui_formtoolbox.h"
 #include "msgfileaccess.h"
 #include "poi.h"
+#include <cmath>
 
 extern Options opts;
 extern Poi poi;
@@ -4431,7 +4432,7 @@ void FormToolbox::slotDisplayDNBGraph()
 
 void FormToolbox::setLogValue(int deg, double rad)
 {
-    int y = trunc(round((valueRangeDNBGraph + log10(rad)) * 149 / valueRangeDNBGraph));
+    int y = floor((valueRangeDNBGraph + log10(rad)) * 149 / valueRangeDNBGraph);
     colorMap->data()->setCell(deg, y, 1);
 }
 

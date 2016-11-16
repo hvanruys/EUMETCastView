@@ -4,7 +4,12 @@
 #include "segmentlistgeostationary.h"
 #include "segmentimage.h"
 #include "qcompressor.h"
+
+#ifdef _WIN32
+#include <hdf5>
+#else
 #include <hdf5/serial/hdf5.h>
+#endif
 
 #include "MSG_HRIT.h"
 #include <QMutex>

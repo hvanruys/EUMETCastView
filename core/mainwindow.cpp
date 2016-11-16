@@ -2,7 +2,11 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#ifdef _WIN32
+#include <hdf5.h>
+#else
 #include <hdf5/serial/hdf5.h>
+#endif
 
 extern Options opts;
 extern Poi poi;
@@ -322,6 +326,24 @@ MainWindow::~MainWindow()
         QFile h5file(fileinfolist.at(i).fileName());
         if(h5file.remove())
             qDebug() << QString("Deleting h5 and Himawari files : %1").arg(fileinfolist.at(i).fileName());
+    }
+
+    QDir workingdir1(".");
+    filters.clear();
+    filters << "S3A_OL_1_*";
+    workingdir1.setNameFilters(filters);
+    workingdir1.setFilter(QDir::Dirs | QDir::NoSymLinks);
+    QStringList infolist = workingdir1.entryList();
+
+    if(opts.remove_S3A_dirs)
+    {
+        for (int i = 0; i < infolist.size(); ++i)
+        {
+            QDir deletedir(infolist.at(i));
+            bool gelukt = deletedir.removeRecursively();
+            if(gelukt)
+                qDebug() << "removing S3A dir : " << infolist.at(i);
+        }
     }
 
     qDebug() << "================closing MainWindow================";
