@@ -22,7 +22,6 @@ public:
     void setProjectionX(int line, int pixelx, int projX);
     void setProjectionY(int line, int pixelx, int projY);
     void setProjectionValue(int line, int pixelx, QRgb val);
-    void SmoothProjectionImageBilinear();
 
 private:
 

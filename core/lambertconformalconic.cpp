@@ -215,6 +215,25 @@ void LambertConformalConic::CreateMapFromVIIRS(eSegmentType type, bool combine)
 
 }
 
+void LambertConformalConic::CreateMapFromOLCI(eSegmentType type, bool combine)
+{
+    if (type == SEG_OLCIEFR)
+        segs->seglolciefr->ComposeLCCProjection(0);
+    else if( type == SEG_OLCIERR)
+        segs->seglolcierr->ComposeLCCProjection(0);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+    {
+        if( type == SEG_OLCIEFR)
+            segs->seglolciefr->SmoothOLCIImage(combine);
+        else if( type == SEG_OLCIERR)
+            segs->seglolcierr->SmoothOLCIImage(combine);
+    }
+
+}
+
 void LambertConformalConic::CreateMapFromGeostationary()
 {
     QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time

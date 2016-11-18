@@ -144,12 +144,15 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
         break;
     case IMAGE_VIIRS_M:
+        displayVIIRSImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
         break;
     case IMAGE_VIIRS_DNB:
+        displayVIIRSImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
         break;
     case IMAGE_OLCI:
+        displayOLCIImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCI)));
         break;
 

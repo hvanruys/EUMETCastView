@@ -14,7 +14,11 @@ public:
     SegmentListOLCI(eSegmentType type = SEG_OLCIEFR, SatelliteList *satl = 0, QObject *parent = 0);
     bool ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
     bool ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
+
     void ComposeGVProjection(int inputchannel);
+    void ComposeLCCProjection(int inputchannel);
+    void ComposeSGProjection(int inputchannel);
+
     void SmoothOLCIImage(bool combine);
     void ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview);
     bool TestForSegmentGLerr(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);

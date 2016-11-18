@@ -1506,21 +1506,25 @@ bool AVHRRSatellite::SelectedVIIRSMSegments()
 {
     qDebug() << "AVHRRSatellite::SelectedVIIRSSegments()";
 
-    bool selsegs = false;
+//    bool selsegs = false;
 
     QList<Segment*> *slviirs = seglviirsm->GetSegmentlistptr();
+    if(seglviirsm->NbrOfSegmentsSelected() == 0)
+        return false;
+    else
+        return true;
 
 
-    QList<Segment*>::iterator segitviirs = slviirs->begin();
-    while ( segitviirs != slviirs->end() )
-    {
-        if((*segitviirs)->IsSelected())
-            return true;
+//    QList<Segment*>::iterator segitviirs = slviirs->begin();
+//    while ( segitviirs != slviirs->end() )
+//    {
+//        if((*segitviirs)->IsSelected())
+//            return true;
 
-        ++segitviirs;
-    }
+//        ++segitviirs;
+//    }
 
-    return false;
+//    return false;
 
 }
 
@@ -1528,21 +1532,25 @@ bool AVHRRSatellite::SelectedVIIRSDNBSegments()
 {
     qDebug() << "AVHRRSatellite::SelectedVIIRSDNBSegments()";
 
-    bool selsegs = false;
+//    bool selsegs = false;
 
     QList<Segment*> *slviirs = seglviirsdnb->GetSegmentlistptr();
 
+    if(seglviirsdnb->NbrOfSegmentsSelected() == 0)
+        return false;
+    else
+        return true;
 
-    QList<Segment*>::iterator segitviirs = slviirs->begin();
-    while ( segitviirs != slviirs->end() )
-    {
-        if((*segitviirs)->IsSelected())
-            return true;
+//    QList<Segment*>::iterator segitviirs = slviirs->begin();
+//    while ( segitviirs != slviirs->end() )
+//    {
+//        if((*segitviirs)->IsSelected())
+//            return true;
 
-        ++segitviirs;
-    }
+//        ++segitviirs;
+//    }
 
-    return false;
+//    return false;
 
 }
 
@@ -1554,17 +1562,21 @@ bool AVHRRSatellite::SelectedOLCIefrSegments()
 
     QList<Segment*> *slolci = seglolciefr->GetSegmentlistptr();
 
+    if(seglolciefr->NbrOfSegmentsSelected() == 0)
+        return false;
+    else
+        return true;
 
-    QList<Segment*>::iterator segitolci = slolci->begin();
-    while ( segitolci != slolci->end() )
-    {
-        if((*segitolci)->IsSelected())
-            return true;
+//    QList<Segment*>::iterator segitolci = slolci->begin();
+//    while ( segitolci != slolci->end() )
+//    {
+//        if((*segitolci)->IsSelected())
+//            return true;
 
-        ++segitolci;
-    }
+//        ++segitolci;
+//    }
 
-    return false;
+//    return false;
 
 }
 
@@ -1576,17 +1588,21 @@ bool AVHRRSatellite::SelectedOLCIerrSegments()
 
     QList<Segment*> *slolci = seglolcierr->GetSegmentlistptr();
 
+    if(seglolcierr->NbrOfSegmentsSelected() == 0)
+        return false;
+    else
+        return true;
 
-    QList<Segment*>::iterator segitolci = slolci->begin();
-    while ( segitolci != slolci->end() )
-    {
-        if((*segitolci)->IsSelected())
-            return true;
+//    QList<Segment*>::iterator segitolci = slolci->begin();
+//    while ( segitolci != slolci->end() )
+//    {
+//        if((*segitolci)->IsSelected())
+//            return true;
 
-        ++segitolci;
-    }
+//        ++segitolci;
+//    }
 
-    return false;
+//    return false;
 
 }
 

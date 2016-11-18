@@ -1076,6 +1076,7 @@ QRgb Segment::getProjectionValue(int line, int pixelx)
         return projectionCoordValue[line * 4064 + pixelx];
         break;
     case eSegmentType::SEG_OLCIEFR:
+    case eSegmentType::SEG_OLCIERR:
         return projectionCoordValue[line * earth_views_per_scanline + pixelx];
         break;
     }

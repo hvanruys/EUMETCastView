@@ -52,11 +52,6 @@ private:
 
 
 public slots:
-  void showMetopSegments();
-  void showNoaaSegments();
-  void showGACSegments();
-  void showHRPSegments();
-  void showVIIRSSegments();
 
 
 signals:

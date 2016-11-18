@@ -879,7 +879,14 @@ int SegmentOLCI::UntarSegmentToTemp()
 
     QString intarfile = this->fileInfo.absoluteFilePath();
 
-    qDebug() << "Start UntarSegmentToTemp 1 for file " + intarfile;
+    qDebug() << "Start UntarSegmentToTemp 1 for absolutefilepath " + intarfile;
+
+    QDir direxist(this->fileInfo.completeBaseName());
+    if (direxist.exists())
+    {
+        qDebug() << "Directory " << this->fileInfo.completeBaseName() << " exists !";
+        return 0;
+    }
 
     QByteArray array = intarfile.toUtf8();
     const char* p = array.constData();
@@ -1077,14 +1084,7 @@ void SegmentOLCI::ComposeSegmentImage()
             }
             else
             {
-                if(pixval[0] >= 65528 && pixval[1] >= 65528 && pixval[2] >= 65528)
-                    row[pixelx] = qRgba(0, 0, 150, 250);
-                else if(pixval[0] == 0 || pixval[1] == 0 || pixval[2] == 0)
-                    row[pixelx] = qRgba(150, 0, 0, 250);
-                else
-                {
-                    row[pixelx] = qRgba(0, 150, 0, 250);
-                }
+                row[pixelx] = qRgba(0, 150, 0, 250);
             }
 
         }
@@ -1101,6 +1101,16 @@ void SegmentOLCI::ComposeSegmentImage()
 void SegmentOLCI::ComposeSegmentGVProjection(int inputchannel)
 {
     ComposeProjection(GVP);
+}
+
+void SegmentOLCI::ComposeSegmentLCCProjection(int inputchannel)
+{
+    ComposeProjection(LCC);
+}
+
+void SegmentOLCI::ComposeSegmentSGProjection(int inputchannel)
+{
+    ComposeProjection(SG);
 }
 
 void SegmentOLCI::ComposeProjection(eProjections proj)
@@ -1137,7 +1147,7 @@ void SegmentOLCI::ComposeProjection(eProjections proj)
         for( int j = 0; j < this->earth_views_per_scanline ; j++ )
         {
             pixval[0] = ptrbaOLCI[0][i * earth_views_per_scanline + j];
-            valok[0] = pixval[0] > 0 && pixval[0] < 65535;
+            valok[0] = pixval[0] >= 0 && pixval[0] < 65535;
 
             if(color)
             {
@@ -1248,28 +1258,28 @@ void SegmentOLCI::MapPixel( int lines, int views, double map_x, double map_y, bo
              rgbvalue = qRgba(r, r, r, 255);
         }
 
-        if(opts.sattrackinimage)
-        {
-            if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
-            {
-                rgbvalue = qRgb(250, 0, 0);
-                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-            }
-            else
-            {
-                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-                projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+//        if(opts.sattrackinimage)
+//        {
+//            if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
+//            {
+//                rgbvalue = qRgb(250, 0, 0);
+//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//            }
+//            else
+//            {
+//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
 
-            }
-        }
-        else
-        {
+//            }
+//        }
+//        else
+//        {
             if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
                 imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
             projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
-        }
+//        }
     }
 }
 

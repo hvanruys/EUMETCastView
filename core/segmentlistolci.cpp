@@ -302,10 +302,36 @@ void SegmentListOLCI::ComposeGVProjection(int inputchannel)
     }
 }
 
+void SegmentListOLCI::ComposeLCCProjection(int inputchannel)
+{
+
+    qDebug() << "SegmentListOLCIefr::ComposeLCCProjection()";
+    QList<Segment *>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentLCCProjection(inputchannel);
+        emit segmentprojectionfinished(false);
+        ++segit;
+    }
+}
+
+void SegmentListOLCI::ComposeSGProjection(int inputchannel)
+{
+
+    qDebug() << "SegmentListOLCIefr::ComposeSGProjection()";
+    QList<Segment *>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentSGProjection(inputchannel);
+        emit segmentprojectionfinished(false);
+        ++segit;
+    }
+}
+
 void SegmentListOLCI::SmoothOLCIImage(bool combine)
 {
 
-    qDebug() << "start SegmentListOLCIefr::SmoothOLCIImage()";
+    qDebug() << "start SegmentListOLCI::SmoothOLCIImage()";
 
     int lineimage = 0;
 

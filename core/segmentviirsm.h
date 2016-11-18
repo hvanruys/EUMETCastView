@@ -5,7 +5,7 @@
 #include "segment.h"
 
 #ifdef _WIN32
-#include <hdf5>
+#include <hdf5.h>
 #else
 #include <hdf5/serial/hdf5.h>
 #endif

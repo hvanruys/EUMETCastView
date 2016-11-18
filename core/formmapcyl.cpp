@@ -161,14 +161,6 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnRealTime->setChecked(opts.buttonRealTime);
     ui->btnPhong->setChecked(true);
 
-
-//    connect( ui->btnMetop, SIGNAL( clicked() ), mapcyl, SLOT( showMetopSegments() ) );
-//    connect( ui->btnNoaa, SIGNAL( clicked() ), mapcyl, SLOT( showNoaaSegments() ));
-//    connect( ui->btnGAC, SIGNAL( clicked() ), mapcyl, SLOT( showGACSegments() ));
-//    connect( ui->btnHRP, SIGNAL( clicked() ), mapcyl, SLOT( showHRPSegments() ));
-//    connect( ui->btnVIIRSM, SIGNAL( clicked() ), mapcyl, SLOT( showVIIRSSegments() ));
-//    connect( ui->btnVIIRSDNB, SIGNAL( clicked() ), mapcyl, SLOT( showVIIRSSegments() ));
-
     connect( ui->btnMetop, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
     connect( ui->btnNoaa, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnGAC, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));

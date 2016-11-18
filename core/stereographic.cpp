@@ -301,6 +301,25 @@ void StereoGraphic::CreateMapFromVIIRS(eSegmentType type, bool combine)
 
 }
 
+void StereoGraphic::CreateMapFromOLCI(eSegmentType type, bool combine)
+{
+    if (type == SEG_OLCIEFR)
+        segs->seglolciefr->ComposeSGProjection(0);
+    else if( type == SEG_OLCIERR)
+        segs->seglolcierr->ComposeSGProjection(0);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+    {
+        if( type == SEG_OLCIEFR)
+            segs->seglolciefr->SmoothOLCIImage(combine);
+        else if( type == SEG_OLCIERR)
+            segs->seglolcierr->SmoothOLCIImage(combine);
+    }
+
+}
+
 bool StereoGraphic::map_forward(double lon_rad, double lat_rad, double &map_x, double &map_y)
 {
 

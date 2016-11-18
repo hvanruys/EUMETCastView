@@ -2456,7 +2456,7 @@ void FormToolbox::on_spbGVPscale_valueChanged(double arg1)
 
 void FormToolbox::on_btnCreatePerspective_clicked()
 {
-    if(ui->rdbCombine->isChecked())
+    if(ui->rdbCombine->isChecked() && ui->rdbVIIRSDNBin->isChecked())
     {
         QRgb *row, *rowcopy;
         imageptrs->ptrimageProjectionCopy = new QImage(imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height(), QImage::Format_ARGB32);
@@ -2476,7 +2476,16 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
         {
             if(!segs->SelectedAVHRRSegments())
+            {
+                QMessageBox::information( this, "AVHHR", "No selected AVHRR segments  !" );
                 return;
+            }
+            else
+            {
+                QMessageBox::information( this, "AVHHR", "There are selected AVHRR segments  !" );
+                return;
+
+            }
         }
     }
     else if(ui->rdbVIIRSMin->isChecked())
@@ -2484,7 +2493,10 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         if(opts.buttonVIIRSM)
         {
             if(!segs->SelectedVIIRSMSegments())
+            {
+                QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
                 return;
+            }
         }
 
     }
@@ -2493,7 +2505,10 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         if(opts.buttonVIIRSDNB)
         {
             if(!segs->SelectedVIIRSDNBSegments())
+            {
+                QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
                 return;
+            }
         }
 
     }
@@ -2502,7 +2517,15 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         if(opts.buttonOLCIefr)
         {
             if(!segs->SelectedOLCIefrSegments())
+            {
+                QMessageBox::information( this, "OLCI EFR 1", "No selected OLCI EFR segments  !" );
                 return;
+            }
+        }
+        else
+        {
+            QMessageBox::information( this, "OLCI EFR 2", "No selected OLCI EFR segments  !" );
+            return;
         }
 
     }
@@ -2511,7 +2534,15 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         if(opts.buttonOLCIerr)
         {
             if(!segs->SelectedOLCIerrSegments())
+            {
+                QMessageBox::information( this, "OLCI ERR 1", "No selected OLCI ERR segments  !" );
                 return;
+            }
+        }
+        else
+        {
+            QMessageBox::information( this, "OLCI ERR 2", "No selected OLCI ERR segments  !" );
+            return;
         }
 
     }
@@ -2657,11 +2688,26 @@ void FormToolbox::on_btnCreateLambert_clicked()
         }
 
     }
+    else if(opts.buttonOLCIefr)
+    {
+        if(ui->rdbOLCIefrin->isChecked())
+        {
+            if(!segs->SelectedOLCIefrSegments())
+                return;
+        }
 
+    }
+    else if(opts.buttonOLCIerr)
+    {
+        if(ui->rdbOLCIerrin->isChecked())
+        {
+            if(!segs->SelectedOLCIerrSegments())
+                return;
+        }
+
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
-
-
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
 
@@ -2695,8 +2741,12 @@ void FormToolbox::on_btnCreateLambert_clicked()
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
         imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
-    else
+    else if(ui->rdbMeteosatin->isChecked())
         imageptrs->lcc->CreateMapFromGeostationary();
+    else if(ui->rdbOLCIefrin->isChecked())
+        imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, ui->rdbCombine->isChecked());
+    else if(ui->rdbOLCIerrin->isChecked())
+        imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, ui->rdbCombine->isChecked());
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -2737,7 +2787,6 @@ void FormToolbox::on_btnCreateStereo_clicked()
             if(!segs->SelectedVIIRSMSegments())
                 return;
         }
-
     }
     else if(opts.buttonVIIRSDNB)
     {
@@ -2746,9 +2795,25 @@ void FormToolbox::on_btnCreateStereo_clicked()
             if(!segs->SelectedVIIRSDNBSegments())
                 return;
         }
+    }
+    else if(opts.buttonOLCIefr)
+    {
+        if(ui->rdbOLCIefrin->isChecked())
+        {
+            if(!segs->SelectedOLCIefrSegments())
+                return;
+        }
 
     }
+    else if(opts.buttonOLCIerr)
+    {
+        if(ui->rdbOLCIerrin->isChecked())
+        {
+            if(!segs->SelectedOLCIerrSegments())
+                return;
+        }
 
+    }
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
@@ -2783,8 +2848,12 @@ void FormToolbox::on_btnCreateStereo_clicked()
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
         imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
-    else
+    else if(ui->rdbMeteosatin->isChecked())
         imageptrs->sg->CreateMapFromGeostationary();
+    else if(ui->rdbOLCIefrin->isChecked())
+        imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR,  ui->rdbCombine->isChecked());
+    else if(ui->rdbOLCIerrin->isChecked())
+        imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR,  ui->rdbCombine->isChecked());
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;

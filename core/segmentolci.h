@@ -17,6 +17,8 @@ public:
 
     void ComposeSegmentImage();
     void ComposeSegmentGVProjection(int inputchannel);
+    void ComposeSegmentLCCProjection(int inputchannel);
+    void ComposeSegmentSGProjection(int inputchannel);
 
 
     void initializeMemory();

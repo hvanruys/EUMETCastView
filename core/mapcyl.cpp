@@ -171,9 +171,36 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
         }
     }
 
+    if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
+    {
+        if(segs->getShowAllSegments())
+        {
+            segs->seglolciefr->RenderSegments( &painter, QColor(Qt::cyan), true );
+        }
+        else
+        {
+            segs->seglolciefr->GetFirstLastVisible( &first_julian, &last_julian );
+            showSunPosition(&painter, first_julian, last_julian);
+            segs->seglolciefr->RenderSegments( &painter, QColor(Qt::cyan), false );
+        }
+    }
+
+    if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
+    {
+        if(segs->getShowAllSegments())
+        {
+            segs->seglolcierr->RenderSegments( &painter, QColor(Qt::cyan), true );
+        }
+        else
+        {
+            segs->seglolcierr->GetFirstLastVisible( &first_julian, &last_julian );
+            showSunPosition(&painter, first_julian, last_julian);
+            segs->seglolcierr->RenderSegments( &painter, QColor(Qt::cyan), false );
+        }
+    }
 
     if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false &&
-            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false )
+            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false && opts.buttonOLCIefr == false && opts.buttonOLCIerr == false )
         showSunPosition(&painter);
 
     if (down)
@@ -224,6 +251,11 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
         isselected = segs->seglviirsm->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
     else if (opts.buttonVIIRSDNB)
         isselected = segs->seglviirsdnb->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonOLCIefr)
+        isselected = segs->seglolciefr->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonOLCIerr)
+        isselected = segs->seglolcierr->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+
 
     if(isselected)
         emit mapClicked();  // show selected segmentlist in FormEphem
@@ -415,28 +447,3 @@ void MapFieldCyl::setGrid(bool grid)
    gridset = grid;
 }
 
-void MapFieldCyl::showMetopSegments()
-{
-    qDebug() << QString("in showmetopsegments");
-    update();
-}
-
-void MapFieldCyl::showNoaaSegments()
-{
-    update();
-}
-
-void MapFieldCyl::showGACSegments()
-{
-    update();
-}
-
-void MapFieldCyl::showHRPSegments()
-{
-    update();
-}
-
-void MapFieldCyl::showVIIRSSegments()
-{
-    update();
-}
