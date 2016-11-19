@@ -2480,12 +2480,6 @@ void FormToolbox::on_btnCreatePerspective_clicked()
                 QMessageBox::information( this, "AVHHR", "No selected AVHRR segments  !" );
                 return;
             }
-            else
-            {
-                QMessageBox::information( this, "AVHHR", "There are selected AVHRR segments  !" );
-                return;
-
-            }
         }
     }
     else if(ui->rdbVIIRSMin->isChecked())
