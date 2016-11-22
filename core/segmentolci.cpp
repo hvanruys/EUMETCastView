@@ -146,8 +146,9 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     const char* pvar3;
 
     int retval;
-    int ncgeofileid, ncfile1id, ncfile2id, ncfile3id;
-    int radiance1id, radiance2id, radiance3id;
+    int ncgeofileid, ncfileid1, ncfileid2, ncfileid3;
+    int radianceid1, radianceid2, radianceid3;
+    float scale_factor[3], add_offset[3];
 
     int columnsid, rowsid;
     size_t columnslength, rowslength;
@@ -213,21 +214,21 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         pfile2 = array2.constData();
         pfile3 = array3.constData();
 
-        retval = nc_open(pfile1, NC_NOWRITE, &ncfile1id);
+        retval = nc_open(pfile1, NC_NOWRITE, &ncfileid1);
         if(retval != NC_NOERR) qDebug() << "error opening file1";
-        retval = nc_open(pfile2, NC_NOWRITE, &ncfile2id);
+        retval = nc_open(pfile2, NC_NOWRITE, &ncfileid2);
         if(retval != NC_NOERR) qDebug() << "error opening file2";
-        retval = nc_open(pfile3, NC_NOWRITE, &ncfile3id);
+        retval = nc_open(pfile3, NC_NOWRITE, &ncfileid3);
         if(retval != NC_NOERR) qDebug() << "error opening file3";
 
-        retval = nc_inq_dimid(ncfile1id, "columns", &columnsid);
+        retval = nc_inq_dimid(ncfileid1, "columns", &columnsid);
         if(retval != NC_NOERR) qDebug() << "error reading columns id file1";
-        retval = nc_inq_dimlen(ncfile1id, columnsid, &columnslength);
+        retval = nc_inq_dimlen(ncfileid1, columnsid, &columnslength);
         if(retval != NC_NOERR) qDebug() << "error reading columns length file1";
 
-        retval = nc_inq_dimid(ncfile1id, "rows", &rowsid);
+        retval = nc_inq_dimid(ncfileid1, "rows", &rowsid);
         if(retval != NC_NOERR) qDebug() << "error reading rows id file1";
-        retval = nc_inq_dimlen(ncfile1id, rowsid, &rowslength);
+        retval = nc_inq_dimlen(ncfileid1, rowsid, &rowslength);
         if(retval != NC_NOERR) qDebug() << "error reading rows length file1";
 
         this->earth_views_per_scanline = columnslength;
@@ -250,28 +251,50 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         pvar2 = array2.constData();
         pvar3 = array3.constData();
 
-        retval = nc_inq_varid(ncfile1id, pvar1, &radiance1id);
+        retval = nc_inq_varid(ncfileid1, pvar1, &radianceid1);
         if (retval != NC_NOERR) qDebug() << "error reading radiance1 id";
-        retval = nc_get_var_ushort(ncfile1id, radiance1id, ptrbaOLCI[0].data());
+        retval = nc_get_var_ushort(ncfileid1, radianceid1, ptrbaOLCI[0].data());
         if (retval != NC_NOERR) qDebug() << "error reading radiance1 values";
 
-        retval = nc_inq_varid(ncfile2id, pvar2, &radiance2id);
+        retval = nc_inq_varid(ncfileid2, pvar2, &radianceid2);
         if (retval != NC_NOERR) qDebug() << "error reading radiance2 id";
-        retval = nc_get_var_ushort(ncfile2id, radiance2id, ptrbaOLCI[1].data());
+        retval = nc_get_var_ushort(ncfileid2, radianceid2, ptrbaOLCI[1].data());
         if (retval != NC_NOERR) qDebug() << "error reading radiance2 values";
 
-        retval = nc_inq_varid(ncfile3id, pvar3, &radiance3id);
+        retval = nc_inq_varid(ncfileid3, pvar3, &radianceid3);
         if (retval != NC_NOERR) qDebug() << "error reading radiance3 id";
-        retval = nc_get_var_ushort(ncfile3id, radiance3id, ptrbaOLCI[2].data());
+        retval = nc_get_var_ushort(ncfileid3, radianceid3, ptrbaOLCI[2].data());
         if (retval != NC_NOERR) qDebug() << "error reading radiance3 values";
 
-        retval = nc_close(ncfile1id);
+        retval = nc_get_att_float(ncfileid1, radianceid1, "scale_factor", &scale_factor[0]);
+        if (retval != NC_NOERR) qDebug() << "error reading scale_factor[0]";
+
+        retval = nc_get_att_float(ncfileid2, radianceid2, "scale_factor", &scale_factor[1]);
+        if (retval != NC_NOERR) qDebug() << "error reading scale_factor[1]";
+
+        retval = nc_get_att_float(ncfileid3, radianceid3, "scale_factor", &scale_factor[2]);
+        if (retval != NC_NOERR) qDebug() << "error reading scale_factor[2]";
+
+        retval = nc_get_att_float(ncfileid1, radianceid1, "add_offset", &add_offset[0]);
+        if (retval != NC_NOERR) qDebug() << "error reading add_offset[0]";
+
+        retval = nc_get_att_float(ncfileid2, radianceid2, "add_offset", &add_offset[1]);
+        if (retval != NC_NOERR) qDebug() << "error reading add_offset[1]";
+
+        retval = nc_get_att_float(ncfileid3, radianceid3, "add_offset", &add_offset[2]);
+        if (retval != NC_NOERR) qDebug() << "error reading add_offset[2]";
+
+
+        for(int i = 0; i < 3; i++)
+            qDebug() << QString("scale_factor %1 = %2").arg(i).arg(scale_factor[i]);
+
+        retval = nc_close(ncfileid1);
         if (retval != NC_NOERR) qDebug() << "error closing file1";
 
-        retval = nc_close(ncfile2id);
+        retval = nc_close(ncfileid2);
         if (retval != NC_NOERR) qDebug() << "error closing file2";
 
-        retval = nc_close(ncfile3id);
+        retval = nc_close(ncfileid3);
         if (retval != NC_NOERR) qDebug() << "error closing file3";
 
 
@@ -286,17 +309,17 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         array1 = fname1.toUtf8();
         pfile1 = array1.constData();
 
-        retval = nc_open(pfile1, NC_NOWRITE, &ncfile1id);
+        retval = nc_open(pfile1, NC_NOWRITE, &ncfileid1);
         if(retval != NC_NOERR) qDebug() << "error opening file1";
 
-        retval = nc_inq_dimid(ncfile1id, "columns", &columnsid);
+        retval = nc_inq_dimid(ncfileid1, "columns", &columnsid);
         if(retval != NC_NOERR) qDebug() << "error reading columns id file1";
-        retval = nc_inq_dimlen(ncfile1id, columnsid, &columnslength);
+        retval = nc_inq_dimlen(ncfileid1, columnsid, &columnslength);
         if(retval != NC_NOERR) qDebug() << "error reading columns length file1";
 
-        retval = nc_inq_dimid(ncfile1id, "rows", &rowsid);
+        retval = nc_inq_dimid(ncfileid1, "rows", &rowsid);
         if(retval != NC_NOERR) qDebug() << "error reading rows id file1";
-        retval = nc_inq_dimlen(ncfile1id, rowsid, &rowslength);
+        retval = nc_inq_dimlen(ncfileid1, rowsid, &rowslength);
         if(retval != NC_NOERR) qDebug() << "error reading rows length file1";
 
         this->earth_views_per_scanline = columnslength;
@@ -315,15 +338,37 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         array1 = var1.toUtf8();
         pvar1 = array1.constData();
 
-        retval = nc_inq_varid(ncfile1id, pvar1, &radiance1id);
+        retval = nc_inq_varid(ncfileid1, pvar1, &radianceid1);
         if (retval != NC_NOERR) qDebug() << "error reading radiance1 id";
-        retval = nc_get_var_ushort(ncfile1id, radiance1id, ptrbaOLCI[0].data());
+        retval = nc_get_var_ushort(ncfileid1, radianceid1, ptrbaOLCI[0].data());
         if (retval != NC_NOERR) qDebug() << "error reading radiance1 values";
 
-        retval = nc_close(ncfile1id);
+        retval = nc_get_att_float(ncfileid1, radianceid1, "scale_factor", &scale_factor[0]);
+        if (retval != NC_NOERR) qDebug() << "error reading scale_factor[0]";
+
+        retval = nc_get_att_float(ncfileid1, radianceid1, "add_offset", &add_offset[0]);
+        if (retval != NC_NOERR) qDebug() << "error reading add_offset[0]";
+
+        retval = nc_close(ncfileid1);
         if (retval != NC_NOERR) qDebug() << "error closing file1";
 
 
+    }
+
+    for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
+    {
+        for(int j=0; j < NbrOfLines; j++)
+        {
+            for(int i=0; i < earth_views_per_scanline; i++)
+            {
+                if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < 65535)
+                {
+                    float val = (float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k];
+                    ptrbaOLCI[k][j*earth_views_per_scanline + i]  = (unsigned int)val;
+                }
+
+            }
+        }
     }
 
     for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
@@ -344,6 +389,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
             }
         }
     }
+
 
     qDebug() << QString("ptrbaOLCI min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
     if(iscolorimage)
@@ -902,7 +948,7 @@ int SegmentOLCI::UntarSegmentToTemp()
     r = archive_read_open_filename(a, p, 20480);
     if (r != ARCHIVE_OK)
     {
-        qDebug() << "file niet gevonden ....";
+        qDebug() << "Tar file " << intarfile << " not found ....";
         return(1);
     }
 
@@ -935,9 +981,6 @@ int SegmentOLCI::UntarSegmentToTemp()
             nbrblocks++;
         }
     }
-
-
-
 
     archive_read_close(a);
     archive_read_free(a);
@@ -1034,6 +1077,8 @@ void SegmentOLCI::ComposeSegmentImage()
                 for(int i = 0; i < (color ? 3 : 1); i++)
                 {
                     indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
+                    //indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min ) / (imageptrs->stat_max - imageptrs->stat_min));
+                    //indexout[i] = pixval[i] - imageptrs->stat_min_ch[i];
                     indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
                 }
 
@@ -1046,7 +1091,8 @@ void SegmentOLCI::ComposeSegmentImage()
                     else
                     {
                         r = imageptrs->lut_ch[0][indexout[0]];
-                     //   r = indexout[0];
+                        //r = indexout[0];
+                        //r = imageptrs->lut_sentinel[indexout[0]];
                     }
                     if(invertthissegment[1])
                     {
@@ -1055,7 +1101,8 @@ void SegmentOLCI::ComposeSegmentImage()
                     else
                     {
                         g = imageptrs->lut_ch[1][indexout[1]];
-                     //   g = indexout[1];
+                        //g = indexout[1];
+                        //g = imageptrs->lut_sentinel[indexout[1]];
                     }
                     if(invertthissegment[2])
                     {
@@ -1065,6 +1112,7 @@ void SegmentOLCI::ComposeSegmentImage()
                     {
                         b = imageptrs->lut_ch[2][indexout[2]];
                         //b = indexout[2];
+                        //b = imageptrs->lut_sentinel[indexout[2]];
                     }
 
                     row[pixelx] = qRgb(r, g, b );
@@ -1084,7 +1132,7 @@ void SegmentOLCI::ComposeSegmentImage()
             }
             else
             {
-                row[pixelx] = qRgba(0, 150, 0, 250);
+                row[pixelx] = qRgba(0, 0, 0, 250);
             }
 
         }
@@ -1218,6 +1266,7 @@ void SegmentOLCI::MapPixel( int lines, int views, double map_x, double map_y, bo
         for(int i = 0; i < (color ? 3 : 1); i++)
         {
             indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
+            //indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min ) / (imageptrs->stat_max - imageptrs->stat_min));
             indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
         }
 
@@ -1228,19 +1277,28 @@ void SegmentOLCI::MapPixel( int lines, int views, double map_x, double map_y, bo
                 r = 255 - imageptrs->lut_ch[0][indexout[0]];
             }
             else
+            {
                 r = imageptrs->lut_ch[0][indexout[0]];
+                //r = imageptrs->lut_sentinel[indexout[0]];
+            }
             if(invertthissegment[1])
             {
                 g = 255 - imageptrs->lut_ch[1][indexout[1]];
             }
             else
+            {
                 g = imageptrs->lut_ch[1][indexout[1]];
+                //g = imageptrs->lut_sentinel[indexout[1]];
+            }
             if(invertthissegment[2])
             {
                 b = 255 - imageptrs->lut_ch[2][indexout[2]];
             }
             else
+            {
                 b = imageptrs->lut_ch[2][indexout[2]];
+                //b = imageptrs->lut_sentinel[indexout[2]];
+            }
 
             //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
             rgbvalue = qRgba(r, g, b, 255);
@@ -1253,7 +1311,9 @@ void SegmentOLCI::MapPixel( int lines, int views, double map_x, double map_y, bo
                 r = 255 - imageptrs->lut_ch[0][indexout[0]];
             }
             else
+            {
                 r = imageptrs->lut_ch[0][indexout[0]];
+            }
 
              rgbvalue = qRgba(r, r, r, 255);
         }

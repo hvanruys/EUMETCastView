@@ -71,8 +71,13 @@ public:
     StereoGraphic *sg;
 
     quint16 lut_ch[5][1024];
+    quint16 lut_sentinel[256];
+
     int stat_max_ch[5];
     int stat_min_ch[5];
+    long stat_max;
+    long stat_min;
+
     float stat_max_dnb;
     float stat_min_dnb;
     float minBrightnessTemp;

@@ -2491,6 +2491,18 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
     }
 
 
+    if (opts.currenttoolbox == 1)  //GVP
+    {
+        bret = imageptrs->gvp->map_forward( 0.0, (-10.0)*PI/180, map_x, map_y);
+        qDebug() << QString("0.0 -10.0 map_x = %1 map_y = %2").arg(map_x).arg(map_y);
+        bret = imageptrs->gvp->map_forward( 90.0*PI/180.0, (-10.0)*PI/180, map_x, map_y);
+        qDebug() << QString("90.0 -10.0 map_x = %1 map_y = %2").arg(map_x).arg(map_y);
+        bret = imageptrs->gvp->map_forward( 180.0*PI/180.0, (-10.0)*PI/180, map_x, map_y);
+        qDebug() << QString("180.0 -10.0 map_x = %1 map_y = %2").arg(map_x).arg(map_y);
+        bret = imageptrs->gvp->map_forward( 270.0*PI/180.0, (-10.0)*PI/180, map_x, map_y);
+        qDebug() << QString("270.0 -10.0 map_x = %1 map_y = %2").arg(map_x).arg(map_y);
+    }
+
     if(opts.gshhsglobe1On)
     {
         for (int i=0; i<gshhsdata->vxp_data_overlay[0]->nFeatures; i++)
@@ -2743,7 +2755,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
             {
                 for(double lon = -180.0; lon < 180.0; lon+=1.0)
                 {
-                    bret = imageptrs->gvp->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = imageptrs->gvp->map_forward( lon*PI/180.0, lat*PI/180.0, map_x, map_y);
 
                     if(bret)
                     {

@@ -69,21 +69,15 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
     map_radius = R*sqrt((p-1)/(p+1));
     scale = scaling;
 
+    qDebug() << QString("-------> Map radius = %1 scale = %2").arg(map_radius).arg(scale);
 
-    if(lat_center < 0.2)
-    {
-        sin_lat_o = lat_center;
-        cos_lat_o = 1 - (lat_center*lat_center/2);
-    }
-    else
-    {
+
 #ifdef WIN32 && __GNUC__
         sin_lat_o = sin(lat_center);
         cos_lat_o = cos(lat_center);
 #else
         sincos(lat_center, &sin_lat_o,&cos_lat_o);
 #endif
-    }
 
     return map_radius;
 }
@@ -386,12 +380,15 @@ bool GeneralVerticalPerspective::genpersfor(double lon, double lat, double *x, d
     dlon = adjust_lon_rad(lon - lon_center);
 
 
-#ifdef WIN32 && __GNUC__
+//#ifdef WIN32 && __GNUC__
+//        sinphi = sin(lat);
+//        cosphi = cos(lat);
+//#else
+//        sincos(lat,&sinphi,&cosphi);
+//#endif
         sinphi = sin(lat);
         cosphi = cos(lat);
-#else
-        sincos(lat,&sinphi,&cosphi);
-#endif
+
         coslon = cos(dlon);
         sinlon = sin(dlon);
 

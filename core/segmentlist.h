@@ -84,6 +84,7 @@ protected:
     long TotalSegmentsInDirectory;
     long stat_max_ch[5];
     long stat_min_ch[5];
+
 //    long stat_3_0_max_ch;
 //    long stat_3_1_max_ch;
 //    long stat_3_0_min_ch;

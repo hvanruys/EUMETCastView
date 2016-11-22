@@ -181,6 +181,28 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
 
     imageptrs->active_pixels = cnt_active_pixels;
 
+    imageptrs->stat_max = 0;
+    imageptrs->stat_min = 99999999;
+
+    for(int k = 0; k < (composecolor ? 3 : 1); k++)
+    {
+        if(imageptrs->stat_max < this->stat_max_ch[k])
+            imageptrs->stat_max = this->stat_max_ch[k];
+        if(imageptrs->stat_min > this->stat_min_ch[k])
+            imageptrs->stat_min = this->stat_min_ch[k];
+    }
+
+    qDebug() << QString("imageptrs stat_min_ch[0] = %1 stat_max_ch[0] = %2").arg(imageptrs->stat_min_ch[0]).arg(imageptrs->stat_max_ch[0]);
+    if(composecolor)
+    {
+        qDebug() << QString("imageptrs stat_min_ch[1] = %1 stat_max_ch[1] = %2").arg(imageptrs->stat_min_ch[1]).arg(imageptrs->stat_max_ch[1]);
+        qDebug() << QString("imageotrs stat_min_ch[2] = %1 stat_max_ch[2] = %2").arg(imageptrs->stat_min_ch[2]).arg(imageptrs->stat_max_ch[2]);
+
+    }
+    qDebug() << QString("imageptrs stat min = %1 stat max = %2").arg(imageptrs->stat_min).arg(imageptrs->stat_max);
+
+
+    CalculateLUTAlt();
     CalculateLUT();
 
     segsel = segsselected.begin();
@@ -195,7 +217,6 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
     }
 
     qDebug() << " SegmentListOLCI::ComposeOLCIImageInThread Finished !!";
-
 
     QApplication::restoreOverrideCursor();
 
@@ -286,6 +307,81 @@ void SegmentListOLCI::CalculateLUT()
             imageptrs->lut_ch[k][i] = (quint16)(sum_ch[k] * newscale);
             imageptrs->lut_ch[k][i] = ( imageptrs->lut_ch[k][i] > 255 ? 255 : imageptrs->lut_ch[k][i]);
         }
+    }
+}
+
+void SegmentListOLCI::CalculateLUTAlt()
+{
+    qDebug() << "start SegmentListOLCI::CalculateLUTAlt()";
+    int earth_views = this->earth_views_per_scanline;
+    long stats[256];
+
+        for (int j = 0; j < 256; j++)
+        {
+            stats[j] = 0;
+        }
+
+
+    bool composecolor;
+
+    QList<Segment *>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
+        composecolor = segm->composeColorImage();
+
+        if(composecolor)
+        {
+            for (int line = 0; line < segm->NbrOfLines; line++)
+            {
+                for (int pixelx = 0; pixelx < earth_views; pixelx++)
+                {
+                    int pixel0 = *(segm->ptrbaOLCI[0].data() + line * earth_views + pixelx);
+                    int pixel1 = *(segm->ptrbaOLCI[1].data() + line * earth_views + pixelx);
+                    int pixel2 = *(segm->ptrbaOLCI[2].data() + line * earth_views + pixelx);
+                    int pixcalc0 = 256 * (pixel0 - imageptrs->stat_min_ch[0]) / (imageptrs->stat_max_ch[0] - imageptrs->stat_min_ch[0]);
+                    int pixcalc1 = 256 * (pixel1 - imageptrs->stat_min_ch[1]) / (imageptrs->stat_max_ch[1] - imageptrs->stat_min_ch[1]);
+                    int pixcalc2 = 256 * (pixel2 - imageptrs->stat_min_ch[2]) / (imageptrs->stat_max_ch[2] - imageptrs->stat_min_ch[2]);
+
+                    int pixel = (int)((float)pixcalc0 * 0.299 + (float)pixcalc1 * 0.587 + (float)pixcalc2 * 0.114);
+
+                    pixel = ( pixel < 0 ? 0 : pixel);
+                    pixel = ( pixel > 255 ? 255 : pixel );
+                    stats[pixel]++;
+                }
+            }
+        }
+        else
+        {
+            for (int line = 0; line < segm->NbrOfLines; line++)
+            {
+                for (int pixelx = 0; pixelx < earth_views; pixelx++)
+                {
+                    int pixel0 = *(segm->ptrbaOLCI[0].data() + line * earth_views + pixelx);
+                    int pixcalc0 = 256 * (pixel0 - imageptrs->stat_min_ch[0]) / (imageptrs->stat_max_ch[0] - imageptrs->stat_min_ch[0]);
+
+                    int pixel = pixcalc0;
+
+                    pixel = ( pixel < 0 ? 0 : pixel);
+                    pixel = ( pixel > 255 ? 255 : pixel );
+                    stats[pixel]++;
+                }
+            }
+
+        }
+        ++segsel;
+    }
+
+    // float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
+    float newscale = 256.0 / imageptrs->active_pixels;
+
+    unsigned long long sum_ch = 0;
+
+    for( int i = 0; i < 256; i++)
+    {
+        sum_ch += stats[i];
+        imageptrs->lut_sentinel[i] = (quint16)(sum_ch * newscale);
+        imageptrs->lut_sentinel[i] = ( imageptrs->lut_sentinel[i] > 255 ? 255 : imageptrs->lut_sentinel[i]);
     }
 }
 

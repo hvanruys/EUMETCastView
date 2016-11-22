@@ -26,6 +26,7 @@ public:
 private:
 
     void CalculateLUT();
+    void CalculateLUTAlt();
 
     SatelliteList *satlist;
 
