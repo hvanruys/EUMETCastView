@@ -3,6 +3,9 @@
 
 #include <QObject>
 #include "segmentlist.h"
+#include "segmentolci.h"
+
+#include "FreeImage.h"
 
 class SatelliteList;
 
@@ -15,25 +18,37 @@ public:
     bool ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
     bool ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
 
-    void ComposeGVProjection(int inputchannel);
-    void ComposeLCCProjection(int inputchannel);
-    void ComposeSGProjection(int inputchannel);
+    void ComposeGVProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeLCCProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSGProjection(int inputchannel, int histogrammethod, bool normalized);
 
     void SmoothOLCIImage(bool combine);
     void ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview);
     bool TestForSegmentGLerr(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
+    void setHistogramMethod(int histo, bool normal) { histogrammethod = histo; normalized = normal;}
+    bool ChangeHistogramMethod();
+
+    void ComposeSegments();
+    void Compose48bitPNG(QString fileName);
+    void Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap, int heightinsegment);
+
+    void RecalculateCLAHEOLCI();
+
 
 private:
 
     void CalculateLUT();
     void CalculateLUTAlt();
-
+    void CalculateLUTFull();
+    void CalculateProjectionLUT();
     SatelliteList *satlist;
 
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> inverselist;
 
+    int histogrammethod;
+    bool normalized;
 
 protected:
 

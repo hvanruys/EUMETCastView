@@ -106,12 +106,11 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     ui->chkTexture->setChecked(opts.textureOn);
     ui->chkStations->setChecked(opts.stationnameOn);
-    ui->chkLight->setChecked(opts.bPhongModel);
+    ui->chkLight->setChecked(opts.buttonPhong);
     ui->chkImageOnTextureMet->setChecked(opts.imageontextureOnMet);
     ui->chkImageOnTextureAVHRR->setChecked(opts.imageontextureOnAVHRR);
     ui->chkImageOnTextureVIIRS->setChecked(opts.imageontextureOnVIIRS);
-    ui->chkImageOnTextureOLCIefr->setChecked(opts.imageontextureOnOLCIefr);
-    ui->chkImageOnTextureOLCIerr->setChecked(opts.imageontextureOnOLCIerr);
+    ui->chkImageOnTextureOLCIefr->setChecked(opts.imageontextureOnOLCI);
     ui->chkWindowVectors->setChecked(opts.windowvectors);
     ui->chkUDPMessages->setChecked(opts.udpmessages);
 
@@ -163,6 +162,9 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     ui->stackedWidget->setCurrentIndex(0);
     ui->listWidget->item(0)->setSelected(true);
+
+    const QString htmlstring = "When checked the created OLCI ERR and EFR directories will be removed";
+    ui->rdbRemoveS3ADirs->setWhatsThis(htmlstring);
 
 }
 
@@ -472,12 +474,11 @@ void DialogPreferences::dialogaccept()
 
     opts.textureOn = ui->chkTexture->isChecked();
     opts.stationnameOn = ui->chkStations->isChecked();
-    opts.bPhongModel = ui->chkLight->isChecked();
+    opts.buttonPhong = ui->chkLight->isChecked();
     opts.imageontextureOnMet = ui->chkImageOnTextureMet->isChecked();
     opts.imageontextureOnAVHRR = ui->chkImageOnTextureAVHRR->isChecked();
     opts.imageontextureOnVIIRS = ui->chkImageOnTextureVIIRS->isChecked();
-    opts.imageontextureOnOLCIefr = ui->chkImageOnTextureOLCIefr->isChecked();
-    opts.imageontextureOnOLCIerr = ui->chkImageOnTextureOLCIerr->isChecked();
+    opts.imageontextureOnOLCI = ui->chkImageOnTextureOLCIefr->isChecked();
     opts.windowvectors = ui->chkWindowVectors->isChecked();
     opts.udpmessages = ui->chkUDPMessages->isChecked();
 

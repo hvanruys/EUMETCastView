@@ -8,6 +8,22 @@
 #include <QColor>
 #include <QRect>
 
+#define TAB_AVHRR 0
+#define TAB_VIIRS 1
+#define TAB_OLCI 2
+#define TAB_GEOSTATIONARY 3
+#define TAB_PROJECTION 4
+#define TAB_HISTOGRAM 5
+
+#define TAB_LLC 0
+#define TAB_GVP 1
+#define TAB_GS  2
+
+#define CMB_HISTO_NONE_95 0
+#define CMB_HISTO_NONE_100 1
+#define CMB_HISTO_EQUALIZE 2
+#define CMB_HISTO_EQUALIZE_PROJ 3
+#define CMB_HISTO_CLAHE 4
 
 class Options 
 {
@@ -25,6 +41,7 @@ public:
     int zoomfactormeteosat;
     int zoomfactorprojection;
     int zoomfactorviirs;
+    int zoomfactorolci;
     QStringList segmentdirectorylist;
     QStringList segmentdirectorylistinc;
     bool buttonMetop;
@@ -37,6 +54,8 @@ public:
     bool buttonOLCIerr;
     bool buttonRealTime;
     bool buttonEqualization;
+    bool buttonShowAllSegments;
+    bool buttonPhong;
     int nbrofvisiblesegments;
     int realminutesshown;
     int nbrofhours;
@@ -110,8 +129,7 @@ public:
     bool imageontextureOnMet;
     bool imageontextureOnAVHRR;
     bool imageontextureOnVIIRS;
-    bool imageontextureOnOLCIefr;
-    bool imageontextureOnOLCIerr;
+    bool imageontextureOnOLCI;
     bool windowvectors;
     bool udpmessages;
     bool gshhsglobe1On;
@@ -169,7 +187,6 @@ public:
     int channelontexture;
     bool fbo_changed;
     bool texture_changed;
-    bool bPhongModel;
 
     int lastcomboMet006;
     int lastcomboMet008;

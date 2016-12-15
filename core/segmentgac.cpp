@@ -630,7 +630,7 @@ void SegmentGAC::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTo
 }
 
 
-void SegmentGAC::ComposeSegmentLCCProjection(int inputchannel)
+void SegmentGAC::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     qDebug() << QString("ComposeSegmentLCCProjection startLineNbr = %1").arg(this->startLineNbr);
     int startheight = this->startLineNbr;
@@ -645,7 +645,7 @@ void SegmentGAC::ComposeSegmentLCCProjection(int inputchannel)
     QApplication::processEvents();
 }
 
-void SegmentGAC::ComposeSegmentGVProjection(int inputchannel)
+void SegmentGAC::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     qDebug() << QString("ComposeSegmentGVProjection startLineNbr = %1").arg(this->startLineNbr);
     int startheight = this->startLineNbr;
@@ -660,12 +660,7 @@ void SegmentGAC::ComposeSegmentGVProjection(int inputchannel)
     QApplication::processEvents();
 }
 
-//void SegmentGAC::ComposeSegmentGVProjection(int inputchannel)
-//{
-//    ComposeProjection(inputchannel, GVP);
-//}
-
-void SegmentGAC::ComposeSegmentSGProjection(int inputchannel)
+void SegmentGAC::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     qDebug() << QString("ComposeSegmentSGProjection startLineNbr = %1").arg(this->startLineNbr);
     int startheight = this->startLineNbr;

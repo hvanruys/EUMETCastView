@@ -121,5 +121,6 @@
         <file>icons/oxygen/zoom-out.png</file>
         <file>icons/oxygen/zoom-fit-best-width.png</file>
         <file>icons/satell2.png</file>
+        <file>icons/question-mark-cursor_318-113947.png</file>
     </qresource>
 </RCC>

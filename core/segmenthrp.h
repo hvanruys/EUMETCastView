@@ -16,9 +16,9 @@ public:
 
     void ComposeProjection(int inputchannel, eProjections proj);
 
-    void ComposeSegmentLCCProjection(int inputchannel);
-    void ComposeSegmentGVProjection(int inputchannel);
-    void ComposeSegmentSGProjection(int inputchannel);
+    void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
     void RenderSegmentlineInProjectionAlternative(int channel, int heightintotalimage, QEci eciref, double ang_vel, double pitch, double roll, double yaw, eProjections proj);
     //void RenderSegmentlineInLCCAlternative1(int channel, int heightintotalimage, cEci eciref, double ang_vel);
     void RenderSegmentlineInProjection(int channel, int heightintotalimage, QEci eciref, double ang_vel,eProjections proj);

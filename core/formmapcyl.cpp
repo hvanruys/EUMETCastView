@@ -34,6 +34,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnOLCIerr->setCheckable(true);
     ui->btnRealTime->setCheckable(true);
     ui->btnPhong->setCheckable(true);
+    ui->btnAllSegments->setCheckable(true);
 
 
     if (opts.buttonMetop)
@@ -159,7 +160,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
     ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
-    ui->btnPhong->setChecked(true);
+    ui->btnPhong->setChecked(opts.buttonPhong);
+    ui->btnAllSegments->setChecked(opts.buttonShowAllSegments);
 
     connect( ui->btnMetop, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
     connect( ui->btnNoaa, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
@@ -172,6 +174,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     connect(mapcyl, SIGNAL(wheelChange(int)), this, SLOT(changeScrollBar(int)));
     connect(mapcyl, SIGNAL(mapClicked()), this, SLOT(showSegmentcount()));
     connect(globe, SIGNAL(mapClicked()), this, SLOT(showSegmentcount()));
+
+    segs->setShowAllSegments(ui->btnAllSegments->isChecked());
 
     this->showSegmentcount();
 
@@ -706,20 +710,23 @@ void FormMapCyl::on_btnOLCIerr_clicked()
 void FormMapCyl::on_btnAllSegments_clicked()
 {
     segs->setShowAllSegments(ui->btnAllSegments->isChecked());
+    opts.buttonShowAllSegments = ui->btnAllSegments->isChecked();
 }
 
 void FormMapCyl::on_btnPhong_clicked()
 {
-    if(opts.bPhongModel)
-    {
-        ui->btnPhong->setChecked(false);
-        opts.bPhongModel = false;
-    }
-    else
-    {
-        ui->btnPhong->setChecked(true);
-        opts.bPhongModel = true;
-    }
+//    if(opts.buttonPhong)
+//    {
+//        ui->btnPhong->setChecked(false);
+//        opts.buttonPhong = false;
+//    }
+//    else
+//    {
+//        ui->btnPhong->setChecked(true);
+//        opts.buttonPhong = true;
+//    }
+
+    opts.buttonPhong = ui->btnPhong->isChecked();
 }
 
 

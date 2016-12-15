@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>427</width>
     <height>1135</height>
    </rect>
   </property>
@@ -2707,7 +2707,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnTextureOLCIefr">
+          <widget class="QPushButton" name="btnTextureOLCI">
            <property name="text">
             <string>Texture</string>
            </property>
@@ -2727,6 +2727,29 @@
          <item>
           <widget class="QComboBox" name="comboOLCIConfig"/>
          </item>
+         <item>
+          <spacer name="horizontalSpacer_103">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnSaveAsPNG48bits">
+           <property name="statusTip">
+            <string extracomment="Save as 48bit RGB PNG image"/>
+           </property>
+           <property name="text">
+            <string>  Save as 48bit PNG  </string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -2740,6 +2763,70 @@
          </item>
          <item>
           <widget class="QLineEdit" name="leOLCIConfig"/>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_105">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_78">
+         <item>
+          <widget class="QLabel" name="label_47">
+           <property name="text">
+            <string>Histogram matching :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cmbHistogram"/>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdbOLCINormalized">
+           <property name="text">
+            <string>Normalized</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_104">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_79">
+         <item>
+          <spacer name="horizontalSpacer_48">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -3925,104 +4012,184 @@
       <attribute name="title">
        <string>Projections</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_22">
+      <layout class="QVBoxLayout" name="verticalLayout_25">
        <item>
-        <widget class="QFrame" name="frame_3">
+        <widget class="QFrame" name="frameInputImages">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_6">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_5">
+           <widget class="QLabel" name="label_5">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <property name="text">
+             <string>Input Images</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_37">
             <item>
-             <widget class="QLabel" name="label_5">
-              <property name="frameShape">
-               <enum>QFrame::Box</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
+             <widget class="QRadioButton" name="rdbAVHRRin">
               <property name="text">
-               <string>Input Images</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_37">
-              <item>
-               <widget class="QRadioButton" name="rdbAVHRRin">
-                <property name="text">
-                 <string>AVHRR Image </string>
-                </property>
-                <property name="autoExclusive">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="cmbInputAVHRRChannel"/>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rdbVIIRSMin">
-              <property name="text">
-               <string>VIIRS M Image</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_63">
-              <item>
-               <widget class="QRadioButton" name="rdbVIIRSDNBin">
-                <property name="text">
-                 <string>VIIRS DNB image</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="rdbCombine">
-                <property name="text">
-                 <string>Combine with background</string>
-                </property>
-                <property name="autoExclusive">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rdbOLCIefrin">
-              <property name="text">
-               <string>OLCI efr Image</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rdbOLCIerrin">
-              <property name="text">
-               <string>OLCI err Image</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rdbMeteosatin">
-              <property name="text">
-               <string>Geostationary Image</string>
+               <string>AVHRR Image </string>
               </property>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QComboBox" name="cmbInputAVHRRChannel"/>
+            </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rdbVIIRSMin">
+            <property name="text">
+             <string>VIIRS M Image</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_63">
+            <item>
+             <widget class="QRadioButton" name="rdbVIIRSDNBin">
+              <property name="text">
+               <string>VIIRS DNB image</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_108">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="rdbCombine">
+              <property name="text">
+               <string>Combine with background</string>
+              </property>
+              <property name="autoExclusive">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_82">
+            <item>
+             <spacer name="horizontalSpacer_109">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_48">
+              <property name="text">
+               <string>EFR/ERR Histogram</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_80">
+            <item>
+             <widget class="QRadioButton" name="rdbOLCIefrin">
+              <property name="text">
+               <string>OLCI EFR Image</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_106">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cmbHistogramProj"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_81">
+            <item>
+             <widget class="QRadioButton" name="rdbOLCIerrin">
+              <property name="text">
+               <string>OLCI ERR Image</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_107">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="rdbOLCIprojNormalized">
+              <property name="text">
+               <string>EFR/ERR Normalized</string>
+              </property>
+              <property name="autoExclusive">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rdbMeteosatin">
+            <property name="text">
+             <string>Geostationary Image</string>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -4875,8 +5042,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>338</width>
-                 <height>509</height>
+                 <width>365</width>
+                 <height>477</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -5089,19 +5256,19 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnGVPHome">
-                    <property name="text">
-                     <string>Home</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <widget class="QPushButton" name="btnGVPFalseColor">
                     <property name="text">
                      <string>False Color</string>
                     </property>
                     <property name="checkable">
                      <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnGVPHome">
+                    <property name="text">
+                     <string>Home</string>
                     </property>
                    </widget>
                   </item>

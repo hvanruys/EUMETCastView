@@ -25,6 +25,8 @@
 
 #include "options.h"
 #include "poi.h"
+#include <png.h>
+
 
 namespace Ui {
 class MainWindow;
@@ -98,6 +100,8 @@ private slots:
     void moveImage(QPoint, QPoint);
     void slotSwitchStackedWindow(int);
     void slotPreferencesFinished(int result);
+
+    void on_actionWhatsthis_triggered();
 
 public slots:
     void updateStatusBarIndicator(const QString &text);

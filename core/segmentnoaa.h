@@ -18,9 +18,9 @@ public:
     Segment *ReadSegmentInMemory();
     int ReadNbrOfLines();
     void ComposeProjection(int inputchannel, eProjections proj);
-    void ComposeSegmentLCCProjection(int inputchannel);
-    void ComposeSegmentGVProjection(int inputchannel);
-    void ComposeSegmentSGProjection(int inputchannel);
+    void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
     void RenderSegmentlineInProjection(int channel, int nbrLine, int heightintotalimage , QEci eciref, double ang_vel, eProjections proj);
     void RenderSegmentlineInProjectionCirc(QRgb *row_col, int nbrLine, double lat_first, double lon_first, double lat_last, double lon_last, double altitude, eProjections proj);
     void RenderSegmentlineInProjectionAlternative(int channel, int nbrLine, int heightintotalimage, QEci eciref, double ang_vel, eProjections proj);

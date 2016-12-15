@@ -15,10 +15,10 @@ public:
     explicit SegmentOLCI(eSegmentType type, QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
     Segment *ReadSegmentInMemory();
 
-    void ComposeSegmentImage();
-    void ComposeSegmentGVProjection(int inputchannel);
-    void ComposeSegmentLCCProjection(int inputchannel);
-    void ComposeSegmentSGProjection(int inputchannel);
+    void ComposeSegmentImage(int histogrammethod, bool normalized);
+    void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
 
 
     void initializeMemory();
@@ -26,24 +26,32 @@ public:
 
     void CalculateDetailCornerPoints();
     void setupVector(double statevec, QSgp4Date sensing);
+    void recalculateStatsInProjection(bool normalized);
+    void RecalculateProjection(bool normalized);
+
 
     ~SegmentOLCI();
 
     int UntarSegmentToTemp();
+    int stat_max_projection[3];
+    int stat_min_projection[3];
+    long active_pixels_projection;
 
 private:
-    void RenderSegmentlineInTextureOLCIefr( int nbrLine, QRgb *row );
+    void RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row );
     void getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename);
     void getDatasetNameFromBand(QString *datasetname, QString *variablename);
 
-    void ComposeProjection(eProjections proj);
-    void MapPixel( int lines, int views, double map_x, double map_y, bool color);
-
+    void ComposeProjection(eProjections proj, int histogrammethod, bool normalized);
+    void MapPixel(int lines, int views, double map_x, double map_y, bool iscolor, int histogrammethod, bool normalized);
+    float getSolarZenith(int *tieSZA, int navpoint, int intpoint, int nbrLine);
     bool invertthissegment[3];
     int copy_data(struct archive *ar, struct archive *aw);
 
+
     QScopedArrayPointer<int> latitude;
     QScopedArrayPointer<int> longitude;
+
 
 };
 

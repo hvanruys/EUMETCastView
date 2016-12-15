@@ -24,11 +24,13 @@ public:
     void ComposeImage();
     bool ShowVIIRSMImage();
     bool ShowVIIRSDNBImage();
-    bool ShowOLCIefrImage();
-    bool ShowOLCIerrImage();
+    bool ShowOLCIefrImage(int histogrammethod, bool normalized);
+    bool ShowOLCIerrImage(int histogrammethod, bool normalized);
+    void setHistogramMethod(int histogrammethod, bool normalized);
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void recalculateCLAHEOLCI(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CLAHEprojection();
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayProjection(QPainter *paint,  SegmentListGeostationary *sl);
@@ -60,6 +62,10 @@ public:
 
     void adjustImage();
     void adjustPicSize(bool setwidth);
+    bool ShowHistogramImage(int histogrammethod, bool normalized);
+
+    void UpdateProjection();
+    void SaveAsPNG48bits(int histogrammethod, bool normalized);
 
     int metopcount;
     int noaacount;
@@ -113,6 +119,7 @@ private:
     int zoomValuemeteosat;
     int zoomValueprojection;
     int zoomValueviirs;
+    int zoomValueolci;
     int zoomIncrement;
     int maxZoomValue;
     int minZoomValue;
@@ -132,13 +139,14 @@ signals:
 public slots:
     void slotMakeImage();
     void slotShowVIIRSMImage();
-    void slotShowOLCIefrImage();
-    void slotShowOLCIerrImage();
+    void slotShowOLCIefrImage(int histogrammethod, bool normalized);
+    void slotShowOLCIerrImage(int histogrammethod, bool normalized);
+    void slotShowHistogramImage(int histogrammethod, bool normalized);
+
     void setPixmapToLabel(bool settoolboxbuttons);
     void setPixmapToLabelDNB(bool settoolboxbuttons);
     void slotUpdateMeteosat();
     // void slotUpdateHimawari();
-    void slotUpdateProjection();
     void slotRefreshOverlay();
     void slotRepaintProjectionImage();
 

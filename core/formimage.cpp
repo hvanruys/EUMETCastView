@@ -5,6 +5,7 @@
 #include "pixgeoconversion.h"
 
 #include <qtconcurrentrun.h>
+#include "FreeImage.h"
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -47,6 +48,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     zoomValuemeteosat = opts.zoomfactormeteosat;
     zoomValueprojection = opts.zoomfactorprojection;
     zoomValueviirs = opts.zoomfactorviirs;
+    zoomValueolci = opts.zoomfactorolci;
 
     scaleFactor = (double)getZoomValue()/100;
     qDebug() << QString("FormImage::FormImage scalefactor = %1").arg(scaleFactor);
@@ -528,12 +530,12 @@ bool FormImage::ShowVIIRSMImage()
 
 }
 
-void FormImage::slotShowOLCIefrImage()
+void FormImage::slotShowOLCIefrImage(int histogrammethod, bool normalized)
 {
-    this->ShowOLCIefrImage();
+    this->ShowOLCIefrImage(histogrammethod, normalized);
 }
 
-bool FormImage::ShowOLCIefrImage()
+bool FormImage::ShowOLCIefrImage(int histogrammethod, bool normalized)
 {
     bool ret = false;
 
@@ -558,8 +560,8 @@ bool FormImage::ShowOLCIefrImage()
         bandlist = formtoolbox->getOLCIBandList();
         colorlist = formtoolbox->getOLCIColorList();
         invertlist = formtoolbox->getOLCIInvertList();
-
-        segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, false);
+        segs->seglolciefr->setHistogramMethod(histogrammethod, normalized);
+        segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, false); // parameter false = no untar file
     }
     else
         ret = false;
@@ -568,12 +570,12 @@ bool FormImage::ShowOLCIefrImage()
 
 }
 
-void FormImage::slotShowOLCIerrImage()
+void FormImage::slotShowOLCIerrImage(int histogrammethod, bool normalized)
 {
-    this->ShowOLCIerrImage();
+    this->ShowOLCIerrImage(histogrammethod, normalized);
 }
 
-bool FormImage::ShowOLCIerrImage()
+bool FormImage::ShowOLCIerrImage(int histogrammethod, bool normalized)
 {
     bool ret = false;
 
@@ -598,7 +600,7 @@ bool FormImage::ShowOLCIerrImage()
         bandlist = formtoolbox->getOLCIBandList();
         colorlist = formtoolbox->getOLCIColorList();
         invertlist = formtoolbox->getOLCIInvertList();
-
+        segs->seglolcierr->setHistogramMethod(histogrammethod, normalized);
         segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, false);
     }
     else
@@ -606,6 +608,31 @@ bool FormImage::ShowOLCIerrImage()
 
     return ret;
 
+}
+
+void FormImage::slotShowHistogramImage(int histogrammethod, bool normalized)
+{
+    this->ShowHistogramImage(histogrammethod, normalized);
+}
+
+bool FormImage::ShowHistogramImage(int histogrammethod, bool normalized)
+{
+    int olciefrcount = segs->seglolciefr->NbrOfSegmentsSelected();
+    int olcierrcount = segs->seglolcierr->NbrOfSegmentsSelected();
+
+    if(olciefrcount > 0)
+    {
+        segs->seglolciefr->setHistogramMethod(histogrammethod, normalized);
+        segs->seglolciefr->ChangeHistogramMethod();
+        return true;
+    }
+    else if(olcierrcount > 0)
+    {
+        segs->seglolcierr->setHistogramMethod(histogrammethod, normalized);
+        segs->seglolcierr->ChangeHistogramMethod();
+        return true;
+    }
+    return false;
 }
 
 bool FormImage::ShowVIIRSDNBImage()
@@ -699,32 +726,32 @@ void FormImage::setZoomValue(int z)
 {
     switch(channelshown)
     {
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
+    case IMAGE_AVHRR_CH1:
+    case IMAGE_AVHRR_CH2:
+    case IMAGE_AVHRR_CH3:
+    case IMAGE_AVHRR_CH4:
+    case IMAGE_AVHRR_CH5:
+    case IMAGE_AVHRR_COL:
+    case IMAGE_AVHRR_EXPAND:
         zoomValueavhrr = z;
         opts.zoomfactoravhrr = z;
         break;
-    case 8:
+    case IMAGE_GEOSTATIONARY:
         zoomValuemeteosat = z;
         opts.zoomfactormeteosat = z;
         break;
-    case 9:
+    case IMAGE_PROJECTION:
         zoomValueprojection = z;
         opts.zoomfactorprojection = z;
         break;
-    case 10:
-    case 11:
+    case IMAGE_VIIRS_M:
+    case IMAGE_VIIRS_DNB:
         zoomValueviirs = z;
         opts.zoomfactorviirs = z;
         break;
-    case 12:
-        zoomValueprojection = z;
-        opts.zoomfactorprojection = z;
+    case IMAGE_OLCI:
+        zoomValueolci = z;
+        opts.zoomfactorolci = z;
         break;
 
     }
@@ -735,27 +762,27 @@ int FormImage::getZoomValue()
     int zoomValue;
     switch(channelshown)
     {
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
+    case IMAGE_AVHRR_CH1:
+    case IMAGE_AVHRR_CH2:
+    case IMAGE_AVHRR_CH3:
+    case IMAGE_AVHRR_CH4:
+    case IMAGE_AVHRR_CH5:
+    case IMAGE_AVHRR_COL:
+    case IMAGE_AVHRR_EXPAND:
         zoomValue = zoomValueavhrr;
         break;
-    case 8:
+    case IMAGE_GEOSTATIONARY:
         zoomValue = zoomValuemeteosat;
         break;
-    case 9:
+    case IMAGE_PROJECTION:
         zoomValue = zoomValueprojection;
         break;
-    case 10:
-    case 11:
+    case IMAGE_VIIRS_M:
+    case IMAGE_VIIRS_DNB:
         zoomValue = zoomValueviirs;
         break;
-    case 12:
-        zoomValue = zoomValueprojection;
+    case IMAGE_OLCI:
+        zoomValue = zoomValueolci;
         break;
 
     }
@@ -871,7 +898,7 @@ void FormImage::paintEvent( QPaintEvent * )
         changeinfraprojection = false;
     }
 
-    this->adjustImage();
+    //this->adjustImage();
 
 }
 
@@ -1339,7 +1366,7 @@ void FormImage::slotUpdateMeteosat()
 
 
 
-void FormImage::slotUpdateProjection()
+void FormImage::UpdateProjection()
 {
     this->displayImage(IMAGE_PROJECTION);
     this->refreshoverlay = true;
@@ -1371,6 +1398,29 @@ void FormImage::recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<b
     {
         qDebug() << "segs->seglmetop count selected = " << sl->GetSegsSelectedptr()->count();
         qDebug() << "height = " << imageptrs->ptrimagecomp_col->height();
+        qDebug() << "width = " << imageptrs->ptrimagecomp_col->width();
+        qDebug() << this->kindofimage;
+        qDebug() << spectrumvector.at(0) << " " << spectrumvector.at(1) << " " << spectrumvector.at(2);
+        //npix = imageptrs->ptrimagecomp_col->height() * imageptrs->ptrimagecomp_col->width();
+        //memcpy(pixelsRed, imageptrs->ptrimagecomp_ch[0], npix * sizeof(quint32));
+
+    }
+
+}
+
+void FormImage::recalculateCLAHEOLCI(QVector<QString> spectrumvector, QVector<bool> inversevector)
+{
+    quint16 *pixelsRed;
+    quint16 *pixelsGreen;
+    quint16 *pixelsBlue;
+
+    size_t npix;
+
+    SegmentListOLCI *sl = segs->seglolciefr;
+    if(sl->GetSegsSelectedptr()->count() > 0)
+    {
+        qDebug() << "segs->seglolci count selected = " << sl->GetSegsSelectedptr()->count();
+        qDebug() << "height = " << imageptrs->ptrimageOLCI->height();
         qDebug() << "width = " << imageptrs->ptrimagecomp_col->width();
         qDebug() << this->kindofimage;
         qDebug() << spectrumvector.at(0) << " " << spectrumvector.at(1) << " " << spectrumvector.at(2);
@@ -1974,7 +2024,7 @@ void FormImage::CLAHEprojection()
         }
     }
 
-    this->slotUpdateProjection();
+    this->UpdateProjection();
 
     QApplication::restoreOverrideCursor();
 
@@ -2491,18 +2541,6 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
     }
 
 
-    if (opts.currenttoolbox == 1)  //GVP
-    {
-        bret = imageptrs->gvp->map_forward( 0.0, (-10.0)*PI/180, map_x, map_y);
-        qDebug() << QString("0.0 -10.0 map_x = %1 map_y = %2").arg(map_x).arg(map_y);
-        bret = imageptrs->gvp->map_forward( 90.0*PI/180.0, (-10.0)*PI/180, map_x, map_y);
-        qDebug() << QString("90.0 -10.0 map_x = %1 map_y = %2").arg(map_x).arg(map_y);
-        bret = imageptrs->gvp->map_forward( 180.0*PI/180.0, (-10.0)*PI/180, map_x, map_y);
-        qDebug() << QString("180.0 -10.0 map_x = %1 map_y = %2").arg(map_x).arg(map_y);
-        bret = imageptrs->gvp->map_forward( 270.0*PI/180.0, (-10.0)*PI/180, map_x, map_y);
-        qDebug() << QString("270.0 -10.0 map_x = %1 map_y = %2").arg(map_x).arg(map_y);
-    }
-
     if(opts.gshhsglobe1On)
     {
         for (int i=0; i<gshhsdata->vxp_data_overlay[0]->nFeatures; i++)
@@ -3008,10 +3046,83 @@ void FormImage::slotRepaintProjectionImage()
     this->displayImage(this->channelshown);
 }
 
+void FormImage::setHistogramMethod(int histogrammethod, bool normalized)
+{
+    segs->seglolciefr->setHistogramMethod(histogrammethod, normalized);
+    segs->seglolcierr->setHistogramMethod(histogrammethod, normalized);
+}
+
+void FormImage::SaveAsPNG48bits(int histogrammethod, bool normalized)
+{
+    QString filestr;
+
+    filestr.append("./");
+
+
+    if (this->channelshown == IMAGE_OLCI)
+    {
+        filestr += "olci_image.png";
+    }
+    else return;
+
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Save image"), filestr,
+                                                    tr("*.png"));
+    if (fileName.isEmpty())
+        return;
+    else
+    {
+            QApplication::setOverrideCursor(Qt::WaitCursor);
+            if(fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
+                fileName.append(".png");
+
+            // initialize the FreeImage library
+            FreeImage_Initialise();
+
+
+            int olciefrcount = segs->seglolciefr->NbrOfSegmentsSelected();
+            int olcierrcount = segs->seglolcierr->NbrOfSegmentsSelected();
+
+            if(olciefrcount > 0)
+            {
+                segs->seglolciefr->Compose48bitPNG(fileName);
+            }
+            else if(olcierrcount > 0)
+            {
+                segs->seglolcierr->Compose48bitPNG(fileName);
+            }
+
+
+
+
+            QApplication::restoreOverrideCursor();
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 FormImage::~FormImage()
 {
 
 }
+
+
+
+
+
+
+
 
 MyImageLabel::MyImageLabel(QLabel *parent ) :  QLabel(parent)
 {
@@ -3024,3 +3135,4 @@ void MyImageLabel::mouseMoveEvent(QMouseEvent *event)
 
     QLabel::mouseMoveEvent(event);
 }
+

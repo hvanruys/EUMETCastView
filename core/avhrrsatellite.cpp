@@ -736,6 +736,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QList<Segment*> *slolciefr = seglolciefr->GetSegmentlistptr();
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
 
+    qDebug() << QString("Start clearing segments");
+
     seglnoaa->ClearSegments();
     seglhrp->ClearSegments();
     seglgac->ClearSegments();
@@ -756,6 +758,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     segmentlistmapfy2e.clear();
     segmentlistmapfy2g.clear();
     segmentlistmaph8.clear();
+
+    qDebug() << QString("End clearing segments");
+
 
     this->countmetop = 0;
     this->countgac = 0;
@@ -1175,6 +1180,8 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
     QList<Segment*> *slgac = seglgac->GetSegmentlistptr();
     QList<Segment*> *slviirsm = seglviirsm->GetSegmentlistptr();
     QList<Segment*> *slviirsdnb = seglviirsdnb->GetSegmentlistptr();
+    QList<Segment*> *slolciefr = seglolciefr->GetSegmentlistptr();
+    QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
 
     thefilepath.replace( opts.dirremote.toLatin1(), opts.localdirremote.toLatin1()); // "/media/sdc1/", "/home/hugo/Vol2T/");
     qDebug() << "AddSegmentsToListFromUdp : " + QString(thefilepath);
@@ -1277,6 +1284,8 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
     seglgac->SetTotalSegmentsInDirectory(slgac->count());
     seglviirsm->SetTotalSegmentsInDirectory(slviirsm->count());
     seglviirsdnb->SetTotalSegmentsInDirectory(slviirsdnb->count());
+    seglolciefr->SetTotalSegmentsInDirectory(slolciefr->count());
+    seglolcierr->SetTotalSegmentsInDirectory(slolcierr->count());
 
 }
 

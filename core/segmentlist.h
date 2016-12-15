@@ -56,7 +56,9 @@ public:
 
     static void doReadSegmentInMemory(Segment *t);
     static void doComposeSegmentImage(Segment *t);
-    static void doComposeGVProjection(Segment *t);
+    //static void doComposeGVProjection(Segment *t);
+    int GetTotalNbrOfLines() { return this->totalnbroflines; }
+    int GetEartViewsPerScanline() { return this->earth_views_per_scanline; }
 
 protected:
     void BilinearInterpolation(Segment *segm, bool combine);
@@ -76,6 +78,7 @@ protected:
     int indexfirstvisible;
     int indexlastvisible;
     int earth_views_per_scanline;
+    int totalnbroflines;
 
     QString segmenttype;
     eSegmentType seglisttype;
@@ -84,14 +87,11 @@ protected:
     long TotalSegmentsInDirectory;
     long stat_max_ch[5];
     long stat_min_ch[5];
+    long stat_max_norm_ch[3];
+    long stat_min_norm_ch[3];
+    long stat_max_proj_ch[3];
+    long stat_min_proj_ch[3];
 
-//    long stat_3_0_max_ch;
-//    long stat_3_1_max_ch;
-//    long stat_3_0_min_ch;
-//    long stat_3_1_min_ch;
-
-
-    quint16 lut_ch[5][256];
     int progressresultready; // for progresscounter
     int projectioninputchannel;
     bool channel_3_select;

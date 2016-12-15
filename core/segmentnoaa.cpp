@@ -244,17 +244,17 @@ Segment *SegmentNoaa::ReadSegmentInMemory()
 
 }
 
-void SegmentNoaa::ComposeSegmentLCCProjection(int inputchannel)
+void SegmentNoaa::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(inputchannel, LCC);
 }
 
-void SegmentNoaa::ComposeSegmentGVProjection(int inputchannel)
+void SegmentNoaa::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(inputchannel, GVP);
 }
 
-void SegmentNoaa::ComposeSegmentSGProjection(int inputchannel)
+void SegmentNoaa::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(inputchannel, SG);
 }

@@ -27,19 +27,19 @@ public:
 
     Segment *ReadSegmentInMemory();
     //void RenderEarthLocationsGL();
-    void ComposeSegmentGVProjection(int inputchannel);
-    void RenderSegmentlineInGVP( int channel, int nbrLine, int heightintotalimage );
+    void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
+    void RenderSegmentlineInGVP( int channel, int nbrLine, int heightintotalimage, bool normalized);
    // void RenderSegmentlineInGVPRad(int channel, double lat_first, double lon_first, double lat_last, double lon_last, double altitude, int heightintotalimage);
 
-    void ComposeSegmentLCCProjection(int inputchannel);
-    void RenderSegmentlineInLCC( int channel, int nbrLine, int heightintotalimage );
+    void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
+    void RenderSegmentlineInLCC(int channel, int nbrLine, int heightintotalimage, bool normalized);
 
-    void ComposeSegmentSGProjection(int inputchannel);
-    void RenderSegmentlineInSG( int channel, int nbrLine, int heightintotalimage );
+    void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
+    void RenderSegmentlineInSG( int channel, int nbrLine, int heightintotalimage, bool normalized);
 
     void intermediatePoint(double lat1, double lng1, double lat2, double lng2, double f, double *lat, double *lng, double d);
     int ReadNbrOfLines();
-    float getSolarZenith(int navpoint, int intpoint, int nbrLine);
+    float getSolarZenith(int navpoint, int intpoint, int nbrLine, int startnavindex, int deltaint, int lengthintindex, int lengthnavindex );
 
     double earth_loc_lon_first[1080], earth_loc_lat_first[1080];
     double earth_loc_lon_last[1080], earth_loc_lat_last[1080];

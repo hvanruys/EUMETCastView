@@ -32,9 +32,11 @@ Segment::Segment(QObject *parent) :
     for(int k = 0; k < 5; k++)
     {
         stat_max_ch[k] = 0;
-        stat_min_ch[k] = 9999999;
+        stat_min_ch[k] = 999999999;
+        stat_max_norm_ch[k] = 0;
+        stat_min_norm_ch[k] = 999999999;
         list_stat_max_ch[k] = 0;
-        list_stat_min_ch[k] = 9999999;
+        list_stat_min_ch[k] = 999999999;
     }
 
 //    list_stat_3_0_max_ch = 0;
@@ -234,6 +236,7 @@ void Segment::initializeMemory()
     for(int k = 0; k < 5; k++)
     {
         ptrbaChannel[k].reset(new unsigned short[earth_views_per_scanline * NbrOfLines]);
+        ptrbaChannelNormalized[k].reset(new unsigned short[earth_views_per_scanline * NbrOfLines]);
     }
 }
 
@@ -243,13 +246,16 @@ void Segment::resetMemory()
     for(int k = 0; k < 5; k++)
     {
         ptrbaChannel[k].reset();
+        ptrbaChannelNormalized[k].reset();
     }
 
     for(int k = 0; k < 3; k++)
     {
         ptrbaVIIRS[k].reset();
         ptrbaOLCI[k].reset();
+        ptrbaOLCInormalized[k].reset();
     }
+    ptrbaVIIRSDNB.reset();
 
     projectionCoordX.reset();
     projectionCoordY.reset();
@@ -259,10 +265,6 @@ void Segment::resetMemory()
     earthloc_lon.reset();
     earthloc_lat.reset();
     solar_zenith_angle.reset();
-
-    projectionCoordX.reset();
-    projectionCoordY.reset();
-    projectionCoordValue.reset();
 
 }
 
@@ -1089,17 +1091,17 @@ void Segment::setBandandColor(QList<bool> band, QList<int> color, QList<bool> in
     invertlist = invert;
 }
 
-void Segment::ComposeSegmentGVProjection(int inputchannel)
+void Segment::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
 
 }
 
-void Segment::ComposeSegmentLCCProjection(int inputchannel)
+void Segment::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
 
 }
 
-void Segment::ComposeSegmentSGProjection(int inputchannel)
+void Segment::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
 
 }

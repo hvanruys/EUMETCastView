@@ -4,11 +4,16 @@
 #include "poi.h"
 #include <cmath>
 
+#include "FreeImage.h"
+
 extern Options opts;
 extern Poi poi;
 extern SegmentImage *imageptrs;
 
 #include <QMutex>
+
+#define BIT_DEPTH 8
+#define BYTES_PER_PIXEL ((3 * BIT_DEPTH)/8) + 1 //RGBA
 
 extern QMutex g_mutex;
 
@@ -61,10 +66,10 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     else
         ui->btnTextureVIIRS->setText("Texture Off");
 
-    if (opts.imageontextureOnOLCIefr)
-        ui->btnTextureOLCIefr->setText("Texture On");
+    if (opts.imageontextureOnOLCI)
+        ui->btnTextureOLCI->setText("Texture On");
     else
-        ui->btnTextureOLCIefr->setText("Texture Off");
+        ui->btnTextureOLCI->setText("Texture Off");
 
     ui->btnOverlayMeteosat->setText("Overlay On");
     ui->btnOverlayProjectionGVP->setText("Overlay On");
@@ -301,6 +306,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     double valuerange1;
     double valuerange2;
 
+    //ui->graph->setInteraction(QCP::iRangeDrag|QCP::iRangeZoom);
     colorMap = new QCPColorMap(ui->graph->xAxis, ui->graph->yAxis);
     ui->graph->addPlottable(colorMap);
 
@@ -351,7 +357,16 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->graph->rescaleAxes();
     ui->graph->replot();
 
+    QStringList lsthistogram;
+    lsthistogram << "None 95%" << "None 100%" << "Equalize";
+    ui->cmbHistogram->addItems(lsthistogram);
+    ui->cmbHistogram->setCurrentIndex(CMB_HISTO_NONE_95);
+    lsthistogram.clear();
+    lsthistogram << "None 95%" << "None 100%" << "Equalize" << "Equalize Projection";
+    ui->cmbHistogramProj->addItems(lsthistogram);
+    ui->cmbHistogramProj->setCurrentIndex(CMB_HISTO_NONE_95);
 
+    setAllWhatsThis();
 
     qDebug() << "constructor formtoolbox";
 
@@ -2240,17 +2255,17 @@ void FormToolbox::on_btnTextureVIIRS_clicked()
 
 }
 
-void FormToolbox::on_btnTextureOLCIefr_clicked()
+void FormToolbox::on_btnTextureOLCI_clicked()
 {
-    if (opts.imageontextureOnOLCIefr)
+    if (opts.imageontextureOnOLCI)
     {
-        opts.imageontextureOnOLCIefr = false;
-        ui->btnTextureOLCIefr->setText("Texture Off");
+        opts.imageontextureOnOLCI = false;
+        ui->btnTextureOLCI->setText("Texture Off");
     }
     else
     {
-        opts.imageontextureOnOLCIefr = true;
-        ui->btnTextureOLCIefr->setText("Texture On");
+        opts.imageontextureOnOLCI = true;
+        ui->btnTextureOLCI->setText("Texture On");
     }
 
 }
@@ -2303,9 +2318,7 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
             imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
         else
             imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 //    opts.currenttabwidget = ui->tabWidget->currentIndex();
@@ -2379,9 +2392,7 @@ void FormToolbox::on_spbScaleX_valueChanged(double arg1)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 }
 
@@ -2392,9 +2403,7 @@ void FormToolbox::on_spbScaleY_valueChanged(double arg1)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -2405,9 +2414,7 @@ void FormToolbox::on_spbGVPlat_valueChanged(double arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
-//        formimage->displayImage(9);
-//        emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -2418,9 +2425,7 @@ void FormToolbox::on_spbGVPlon_valueChanged(double arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -2431,9 +2436,7 @@ void FormToolbox::on_spbGVPheight_valueChanged(int arg1)
     if(imageptrs->ptrimageProjection->width() > 0)
     {
         imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
-  //      formimage->displayImage(9);
-  //      emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -2446,9 +2449,7 @@ void FormToolbox::on_spbGVPscale_valueChanged(double arg1)
         if(imageptrs->ptrimageProjection->width() > 0)
         {
             imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
-            //formimage->displayImage(9);
-            //emit screenupdateprojection();
-            formimage->slotUpdateProjection();
+            formimage->UpdateProjection();
         }
     }
 
@@ -2577,9 +2578,12 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     else if(ui->rdbVIIRSDNBin->isChecked())
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
     else if(ui->rdbOLCIefrin->isChecked())
-        imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, false);
+    {
+        qDebug() << "voor CreateMapFromOLCI currentindex = " << ui->cmbHistogramProj->currentIndex() << " " <<  ui->rdbOLCIprojNormalized->isChecked();
+        imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, false, ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
     else if(ui->rdbOLCIerrin->isChecked())
-        imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, false);
+        imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, false, ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
     else if(ui->rdbMeteosatin->isChecked())
         imageptrs->gvp->CreateMapFromGeoStationary();
 
@@ -2738,9 +2742,9 @@ void FormToolbox::on_btnCreateLambert_clicked()
     else if(ui->rdbMeteosatin->isChecked())
         imageptrs->lcc->CreateMapFromGeostationary();
     else if(ui->rdbOLCIefrin->isChecked())
-        imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, ui->rdbCombine->isChecked());
+        imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
     else if(ui->rdbOLCIerrin->isChecked())
-        imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, ui->rdbCombine->isChecked());
+        imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -2845,9 +2849,9 @@ void FormToolbox::on_btnCreateStereo_clicked()
     else if(ui->rdbMeteosatin->isChecked())
         imageptrs->sg->CreateMapFromGeostationary();
     else if(ui->rdbOLCIefrin->isChecked())
-        imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR,  ui->rdbCombine->isChecked());
+        imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR,  ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(),ui->rdbOLCIprojNormalized->isChecked());
     else if(ui->rdbOLCIerrin->isChecked())
-        imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR,  ui->rdbCombine->isChecked());
+        imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR,  ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -2864,9 +2868,7 @@ void FormToolbox::on_spbParallel1_valueChanged(int arg1)
         {
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                        ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-            //formimage->displayImage(9);
-            //emit screenupdateprojection();
-            formimage->slotUpdateProjection();
+            formimage->UpdateProjection();
         }
 }
 
@@ -2878,9 +2880,7 @@ void FormToolbox::on_spbParallel2_valueChanged(int arg1)
         {
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                        ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-            //formimage->displayImage(9);
-            //emit screenupdateprojection();
-            formimage->slotUpdateProjection();
+            formimage->UpdateProjection();
         }
 
 
@@ -2896,9 +2896,7 @@ void FormToolbox::on_spbCentral_valueChanged(int arg1)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -2913,9 +2911,7 @@ void FormToolbox::on_spbLatOrigin_valueChanged(int arg1)
         {
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                        ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-            //formimage->displayImage(9);
-            //emit screenupdateprojection();
-            formimage->slotUpdateProjection();
+            formimage->UpdateProjection();
         }
 
 }
@@ -2939,9 +2935,7 @@ void FormToolbox::on_spbSouth_valueChanged(int arg1)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 }
 
@@ -2963,9 +2957,7 @@ void FormToolbox::on_spbNorth_valueChanged(int arg1)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -2989,9 +2981,7 @@ void FormToolbox::on_spbWest_valueChanged(int arg1)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -3017,9 +3007,7 @@ void FormToolbox::on_spbEast_valueChanged(int arg1)
    {
        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-       //formimage->displayImage(9);
-       //emit screenupdateprojection();
-       formimage->slotUpdateProjection();
+       formimage->UpdateProjection();
    }
 
 }
@@ -3074,7 +3062,7 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     }
 
     ui->comboPOI->blockSignals(false);
-    formimage->slotUpdateProjection();
+    formimage->UpdateProjection();
 }
 
 
@@ -3126,9 +3114,7 @@ void FormToolbox::on_btnLCCMapNorth_clicked()
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -3153,9 +3139,7 @@ void FormToolbox::on_btnLCCMapSouth_clicked()
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -3189,9 +3173,7 @@ void FormToolbox::on_btnLCCMapWest_clicked()
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -3225,9 +3207,7 @@ void FormToolbox::on_btnLCCMapEast_clicked()
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -3336,9 +3316,7 @@ void FormToolbox::on_spbLCCCorrX_valueChanged(int arg1)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value()*1000, ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -3350,9 +3328,7 @@ void FormToolbox::on_spbLCCCorrY_valueChanged(int arg1)
     {
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value()*1000, ui->spbLCCCorrY->value());
-        //formimage->displayImage(9);
-        //emit screenupdateprojection();
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
@@ -3469,7 +3445,7 @@ void FormToolbox::on_btnUpdateVIIRSImage_clicked()
         ui->btnLCCFalseColor->setChecked(false);
 
         ui->pbProgress->reset();
-        emit emitShowVIIRSImage();
+        formimage->ShowVIIRSMImage();
     }
 }
 
@@ -3505,7 +3481,7 @@ void FormToolbox::on_btnUpdateOLCIImage_clicked()
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            emit emitShowOLCIefrImage();
+            formimage->ShowOLCIefrImage(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized);
         }
     }
     else if(opts.buttonOLCIerr)
@@ -3518,7 +3494,7 @@ void FormToolbox::on_btnUpdateOLCIImage_clicked()
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            emit emitShowOLCIerrImage();
+            formimage->ShowOLCIerrImage(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized);
         }
     }
 }
@@ -3603,21 +3579,21 @@ void FormToolbox::on_cbProjResolutions_currentIndexChanged(int index)
             ui->spbLCCMapHeight->setValue(resolutionY.at(index-1));
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(),  ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                        ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-            formimage->slotUpdateProjection();
+            formimage->UpdateProjection();
         }
         else if(ui->toolBox->currentIndex() == 1)
         {
             ui->spbGVPMapWidth->setValue(resolutionX.at(index-1));
             ui->spbGVPMapHeight->setValue(resolutionY.at(index-1));
             imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
-            formimage->slotUpdateProjection();
+            formimage->UpdateProjection();
         }
         else if(ui->toolBox->currentIndex() == 2)
         {
             ui->spbSGMapWidth->setValue(resolutionX.at(index-1));
             ui->spbSGMapHeight->setValue(resolutionY.at(index-1));
             imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-            formimage->slotUpdateProjection();
+            formimage->UpdateProjection();
         }
     }
     QApplication::restoreOverrideCursor();
@@ -4076,36 +4052,36 @@ void FormToolbox::on_comboPOI_currentIndexChanged(int index)
         setLCCParameters(index);
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(),  ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
     else if(ui->toolBox->currentIndex() == 1) // GVP
     {
         setGVPParameters(index);
         imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
     else if(ui->toolBox->currentIndex() == 2) // SG
     {
         setSGParameters(index);
         imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
-        formimage->slotUpdateProjection();
+        formimage->UpdateProjection();
     }
 
 }
 
 void FormToolbox::on_chkLCCGridOnProj_clicked()
 {
-    formimage->slotUpdateProjection();
+    formimage->UpdateProjection();
 }
 
 void FormToolbox::on_chkGVPGridOnProj_clicked()
 {
-    formimage->slotUpdateProjection();
+    formimage->UpdateProjection();
 }
 
 void FormToolbox::on_chkSGGridOnProj_clicked()
 {
-    formimage->slotUpdateProjection();
+    formimage->UpdateProjection();
 }
 
 void FormToolbox::on_btnAddPOI_clicked()
@@ -4575,3 +4551,101 @@ void FormToolbox::fitCurve()
 
 }
 
+void FormToolbox::on_rdbOLCINormalized_toggled(bool checked)
+{
+    formimage->setHistogramMethod(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized);
+}
+
+void FormToolbox::on_cmbHistogram_activated(int index)
+{
+    formimage->setHistogramMethod(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+
+    if(opts.buttonOLCIefr)
+    {
+        if(segs->seglolciefr->NbrOfSegmentsSelected() > 0)
+        {
+
+            ui->btnGVPFalseColor->setChecked(false);
+            ui->btnSGFalseColor->setChecked(false);
+            ui->btnLCCFalseColor->setChecked(false);
+
+            ui->pbProgress->reset();
+            formimage->ShowHistogramImage(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+        }
+    }
+    else if(opts.buttonOLCIerr)
+    {
+        if(segs->seglolcierr->NbrOfSegmentsSelected() > 0)
+        {
+
+            ui->btnGVPFalseColor->setChecked(false);
+            ui->btnSGFalseColor->setChecked(false);
+            ui->btnLCCFalseColor->setChecked(false);
+
+            ui->pbProgress->reset();
+            formimage->ShowHistogramImage(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+        }
+    }
+
+}
+
+void FormToolbox::setAllWhatsThis()
+{
+
+    const QString htmlText1 =
+    "<b>None 95%</b><br>"
+    "Linear mapping of 95% of the pixels to 0 - 255. The lower 2.5% of the pixel values are set to 0 and the higher 2.5% of the pixel values are set to 255. <br><br>"
+    "<b>None 100%</b><br>"
+    "Linear mapping of 100% of the pixels to 0 - 255<br><br>"
+    "<b>Equalize%</b><br>"
+    "Histogram equalization of the projected image.<br>The LUT is calculated over the complete input image.<br><br>"
+    "<b>Equalize Projection</b><br>"
+    "Histogram equalization of the projected image.<br>The LUT is calculated only over the pixels of the projected image.";
+
+
+    ui->cmbHistogramProj->setWhatsThis(htmlText1);
+    ui->cmbHistogram->setWhatsThis(htmlText1);
+
+    const QString htmlText2 =
+    "<b>Normalized</b><br>"
+    "The values of the radiances are divided with the cosine of the Sun Zenith Angle.";
+    ui->rdbOLCINormalized->setWhatsThis(htmlText2);
+    ui->rdbOLCIprojNormalized->setWhatsThis(htmlText2);
+
+    const QString htmlText3 =
+    "Save the image as a 48bit RGB PNG.";
+    ui->btnSaveAsPNG48bits->setWhatsThis(htmlText3);
+    const QString htmlText4 =
+    "A Lambert conformal conic projection (LCC) is a conic map projection used for aeronautical charts, portions of the State Plane Coordinate System, and many national and regional mapping systems.";
+    ui->pageLambert->setWhatsThis(htmlText4);
+
+    const QString htmlText5 =
+    "The point of perspective for the General Vertical Perspective Projection (GVP) is a finite distance."
+    "It depicts the earth as it appears from some relatively short distance above the surface, typically a few hundred to a few tens of thousands of kilometers.";
+    ui->pagePerspective->setWhatsThis(htmlText5);
+
+    const QString htmlText6 =
+    "The stereographic projection was known to Hipparchus, Ptolemy and probably earlier to the Egyptians. It was originally known as the planisphere projection. One of its most important uses was the representation of celestial charts.";
+    ui->pageStereographic->setWhatsThis(htmlText6);
+
+    const QString htmlText7 =
+    "For making a projection (LCC, GVP or SG) select one of the input images.<br><br>"
+            "<b>AVHRR image</b><br>"
+            "Input Images from the NOAA-19, Metop-A and B satellite<br><br>"
+            "<b>VIIRS M and DNB image</b><br>"
+            "Input Images from the Suomi NPP satellite<br><br>"
+            "<b>OLCI EFR and ER</b><br>"
+            "Input Images from the Sentinel-3A satellite<br><br>"
+            "<b>Image from Geostationary satellite</b><br>"
+            "Input Images from Meteosat-8,-9,-10, Fengyun 2E,2G and Himawari-8 ";
+
+    ui->frameInputImages->setWhatsThis(htmlText7);
+
+}
+
+void FormToolbox::on_btnSaveAsPNG48bits_clicked()
+{
+
+    formimage->SaveAsPNG48bits(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+
+}

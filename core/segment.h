@@ -49,9 +49,9 @@ public:
     virtual void RenderEarthLocationsGL();
     virtual int ReadNbrOfLines();
 
-    virtual void ComposeSegmentLCCProjection(int inputchannel);
-    virtual void ComposeSegmentGVProjection(int inputchannel);
-    virtual void ComposeSegmentSGProjection(int inputchannel);
+    virtual void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
+    virtual void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
+    virtual void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
 
     virtual void RecalculateProjection();
 
@@ -99,25 +99,21 @@ public:
     QVector2D winvecend1, winvecend2;
     QVector2D winvecend3, winvecend4;
 
-    QScopedArrayPointer<unsigned short> ptrbaChannel[5];
-    QScopedArrayPointer<unsigned short> ptrbaVIIRS[3];
-    QScopedArrayPointer<unsigned short> ptrbaOLCI[3];
+    QScopedArrayPointer<quint16> ptrbaChannel[5];
+    QScopedArrayPointer<quint16> ptrbaChannelNormalized[5];
+    QScopedArrayPointer<quint16> ptrbaVIIRS[3];
+    QScopedArrayPointer<quint16> ptrbaOLCI[3];
+    QScopedArrayPointer<quint16> ptrbaOLCInormalized[3];
     QScopedArrayPointer<float> ptrbaVIIRSDNB;
 
     QString line1;
     QString line2;
     long stat_max_ch[5];
     long stat_min_ch[5];
-//    long stat_3_0_max_ch;
-//    long stat_3_1_max_ch;
-//    long stat_3_0_min_ch;
-//    long stat_3_1_min_ch;
+    long stat_max_norm_ch[5];
+    long stat_min_norm_ch[5];
     long list_stat_max_ch[5];
     long list_stat_min_ch[5];
-//    long list_stat_3_0_max_ch;
-//    long list_stat_3_1_max_ch;
-//    long list_stat_3_0_min_ch;
-//    long list_stat_3_1_min_ch;
 
     long active_pixels[5];
 
@@ -132,10 +128,11 @@ public:
     QScopedArrayPointer<float> earthloc_lon;
     QScopedArrayPointer<float> earthloc_lat;
 
-    QScopedArrayPointer<float> solar_zenith_angle; // 1080 X 103
+    QScopedArrayPointer<float> solar_zenith_angle;
     QScopedArrayPointer<float> satellite_zenith_angle;
     QScopedArrayPointer<float> solar_azimuth_angle;
     QScopedArrayPointer<float> satellite_azimuth_angle;
+    QScopedArrayPointer<float> cos_solar_zenith_angle;
 
     QScopedPointer<QTle> qtle;
     QScopedPointer<QSgp4> qsgp4;

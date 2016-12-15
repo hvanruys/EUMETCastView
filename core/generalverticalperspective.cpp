@@ -136,12 +136,12 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool comb
 
 }
 
-void GeneralVerticalPerspective::CreateMapFromOLCI(eSegmentType type, bool combine)
+void GeneralVerticalPerspective::CreateMapFromOLCI(eSegmentType type, bool combine, int histogrammethod, bool normalized)
 {
     if (type == SEG_OLCIEFR)
-        segs->seglolciefr->ComposeGVProjection(0);
+        segs->seglolciefr->ComposeGVProjection(0, histogrammethod, normalized);
     else if( type == SEG_OLCIERR)
-        segs->seglolcierr->ComposeGVProjection(0);
+        segs->seglolcierr->ComposeGVProjection(0, histogrammethod, normalized);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();

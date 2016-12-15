@@ -444,11 +444,6 @@ void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record, int heightinsegment
     //qDebug() << QString("earth views per scanline = %1 num navigation points = %2").arg(earth_views).arg(num_navigation_points);
 
 
-//    qint16 solar_zenith_angle[103];
-//    qint16 satellite_zenith_angle[103];
-//    qint16 solar_azimuth_angle[103];
-//    qint16 satellite_azimuth_angle[103];
-
 
     // nbr_navigation_points = 103
     // 5 + (20 x {0 ... 102})
@@ -462,7 +457,13 @@ void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record, int heightinsegment
         num1 = 0xFF & mdr_record->at(20536 + i*8);
         num2 = 0xFF & mdr_record->at(20537 + i*8);
         quint16 zangle  = (num1 <<= 8) | num2;
-        solar_zenith_angle[i] = (float)zangle/100.0;
+        solar_zenith_angle[heightinsegment*103 + i] = (float)zangle/100.0;
+        if(i==49)
+        {
+            float radangle = solar_zenith_angle[heightinsegment*103 + i]*PI/180.0;
+            qDebug() << "heightinsegment = " << heightinsegment << " solar_zenith_angle = " << solar_zenith_angle[heightinsegment*103 + i]
+                     << " cos = " << cos(radangle) << " 1/cos = " << 1.0f/cos(radangle);
+        }
     }
 
 //        solar_zenith_angle[i] = (num1 <<= 8) | num2;
@@ -492,6 +493,19 @@ void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record, int heightinsegment
 //        solar_factor[s] = (double)2 * dsolar + 1;
 //    }
 
+    if(num_navigation_points == 103)
+    {
+        for( int nav = 0; nav < num_navigation_points; nav++)
+        {
+            for( int intp = 0; intp < 20 && nav*20 + intp + 5 < 2048; intp++ )
+            {
+                float val = 1.0f/cos(getSolarZenith(nav, intp, heightinsegment, 5, 20, 2048, 103)*PI/180.0f);
+                this->cos_solar_zenith_angle[heightinsegment * 2048 + nav * 20 + intp] = val;
+//                if(nav * 20 + intp == 1000)
+//                    qDebug() << heightinsegment << " " << getSolarZenith(nav, intp, heightinsegment, 5, 20, 2048, 103);
+            }
+        }
+    }
 
 
     //qDebug() << QString("sol zen %1 sat zen %2 sol az %3 sat az %4").arg((double)solar_zenith_angle[52]/100).arg((double)satellite_zenith_angle[52]/100).arg((double)solar_azimuth_angle[52]/100).arg((double)satellite_azimuth_angle[52]/100);
@@ -729,6 +743,7 @@ Segment *SegmentMetop::ReadSegmentInMemory()
     quint32 nextres = 0;
     quint32 num32_1=0, num32_2=0, num32_3=0, num32_4=0;
     quint16 val1_ch[5], val2_ch[5],tot_ch[5];
+    float tot_norm_ch[5];
     QByteArray picture_line;
 
     int heightinsegment = 0;
@@ -762,7 +777,9 @@ Segment *SegmentMetop::ReadSegmentInMemory()
     earthloc_lon.reset(new float[1080*103]);
     earthloc_lat.reset(new float[1080*103]);
     solar_zenith_angle.reset(new float[1080*103]);
+    cos_solar_zenith_angle.reset(new float[1080*2048]);
 
+    int save_ptrba = 0;
 
     while ( bzerror == BZ_OK )
     {
@@ -838,6 +855,14 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                         *(this->ptrbaChannel[3].data() + heightinsegment * 2048 + j) = tot_ch[3];
                         *(this->ptrbaChannel[4].data() + heightinsegment * 2048 + j) = tot_ch[4];
 
+                        tot_norm_ch[0] = (float)tot_ch[0]*this->cos_solar_zenith_angle[heightinsegment * 2048 + j];
+                        tot_norm_ch[1] = (float)tot_ch[1]*this->cos_solar_zenith_angle[heightinsegment * 2048 + j];
+                        tot_norm_ch[2] = (float)tot_ch[2]*this->cos_solar_zenith_angle[heightinsegment * 2048 + j];
+                        tot_norm_ch[3] = (float)tot_ch[3]*this->cos_solar_zenith_angle[heightinsegment * 2048 + j];
+                        tot_norm_ch[4] = (float)tot_ch[4]*this->cos_solar_zenith_angle[heightinsegment * 2048 + j];
+
+//                        if(j == 1000)
+//                            qDebug() << QString("ptrbaChannel = %1 ptrbaChannelNormalized = %2 tot_norm_ch[0] = %3").arg(tot_ch[0]).arg(this->ptrbaChannelNormalized[0][heightinsegment * 2048 + j]).arg(tot_norm_ch[0]/1000);
 
                         for (int k=0; k < 5; k++)
                         {
@@ -845,24 +870,23 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                                 stat_min_ch[k] = tot_ch[k];
                             if (tot_ch[k] > stat_max_ch[k] )
                                 stat_max_ch[k] = tot_ch[k];
-//                            if(k == 3)
-//                            {
-//                                if(channel_3a_3b[heightinsegment] == false)
-//                                {
-//                                if (tot_ch[k] < stat_3_0_min_ch )
-//                                    stat_3_0_min_ch = tot_ch[k];
-//                                if (tot_ch[k] > stat_3_0_max_ch )
-//                                    stat_3_0_max_ch = tot_ch[k];
-//                                }
-//                                else
-//                                {
-//                                    if (tot_ch[k] < stat_3_1_min_ch )
-//                                        stat_3_1_min_ch = tot_ch[k];
-//                                    if (tot_ch[k] > stat_3_1_max_ch )
-//                                        stat_3_1_max_ch = tot_ch[k];
-//                                }
-//                            }
+                            if (tot_norm_ch[k]/100.0f < stat_min_norm_ch[k] )
+                                stat_min_norm_ch[k] = (quint16)(tot_norm_ch[k]/100.0f);
+                            if (tot_norm_ch[k]/100.0f > stat_max_norm_ch[k] )
+                                stat_max_norm_ch[k] = (quint16)(tot_norm_ch[k]/100.0f);
+                            if(tot_norm_ch[k]/100.0f > 65535)
+                                save_ptrba = this->ptrbaChannelNormalized[0][heightinsegment * 2048 + j];
                         }
+
+
+                        *(this->ptrbaChannelNormalized[0].data() + heightinsegment * 2048 + j) = (quint16)(tot_norm_ch[0]/100.0f);
+                        *(this->ptrbaChannelNormalized[1].data() + heightinsegment * 2048 + j) = (quint16)(tot_norm_ch[1]/100.0f);
+                        *(this->ptrbaChannelNormalized[2].data() + heightinsegment * 2048 + j) = (quint16)(tot_norm_ch[2]/100.0f);
+                        *(this->ptrbaChannelNormalized[3].data() + heightinsegment * 2048 + j) = (quint16)(tot_norm_ch[3]/100.0f);
+                        *(this->ptrbaChannelNormalized[4].data() + heightinsegment * 2048 + j) = (quint16)(tot_norm_ch[4]/100.0f);
+
+
+
 
                     }
 
@@ -908,8 +932,16 @@ Segment *SegmentMetop::ReadSegmentInMemory()
       }
     }
 
+//    for(int j = 0; j < 100; j++)
+//        qDebug() << QString("ptrbaChannel = %1 normalized 1/cos = %2").arg(this->ptrbaChannel[0][j]).arg(this->ptrbaChannelNormalized[0][j]);
+
     for(int i = 0; i < 5; i++)
+    {
         qDebug() << QString("stat_min_ch[%1] = %2  stat_max_ch[%3] = %4").arg(i).arg(stat_min_ch[i]).arg(i).arg(stat_max_ch[i]);
+        qDebug() << QString("stat_min_norm_ch[%1] = %2  stat_max_norm_ch[%3] = %4").arg(i).arg(stat_min_norm_ch[i]).arg(i).arg(stat_max_norm_ch[i]);
+        qDebug() << QString("save_ptrba = %1").arg(save_ptrba);
+
+    }
     BZ2_bzclose ( b );
     fclose(f);
 
@@ -934,7 +966,7 @@ void SegmentMetop::initializeProjectionCoord()
 
 }
 
-void SegmentMetop::ComposeSegmentGVProjection(int inputchannel)
+void SegmentMetop::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
 
     qDebug() << QString("ComposeSegmentGVProjection startLineNbr = %1").arg(this->startLineNbr);
@@ -944,14 +976,14 @@ void SegmentMetop::ComposeSegmentGVProjection(int inputchannel)
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
-        this->RenderSegmentlineInGVP( (inputchannel == 0 ? 6 : inputchannel), line, startheight + line );
+        this->RenderSegmentlineInGVP( (inputchannel == 0 ? 6 : inputchannel), line, startheight + line, normalized );
     }
 
     QApplication::processEvents();
 
 }
 
-void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heightintotalimage )
+void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightintotalimage , bool normalized)
 {
     double lonpos1, latpos1;
     double map_x, map_y;
@@ -982,39 +1014,36 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
 
     if(num_navigation_points == 103)
     {
-        for( int i = 0; i < num_navigation_points-1; i++)
+        for( int nav = 0; nav < num_navigation_points; nav++)
         {
-            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PI/180.0 - earthloc_lat[nbrLine*103 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PI/180.0-earthloc_lon[nbrLine*103 + i+1]*PI/180.0) / 2), 2)));
-            for( int j = 0; j < 20 ; j++ )
+            //dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + nav]*PI/180.0 - earthloc_lat[nbrLine*103 + nav+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + nav]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + nav+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + nav]*PI/180.0-earthloc_lon[nbrLine*103 + nav+1]*PI/180.0) / 2), 2)));
+            for( int intp = 0; intp < 20 && nav*20 + intp + 5 < 2048 ; intp++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
-                float solarzenith = getSolarZenith(i, j, nbrLine);
-                if( i == 50 && nbrLine == 0)
-                    qDebug() << QString("solarzenith[%1] = %2").arg(j).arg(solarzenith);
+                intermediatePoint(earthloc_lat[nbrLine*103 + nav]*PI/180.0, earthloc_lon[nbrLine*103 + nav]*PI/180.0, earthloc_lat[nbrLine*103 + nav+1]*PI/180.0, earthloc_lon[nbrLine*103 + nav+1]*PI/180.0, imageptrs->fraction[4 + nav*20 + intp], &latpos1, &lonpos1, dtot);
                 if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
-                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
-                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = (int)map_y;
+                    projectionCoordX[nbrLine * 2048 + nav * 20 + intp + 4] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + nav * 20 + intp + 4] = (int)map_y;
 
                     //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                     {
-                        rgbvalue1 = row_col[4 + i * 20 + j];
-                        int red = qRed(rgbvalue1)/cos(solarzenith*PI/180.0);
-                        int green = qGreen(rgbvalue1)/cos(solarzenith*PI/180.0);
-                        int blue = qBlue(rgbvalue1)/cos(solarzenith*PI/180.0);
-                        QRgb rgbresult = qRgba(red, green, blue, 255);
-                        QColor col(rgbvalue1);
+                        rgbvalue1 = row_col[4 + nav * 20 + intp];
+//                        int red = qRed(rgbvalue1)/cos(solarzenith*PI/180.0);
+//                        int green = qGreen(rgbvalue1)/cos(solarzenith*PI/180.0);
+//                        int blue = qBlue(rgbvalue1)/cos(solarzenith*PI/180.0);
+//                        QRgb rgbresult = qRgba(red, green, blue, 255);
+//                        QColor col( rgbvalue1);
                         //col.setAlpha(255);
                         if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
-                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1); // col.rgb());
-                        projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = col.rgb();
+                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1);
+                        projectionCoordValue[nbrLine * 2048 + nav * 20 + intp + 4] = rgbvalue1;
                     }
                 }
                 else
                 {
-                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = 65535;
-                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = 65535;
-                    projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = qRgb(0,0,0);
+                    projectionCoordX[nbrLine * 2048 + nav * 20 + intp + 4] = 65535;
+                    projectionCoordY[nbrLine * 2048 + nav * 20 + intp + 4] = 65535;
+                    projectionCoordValue[nbrLine * 2048 + nav * 20 + intp + 4] = qRgb(0,0,0);
                 }
             }
         }
@@ -1024,35 +1053,55 @@ void SegmentMetop::RenderSegmentlineInGVP( int channel, int nbrLine, int heighti
 
 }
 
-float SegmentMetop::getSolarZenith(int navpoint, int intpoint, int nbrLine) //navpoint = [0, 101] intpoint = [0, 19] nbrLine = [0, 1079]
+float SegmentMetop::getSolarZenith(int navpoint, int intpoint, int nbrLine, int startnavindex, int deltaint, int lengthintindex, int lengthnavindex ) //navpoint = [0, 102] intpoint = [0, 19] nbrLine = [0, 1079]
+                                                                                     // startnavindex = 5 deltaint = 20 lengthintindex = 2048 lengthnavindex = 103
 {
     // second order Lagrange interpolation ==> 3 points
+    //
+    //    from pt 5 --> pt 2045
+    //    = 5 + 20 * 102 total of 103 pts
+    //    to = 5 + 20 * 102 + 3 = 2048
+
     float a, k, s, t;
     float x[3];
     float y[3];
 
+    Q_ASSERT(navpoint < lengthnavindex);
+    Q_ASSERT(intpoint < deltaint);
+
     int n = 3;
     if(navpoint == 0)
     {
-        y[0] = solar_zenith_angle[nbrLine*103];
-        y[1] = solar_zenith_angle[nbrLine*103 + 1];
-        y[2] = solar_zenith_angle[nbrLine*103 + 2];
-        x[0] = 4;
-        x[1] = 24;
-        x[2] = 44;
+        y[0] = solar_zenith_angle[nbrLine*lengthnavindex];
+        y[1] = solar_zenith_angle[nbrLine*lengthnavindex + 1];
+        y[2] = solar_zenith_angle[nbrLine*lengthnavindex + 2];
+
+        x[0] = startnavindex + 0;
+        x[1] = startnavindex + deltaint;
+        x[2] = startnavindex + 2*deltaint;
+    }
+    else if(navpoint == lengthnavindex - 1)
+    {
+        y[0] = solar_zenith_angle[nbrLine*lengthnavindex - 3];
+        y[1] = solar_zenith_angle[nbrLine*lengthnavindex - 2];
+        y[2] = solar_zenith_angle[nbrLine*lengthnavindex - 1];
+        x[0] = startnavindex + deltaint*(lengthnavindex - 3);
+        x[1] = startnavindex + deltaint*(lengthnavindex - 2);
+        x[2] = startnavindex + deltaint*(lengthnavindex - 1);
     }
     else
     {
-        y[0] = solar_zenith_angle[nbrLine*103 + navpoint - 1];
-        y[1] = solar_zenith_angle[nbrLine*103 + navpoint];
-        y[2] = solar_zenith_angle[nbrLine*103 + navpoint + 1];
-        x[0] = (navpoint-1) * 20 + 4;
-        x[1] = navpoint * 20 + 4;
-        x[2] = (navpoint+1) * 20 + 4;
+        y[0] = solar_zenith_angle[nbrLine*lengthnavindex + navpoint - 1];
+        y[1] = solar_zenith_angle[nbrLine*lengthnavindex + navpoint];
+        y[2] = solar_zenith_angle[nbrLine*lengthnavindex + navpoint + 1];
+
+        x[0] = (navpoint-1) * deltaint + startnavindex;
+        x[1] = navpoint * deltaint + startnavindex;
+        x[2] = (navpoint+1) * deltaint + startnavindex;
     }
 
     k = 0;
-    a = navpoint * 20 + intpoint + 4;
+    a = navpoint * deltaint + intpoint + startnavindex;
 
     for(int i=0; i<n; i++)
     {
@@ -1072,7 +1121,60 @@ float SegmentMetop::getSolarZenith(int navpoint, int intpoint, int nbrLine) //na
 
 }
 
-void SegmentMetop::ComposeSegmentSGProjection(int inputchannel)
+//float SegmentMetop::getSolarZenith(int navpoint, int intpoint, int nbrLine) //navpoint = [0, 101] intpoint = [0, 19] nbrLine = [0, 1079]
+//{
+//    // second order Lagrange interpolation ==> 3 points
+//    //    from pt 5 --> pt 2045
+//    //    = 5 + 20 * 102 total of 103 pts
+//    //    to = 5 + 20 * 102 + 3 = 2048
+//    //
+
+//    float a, k, s, t;
+//    float x[3];
+//    float y[3];
+
+//    int n = 3;
+//    if(navpoint == 0)
+//    {
+//        y[0] = solar_zenith_angle[nbrLine*103];
+//        y[1] = solar_zenith_angle[nbrLine*103 + 1];
+//        y[2] = solar_zenith_angle[nbrLine*103 + 2];
+//        x[0] = 4;
+//        x[1] = 24;
+//        x[2] = 44;
+//    }
+//    else
+//    {
+//        y[0] = solar_zenith_angle[nbrLine*103 + navpoint - 1];
+//        y[1] = solar_zenith_angle[nbrLine*103 + navpoint];
+//        y[2] = solar_zenith_angle[nbrLine*103 + navpoint + 1];
+//        x[0] = (navpoint-1) * 20 + 4;
+//        x[1] = navpoint * 20 + 4;
+//        x[2] = (navpoint+1) * 20 + 4;
+//    }
+
+//    k = 0;
+//    a = navpoint * 20 + intpoint + 4;
+
+//    for(int i=0; i<n; i++)
+//    {
+//        s=1;
+//        t=1;
+//        for(int j=0; j<n; j++)
+//        {
+//            if(j!=i)
+//            {
+//                s=s*(a-x[j]);
+//                t=t*(x[i]-x[j]);
+//            }
+//        }
+//        k=k+((s/t)*y[i]);
+//    }
+//    return k;
+
+//}
+
+void SegmentMetop::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
 
     qDebug() << QString("ComposeSegmentSGProjection startLineNbr = %1").arg(this->startLineNbr);
@@ -1083,14 +1185,14 @@ void SegmentMetop::ComposeSegmentSGProjection(int inputchannel)
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
-        this->RenderSegmentlineInSG( (inputchannel == 0 ? 6 : inputchannel), line, startheight + line );
+        this->RenderSegmentlineInSG( (inputchannel == 0 ? 6 : inputchannel), line, startheight + line, normalized);
     }
 
     QApplication::processEvents();
 
 }
 
-void SegmentMetop::RenderSegmentlineInSG( int channel, int nbrLine, int heightintotalimage )
+void SegmentMetop::RenderSegmentlineInSG(int channel, int nbrLine, int heightintotalimage , bool normalized)
 {
 
     double lonpos1, latpos1;
@@ -1155,7 +1257,7 @@ void SegmentMetop::RenderSegmentlineInSG( int channel, int nbrLine, int heightin
 
 }
 
-void SegmentMetop::ComposeSegmentLCCProjection(int inputchannel)
+void SegmentMetop::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
 
     qDebug() << QString("SegmentMetop::ComposeSegmentLCCProjection startLineNbr = %1").arg(this->startLineNbr);
@@ -1167,12 +1269,12 @@ void SegmentMetop::ComposeSegmentLCCProjection(int inputchannel)
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
-        this->RenderSegmentlineInLCC( inputchannel, line, startheight + line );
+        this->RenderSegmentlineInLCC( inputchannel, line, startheight + line, normalized );
     }
 }
 
 
-void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heightintotalimage )
+void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heightintotalimage, bool normalized )
 {
 
     double lonpos1, latpos1;

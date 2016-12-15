@@ -22,7 +22,7 @@ public:
     bool map_inverse(double map_x, double map_y, double &lon_rad, double &lat_rad);
     void CreateMapFromAVHRR(int inputchannel, eSegmentType type);
     void CreateMapFromVIIRS(eSegmentType type, bool combine);
-    void CreateMapFromOLCI(eSegmentType type, bool combine);
+    void CreateMapFromOLCI(eSegmentType type, bool combine, int histogrammethod, bool normalized);
     void CreateMapFromGeostationary();
 
 protected:

@@ -39,7 +39,6 @@ Globe::Globe(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *seglist ):
     bBorders = true;
     bSatellites = true;
     bSegmentNames = true;
-    opts.bPhongModel = true;
 
     sats = satlist;
     segs = seglist;
@@ -173,6 +172,8 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->seglolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonOLCIerr)
             isselected = segs->seglolcierr->TestForSegmentGLerr( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else
+            isselected = false;
 
         emit mapClicked();
 
@@ -524,7 +525,7 @@ void Globe::paintGL()
     if(opts.textureOn)
     {
             textureearth->bind(0);
-            geometries->render(projection, modelview, true, sunPosition.toVector4D(), opts.bPhongModel);
+            geometries->render(projection, modelview, true, sunPosition.toVector4D(), opts.buttonPhong);
             textureearth->release();
     }
 
@@ -1557,10 +1558,10 @@ void Globe::toggleSatellites()
 
 void Globe::togglePhong()
 {
-    if(opts.bPhongModel)
-        opts.bPhongModel = false;
+    if(opts.buttonPhong)
+        opts.buttonPhong = false;
     else
-        opts.bPhongModel = true;
+        opts.buttonPhong = true;
 }
 
 void Globe::toggleSegmentNames()

@@ -9,15 +9,22 @@
 #include "formgeostationary.h"
 #include "forminfrascales.h"
 
-#define TAB_AVHRR 0
-#define TAB_VIIRS 1
-#define TAB_OLCI 2
-#define TAB_GEOSTATIONARY 3
-#define TAB_PROJECTION 4
+//#define TAB_AVHRR 0
+//#define TAB_VIIRS 1
+//#define TAB_OLCI 2
+//#define TAB_GEOSTATIONARY 3
+//#define TAB_PROJECTION 4
+//#define TAB_HISTOGRAM 5
 
-#define TAB_LLC 0
-#define TAB_GVP 1
-#define TAB_GS  2
+//#define TAB_LLC 0
+//#define TAB_GVP 1
+//#define TAB_GS  2
+
+//#define CMB_HISTO_NONE_95 0
+//#define CMB_HISTO_NONE_100 1
+//#define CMB_HISTO_EQUALIZE 2
+//#define CMB_HISTO_EQUALIZE_PROJ 3
+//#define CMB_HISTO_CLAHE 4
 
 namespace Ui {
     class FormToolbox;
@@ -62,6 +69,7 @@ public:
     void setMConfigsettings();
     void setOLCIefrConfigsettings();
 
+
     ~FormToolbox();
 
 private:
@@ -89,6 +97,7 @@ private:
     void initializeScales();
     void setLogValue(int deg, double rad);
     void fitCurve();
+    void setAllWhatsThis();
 
 
     AVHRRSatellite *segs;
@@ -114,11 +123,6 @@ signals:
     void getmeteosatchannel(QString, QVector<QString>, QVector<bool>);
     void overlaycorrection(int,int);
     void switchstackedwidget(int);
-    void emitShowVIIRSImage();
-    void emitShowOLCIefrImage();
-    void emitShowOLCIerrImage();
-    void screenupdateprojection();
-
 
 private slots:
     void on_btnCol_clicked();
@@ -213,7 +217,7 @@ private slots:
     void on_rbtnACh4_clicked();
     void on_rbtnACh5_clicked();
     void on_btnTextureVIIRS_clicked();
-    void on_btnTextureOLCIefr_clicked();
+    void on_btnTextureOLCI_clicked();
     void on_sliCLAHE_sliderMoved(int position);
 
     void on_cbProjResolutions_currentIndexChanged(int index);
@@ -236,6 +240,9 @@ private slots:
     void on_btnSGFalseColor_clicked();
 
     void on_btnGeo13_clicked();
+    void on_rdbOLCINormalized_toggled(bool checked);
+    void on_cmbHistogram_activated(int index);
+    void on_btnSaveAsPNG48bits_clicked();
 };
 
 

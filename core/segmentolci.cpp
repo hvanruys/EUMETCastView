@@ -146,14 +146,20 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     const char* pvar3;
 
     int retval;
-    int ncgeofileid, ncfileid1, ncfileid2, ncfileid3;
+    int ncgeofileid, nctiegeofileid, ncfileid1, ncfileid2, ncfileid3;
     int radianceid1, radianceid2, radianceid3;
     float scale_factor[3], add_offset[3];
 
+
     int columnsid, rowsid;
+    int tiecolumnsid, tierowsid;
     size_t columnslength, rowslength;
+    size_t tiecolumnslength, tierowslength;
 
     int longitudeid, latitudeid;
+    int SZAid;
+    QScopedArrayPointer<int> tieSZA;
+    QScopedArrayPointer<float> secSZA;
 
     bool iscolorimage = this->bandlist.at(0);
 
@@ -194,6 +200,42 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     retval = nc_close(ncgeofileid);
     if (retval != NC_NOERR) qDebug() << "error closing geofile";
 
+//    for(int i = 0; i < columnslength; i++)
+//        qDebug() << i << " " << this->longitude[i];
+
+    QString tiegeofile = this->fileInfo.baseName() + ".SEN3/tie_geometries.nc";
+    QByteArray arraytiegeo = tiegeofile.toUtf8();
+    const char *ptiegeofile = arraytiegeo.constData();
+
+    qDebug() << "Starting netCDF tie_geometries";
+    retval = nc_open(ptiegeofile, NC_NOWRITE, &nctiegeofileid);
+    if(retval != NC_NOERR) qDebug() << "error opening tie_geometries";
+
+    retval = nc_inq_dimid(nctiegeofileid, "tie_columns", &tiecolumnsid);
+    if(retval != NC_NOERR) qDebug() << "error reading tie_columns id";
+    retval = nc_inq_dimlen(nctiegeofileid, tiecolumnsid, &tiecolumnslength);
+    if(retval != NC_NOERR) qDebug() << "error reading tie_columns length";
+
+    retval = nc_inq_dimid(nctiegeofileid, "tie_rows", &tierowsid);
+    if(retval != NC_NOERR) qDebug() << "error reading tie_rows id";
+    retval = nc_inq_dimlen(nctiegeofileid, tierowsid, &tierowslength);
+    if(retval != NC_NOERR) qDebug() << "error reading tie_rows length";
+
+    secSZA.reset(new float[columnslength * rowslength]);
+    tieSZA.reset(new int[tiecolumnslength * tierowslength]);
+
+
+    retval = nc_inq_varid(nctiegeofileid, "SZA", &SZAid);
+    if (retval != NC_NOERR) qDebug() << "error reading SZA id";
+    retval = nc_get_var_int(nctiegeofileid, SZAid, tieSZA.data());
+    if (retval != NC_NOERR) qDebug() << "error reading SZA values";
+
+    retval = nc_close(nctiegeofileid);
+    if (retval != NC_NOERR) qDebug() << "error closing tie_geometries";
+
+
+//    for(int i = 0; i < tiecolumnslength; i++)
+//         qDebug() << i << " " << tieSZA[i];
 
     if(iscolorimage)
     {
@@ -235,14 +277,6 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         this->NbrOfLines = rowslength;
 
         this->initializeMemory();
-
-        for(int k = 0; k < 3; k++)
-        {
-            stat_max_ch[k] = 0;
-            stat_min_ch[k] = 9999999;
-            active_pixels[k] = 0;
-        }
-
 
         array1 = var1.toUtf8();
         array2 = var2.toUtf8();
@@ -327,14 +361,6 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
         this->initializeMemory();
 
-        for(int k = 0; k < 3; k++)
-        {
-            stat_max_ch[k] = 0;
-            stat_min_ch[k] = 9999999;
-            active_pixels[k] = 0;
-        }
-
-
         array1 = var1.toUtf8();
         pvar1 = array1.constData();
 
@@ -355,6 +381,44 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
     }
 
+    int val1, val2, diff;
+
+    for(int k = 0; k < 3; k++)
+    {
+        stat_max_ch[k] = 0;
+        stat_min_ch[k] = 9999999;
+        stat_max_norm_ch[k] = 0;
+        stat_min_norm_ch[k] = 9999999;
+        active_pixels[k] = 0;
+    }
+
+    qDebug() << QString("rowslength = %1 columnslength : %2 earth_views_per_scanline = %3").arg(rowslength).arg(columnslength).arg(earth_views_per_scanline);
+    qDebug() << QString("tierowslength = %1 tiecolumnslength : %2 NbrOfLines = %3").arg(tierowslength).arg(tiecolumnslength).arg(NbrOfLines);
+
+    int factor = (columnslength-1)/(tiecolumnslength-1);
+
+    qDebug() << QString("rowslength * columnslength = %1 factor = %2 ").arg(rowslength*columnslength).arg(factor);
+
+    // Linear interpolation
+    for(int j=0; j < NbrOfLines; j++)
+    {
+        for(int i=0; i < tiecolumnslength-1; i++) // tiecolumnslength = 77
+        {
+            val1 = tieSZA[j*tiecolumnslength + i];
+            val2 = tieSZA[j*tiecolumnslength + i+1];
+            diff = (val2 - val1)/factor;
+
+            for(int k=0; k < factor; k++)
+            {
+               secSZA[j*earth_views_per_scanline + i*factor + k] = 1.0/cos(((float)(val1 + diff*k)/1000000.0f)*PI/180.0);
+//               if(j*earth_views_per_scanline + i*factor + k < 150)
+//                   qDebug() << i*factor + k << " " << (float)(val1 + diff*k)/1000000.0f << "    " << getSolarZenith(tieSZA.data(), i, k, j)/1000000.0f;
+            }
+        }
+        secSZA[j*earth_views_per_scanline + 76*factor] = 1.0/cos(((float)val2/1000000.0f)*PI/180.0);
+    }
+
+
     for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
     {
         for(int j=0; j < NbrOfLines; j++)
@@ -363,8 +427,15 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
             {
                 if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < 65535)
                 {
-                    float val = (float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k];
-                    ptrbaOLCI[k][j*earth_views_per_scanline + i]  = (unsigned int)val;
+                    float val = ((float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k]) * 10;
+                    float valnormalized = val*secSZA[j*earth_views_per_scanline + i];
+                    ptrbaOLCI[k][j*earth_views_per_scanline + i]  = (quint16)min(max(round(val),0.0f),65535.0f);
+                    ptrbaOLCInormalized[k][j*earth_views_per_scanline + i]  = (quint16)min(max(round(valnormalized),0.0f),65535.0f);
+                }
+                else
+                {
+                    ptrbaOLCI[k][j*earth_views_per_scanline + i] = 65535;
+                    ptrbaOLCInormalized[k][j*earth_views_per_scanline + i] = 65535;
                 }
 
             }
@@ -383,6 +454,11 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
                         stat_max_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
                     if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < stat_min_ch[k])
                         stat_min_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
+                    if(ptrbaOLCInormalized[k][j*earth_views_per_scanline + i] > stat_max_norm_ch[k])
+                        stat_max_norm_ch[k] = ptrbaOLCInormalized[k][j*earth_views_per_scanline + i];
+                    if(ptrbaOLCInormalized[k][j*earth_views_per_scanline + i] < stat_min_norm_ch[k])
+                        stat_min_norm_ch[k] = ptrbaOLCInormalized[k][j*earth_views_per_scanline + i];
+
                     active_pixels[k]++;
                 }
 
@@ -398,8 +474,67 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         qDebug() << QString("ptrbaOLCI min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
 
     }
+    qDebug() << QString("ptrbaOLCInormalized min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_norm_ch[0]).arg(stat_max_norm_ch[0]);
+    if(iscolorimage)
+    {
+        qDebug() << QString("ptrbaOLCInormalized min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_norm_ch[1]).arg(stat_max_norm_ch[1]);
+        qDebug() << QString("ptrbaOLCInormalized min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_norm_ch[2]).arg(stat_max_norm_ch[2]);
+    }
+
 
     return this;
+
+}
+
+// There is no difference between a linear interpolation and the Lagrange interpolation
+float SegmentOLCI::getSolarZenith(int *tieSZA, int navpoint, int intpoint, int nbrLine) //navpoint = [0, 76] intpoint = [0, 63] nbrLine = [0, this->NbrOfLines]
+{
+    // second order Lagrange interpolation ==> 3 points
+    //  from pt 0 --> pt 4864
+    //    = 64 * 76 = 4864
+
+    float a, k, s, t;
+    float x[3];
+    float y[3];
+
+    int n = 3;
+    if(navpoint == 0)
+    {
+        y[0] = (float)tieSZA[nbrLine*77];
+        y[1] = (float)tieSZA[nbrLine*77 + 1];
+        y[2] = (float)tieSZA[nbrLine*77 + 2];
+        x[0] = 0.0f;
+        x[1] = 64.0f;
+        x[2] = 128.0f;
+    }
+    else
+    {
+        y[0] = (float)tieSZA[nbrLine*77 + navpoint - 1];
+        y[1] = (float)tieSZA[nbrLine*77 + navpoint];
+        y[2] = (float)tieSZA[nbrLine*77 + navpoint + 1];
+        x[0] = (float)(navpoint-1) * 64;
+        x[1] = (float)navpoint * 64;
+        x[2] = (float)(navpoint+1) * 64;
+    }
+
+    k = 0;
+    a = navpoint * 64 + intpoint;
+
+    for(int i=0; i<n; i++)
+    {
+        s=1;
+        t=1;
+        for(int j=0; j<n; j++)
+        {
+            if(j!=i)
+            {
+                s=s*(a-x[j]);
+                t=t*(x[i]-x[j]);
+            }
+        }
+        k=k+((s/t)*y[i]);
+    }
+    return k;
 
 }
 
@@ -860,7 +995,7 @@ void SegmentOLCI::getDatasetNameFromBand(QString *datasetname, QString *variable
 }
 
 
-void SegmentOLCI::RenderSegmentlineInTextureOLCIefr( int nbrLine, QRgb *row )
+void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
 {
 
     QColor rgb;
@@ -886,12 +1021,12 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCIefr( int nbrLine, QRgb *row )
 
     for (int pix = 0 ; pix < earthviews; pix+=8)
     {
-        pixval[0] = ptrbaOLCI[0][nbrLine * earthviews + pix];
+        pixval[0] = (int)ptrbaOLCI[0][nbrLine * earthviews + pix];
         valok[0] = pixval[0] < 65535;
         if(color)
         {
-            pixval[1] = ptrbaOLCI[1][nbrLine * earthviews + pix];
-            pixval[2] = ptrbaOLCI[2][nbrLine * earthviews + pix];
+            pixval[1] = (int)ptrbaOLCI[1][nbrLine * earthviews + pix];
+            pixval[2] = (int)ptrbaOLCI[2][nbrLine * earthviews + pix];
             valok[1] = pixval[1] < 65535;
             valok[2] = pixval[2] < 65535;
         }
@@ -1028,7 +1163,8 @@ void SegmentOLCI::initializeMemory()
     {
         if(ptrbaOLCI[k].isNull())
         {
-            ptrbaOLCI[k].reset(new ushort[earth_views_per_scanline * NbrOfLines]);
+            ptrbaOLCI[k].reset(new quint16[earth_views_per_scanline * NbrOfLines]);
+            ptrbaOLCInormalized[k].reset(new quint16[earth_views_per_scanline * NbrOfLines]);
             qDebug() << QString("Initializing OLCI memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
         }
     }
@@ -1038,11 +1174,11 @@ void SegmentOLCI::initializeMemory()
 
 
 
-void SegmentOLCI::ComposeSegmentImage()
+void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
 {
 
     QRgb *row;
-    int indexout[3];
+    quint16 indexout[3];
 
     qDebug() << QString("SegmentOLCI::ComposeSegmentImage() segm->startLineNbr = %1").arg(this->startLineNbr);
     qDebug() << QString("SegmentOLCI::ComposeSegmentImage() color = %1 ").arg(bandlist.at(0));
@@ -1050,119 +1186,114 @@ void SegmentOLCI::ComposeSegmentImage()
     qDebug() << QString("SegmentOLCI::ComposeSegmentImage() invertthissegment[1] = %1").arg(invertthissegment[1]);
     qDebug() << QString("SegmentOLCI::ComposeSegmentImage() invertthissegment[2] = %1").arg(invertthissegment[2]);
 
-    int pixval[3];
-    int r, g, b;
+    int color[3];
+    quint16 pixval[3];
+    quint16 pixval1024[3];
 
-    bool color = bandlist.at(0);
+    bool iscolor = bandlist.at(0);
     bool valok[3];
+
+    double gamma = 0.9;
+    double gammafactor = 1023 / pow(1023.0, gamma);
+
+    double valgamma = pow( 100, 0.7) * gammafactor;
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row = (QRgb*)imageptrs->ptrimageOLCI->scanLine(this->startLineNbr + line);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
-            pixval[0] = *(this->ptrbaOLCI[0].data() + line * earth_views_per_scanline + pixelx);
-            if(color)
+            if(normalized) pixval[0] = this->ptrbaOLCInormalized[0][line * earth_views_per_scanline + pixelx];
+            else pixval[0] = this->ptrbaOLCI[0][line * earth_views_per_scanline + pixelx];
+
+            if(iscolor)
             {
-                pixval[1] = *(this->ptrbaOLCI[1].data() + line * earth_views_per_scanline + pixelx);
-                pixval[2] = *(this->ptrbaOLCI[2].data() + line * earth_views_per_scanline + pixelx);
+                if(normalized) pixval[1] = this->ptrbaOLCInormalized[1][line * earth_views_per_scanline + pixelx];
+                else pixval[1] = this->ptrbaOLCI[1][line * earth_views_per_scanline + pixelx];
+                if(normalized) pixval[2] = this->ptrbaOLCInormalized[2][line * earth_views_per_scanline + pixelx];
+                else pixval[2] = this->ptrbaOLCI[2][line * earth_views_per_scanline + pixelx];
             }
 
             valok[0] = pixval[0] < 65535;
             valok[1] = pixval[1] < 65535;
             valok[2] = pixval[2] < 65535;
 
-            if( valok[0] && (color ? valok[1] && valok[2] : true))
+            if( valok[0] && (iscolor ? valok[1] && valok[2] : true))
             {
-                for(int i = 0; i < (color ? 3 : 1); i++)
+                for(int k = 0; k < (iscolor ? 3 : 1); k++)
                 {
-                    indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
-                    //indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min ) / (imageptrs->stat_max - imageptrs->stat_min));
-                    //indexout[i] = pixval[i] - imageptrs->stat_min_ch[i];
-                    indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
-                }
+                    if(normalized) pixval1024[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval[k] - imageptrs->stat_min_norm_ch[k] ) / (float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0.0f), 1023.0f);
+                    else pixval1024[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0.0f), 1023.0f);
 
-                if(color)
-                {
-                    if(invertthissegment[0])
+                    if(histogrammethod == CMB_HISTO_NONE_95) // 95%
                     {
-                        r = 255 - imageptrs->lut_ch[0][indexout[0]];
+                            if(normalized) indexout[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndexNormalized[k] ) / (float)(imageptrs->maxRadianceIndexNormalized[k] - imageptrs->minRadianceIndexNormalized[k])), 0.0f), 1023.0f);
+                            else indexout[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0.0f), 1023.0f);
                     }
-                    else
+                    else if(histogrammethod == CMB_HISTO_NONE_100) // 100%
                     {
-                        r = imageptrs->lut_ch[0][indexout[0]];
-                        //r = indexout[0];
-                        //r = imageptrs->lut_sentinel[indexout[0]];
-                    }
-                    if(invertthissegment[1])
-                    {
-                        g = 255 - imageptrs->lut_ch[1][indexout[1]];
-                    }
-                    else
-                    {
-                        g = imageptrs->lut_ch[1][indexout[1]];
-                        //g = indexout[1];
-                        //g = imageptrs->lut_sentinel[indexout[1]];
-                    }
-                    if(invertthissegment[2])
-                    {
-                        b = 255 - imageptrs->lut_ch[2][indexout[2]];
-                    }
-                    else
-                    {
-                        b = imageptrs->lut_ch[2][indexout[2]];
-                        //b = indexout[2];
-                        //b = imageptrs->lut_sentinel[indexout[2]];
+                            indexout[k] =  pixval1024[k];
                     }
 
-                    row[pixelx] = qRgb(r, g, b );
-                }
-                else
-                {
-                    if(invertthissegment[0])
+                    if(invertthissegment[k])
                     {
-                        r = 255 - imageptrs->lut_ch[0][indexout[0]];
+                        if(normalized) color[k] = 255 - imageptrs->lut_norm_ch[k][indexout[k]]/4;
+                        else color[k] = 255 - imageptrs->lut_ch[k][indexout[k]]/4;
                     }
                     else
-                        r = imageptrs->lut_ch[0][indexout[0]];
-
-                    row[pixelx] = qRgb(r, r, r );
+                    {
+                        if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
+                        {
+                            color[k] = (quint16)min(max(round((float)indexout[k]/4), 0.0f), 255.0f);
+                        }
+                        else if(histogrammethod == CMB_HISTO_EQUALIZE)
+                        {
+                            if(normalized) color[k] = (quint16)min(max(round((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0.0f), 255.0f);
+                            else color[k] = (quint16)min(max(round((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0.0f), 255.0f);
+                        }
+                    }
                 }
+
+                row[pixelx] = qRgba(color[0], iscolor ? color[1] : color[0], iscolor ? color[2] : color[0], 255 );
 
             }
             else
             {
-                row[pixelx] = qRgba(0, 0, 0, 250);
+                row[pixelx] = qRgba(0, 0, 0, 0);
             }
 
         }
 
-        if(opts.imageontextureOnOLCIefr && line % 2 == 0)
+        if(opts.imageontextureOnOLCI && line % 2 == 0)
         {
-            this->RenderSegmentlineInTextureOLCIefr( line, row );
+            this->RenderSegmentlineInTextureOLCI( line, row );
             opts.texture_changed = true;
         }
 
     }
 }
 
-void SegmentOLCI::ComposeSegmentGVProjection(int inputchannel)
+
+
+void SegmentOLCI::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
-    ComposeProjection(GVP);
+    ComposeProjection(GVP, histogrammethod, normalized);
 }
 
-void SegmentOLCI::ComposeSegmentLCCProjection(int inputchannel)
+void SegmentOLCI::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
-    ComposeProjection(LCC);
+    ComposeProjection(LCC, histogrammethod, normalized);
 }
 
-void SegmentOLCI::ComposeSegmentSGProjection(int inputchannel)
+void SegmentOLCI::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
-    ComposeProjection(SG);
+    ComposeProjection(SG, histogrammethod, normalized);
 }
 
-void SegmentOLCI::ComposeProjection(eProjections proj)
+void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
 {
+
+    qDebug() << "ComposeProjection(eProjections proj, int histogrammethod, bool normalized) hist = " << histogrammethod << " " << normalized;
 
     double map_x, map_y;
 
@@ -1170,7 +1301,7 @@ void SegmentOLCI::ComposeProjection(eProjections proj)
 
     //g_mutex.lock();
 
-    int pixval[3];
+    quint16 pixval[3];
 
     bool color = bandlist.at(0);
     bool valok[3];
@@ -1194,13 +1325,18 @@ void SegmentOLCI::ComposeProjection(eProjections proj)
     {
         for( int j = 0; j < this->earth_views_per_scanline ; j++ )
         {
-            pixval[0] = ptrbaOLCI[0][i * earth_views_per_scanline + j];
+            if(normalized) pixval[0] = ptrbaOLCInormalized[0][i * earth_views_per_scanline + j];
+            else pixval[0] = ptrbaOLCI[0][i * earth_views_per_scanline + j];
             valok[0] = pixval[0] >= 0 && pixval[0] < 65535;
 
             if(color)
             {
-                pixval[1] = ptrbaOLCI[1][i * earth_views_per_scanline + j];
-                pixval[2] = ptrbaOLCI[2][i * earth_views_per_scanline + j];
+                if(normalized) pixval[1] = ptrbaOLCInormalized[1][i * earth_views_per_scanline + j];
+                else pixval[1] = ptrbaOLCI[1][i * earth_views_per_scanline + j];
+
+                if(normalized) pixval[2] = ptrbaOLCInormalized[2][i * earth_views_per_scanline + j];
+                else pixval[2] = ptrbaOLCI[2][i * earth_views_per_scanline + j];
+
                 valok[1] = pixval[1] > 0 && pixval[1] < 65535;
                 valok[2] = pixval[2] > 0 && pixval[2] < 65535;
             }
@@ -1214,14 +1350,14 @@ void SegmentOLCI::ComposeProjection(eProjections proj)
                 {
                     if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
-                        MapPixel( i, j, map_x, map_y, color);
+                        MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
                     }
                 }
                 else if(proj == GVP) // General Vertical Perspecitve
                 {
                     if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
-                        MapPixel( i, j, map_x, map_y, color);
+                        MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
                     }
 
                 }
@@ -1229,7 +1365,7 @@ void SegmentOLCI::ComposeProjection(eProjections proj)
                 {
                     if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
-                        MapPixel( i, j, map_x, map_y, color);
+                        MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
                     }
                 }
             } else
@@ -1243,18 +1379,25 @@ void SegmentOLCI::ComposeProjection(eProjections proj)
 
 }
 
-void SegmentOLCI::MapPixel( int lines, int views, double map_x, double map_y, bool color)
+void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, bool iscolor, int histogrammethod, bool normalized)
 {
     int indexout[3];
-    int pixval[3];
-    int r, g, b;
-    QRgb rgbvalue = qRgb(0,0,0);
+    quint16 pixval[3];
+    quint16 pixval1024[3];
 
-    pixval[0] = ptrbaOLCI[0][lines * earth_views_per_scanline + views];
+    int color[3];
+    QRgb rgbvalue = qRgba(0,0,0,0);
+
+    if(normalized) pixval[0] = ptrbaOLCInormalized[0][lines * earth_views_per_scanline + views];
+    else pixval[0] = ptrbaOLCI[0][lines * earth_views_per_scanline + views];
+
     if(color)
     {
-        pixval[1] = ptrbaOLCI[1][lines * earth_views_per_scanline + views];
-        pixval[2] = ptrbaOLCI[2][lines * earth_views_per_scanline + views];
+        if(normalized) pixval[1] = ptrbaOLCInormalized[1][lines * earth_views_per_scanline + views];
+        else pixval[1] = ptrbaOLCI[1][lines * earth_views_per_scanline + views];
+
+        if(normalized) pixval[2] = ptrbaOLCInormalized[2][lines * earth_views_per_scanline + views];
+        else pixval[2] = ptrbaOLCI[2][lines * earth_views_per_scanline + views];
     }
 
     if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
@@ -1263,60 +1406,44 @@ void SegmentOLCI::MapPixel( int lines, int views, double map_x, double map_y, bo
         projectionCoordX[lines * earth_views_per_scanline + views] = (qint32)map_x;
         projectionCoordY[lines * earth_views_per_scanline + views] = (qint32)map_y;
 
-        for(int i = 0; i < (color ? 3 : 1); i++)
+
+        for(int k = 0; k < (iscolor ? 3 : 1); k++)
         {
-            indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
-            //indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min ) / (imageptrs->stat_max - imageptrs->stat_min));
-            indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
+            if(normalized) pixval1024[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval[k] - imageptrs->stat_min_norm_ch[k] ) / (float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0.0f), 1023.0f);
+            else pixval1024[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0.0f), 1023.0f);
+
+            if(histogrammethod == CMB_HISTO_NONE_95) // 95%
+            {
+                    if(normalized) indexout[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndexNormalized[k] ) / (float)(imageptrs->maxRadianceIndexNormalized[k] - imageptrs->minRadianceIndexNormalized[k])), 0.0f), 1023.0f);
+                    else indexout[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0.0f), 1023.0f);
+            }
+            else if(histogrammethod == CMB_HISTO_NONE_100) // 100%
+            {
+                    indexout[k] =  pixval1024[k];
+            }
+
+            if(invertthissegment[k])
+            {
+                if(normalized) color[k] = 255 - imageptrs->lut_norm_ch[k][indexout[k]]/4;
+                else color[k] = 255 - imageptrs->lut_ch[k][indexout[k]]/4;
+            }
+            else
+            {
+                if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
+                {
+                    color[k] = (quint16)min(max(round((float)indexout[k]/4), 0.0f), 255.0f);
+                }
+                else if(histogrammethod == CMB_HISTO_EQUALIZE || histogrammethod == CMB_HISTO_EQUALIZE_PROJ)
+                {
+                    if(normalized) color[k] = (quint16)min(max(round((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0.0f), 255.0f);
+                    else color[k] = (quint16)min(max(round((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0.0f), 255.0f);
+                }
+            }
         }
 
-        if(color)
-        {
-            if(invertthissegment[0])
-            {
-                r = 255 - imageptrs->lut_ch[0][indexout[0]];
-            }
-            else
-            {
-                r = imageptrs->lut_ch[0][indexout[0]];
-                //r = imageptrs->lut_sentinel[indexout[0]];
-            }
-            if(invertthissegment[1])
-            {
-                g = 255 - imageptrs->lut_ch[1][indexout[1]];
-            }
-            else
-            {
-                g = imageptrs->lut_ch[1][indexout[1]];
-                //g = imageptrs->lut_sentinel[indexout[1]];
-            }
-            if(invertthissegment[2])
-            {
-                b = 255 - imageptrs->lut_ch[2][indexout[2]];
-            }
-            else
-            {
-                b = imageptrs->lut_ch[2][indexout[2]];
-                //b = imageptrs->lut_sentinel[indexout[2]];
-            }
 
-            //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
-            rgbvalue = qRgba(r, g, b, 255);
+        rgbvalue = qRgba(color[0], iscolor ? color[1] : color[0], iscolor ? color[2] : color[0], 255 );
 
-        }
-        else
-        {
-            if(invertthissegment[0])
-            {
-                r = 255 - imageptrs->lut_ch[0][indexout[0]];
-            }
-            else
-            {
-                r = imageptrs->lut_ch[0][indexout[0]];
-            }
-
-             rgbvalue = qRgba(r, r, r, 255);
-        }
 
 //        if(opts.sattrackinimage)
 //        {
@@ -1438,7 +1565,146 @@ void SegmentOLCI::setupVector(double statevec, QSgp4Date sensing)
     vectorlast.append(qecilast.ToGeo());
 }
 
+void SegmentOLCI::recalculateStatsInProjection(bool normalized)
+{
+    int x, y;
+
+    int statmax[3], statmin[3];
+    long active_pixels[3];
+    quint16 pixval[3];
+
+    qDebug() << "SegmentOLCI::recalculateStatsInProjection()";
+
+    for(int k = 0; k < 3; k++)
+    {
+        statmax[k] = 0;
+        statmin[k] = 999999;
+        active_pixels[k] = 0;
+    }
+
+    for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
+    {
+        for (int j = 0; j < this->NbrOfLines; j++)
+        {
+            for (int i = 0; i < this->earth_views_per_scanline; i++)
+            {
+                x = *(this->projectionCoordX.data() + j * this->earth_views_per_scanline + i);
+                y = *(this->projectionCoordY.data() + j * this->earth_views_per_scanline + i);
+                if(x >= 0 && x < imageptrs->ptrimageProjection->width() && y >= 0 && y < imageptrs->ptrimageProjection->height())
+                {
+                    if(normalized) pixval[k] = this->ptrbaOLCInormalized[k][j * earth_views_per_scanline + i];
+                    else pixval[k] = this->ptrbaOLCI[k][j * earth_views_per_scanline + i];
+
+                    if(pixval[k] >= statmax[k])
+                        statmax[k] = pixval[k];
+                    if(pixval[k] < statmin[k])
+                        statmin[k] = pixval[k];
+                    active_pixels[k]++;
+                }
+            }
+        }
+    }
+
+    for(int k = 0; k < 3; k++)
+    {
+        stat_max_projection[k] = statmax[k];
+        stat_min_projection[k] = statmin[k];
+        qDebug() << QString("stat_min_projection[%1] = %2 stat_max_projection[%3] = %4").arg(k).arg(stat_min_projection[k]).arg(k).arg(stat_max_projection[k]);
+
+    }
+    active_pixels_projection = active_pixels[0];
+    qDebug() << QString("active_pixels_projection = %1").arg(active_pixels_projection);
+
+
+
+}
+
+void SegmentOLCI::RecalculateProjection(bool normalized)
+{
+
+    quint16 indexout[3];
+    quint16 pixval[3];
+    int r, g, b;
+    QRgb rgbvalue = qRgb(0,0,0);
+
+    int map_x, map_y;
+
+    bool color = bandlist.at(0);
+    bool valok[3];
+
+    for( int j = 0; j < this->NbrOfLines; j++)
+    {
+        for( int i = 0; i < this->earth_views_per_scanline ; i++ )
+        {
+            for(int k = 0; k < (color ? 3 : 1); k++)
+            {
+                if(normalized) pixval[k] = this->ptrbaOLCInormalized[k][j * earth_views_per_scanline + i];
+                else pixval[k] = this->ptrbaOLCI[k][j * earth_views_per_scanline + i];
+            }
+
+            map_x = projectionCoordX[j * this->earth_views_per_scanline + i];
+            map_y = projectionCoordY[j * this->earth_views_per_scanline + i];
+
+            if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
+            {
+
+
+                for(int k = 0; k < (color ? 3 : 1); k++)
+                {
+                    indexout[k] =  (quint16)min(max(((float)round(1023.0 * (float)( pixval[k] - imageptrs->stat_min_proj_ch[k] ) / (float)(imageptrs->stat_max_proj_ch[k] - imageptrs->stat_min_proj_ch[k]))), 0.0f), 1023.0f);
+                }
+
+                if(color)
+                {
+                    if(invertthissegment[0])
+                    {
+                        r = 255 - imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                    }
+                    else
+                        r = imageptrs->lut_proj_ch[0][indexout[0]]/4;
+
+                    if(invertthissegment[1])
+                    {
+                        g = 255 - imageptrs->lut_proj_ch[1][indexout[1]]/4;
+                    }
+                    else
+                        g = imageptrs->lut_proj_ch[1][indexout[1]]/4;
+
+                    if(invertthissegment[2])
+                    {
+                        b = 255 - imageptrs->lut_proj_ch[2][indexout[2]]/4;
+                    }
+                    else
+                        b = imageptrs->lut_proj_ch[2][indexout[2]]/4;
+
+                    //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
+                    rgbvalue = qRgba(r, g, b, 255);
+
+                }
+                else
+                {
+                    if(invertthissegment[0])
+                    {
+                        r = 255 - imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                    }
+                    else
+                        r = imageptrs->lut_proj_ch[0][indexout[0]]/4;
+
+                    rgbvalue = qRgba(r, r, r, 255);
+                }
+
+                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                projectionCoordValue[j * earth_views_per_scanline + i] = rgbvalue;
+
+
+            }
+        }
+    }
+
+}
+
 SegmentOLCI::~SegmentOLCI()
 {
-    resetMemory();
+
 }

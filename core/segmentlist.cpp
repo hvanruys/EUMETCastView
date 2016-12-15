@@ -11,10 +11,10 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-void SegmentList::doComposeGVProjection(Segment *t)
-{
-    t->ComposeSegmentGVProjection(0);
-}
+//void SegmentList::doComposeGVProjection(Segment *t)
+//{
+//    t->ComposeSegmentGVProjection(0, 0);
+//}
 
 void SegmentList::doReadSegmentInMemory(Segment *t)
 {
@@ -176,7 +176,8 @@ void SegmentList::ShowSegment(int value)
 
     QList<Segment*>::iterator segit = segmentlist.begin();
     int nos = this->NbrOfSegments();
-    int novs = this->GetNbrOfVisibleSegments();
+//    int novs = this->GetNbrOfVisibleSegments();
+    int novs = opts.nbrofvisiblesegments;
 
     int viseg = (nos < novs ? nos : novs);
 
@@ -226,7 +227,7 @@ void SegmentList::CalculateSunPosition(double first_julian, double last_julian, 
 
 void SegmentList::SetNbrOfVisibleSegments(int val)
 {
-    // qDebug() << QString("nbrofvisiblesegments = %1").arg(val);
+    qDebug() << QString("SetNbrOfVisibleSegments(int val = %1)").arg(val);
     nbrofvisiblesegments = val;
 }
 
@@ -577,23 +578,11 @@ void SegmentList::readfinished()
                 stat_min_ch[k] = segm->stat_min_ch[k];
             if (segm->stat_max_ch[k] > stat_max_ch[k] )
                 stat_max_ch[k] = segm->stat_max_ch[k];
-//            if(k == 3)
-//            {
-//                if(channel_3_select == false) // channel 3b
-//                {
-//                    if (segm->stat_min_ch[k] < stat_3_0_min_ch )
-//                        stat_3_0_min_ch = segm->stat_min_ch[k];
-//                    if (segm->stat_max_ch[k] > stat_3_0_max_ch )
-//                        stat_3_0_max_ch = segm->stat_max_ch[k];
-//                }
-//                else                          // channel 3a
-//                {
-//                    if (segm->stat_min_ch[k] < stat_3_1_min_ch )
-//                        stat_3_1_min_ch = segm->stat_min_ch[k];
-//                    if (segm->stat_max_ch[k] > stat_3_1_max_ch )
-//                        stat_3_1_max_ch = segm->stat_max_ch[k];
-//                }
-//            }
+            if( segm->stat_max_norm_ch[k] < stat_min_norm_ch[k])
+                stat_min_norm_ch[k] = segm->stat_min_norm_ch[k];
+            if (segm->stat_max_norm_ch[k] > stat_max_norm_ch[k] )
+                stat_max_norm_ch[k] = segm->stat_max_norm_ch[k];
+
 
         }
         ++segsel;
@@ -750,7 +739,7 @@ void SegmentList::ComposeGVProjection(int inputchannel)
     QList<Segment*>::iterator segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
-        (*segit)->ComposeSegmentGVProjection(inputchannel);
+        (*segit)->ComposeSegmentGVProjection(inputchannel, 0, false);
          emit segmentprojectionfinished(false);
         ++segit;
     }
@@ -774,7 +763,7 @@ void SegmentList::ComposeLCCProjection(int inputchannel)
     QList<Segment*>::iterator segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
-        (*segit)->ComposeSegmentLCCProjection(inputchannel);
+        (*segit)->ComposeSegmentLCCProjection(inputchannel, 0, false);
         emit segmentprojectionfinished(false);
         ++segit;
     }
@@ -787,7 +776,7 @@ void SegmentList::ComposeSGProjection(int inputchannel)
     QList<Segment*>::iterator segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
-        (*segit)->ComposeSegmentSGProjection(inputchannel);
+        (*segit)->ComposeSegmentSGProjection(inputchannel, 0, false);
         emit segmentprojectionfinished(false);
         ++segit;
     }
@@ -823,6 +812,7 @@ void SegmentList::composeprojectionreadyat(int segmentnbr)
 void SegmentList::ClearSegments()
 {
 
+    qDebug() << QString("segmentlist count = %1 segsselected count = %2").arg(segmentlist.count()).arg(segsselected.count());
     segsselected.clear();
 
     while (!segmentlist.isEmpty())

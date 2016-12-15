@@ -155,7 +155,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglnoaa, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglhrp, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgac, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    //connect(seglist, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
 
     connect(seglist->seglviirsdnb, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
 
@@ -204,9 +204,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formephem,SIGNAL(signalDirectoriesRead()), formglobecyl, SLOT(setScrollBarMaximum()));
     connect( formglobecyl, SIGNAL(emitMakeImage()), formimage, SLOT(slotMakeImage()));
-    connect( formtoolbox, SIGNAL(emitShowVIIRSImage()), formimage, SLOT(slotShowVIIRSMImage()));
-    connect( formtoolbox, SIGNAL(emitShowOLCIefrImage()), formimage, SLOT(slotShowOLCIefrImage()));
-    connect( formtoolbox, SIGNAL(emitShowOLCIerrImage()), formimage, SLOT(slotShowOLCIerrImage()));
 
     connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
     connect( mapcyl , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
@@ -219,7 +216,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formgeostationary, SIGNAL(geostationarysegmentschosen(SegmentListGeostationary::eGeoSatellite, QStringList)), formtoolbox, SLOT(geostationarysegmentsChosen(SegmentListGeostationary::eGeoSatellite, QStringList)));
     connect( formtoolbox, SIGNAL(getmeteosatchannel(QString, QVector<QString>, QVector<bool>)), formgeostationary, SLOT(CreateGeoImage(QString, QVector<QString>, QVector<bool>)));
-    connect( formtoolbox, SIGNAL(screenupdateprojection()), formimage, SLOT(slotUpdateProjection()));
     connect( formtoolbox, SIGNAL(switchstackedwidget(int)), this, SLOT(slotSwitchStackedWindow(int)));
 
     connect( formgeostationary, SIGNAL(enabletoolboxbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
@@ -406,6 +402,10 @@ void MainWindow::on_actionZoomout_triggered()
        formimage->zoomOut();
 }
 
+void MainWindow::on_actionWhatsthis_triggered()
+{
+    QWhatsThis::enterWhatsThisMode();
+}
 
 void MainWindow::on_actionFitWindow_triggered()
 {
@@ -466,29 +466,32 @@ void MainWindow::on_actionImage_triggered()
     int index = formtoolbox->getTabWidgetIndex();
     int indexviirs = formtoolbox->getTabWidgetVIIRSIndex();
 
-    Q_ASSERT(index < 5);
+    Q_ASSERT(index < 6);
+
+    if(index == TAB_HISTOGRAM)
+        return;
 
     qDebug() << " MainWindow::on_actionImage_triggered() index = " << index;
 
 
-    if(index == -1 || index == 0)
+    if(index == -1 || index == TAB_AVHRR)
     {
         formimage->displayImage(IMAGE_AVHRR_COL);
     }
-    else if(index == 1)
+    else if(index == TAB_VIIRS)
     {
         if(indexviirs == 0)
             formimage->displayImage(IMAGE_VIIRS_M); //VIIRSM image
         else
             formimage->displayImage(IMAGE_VIIRS_DNB); //VIIRSDNB image
     }
-    else if(index == 2)
+    else if(index == TAB_OLCI)
     {
         formimage->displayImage(IMAGE_OLCI); //OLCI image
     }
-    else if(index == 3)
+    else if(index == TAB_GEOSTATIONARY)
         formimage->displayImage(IMAGE_GEOSTATIONARY); //Geostationary image
-    else if(index == 4)
+    else if(index == TAB_PROJECTION)
         formimage->displayImage(IMAGE_PROJECTION); //Projection image
 
     ui->actionSatSelection->setChecked(false);
@@ -524,50 +527,58 @@ void MainWindow::on_actionCreatePNG_triggered()
     filestr.append("./");
 
 
-    if (formimage->channelshown == 8)
+    if (formimage->channelshown == IMAGE_GEOSTATIONARY)
     {
         filestr += formtoolbox->returnFilenamestring();
     }
 
 
     QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save image"), filestr,
-            tr("*.png;;*.jpg"));
+                                                    tr("Save image"), filestr,
+                                                    tr("*.png;;*.jpg"));
     if (fileName.isEmpty())
-             return;
+        return;
     else
     {
-        QApplication::setOverrideCursor(Qt::WaitCursor);
-        if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
-                fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
-            fileName.append(".jpg");
-        pm = formimage->returnimageLabelptr()->pixmap();
+//        if (formimage->channelshown == IMAGE_OLCI)
+//        {
+//            Create48bitImage(fileName);
+//        }
+//        else
+//        {
 
-        if(!forminfrascales->isHidden())
-        {
-            QImage imresult(pm->width(), pm->height() + 80, QImage::Format_RGB32);
+            QApplication::setOverrideCursor(Qt::WaitCursor);
+            if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
+                    fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
+                fileName.append(".jpg");
+            pm = formimage->returnimageLabelptr()->pixmap();
 
-            QImage im = pm->toImage();
-            QPainter painter(&imresult);
+            if(!forminfrascales->isHidden())
+            {
+                QImage imresult(pm->width(), pm->height() + 80, QImage::Format_RGB32);
 
-            QImage scales = forminfrascales->getScalesImage(im.width());
-            //QImage scales(im.width(), 80, im.format());
-            //scales.fill(Qt::blue);
+                QImage im = pm->toImage();
+                QPainter painter(&imresult);
 
-            painter.drawImage(0, 0, im);
-            painter.drawImage(0, imresult.height()-80, scales);
+                QImage scales = forminfrascales->getScalesImage(im.width());
+                //QImage scales(im.width(), 80, im.format());
+                //scales.fill(Qt::blue);
 
-            painter.end();
-            imresult.save(fileName);
-        }
-        else
-        {
-            pm->save(fileName);
-        }
-        QApplication::restoreOverrideCursor();
+                painter.drawImage(0, 0, im);
+                painter.drawImage(0, imresult.height()-80, scales);
+
+                painter.end();
+                imresult.save(fileName);
+            }
+            else
+            {
+                pm->save(fileName);
+            }
+            QApplication::restoreOverrideCursor();
+        //}
     }
-
 }
+
 
 void MainWindow::moveImage(QPoint d, QPoint e)
 {

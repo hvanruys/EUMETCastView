@@ -30,6 +30,8 @@ void Options::Initialize()
 
     buttonRealTime=settings.value("/window/buttonrealtime", true ).toBool();
     buttonEqualization=settings.value("/window/buttonequalization", false ).toBool();
+    buttonPhong=settings.value("/window/buttonphong", false ).toBool();
+    buttonShowAllSegments=settings.value("/window/buttonshowallsegments", false ).toBool();
     nbrofvisiblesegments=settings.value("/segments/nbrofvisiblesegments", 10).toInt();
     nbrofhours=settings.value("/segments/nbrofhours", 0).toInt();
 
@@ -135,8 +137,7 @@ void Options::Initialize()
     imageontextureOnMet = settings.value("/window/imageontextureonmet", false ).toBool();
     imageontextureOnAVHRR = settings.value("/window/imageontextureonavhrr", true ).toBool();
     imageontextureOnVIIRS = settings.value("/window/imageontextureonviirs", true ).toBool();
-    imageontextureOnOLCIefr = settings.value("/window/imageontextureonolciefr", true ).toBool();
-    imageontextureOnOLCIerr = settings.value("/window/imageontextureonolcierr", true ).toBool();
+    imageontextureOnOLCI = settings.value("/window/imageontextureonolciefr", true ).toBool();
     windowvectors = settings.value("/window/windowsvectors", false ).toBool();
 
     localdirremote = settings.value("/window/localdirremote", "").value<QString>();
@@ -167,6 +168,10 @@ void Options::Initialize()
     zoomfactorviirs = settings.value("/window/zoomfactorviirs", 100).toInt();
     if( zoomfactorviirs < 5 || zoomfactorviirs > 500 )
         zoomfactorviirs = 100;
+
+    zoomfactorolci = settings.value("/window/zoomfactorolci", 100).toInt();
+    if( zoomfactorolci < 5 || zoomfactorolci > 500 )
+        zoomfactorolci = 100;
 
     currenttoolbox = settings.value("/parameters/currenttoolbox", 0).toInt();
 
@@ -263,7 +268,7 @@ void Options::checkStringListValues()
 
     if(stationlistname.count() == 0)
     {
-        stationlistname << "McMur Station" << "Maspalomas" << "Svalbard" << "Edmonton" << "Gander" << "Gilmore Creek" <<
+        stationlistname << "McMurdo Station" << "Maspalomas" << "Svalbard" << "Edmonton" << "Gander" << "Gilmore Creek" <<
                            "Monterey" << "Kangerlussuaq" << "Lannion" << "Saint-Denis (La Reunion)" <<
                            "Moscow" << "Muscat" << "Tromso" << "Ewa Beach" << "Miami" << "Pine Island Glacier" << "Athens";
         stationlistlon << "166.666" << "-15.63" << "15.23" << "-113.5" << "-54.57" << "-147.40" << "-121.55" << "-50.67" <<
@@ -356,6 +361,9 @@ void Options::Save()
 
     settings.setValue( "/window/buttonrealtime", buttonRealTime );
     settings.setValue( "/window/buttonequalization", buttonEqualization );
+    settings.setValue( "/window/buttonphong", buttonPhong );
+    settings.setValue( "/window/buttonshowallsegments", buttonShowAllSegments );
+
     settings.setValue( "/observer/longitude", obslon );
     settings.setValue( "/observer/latitude", obslat );
     settings.setValue( "/observer/altitude", obsalt );
@@ -425,8 +433,7 @@ void Options::Save()
     settings.setValue("/window/imageontextureonmet", imageontextureOnMet );
     settings.setValue("/window/imageontextureonavhrr", imageontextureOnAVHRR );
     settings.setValue("/window/imageontextureonviirs", imageontextureOnVIIRS );
-    settings.setValue("/window/imageontextureonolciefr", imageontextureOnOLCIefr );
-    settings.setValue("/window/imageontextureonolcierr", imageontextureOnOLCIerr );
+    settings.setValue("/window/imageontextureonolciefr", imageontextureOnOLCI );
     settings.setValue("/window/windowsvectors", windowvectors );
 
     settings.setValue("/window/gshhsglobe1on", gshhsglobe1On );
@@ -448,6 +455,7 @@ void Options::Save()
     settings.setValue("/window/zoomfactormeteosat", zoomfactormeteosat );
     settings.setValue("/window/zoomfactorprojection", zoomfactorprojection );
     settings.setValue("/window/zoomfactorviirs", zoomfactorviirs );
+    settings.setValue("/window/zoomfactorolci", zoomfactorolci );
 
 
     qDebug() << QString("saving currenttoolbox = %1 currenttabwidget = %2").arg(currenttoolbox).arg(currenttabwidget);

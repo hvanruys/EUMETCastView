@@ -55,6 +55,7 @@
    <addaction name="actionFitWindow"/>
    <addaction name="actionFitWindowWidth"/>
    <addaction name="separator"/>
+   <addaction name="actionWhatsthis"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -258,6 +259,15 @@
    </property>
    <property name="toolTip">
     <string>Fit Window Width</string>
+   </property>
+  </action>
+  <action name="actionWhatsthis">
+   <property name="icon">
+    <iconset resource="EUMETCastView.qrc">
+     <normaloff>:/icons/icons/question-mark-cursor_318-113947.png</normaloff>:/icons/icons/question-mark-cursor_318-113947.png</iconset>
+   </property>
+   <property name="text">
+    <string>Whats this ?</string>
    </property>
   </action>
  </widget>

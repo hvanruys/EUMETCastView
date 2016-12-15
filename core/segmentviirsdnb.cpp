@@ -1132,22 +1132,22 @@ void SegmentVIIRSDNB::CalcGraphPockets(int xzenith, float radiance, QScopedArray
     }
 }
 
-void SegmentVIIRSDNB::ComposeSegmentLCCProjection(int inputchannel)
+void SegmentVIIRSDNB::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
-    ComposeProjection(LCC);
+    ComposeProjection(LCC, histogrammethod, normalized);
 }
 
-void SegmentVIIRSDNB::ComposeSegmentGVProjection(int inputchannel)
+void SegmentVIIRSDNB::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
-    ComposeProjection(GVP);
+    ComposeProjection(GVP, histogrammethod, normalized);
 }
 
-void SegmentVIIRSDNB::ComposeSegmentSGProjection(int inputchannel)
+void SegmentVIIRSDNB::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
-    ComposeProjection(SG);
+    ComposeProjection(SG, histogrammethod, normalized);
 }
 
-void SegmentVIIRSDNB::ComposeProjection(eProjections proj)
+void SegmentVIIRSDNB::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
 {
 
     double map_x, map_y;

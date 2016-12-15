@@ -234,7 +234,7 @@ void SegmentListVIIRSM::ComposeGVProjection(int inputchannel)
     QList<Segment *>::iterator segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
-        (*segit)->ComposeSegmentGVProjection(inputchannel);
+        (*segit)->ComposeSegmentGVProjection(inputchannel, 0, false);
         emit segmentprojectionfinished(false);
         ++segit;
     }
@@ -254,6 +254,7 @@ void SegmentListVIIRSM::ComposeGVProjection(int inputchannel)
 
 }
 
+
 void SegmentListVIIRSM::ComposeLCCProjection(int inputchannel)
 {
 
@@ -261,7 +262,7 @@ void SegmentListVIIRSM::ComposeLCCProjection(int inputchannel)
     QList<Segment *>::iterator segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
-        (*segit)->ComposeSegmentLCCProjection(inputchannel);
+        (*segit)->ComposeSegmentLCCProjection(inputchannel, 0, false);
         emit segmentprojectionfinished(false);
         ++segit;
     }
@@ -276,7 +277,7 @@ void SegmentListVIIRSM::ComposeSGProjection(int inputchannel)
     QList<Segment *>::iterator segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
-        (*segit)->ComposeSegmentSGProjection(inputchannel);
+        (*segit)->ComposeSegmentSGProjection(inputchannel, 0, false);
         emit segmentprojectionfinished(false);
         ++segit;
     }

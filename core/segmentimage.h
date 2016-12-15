@@ -71,18 +71,30 @@ public:
     StereoGraphic *sg;
 
     quint16 lut_ch[5][1024];
+    quint16 lut_norm_ch[5][1024];
+    quint16 lut_proj_ch[3][1024];
     quint16 lut_sentinel[256];
 
     int stat_max_ch[5];
     int stat_min_ch[5];
-    long stat_max;
-    long stat_min;
+    int stat_max_proj_ch[5]; // used in HistEqual of projection
+    int stat_min_proj_ch[5];
+    long stat_max_norm_ch[3];
+    long stat_min_norm_ch[3];
+//    long stat_max;
+//    long stat_min;
 
     float stat_max_dnb;
     float stat_min_dnb;
     float minBrightnessTemp;
     float maxBrightnessTemp;
     long active_pixels;
+    long active_pixels_proj;
+
+    int minRadianceIndex[3];
+    int maxRadianceIndex[3];
+    int minRadianceIndexNormalized[3];
+    int maxRadianceIndexNormalized[3];
 
     quint16 *ptrRed[10];
     quint16 *ptrGreen[10];

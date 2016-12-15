@@ -646,8 +646,6 @@ void  SegmentImage::MakeHistogram (unsigned short* pImage, unsigned int uiXRes,
  * the corresponding bin in the histogram (usually containing only 128 bins).
  */
 {
-    //qDebug() << QString("MakeHistogram uiXRes = %1 uiSizeX = %2 uiSizeY = %3 uiNrGreylevels = %4").arg(uiXRes).arg(uiSizeX).arg(uiSizeY).arg(uiNrGreylevels);
-
     unsigned short* pImagePointer;
     unsigned int i;
 

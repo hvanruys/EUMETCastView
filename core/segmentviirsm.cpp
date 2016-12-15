@@ -944,11 +944,7 @@ void SegmentVIIRSM::ComposeSegmentImage()
 
 void SegmentVIIRSM::recalculateStatsInProjection()
 {
-    int pixval[3];
     bool color = bandlist.at(0);
-    bool valok[3];
-    long count = 0;
-
     int x, y;
 
     int statmax[3], statmin[3];
@@ -961,7 +957,7 @@ void SegmentVIIRSM::recalculateStatsInProjection()
         active_pixels[k] = 0;
     }
 
-    for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
+    for(int k = 0; k < (color ? 3 : 1); k++)
     {
         for (int j = 0; j < 768; j++)
         {
@@ -991,22 +987,22 @@ void SegmentVIIRSM::recalculateStatsInProjection()
 }
 
 
-void SegmentVIIRSM::ComposeSegmentLCCProjection(int inputchannel)
+void SegmentVIIRSM::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
-    ComposeProjection(LCC);
+    ComposeProjection(LCC, histogrammethod, normalized);
 }
 
-void SegmentVIIRSM::ComposeSegmentGVProjection(int inputchannel)
+void SegmentVIIRSM::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
-    ComposeProjection(GVP);
+    ComposeProjection(GVP, histogrammethod, normalized);
 }
 
-void SegmentVIIRSM::ComposeSegmentSGProjection(int inputchannel)
+void SegmentVIIRSM::ComposeSegmentSGProjection(int inputchannel, int histogrammethod,  bool normalized)
 {
-    ComposeProjection(SG);
+    ComposeProjection(SG, histogrammethod, normalized);
 }
 
-void SegmentVIIRSM::ComposeProjection(eProjections proj)
+void SegmentVIIRSM::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
 {
 
     double map_x, map_y;

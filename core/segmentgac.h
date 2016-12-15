@@ -21,9 +21,9 @@ public:
 
     void ComposeProjection(int inputchannel, eProjections proj);
     void RenderSegmentlineInProjection( int channel, int nbrLine, int heightintotalimage, eProjections proj );
-    void ComposeSegmentLCCProjection(int inputchannel);
-    void ComposeSegmentGVProjection(int inputchannel);
-    void ComposeSegmentSGProjection(int inputchannel);
+    void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
 
     void RenderSegmentlineInSG( int channel, int nbrLine, int heightintotalimage);
     void RenderSegmentlineInGVP( int channel, int nbrLine, int heightintotalimage);

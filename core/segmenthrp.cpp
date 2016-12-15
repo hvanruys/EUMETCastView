@@ -639,17 +639,17 @@ quint32 SegmentHRP::get_next_header( QByteArray ba )
 
 }
 
-void SegmentHRP::ComposeSegmentLCCProjection(int inputchannel)
+void SegmentHRP::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(inputchannel, LCC);
 }
 
-void SegmentHRP::ComposeSegmentGVProjection(int inputchannel)
+void SegmentHRP::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(inputchannel, GVP);
 }
 
-void SegmentHRP::ComposeSegmentSGProjection(int inputchannel)
+void SegmentHRP::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(inputchannel, SG);
 }

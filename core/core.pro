@@ -163,8 +163,8 @@ else:win32:INCLUDEPATH += "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2
 
 CONFIG(release, debug|release) {
 #This is a release build
-    unix:LIBS += -lpthread -lz -L/usr/ \
-        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive \
+    unix:LIBS += -lpthread -lz -lfreeimage \
+        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lpng -lbz2 -lhdf5_serial -larchive \
         -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
         #-L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += \
@@ -176,8 +176,8 @@ CONFIG(release, debug|release) {
 
 } else {
 #This is a debug build
-unix:LIBS += -lpthread -lz -L/usr/ \
-    -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive \
+unix:LIBS += -lpthread -lz -lfreeimage \
+    -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lpng -lbz2 -lhdf5_serial -larchive \
     -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
     #-L/usr/local/hdf5/lib -lhdf5
 else:win32:LIBS += \
@@ -186,12 +186,6 @@ else:win32:LIBS += \
         -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
         "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/x64/Release/archive_static.lib" \
         Advapi32.lib
-
-else:win32:LIBS += \
-    Advapi32.lib "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/x64/Release/archive_static.lib" \
-    -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
-    -L"C:/Program Files/HDF_Group/HDF5/1.8.16/lib/" libszip.lib libzlib.lib libhdf5.lib \
-    "C:/Program Files/netCDF 4.4.1/lib/netcdf.lib"
 
 }
 

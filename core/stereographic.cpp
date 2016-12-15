@@ -301,12 +301,12 @@ void StereoGraphic::CreateMapFromVIIRS(eSegmentType type, bool combine)
 
 }
 
-void StereoGraphic::CreateMapFromOLCI(eSegmentType type, bool combine)
+void StereoGraphic::CreateMapFromOLCI(eSegmentType type, bool combine, int histogrammethod, bool normalized)
 {
     if (type == SEG_OLCIEFR)
-        segs->seglolciefr->ComposeSGProjection(0);
+        segs->seglolciefr->ComposeSGProjection(0, histogrammethod, normalized);
     else if( type == SEG_OLCIERR)
-        segs->seglolcierr->ComposeSGProjection(0);
+        segs->seglolcierr->ComposeSGProjection(0, histogrammethod, normalized);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();

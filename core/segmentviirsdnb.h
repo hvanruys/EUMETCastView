@@ -20,10 +20,10 @@ public:
     int ReadNbrOfLines();
 
     //void ComposeSegmentImage();
-    void ComposeSegmentLCCProjection(int inputchannel);
-    void ComposeSegmentGVProjection(int inputchannel);
-    void ComposeSegmentSGProjection(int inputchannel);
-    void ComposeProjection(eProjections proj);
+    void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeProjection(eProjections proj, int histogrammethod, bool normalized);
     void ComposeSegmentImageWindow(float lowerlimit, float upperlimit);
     void ComposeSegmentImageWindowFromCurve(QVector<double> *x, QVector<double> *y);
 

@@ -215,12 +215,12 @@ void LambertConformalConic::CreateMapFromVIIRS(eSegmentType type, bool combine)
 
 }
 
-void LambertConformalConic::CreateMapFromOLCI(eSegmentType type, bool combine)
+void LambertConformalConic::CreateMapFromOLCI(eSegmentType type, bool combine, int histogrammethod, bool normalized)
 {
     if (type == SEG_OLCIEFR)
-        segs->seglolciefr->ComposeLCCProjection(0);
+        segs->seglolciefr->ComposeLCCProjection(0, histogrammethod, normalized);
     else if( type == SEG_OLCIERR)
-        segs->seglolcierr->ComposeLCCProjection(0);
+        segs->seglolcierr->ComposeLCCProjection(0, histogrammethod, normalized);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
