@@ -4613,8 +4613,13 @@ void FormToolbox::setAllWhatsThis()
     ui->rdbOLCIprojNormalized->setWhatsThis(htmlText2);
 
     const QString htmlText3 =
-    "Save the image as a 48bit RGB PNG.";
+    "A 48bit RGB PNG image as 16 bits per colorchannel. The RGB values of the PNG contains the radiances multiplied by 10";
     ui->btnSaveAsPNG48bits->setWhatsThis(htmlText3);
+
+    const QString htmlText31 =
+    "When set the radiances will be linear mapped to 0 - 65535.";
+    ui->rdbMapTo65535->setWhatsThis(htmlText31);
+
     const QString htmlText4 =
     "A Lambert conformal conic projection (LCC) is a conic map projection used for aeronautical charts, portions of the State Plane Coordinate System, and many national and regional mapping systems.";
     ui->pageLambert->setWhatsThis(htmlText4);
@@ -4646,7 +4651,7 @@ void FormToolbox::setAllWhatsThis()
 void FormToolbox::on_btnSaveAsPNG48bits_clicked()
 {
 
-    if(!formimage->SaveAsPNG48bits(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked()))
+    if(!formimage->SaveAsPNG48bits(ui->rdbMapTo65535))
     {
         QMessageBox::information( this, "Save 48bit PNG",
             "There is no input file !" );

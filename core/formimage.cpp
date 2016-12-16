@@ -3051,7 +3051,7 @@ void FormImage::setHistogramMethod(int histogrammethod, bool normalized)
     segs->seglolcierr->setHistogramMethod(histogrammethod, normalized);
 }
 
-bool FormImage::SaveAsPNG48bits(int histogrammethod, bool normalized)
+bool FormImage::SaveAsPNG48bits(bool mapto65535)
 {
     QString filestr;
 
@@ -3081,12 +3081,12 @@ bool FormImage::SaveAsPNG48bits(int histogrammethod, bool normalized)
 
             if(olciefrcount > 0)
             {
-                segs->seglolciefr->Compose48bitPNG(fileName);
+                segs->seglolciefr->Compose48bitPNG(fileName, mapto65535);
                 QApplication::restoreOverrideCursor();
             }
             else if(olcierrcount > 0)
             {
-                segs->seglolcierr->Compose48bitPNG(fileName);
+                segs->seglolcierr->Compose48bitPNG(fileName, mapto65535);
                 QApplication::restoreOverrideCursor();
             }
             else
@@ -3101,27 +3101,10 @@ bool FormImage::SaveAsPNG48bits(int histogrammethod, bool normalized)
     return(true);
 }
 
-
-
-
-
-
-
-
-
-
-
-
 FormImage::~FormImage()
 {
 
 }
-
-
-
-
-
-
 
 
 MyImageLabel::MyImageLabel(QLabel *parent ) :  QLabel(parent)

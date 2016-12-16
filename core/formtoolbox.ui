@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>427</width>
+    <width>446</width>
     <height>1135</height>
    </rect>
   </property>
@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>2</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -2740,19 +2740,6 @@
            </property>
           </spacer>
          </item>
-         <item>
-          <widget class="QPushButton" name="btnSaveAsPNG48bits">
-           <property name="toolTip">
-            <string>Save as 48bit RGB PNG image</string>
-           </property>
-           <property name="statusTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>  Save as 48bit PNG  </string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
@@ -2821,6 +2808,29 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_79">
+         <item>
+          <widget class="QPushButton" name="btnSaveAsPNG48bits">
+           <property name="toolTip">
+            <string>Save as 48bit RGB PNG image</string>
+           </property>
+           <property name="statusTip">
+            <string/>
+           </property>
+           <property name="text">
+            <string>  Save 48bit PNG  </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdbMapTo65535">
+           <property name="toolTip">
+            <string>map the radiances to 0 - 65535</string>
+           </property>
+           <property name="text">
+            <string>mapped to 0-65535</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <spacer name="horizontalSpacer_48">
            <property name="orientation">
@@ -5051,7 +5061,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>365</width>
+                 <width>384</width>
                  <height>477</height>
                 </rect>
                </property>

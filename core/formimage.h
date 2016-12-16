@@ -65,7 +65,7 @@ public:
     bool ShowHistogramImage(int histogrammethod, bool normalized);
 
     void UpdateProjection();
-    bool SaveAsPNG48bits(int histogrammethod, bool normalized);
+    bool SaveAsPNG48bits(bool mapto65535);
 
     int metopcount;
     int noaacount;

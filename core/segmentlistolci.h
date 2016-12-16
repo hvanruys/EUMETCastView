@@ -29,8 +29,8 @@ public:
     bool ChangeHistogramMethod();
 
     void ComposeSegments();
-    void Compose48bitPNG(QString fileName);
-    void Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap, int heightinsegment);
+    void Compose48bitPNG(QString fileName, bool mapto65535);
+    void Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap, int heightinsegment, bool mapto65535);
 
     void RecalculateCLAHEOLCI();
 

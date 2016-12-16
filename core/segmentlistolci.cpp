@@ -432,7 +432,7 @@ void SegmentListOLCI::ComposeSegments()
 
 }
 
-void SegmentListOLCI::Compose48bitPNG(QString fileName)
+void SegmentListOLCI::Compose48bitPNG(QString fileName, bool mapto65535)
 {
     int height = NbrOfSegmentLinesSelected();
     int width = earth_views_per_scanline;
@@ -465,7 +465,7 @@ void SegmentListOLCI::Compose48bitPNG(QString fileName)
     while ( segsel != segsselected.end() )
     {
         SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
-        Compose48bitPNGSegment(segm, bitmap, heightinsegment);
+        Compose48bitPNGSegment(segm, bitmap, heightinsegment, mapto65535);
         heightinsegment += segm->GetNbrOfLines();
         qDebug() << "------> heightinsegment = " << heightinsegment;
         ++segsel;
@@ -490,48 +490,53 @@ void SegmentListOLCI::Compose48bitPNG(QString fileName)
 }
 
 
-void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap, int heightinsegment)
+void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap, int heightinsegment, bool mapto65535)
 {
 
-    quint16 pixval[3];
+    quint16 pixval[3], pixval65535[3];
     bool iscolor = bandlist.at(0);
     bool valok[3];
 
 
     for (int line = 0; line < segm->GetNbrOfLines(); line++)
     {
-//        FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, line + heightinsegment);
+        //        FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, line + heightinsegment);
         FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, totalnbroflines - line - heightinsegment - 1);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
-
-            if(normalized) pixval[0] = segm->ptrbaOLCInormalized[0][line * earth_views_per_scanline + pixelx];
-            else pixval[0] = segm->ptrbaOLCI[0][line * earth_views_per_scanline + pixelx];
-
-            if(iscolor)
+            for(int k = 0; k < (iscolor ? 3 : 1); k++)
             {
-                if(normalized) pixval[1] = segm->ptrbaOLCInormalized[1][line * earth_views_per_scanline + pixelx];
-                else pixval[1] = segm->ptrbaOLCI[1][line * earth_views_per_scanline + pixelx];
-                if(normalized) pixval[2] = segm->ptrbaOLCInormalized[2][line * earth_views_per_scanline + pixelx];
-                else pixval[2] = segm->ptrbaOLCI[2][line * earth_views_per_scanline + pixelx];
+                pixval[k] = segm->ptrbaOLCI[k][line * earth_views_per_scanline + pixelx];
+
+                if(pixval[k] < 65535)
+                {
+                    if(mapto65535)
+                    {
+                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 65535);
+                        pixval[k] = pixval65535[k];
+                    }
+                }
+                else
+                    pixval[k] = 0;
             }
 
-            valok[0] = pixval[0] < 65535;
-            valok[1] = pixval[1] < 65535;
-            valok[2] = pixval[2] < 65535;
 
-            if( valok[0] && (iscolor ? valok[1] && valok[2] : true))
-            {
+//            valok[0] = pixval[0] < 65535;
+//            valok[1] = pixval[1] < 65535;
+//            valok[2] = pixval[2] < 65535;
+
+//            if( valok[0] && (iscolor ? valok[1] && valok[2] : true))
+//            {
                 bits[pixelx].red = pixval[0];
                 bits[pixelx].green = pixval[1];
                 bits[pixelx].blue = pixval[2];
-            }
-            else
-            {
-                bits[pixelx].red = 0;
-                bits[pixelx].green = 0;
-                bits[pixelx].blue = 0;
-            }
+//            }
+//            else
+//            {
+//                bits[pixelx].red = 0;
+//                bits[pixelx].green = 0;
+//                bits[pixelx].blue = 0;
+//            }
 
         }
 
