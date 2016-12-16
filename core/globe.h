@@ -2,6 +2,8 @@
 #define GLOBE_H
 
 //#define OPENGL31
+#define OPENGL40
+//#define OPENGL43
 
 #include <QApplication>
 #include <QOpenGLWidget>
@@ -9,7 +11,11 @@
 #include <QOpenGLShaderProgram>
 #ifdef OPENGL31
 #include <QOpenGLFunctions_3_1>
-#else
+#endif
+#ifdef OPENGL40
+#include <QOpenGLFunctions_4_0_Core>
+#endif
+#ifdef OPENGL43
 #include <QOpenGLFunctions_4_3_Core>
 #endif
 
@@ -28,7 +34,11 @@
 
 #ifdef OPENGL31
 class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_1
-#else
+#endif
+#ifdef OPENGL40
+class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
+#endif
+#ifdef OPENGL43
 class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
 #endif
 {
