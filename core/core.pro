@@ -139,7 +139,8 @@ HEADERS  += mainwindow.h \
     forminfrascales.h \
     qcustomplot.h \
     segmentlistolci.h \
-    segmentolci.h
+    segmentolci.h \
+    FreeImage.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
@@ -167,7 +168,7 @@ CONFIG(release, debug|release) {
         -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lpng -lbz2 -lhdf5_serial -larchive \
         -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
         #-L/usr/local/hdf5/lib -lhdf5
-    else:win32:LIBS += \
+    else:win32:LIBS += -lfreeimage \
         -L"C:/Program Files/HDF_Group/HDF5/1.8.16/lib/" libszip.lib libzlib.lib libhdf5.lib \
         "C:/Program Files/netCDF 4.4.1/lib/netcdf.lib" \
         -L$$PWD/../../libs/win64_MSVC2012/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
@@ -180,7 +181,7 @@ unix:LIBS += -lpthread -lz -lfreeimage \
     -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lpng -lbz2 -lhdf5_serial -larchive \
     -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
     #-L/usr/local/hdf5/lib -lhdf5
-else:win32:LIBS += \
+else:win32:LIBS += -lfreeimage \
         -L"C:/Program Files/HDF_Group/HDF5/1.8.16/lib/" libszip.lib libzlib.lib libhdf5.lib \
         "C:/Program Files/netCDF 4.4.1/lib/netcdf.lib" \
         -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \

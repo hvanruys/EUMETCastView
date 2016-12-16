@@ -540,13 +540,6 @@ void MainWindow::on_actionCreatePNG_triggered()
         return;
     else
     {
-//        if (formimage->channelshown == IMAGE_OLCI)
-//        {
-//            Create48bitImage(fileName);
-//        }
-//        else
-//        {
-
             QApplication::setOverrideCursor(Qt::WaitCursor);
             if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
                     fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
@@ -575,7 +568,7 @@ void MainWindow::on_actionCreatePNG_triggered()
                 pm->save(fileName);
             }
             QApplication::restoreOverrideCursor();
-        //}
+
     }
 }
 

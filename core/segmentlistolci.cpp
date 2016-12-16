@@ -437,6 +437,9 @@ void SegmentListOLCI::Compose48bitPNG(QString fileName)
     int height = NbrOfSegmentLinesSelected();
     int width = earth_views_per_scanline;
 
+    // initialize the FreeImage library
+    FreeImage_Initialise();
+
     FIBITMAP *bitmap = FreeImage_AllocateT(FIT_RGB16, width, height);
 
 //    // Calculate the number of bytes per pixel (3 for 24-bit or 4 for 32-bit)
@@ -497,7 +500,8 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
 
     for (int line = 0; line < segm->GetNbrOfLines(); line++)
     {
-        FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, line + heightinsegment);
+//        FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, line + heightinsegment);
+        FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, totalnbroflines - line - heightinsegment - 1);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
 
@@ -742,10 +746,10 @@ void SegmentListOLCI::CalculateLUTFull()
                 for (int pixelx = 0; pixelx < earth_views; pixelx++)
                 {
                     quint16 pixel = *(segm->ptrbaOLCI[k].data() + line * earth_views + pixelx) ;
-                    quint16 indexout = (quint16)min(max((float)round(1023.0 * (float)(pixel - imageptrs->stat_min_ch[k])/(float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0.0f), 1023.0f);
+                    quint16 indexout = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel - imageptrs->stat_min_ch[k])/(float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
                     stats_ch[k][indexout]++;
                     quint16 pixelnorm = *(segm->ptrbaOLCInormalized[k].data() + line * earth_views + pixelx) ;
-                    quint16 indexoutnorm = (quint16)min(max((float)round(1023.0 * (float)(pixelnorm - imageptrs->stat_min_norm_ch[k])/(float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0.0f), 1023.0f);
+                    quint16 indexoutnorm = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixelnorm - imageptrs->stat_min_norm_ch[k])/(float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0), 1023);
                     stats_norm_ch[k][indexoutnorm]++;
                  }
             }

@@ -4646,6 +4646,10 @@ void FormToolbox::setAllWhatsThis()
 void FormToolbox::on_btnSaveAsPNG48bits_clicked()
 {
 
-    formimage->SaveAsPNG48bits(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+    if(!formimage->SaveAsPNG48bits(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked()))
+    {
+        QMessageBox::information( this, "Save 48bit PNG",
+            "There is no input file !" );
+    }
 
 }

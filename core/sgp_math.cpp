@@ -257,13 +257,6 @@ Frac( double arg )
 
 /*------------------------------------------------------------------*/
 
-/* Returns argument rounded up to nearest integer */
-int
-Round( double arg )
-{
-  return( (int) floor(arg + 0.5) );
-} /* Round */
-
 /*------------------------------------------------------------------*/
 
 /* Returns the floor integer of a double arguement, as double */

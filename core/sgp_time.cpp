@@ -122,7 +122,7 @@ Calendar_Date(double jd, struct tm *cdate)
       jd = jd + factor;
       F  = 0.0;
     } /*if*/
-  Z = Round(jd);
+  Z = qRound(jd);
   if( Z < 2299161 )
     A = Z;
   else
@@ -137,9 +137,9 @@ Calendar_Date(double jd, struct tm *cdate)
   day = B - D - Int(30.6001 * E) + F;
 
   if( E < 13.5 )
-    month = Round(E - 1);
+    month = qRound(E - 1);
   else
-    month = Round(E - 13);
+    month = qRound(E - 13);
   if( month > 2.5 )
     year = C - 4716;
   else
@@ -162,7 +162,7 @@ Time_of_Day(double jd, struct tm *cdate)
   double time;
 
   time = Frac(jd - 0.5)*SEC_PER_DAY;
-  time = Round(time);
+  time = qRound(time);
   hr = (int)floor(time/3600.0);
   time = time - 3600.0*hr;
   if( hr == 24 ) hr = 0;

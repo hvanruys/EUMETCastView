@@ -2742,8 +2742,11 @@
          </item>
          <item>
           <widget class="QPushButton" name="btnSaveAsPNG48bits">
+           <property name="toolTip">
+            <string>Save as 48bit RGB PNG image</string>
+           </property>
            <property name="statusTip">
-            <string extracomment="Save as 48bit RGB PNG image"/>
+            <string/>
            </property>
            <property name="text">
             <string>  Save as 48bit PNG  </string>
@@ -2793,6 +2796,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="rdbOLCINormalized">
+           <property name="toolTip">
+            <string>Correct for illumination variations across the image.</string>
+           </property>
            <property name="text">
             <string>Normalized</string>
            </property>
@@ -4171,6 +4177,9 @@
             </item>
             <item>
              <widget class="QRadioButton" name="rdbOLCIprojNormalized">
+              <property name="toolTip">
+               <string>Correct for illumination variations across the image.</string>
+              </property>
               <property name="text">
                <string>EFR/ERR Normalized</string>
               </property>

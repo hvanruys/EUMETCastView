@@ -5,7 +5,6 @@
 #include "pixgeoconversion.h"
 
 #include <qtconcurrentrun.h>
-#include "FreeImage.h"
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -3052,7 +3051,7 @@ void FormImage::setHistogramMethod(int histogrammethod, bool normalized)
     segs->seglolcierr->setHistogramMethod(histogrammethod, normalized);
 }
 
-void FormImage::SaveAsPNG48bits(int histogrammethod, bool normalized)
+bool FormImage::SaveAsPNG48bits(int histogrammethod, bool normalized)
 {
     QString filestr;
 
@@ -3063,23 +3062,19 @@ void FormImage::SaveAsPNG48bits(int histogrammethod, bool normalized)
     {
         filestr += "olci_image.png";
     }
-    else return;
+    else return(false);
 
 
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     tr("Save image"), filestr,
                                                     tr("*.png"));
     if (fileName.isEmpty())
-        return;
+        return(false);
     else
     {
             QApplication::setOverrideCursor(Qt::WaitCursor);
             if(fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
                 fileName.append(".png");
-
-            // initialize the FreeImage library
-            FreeImage_Initialise();
-
 
             int olciefrcount = segs->seglolciefr->NbrOfSegmentsSelected();
             int olcierrcount = segs->seglolcierr->NbrOfSegmentsSelected();
@@ -3087,18 +3082,23 @@ void FormImage::SaveAsPNG48bits(int histogrammethod, bool normalized)
             if(olciefrcount > 0)
             {
                 segs->seglolciefr->Compose48bitPNG(fileName);
+                QApplication::restoreOverrideCursor();
             }
             else if(olcierrcount > 0)
             {
                 segs->seglolcierr->Compose48bitPNG(fileName);
+                QApplication::restoreOverrideCursor();
+            }
+            else
+            {
+                QApplication::restoreOverrideCursor();
+                return(false);
             }
 
 
-
-
-            QApplication::restoreOverrideCursor();
-
     }
+
+    return(true);
 }
 
 

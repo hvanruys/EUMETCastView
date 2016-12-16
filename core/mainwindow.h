@@ -25,8 +25,6 @@
 
 #include "options.h"
 #include "poi.h"
-#include <png.h>
-
 
 namespace Ui {
 class MainWindow;

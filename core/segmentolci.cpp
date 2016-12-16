@@ -429,8 +429,8 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
                 {
                     float val = ((float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k]) * 10;
                     float valnormalized = val*secSZA[j*earth_views_per_scanline + i];
-                    ptrbaOLCI[k][j*earth_views_per_scanline + i]  = (quint16)min(max(round(val),0.0f),65535.0f);
-                    ptrbaOLCInormalized[k][j*earth_views_per_scanline + i]  = (quint16)min(max(round(valnormalized),0.0f),65535.0f);
+                    ptrbaOLCI[k][j*earth_views_per_scanline + i]  = (quint16)qMin(qMax(qRound(val),0),65535);
+                    ptrbaOLCInormalized[k][j*earth_views_per_scanline + i]  = (quint16)qMin(qMax(qRound(valnormalized),0),65535);
                 }
                 else
                 {
@@ -1222,13 +1222,13 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
             {
                 for(int k = 0; k < (iscolor ? 3 : 1); k++)
                 {
-                    if(normalized) pixval1024[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval[k] - imageptrs->stat_min_norm_ch[k] ) / (float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0.0f), 1023.0f);
-                    else pixval1024[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0.0f), 1023.0f);
+                    if(normalized) pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_norm_ch[k] ) / (float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0), 1023);
+                    else pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
 
                     if(histogrammethod == CMB_HISTO_NONE_95) // 95%
                     {
-                            if(normalized) indexout[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndexNormalized[k] ) / (float)(imageptrs->maxRadianceIndexNormalized[k] - imageptrs->minRadianceIndexNormalized[k])), 0.0f), 1023.0f);
-                            else indexout[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0.0f), 1023.0f);
+                            if(normalized) indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndexNormalized[k] ) / (float)(imageptrs->maxRadianceIndexNormalized[k] - imageptrs->minRadianceIndexNormalized[k])), 0), 1023);
+                            else indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 1023);
                     }
                     else if(histogrammethod == CMB_HISTO_NONE_100) // 100%
                     {
@@ -1244,12 +1244,12 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
                     {
                         if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
                         {
-                            color[k] = (quint16)min(max(round((float)indexout[k]/4), 0.0f), 255.0f);
+                            color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
                         }
                         else if(histogrammethod == CMB_HISTO_EQUALIZE)
                         {
-                            if(normalized) color[k] = (quint16)min(max(round((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0.0f), 255.0f);
-                            else color[k] = (quint16)min(max(round((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0.0f), 255.0f);
+                            if(normalized) color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
+                            else color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
                         }
                     }
                 }
@@ -1409,13 +1409,13 @@ void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, boo
 
         for(int k = 0; k < (iscolor ? 3 : 1); k++)
         {
-            if(normalized) pixval1024[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval[k] - imageptrs->stat_min_norm_ch[k] ) / (float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0.0f), 1023.0f);
-            else pixval1024[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0.0f), 1023.0f);
+            if(normalized) pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_norm_ch[k] ) / (float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0), 1023);
+            else pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
 
             if(histogrammethod == CMB_HISTO_NONE_95) // 95%
             {
-                    if(normalized) indexout[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndexNormalized[k] ) / (float)(imageptrs->maxRadianceIndexNormalized[k] - imageptrs->minRadianceIndexNormalized[k])), 0.0f), 1023.0f);
-                    else indexout[k] =  (quint16)min(max((float)round(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0.0f), 1023.0f);
+                    if(normalized) indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndexNormalized[k] ) / (float)(imageptrs->maxRadianceIndexNormalized[k] - imageptrs->minRadianceIndexNormalized[k])), 0), 1023);
+                    else indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 1023);
             }
             else if(histogrammethod == CMB_HISTO_NONE_100) // 100%
             {
@@ -1431,12 +1431,12 @@ void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, boo
             {
                 if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
                 {
-                    color[k] = (quint16)min(max(round((float)indexout[k]/4), 0.0f), 255.0f);
+                    color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
                 }
                 else if(histogrammethod == CMB_HISTO_EQUALIZE || histogrammethod == CMB_HISTO_EQUALIZE_PROJ)
                 {
-                    if(normalized) color[k] = (quint16)min(max(round((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0.0f), 255.0f);
-                    else color[k] = (quint16)min(max(round((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0.0f), 255.0f);
+                    if(normalized) color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
+                    else color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
                 }
             }
         }
@@ -1488,8 +1488,6 @@ void SegmentOLCI::CalculateDetailCornerPoints()
 
 void SegmentOLCI::setupVector(double statevec, QSgp4Date sensing)
 {
-
-
 
     QEci qeci;
 
@@ -1651,7 +1649,7 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
 
                 for(int k = 0; k < (color ? 3 : 1); k++)
                 {
-                    indexout[k] =  (quint16)min(max(((float)round(1023.0 * (float)( pixval[k] - imageptrs->stat_min_proj_ch[k] ) / (float)(imageptrs->stat_max_proj_ch[k] - imageptrs->stat_min_proj_ch[k]))), 0.0f), 1023.0f);
+                    indexout[k] =  (quint16)qMin(qMax((qRound(1023.0 * (float)( pixval[k] - imageptrs->stat_min_proj_ch[k] ) / (float)(imageptrs->stat_max_proj_ch[k] - imageptrs->stat_min_proj_ch[k]))), 0), 1023);
                 }
 
                 if(color)
