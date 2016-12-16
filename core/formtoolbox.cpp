@@ -4651,7 +4651,7 @@ void FormToolbox::setAllWhatsThis()
 void FormToolbox::on_btnSaveAsPNG48bits_clicked()
 {
 
-    if(!formimage->SaveAsPNG48bits(ui->rdbMapTo65535))
+    if(!formimage->SaveAsPNG48bits(ui->rdbMapTo65535->isChecked()))
     {
         QMessageBox::information( this, "Save 48bit PNG",
             "There is no input file !" );

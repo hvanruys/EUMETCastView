@@ -500,7 +500,6 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
 
     for (int line = 0; line < segm->GetNbrOfLines(); line++)
     {
-        //        FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, line + heightinsegment);
         FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, totalnbroflines - line - heightinsegment - 1);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
