@@ -67,6 +67,8 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
 
     for(int k = 0; k < 3; k++)
     {
+        imageptrs->stat_min = 99999999;
+        imageptrs->stat_max = 0;
         imageptrs->stat_max_ch[k] = 0;
         imageptrs->stat_min_ch[k] = 9999999;
         this->stat_max_ch[k] = 0;
@@ -194,13 +196,21 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
         imageptrs->stat_min_norm_ch[i] = this->stat_min_norm_ch[i];
     }
 
+    for(int k = 0; k < (composecolor ? 3 : 1); k++)
+    {
+        if(imageptrs->stat_max_ch[k] > imageptrs->stat_max)
+            imageptrs->stat_max = imageptrs->stat_max_ch[k];
+        if(imageptrs->stat_min_ch[k] < imageptrs->stat_min)
+            imageptrs->stat_min = imageptrs->stat_min_ch[k];
+    }
+
     imageptrs->active_pixels = cnt_active_pixels;
 
     qDebug() << QString("imageptrs stat_min_ch[0] = %1 stat_max_ch[0] = %2").arg(imageptrs->stat_min_ch[0]).arg(imageptrs->stat_max_ch[0]);
     if(composecolor)
     {
         qDebug() << QString("imageptrs stat_min_ch[1] = %1 stat_max_ch[1] = %2").arg(imageptrs->stat_min_ch[1]).arg(imageptrs->stat_max_ch[1]);
-        qDebug() << QString("imageotrs stat_min_ch[2] = %1 stat_max_ch[2] = %2").arg(imageptrs->stat_min_ch[2]).arg(imageptrs->stat_max_ch[2]);
+        qDebug() << QString("imageptrs stat_min_ch[2] = %1 stat_max_ch[2] = %2").arg(imageptrs->stat_min_ch[2]).arg(imageptrs->stat_max_ch[2]);
     }
     qDebug() << QString("imageptrs stat_min_norm_ch[0] = %1 stat_max_norm_ch[0] = %2").arg(imageptrs->stat_min_norm_ch[0]).arg(imageptrs->stat_max_norm_ch[0]);
     if(composecolor)
@@ -208,6 +218,7 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
         qDebug() << QString("imageptrs stat_min_norm_ch[1] = %1 stat_max_norm_ch[1] = %2").arg(imageptrs->stat_min_norm_ch[1]).arg(imageptrs->stat_max_norm_ch[1]);
         qDebug() << QString("imageotrs stat_min_norm_ch[2] = %1 stat_max_norm_ch[2] = %2").arg(imageptrs->stat_min_norm_ch[2]).arg(imageptrs->stat_max_norm_ch[2]);
     }
+    qDebug() << QString("imageptrs stat_min = %1 stat_max = %2").arg(imageptrs->stat_min).arg(imageptrs->stat_max);
 
 
     //CalculateLUTAlt();
@@ -494,6 +505,8 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
 {
 
     quint16 pixval[3], pixval65535[3];
+    quint16 pixval1024[3];
+
     bool iscolor = bandlist.at(0);
     bool valok[3];
 
@@ -509,9 +522,11 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
 
                 if(pixval[k] < 65535)
                 {
+
                     if(mapto65535)
                     {
-                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 65535);
+                        pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
+                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 65535);
                         pixval[k] = pixval65535[k];
                     }
                 }

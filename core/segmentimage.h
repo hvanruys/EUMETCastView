@@ -81,8 +81,8 @@ public:
     int stat_min_proj_ch[5];
     long stat_max_norm_ch[3];
     long stat_min_norm_ch[3];
-//    long stat_max;
-//    long stat_min;
+    long stat_max;
+    long stat_min;
 
     float stat_max_dnb;
     float stat_min_dnb;

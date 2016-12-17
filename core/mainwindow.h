@@ -12,6 +12,7 @@
 #include "formmapcyl.h"
 #include "formtoolbox.h"
 #include "dialogpreferences.h"
+#include "dialogsaveimage.h"
 #include "satellite.h"
 #include "formgeostationary.h"
 #include "forminfrascales.h"

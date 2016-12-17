@@ -418,17 +418,32 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         secSZA[j*earth_views_per_scanline + 76*factor] = 1.0/cos(((float)val2/1000000.0f)*PI/180.0);
     }
 
+    float val, valnormalized;
 
-    for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
+    for(int j=0; j < NbrOfLines; j++)
     {
-        for(int j=0; j < NbrOfLines; j++)
+        for(int i=0; i < earth_views_per_scanline; i++)
         {
-            for(int i=0; i < earth_views_per_scanline; i++)
+            for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
             {
                 if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < 65535)
                 {
-                    float val = ((float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k]) * 10;
-                    float valnormalized = val*secSZA[j*earth_views_per_scanline + i];
+                    if((i == 517 || i == 518 ||i == 519 ||i == 520) && j == 213)
+                    {
+                        val = ((float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k]) * 10;
+                        qDebug() << QString("i = %1 ==> ptrbaOLCI[%2] = %3 val = %4 result = %5").arg(i).arg(k).arg(ptrbaOLCI[k][j*earth_views_per_scanline + i]).arg(val).
+                                arg((quint16)qMin(qMax(qRound(val),0),65535));
+                    }
+
+                    if(i == 514 && j == 205)
+                    {
+                        val = ((float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k]) * 10;
+                        qDebug() << QString("wit ==> ptrbaOLCI[%1] = %2 val = %3 result = %4").arg(k).arg(ptrbaOLCI[k][j*earth_views_per_scanline + i]).arg(val).
+                                arg((quint16)qMin(qMax(qRound(val),0),65535));
+
+                    }
+                    val = ((float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k]) * 10;
+                    valnormalized = val*secSZA[j*earth_views_per_scanline + i];
                     ptrbaOLCI[k][j*earth_views_per_scanline + i]  = (quint16)qMin(qMax(qRound(val),0),65535);
                     ptrbaOLCInormalized[k][j*earth_views_per_scanline + i]  = (quint16)qMin(qMax(qRound(valnormalized),0),65535);
                 }

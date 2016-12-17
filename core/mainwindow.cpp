@@ -358,6 +358,7 @@ void MainWindow::on_actionPreferences_triggered()
 
 void MainWindow::slotPreferencesFinished(int result)
 {
+    qDebug() << "Dialog finished with result = " << result;
     if(result == 2)
         formtoolbox->setPOIsettings();
 }
@@ -518,6 +519,15 @@ void MainWindow::on_actionShowToolbox_triggered()
 
 }
 
+//void MainWindow::on_actionCreatePNG_triggered()
+//{
+//    DialogSaveImage *saveimagedia = new DialogSaveImage(this);
+//    saveimagedia->setAttribute(Qt::WA_DeleteOnClose);
+//    saveimagedia->show();
+//    //connect(pref,SIGNAL(finished(int)), formimage, SLOT(slotRefreshOverlay()));
+//    //connect(pref,SIGNAL(finished(int)), this, SLOT(slotPreferencesFinished(int)));
+
+//}
 
 void MainWindow::on_actionCreatePNG_triggered()
 {

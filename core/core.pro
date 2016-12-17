@@ -75,7 +75,8 @@ SOURCES += main.cpp \
     forminfrascales.cpp \
     qcustomplot.cpp \
     segmentlistolci.cpp \
-    segmentolci.cpp
+    segmentolci.cpp \
+    dialogsaveimage.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -140,7 +141,8 @@ HEADERS  += mainwindow.h \
     qcustomplot.h \
     segmentlistolci.h \
     segmentolci.h \
-    FreeImage.h
+    FreeImage.h \
+    dialogsaveimage.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs
@@ -151,7 +153,8 @@ FORMS    += mainwindow.ui \
     formephem.ui \
     formmapcyl.ui \
     formtoolbox.ui \
-    formgeostationary.ui
+    formgeostationary.ui \
+    dialogsaveimage.ui
 
 RESOURCES += \
     EUMETCastView.qrc \
