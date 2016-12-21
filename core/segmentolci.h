@@ -36,6 +36,10 @@ public:
     int stat_max_projection[3];
     int stat_min_projection[3];
     long active_pixels_projection;
+    QPolygon coastline;
+    QPolygon saturatedpixels;
+    long nbrsaturatedpixels;
+    long nbrcoastlinepixels;
 
 private:
     void RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row );

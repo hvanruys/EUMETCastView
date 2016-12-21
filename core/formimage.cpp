@@ -1093,7 +1093,7 @@ void FormImage::displayOLCIImageInfo()
     QString segtype;
     eSegmentType type;
     int nbrselected;
-
+    long nbrofsaturatedpixels;
 
     type = getSegmentType();
     switch(type)
@@ -1104,11 +1104,13 @@ void FormImage::displayOLCIImageInfo()
     case SEG_OLCIEFR:
         segtype = "OLCI efr";
         nbrselected = segs->seglolciefr->NbrOfSegmentsSelected();
+        nbrofsaturatedpixels = segs->seglolciefr->NbrOfSaturatedPixels();
 
         break;
     case SEG_OLCIERR:
         segtype = "OLCI err";
         nbrselected = segs->seglolcierr->NbrOfSegmentsSelected();
+        nbrofsaturatedpixels = segs->seglolcierr->NbrOfSaturatedPixels();
 
         break;
     default:
@@ -1126,9 +1128,9 @@ void FormImage::displayOLCIImageInfo()
                           "<p>Segment type = %1<br>"
                           "Nbr of segments = %2<br>"
                           "Image width = %3 height = %4<br>"
-                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageOLCI->width()).arg(imageptrs->ptrimageOLCI->height());
+                          "Nbr of saturated pixels = %5<br>"
+                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageOLCI->width()).arg(imageptrs->ptrimageOLCI->height()).arg(nbrofsaturatedpixels);
         formtoolbox->writeInfoToOLCI(txtInfo);
-
     }
 
 }
@@ -2923,6 +2925,7 @@ void FormImage::OverlayOLCI(QPainter *paint)
 
     long nbrpt = 0;
 
+
     if(sl->GetSegsSelectedptr()->count() > 0)
     {
         qDebug() << "segs->seglolci count selected = " << sl->GetSegsSelectedptr()->count();
@@ -2935,18 +2938,9 @@ void FormImage::OverlayOLCI(QPainter *paint)
         while ( segsel != sl->GetSegsSelectedptr()->end() )
         {
             SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
-            for (int line = 0; line < segm->GetNbrOfLines(); line++)
-            {
-                for (int pixelx = 0; pixelx < segm->earth_views_per_scanline; pixelx++)
-                {
-                    if(1073741824 & segm->quality_flags[line * segm->earth_views_per_scanline + pixelx])
-                    {
-                        paint->setPen(QColor(opts.olciimageoverlaycolor));
-                        paint->drawPoint(pixelx, heightinsegment + line);
-                        nbrpt++;
-                    }
-                }
-            }
+            paint->setPen(QColor(opts.olciimageoverlaycolor));
+            QPolygon copycoastline = segm->coastline.translated(0, heightinsegment);
+            paint->drawPoints(copycoastline);
 
             heightinsegment += segm->GetNbrOfLines();
             ++segsel;

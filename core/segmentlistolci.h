@@ -33,6 +33,7 @@ public:
     void Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap, int heightinsegment, bool mapto65535);
 
     void RecalculateCLAHEOLCI();
+    long NbrOfSaturatedPixels();
 
 
 private:

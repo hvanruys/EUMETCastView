@@ -300,6 +300,30 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         qDebug() << i << " " << masks[i];
     }
 
+    nbrsaturatedpixels = 0;
+    nbrcoastlinepixels = 0;
+    for (int line = 0; line < this->NbrOfLines; line++)
+    {
+        for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
+        {
+            if(0x001fffff & quality_flags[line * earth_views_per_scanline + pixelx])
+            {
+                saturatedpixels << QPoint(pixelx, line);
+                nbrsaturatedpixels++;
+            }
+            if(1073741824 & quality_flags[line * earth_views_per_scanline + pixelx])
+            {
+                coastline << QPoint(pixelx, line);
+                nbrcoastlinepixels++;
+            }
+
+        }
+    }
+
+    qDebug() << "Nbr of saturated pixels = " << nbrsaturatedpixels << " nbr of coastline pixels = " << nbrcoastlinepixels;
+
+
+
     delete [] string_attr;
     retval = nc_close(ncqualityflagsid);
     if (retval != NC_NOERR) qDebug() << "error closing qualityFlags";
@@ -1327,53 +1351,20 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
 
             if(opts.usesaturationmask)
             {
+                // use of QPolygon saturatedpixels ?
                 if(0x001fffff & quality_flags[line * earth_views_per_scanline + pixelx])
                 {
                     pixval[0] = imageptrs->stat_max_ch[0];
                     pixval[1] = imageptrs->stat_max_ch[1];
                     pixval[2] = imageptrs->stat_max_ch[2];
                 }
-            }
-//                for(int k = 0; k < (iscolor ? 3 : 1); k++)
-//                {
-//                    if(masks[saturationindex[k]] & quality_flags[line * earth_views_per_scanline + pixelx])
-////                      if(masks[3] & quality_flags[line * earth_views_per_scanline + pixelx])
-//                    {
-//                        pixval[k] = imageptrs->stat_max_ch[k];
-//                    }
-//                }
-
-//                bool mask1 = masks[11] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask2 = masks[12] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask3 = masks[13] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask4 = masks[14] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask5 = masks[15] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask6 = masks[16] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask7 = masks[17] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask8 = masks[18] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask9 = masks[19] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask10 = masks[20] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask11 = masks[21] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask12 = masks[22] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask13 = masks[23] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask14 = masks[24] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask15 = masks[25] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask16 = masks[26] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask17 = masks[27] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask18 = masks[28] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask19 = masks[29] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask20 = masks[30] & quality_flags[line * earth_views_per_scanline + pixelx];
-//                bool mask21 = masks[31] & quality_flags[line * earth_views_per_scanline + pixelx];
-////                if(mask1 || mask2 || mask3 || mask4 || mask5 || mask6 || mask7 || mask8 || mask9 || mask10 || mask11 || mask12 || mask13 || mask14 || mask15 || mask16 || mask17|| mask18 || mask19 || mask20 || mask21)
-//                if(mask8 || mask9 || mask10 || mask16 || mask17 || mask18 || mask20 || mask21)
-//                if(0x001fffff & quality_flags[line * earth_views_per_scanline + pixelx])
+//                if(saturatedpixels.contains(QPoint(pixelx, line)))
 //                {
 //                    pixval[0] = imageptrs->stat_max_ch[0];
 //                    pixval[1] = imageptrs->stat_max_ch[1];
 //                    pixval[2] = imageptrs->stat_max_ch[2];
 //                }
-
-
+            }
 
             valok[0] = pixval[0] < 65535;
             valok[1] = pixval[1] < 65535;

@@ -542,6 +542,21 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
     }
 }
 
+long SegmentListOLCI::NbrOfSaturatedPixels()
+{
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    long nbrofpixels = 0;
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
+        nbrofpixels += segm->nbrsaturatedpixels;
+        ++segsel;
+    }
+    return nbrofpixels;
+}
+
+
 void SegmentListOLCI::RecalculateCLAHEOLCI()
 {
     quint16 *pixelsRed;
