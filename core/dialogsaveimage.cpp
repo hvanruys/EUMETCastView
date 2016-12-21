@@ -1,27 +1,54 @@
 #include "dialogsaveimage.h"
-#include "ui_dialogsaveimage.h"
-#include <QRadioButton>
+#include <QDialogButtonBox>
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QListWidget>
+#include <QDebug>
+#include <QComboBox>
 
-DialogSaveImage::DialogSaveImage(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::DialogSaveImage)
+DialogSaveImage::DialogSaveImage()
 {
-    ui->setupUi(this);
-    QFileDialog* f = new QFileDialog();
-    ui->saveimageLayout->addWidget(f);
-    QRadioButton *rdb = new QRadioButton();
-    rdb->setText("Set copyright text on image");
-    ui->saveimageLayout->addWidget(rdb);
-    connect(f,SIGNAL(finished(int)), this, SLOT(closethis(int)));
+
+
+    QList<QDialogButtonBox *> allDialogButtons = this->findChildren<QDialogButtonBox *>();
+    QList<QComboBox *> allComboBoxs = this->findChildren<QComboBox *>();
+    qDebug() << "Number of QDialogButtonBox = " << allDialogButtons.count() << " name = " << allDialogButtons.at(0)->objectName();
+    qDebug() << "Number of QComboBox = " << allComboBoxs.count(); //  << " name = " << allDialogButtons.at(0)->objectName();
+    foreach(QComboBox *cmb, allComboBoxs)
+    {
+        qDebug() << cmb->objectName();
+    }
+
+    QList<QGridLayout *> allGridLayout = this->findChildren<QGridLayout *>(QString(), Qt::FindDirectChildrenOnly);
+    qDebug() << "Number of QGridLayout = " << allGridLayout.count();
+
+    foreach(QGridLayout *bl, allGridLayout)
+    {
+        qDebug() << bl->objectName();
+    }
+
+
 }
 
-void DialogSaveImage::closethis(int ret)
+void DialogSaveImage::addCheckBoxIn()
 {
-    qDebug() << "closethis = " << ret;
-    this->close();
+    QDialogButtonBox *box = this->findChild<QDialogButtonBox*>("buttonBox");
+    Q_ASSERT(box);
+    QBoxLayout *l = box->findChild<QBoxLayout*>();
+    Q_ASSERT(l);
+
+//    QCheckBox *toProj = new QCheckBox("copyright text :", box);
+//    toProj->setChecked(true);
+//    l->insertWidget(2, toProj);
+    QList<QGridLayout *> gridlist = this->findChildren<QGridLayout*>(QString(), Qt::FindDirectChildrenOnly);
+    QGridLayout *glayout = gridlist.at(0);
+
+    QCheckBox *chkCopyright = new QCheckBox("copyright text :", this);
+    chkCopyright->setChecked(true);
+    glayout->addWidget(chkCopyright, 4, 0);
 }
 
-DialogSaveImage::~DialogSaveImage()
+void DialogSaveImage::slotFile(QString fileselected)
 {
-    delete ui;
+    qDebug() << "File selected = " << fileselected;
 }

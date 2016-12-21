@@ -67,10 +67,6 @@ private slots:
     void on_btnSkyboxFront_clicked();
     void on_btnSkyboxBack_clicked();
 
-    void on_btnImageOverlayColor1_clicked();
-    void on_btnImageOverlayColor2_clicked();
-    void on_btnImageOverlayColor3_clicked();
-
     void on_btnGlobeOverlayColor1_clicked();
     void on_btnGlobeOverlayColor2_clicked();
     void on_btnGlobeOverlayColor3_clicked();
@@ -98,6 +94,13 @@ private slots:
 
 
     void on_btnEquirectangularDirectory_clicked();
+
+    void on_btnGeoImageOverlayColor1_clicked();
+    void on_btnGeoImageOverlayColor2_clicked();
+    void on_btnGeoImageOverlayColor3_clicked();
+
+    void on_btnOLCIImageOverlayColor_clicked();
+
 
 private:
     Ui::DialogPreferences *ui;

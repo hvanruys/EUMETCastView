@@ -103,9 +103,10 @@ public:
     QString globeoverlaycolor1;
     QString globeoverlaycolor2;
     QString globeoverlaycolor3;
-    QString imageoverlaycolor1;
-    QString imageoverlaycolor2;
-    QString imageoverlaycolor3;
+    QString geoimageoverlaycolor1;
+    QString geoimageoverlaycolor2;
+    QString geoimageoverlaycolor3;
+    QString olciimageoverlaycolor;
     QString globelonlatcolor;
     QString maplccextentcolor;
     QString mapgvpextentcolor;
@@ -221,6 +222,7 @@ public:
     bool colormapViridis;
 
     bool remove_S3A_dirs;
+    bool usesaturationmask;
 
 }; 
 

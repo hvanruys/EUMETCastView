@@ -39,8 +39,8 @@ public:
 
 private:
     void RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row );
-    void getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename);
-    void getDatasetNameFromBand(QString *datasetname, QString *variablename);
+    void getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename, int *saturationindex);
+    void getDatasetNameFromBand(QString *datasetname, QString *variablename, int *saturationindex);
 
     void ComposeProjection(eProjections proj, int histogrammethod, bool normalized);
     void MapPixel(int lines, int views, double map_x, double map_y, bool iscolor, int histogrammethod, bool normalized);
@@ -51,7 +51,9 @@ private:
 
     QScopedArrayPointer<int> latitude;
     QScopedArrayPointer<int> longitude;
-
+    QScopedArrayPointer<quint32> masks;
+    QStringList strlflagmeanings;
+    int saturationindex[3];
 
 };
 

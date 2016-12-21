@@ -72,6 +72,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         ui->btnTextureOLCI->setText("Texture Off");
 
     ui->btnOverlayMeteosat->setText("Overlay On");
+    ui->btnOverlayOLCI->setText("Overlay On");
     ui->btnOverlayProjectionGVP->setText("Overlay On");
     ui->btnOverlayProjectionLCC->setText("Overlay On");
     ui->btnOverlayProjectionSG->setText(("Overlay On"));
@@ -674,6 +675,9 @@ QList<bool> FormToolbox::getOLCIBandList()
              << ui->rbOLCI16->isChecked() << ui->rbOLCI17->isChecked() << ui->rbOLCI18->isChecked() << ui->rbOLCI19->isChecked()
              << ui->rbOLCI20->isChecked() << ui->rbOLCI21->isChecked();
 
+
+    Q_ASSERT(olcilist.count() == 22);
+
     return(olcilist);
 }
 
@@ -686,6 +690,8 @@ QList<int> FormToolbox::getOLCIColorList()
              << ui->cmbOLCI13->currentIndex() << ui->cmbOLCI14->currentIndex() << ui->cmbOLCI15->currentIndex() << ui->cmbOLCI16->currentIndex()
              << ui->cmbOLCI17->currentIndex() << ui->cmbOLCI18->currentIndex() << ui->cmbOLCI19->currentIndex() << ui->cmbOLCI20->currentIndex()
              << ui->cmbOLCI21->currentIndex();
+    Q_ASSERT(olcilist.count() == 21);
+
     return(olcilist);
 }
 
@@ -698,6 +704,7 @@ QList<bool> FormToolbox::getOLCIInvertList()
               << ui->chkInverseOLCI13->isChecked() << ui->chkInverseOLCI14->isChecked() << ui->chkInverseOLCI15->isChecked() << ui->chkInverseOLCI16->isChecked()
               << ui->chkInverseOLCI17->isChecked() << ui->chkInverseOLCI18->isChecked() << ui->chkInverseOLCI19->isChecked() << ui->chkInverseOLCI20->isChecked()
               << ui->chkInverseOLCI21->isChecked();
+    Q_ASSERT(olcilist.count() == 21);
     return(olcilist);
 }
 
@@ -1243,6 +1250,15 @@ void FormToolbox::on_btnOverlayMeteosat_clicked()
         ui->btnOverlayMeteosat->setText("Overlay On");
     else
         ui->btnOverlayMeteosat->setText("Overlay Off");
+}
+
+void FormToolbox::on_btnOverlayOLCI_clicked()
+{
+    if(formimage->toggleOverlayOLCI())
+        ui->btnOverlayOLCI->setText("Overlay On");
+    else
+        ui->btnOverlayOLCI->setText("Overlay Off");
+
 }
 
 void FormToolbox::on_btnOverlayProjectionGVP_clicked()
@@ -4658,3 +4674,4 @@ void FormToolbox::on_btnSaveAsPNG48bits_clicked()
     }
 
 }
+

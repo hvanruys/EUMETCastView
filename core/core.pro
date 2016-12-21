@@ -153,8 +153,7 @@ FORMS    += mainwindow.ui \
     formephem.ui \
     formmapcyl.ui \
     formtoolbox.ui \
-    formgeostationary.ui \
-    dialogsaveimage.ui
+    formgeostationary.ui
 
 RESOURCES += \
     EUMETCastView.qrc \

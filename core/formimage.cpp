@@ -63,6 +63,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     //this->adjustImage();
     overlaymeteosat = true;
     overlayprojection = true;
+    overlayolci = true;
     refreshoverlay = true;
     changeinfraprojection = false;
 
@@ -95,6 +96,17 @@ bool FormImage::toggleOverlayMeteosat()
         overlaymeteosat = true;
     this->update();
     return overlaymeteosat;
+}
+
+bool FormImage::toggleOverlayOLCI()
+{
+    displayImage(channelshown);
+    if(overlayolci)
+        overlayolci = false;
+    else
+        overlayolci = true;
+    this->update();
+    return overlayolci;
 }
 
 bool FormImage::toggleOverlayProjection()
@@ -180,7 +192,7 @@ void FormImage::displayImage(eImageType channel)
     qDebug() << QString("FormImage ptrimagecomp[0] bytecount = %1").arg(imageptrs->ptrimagecomp_ch[0]->byteCount());
     qDebug() << QString("FormImage ptrimageviirsm bytecount = %1").arg(imageptrs->ptrimageViirsM->byteCount());
     qDebug() << QString("FormImage ptrimageviirsdnb bytecount = %1").arg(imageptrs->ptrimageViirsDNB->byteCount());
-    qDebug() << QString("FormImage ptrimageolci efr bytecount = %1").arg(imageptrs->ptrimageOLCI->byteCount());
+    qDebug() << QString("FormImage ptrimageolci bytecount = %1").arg(imageptrs->ptrimageOLCI->byteCount());
 
     this->channelshown = channel;
 
@@ -549,10 +561,10 @@ bool FormImage::ShowOLCIefrImage(int histogrammethod, bool normalized)
     if (olciefrcount > 0)
     {
 
-        ret = true;
-        displayImage(IMAGE_OLCI);
+//        ret = true;
+//        displayImage(IMAGE_OLCI);
 
-        emit allsegmentsreceivedbuttons(false);
+//        emit allsegmentsreceivedbuttons(false);
 
         this->kindofimage = "OLCIEFR";
 
@@ -889,6 +901,12 @@ void FormImage::paintEvent( QPaintEvent * )
     if(channelshown == IMAGE_PROJECTION && overlayprojection && refreshoverlay)
     {
         this->OverlayProjection(&painter, sl);
+        refreshoverlay = false;
+    }
+
+    if(channelshown == IMAGE_OLCI && overlayolci && refreshoverlay)
+    {
+        this->OverlayOLCI(&painter);
         refreshoverlay = false;
     }
 
@@ -2300,7 +2318,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                         }
                         else
                         {
-                            paint->setPen(opts.imageoverlaycolor1);
+                            paint->setPen(opts.geoimageoverlaycolor1);
                             paint->drawLine(save_col, save_row, col, row);
                             save_col = col;
                             save_row = row;
@@ -2369,7 +2387,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                         }
                         else
                         {
-                            paint->setPen(opts.imageoverlaycolor2);
+                            paint->setPen(opts.geoimageoverlaycolor2);
                             paint->drawLine(save_col, save_row, col, row);
                             save_col = col;
                             save_row = row;
@@ -2439,7 +2457,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                         }
                         else
                         {
-                            paint->setPen(opts.imageoverlaycolor3);
+                            paint->setPen(opts.geoimageoverlaycolor3);
                             paint->drawLine(save_col, save_row, col, row);
                             save_col = col;
                             save_row = row;
@@ -2564,7 +2582,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
                     map_y+=MAP_Y;
                 }
 
-               if(bret)
+                if(bret)
                 {
                     if (first)
                     {
@@ -2885,6 +2903,55 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
     }
 
     qDebug() << QString("End FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)");
+
+
+}
+
+void FormImage::OverlayOLCI(QPainter *paint)
+{
+    SegmentListOLCI *sl;
+    qDebug() << "FormImage::OverlayOLCI(QPainter *paint)";
+    int height = imageptrs->ptrimageOLCI->height();
+    int width = imageptrs->ptrimageOLCI->width();
+    if( height == 0 || width == 0)
+        return;
+
+    if(opts.buttonOLCIefr)
+        sl = segs->seglolciefr;
+    else if(opts.buttonOLCIerr)
+        sl = segs->seglolcierr;
+
+    long nbrpt = 0;
+
+    if(sl->GetSegsSelectedptr()->count() > 0)
+    {
+        qDebug() << "segs->seglolci count selected = " << sl->GetSegsSelectedptr()->count();
+        qDebug() << "height = " << imageptrs->ptrimageOLCI->height();
+        qDebug() << "width = " << imageptrs->ptrimageOLCI->width();
+        qDebug() << this->kindofimage;
+
+        QList<Segment*>::iterator segsel = sl->GetSegsSelectedptr()->begin();
+        int heightinsegment = 0;
+        while ( segsel != sl->GetSegsSelectedptr()->end() )
+        {
+            SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
+            for (int line = 0; line < segm->GetNbrOfLines(); line++)
+            {
+                for (int pixelx = 0; pixelx < segm->earth_views_per_scanline; pixelx++)
+                {
+                    if(1073741824 & segm->quality_flags[line * segm->earth_views_per_scanline + pixelx])
+                    {
+                        paint->setPen(QColor(opts.olciimageoverlaycolor));
+                        paint->drawPoint(pixelx, heightinsegment + line);
+                        nbrpt++;
+                    }
+                }
+            }
+
+            heightinsegment += segm->GetNbrOfLines();
+            ++segsel;
+        }
+    }
 
 
 }

@@ -115,9 +115,10 @@ void Options::Initialize()
     globeoverlaycolor1=settings.value("/window/globeoverlaycolor1", "#afaf47").value<QString>();
     globeoverlaycolor2=settings.value("/window/globeoverlaycolor2", "#898969").value<QString>();
     globeoverlaycolor3=settings.value("/window/globeoverlaycolor3", "#54686d").value<QString>();
-    imageoverlaycolor1=settings.value("/window/imageoverlaycolor1", "#959559").value<QString>();
-    imageoverlaycolor2=settings.value("/window/imageoverlaycolor2", "#929274").value<QString>();
-    imageoverlaycolor3=settings.value("/window/imageoverlaycolor3", "#63696f").value<QString>();
+    geoimageoverlaycolor1=settings.value("/window/imageoverlaycolor1", "#959559").value<QString>();
+    geoimageoverlaycolor2=settings.value("/window/imageoverlaycolor2", "#929274").value<QString>();
+    geoimageoverlaycolor3=settings.value("/window/imageoverlaycolor3", "#63696f").value<QString>();
+    olciimageoverlaycolor=settings.value("/window/olciimageoverlaycolor", "#afaf47").value<QString>();
 
     globelonlatcolor=settings.value("/window/globelonlatcolor", "#b9b9b9").value<QString>();
     maplccextentcolor=settings.value("/window/maplccextentcolor", "#152ce7").value<QString>();
@@ -247,6 +248,7 @@ void Options::Initialize()
     colormapViridis = settings.value("/projection/colormapviridis", false ).toBool();
 
     remove_S3A_dirs = settings.value("/parameters/removes3adirs", false).toBool();
+    usesaturationmask = settings.value("/parameters/usesaturationmask", true).toBool();
 
     checkStringListValues();
     fbo_changed = false;
@@ -411,9 +413,10 @@ void Options::Save()
     settings.setValue("/window/globeoverlaycolor1", globeoverlaycolor1 );
     settings.setValue("/window/globeoverlaycolor2", globeoverlaycolor2 );
     settings.setValue("/window/globeoverlaycolor3", globeoverlaycolor3 );
-    settings.setValue("/window/imageoverlaycolor1", imageoverlaycolor1 );
-    settings.setValue("/window/imageoverlaycolor2", imageoverlaycolor2 );
-    settings.setValue("/window/imageoverlaycolor3", imageoverlaycolor3 );
+    settings.setValue("/window/imageoverlaycolor1", geoimageoverlaycolor1 );
+    settings.setValue("/window/imageoverlaycolor2", geoimageoverlaycolor2 );
+    settings.setValue("/window/imageoverlaycolor3", geoimageoverlaycolor3 );
+    settings.setValue("/window/olciimageoverlaycolor", olciimageoverlaycolor );
 
     settings.setValue("/window/globelonlatcolor", globelonlatcolor );
     settings.setValue("/window/maplccextentcolor", maplccextentcolor );
@@ -539,6 +542,7 @@ void Options::Save()
     settings.setValue( "/projection/colormapviridis", colormapViridis);
 
     settings.setValue("/parameters/removes3adirs", remove_S3A_dirs);
+    settings.setValue("/parameters/usesaturationmask", usesaturationmask);
 
 
 }

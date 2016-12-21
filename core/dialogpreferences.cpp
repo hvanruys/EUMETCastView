@@ -62,17 +62,21 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->chkGshhs3->setAutoFillBackground(true);
 
 
-    ui->btnImageOverlayColor1->setText(opts.imageoverlaycolor1);
-    ui->lblImageOverlayColor1->setPalette(QPalette(QColor(opts.imageoverlaycolor1)));
-    ui->lblImageOverlayColor1->setAutoFillBackground(true);
+    ui->btnGeoImageOverlayColor1->setText(opts.geoimageoverlaycolor1);
+    ui->lblGeoImageOverlayColor1->setPalette(QPalette(QColor(opts.geoimageoverlaycolor1)));
+    ui->lblGeoImageOverlayColor1->setAutoFillBackground(true);
 
-    ui->btnImageOverlayColor2->setText(opts.imageoverlaycolor2);
-    ui->lblImageOverlayColor2->setPalette(QPalette(QColor(opts.imageoverlaycolor2)));
-    ui->lblImageOverlayColor2->setAutoFillBackground(true);
+    ui->btnGeoImageOverlayColor2->setText(opts.geoimageoverlaycolor2);
+    ui->lblGeoImageOverlayColor2->setPalette(QPalette(QColor(opts.geoimageoverlaycolor2)));
+    ui->lblGeoImageOverlayColor2->setAutoFillBackground(true);
 
-    ui->btnImageOverlayColor3->setText(opts.imageoverlaycolor3);
-    ui->lblImageOverlayColor3->setPalette(QPalette(QColor(opts.imageoverlaycolor3)));
-    ui->lblImageOverlayColor3->setAutoFillBackground(true);
+    ui->btnGeoImageOverlayColor3->setText(opts.geoimageoverlaycolor3);
+    ui->lblGeoImageOverlayColor3->setPalette(QPalette(QColor(opts.geoimageoverlaycolor3)));
+    ui->lblGeoImageOverlayColor3->setAutoFillBackground(true);
+
+    ui->btnOLCIImageOverlayColor->setText(opts.olciimageoverlaycolor);
+    ui->lblOLCIImageOverlayColor->setPalette(QPalette(QColor(opts.olciimageoverlaycolor)));
+    ui->lblOLCIImageOverlayColor->setAutoFillBackground(true);
 
 
     ui->btnGlobeLonLatColor->setText(opts.globelonlatcolor);
@@ -142,6 +146,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->rbViridis->setChecked(opts.colormapViridis);
 
     ui->rdbRemoveS3ADirs->setChecked(opts.remove_S3A_dirs);
+    ui->rdbSaturation->setChecked(opts.usesaturationmask);
 
     setupStationsTable();
     setupTLESourceTable();
@@ -466,9 +471,10 @@ void DialogPreferences::dialogaccept()
     opts.globeoverlaycolor1 = ui->btnGlobeOverlayColor1->text();
     opts.globeoverlaycolor2 = ui->btnGlobeOverlayColor2->text();
     opts.globeoverlaycolor3 = ui->btnGlobeOverlayColor3->text();
-    opts.imageoverlaycolor1 = ui->btnImageOverlayColor1->text();
-    opts.imageoverlaycolor2 = ui->btnImageOverlayColor2->text();
-    opts.imageoverlaycolor3 = ui->btnImageOverlayColor3->text();
+    opts.geoimageoverlaycolor1 = ui->btnGeoImageOverlayColor1->text();
+    opts.geoimageoverlaycolor2 = ui->btnGeoImageOverlayColor2->text();
+    opts.geoimageoverlaycolor3 = ui->btnGeoImageOverlayColor3->text();
+    opts.olciimageoverlaycolor = ui->btnOLCIImageOverlayColor->text();
 
     opts.globelonlatcolor = ui->btnGlobeLonLatColor->text();
 
@@ -509,6 +515,7 @@ void DialogPreferences::dialogaccept()
     opts.colormapViridis = ui->rbViridis->isChecked();
 
     opts.remove_S3A_dirs = ui->rdbRemoveS3ADirs->isChecked();
+    opts.usesaturationmask = ui->rdbSaturation->isChecked();
 
     if(POItablechanged)
         done(2);
@@ -719,44 +726,6 @@ void DialogPreferences::on_btnSkyboxBack_clicked()
 }
 
 
-void DialogPreferences::on_btnImageOverlayColor1_clicked()
-{
-    QColor color(opts.imageoverlaycolor1);
-    color = QColorDialog::getColor(color, this);
-
-    if (color.isValid())
-    {
-        ui->btnImageOverlayColor1->setText(color.name());
-        ui->lblImageOverlayColor1->setPalette(QPalette(color));
-        ui->lblImageOverlayColor1->setAutoFillBackground(true);
-    }
-}
-
-void DialogPreferences::on_btnImageOverlayColor2_clicked()
-{
-    QColor color(opts.imageoverlaycolor2);
-    color = QColorDialog::getColor(color, this);
-
-    if (color.isValid())
-    {
-        ui->btnImageOverlayColor2->setText(color.name());
-        ui->lblImageOverlayColor2->setPalette(QPalette(color));
-        ui->lblImageOverlayColor2->setAutoFillBackground(true);
-    }
-}
-
-void DialogPreferences::on_btnImageOverlayColor3_clicked()
-{
-    QColor color(opts.imageoverlaycolor3);
-    color = QColorDialog::getColor(color, this);
-
-    if (color.isValid())
-    {
-        ui->btnImageOverlayColor3->setText(color.name());
-        ui->lblImageOverlayColor3->setPalette(QPalette(color));
-        ui->lblImageOverlayColor3->setAutoFillBackground(true);
-    }
-}
 
 void DialogPreferences::on_btnGlobeOverlayColor1_clicked()
 {
@@ -2412,4 +2381,63 @@ Qt::ItemFlags OLCIefrConfigModel::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
 
+void DialogPreferences::on_btnGeoImageOverlayColor1_clicked()
+{
+    QColor color(opts.geoimageoverlaycolor1);
+    color = QColorDialog::getColor(color, this);
+
+    if (color.isValid())
+    {
+        ui->btnGeoImageOverlayColor1->setText(color.name());
+        ui->lblGeoImageOverlayColor1->setPalette(QPalette(color));
+        ui->lblGeoImageOverlayColor1->setAutoFillBackground(true);
+        opts.geoimageoverlaycolor1 = ui->btnGeoImageOverlayColor1->text();
+
+    }
+}
+
+void DialogPreferences::on_btnGeoImageOverlayColor2_clicked()
+{
+    QColor color(opts.geoimageoverlaycolor2);
+    color = QColorDialog::getColor(color, this);
+
+    if (color.isValid())
+    {
+        ui->btnGeoImageOverlayColor2->setText(color.name());
+        ui->lblGeoImageOverlayColor2->setPalette(QPalette(color));
+        ui->lblGeoImageOverlayColor2->setAutoFillBackground(true);
+        opts.geoimageoverlaycolor2 = ui->btnGeoImageOverlayColor2->text();
+    }
+}
+
+void DialogPreferences::on_btnGeoImageOverlayColor3_clicked()
+{
+    QColor color(opts.geoimageoverlaycolor3);
+    color = QColorDialog::getColor(color, this);
+
+    if (color.isValid())
+    {
+        ui->btnGeoImageOverlayColor3->setText(color.name());
+        ui->lblGeoImageOverlayColor3->setPalette(QPalette(color));
+        ui->lblGeoImageOverlayColor3->setAutoFillBackground(true);
+        opts.geoimageoverlaycolor3 = ui->btnGeoImageOverlayColor3->text();
+    }
+}
+
+
+void DialogPreferences::on_btnOLCIImageOverlayColor_clicked()
+{
+    QColor color(opts.olciimageoverlaycolor);
+    color = QColorDialog::getColor(color, this);
+
+    if (color.isValid())
+    {
+        ui->btnOLCIImageOverlayColor->setText(color.name());
+        ui->lblOLCIImageOverlayColor->setPalette(QPalette(color));
+        ui->lblOLCIImageOverlayColor->setAutoFillBackground(true);
+        opts.olciimageoverlaycolor = ui->btnOLCIImageOverlayColor->text();
+
+    }
+
+}
 

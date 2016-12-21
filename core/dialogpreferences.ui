@@ -131,7 +131,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>8</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -320,7 +320,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QPushButton" name="btnImageOverlayColor2">
+            <widget class="QPushButton" name="btnGeoImageOverlayColor2">
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -333,7 +333,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QPushButton" name="btnImageOverlayColor1">
+            <widget class="QPushButton" name="btnGeoImageOverlayColor1">
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -346,7 +346,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QPushButton" name="btnImageOverlayColor3">
+            <widget class="QPushButton" name="btnGeoImageOverlayColor3">
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -359,21 +359,21 @@
             </widget>
            </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="lblImageOverlayColor1">
+            <widget class="QLabel" name="lblGeoImageOverlayColor1">
              <property name="text">
               <string>Geostatonary Image Overlay Color 1</string>
              </property>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="lblImageOverlayColor2">
+            <widget class="QLabel" name="lblGeoImageOverlayColor2">
              <property name="text">
               <string>Geostatonary Image Overlay Color 2</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="lblImageOverlayColor3">
+            <widget class="QLabel" name="lblGeoImageOverlayColor3">
              <property name="text">
               <string>Geostatonary Image Overlay Color 3</string>
              </property>
@@ -416,6 +416,26 @@
             <widget class="QLabel" name="lblProjectionOverlayColor2">
              <property name="text">
               <string>Projection Overlay Color 2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPushButton" name="btnOLCIImageOverlayColor">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="lblOLCIImageOverlayColor">
+             <property name="text">
+              <string>OLCI Image Overlay Color</string>
              </property>
             </widget>
            </item>
@@ -1702,6 +1722,19 @@
           <widget class="QRadioButton" name="rdbRemoveS3ADirs">
            <property name="text">
             <string>Remove the created S3A directories</string>
+           </property>
+           <property name="autoExclusive">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdbSaturation">
+           <property name="text">
+            <string>Use the saturation masks in the image(values wil be set to maximum value)</string>
+           </property>
+           <property name="autoExclusive">
+            <bool>false</bool>
            </property>
           </widget>
          </item>

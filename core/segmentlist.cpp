@@ -960,7 +960,7 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
                 anchorY = miny;
                 dimx = maxx + 1 - minx;
                 dimy = maxy + 1 - miny;
-                if( dimx == 1 && dimy == 1 )
+                if( (dimx == 1 && dimy == 1) || (dimx > 50 && dimy > 50))
                 {
                     counter++;
                 }

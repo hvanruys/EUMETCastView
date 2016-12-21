@@ -34,13 +34,16 @@ public:
     void CLAHEprojection();
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayProjection(QPainter *paint,  SegmentListGeostationary *sl);
+    void OverlayOLCI(QPainter *paint);
     void ToInfraColorProjection();
     void FromInfraColorProjection();
 
     bool getOverlayMeteosat() { return overlaymeteosat; }
     bool getOverlayProjection() { return overlayprojection; }
+    bool getOverlayOLCI() { return overlayolci; }
     bool toggleOverlayMeteosat();
     bool toggleOverlayProjection();
+    bool toggleOverlayOLCI();
     void SetFormToolbox(FormToolbox *ptr) { formtoolbox = ptr; }
     void SetDockWidgetInfraScales(FormInfraScales *ptr) { dockinfrascales = ptr; }
     void showInfraScales() { changeinfraprojection = true; }
@@ -110,6 +113,7 @@ private:
 
     bool overlaymeteosat;
     bool overlayprojection;
+    bool overlayolci;
     bool changeinfraprojection;
 
     QString kindofimage;

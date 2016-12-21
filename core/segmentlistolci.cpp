@@ -453,23 +453,6 @@ void SegmentListOLCI::Compose48bitPNG(QString fileName, bool mapto65535)
 
     FIBITMAP *bitmap = FreeImage_AllocateT(FIT_RGB16, width, height);
 
-//    // Calculate the number of bytes per pixel (3 for 24-bit or 4 for 32-bit)
-//    int bytespp = FreeImage_GetLine(bitmap) / FreeImage_GetWidth(bitmap);
-//    qDebug() << "Calculate the number of bytes per pixel (3 for 24-bit or 4 for 32-bit) = " << bytespp;
-//    for(unsigned y = 0; y < FreeImage_GetHeight(bitmap); y++)
-//    {
-//        FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, y);
-//        for(unsigned x = 0; x < FreeImage_GetWidth(bitmap); x++)
-//        {
-//            bits[x].red = 0xffff;
-//            bits[x].green = 0xffff;
-//            bits[x].blue = 0;
-
-
-//         }
-//    }
-
-
     QList<Segment*>::iterator segsel = segsselected.begin();
     int heightinsegment = 0;
     segsel = segsselected.begin();
@@ -506,6 +489,7 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
 
     quint16 pixval[3], pixval65535[3];
     quint16 pixval1024[3];
+    quint16 pix;
 
     bool iscolor = bandlist.at(0);
     bool valok[3];
@@ -518,8 +502,8 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
         {
             for(int k = 0; k < (iscolor ? 3 : 1); k++)
             {
-                pixval[k] = segm->ptrbaOLCI[k][line * earth_views_per_scanline + pixelx];
-
+                pix = segm->ptrbaOLCI[k][line * earth_views_per_scanline + pixelx];
+                pixval[k] = qMin(qMax(pix, (quint16)0), (quint16)6550);
                 if(pixval[k] < 65535)
                 {
 

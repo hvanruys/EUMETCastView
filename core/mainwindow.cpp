@@ -121,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(&seglist->seglh8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
     }
 
+
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
     imageptrs->lcc = new LambertConformalConic(this, seglist);
     imageptrs->sg = new StereoGraphic(this, seglist);
@@ -521,13 +522,15 @@ void MainWindow::on_actionShowToolbox_triggered()
 
 //void MainWindow::on_actionCreatePNG_triggered()
 //{
-//    DialogSaveImage *saveimagedia = new DialogSaveImage(this);
-//    saveimagedia->setAttribute(Qt::WA_DeleteOnClose);
-//    saveimagedia->show();
-//    //connect(pref,SIGNAL(finished(int)), formimage, SLOT(slotRefreshOverlay()));
-//    //connect(pref,SIGNAL(finished(int)), this, SLOT(slotPreferencesFinished(int)));
+
+//    DialogSaveImage *fd = new DialogSaveImage();
+//    fd->addCheckBoxIn();
+//    fd->show();
+//    connect(fd, SIGNAL(fileSelected(QString)), fd, SLOT(slotFile(QString)));
+
 
 //}
+
 
 void MainWindow::on_actionCreatePNG_triggered()
 {

@@ -1,27 +1,17 @@
 #ifndef DIALOGSAVEIMAGE_H
 #define DIALOGSAVEIMAGE_H
 
-#include <QDialog>
 #include <QFileDialog>
-#include <QDebug>
 
-namespace Ui {
-class DialogSaveImage;
-}
-
-class DialogSaveImage : public QDialog
+class DialogSaveImage : public QFileDialog
 {
-    Q_OBJECT
-
 public:
-    explicit DialogSaveImage(QWidget *parent = 0);
-    ~DialogSaveImage();
+    DialogSaveImage();
+    void addCheckBoxIn();
 
-private:
-    Ui::DialogSaveImage *ui;
+public slots:
+    void slotFile(QString fileselected);
 
-private slots:
-    void closethis(int ret);
 };
 
 #endif // DIALOGSAVEIMAGE_H

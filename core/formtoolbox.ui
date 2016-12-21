@@ -2740,6 +2740,13 @@
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QPushButton" name="btnOverlayOLCI">
+           <property name="text">
+            <string>Overlay</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>

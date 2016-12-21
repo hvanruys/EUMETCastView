@@ -133,6 +133,7 @@ public:
     QScopedArrayPointer<float> solar_azimuth_angle;
     QScopedArrayPointer<float> satellite_azimuth_angle;
     QScopedArrayPointer<float> cos_solar_zenith_angle;
+    QScopedArrayPointer<quint32> quality_flags;
 
     QScopedPointer<QTle> qtle;
     QScopedPointer<QSgp4> qsgp4;
