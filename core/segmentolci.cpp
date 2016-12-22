@@ -308,7 +308,6 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         {
             if(0x001fffff & quality_flags[line * earth_views_per_scanline + pixelx])
             {
-                saturatedpixels << QPoint(pixelx, line);
                 nbrsaturatedpixels++;
             }
             if(1073741824 & quality_flags[line * earth_views_per_scanline + pixelx])
@@ -1358,12 +1357,6 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
                     pixval[1] = imageptrs->stat_max_ch[1];
                     pixval[2] = imageptrs->stat_max_ch[2];
                 }
-//                if(saturatedpixels.contains(QPoint(pixelx, line)))
-//                {
-//                    pixval[0] = imageptrs->stat_max_ch[0];
-//                    pixval[1] = imageptrs->stat_max_ch[1];
-//                    pixval[2] = imageptrs->stat_max_ch[2];
-//                }
             }
 
             valok[0] = pixval[0] < 65535;

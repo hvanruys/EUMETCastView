@@ -461,7 +461,6 @@ void SegmentListOLCI::Compose48bitPNG(QString fileName, bool mapto65535)
         SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
         Compose48bitPNGSegment(segm, bitmap, heightinsegment, mapto65535);
         heightinsegment += segm->GetNbrOfLines();
-        qDebug() << "------> heightinsegment = " << heightinsegment;
         ++segsel;
     }
 
@@ -489,7 +488,6 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
 
     quint16 pixval[3], pixval65535[3];
     quint16 pixval1024[3];
-    quint16 pix;
 
     bool iscolor = bandlist.at(0);
     bool valok[3];
@@ -502,15 +500,13 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
         {
             for(int k = 0; k < (iscolor ? 3 : 1); k++)
             {
-                pix = segm->ptrbaOLCI[k][line * earth_views_per_scanline + pixelx];
-                pixval[k] = qMin(qMax(pix, (quint16)0), (quint16)6550);
+                pixval[k] = segm->ptrbaOLCI[k][line * earth_views_per_scanline + pixelx];
                 if(pixval[k] < 65535)
                 {
-
                     if(mapto65535)
                     {
-                        pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
-                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 65535);
+                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 65535);
+                        //pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 65535);
                         pixval[k] = pixval65535[k];
                     }
                 }
@@ -519,26 +515,11 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
             }
 
 
-//            valok[0] = pixval[0] < 65535;
-//            valok[1] = pixval[1] < 65535;
-//            valok[2] = pixval[2] < 65535;
-
-//            if( valok[0] && (iscolor ? valok[1] && valok[2] : true))
-//            {
-                bits[pixelx].red = pixval[0];
-                bits[pixelx].green = pixval[1];
-                bits[pixelx].blue = pixval[2];
-//            }
-//            else
-//            {
-//                bits[pixelx].red = 0;
-//                bits[pixelx].green = 0;
-//                bits[pixelx].blue = 0;
-//            }
+            bits[pixelx].red = pixval[0];
+            bits[pixelx].green = pixval[1];
+            bits[pixelx].blue = pixval[2];
 
         }
-
-
     }
 }
 
