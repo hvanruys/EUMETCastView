@@ -267,6 +267,26 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     retval = nc_get_var_uint(ncqualityflagsid, qualityflagsid, quality_flags.data());
     if (retval != NC_NOERR) qDebug() << "error reading quality_flags values";
 
+    nbrsaturatedpixels = 0;
+    nbrcoastlinepixels = 0;
+    for (int line = 0; line < rowslength; line++)
+    {
+        for (int pixelx = 0; pixelx < columnslength; pixelx++)
+        {
+            if(0x001fffff & quality_flags[line * columnslength + pixelx])
+            {
+                nbrsaturatedpixels++;
+            }
+            if(1073741824 & quality_flags[line * columnslength + pixelx])
+            {
+                coastline << QPoint(pixelx, line);
+                nbrcoastlinepixels++;
+            }
+
+        }
+    }
+
+
     size_t attlen = 0;
     retval = nc_inq_attlen(ncqualityflagsid, qualityflagsid, "flag_meanings", &attlen);
     if (retval != NC_NOERR) qDebug() << "error reading att len flag_meanings";
@@ -300,24 +320,6 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         qDebug() << i << " " << masks[i];
     }
 
-    nbrsaturatedpixels = 0;
-    nbrcoastlinepixels = 0;
-    for (int line = 0; line < this->NbrOfLines; line++)
-    {
-        for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
-        {
-            if(0x001fffff & quality_flags[line * earth_views_per_scanline + pixelx])
-            {
-                nbrsaturatedpixels++;
-            }
-            if(1073741824 & quality_flags[line * earth_views_per_scanline + pixelx])
-            {
-                coastline << QPoint(pixelx, line);
-                nbrcoastlinepixels++;
-            }
-
-        }
-    }
 
     qDebug() << "Nbr of saturated pixels = " << nbrsaturatedpixels << " nbr of coastline pixels = " << nbrcoastlinepixels;
 
