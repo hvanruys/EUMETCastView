@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
     //restoreGeometry( opts.mainwindowgeometry);
     //restoreState( opts.windowstate );
 
@@ -213,6 +214,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formimage, SIGNAL(render3dgeo(SegmentListGeostationary::eGeoSatellite)), globe, SLOT(Render3DGeo(SegmentListGeostationary::eGeoSatellite)));
     connect( formimage, SIGNAL(allsegmentsreceivedbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
+    connect( formimage->imageLabel, SIGNAL(coordinateChanged(QString)), this, SLOT(updateStatusBarCoordinate(QString)));
+
     connect( globe, SIGNAL(renderingglobefinished(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 
     connect( formgeostationary, SIGNAL(geostationarysegmentschosen(SegmentListGeostationary::eGeoSatellite, QStringList)), formtoolbox, SLOT(geostationarysegmentsChosen(SegmentListGeostationary::eGeoSatellite, QStringList)));
@@ -428,9 +431,12 @@ void MainWindow::setupStatusBar()
     timeLabel->setAlignment(Qt::AlignHCenter);
     timeLabel->setMinimumSize(timeLabel->sizeHint());
     formulaLabel = new QLabel;
-    formulaLabel->setIndent(3);
+    formulaLabel->setAlignment(Qt::AlignRight);
+    coordinateLabel = new QLabel;
+    coordinateLabel->setAlignment(Qt::AlignRight);
     statusBar()->addWidget(timeLabel);
-    statusBar()->addWidget(formulaLabel, 1);
+    statusBar()->addWidget(formulaLabel);
+    statusBar()->addWidget(coordinateLabel,1);
 }
 
 
@@ -510,6 +516,11 @@ void MainWindow::updateStatusBarIndicator(const QString &text)
    formulaLabel->setText(text);
 }
 
+void MainWindow::updateStatusBarCoordinate(const QString &text)
+{
+   coordinateLabel->setText(text);
+}
+
 
 void MainWindow::on_actionShowToolbox_triggered()
 {
@@ -527,8 +538,6 @@ void MainWindow::on_actionShowToolbox_triggered()
 //    fd->addCheckBoxIn();
 //    fd->show();
 //    connect(fd, SIGNAL(fileSelected(QString)), fd, SLOT(slotFile(QString)));
-
-
 //}
 
 

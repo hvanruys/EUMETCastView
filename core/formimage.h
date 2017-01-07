@@ -12,7 +12,8 @@
 
 class FormToolbox;
 class FormInfraScales;
-class MyImageLabel;
+class ImageLabel;
+class AspectRatioPixmapLabel;
 
 class FormImage : public QWidget
 {
@@ -44,6 +45,7 @@ public:
     bool toggleOverlayMeteosat();
     bool toggleOverlayProjection();
     bool toggleOverlayOLCI();
+    bool toggleOverlayGridOnOLCI();
     void SetFormToolbox(FormToolbox *ptr) { formtoolbox = ptr; }
     void SetDockWidgetInfraScales(FormInfraScales *ptr) { dockinfrascales = ptr; }
     void showInfraScales() { changeinfraprojection = true; }
@@ -83,6 +85,7 @@ public:
     eImageType channelshown; // which button channel
     QString txtInfo;
     bool refreshoverlay;
+    ImageLabel *imageLabel;
 
 
     ~FormImage();
@@ -105,7 +108,8 @@ private:
     bool metop_inverse_ch[5], noaa_inverse_ch[5], gac_inverse_ch[5], hrp_inverse_ch[5];
     bool metop_inverseEqual_ch[5], noaa_inverseEqual_ch[5], gac_inverseEqual_ch[5], hrp_inverseEqual_ch[5];
 
-    MyImageLabel *imageLabel;
+    //AspectRatioPixmapLabel *imageLabel;
+
     QVBoxLayout *mainLayout;
 
     QPoint mousepoint;
@@ -163,16 +167,56 @@ protected:
 
 };
 
-class MyImageLabel : public QLabel
+class ImageLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit MyImageLabel(QLabel *parent = 0);
+    explicit ImageLabel(QWidget *parent=0, AVHRRSatellite *seglist=0);
+    void setFormImagePtr(FormImage *ptr) { formimage = ptr; }
+    void resize(const QSize&);
 
-public:
+public slots:
+    void setPixmap ( const QPixmap & );
 protected:
     void mouseMoveEvent(QMouseEvent *);
+private:
+    QSize originalpixmapsize;
+    QSize scaledpixmapsize;
+    FormImage *formimage;
+    AVHRRSatellite *segs;
+
+signals:
+    void coordinateChanged(QString str);
 
 };
+
+//class AspectRatioPixmapLabel : public QLabel
+//{
+//    Q_OBJECT
+//public:
+//    explicit AspectRatioPixmapLabel(QWidget *parent = 0);
+//    virtual int heightForWidth( int width ) const;
+//    virtual QSize sizeHint() const;
+//    QPixmap scaledPixmap() const;
+//public slots:
+//    void setPixmap ( const QPixmap & );
+//    void resizeEvent(QResizeEvent *);
+//private:
+//    QPixmap pix;
+//};
+
+//class AspectRatioPixmapLabel : public QLabel
+//{
+//    Q_OBJECT
+//public:
+//    explicit AspectRatioPixmapLabel(const QPixmap &pixmap, QWidget *parent = 0);
+//    virtual int heightForWidth(int width) const;
+//    virtual bool hasHeightForWidth() { return true; }
+//    virtual QSize sizeHint() const { return pixmap()->size(); }
+//    virtual QSize minimumSizeHint() const { return QSize(0, 0); }
+
+
+//};
+
 
 #endif // FORMIMAGE_H

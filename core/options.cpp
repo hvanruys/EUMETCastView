@@ -253,6 +253,7 @@ void Options::Initialize()
     checkStringListValues();
     fbo_changed = false;
     texture_changed = false;
+    gridonolciimage = false;
 
 }
 

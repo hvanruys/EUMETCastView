@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>4</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -2744,6 +2744,13 @@
           <widget class="QPushButton" name="btnOverlayOLCI">
            <property name="text">
             <string>Overlay</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdbGridOnOLCIimage">
+           <property name="text">
+            <string>Grid on image</string>
            </property>
           </widget>
          </item>

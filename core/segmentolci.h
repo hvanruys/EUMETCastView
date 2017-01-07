@@ -2,6 +2,9 @@
 #define SEGMENTOLCIEFR_H
 
 #include <QObject>
+#include <QFutureWatcher>
+#include <QtConcurrent>
+
 #include "segment.h"
 #include "archive.h"
 #include "satellite.h"
@@ -28,17 +31,23 @@ public:
     void setupVector(double statevec, QSgp4Date sensing);
     void recalculateStatsInProjection(bool normalized);
     void RecalculateProjection(bool normalized);
+    void CalcOverlayLatLon(int columnslength, int rowslength);
+    int UntarSegmentToTemp();
 
 
     ~SegmentOLCI();
 
-    int UntarSegmentToTemp();
     int stat_max_projection[3];
     int stat_min_projection[3];
     long active_pixels_projection;
     QPolygon coastline;
+    QPolygon latlonline;
     long nbrsaturatedpixels;
     long nbrcoastlinepixels;
+
+    QScopedArrayPointer<int> latitude;
+    QScopedArrayPointer<int> longitude;
+
 
 private:
     void RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row );
@@ -52,8 +61,6 @@ private:
     int copy_data(struct archive *ar, struct archive *aw);
 
 
-    QScopedArrayPointer<int> latitude;
-    QScopedArrayPointer<int> longitude;
     QScopedArrayPointer<quint32> masks;
     QStringList strlflagmeanings;
     int saturationindex[3];

@@ -367,6 +367,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->cmbHistogramProj->addItems(lsthistogram);
     ui->cmbHistogramProj->setCurrentIndex(CMB_HISTO_NONE_95);
 
+    ui->rdbGridOnOLCIimage->setChecked(opts.gridonolciimage);
+
     setAllWhatsThis();
 
     qDebug() << "constructor formtoolbox";
@@ -4569,7 +4571,7 @@ void FormToolbox::fitCurve()
 
 void FormToolbox::on_rdbOLCINormalized_toggled(bool checked)
 {
-    formimage->setHistogramMethod(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized);
+    formimage->setHistogramMethod(ui->cmbHistogram->currentIndex(), checked);
 }
 
 void FormToolbox::on_cmbHistogram_activated(int index)
@@ -4673,5 +4675,12 @@ void FormToolbox::on_btnSaveAsPNG48bits_clicked()
             "There is no input file !" );
     }
 
+}
+
+
+void FormToolbox::on_rdbGridOnOLCIimage_toggled(bool checked)
+{
+    opts.gridonolciimage = checked;
+    formimage->toggleOverlayGridOnOLCI();
 }
 

@@ -184,11 +184,6 @@ public:
     QString dirremote;
 	double obslat, obslon, obsalt;
 
-    // Global variable not saved
-    int channelontexture;
-    bool fbo_changed;
-    bool texture_changed;
-
     int lastcomboMet006;
     int lastcomboMet008;
     int lastcomboMet016;
@@ -223,6 +218,14 @@ public:
 
     bool remove_S3A_dirs;
     bool usesaturationmask;
+
+    // Global variable not saved
+    int channelontexture;
+    bool fbo_changed;
+    bool texture_changed;
+    bool gridonolciimage;
+
+
 
 }; 
 

@@ -244,6 +244,7 @@ private slots:
     void on_cmbHistogram_activated(int index);
     void on_btnSaveAsPNG48bits_clicked();
     void on_btnOverlayOLCI_clicked();
+    void on_rdbGridOnOLCIimage_toggled(bool checked);
 };
 
 

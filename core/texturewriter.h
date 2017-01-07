@@ -1,10 +1,14 @@
 #ifndef TEXTUREWRITER_H
 #define TEXTUREWRITER_H
 
+#define OPENGL30
 //#define OPENGL31
-#define OPENGL40
+//#define OPENGL40
 //#define OPENGL43
 
+#ifdef OPENGL30
+#include <QOpenGLFunctions_3_0>
+#endif
 #ifdef OPENGL31
 #include <QOpenGLFunctions_3_1>
 #endif
@@ -21,7 +25,9 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 
-
+#ifdef OPENGL30
+class TextureWriter  : protected QOpenGLFunctions_3_0
+#endif
 #ifdef OPENGL31
 class TextureWriter  : protected QOpenGLFunctions_3_1
 #endif

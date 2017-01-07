@@ -1209,10 +1209,12 @@ void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int heigh
                         if( nbrPoint == 1023 || nbrPoint == 1024)
                             rgbvalue = qRgb(255, 0, 0);
                         else
-                            rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                            //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                            rgbvalue = row_col[nbrPoint];
                     }
                     else
-                        rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                        //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                        rgbvalue = row_col[nbrPoint];
 
                     imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
@@ -1229,10 +1231,12 @@ void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int heigh
                         if( nbrPoint == 1023 || nbrPoint == 1024)
                             rgbvalue = qRgb(255, 0, 0);
                         else
-                            rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                            //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                            rgbvalue = row_col[nbrPoint];
                     }
                     else
-                        rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                        //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                        rgbvalue = row_col[nbrPoint];
 
                     imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
@@ -1250,10 +1254,14 @@ void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int heigh
                         if( nbrPoint == 1023 || nbrPoint == 1024)
                             rgbvalue = qRgb(255, 0, 0);
                         else
-                            rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                            //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                            rgbvalue = row_col[nbrPoint];
+
                     }
                     else
-                        rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                        //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
+                        rgbvalue = row_col[nbrPoint];
+
 
                     imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }

@@ -71,7 +71,7 @@ public:
     //void setImageReady() { image_ready = true; }
     //void resetImageReady() { image_ready = false; }
     //bool isImageReady() { return image_ready; }
-    void setStartLineNbr(int nbr) { startLineNbr = nbr; }
+    void setStartLineNbr(int nbr) { startLineNbr = nbr; endLineNbr = nbr + NbrOfLines; }
     int getStartLineNbr() { return startLineNbr; }
     qint32 getProjectionX(int line, int pixelx);
     qint32 getProjectionY(int line, int pixelx);
@@ -122,6 +122,7 @@ public:
 
     int NbrOfLines;
     int startLineNbr;
+    int endLineNbr;
 
     int earth_views_per_scanline;
 

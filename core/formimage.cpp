@@ -51,16 +51,15 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 
     scaleFactor = (double)getZoomValue()/100;
     qDebug() << QString("FormImage::FormImage scalefactor = %1").arg(scaleFactor);
-    imageLabel = new MyImageLabel;
-
+    imageLabel = new ImageLabel(this, segs);
+//    imageLabel = new AspectRatioPixmapLabel;
+    imageLabel->setFormImagePtr(this);
     imageLabel->setScaledContents(true);
 
     mainLayout = new QVBoxLayout;
     mainLayout->addWidget(imageLabel);
     this->setLayout(mainLayout);
 
-    //imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimageMeteosat)));
-    //this->adjustImage();
     overlaymeteosat = true;
     overlayprojection = true;
     overlayolci = true;
@@ -105,6 +104,13 @@ bool FormImage::toggleOverlayOLCI()
         overlayolci = false;
     else
         overlayolci = true;
+    this->update();
+    return overlayolci;
+}
+
+bool FormImage::toggleOverlayGridOnOLCI()
+{
+    displayImage(channelshown);
     this->update();
     return overlayolci;
 }
@@ -686,7 +692,6 @@ void FormImage::mouseMoveEvent(QMouseEvent *e)
     {
         emit moveImage(e->pos(), mousepoint);
     }
-    //qDebug() << QString("mousemoveevent pos.x = %1 pos.y = %2").arg(e->pos().x()).arg(e->pos().y());
 }
 
 void FormImage::mouseReleaseEvent(QMouseEvent *)
@@ -1242,7 +1247,7 @@ void FormImage::adjustImage()
     scaleFactor = (double)getZoomValue()/100;
     if(scaleFactor==1)
     {
-        imageLabel->adjustSize();
+        imageLabel->resize(imageLabel->pixmap()->size());
         this->adjustSize();
     }
     else
@@ -2942,6 +2947,13 @@ void FormImage::OverlayOLCI(QPainter *paint)
             QPolygon copycoastline = segm->coastline.translated(0, heightinsegment);
             paint->drawPoints(copycoastline);
 
+            if(opts.gridonolciimage)
+            {
+                paint->setPen(QColor(opts.projectionoverlaylonlatcolor));
+                QPolygon copylatlonline = segm->latlonline.translated(0, heightinsegment);
+                paint->drawPoints(copylatlonline);
+            }
+
             heightinsegment += segm->GetNbrOfLines();
             ++segsel;
         }
@@ -3167,16 +3179,140 @@ FormImage::~FormImage()
 
 }
 
-
-MyImageLabel::MyImageLabel(QLabel *parent ) :  QLabel(parent)
+//////////////////////////////////////////////////////////////////////////////////
+ImageLabel::ImageLabel(QWidget *parent, AVHRRSatellite *seglist) :  QLabel(parent)
 {
-    //setMouseTracking(true);
+    segs = seglist;
+    setMouseTracking(true);
+
 }
 
-void MyImageLabel::mouseMoveEvent(QMouseEvent *event)
+void ImageLabel::mouseMoveEvent(QMouseEvent *event)
 {
-    //qDebug() << QString("myimagelabel mousemoveevent pos.x = %1 pos.y = %2").arg(event->pos().x()).arg(event->pos().y());
+    double lon, lat;
+    float flon, flat;
+
+    bool bret;
+    double factorheight = (double)this->originalpixmapsize.height()/(double)this->scaledpixmapsize.height();
+    double factorwidth = (double)this->originalpixmapsize.width()/(double)this->scaledpixmapsize.width();
+    double xpos = (double)event->pos().x() * factorwidth;
+    double ypos = (double)event->pos().y() * factorheight;
+
+    if(xpos >= this->originalpixmapsize.width() || ypos >= this->originalpixmapsize.height() )
+        return;
+
+    if(formimage->getPictureSize() != QSize(-1,-1))
+    {
+        if(formimage->channelshown == IMAGE_PROJECTION)
+        {
+            if (opts.currenttoolbox == 0)       //LCC
+                bret = imageptrs->lcc->map_inverse(xpos, ypos, lon, lat);
+            else if (opts.currenttoolbox == 1)  //GVP
+                bret = imageptrs->gvp->map_inverse(xpos, ypos, lon, lat);
+            else                                //SG
+                bret = imageptrs->sg->map_inverse(xpos, ypos, lon, lat);
+
+            if(bret)
+                emit coordinateChanged(QString("longitude = %1 latitude = %2   ")
+                                       .arg(lon*180.0/PI, 0, 'f', 2).arg(lat*180.0/PI, 0, 'f', 2));
+        }
+        else if(formimage->channelshown == IMAGE_OLCI)
+        {
+            if(segs->seglolciefr->GetSegsSelectedptr()->count() > 0)
+                bret = segs->seglolciefr->searchLatLon(qRound(xpos), qRound(ypos), flon, flat);
+            else if(segs->seglolcierr->GetSegsSelectedptr()->count() > 0)
+                bret = segs->seglolcierr->searchLatLon(qRound(xpos), qRound(ypos), flon, flat);
+            else
+                bret = false;
+
+            if(bret)
+                emit coordinateChanged(QString("longitude = %1 latitude = %2   ")
+                                       .arg(flon, 0, 'f', 2).arg(flat, 0, 'f', 2));
+
+
+        }
+        else
+        {
+            emit coordinateChanged(" ");
+        }
+    }
+    else
+    {
+        emit coordinateChanged(" ");
+    }
 
     QLabel::mouseMoveEvent(event);
 }
 
+void ImageLabel::setPixmap ( const QPixmap & p)
+{
+    this->originalpixmapsize = p.size();
+    this->scaledpixmapsize = p.size();
+    QLabel::setPixmap(p);
+}
+
+void ImageLabel::resize(const QSize &s)
+{
+    this->scaledpixmapsize = s;
+    QLabel::resize(s);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+//AspectRatioPixmapLabel::AspectRatioPixmapLabel(QWidget *parent) :
+//    QLabel(parent)
+//{
+//    this->setMinimumSize(1,1);
+//    setScaledContents(false);
+//}
+
+//void AspectRatioPixmapLabel::setPixmap ( const QPixmap & p)
+//{
+//    pix = p;
+//    QLabel::setPixmap(scaledPixmap());
+//}
+
+//int AspectRatioPixmapLabel::heightForWidth( int width ) const
+//{
+//    return pix.isNull() ? this->height() : ((qreal)pix.height()*width)/pix.width();
+//}
+
+//QSize AspectRatioPixmapLabel::sizeHint() const
+//{
+//    int w = this->width();
+//    return QSize( w, heightForWidth(w) );
+//}
+
+//QPixmap AspectRatioPixmapLabel::scaledPixmap() const
+//{
+//    return pix.scaled(this->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+//}
+
+//void AspectRatioPixmapLabel::resizeEvent(QResizeEvent * e)
+//{
+//    if(!pix.isNull())
+//        QLabel::setPixmap(scaledPixmap());
+//}
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief AspectRatioPixmapLabel::AspectRatioPixmapLabel
+/// \param pixmap
+/// \param parent
+///
+//AspectRatioPixmapLabel::AspectRatioPixmapLabel(const QPixmap &pixmap, QWidget *parent) :
+//    QLabel(parent)
+//{
+//    QLabel::setPixmap(pixmap);
+//    setScaledContents(true);
+//    QSizePolicy policy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+//    policy.setHeightForWidth(true);
+//    this->setSizePolicy(policy);
+//}
+
+//int AspectRatioPixmapLabel::heightForWidth(int width) const
+//{
+//    if (width > pixmap()->width()) {
+//        return pixmap()->height();
+//    } else {
+//        return ((qreal)pixmap()->height()*width)/pixmap()->width();
+//    }
+//}

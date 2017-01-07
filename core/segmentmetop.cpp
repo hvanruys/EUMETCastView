@@ -458,12 +458,12 @@ void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record, int heightinsegment
         num2 = 0xFF & mdr_record->at(20537 + i*8);
         quint16 zangle  = (num1 <<= 8) | num2;
         solar_zenith_angle[heightinsegment*103 + i] = (float)zangle/100.0;
-        if(i==49)
-        {
-            float radangle = solar_zenith_angle[heightinsegment*103 + i]*PI/180.0;
-            qDebug() << "heightinsegment = " << heightinsegment << " solar_zenith_angle = " << solar_zenith_angle[heightinsegment*103 + i]
-                     << " cos = " << cos(radangle) << " 1/cos = " << 1.0f/cos(radangle);
-        }
+//        if(i==49)
+//        {
+//            float radangle = solar_zenith_angle[heightinsegment*103 + i]*PI/180.0;
+//            qDebug() << "heightinsegment = " << heightinsegment << " solar_zenith_angle = " << solar_zenith_angle[heightinsegment*103 + i]
+//                     << " cos = " << cos(radangle) << " 1/cos = " << 1.0f/cos(radangle);
+//        }
     }
 
 //        solar_zenith_angle[i] = (num1 <<= 8) | num2;
@@ -990,7 +990,7 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
     double dtot;
 
     QRgb *row_col;
-    QRgb rgbvalue1 = qRgba(0,0,0,255);
+    QRgb rgbvalue = qRgb(0,0,0);
 
     if (channel == 6)
         row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(heightintotalimage);
@@ -1012,32 +1012,43 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
         to = 5 + 20 * 102 + 3 = 2048
     */
 
+    if(num_navigation_points == 103 && (nbrLine == 0 || nbrLine == 540 || nbrLine == 1079))
+    {
+        qDebug() << QString("------>IEL nbrLine = %1  lon[0] = %2, lon[52] = %3, lon[102] = %4").arg(nbrLine).arg( earthloc_lon[nbrLine*103]).arg( earthloc_lon[nbrLine*103 + 52]).arg( earthloc_lon[nbrLine * 103 + 102]);
+    }
+
+
     if(num_navigation_points == 103)
     {
         for( int nav = 0; nav < num_navigation_points; nav++)
         {
-            //dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + nav]*PI/180.0 - earthloc_lat[nbrLine*103 + nav+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + nav]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + nav+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + nav]*PI/180.0-earthloc_lon[nbrLine*103 + nav+1]*PI/180.0) / 2), 2)));
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + nav]*PI/180.0 - earthloc_lat[nbrLine*103 + nav+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + nav]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + nav+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + nav]*PI/180.0-earthloc_lon[nbrLine*103 + nav+1]*PI/180.0) / 2), 2)));
             for( int intp = 0; intp < 20 && nav*20 + intp + 5 < 2048 ; intp++ )
             {
                 intermediatePoint(earthloc_lat[nbrLine*103 + nav]*PI/180.0, earthloc_lon[nbrLine*103 + nav]*PI/180.0, earthloc_lat[nbrLine*103 + nav+1]*PI/180.0, earthloc_lon[nbrLine*103 + nav+1]*PI/180.0, imageptrs->fraction[4 + nav*20 + intp], &latpos1, &lonpos1, dtot);
+
                 if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
+
                     projectionCoordX[nbrLine * 2048 + nav * 20 + intp + 4] = (int)map_x;
                     projectionCoordY[nbrLine * 2048 + nav * 20 + intp + 4] = (int)map_y;
 
-                    //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                    rgbvalue = row_col[4 + nav * 20 + intp];
+                    //                        int red = qRed(rgbvalue1)/cos(solarzenith*PI/180.0);
+                    //                        int green = qGreen(rgbvalue1)/cos(solarzenith*PI/180.0);
+                    //                        int blue = qBlue(rgbvalue1)/cos(solarzenith*PI/180.0);
+                    //                        QRgb rgbresult = qRgba(red, green, blue, 255);
+                    //                        QColor col( rgbvalue1);
+                    //col.setAlpha(255);
+                    if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
                     {
-                        rgbvalue1 = row_col[4 + nav * 20 + intp];
-//                        int red = qRed(rgbvalue1)/cos(solarzenith*PI/180.0);
-//                        int green = qGreen(rgbvalue1)/cos(solarzenith*PI/180.0);
-//                        int blue = qBlue(rgbvalue1)/cos(solarzenith*PI/180.0);
-//                        QRgb rgbresult = qRgba(red, green, blue, 255);
-//                        QColor col( rgbvalue1);
-                        //col.setAlpha(255);
-                        if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
-                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue1);
-                        projectionCoordValue[nbrLine * 2048 + nav * 20 + intp + 4] = rgbvalue1;
+//                        qDebug() << "lonpos1 = " << lonpos1 << " latpos1 = " << latpos1 << " map_x = " << map_x << " mapy = " << map_y << " " << qRed(rgbvalue1)
+//                                 << " " << qGreen(rgbvalue1) << " " << qBlue(rgbvalue1);
+
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                     }
+                    projectionCoordValue[nbrLine * 2048 + nav * 20 + intp + 4] = rgbvalue;
+
                 }
                 else
                 {
@@ -1048,6 +1059,7 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
             }
         }
     }
+
 
     g_mutex.unlock();
 

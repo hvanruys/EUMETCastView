@@ -244,6 +244,29 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
     return true;
 }
 
+
+bool SegmentListOLCI::searchLatLon(int mapx, int mapy, float &lon, float &lat)
+{
+    QList<Segment*>::iterator segsel = segsselected.begin();
+
+    if(segsselected.count() > 0)
+    {
+        while ( segsel != segsselected.end() )
+        {
+            SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
+            if( mapy >= segm->startLineNbr && mapy < segm->endLineNbr)
+            {
+                lat = (float)segm->latitude[(mapy - segm->startLineNbr) * segm->earth_views_per_scanline + mapx]/1000000.0;
+                lon = (float)segm->longitude[(mapy - segm->startLineNbr) * segm->earth_views_per_scanline + mapx]/1000000.0;
+                return(true);
+            }
+
+            ++segsel;
+        }
+    }
+    return(false);
+}
+
 void SegmentListOLCI::CalculateProjectionLUT()
 {
     qDebug() << "start SegmentListOLCI::CalculateProjectionLUT()";
@@ -527,7 +550,6 @@ long SegmentListOLCI::NbrOfSaturatedPixels()
 {
     QList<Segment*>::iterator segsel = segsselected.begin();
     long nbrofpixels = 0;
-    segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         SegmentOLCI *segm = (SegmentOLCI *)(*segsel);

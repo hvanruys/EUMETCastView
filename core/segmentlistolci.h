@@ -34,6 +34,7 @@ public:
 
     void RecalculateCLAHEOLCI();
     long NbrOfSaturatedPixels();
+    bool searchLatLon(int mapx, int mapy, float &lon, float &lat);
 
 
 private:

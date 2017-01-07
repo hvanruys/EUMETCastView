@@ -69,6 +69,7 @@ private:
     QTimer *timer;
     QLabel *timeLabel;
     QLabel *formulaLabel;
+    QLabel *coordinateLabel;
     //ZoomObject *zoomobject;
 
 
@@ -104,6 +105,7 @@ private slots:
 
 public slots:
     void updateStatusBarIndicator(const QString &text);
+    void updateStatusBarCoordinate(const QString &text);
     void updateWindowTitle();
 
 };

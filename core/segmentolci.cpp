@@ -15,6 +15,11 @@ extern SegmentImage *imageptrs;
 #include <QMutex>
 extern QMutex g_mutex;
 
+void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
+{
+    t->CalcOverlayLatLon(collength, rowlength);
+}
+
 
 SegmentOLCI::SegmentOLCI(eSegmentType type, QFile *filesegment, SatelliteList *satl, QObject *parent) :
   Segment(parent)
@@ -204,8 +209,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     retval = nc_close(ncgeofileid);
     if (retval != NC_NOERR) qDebug() << "error closing geofile";
 
-//    for(int i = 0; i < columnslength; i++)
-//        qDebug() << i << " " << this->longitude[i];
+    QFuture<void> future = QtConcurrent::run(doCalcOverlayLatLon, this, columnslength, rowslength);
 
     QString tiegeofile = this->fileInfo.baseName() + ".SEN3/tie_geometries.nc";
     QByteArray arraytiegeo = tiegeofile.toUtf8();
@@ -577,6 +581,46 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
 
     return this;
+
+}
+
+void SegmentOLCI::CalcOverlayLatLon(int columnslength, int rowslength)
+{
+    for(int i = 0; i < columnslength-1; i++)
+    {
+        for(int j = 0; j < rowslength-1; j++)
+        {
+            for(int lats = -80000000; lats < 90000000; lats = lats+10000000)
+            {
+                if((this->latitude[j * columnslength + i] >= lats && this->latitude[j * columnslength + i + 1] < lats) ||
+                   (this->latitude[j * columnslength + i] < lats && this->latitude[j * columnslength + i + 1] >= lats) ||
+                   (this->latitude[j * columnslength + i] >= lats && this->latitude[(j+1) * columnslength + i] < lats) ||
+                   (this->latitude[j * columnslength + i] < lats && this->latitude[(j+1) * columnslength + i] >= lats) ||
+                   (this->latitude[j * columnslength + i] >= lats && this->latitude[(j+1) * columnslength + i + 1] < lats) ||
+                    (this->latitude[j * columnslength + i] < lats && this->latitude[(j+1) * columnslength + i + 1] >= lats))
+
+                {
+                    latlonline << QPoint(i, j);
+                    //latlonline << QPoint(i, j+1);
+                }
+            }
+
+            for(int lons = -180000000; lons < 170000000; lons = lons+10000000)
+            {
+                if((this->longitude[j * columnslength + i] >= lons && this->longitude[j * columnslength + i + 1] < lons) ||
+                   (this->longitude[j * columnslength + i] < lons && this->longitude[j * columnslength + i + 1] >= lons) ||
+                   (this->longitude[j * columnslength + i] >= lons && this->longitude[(j+1) * columnslength + i] < lons) ||
+                   (this->longitude[j * columnslength + i] < lons && this->longitude[(j+1) * columnslength + i] >= lons) ||
+                   (this->longitude[j * columnslength + i] >= lons && this->longitude[(j+1) * columnslength + i + 1] < lons) ||
+                   (this->longitude[j * columnslength + i] < lons && this->longitude[(j+1) * columnslength + i + 1] >= lons))
+                {
+                    latlonline << QPoint(i, j);
+                    //latlonline << QPoint(i+1, j);
+                }
+            }
+        }
+    }
+
 
 }
 
