@@ -22,7 +22,12 @@ enum eSegmentType
     SEG_VIIRSM,
     SEG_VIIRSDNB,
     SEG_OLCIEFR,
-    SEG_OLCIERR
+    SEG_OLCIERR,
+    SEG_HRPT_METOPA,
+    SEG_HRPT_METOPB,
+    SEG_HRPT_NOAA19,
+    SEG_HRPT_M01,
+    SEG_HRPT_M02
 };
 
 enum eImageType

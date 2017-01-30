@@ -77,6 +77,12 @@ private slots:
 
     void on_btnOLCIerr_clicked();
 
+    void on_btnMetopAhrpt_clicked();
+    void on_btnMetopBhrpt_clicked();
+    void on_btnNoaa19hrpt_clicked();
+    void on_btnM01hrpt_clicked();
+    void on_btnM02hrpt_clicked();
+
 public slots:
       void showSegmentList(int);
       void showSegmentcount();

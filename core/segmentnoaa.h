@@ -28,8 +28,6 @@ public:
     //int sensing_start_year;
 private:
 
-    void initializeProjectionCoord();
-
 };
 
 #endif // SEGMENTNOAA_H

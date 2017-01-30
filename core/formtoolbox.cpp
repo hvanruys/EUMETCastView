@@ -494,6 +494,7 @@ bool FormToolbox::eventFilter(QObject *target, QEvent *event)
 
 void FormToolbox::setValueProgressBar(int val)
 {
+    qDebug() << "FormToolbox::setValueProgressBar(int val) val = " << val;
     ui->pbProgress->setValue(val);
     //this->update();
 }
@@ -572,7 +573,7 @@ void FormToolbox::setChannelComboBoxes()
     disconnect(ui->chkInverseCh4, SIGNAL(stateChanged(int)), 0, 0);
     disconnect(ui->chkInverseCh5, SIGNAL(stateChanged(int)), 0, 0);
 
-    if (opts.buttonMetop)
+    if (opts.buttonMetop || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonM01hrpt || opts.buttonM02hrpt)
     {
         qDebug() << "metop";
         ui->comboCh1->setCurrentIndex(opts.channellistmetop.at(0).toInt());
@@ -582,7 +583,7 @@ void FormToolbox::setChannelComboBoxes()
         ui->comboCh5->setCurrentIndex(opts.channellistmetop.at(4).toInt());
 
     } else
-    if (opts.buttonNoaa)
+    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
     {
         qDebug() << "noaa";
 
@@ -747,7 +748,7 @@ void FormToolbox::setInverseCheckBoxes()
 {
     qDebug() << "FormToolbox::setInverseCheckBoxes()";
 
-    if (opts.buttonMetop)
+    if (opts.buttonMetop || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonM01hrpt || opts.buttonM02hrpt)
     {
         if (opts.metop_invlist.count() == 5)
         {
@@ -767,7 +768,7 @@ void FormToolbox::setInverseCheckBoxes()
         }
 
     } else
-    if (opts.buttonNoaa)
+    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
     {
         if (opts.noaa_invlist.count() == 5)
         {
@@ -833,7 +834,7 @@ void FormToolbox::setChannelInverse()
 {
     qDebug() << "FormToolbox::setChannelInverse()";
 
-    if (opts.buttonMetop)
+    if (opts.buttonMetop || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonM01hrpt || opts.buttonM02hrpt)
     {
         opts.metop_invlist.clear();
 
@@ -843,7 +844,7 @@ void FormToolbox::setChannelInverse()
         opts.metop_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
         opts.metop_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
     } else
-    if (opts.buttonNoaa)
+    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
     {
         opts.noaa_invlist.clear();
 
@@ -880,7 +881,7 @@ void FormToolbox::setChannelIndex()
 {
     qDebug() << "FormToolbox::setChannelIndex()";
 
-    if (opts.buttonMetop)
+    if (opts.buttonMetop || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonM01hrpt || opts.buttonM02hrpt)
     {
         opts.channellistmetop.clear();
         opts.channellistmetop << QString("%1").arg(ui->comboCh1->currentIndex());
@@ -890,7 +891,7 @@ void FormToolbox::setChannelIndex()
         opts.channellistmetop << QString("%1").arg(ui->comboCh5->currentIndex());
     }
     else
-    if (opts.buttonNoaa)
+    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
     {
         opts.channellistnoaa.clear();
         opts.channellistnoaa << QString("%1").arg(ui->comboCh1->currentIndex());
@@ -2492,7 +2493,8 @@ void FormToolbox::on_btnCreatePerspective_clicked()
 
     if(ui->rdbAVHRRin->isChecked())
     {
-        if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
+        if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt ||
+                opts.buttonM01hrpt || opts.buttonM02hrpt)
         {
             if(!segs->SelectedAVHRRSegments())
             {
@@ -2678,7 +2680,8 @@ void FormToolbox::on_btnCreateLambert_clicked()
         }
     }
 
-    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
+    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt ||
+            opts.buttonM01hrpt || opts.buttonM02hrpt)
     {
         if(ui->rdbAVHRRin->isChecked())
         {
@@ -2788,7 +2791,8 @@ void FormToolbox::on_btnCreateStereo_clicked()
         }
     }
 
-    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
+    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt ||
+            opts.buttonM01hrpt || opts.buttonM02hrpt)
     {
         if(ui->rdbAVHRRin->isChecked())
         {

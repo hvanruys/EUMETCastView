@@ -1124,96 +1124,96 @@ void SegmentListOLCI::ShowWinvec(QPainter *painter, float distance, const QMatri
     }
 }
 
-bool SegmentListOLCI::TestForSegmentGLerr(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname)
-{
+//bool SegmentListOLCI::TestForSegmentGLextended(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname)
+//{
 
-    bool isselected = false;
+//    bool isselected = false;
 
-    qDebug() << QString("Nbr of segments = %1").arg(segmentlist.count());
+//    qDebug() << QString("Nbr of segments = %1").arg(segmentlist.count());
 
-    QList<Segment*>::iterator segit = segmentlist.begin();
-    QVector2D winvec1, winvec2, winvecend1, winvecend2, winvecend3, winvecend4;
+//    QList<Segment*>::iterator segit = segmentlist.begin();
+//    QVector2D winvec1, winvec2, winvecend1, winvecend2, winvecend3, winvecend4;
 
-    QVector3D vecZ = m.row(2).toVector3D();
+//    QVector3D vecZ = m.row(2).toVector3D();
 
-    segmentname = "";
+//    segmentname = "";
 
-    while ( segit != segmentlist.end() )
-    {
-        if(showallsegments ? true : (*segit)->segmentshow)
-        {
-            for(int i = 0; i < (*segit)->winvectorfirst.length()-1; i++)
-            {
-                winvecend1.setX((*segit)->winvectorfirst.at(i).x()); winvecend1.setY((*segit)->winvectorfirst.at(i).y());
-                winvecend2.setX((*segit)->winvectorfirst.at(i+1).x()); winvecend2.setY((*segit)->winvectorfirst.at(i+1).y());
-                winvecend3.setX((*segit)->winvectorlast.at(i).x()); winvecend3.setY((*segit)->winvectorlast.at(i).y());
-                winvecend4.setX((*segit)->winvectorlast.at(i+1).x()); winvecend4.setY((*segit)->winvectorlast.at(i+1).y());
+//    while ( segit != segmentlist.end() )
+//    {
+//        if(showallsegments ? true : (*segit)->segmentshow)
+//        {
+//            for(int i = 0; i < (*segit)->winvectorfirst.length()-1; i++)
+//            {
+//                winvecend1.setX((*segit)->winvectorfirst.at(i).x()); winvecend1.setY((*segit)->winvectorfirst.at(i).y());
+//                winvecend2.setX((*segit)->winvectorfirst.at(i+1).x()); winvecend2.setY((*segit)->winvectorfirst.at(i+1).y());
+//                winvecend3.setX((*segit)->winvectorlast.at(i).x()); winvecend3.setY((*segit)->winvectorlast.at(i).y());
+//                winvecend4.setX((*segit)->winvectorlast.at(i+1).x()); winvecend4.setY((*segit)->winvectorlast.at(i+1).y());
 
-                //     first                                          last
-                //  winvecend1 ------------------------------------ winvecend3
-                //      | p01                                           | p03
-                //      |                                               |
-                //      |                                               |
-                //      |                                               |
-                //      |                                               |
-                //      |                                               |
-                //      | p02                                           | p04
-                //  winvecend2 ------------------------------------ winvecend4
-                //
-
-
-                qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vecvector.at(i)));
-                //qDebug() << QString("angle = %1").arg(angle * 180.0 / PI);
-
-                if (angle < PI/2 + (asin(1/distance)))
-                {
+//                //     first                                          last
+//                //  winvecend1 ------------------------------------ winvecend3
+//                //      | p01                                           | p03
+//                //      |                                               |
+//                //      |                                               |
+//                //      |                                               |
+//                //      |                                               |
+//                //      |                                               |
+//                //      | p02                                           | p04
+//                //  winvecend2 ------------------------------------ winvecend4
+//                //
 
 
-                    struct point p01;
-                    p01.x = (int)winvecend1.x();
-                    p01.y = (int)winvecend1.y();
+//                qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vecvector.at(i)));
+//                //qDebug() << QString("angle = %1").arg(angle * 180.0 / PI);
 
-                    struct point p02;
-                    p02.x = (int)winvecend2.x();
-                    p02.y = (int)winvecend2.y();
-
-                    struct point p03;
-                    p03.x = (int)winvecend3.x();
-                    p03.y = (int)winvecend3.y();
-
-                    struct point p04;
-                    p04.x = (int)winvecend4.x();
-                    p04.y = (int)winvecend4.y();
+//                if (angle < PI/2 + (asin(1/distance)))
+//                {
 
 
+//                    struct point p01;
+//                    p01.x = (int)winvecend1.x();
+//                    p01.y = (int)winvecend1.y();
 
-                    QPoint points[4] = {
-                        QPoint(p01.x, p01.y),
-                        QPoint(p02.x, p02.y),
-                        QPoint(p04.x, p04.y),
-                        QPoint(p03.x, p03.y)
-                    };
+//                    struct point p02;
+//                    p02.x = (int)winvecend2.x();
+//                    p02.y = (int)winvecend2.y();
+
+//                    struct point p03;
+//                    p03.x = (int)winvecend3.x();
+//                    p03.y = (int)winvecend3.y();
+
+//                    struct point p04;
+//                    p04.x = (int)winvecend4.x();
+//                    p04.y = (int)winvecend4.y();
 
 
-                    int result = pnpoly( 4, points, x, realy);
 
-                    if (result)
-                    {
-                        if((*segit)->ToggleSelected())
-                        {
-                            qDebug() << QString("segment selected is = %1").arg((*segit)->fileInfo.fileName());
-                            isselected = true;
-                            segmentname = (*segit)->fileInfo.fileName();
-                            qApp->processEvents();
-                        }
-                        break;
-                    }
-                }
+//                    QPoint points[4] = {
+//                        QPoint(p01.x, p01.y),
+//                        QPoint(p02.x, p02.y),
+//                        QPoint(p04.x, p04.y),
+//                        QPoint(p03.x, p03.y)
+//                    };
 
-            }
-        }
-        ++segit;
-    }
-    return isselected;
-}
+
+//                    int result = pnpoly( 4, points, x, realy);
+
+//                    if (result)
+//                    {
+//                        if((*segit)->ToggleSelected())
+//                        {
+//                            qDebug() << QString("segment selected is = %1").arg((*segit)->fileInfo.fileName());
+//                            isselected = true;
+//                            segmentname = (*segit)->fileInfo.fileName();
+//                            qApp->processEvents();
+//                        }
+//                        break;
+//                    }
+//                }
+
+//            }
+//        }
+//        ++segit;
+//    }
+//    return isselected;
+//}
 

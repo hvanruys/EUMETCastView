@@ -143,6 +143,76 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
         }
     }
 
+    if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
+    {
+        if(segs->getShowAllSegments())
+        {
+            segs->seglmetopAhrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+        }
+        else
+        {
+            segs->seglmetopAhrpt->GetFirstLastVisible( &first_julian, &last_julian );
+            showSunPosition(&painter, first_julian, last_julian);
+            segs->seglmetopAhrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+        }
+    }
+
+    if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
+    {
+        if(segs->getShowAllSegments())
+        {
+            segs->seglmetopBhrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+        }
+        else
+        {
+            segs->seglmetopBhrpt->GetFirstLastVisible( &first_julian, &last_julian );
+            showSunPosition(&painter, first_julian, last_julian);
+            segs->seglmetopBhrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+        }
+    }
+
+    if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
+    {
+        if(segs->getShowAllSegments())
+        {
+            segs->seglnoaa19hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+        }
+        else
+        {
+            segs->seglnoaa19hrpt->GetFirstLastVisible( &first_julian, &last_julian );
+            showSunPosition(&painter, first_julian, last_julian);
+            segs->seglnoaa19hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+        }
+    }
+
+    if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
+    {
+        if(segs->getShowAllSegments())
+        {
+            segs->seglM01hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+        }
+        else
+        {
+            segs->seglM01hrpt->GetFirstLastVisible( &first_julian, &last_julian );
+            showSunPosition(&painter, first_julian, last_julian);
+            segs->seglM01hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+        }
+    }
+
+    if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
+    {
+        if(segs->getShowAllSegments())
+        {
+            segs->seglM02hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+        }
+        else
+        {
+            segs->seglM02hrpt->GetFirstLastVisible( &first_julian, &last_julian );
+            showSunPosition(&painter, first_julian, last_julian);
+            segs->seglM02hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+        }
+    }
+
     if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
     {
         if(segs->getShowAllSegments())
@@ -200,7 +270,9 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
     }
 
     if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false &&
-            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false && opts.buttonOLCIefr == false && opts.buttonOLCIerr == false )
+            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false && opts.buttonOLCIefr == false && opts.buttonOLCIerr == false &&
+            opts.buttonMetopAhrpt == false && opts.buttonMetopBhrpt == false && opts.buttonNoaa19hrpt == false && opts.buttonM01hrpt == false &&
+            opts.buttonM02hrpt == false)
         showSunPosition(&painter);
 
     if (down)
@@ -247,6 +319,16 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
         isselected = segs->seglhrp->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
     else if (opts.buttonGAC)
         isselected = segs->seglgac->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonMetopAhrpt)
+        isselected = segs->seglmetopAhrpt->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonMetopBhrpt)
+        isselected = segs->seglmetopBhrpt->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonNoaa19hrpt)
+        isselected = segs->seglnoaa19hrpt->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonM01hrpt)
+        isselected = segs->seglM01hrpt->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonM02hrpt)
+        isselected = segs->seglM02hrpt->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
     else if (opts.buttonVIIRSM)
         isselected = segs->seglviirsm->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
     else if (opts.buttonVIIRSDNB)

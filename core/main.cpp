@@ -92,6 +92,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 }
 
+
 int main(int argc, char *argv[])
 {
     doLogging = false;
@@ -171,3 +172,4 @@ int main(int argc, char *argv[])
 #endif
     return app.exec();
 }
+

@@ -52,9 +52,7 @@ SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent)
     julian_sensing_start = qsensingstart.Julian();
     julian_sensing_end = qsensingend.Julian();
 
-
     Satellite sat;
-
 
     if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M02")  // Metop-A
         ok = satlist->GetSatellite(29499, &sat);
@@ -91,221 +89,6 @@ SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent)
 SegmentHRP::~SegmentHRP()
 {
 }
-
-
-/*
-
-    FILE*   f;
-    BZFILE* b;
-    int     nBuf;
-    char    buf[ 12966 ];
-    char    bufheader[20];
-    int     bzerror;
-    int     nWritten;
-    char    x1,x2;
-    int cnt_mphr = 0, cnt_sphr = 0, cnt_ipr = 0, cnt_geadr = 0, cnt_giadr = 0, cnt_veadr = 0, cnt_viadr = 0, cnt_mdr = 0;
-
-    quint64 nextrecordlength = 0;
-    quint32 nextres = 0;
-
-    bool ok;
-
-    quint16 num1=0, num2=0;
-
-    fileInfo.setFile(*filesegment);
-    segment_type = "HRP";
-
-    satlist = satl;
-    f = fopen ( (*filesegment).fileName().toLatin1(), "r" );
-    if ( !f ) {
-        qDebug() << QString("file %1 not found ! ").arg(this->fileInfo.absoluteFilePath());
-        return;
-    }
-
-
-    if((b = BZ2_bzopen((*filesegment).fileName().toLatin1(),"rb"))==NULL)
-    {
-        qDebug() << "error in BZ2_bzopen";
-    }
-
-
-    bzerror = BZ_OK;
-    while ( bzerror == BZ_OK )
-    {
-      nBuf = BZ2_bzRead ( &bzerror, b, bufheader, 20 );
-      //qDebug() << QString("nBuf header = %1").arg(nBuf);
-
-      if ( bzerror == BZ_OK || bzerror == BZ_STREAM_END)
-      {
-         QByteArray dataheader = QByteArray::fromRawData(bufheader, sizeof(bufheader));
-         nextres = get_next_header(dataheader);
-         nextrecordlength += nextres;
-         //qDebug() << QString("nextres = %1 ").arg(nextres);
-
-         nBuf = BZ2_bzRead ( &bzerror, b, buf, nextres - 20 );
-         //qDebug() << QString("nBuf = %1").arg(nBuf);
-
-         if ( bzerror == BZ_OK || bzerror == BZ_STREAM_END)
-         {
-            if ((dataheader.at(0) & 0xFF) == 0x08)
-            {
-                cnt_mdr++;
-                //qDebug() << QString("type mdr nBuf = %1").arg(nBuf);
-                QByteArray mdr_record = QByteArray::fromRawData(buf, nBuf);
-                QByteArray earth_views_per_scanline = mdr_record.mid( 2, 2 );
-
-                num1 = 0XFF & earth_views_per_scanline.at(0);   // 0X8FFF;
-                num2 = 0XFF & earth_views_per_scanline.at(1);
-
-                quint16 earth_views  = (num1 <<= 8) | num2;
-                //qDebug() << QString("earth views = %1").arg(earth_views);
-
-                nWritten += nBuf;
-
-            }
-            if ((dataheader.at(0) & 0xFF) == 0x01)
-            {
-                cnt_mphr++;
-                //qDebug() << QString("type 0x01 nBuf = %1").arg(nBuf);
-                QByteArray mphr_record = QByteArray::fromRawData(buf, nBuf);
-
-                int sensing_start_year = mphr_record.mid(712, 4).toInt( &ok , 10);
-                int sensing_start_month = mphr_record.mid(716, 2).toInt( &ok, 10);
-                int sensing_start_day = mphr_record.mid(718, 2).toInt( &ok, 10);
-                int sensing_start_hour = mphr_record.mid(720, 2).toInt( &ok, 10);
-                int sensing_start_minute = mphr_record.mid(722, 2).toInt( &ok, 10);
-                int sensing_start_second = mphr_record.mid(724, 2).toInt( &ok, 10);
-
-                int sensing_end_year = mphr_record.mid(760, 4).toInt( &ok, 10);
-                int sensing_end_month = mphr_record.mid(764, 2).toInt( &ok, 10);
-                int sensing_end_day = mphr_record.mid(766, 2).toInt( &ok, 10);
-                int sensing_end_hour = mphr_record.mid(768, 2).toInt( &ok, 10);
-                int sensing_end_minute = mphr_record.mid(770, 2).toInt( &ok, 10);
-                int sensing_end_second = mphr_record.mid(772, 2).toInt( &ok, 10);
-
-                int alt_sensing_start_year = fileInfo.fileName().mid(16, 4).toInt( &ok , 10);
-                int alt_sensing_start_month = fileInfo.fileName().mid(20, 2).toInt( &ok, 10);
-                int alt_sensing_start_day = fileInfo.fileName().mid(22, 2).toInt( &ok, 10);
-                int alt_sensing_start_hour = fileInfo.fileName().mid(24, 2).toInt( &ok, 10);
-                int alt_sensing_start_minute = fileInfo.fileName().mid(26, 2).toInt( &ok, 10);
-                int alt_sensing_start_second = fileInfo.fileName().mid(28, 2).toInt( &ok, 10);
-
-                int alt_sensing_end_year = fileInfo.fileName().mid(32, 4).toInt( &ok , 10);
-                int alt_sensing_end_month = fileInfo.fileName().mid(36, 2).toInt( &ok, 10);
-                int alt_sensing_end_day = fileInfo.fileName().mid(38, 2).toInt( &ok, 10);
-                int alt_sensing_end_hour = fileInfo.fileName().mid(40, 2).toInt( &ok, 10);
-                int alt_sensing_end_minute = fileInfo.fileName().mid(42, 2).toInt( &ok, 10);
-                int alt_sensing_end_second = fileInfo.fileName().mid(44, 2).toInt( &ok, 10);
-
-                NbrOfLines = mphr_record.mid(2970, 3).toInt( &ok, 10);
-
-                QDateTime sensing_start(QDate(sensing_start_year,sensing_start_month, sensing_start_day), QTime(sensing_start_hour, sensing_start_minute, sensing_start_second));
-                QDateTime sensing_end(QDate(sensing_end_year,sensing_end_month, sensing_end_day), QTime(sensing_end_hour, sensing_end_minute, sensing_end_second));
-
-                QDateTime alt_sensing_start(QDate(alt_sensing_start_year,alt_sensing_start_month, alt_sensing_start_day), QTime(alt_sensing_start_hour, alt_sensing_start_minute, alt_sensing_start_second));
-                QDateTime alt_sensing_end(QDate(alt_sensing_end_year,alt_sensing_end_month, alt_sensing_end_day), QTime(alt_sensing_end_hour, alt_sensing_end_minute, alt_sensing_end_second));
-
-                if (sensing_start != alt_sensing_start)
-                    qDebug() << fileInfo.fileName() << " sensing start : " << sensing_start.toString("yyyy.MM.dd hh:mm:ss.zzz") <<
-                                "  != alt : " << alt_sensing_start.toString("yyyy.MM.dd hh:mm:ss.zzz") << " nbroflines : " << NbrOfLines;
-                if (sensing_end != alt_sensing_end.addSecs(-1))
-                    qDebug() << fileInfo.fileName() << "sensing end   : " << sensing_end.toString("yyyy.MM.dd hh:mm:ss.zzz") <<
-                                "  != alt : " << alt_sensing_end.toString("yyyy.MM.dd hh:mm:ss.zzz") << " nbroflines : " << NbrOfLines;
-
-                this->sensing_start_year = sensing_start_year;
-                qdatetime_start.setDate(QDate(sensing_start_year, sensing_start_month, sensing_start_day));
-                qdatetime_start.setTime(QTime(sensing_start_hour,sensing_start_minute, sensing_start_second));
-
-
-                //int sensing_start_day_of_year = DOY( sensing_start_year, sensing_start_month, sensing_start_day );
-                //double sensing_start_fraction_of_day = Fraction_of_Day( sensing_start_hour, sensing_start_minute, sensing_start_second );
-                //double temp_sensing_start = (double)sensing_start_day_of_year + sensing_start_fraction_of_day;
-                julian_sensing_start = Julian_Date_of_Year(sensing_start_year) +
-                              DOY( sensing_start_year, sensing_start_month, sensing_start_day ) +
-                              Fraction_of_Day( sensing_start_hour, sensing_start_minute, sensing_start_second ) +
-                              5.787037e-06;
-
-                julian_sensing_end = Julian_Date_of_Year(sensing_end_year) +
-                              DOY( sensing_end_year, sensing_end_month, sensing_end_day ) +
-                              Fraction_of_Day( sensing_end_hour, sensing_end_minute, sensing_end_second ) +
-                              5.787037e-06;
-
-                double alt_julian_sensing_start = Julian_Date_of_Year(alt_sensing_start_year) +
-                              DOY( alt_sensing_start_year, alt_sensing_start_month, alt_sensing_start_day ) +
-                              Fraction_of_Day( alt_sensing_start_hour, alt_sensing_start_minute, alt_sensing_start_second ) +
-                              5.787037e-06;
-
-
-                //sensingstart = cJulian(sensing_start_year, sensing_start_month, sensing_start_day, sensing_start_hour, sensing_start_minute, sensing_start_second);
-                //sensingend = QSgpDateTime(sensing_end_year, sensing_end_month, sensing_end_day, sensing_end_hour, sensing_end_minute, sensing_end_second);
-                qsensingstart = QSgp4Date(sensing_start_year, sensing_start_month, sensing_start_day, sensing_start_hour, sensing_start_minute, sensing_start_second);
-                qsensingend = QSgp4Date(sensing_end_year, sensing_end_month, sensing_end_day, sensing_end_hour, sensing_end_minute, sensing_end_second);
-
-                Satellite metop_sat;
-
-                if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M02")  // Metop-A
-                    metop_sat = satlist->GetSatellite(29499);
-                else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M01") // Metop-B
-                    metop_sat = satlist->GetSatellite(38771);
-
-
-
-                this->earth_views_per_scanline = 2048;
-
-                line1 = metop_sat.line1;
-                line2 = metop_sat.line2;
-                epoch = line1.mid(18,14).toDouble(&ok);
-                julian_state_vector = Julian_Date_of_Epoch(epoch);
-
-                //qDebug() << QString("state vector  = %1").arg(julian_state_vector, 0, 'f', 8);
-                //qDebug() << QString("julian sensing start = %1").arg(julian_sensing_start, 0, 'f', 8);
-
-
-                //tle = new cTle( fileInfo.fileName().mid(0,15), line1, line2 );
-                //orbit = new cOrbit( *tle );
-
-
-                qtle = new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72);
-                qsgp4 = new QSgp4( *qtle );
-
-
-                minutes_since_state_vector = ( alt_julian_sensing_start - julian_state_vector ) * MINUTES_PER_DAY;
-                //minutes_since_state_vector -= 1.5 / 60.0;
-                minutes_sensing = (double)(sensing_start.secsTo(sensing_end))/60;
-                //qDebug() << "arg of perigee = " << QString::number(orbit->ArgPerigee() * 180 / PI) << "  mnAnomaly = " << QString::number(orbit->mnAnomaly() * 180 /PI);
-
-                QEci qeci;
-                qsgp4->getPosition(minutes_since_state_vector, qeci);
-                QGeodetic qgeo = qeci.ToGeo();
-
-                double lon_1 = qgeo.longitude;
-                double lat_1 = qgeo.latitude;
-                lon_start_deg = rad2deg(lon_1);
-                if (lon_start_deg > 180)
-                    lon_start_deg = - (360 - rad2deg(lon_1));
-
-                lat_start_deg = rad2deg(lat_1);
-
-                segselected = false;
-                segshow = false;
-
-                break;
-
-             }
-         }
-         else
-             segmentok = false;
-       }
-      else
-          segmentok = false;
-    }
-
-    BZ2_bzclose ( b );
-
-}
-
-*/
-
 
 int SegmentHRP::ReadNbrOfLines()
 {
@@ -660,6 +443,8 @@ void SegmentHRP::ComposeProjection(int inputchannel, eProjections proj)
     qDebug() << QString("SegmentHRP::ComposeProjection startLineNbr = %1").arg(this->startLineNbr);
     int startheight = this->startLineNbr;
 
+    initializeProjectionCoord();
+
     inputchannel = (inputchannel == 0 ? 6 : inputchannel);
 
     QEci eciref;
@@ -693,11 +478,9 @@ void SegmentHRP::ComposeProjection(int inputchannel, eProjections proj)
         if( nbrLine == 0 || nbrLine == this->NbrOfLines - 1)
             qDebug() << QString("nbrline = %1 Pitch = %2  Roll = %3 Yaw = %4").arg(nbrLine).arg(pitch).arg(roll).arg(yaw);
 
-        this->RenderSegmentlineInProjectionAlternative(inputchannel, startheight + nbrLine, eciref, angular_velocity, pitch, roll, yaw + yawcorrection, proj);
+        this->RenderSegmentlineInProjectionAlternative(inputchannel, nbrLine, startheight + nbrLine, eciref, angular_velocity, pitch, roll, yaw + yawcorrection, proj);
         //this->RenderSegmentlineInProjection(inputchannel, startheight + nbrLine, eciref, angular_velocity, proj );
     }
-
-
 }
 
 /*
@@ -1079,7 +862,8 @@ void SegmentHRP::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fir
     }
 }
 
-void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int heightintotalimage, QEci eciref, double ang_vel, double pitch, double roll, double yaw, eProjections proj)
+
+void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int nbrLine, int heightintotalimage, QEci eciref, double ang_vel, double pitch, double roll, double yaw, eProjections proj)
 {
 
     QRgb *row_col;
@@ -1200,32 +984,40 @@ void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int heigh
 
         if(proj == LCC)
         {
-            if(imageptrs->lcc->map_forward(lonpos, latpos, map_x, map_y))
+            if(imageptrs->lcc->map_forward_neg_coord(lonpos, latpos, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
+                    projectionCoordX[nbrLine * 2048 + nbrPoint] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + nbrPoint] = (int)map_y;
+
                     if(opts.sattrackinimage)
                     {
                         if( nbrPoint == 1023 || nbrPoint == 1024)
                             rgbvalue = qRgb(255, 0, 0);
                         else
-                            //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
                             rgbvalue = row_col[nbrPoint];
                     }
                     else
-                        //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
                         rgbvalue = row_col[nbrPoint];
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + nbrPoint] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+
                 }
             }
         }
         else if(proj == GVP)
         {
-            if(imageptrs->gvp->map_forward(lonpos, latpos, map_x, map_y))
+            if(imageptrs->gvp->map_forward_neg_coord(lonpos, latpos, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
+                    projectionCoordX[nbrLine * 2048 + nbrPoint] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + nbrPoint] = (int)map_y;
+
                     if(opts.sattrackinimage)
                     {
                         if( nbrPoint == 1023 || nbrPoint == 1024)
@@ -1238,17 +1030,24 @@ void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int heigh
                         //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
                         rgbvalue = row_col[nbrPoint];
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + nbrPoint] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+
                 }
             }
 
         }
         else if(proj == SG)
         {
-            if(imageptrs->sg->map_forward(lonpos, latpos, map_x, map_y))
+            if(imageptrs->sg->map_forward_neg_coord(lonpos, latpos, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
+                    projectionCoordX[nbrLine * 2048 + nbrPoint] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + nbrPoint] = (int)map_y;
+
                     if(opts.sattrackinimage)
                     {
                         if( nbrPoint == 1023 || nbrPoint == 1024)
@@ -1262,13 +1061,14 @@ void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int heigh
                         //rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
                         rgbvalue = row_col[nbrPoint];
 
+                    projectionCoordValue[nbrLine * 2048 + nbrPoint] = rgbvalue;
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 }
             }
 
         }
     }
 }
-
 

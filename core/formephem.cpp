@@ -248,6 +248,13 @@ void FormEphem::NewSegmentOverviewItem()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsHRP(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGAC(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetopAhrpt(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetopBhrpt(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa19hrpt(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsM01hrpt(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsM02hrpt(), 0  );
+
+
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSM(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSDNB(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIefr(), 0  );
@@ -258,6 +265,7 @@ void FormEphem::NewSegmentOverviewItem()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat7(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES13(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES15(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES16(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2E(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2G(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsH8(), 0  );
@@ -268,9 +276,7 @@ void FormEphem::showSegmentsAdded()
 {
     ui->segmentoverview->clear();
     NewSegmentOverviewItem();
-
 }
-
 
 void FormEphem::setNbrOfHours()
 {
@@ -369,7 +375,6 @@ void FormEphem::setRealMinutesShownValue()
     opts.realminutesshown = ui->realminutesslider->value();
 }
 
-
 void FormEphem::itemSelectedsegmentdirectory( QTreeWidgetItem *item)
 {
 
@@ -395,8 +400,6 @@ void FormEphem::itemSelectedsegmentdirectory( QTreeWidgetItem *item)
     }
 
     opts.Save();
-
-
 }
 
 void FormEphem::showActiveSatellites(void)
@@ -444,8 +447,6 @@ void FormEphem::showActiveSatellites(void)
 
     ++it2;
   }
-
-
 }
 
 void FormEphem::timerDone(void)
@@ -627,6 +628,12 @@ void FormEphem::showSelectedSegmentList(void)
     QList<Segment*> *slnoaa = segs->seglnoaa->GetSegmentlistptr();
     QList<Segment*> *slgac = segs->seglgac->GetSegmentlistptr();
     QList<Segment*> *slhrp = segs->seglhrp->GetSegmentlistptr();
+    QList<Segment*> *slmetopAhrpt = segs->seglmetopAhrpt->GetSegmentlistptr();
+    QList<Segment*> *slmetopBhrpt = segs->seglmetopBhrpt->GetSegmentlistptr();
+    QList<Segment*> *slnoaa19hrpt = segs->seglnoaa19hrpt->GetSegmentlistptr();
+    QList<Segment*> *slM01hrpt = segs->seglM01hrpt->GetSegmentlistptr();
+    QList<Segment*> *slM02hrpt = segs->seglM02hrpt->GetSegmentlistptr();
+
     QList<Segment*> *slviirsm = segs->seglviirsm->GetSegmentlistptr();
     QList<Segment*> *slviirsdnb = segs->seglviirsdnb->GetSegmentlistptr();
     QList<Segment*> *slolciefr = segs->seglolciefr->GetSegmentlistptr();
@@ -701,6 +708,96 @@ void FormEphem::showSelectedSegmentList(void)
                 ui->selectedsegmentwidget->setHeaderLabel((*segithrp)->fileInfo.absolutePath());
             }
             ++segithrp;
+        }
+
+    }
+    else
+    if (opts.buttonMetopAhrpt)
+    {
+        QList<Segment*>::iterator segit = slmetopAhrpt->begin();
+        while ( segit != slmetopAhrpt->end() )
+        {
+            if((*segit)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segit)->fileInfo.fileName() << QString("%1").arg((*segit)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segit)->fileInfo.absolutePath());
+            }
+            ++segit;
+        }
+
+    }
+    else
+    if (opts.buttonMetopBhrpt)
+    {
+        QList<Segment*>::iterator segit = slmetopBhrpt->begin();
+        while ( segit != slmetopBhrpt->end() )
+        {
+            if((*segit)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segit)->fileInfo.fileName() << QString("%1").arg((*segit)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segit)->fileInfo.absolutePath());
+            }
+            ++segit;
+        }
+
+    }
+    else
+    if (opts.buttonNoaa19hrpt)
+    {
+        QList<Segment*>::iterator segit = slnoaa19hrpt->begin();
+        while ( segit != slnoaa19hrpt->end() )
+        {
+            if((*segit)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segit)->fileInfo.fileName() << QString("%1").arg((*segit)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segit)->fileInfo.absolutePath());
+            }
+            ++segit;
+        }
+
+    }
+    else
+    if (opts.buttonM01hrpt)
+    {
+        QList<Segment*>::iterator segit = slM01hrpt->begin();
+        while ( segit != slM01hrpt->end() )
+        {
+            if((*segit)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segit)->fileInfo.fileName() << QString("%1").arg((*segit)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segit)->fileInfo.absolutePath());
+            }
+            ++segit;
+        }
+
+    }
+    else
+    if (opts.buttonM02hrpt)
+    {
+        QList<Segment*>::iterator segit = slM02hrpt->begin();
+        while ( segit != slM02hrpt->end() )
+        {
+            if((*segit)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segit)->fileInfo.fileName() << QString("%1").arg((*segit)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segit)->fileInfo.absolutePath());
+            }
+            ++segit;
         }
 
     }

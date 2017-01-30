@@ -948,24 +948,6 @@ Segment *SegmentMetop::ReadSegmentInMemory()
     return this;
 }
 
-void SegmentMetop::initializeProjectionCoord()
-{
-    projectionCoordX.reset(new int[1080 * 2048]);
-    projectionCoordY.reset(new int[1080 * 2048]);
-    projectionCoordValue.reset(new QRgb[1080 * 2048]);
-
-    for( int i = 0; i < 1080; i++)
-    {
-        for( int j = 0; j < 2048 ; j++ )
-        {
-            projectionCoordX[i * 2048 + j] = 65535;
-            projectionCoordY[i * 2048 + j] = 65535;
-            projectionCoordValue[i * 2048 + j] = qRgba(0, 0, 0, 0);
-        }
-    }
-
-}
-
 void SegmentMetop::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
 

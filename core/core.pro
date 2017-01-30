@@ -76,7 +76,9 @@ SOURCES += main.cpp \
     qcustomplot.cpp \
     segmentlistolci.cpp \
     segmentolci.cpp \
-    dialogsaveimage.cpp
+    dialogsaveimage.cpp \
+    segmenthrpt.cpp \
+    segmentlisthrpt.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -142,7 +144,9 @@ HEADERS  += mainwindow.h \
     segmentlistolci.h \
     segmentolci.h \
     FreeImage.h \
-    dialogsaveimage.h
+    dialogsaveimage.h \
+    segmenthrpt.h \
+    segmentlisthrpt.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

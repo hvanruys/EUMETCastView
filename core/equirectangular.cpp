@@ -64,7 +64,6 @@ void Equirectangular::map_forward(float lon_deg, float lat_deg, int &map_x, int 
 
 void Equirectangular::map_inverse(int map_x, int map_y, float &lon_deg, float &lat_deg)
 {
-    double x, y;
     lon_deg = lon_array[map_x];
     lat_deg = lat_array[map_y];
 }

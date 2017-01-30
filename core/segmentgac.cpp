@@ -605,24 +605,6 @@ void SegmentGAC::inspectEarthLocations(QByteArray *mdr_record, int heightinsegme
 
 }
 
-void SegmentGAC::initializeProjectionCoord()
-{
-    projectionCoordX.reset(new int[360 * 409]);
-    projectionCoordY.reset(new int[360 * 409]);
-    projectionCoordValue.reset(new QRgb[360 * 409]);
-
-    for( int i = 0; i < 360; i++)
-    {
-        for( int j = 0; j < 409 ; j++ )
-        {
-            projectionCoordX[i * 409 + j] = 65535;
-            projectionCoordY[i * 409 + j] = 65535;
-            projectionCoordValue[i * 409 + j] = qRgba(0, 0, 0, 0);
-        }
-    }
-
-}
-
 void SegmentGAC::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine )
 {
     RenderSegmentlineInTextureRad( channel, this->earth_loc_lat_first[nbrLine], earth_loc_lon_first[nbrLine],

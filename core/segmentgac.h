@@ -29,10 +29,6 @@ public:
     void RenderSegmentlineInGVP( int channel, int nbrLine, int heightintotalimage);
     void RenderSegmentlineInLCC( int channel, int nbrLine, int heightintotalimage);
 
-
-    void initializeProjectionCoord();
-
-
     Segment *ReadSegmentInMemory();
     int ReadNbrOfLines();
 

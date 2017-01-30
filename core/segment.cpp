@@ -104,7 +104,8 @@ void Segment::CalculateCornerPoints()
     double PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
 
-    if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR")
+    if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
+            segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = 0.00089 * sin(PSO);
@@ -185,7 +186,8 @@ void Segment::CalculateCornerPoints()
     PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
 
-    if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR")
+    if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
+            segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = 0.00089 * sin(PSO);
@@ -222,6 +224,109 @@ void Segment::CalculateCornerPoints()
     cornerpointlast2 = qecilast2.ToGeo();
 }
 
+void Segment::CalculateDetailCornerPoints()
+{
+
+
+    double statevec = minutes_since_state_vector;
+    QSgp4Date sensing = qsensingstart;
+
+    while(statevec <= minutes_since_state_vector + minutes_sensing)
+    {
+        setupVector(statevec, sensing);
+        statevec = statevec + 1.0;
+        sensing.AddMin(1.0);
+    }
+
+}
+
+
+void Segment::setupVector(double statevec, QSgp4Date sensing)
+{
+
+    QEci qeci;
+
+    if(qsgp4.isNull())
+        qDebug() << "qsgp4 is NULL !!!";
+    qsgp4->getPosition(statevec, qeci);
+    QGeodetic qgeo = qeci.ToGeo();
+
+    QVector3D pos;
+    QVector3D d3pos = qeci.GetPos_f();
+    QVector3D d3vel = qeci.GetVel_f();
+
+    QVector3D d3posnorm = d3pos.normalized();
+    QMatrix4x4 mat;
+    QVector3D d3scan;
+
+    LonLat2PointRad(qgeo.latitude, qgeo.longitude, &pos, 1.001f);
+    QVector3D vec;
+    vec.setX(pos.x());
+    vec.setY(pos.y());
+    vec.setZ(pos.z());
+    vec.normalize();
+
+    vecvector.append(vec);
+
+    double e = qtle->Eccenticity();
+    double epow2 = e * e;
+    double epow3 = e * e * e;
+
+    double span = qeci.GetDate().spanSec(qtle->Epoch());
+    double M = fmod(qtle->MeanAnomaly() + (TWOPI * (span/qtle->Period())), TWOPI);
+    double C = (2*e - epow3/4)*sin(M) + (5*epow2/4)*sin(2*M) + (13*epow3/12)*sin(3*M);
+    double trueAnomaly = M + C;
+    double PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
+
+    double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
+    double roll_steering_angle = 0.00089 * sin(PSO);
+    double yaw_factor = 0.068766 * cos(PSO);
+    double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
+
+    mat.setToIdentity();
+    mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
+    mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
+    mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+    d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
+
+    //d3scan = QVector3D::crossProduct(d3pos,d3vel);
+
+    QVector3D d3scannorm = d3scan.normalized();
+
+    double delta1, delta2;
+    if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR)
+    {
+        delta2 = 23.0 * PI / 180.0;
+        delta1 = 47.0 * PI / 180.0;
+    }
+    else
+    {
+        delta2 = 56.0 * PI / 180.0;
+        delta1 = 56.0 * PI / 180.0;
+
+    }
+
+    double r = d3pos.length();
+    double sindelta = sin(-delta1);
+    double cosdelta = cos(-delta1);
+    double dd = r * cosdelta - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
+    QVector3D d3d = - d3posnorm * cosdelta * dd + d3scannorm * sindelta * dd;
+    QVector3D d3earthposfirst = d3pos + d3d;
+
+    QEci qecifirst(d3earthposfirst, d3vel, sensing);
+    vectorfirst.append(qecifirst.ToGeo());
+
+    sindelta = sin(delta2);
+    cosdelta = cos(delta2);
+    dd = r * cosdelta - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
+    d3d = - d3posnorm * cosdelta * dd + d3scannorm * sindelta * dd;
+
+    QVector3D d3earthposlast = d3pos + d3d;
+
+    QEci qecilast(d3earthposlast, d3vel, sensing);
+    vectorlast.append(qecilast.ToGeo());
+}
+
 
 Segment::~Segment()
 {
@@ -242,7 +347,6 @@ void Segment::initializeMemory()
 
 void Segment::resetMemory()
 {
-
     for(int k = 0; k < 5; k++)
     {
         ptrbaChannel[k].reset();
@@ -265,7 +369,6 @@ void Segment::resetMemory()
     earthloc_lon.reset();
     earthloc_lat.reset();
     solar_zenith_angle.reset();
-
 }
 
 bool Segment::composeColorImage()
@@ -726,7 +829,7 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
 
 
     QVector3D d3scan;
-    if (segment_type == "HRP")
+    if (segment_type == "HRP" || segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
     {
         double pitch_steering_angle = + 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = - 0.00089 * sin(PSO);
@@ -899,13 +1002,13 @@ void Segment::ComposeSegmentImage()
 
     QStringList channellist;
     QStringList inverse;
-    if (opts.buttonMetop)
+    if (opts.buttonMetop || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonM01hrpt || opts.buttonM02hrpt)
     {
         channellist = opts.channellistmetop;
         inverse = opts.metop_invlist;
     }
     else
-    if (opts.buttonNoaa)
+    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
     {
         channellist = opts.channellistnoaa;
         inverse = opts.noaa_invlist;
@@ -1011,77 +1114,83 @@ void Segment::ComposeSegmentImage()
 
 qint32 Segment::getProjectionX(int line, int pixelx)
 {
-    switch(segtype)
-    {
-    case eSegmentType::SEG_METOP:
-    case eSegmentType::SEG_NOAA:
-    case eSegmentType::SEG_HRP:
-        return projectionCoordX[line * 2048 + pixelx];
-        break;
-    case eSegmentType::SEG_GAC:
-        return projectionCoordX[line * 409 + pixelx];
-        break;
-    case eSegmentType::SEG_VIIRSM:
-        return projectionCoordX[line * 3200 + pixelx];
-        break;
-    case eSegmentType::SEG_VIIRSDNB:
-        return projectionCoordX[line * 4064 + pixelx];
-        break;
-    case eSegmentType::SEG_OLCIEFR:
-    case eSegmentType::SEG_OLCIERR:
-        return projectionCoordX[line * earth_views_per_scanline + pixelx];
-        break;
-    }
+    return projectionCoordX[line * earth_views_per_scanline + pixelx];
+
+//    switch(segtype)
+//    {
+//    case eSegmentType::SEG_METOP:
+//    case eSegmentType::SEG_NOAA:
+//    case eSegmentType::SEG_HRP:
+//        return projectionCoordX[line * 2048 + pixelx];
+//        break;
+//    case eSegmentType::SEG_GAC:
+//        return projectionCoordX[line * 409 + pixelx];
+//        break;
+//    case eSegmentType::SEG_VIIRSM:
+//        return projectionCoordX[line * 3200 + pixelx];
+//        break;
+//    case eSegmentType::SEG_VIIRSDNB:
+//        return projectionCoordX[line * 4064 + pixelx];
+//        break;
+//    case eSegmentType::SEG_OLCIEFR:
+//    case eSegmentType::SEG_OLCIERR:
+//        return projectionCoordX[line * earth_views_per_scanline + pixelx];
+//        break;
+//    }
 }
 
 qint32 Segment::getProjectionY(int line, int pixelx)
 {
-    switch(segtype)
-    {
-    case eSegmentType::SEG_METOP:
-    case eSegmentType::SEG_NOAA:
-    case eSegmentType::SEG_HRP:
-        return projectionCoordY[line * 2048 + pixelx];
-        break;
-    case eSegmentType::SEG_GAC:
-        return projectionCoordY[line * 409 + pixelx];
-        break;
-    case eSegmentType::SEG_VIIRSM:
-        return projectionCoordY[line * 3200 + pixelx];
-        break;
-    case eSegmentType::SEG_VIIRSDNB:
-        return projectionCoordY[line * 4064 + pixelx];
-        break;
-    case eSegmentType::SEG_OLCIEFR:
-    case eSegmentType::SEG_OLCIERR:
-        return projectionCoordY[line * earth_views_per_scanline + pixelx];
-        break;
-    }
+    return projectionCoordY[line * earth_views_per_scanline + pixelx];
+
+//    switch(segtype)
+//    {
+//    case eSegmentType::SEG_METOP:
+//    case eSegmentType::SEG_NOAA:
+//    case eSegmentType::SEG_HRP:
+//        return projectionCoordY[line * 2048 + pixelx];
+//        break;
+//    case eSegmentType::SEG_GAC:
+//        return projectionCoordY[line * 409 + pixelx];
+//        break;
+//    case eSegmentType::SEG_VIIRSM:
+//        return projectionCoordY[line * 3200 + pixelx];
+//        break;
+//    case eSegmentType::SEG_VIIRSDNB:
+//        return projectionCoordY[line * 4064 + pixelx];
+//        break;
+//    case eSegmentType::SEG_OLCIEFR:
+//    case eSegmentType::SEG_OLCIERR:
+//        return projectionCoordY[line * earth_views_per_scanline + pixelx];
+//        break;
+//    }
 }
 
 QRgb Segment::getProjectionValue(int line, int pixelx)
 {
-    switch(segtype)
-    {
-    case eSegmentType::SEG_METOP:
-    case eSegmentType::SEG_NOAA:
-    case eSegmentType::SEG_HRP:
-        return projectionCoordValue[line * 2048 + pixelx];
-        break;
-    case eSegmentType::SEG_GAC:
-        return projectionCoordValue[line * 409 + pixelx];
-        break;
-    case eSegmentType::SEG_VIIRSM:
-        return projectionCoordValue[line * 3200 + pixelx];
-        break;
-    case eSegmentType::SEG_VIIRSDNB:
-        return projectionCoordValue[line * 4064 + pixelx];
-        break;
-    case eSegmentType::SEG_OLCIEFR:
-    case eSegmentType::SEG_OLCIERR:
-        return projectionCoordValue[line * earth_views_per_scanline + pixelx];
-        break;
-    }
+    return projectionCoordValue[line * earth_views_per_scanline + pixelx];
+
+//    switch(segtype)
+//    {
+//    case eSegmentType::SEG_METOP:
+//    case eSegmentType::SEG_NOAA:
+//    case eSegmentType::SEG_HRP:
+//        return projectionCoordValue[line * 2048 + pixelx];
+//        break;
+//    case eSegmentType::SEG_GAC:
+//        return projectionCoordValue[line * 409 + pixelx];
+//        break;
+//    case eSegmentType::SEG_VIIRSM:
+//        return projectionCoordValue[line * 3200 + pixelx];
+//        break;
+//    case eSegmentType::SEG_VIIRSDNB:
+//        return projectionCoordValue[line * 4064 + pixelx];
+//        break;
+//    case eSegmentType::SEG_OLCIEFR:
+//    case eSegmentType::SEG_OLCIERR:
+//        return projectionCoordValue[line * earth_views_per_scanline + pixelx];
+//        break;
+//    }
 }
 
 void Segment::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)
@@ -1089,6 +1198,23 @@ void Segment::setBandandColor(QList<bool> band, QList<int> color, QList<bool> in
     bandlist = band;
     colorlist = color;
     invertlist = invert;
+}
+
+void Segment::initializeProjectionCoord()
+{
+    projectionCoordX.reset(new int[this->NbrOfLines * this->earth_views_per_scanline]);
+    projectionCoordY.reset(new int[this->NbrOfLines * this->earth_views_per_scanline]);
+    projectionCoordValue.reset(new QRgb[this->NbrOfLines * this->earth_views_per_scanline]);
+
+    for( int i = 0; i < this->NbrOfLines; i++)
+    {
+        for( int j = 0; j < this->earth_views_per_scanline ; j++ )
+        {
+            projectionCoordX[i * this->earth_views_per_scanline + j] = 65535;
+            projectionCoordY[i * this->earth_views_per_scanline + j] = 65535;
+            projectionCoordValue[i * this->earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
+        }
+    }
 }
 
 void Segment::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)

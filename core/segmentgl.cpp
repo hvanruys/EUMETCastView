@@ -177,6 +177,109 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         }
     }
 
+    if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
+    {
+        QList<Segment*>::iterator segit = segs->seglmetopAhrpt->GetSegmentlistptr()->begin();
+        while ( segit != segs->seglmetopAhrpt->GetSegmentlistptr()->end() )
+        {
+            if(segs->getShowAllSegments())
+            {
+                RenderContourDetail(*segit, projection, modelview, width, height);
+
+            }
+            else
+            {
+                if ((*segit)->segmentshow)
+                {
+                    RenderContourDetail(*segit, projection, modelview, width, height);
+                }
+            }
+            ++segit;
+        }
+    }
+
+    if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
+    {
+        QList<Segment*>::iterator segit = segs->seglmetopBhrpt->GetSegmentlistptr()->begin();
+        while ( segit != segs->seglmetopBhrpt->GetSegmentlistptr()->end() )
+        {
+            if(segs->getShowAllSegments())
+            {
+                RenderContourDetail(*segit, projection, modelview, width, height);
+
+            }
+            else
+            {
+                if ((*segit)->segmentshow)
+                {
+                    RenderContourDetail(*segit, projection, modelview, width, height);
+                }
+            }
+            ++segit;
+        }
+    }
+
+    if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
+    {
+        QList<Segment*>::iterator segit = segs->seglnoaa19hrpt->GetSegmentlistptr()->begin();
+        while ( segit != segs->seglnoaa19hrpt->GetSegmentlistptr()->end() )
+        {
+            if(segs->getShowAllSegments())
+            {
+                RenderContourDetail(*segit, projection, modelview, width, height);
+            }
+            else
+            {
+                if ((*segit)->segmentshow)
+                {
+                    RenderContourDetail(*segit, projection, modelview, width, height);
+                }
+            }
+            ++segit;
+        }
+    }
+
+    if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
+    {
+        QList<Segment*>::iterator segit = segs->seglM01hrpt->GetSegmentlistptr()->begin();
+        while ( segit != segs->seglM01hrpt->GetSegmentlistptr()->end() )
+        {
+            if(segs->getShowAllSegments())
+            {
+                RenderContour(*segit, projection, modelview, width, height);
+            }
+            else
+            {
+                if ((*segit)->segmentshow)
+                {
+                    RenderContour(*segit, projection, modelview, width, height);
+                }
+            }
+            ++segit;
+        }
+    }
+
+    if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
+    {
+        QList<Segment*>::iterator segit = segs->seglM02hrpt->GetSegmentlistptr()->begin();
+        while ( segit != segs->seglM02hrpt->GetSegmentlistptr()->end() )
+        {
+            if(segs->getShowAllSegments())
+            {
+                RenderContour(*segit, projection, modelview, width, height);
+
+            }
+            else
+            {
+                if ((*segit)->segmentshow)
+                {
+                    RenderContour(*segit, projection, modelview, width, height);
+                }
+            }
+            ++segit;
+        }
+    }
+
     if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
     {
         QList<Segment*>::iterator segit = segs->seglviirsm->GetSegmentlistptr()->begin();

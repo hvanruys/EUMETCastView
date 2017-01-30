@@ -1,8 +1,8 @@
 #ifndef GLOBE_H
 #define GLOBE_H
 
-#define OPENGL30
-//#define OPENGL31
+
+#define OPENGL32
 //#define OPENGL40
 //#define OPENGL43
 
@@ -11,12 +11,11 @@
 #include <QOpenGLTexture>
 #include <QOpenGLShaderProgram>
 
-#ifdef OPENGL30
-#include <QOpenGLFunctions_3_0>
-#endif
+// Minimum OpenGL version = 3.2
+// for glGenVertexArrays glBindVertexArray
 
-#ifdef OPENGL31
-#include <QOpenGLFunctions_3_1>
+#ifdef OPENGL32
+#include <QOpenGLFunctions_3_2_Core>
 #endif
 #ifdef OPENGL40
 #include <QOpenGLFunctions_4_0_Core>
@@ -38,11 +37,8 @@
 #include "projextentsgl.h"
 #include "texturewriter.h"
 
-#ifdef OPENGL30
-class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_0
-#endif
-#ifdef OPENGL31
-class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_1
+#ifdef OPENGL32
+class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_2_Core
 #endif
 #ifdef OPENGL40
 class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
@@ -62,6 +58,7 @@ public:
     void drawStationNames(QPainter *painter, QMatrix4x4 modelview);
     void printTexture();
     void testfbo();
+    void dumpOpenGLdiagnostics();
 
     ~Globe();
 

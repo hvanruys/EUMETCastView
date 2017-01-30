@@ -12,6 +12,7 @@
 #include "segmentviirsm.h"
 #include "segmentviirsdnb.h"
 #include "segmentolci.h"
+#include "segmenthrpt.h"
 
 #include "segmentlistmetop.h"
 #include "segmentlistnoaa.h"
@@ -21,6 +22,7 @@
 #include "segmentlistviirsm.h"
 #include "segmentlistviirsdnb.h"
 #include "segmentlistolci.h"
+#include "segmentlisthrpt.h"
 
 #include "segmentimage.h"
 #include "options.h"
@@ -34,6 +36,8 @@ class SegmentListGAC;
 class SegmentListVIIRSM;
 class SegmentListVIIRSDNB;
 class SegmentListOLCI;
+class SegmentListHRPT;
+
 
 class AVHRRSatellite  : public QObject
 {
@@ -63,6 +67,13 @@ public:
     QStringList GetOverviewSegmentsNoaa();
     QStringList GetOverviewSegmentsGAC();
     QStringList GetOverviewSegmentsHRP();
+
+    QStringList GetOverviewSegmentsMetopAhrpt();
+    QStringList GetOverviewSegmentsMetopBhrpt();
+    QStringList GetOverviewSegmentsNoaa19hrpt();
+    QStringList GetOverviewSegmentsM01hrpt();
+    QStringList GetOverviewSegmentsM02hrpt();
+
     QStringList GetOverviewSegmentsVIIRSM();
     QStringList GetOverviewSegmentsVIIRSDNB();
     QStringList GetOverviewSegmentsOLCIefr();
@@ -74,6 +85,7 @@ public:
     QStringList GetOverviewSegmentsMeteosat8();
     QStringList GetOverviewSegmentsGOES13();
     QStringList GetOverviewSegmentsGOES15();
+    QStringList GetOverviewSegmentsGOES16();
     QStringList GetOverviewSegmentsFY2E();
     QStringList GetOverviewSegmentsFY2G();
     QStringList GetOverviewSegmentsH8();
@@ -91,6 +103,12 @@ public:
     SegmentListVIIRSDNB *seglviirsdnb;
     SegmentListOLCI *seglolciefr;
     SegmentListOLCI *seglolcierr;
+    SegmentListHRPT *seglmetopAhrpt;
+    SegmentListHRPT *seglmetopBhrpt;
+    SegmentListHRPT *seglnoaa19hrpt;
+    SegmentListHRPT *seglM01hrpt;
+    SegmentListHRPT *seglM02hrpt;
+
 
     SegmentListGeostationary *seglmeteosat;
     SegmentListGeostationary *seglmeteosatrss;
@@ -100,6 +118,7 @@ public:
     SegmentListGeostationary *seglgoes15dc3;
     SegmentListGeostationary *seglgoes13dc4;
     SegmentListGeostationary *seglgoes15dc4;
+    SegmentListGeostationary *seglgoes16;
     SegmentListGeostationary *seglfy2e;
     SegmentListGeostationary *seglfy2g;
     SegmentListGeostationary *seglh8;
@@ -112,6 +131,7 @@ public:
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes15dc3;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes13dc4;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes15dc4;
+    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes16;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2e;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2g;
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmaph8;
@@ -122,6 +142,7 @@ public:
 private:
 
     void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, QDate seldate, int hoursbefore);
+    void RemoveFromList(QList<Segment*> *sl);
 
     SatelliteList *satlist;
     long nbrofpointsselected;
@@ -134,6 +155,12 @@ private:
     long countviirsmdnb;
     long countolciefr;
     long countolcierr;
+    long countmetopAhrpt;
+    long countmetopBhrpt;
+    long countnoaa19hrpt;
+    long countM01hrpt;
+    long countM02hrpt;
+
     bool showallsegments;
 
 signals:

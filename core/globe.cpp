@@ -56,8 +56,7 @@ void Globe::initializeGL()
     qDebug() << "Globe::initializeGL()";
 
     initializeOpenGLFunctions();
-
-    //connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
+    dumpOpenGLdiagnostics();
 
     distance = -3.0;
     trackBall = TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::Sphere);
@@ -82,6 +81,73 @@ void Globe::initializeGL()
 
     projextends = new ProjExtentsGL(&programdraw);
     texturewriter = new TextureWriter(&programtexturewriter);
+}
+
+void Globe::dumpOpenGLdiagnostics()
+{
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (context)
+    {
+        context->functions()->initializeOpenGLFunctions();
+        qDebug() << "initializeOpenGLFunctions()...";
+        QOpenGLFunctions::OpenGLFeatures oglFeatures=context->functions()->openGLFeatures();
+        qDebug() << "OpenGL Features:";
+        qDebug() << " - glActiveTexture() function" << (oglFeatures&QOpenGLFunctions::Multitexture ? "is" : "is NOT") << "available.";
+        qDebug() << " - Shader functions" << (oglFeatures&QOpenGLFunctions::Shaders ? "are" : "are NOT ") << "available.";
+        qDebug() << " - Vertex and index buffer functions" << (oglFeatures&QOpenGLFunctions::Buffers ? "are" : "are NOT") << "available.";
+        qDebug() << " - Framebuffer object functions" << (oglFeatures&QOpenGLFunctions::Framebuffers ? "are" : "are NOT") << "available.";
+        qDebug() << " - glBlendColor()" << (oglFeatures&QOpenGLFunctions::BlendColor ? "is" : "is NOT") << "available.";
+        qDebug() << " - glBlendEquation()" << (oglFeatures&QOpenGLFunctions::BlendEquation ? "is" : "is NOT") << "available.";
+        qDebug() << " - glBlendEquationSeparate()" << (oglFeatures&QOpenGLFunctions::BlendEquationSeparate ? "is" : "is NOT") << "available.";
+        qDebug() << " - glBlendFuncSeparate()" << (oglFeatures&QOpenGLFunctions::BlendFuncSeparate ? "is" : "is NOT") << "available.";
+        qDebug() << " - Blend subtract mode" << (oglFeatures&QOpenGLFunctions::BlendSubtract ? "is" : "is NOT") << "available.";
+        qDebug() << " - Compressed texture functions" << (oglFeatures&QOpenGLFunctions::CompressedTextures ? "are" : "are NOT") << "available.";
+        qDebug() << " - glSampleCoverage() function" << (oglFeatures&QOpenGLFunctions::Multisample ? "is" : "is NOT") << "available.";
+        qDebug() << " - Separate stencil functions" << (oglFeatures&QOpenGLFunctions::StencilSeparate ? "are" : "are NOT") << "available.";
+        qDebug() << " - Non power of two textures" << (oglFeatures&QOpenGLFunctions::NPOTTextures ? "are" : "are NOT") << "available.";
+        qDebug() << " - Non power of two textures" << (oglFeatures&QOpenGLFunctions::NPOTTextureRepeat ? "can" : "CANNOT") << "use GL_REPEAT as wrap parameter.";
+        qDebug() << " - The fixed function pipeline" << (oglFeatures&QOpenGLFunctions::FixedFunctionPipeline ? "is" : "is NOT") << "available.";
+
+        qDebug() << "OpenGL shader capabilities and details:";
+        qDebug() << " - Vertex Shader:" << (QOpenGLShader::hasOpenGLShaders(QOpenGLShader::Vertex, context) ? "YES" : "NO");
+        qDebug() << " - Fragment Shader:" << (QOpenGLShader::hasOpenGLShaders(QOpenGLShader::Fragment, context) ? "YES" : "NO");
+        qDebug() << " - Geometry Shader:" << (QOpenGLShader::hasOpenGLShaders(QOpenGLShader::Geometry, context) ? "YES" : "NO");
+        qDebug() << " - TessellationControl Shader:" << (QOpenGLShader::hasOpenGLShaders(QOpenGLShader::TessellationControl, context) ? "YES" : "NO");
+        qDebug() << " - TessellationEvaluation Shader:" << (QOpenGLShader::hasOpenGLShaders(QOpenGLShader::TessellationEvaluation, context) ? "YES" : "NO");
+        qDebug() << " - Compute Shader:" << (QOpenGLShader::hasOpenGLShaders(QOpenGLShader::Compute, context) ? "YES" : "NO");
+
+        // GZ: List available extensions. Not sure if this is in any way useful?
+        QSet<QByteArray> extensionSet=context->extensions();
+        qDebug() << "We have" << extensionSet.count() << "OpenGL extensions:";
+        QMap<QString, QString> extensionMap;
+        QSetIterator<QByteArray> iter(extensionSet);
+        while (iter.hasNext())
+        {
+            if (!iter.peekNext().isEmpty()) {// Don't insert empty lines
+                extensionMap.insert(QString(iter.peekNext()), QString(iter.peekNext()));
+            }
+            iter.next();
+        }
+        QMapIterator<QString, QString> iter2(extensionMap);
+        while (iter2.hasNext()) {
+            qDebug() << " -" << iter2.next().key();
+        }
+        // Apparently EXT_gpu_shader4 is required for GLSL1.3. (http://en.wikipedia.org/wiki/OpenGL#OpenGL_3.0).
+        qDebug() << "EXT_gpu_shader4" << (extensionSet.contains(("GL_EXT_gpu_shader4")) ? "present, OK." : "MISSING!");
+
+        QFunctionPointer programParameterPtr =context->getProcAddress("glProgramParameteri");
+        if (programParameterPtr == 0) {
+            qDebug() << "glProgramParameteri cannot be resolved here. BAD!";
+        }
+        programParameterPtr =context->getProcAddress("glProgramParameteriEXT");
+        if (programParameterPtr == 0) {
+            qDebug() << "glProgramParameteriEXT cannot be resolved here. BAD!";
+        }
+    }
+    else
+    {
+        qDebug() << "dumpOpenGLdiagnostics(): No OpenGL context";
+    }
 }
 
 
@@ -164,6 +230,16 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->seglhrp->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonGAC)
             isselected = segs->seglgac->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonMetopAhrpt)
+            isselected = segs->seglmetopAhrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonMetopBhrpt)
+            isselected = segs->seglmetopBhrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonNoaa19hrpt)
+            isselected = segs->seglnoaa19hrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonM01hrpt)
+            isselected = segs->seglM01hrpt->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonM02hrpt)
+            isselected = segs->seglM02hrpt->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonVIIRSM)
             isselected = segs->seglviirsm->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonVIIRSDNB)
@@ -171,7 +247,7 @@ void Globe::mouseDownAction(int x, int y)
         else if (opts.buttonOLCIefr)
             isselected = segs->seglolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonOLCIerr)
-            isselected = segs->seglolcierr->TestForSegmentGLerr( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+            isselected = segs->seglolcierr->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else
             isselected = false;
 
@@ -495,6 +571,31 @@ void Globe::paintGL()
         {
             segs->seglgac->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglgac->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        }
+        if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
+        {
+            segs->seglmetopAhrpt->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglmetopAhrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        }
+        if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
+        {
+            segs->seglmetopBhrpt->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglmetopBhrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        }
+        if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
+        {
+            segs->seglnoaa19hrpt->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglnoaa19hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        }
+        if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
+        {
+            segs->seglM01hrpt->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglM01hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        }
+        if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
+        {
+            segs->seglM02hrpt->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglM02hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         }
         if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
         {

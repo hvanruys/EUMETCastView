@@ -40,10 +40,9 @@ public:
     void GetFirstLastVisibleFilename( QString *first_filename,  QString *last_filename);
     void RenderEarthLocationsGL();
     void ShowSegment(int value);
-    bool TestForSegmentGL(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
     void ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview);
 
-    bool ComposeImage(double gamma[]);
+    bool ComposeImage();
     void ComposeImage1();
     bool TestForSegment(double *deg_lon, double *deg_lat, bool leftbuttondown, bool showallsegments);
     void RenderSegments(QPainter *painter, QColor col, bool renderall);
@@ -59,6 +58,8 @@ public:
     //static void doComposeGVProjection(Segment *t);
     int GetTotalNbrOfLines() { return this->totalnbroflines; }
     int GetEartViewsPerScanline() { return this->earth_views_per_scanline; }
+    bool TestForSegmentGL(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
+    bool TestForSegmentGLextended(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
 
 protected:
     void BilinearInterpolation(Segment *segm, bool combine);
@@ -109,8 +110,6 @@ protected:
     QFutureWatcher<void> *watcherread;
     QFutureWatcher<void> *watchercompose;
     //QFutureWatcher<void> *watchercomposeprojection;
-
-    double factor_ch[5];
     float scale;
 
 protected slots:

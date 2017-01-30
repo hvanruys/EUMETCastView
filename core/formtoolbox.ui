@@ -2750,7 +2750,7 @@
          <item>
           <widget class="QRadioButton" name="rdbGridOnOLCIimage">
            <property name="text">
-            <string>Grid on image</string>
+            <string>Grid</string>
            </property>
           </widget>
          </item>

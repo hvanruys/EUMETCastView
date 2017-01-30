@@ -264,6 +264,16 @@ void StereoGraphic::CreateMapFromAVHRR(int inputchannel, eSegmentType type)
         segs->seglgac->ComposeSGProjection(inputchannel);
     else if( type == SEG_HRP)
         segs->seglhrp->ComposeSGProjection(inputchannel);
+    else if( type == SEG_HRPT_METOPA)
+        segs->seglmetopAhrpt->ComposeSGProjection(inputchannel);
+    else if( type == SEG_HRPT_METOPB)
+        segs->seglmetopBhrpt->ComposeSGProjection(inputchannel);
+    else if( type == SEG_HRPT_NOAA19)
+        segs->seglnoaa19hrpt->ComposeSGProjection(inputchannel);
+    else if( type == SEG_HRPT_M01)
+        segs->seglM01hrpt->ComposeSGProjection(inputchannel);
+    else if( type == SEG_HRPT_M02)
+        segs->seglM02hrpt->ComposeSGProjection(inputchannel);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
@@ -276,8 +286,19 @@ void StereoGraphic::CreateMapFromAVHRR(int inputchannel, eSegmentType type)
         else if( type == SEG_GAC)
             segs->seglgac->SmoothProjectionImageBilinear();
         else if( type == SEG_HRP)
-//            segs->seglhrp->SmoothProjectionImage();
-            imageptrs->SmoothProjectionImage();
+            segs->seglhrp->SmoothProjectionImageBilinear();
+//            imageptrs->SmoothProjectionImage();
+        else if( type == SEG_HRPT_METOPA)
+            segs->seglmetopAhrpt->SmoothProjectionImageBilinear();
+        else if( type == SEG_HRPT_METOPB)
+            segs->seglmetopBhrpt->SmoothProjectionImageBilinear();
+        else if( type == SEG_HRPT_NOAA19)
+            segs->seglnoaa19hrpt->SmoothProjectionImageBilinear();
+        else if( type == SEG_HRPT_M01)
+            segs->seglM01hrpt->SmoothProjectionImageBilinear();
+        else if( type == SEG_HRPT_M02)
+            segs->seglM02hrpt->SmoothProjectionImageBilinear();
+
     }
 
 }

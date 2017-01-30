@@ -27,8 +27,6 @@ public:
     void initializeMemory();
     int getEarthViewsPerScanline() { return this->earth_views_per_scanline; }
 
-    void CalculateDetailCornerPoints();
-    void setupVector(double statevec, QSgp4Date sensing);
     void recalculateStatsInProjection(bool normalized);
     void RecalculateProjection(bool normalized);
     void CalcOverlayLatLon(int columnslength, int rowslength);

@@ -52,8 +52,14 @@ public:
     bool buttonVIIRSDNB;
     bool buttonOLCIefr;
     bool buttonOLCIerr;
+    bool buttonMetopAhrpt;
+    bool buttonMetopBhrpt;
+    bool buttonNoaa19hrpt;
+    bool buttonM01hrpt;
+    bool buttonM02hrpt;
+
+
     bool buttonRealTime;
-    bool buttonEqualization;
     bool buttonShowAllSegments;
     bool buttonPhong;
     int nbrofvisiblesegments;

@@ -147,24 +147,6 @@ int SegmentNoaa::ReadNbrOfLines()
 
 }
 
-void SegmentNoaa::initializeProjectionCoord()
-{
-    projectionCoordX.reset(new int[360 * 2048]);
-    projectionCoordY.reset(new int[360 * 2048]);
-    projectionCoordValue.reset(new QRgb[360 * 2048]);
-
-    for( int i = 0; i < 360; i++)
-    {
-        for( int j = 0; j < 2048 ; j++ )
-        {
-            projectionCoordX[i * 2048 + j] = 65535;
-            projectionCoordY[i * 2048 + j] = 65535;
-            projectionCoordValue[i * 2048 + j] = qRgba(0, 0, 0, 0);
-        }
-    }
-
-}
-
 Segment *SegmentNoaa::ReadSegmentInMemory()
 {
     FILE*   f;
@@ -277,11 +259,11 @@ void SegmentNoaa::ComposeProjection(int inputchannel, eProjections proj)
     {
         double reftime = minutes_since_state_vector + (double)nbrLine/360.0;
         qsgp4->getPosition(reftime , eciref );
-        this->RenderSegmentlineInProjection( inputchannel, nbrLine, startheight + nbrLine, eciref, angular_velocity, proj );
-        //this->RenderSegmentlineInProjectionAlternative( inputchannel, nbrLine, startheight + nbrLine, eciref, angular_velocity, proj);
+        //this->RenderSegmentlineInProjection( inputchannel, nbrLine, startheight + nbrLine, eciref, angular_velocity, proj );
+        this->RenderSegmentlineInProjectionAlternative( inputchannel, nbrLine, startheight + nbrLine, eciref, angular_velocity, proj);
     }
 
-    qDebug() << QString("SegmentNoaa::ComposeSegmentLCCProjection startLineNbr = %1 Finished").arg(this->startLineNbr);
+    qDebug() << QString("SegmentNoaa::ComposeSegment startLineNbr = %1 Finished").arg(this->startLineNbr);
 
 }
 
@@ -726,11 +708,7 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, int nbrLine, 
 //                }
 //            }
 //        }
-
-
 //    }
-
-
 //}
 
 
@@ -826,10 +804,13 @@ void SegmentNoaa::RenderSegmentlineInProjectionAlternative( int channel, int nbr
 
         if(proj == LCC)
         {
-            if(imageptrs->lcc->map_forward(lonpos, latpos, map_x, map_y))
+            if(imageptrs->lcc->map_forward_neg_coord(lonpos, latpos, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
+                    projectionCoordX[nbrLine * 2048 + nbrPoint] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + nbrPoint] = (int)map_y;
+
                     if(opts.sattrackinimage)
                     {
                         if( nbrPoint == 1023 || nbrPoint == 1024)
@@ -840,17 +821,23 @@ void SegmentNoaa::RenderSegmentlineInProjectionAlternative( int channel, int nbr
                     else
                         rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + nbrPoint] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                     // qDebug() << QString("map_x = %1 map_y = %2").arg(map_x).arg(map_y);
                 }
             }
         }
         else if(proj == GVP)
         {
-            if(imageptrs->gvp->map_forward(lonpos, latpos, map_x, map_y))
+            if(imageptrs->gvp->map_forward_neg_coord(lonpos, latpos, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
+                    projectionCoordX[nbrLine * 2048 + nbrPoint] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + nbrPoint] = (int)map_y;
+
                     if(opts.sattrackinimage)
                     {
                         if( nbrPoint == 1023 || nbrPoint == 1024)
@@ -861,7 +848,10 @@ void SegmentNoaa::RenderSegmentlineInProjectionAlternative( int channel, int nbr
                     else
                         rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + nbrPoint] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                     // qDebug() << QString("map_x = %1 map_y = %2").arg(map_x).arg(map_y);
                 }
             }
@@ -869,10 +859,13 @@ void SegmentNoaa::RenderSegmentlineInProjectionAlternative( int channel, int nbr
         }
         else if(proj == SG)
         {
-            if(imageptrs->sg->map_forward(lonpos, latpos, map_x, map_y))
+            if(imageptrs->sg->map_forward_neg_coord(lonpos, latpos, map_x, map_y))
             {
-                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+//                if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
                 {
+                    projectionCoordX[nbrLine * 2048 + nbrPoint] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + nbrPoint] = (int)map_y;
+
                     if(opts.sattrackinimage)
                     {
                         if( nbrPoint == 1023 || nbrPoint == 1024)
@@ -883,7 +876,10 @@ void SegmentNoaa::RenderSegmentlineInProjectionAlternative( int channel, int nbr
                     else
                         rgbvalue =qRgb(qRed(row_col[nbrPoint]), qGreen(row_col[nbrPoint]), qBlue(row_col[nbrPoint]));
 
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                    projectionCoordValue[nbrLine * 2048 + nbrPoint] = rgbvalue;
+
+                    if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                        imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                     // qDebug() << QString("map_x = %1 map_y = %2").arg(map_x).arg(map_y);
                 }
             }

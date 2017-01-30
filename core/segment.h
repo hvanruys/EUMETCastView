@@ -160,6 +160,10 @@ public:
 protected:
 
     void CalculateCornerPoints();
+    void CalculateDetailCornerPoints();
+    void initializeProjectionCoord();
+    void setupVector(double statevec, QSgp4Date sensing);
+
 
     quint32 cnt_mphr;
     quint32 cnt_sphr;

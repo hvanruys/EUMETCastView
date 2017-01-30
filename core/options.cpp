@@ -27,9 +27,13 @@ void Options::Initialize()
     buttonVIIRSDNB=settings.value("/window/buttonviirsdnb", false ).toBool();
     buttonOLCIefr=settings.value("/window/buttonolciefr", false ).toBool();
     buttonOLCIerr=settings.value("/window/buttonolcierr", false ).toBool();
+    buttonMetopAhrpt=settings.value("/window/buttonmetopAhrpt", false ).toBool();
+    buttonMetopBhrpt=settings.value("/window/buttonmetopBhrpt", false ).toBool();
+    buttonNoaa19hrpt=settings.value("/window/buttonnoaa19hrpt", false ).toBool();
+    buttonM01hrpt=settings.value("/window/buttonM01hrpt", false ).toBool();
+    buttonM02hrpt=settings.value("/window/buttonM02hrpt", false ).toBool();
 
     buttonRealTime=settings.value("/window/buttonrealtime", true ).toBool();
-    buttonEqualization=settings.value("/window/buttonequalization", false ).toBool();
     buttonPhong=settings.value("/window/buttonphong", false ).toBool();
     buttonShowAllSegments=settings.value("/window/buttonshowallsegments", false ).toBool();
     nbrofvisiblesegments=settings.value("/segments/nbrofvisiblesegments", 10).toInt();
@@ -280,25 +284,14 @@ void Options::checkStringListValues()
                           "-20.91" << "55.759" << "23.59" << "69.65" << "21.33" << "25.74" << "-75.166667" << "37.815";
     }
 
-//    enum eGeoSatellite {
-//        MET_10 =0,
-//        MET_9,
-//        MET_7,
-//        FY2E,
-//        FY2G,
-//        GOES_13,
-//        GOES_15,
-//        H8,
-//        ELECTRO_N1,
-//        NOGEO
-//    };
+
 
     //if(geostationarylistname.count() == 0)
     {
         geostationarylistname.clear();
         geostationarylistlon.clear();
-        geostationarylistname << "Meteosat-10" << "Meteosat-9" << "Meteosat-7" << "FY2E" << "FY2G" << "GOES13" << "GOES15" << "Himawari-8" << "Meteosat-8";
-        geostationarylistlon << "0.0" << "9.5" << "57" << "86.5" << "104.5" << "-74.9" << "-135.2" << "140.7" << "41.5";
+        geostationarylistname << "Meteosat-10" << "Meteosat-9" << "Meteosat-8" << "Meteosat-7" << "FY2E" << "FY2G" << "GOES13" << "GOES15" << "GOES-16" << "Himawari-8";
+        geostationarylistlon << "0.0" << "9.5" << "41.5" << "57" << "86.5" << "104.5" << "-74.9" << "-135.2" << "-89.5" << "140.7";
     }
 
     if(tlesources.count() == 0)
@@ -361,9 +354,13 @@ void Options::Save()
     settings.setValue( "/window/buttonviirsdnb", buttonVIIRSDNB );
     settings.setValue( "/window/buttonolciefr", buttonOLCIefr );
     settings.setValue( "/window/buttonolcierr", buttonOLCIerr );
+    settings.setValue( "/window/buttonmetopAhrpt", buttonMetopAhrpt );
+    settings.setValue( "/window/buttonmetopBhrpt", buttonMetopBhrpt );
+    settings.setValue( "/window/buttonnoaa19hrpt", buttonNoaa19hrpt );
+    settings.setValue( "/window/buttonM01hrpt", buttonM01hrpt );
+    settings.setValue( "/window/buttonM02hrpt", buttonM02hrpt );
 
     settings.setValue( "/window/buttonrealtime", buttonRealTime );
-    settings.setValue( "/window/buttonequalization", buttonEqualization );
     settings.setValue( "/window/buttonphong", buttonPhong );
     settings.setValue( "/window/buttonshowallsegments", buttonShowAllSegments );
 

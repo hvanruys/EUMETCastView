@@ -72,6 +72,13 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     noaacount = 0;
     gaccount = 0;
     hrpcount = 0;
+
+    metopAhrptcount = 0;
+    metopBhrptcount = 0;
+    noaa19hrptcount = 0;
+    M01hrptcount = 0;
+    M02hrptcount = 0;
+
     viirsmcount = 0;
     viirsdnbcount = 0;
     olciefrcount = 0;
@@ -310,6 +317,14 @@ void FormImage::ComposeImage()
         hrpcount = segs->seglhrp->NbrOfSegmentsSelected();
         gaccount = segs->seglgac->NbrOfSegmentsSelected();
     }
+    else if(opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt || opts.buttonM01hrpt || opts.buttonM02hrpt)
+    {
+        metopAhrptcount = segs->seglmetopAhrpt->NbrOfSegmentsSelected();
+        metopBhrptcount = segs->seglmetopBhrpt->NbrOfSegmentsSelected();
+        noaa19hrptcount = segs->seglnoaa19hrpt->NbrOfSegmentsSelected();
+        M01hrptcount = segs->seglM01hrpt->NbrOfSegmentsSelected();
+        M02hrptcount = segs->seglM02hrpt->NbrOfSegmentsSelected();
+    }
     else if(opts.buttonVIIRSM)
     {
         viirsmcount = segs->seglviirsm->NbrOfSegmentsSelected();
@@ -342,9 +357,10 @@ void FormImage::ComposeImage()
     qDebug() << QString("in FormImage::ComposeImage nbr of olciefr segments selected = %1").arg(olciefrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of olcierr segments selected = %1").arg(olcierrcount);
 
-    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonGAC || opts.buttonHRP)
+    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonGAC || opts.buttonHRP ||
+            opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt || opts.buttonM01hrpt || opts.buttonM02hrpt )
     {
-        if (metopcount + noaacount + hrpcount + gaccount > 0)
+        if (metopcount + noaacount + hrpcount + gaccount + metopAhrptcount + metopBhrptcount + noaa19hrptcount + M01hrptcount + M02hrptcount > 0)
         {
             displayImage(IMAGE_AVHRR_COL);
 
@@ -354,7 +370,7 @@ void FormImage::ComposeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_METOP);
-                segs->seglmetop->ComposeImage(opts.buttonEqualization ? metop_gammaEqual_ch : metop_gamma_ch);
+                segs->seglmetop->ComposeImage();
             }
             else if (noaacount > 0 && opts.buttonNoaa)
             {
@@ -362,7 +378,7 @@ void FormImage::ComposeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_NOAA);
-                segs->seglnoaa->ComposeImage(opts.buttonEqualization ? noaa_gammaEqual_ch : noaa_gamma_ch);
+                segs->seglnoaa->ComposeImage();
             }
             else if (hrpcount > 0 && opts.buttonHRP)
             {
@@ -370,7 +386,7 @@ void FormImage::ComposeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_HRP);
-                segs->seglhrp->ComposeImage(opts.buttonEqualization ? hrp_gammaEqual_ch : hrp_gamma_ch);
+                segs->seglhrp->ComposeImage();
             }
             else if (gaccount > 0 && opts.buttonGAC)
             {
@@ -378,8 +394,49 @@ void FormImage::ComposeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_GAC);
-                segs->seglgac->ComposeImage(opts.buttonEqualization ? gac_gammaEqual_ch : gac_gamma_ch);
+                segs->seglgac->ComposeImage();
             }
+            else if (metopAhrptcount > 0 && opts.buttonMetopAhrpt)
+            {
+                formtoolbox->setToolboxButtons(false);
+
+                this->kindofimage = "AVHRR Color";
+                this->setSegmentType(SEG_HRPT_METOPA);
+                segs->seglmetopAhrpt->ComposeImage();
+            }
+            else if (metopBhrptcount > 0 && opts.buttonMetopBhrpt)
+            {
+                formtoolbox->setToolboxButtons(false);
+
+                this->kindofimage = "AVHRR Color";
+                this->setSegmentType(SEG_HRPT_METOPB);
+                segs->seglmetopBhrpt->ComposeImage();
+            }
+            else if (noaa19hrptcount > 0 && opts.buttonNoaa19hrpt)
+            {
+                formtoolbox->setToolboxButtons(false);
+
+                this->kindofimage = "AVHRR Color";
+                this->setSegmentType(SEG_HRPT_NOAA19);
+                segs->seglnoaa19hrpt->ComposeImage();
+            }
+            else if (M01hrptcount > 0 && opts.buttonM01hrpt)
+            {
+                formtoolbox->setToolboxButtons(false);
+
+                this->kindofimage = "AVHRR Color";
+                this->setSegmentType(SEG_HRPT_M01);
+                segs->seglM01hrpt->ComposeImage();
+            }
+            else if (M02hrptcount > 0 && opts.buttonM02hrpt)
+            {
+                formtoolbox->setToolboxButtons(false);
+
+                this->kindofimage = "AVHRR Color";
+                this->setSegmentType(SEG_HRPT_M02);
+                segs->seglM02hrpt->ComposeImage();
+            }
+
         }
         else
             return;
@@ -948,6 +1005,21 @@ void FormImage::displayAVHRRImageInfo()
     case SEG_GAC:
         segtype = "GAC";
         break;
+    case SEG_HRPT_METOPA:
+        segtype = "Metop A HRPT";
+        break;
+    case SEG_HRPT_METOPB:
+        segtype = "Metop B HRPT";
+        break;
+    case SEG_HRPT_NOAA19:
+        segtype = "Noaa 19 HRPT";
+        break;
+    case SEG_HRPT_M01:
+        segtype = "Metop B HRPT";
+        break;
+    case SEG_HRPT_M02:
+        segtype = "Metop A HRPT";
+        break;
     default:
         segtype = "NA";
         break;
@@ -961,6 +1033,16 @@ void FormImage::displayAVHRRImageInfo()
         nbrselected = segs->seglgac->NbrOfSegmentsSelected();
     else if( type == SEG_HRP)
         nbrselected = segs->seglhrp->NbrOfSegmentsSelected();
+    else if( type == SEG_HRPT_METOPA)
+        nbrselected = segs->seglmetopAhrpt->NbrOfSegmentsSelected();
+    else if( type == SEG_HRPT_METOPB)
+        nbrselected = segs->seglmetopBhrpt->NbrOfSegmentsSelected();
+    else if( type == SEG_HRPT_NOAA19)
+        nbrselected = segs->seglnoaa19hrpt->NbrOfSegmentsSelected();
+    else if( type == SEG_HRPT_M01)
+        nbrselected = segs->seglM01hrpt->NbrOfSegmentsSelected();
+    else if( type == SEG_HRPT_M02)
+        nbrselected = segs->seglM02hrpt->NbrOfSegmentsSelected();
 
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"

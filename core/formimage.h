@@ -76,6 +76,13 @@ public:
     int noaacount;
     int gaccount;
     int hrpcount;
+
+    int metopAhrptcount;
+    int metopBhrptcount;
+    int noaa19hrptcount;
+    int M01hrptcount;
+    int M02hrptcount;
+
     int viirsmcount;
     int viirsdnbcount;
     int olciefrcount;
@@ -103,10 +110,10 @@ private:
     FormToolbox *formtoolbox;
     FormInfraScales *dockinfrascales;
 
-    double metop_gamma_ch[5], noaa_gamma_ch[5], gac_gamma_ch[5], hrp_gamma_ch[5];
-    double metop_gammaEqual_ch[5], noaa_gammaEqual_ch[5], gac_gammaEqual_ch[5], hrp_gammaEqual_ch[5];
+    //double metop_gamma_ch[5], noaa_gamma_ch[5], gac_gamma_ch[5], hrp_gamma_ch[5];
+    //double metop_gammaEqual_ch[5], noaa_gammaEqual_ch[5], gac_gammaEqual_ch[5], hrp_gammaEqual_ch[5];
     bool metop_inverse_ch[5], noaa_inverse_ch[5], gac_inverse_ch[5], hrp_inverse_ch[5];
-    bool metop_inverseEqual_ch[5], noaa_inverseEqual_ch[5], gac_inverseEqual_ch[5], hrp_inverseEqual_ch[5];
+    //bool metop_inverseEqual_ch[5], noaa_inverseEqual_ch[5], gac_inverseEqual_ch[5], hrp_inverseEqual_ch[5];
 
     //AspectRatioPixmapLabel *imageLabel;
 

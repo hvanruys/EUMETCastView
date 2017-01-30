@@ -14,13 +14,14 @@ public:
     enum eGeoSatellite {
         MET_10 =0,
         MET_9,
+        MET_8,
         MET_7,
         FY2E,
         FY2G,
         GOES_13,
         GOES_15,
+        GOES_16,
         H8,
-        MET_8,
         NOGEO
     };
 

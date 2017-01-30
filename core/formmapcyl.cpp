@@ -28,6 +28,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnNoaa->setCheckable(true);
     ui->btnGAC->setCheckable(true);
     ui->btnHRP->setCheckable(true);
+    ui->btnMetopAhrpt->setCheckable(true);
+    ui->btnMetopBhrpt->setCheckable(true);
+    ui->btnNoaa19hrpt->setCheckable(true);
+    ui->btnM01hrpt->setCheckable(true);
+    ui->btnM02hrpt->setCheckable(true);
+
     ui->btnVIIRSM->setCheckable(true);
     ui->btnVIIRSDNB->setCheckable(true);
     ui->btnOLCIefr->setCheckable(true);
@@ -42,6 +48,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
         opts.buttonNoaa = false;
         opts.buttonGAC = false;
         opts.buttonHRP = false;
+        opts.buttonMetopAhrpt = false;
+        opts.buttonMetopBhrpt = false;
+        opts.buttonNoaa19hrpt = false;
+        opts.buttonM01hrpt = false;
+        opts.buttonM02hrpt = false;
+
         opts.buttonVIIRSM = false;
         opts.buttonVIIRSDNB = false;
         opts.buttonOLCIefr = false;
@@ -54,6 +66,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
             opts.buttonMetop = false;
             opts.buttonGAC = false;
             opts.buttonHRP = false;
+            opts.buttonMetopAhrpt = false;
+            opts.buttonMetopBhrpt = false;
+            opts.buttonNoaa19hrpt = false;
+            opts.buttonM01hrpt = false;
+            opts.buttonM02hrpt = false;
+
             opts.buttonVIIRSM = false;
             opts.buttonVIIRSDNB = false;
             opts.buttonOLCIefr = false;
@@ -66,6 +84,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                 opts.buttonNoaa = false;
                 opts.buttonMetop = false;
                 opts.buttonHRP = false;
+                opts.buttonMetopAhrpt = false;
+                opts.buttonMetopBhrpt = false;
+                opts.buttonNoaa19hrpt = false;
+                opts.buttonM01hrpt = false;
+                opts.buttonM02hrpt = false;
+
                 opts.buttonVIIRSM = false;
                 opts.buttonVIIRSDNB = false;
                 opts.buttonOLCIefr = false;
@@ -78,6 +102,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                     opts.buttonNoaa = false;
                     opts.buttonGAC = false;
                     opts.buttonMetop = false;
+                    opts.buttonMetopAhrpt = false;
+                    opts.buttonMetopBhrpt = false;
+                    opts.buttonNoaa19hrpt = false;
+                    opts.buttonM01hrpt = false;
+                    opts.buttonM02hrpt = false;
+
                     opts.buttonVIIRSM = false;
                     opts.buttonVIIRSDNB = false;
                     opts.buttonOLCIefr = false;
@@ -91,6 +121,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                         opts.buttonGAC = false;
                         opts.buttonHRP = false;
                         opts.buttonMetop = false;
+                        opts.buttonMetopAhrpt = false;
+                        opts.buttonMetopBhrpt = false;
+                        opts.buttonNoaa19hrpt = false;
+                        opts.buttonM01hrpt = false;
+                        opts.buttonM02hrpt = false;
+
                         opts.buttonVIIRSM = false;
                         opts.buttonVIIRSDNB = false;
                         opts.buttonOLCIefr = false;
@@ -103,6 +139,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                             opts.buttonGAC = false;
                             opts.buttonHRP = false;
                             opts.buttonMetop = false;
+                            opts.buttonMetopAhrpt = false;
+                            opts.buttonMetopBhrpt = false;
+                            opts.buttonNoaa19hrpt = false;
+                            opts.buttonM01hrpt = false;
+                            opts.buttonM02hrpt = false;
+
                             opts.buttonRealTime = false;
                             opts.buttonVIIRSDNB = false;
                             opts.buttonOLCIefr = false;
@@ -117,6 +159,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                 opts.buttonGAC = false;
                                 opts.buttonHRP = false;
                                 opts.buttonMetop = false;
+                                opts.buttonMetopAhrpt = false;
+                                opts.buttonMetopBhrpt = false;
+                                opts.buttonNoaa19hrpt = false;
+                                opts.buttonM01hrpt = false;
+                                opts.buttonM02hrpt = false;
+
                                 opts.buttonRealTime = false;
                                 opts.buttonVIIRSM = false;
                                 opts.buttonOLCIefr = false;
@@ -131,6 +179,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                     opts.buttonGAC = false;
                                     opts.buttonHRP = false;
                                     opts.buttonMetop = false;
+                                    opts.buttonMetopAhrpt = false;
+                                    opts.buttonMetopBhrpt = false;
+                                    opts.buttonNoaa19hrpt = false;
+                                    opts.buttonM01hrpt = false;
+                                    opts.buttonM02hrpt = false;
+
                                     opts.buttonRealTime = false;
                                     opts.buttonVIIRSM = false;
                                     opts.buttonVIIRSDNB = false;
@@ -144,17 +198,131 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                         opts.buttonGAC = false;
                                         opts.buttonHRP = false;
                                         opts.buttonMetop = false;
+                                        opts.buttonMetopAhrpt = false;
+                                        opts.buttonMetopBhrpt = false;
+                                        opts.buttonNoaa19hrpt = false;
+                                        opts.buttonM01hrpt = false;
+                                        opts.buttonM02hrpt = false;
+
                                         opts.buttonRealTime = false;
                                         opts.buttonVIIRSM = false;
                                         opts.buttonVIIRSDNB = false;
                                         opts.buttonOLCIefr = false;
                                         formtoolbox->setTabWidgetIndex(TAB_OLCI);
                                     }
+                                    else
+                                        if (opts.buttonMetopAhrpt)
+                                        {
+                                            opts.buttonMetop = false;
+                                            opts.buttonNoaa = false;
+                                            opts.buttonGAC = false;
+                                            opts.buttonHRP = false;
+
+                                            opts.buttonMetopBhrpt = false;
+                                            opts.buttonNoaa19hrpt = false;
+                                            opts.buttonM01hrpt = false;
+                                            opts.buttonM02hrpt = false;
+
+                                            opts.buttonRealTime = false;
+                                            opts.buttonVIIRSM = false;
+                                            opts.buttonVIIRSDNB = false;
+                                            opts.buttonOLCIefr = false;
+                                            opts.buttonOLCIerr = false;
+                                            formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+                                        }
+                                        else
+                                            if (opts.buttonMetopBhrpt)
+                                            {
+                                                opts.buttonMetop = false;
+                                                opts.buttonNoaa = false;
+                                                opts.buttonGAC = false;
+                                                opts.buttonHRP = false;
+
+                                                opts.buttonMetopAhrpt = false;
+                                                opts.buttonNoaa19hrpt = false;
+                                                opts.buttonM01hrpt = false;
+                                                opts.buttonM02hrpt = false;
+
+                                                opts.buttonRealTime = false;
+                                                opts.buttonVIIRSM = false;
+                                                opts.buttonVIIRSDNB = false;
+                                                opts.buttonOLCIefr = false;
+                                                opts.buttonOLCIerr = false;
+                                                formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+                                            }
+                                            else
+                                                if (opts.buttonNoaa19hrpt)
+                                                {
+                                                    opts.buttonMetop = false;
+                                                    opts.buttonNoaa = false;
+                                                    opts.buttonGAC = false;
+                                                    opts.buttonHRP = false;
+
+                                                    opts.buttonMetopAhrpt = false;
+                                                    opts.buttonMetopBhrpt = false;
+                                                    opts.buttonM01hrpt = false;
+                                                    opts.buttonM02hrpt = false;
+
+                                                    opts.buttonRealTime = false;
+                                                    opts.buttonVIIRSM = false;
+                                                    opts.buttonVIIRSDNB = false;
+                                                    opts.buttonOLCIefr = false;
+                                                    opts.buttonOLCIerr = false;
+                                                    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+                                                }
+                                                else
+                                                    if (opts.buttonM01hrpt)
+                                                    {
+                                                        opts.buttonMetop = false;
+                                                        opts.buttonNoaa = false;
+                                                        opts.buttonGAC = false;
+                                                        opts.buttonHRP = false;
+
+                                                        opts.buttonMetopAhrpt = false;
+                                                        opts.buttonMetopBhrpt = false;
+                                                        opts.buttonNoaa19hrpt = false;
+                                                        opts.buttonM02hrpt = false;
+
+                                                        opts.buttonRealTime = false;
+                                                        opts.buttonVIIRSM = false;
+                                                        opts.buttonVIIRSDNB = false;
+                                                        opts.buttonOLCIefr = false;
+                                                        opts.buttonOLCIerr = false;
+                                                        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+                                                    }
+                                                    else
+                                                        if (opts.buttonM02hrpt)
+                                                        {
+                                                            opts.buttonMetop = false;
+                                                            opts.buttonNoaa = false;
+                                                            opts.buttonGAC = false;
+                                                            opts.buttonHRP = false;
+
+                                                            opts.buttonMetopAhrpt = false;
+                                                            opts.buttonMetopBhrpt = false;
+                                                            opts.buttonNoaa19hrpt = false;
+                                                            opts.buttonM01hrpt = false;
+
+                                                            opts.buttonRealTime = false;
+                                                            opts.buttonVIIRSM = false;
+                                                            opts.buttonVIIRSDNB = false;
+                                                            opts.buttonOLCIefr = false;
+                                                            opts.buttonOLCIerr = false;
+                                                            formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+                                                        }
+
+
 
     ui->btnMetop->setChecked(opts.buttonMetop);
     ui->btnNoaa->setChecked(opts.buttonNoaa);
     ui->btnGAC->setChecked(opts.buttonGAC);
     ui->btnHRP->setChecked(opts.buttonHRP);
+    ui->btnMetopAhrpt->setChecked(opts.buttonMetopAhrpt);
+    ui->btnMetopBhrpt->setChecked(opts.buttonMetopBhrpt);
+    ui->btnNoaa19hrpt->setChecked(opts.buttonNoaa19hrpt);
+    ui->btnM01hrpt->setChecked(opts.buttonM01hrpt);
+    ui->btnM02hrpt->setChecked(opts.buttonM02hrpt);
+
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
     ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
@@ -167,8 +335,14 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     connect( ui->btnNoaa, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnGAC, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnHRP, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnVIIRSM, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnVIIRSDNB, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    connect( ui->btnMetopAhrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    connect( ui->btnMetopBhrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    connect( ui->btnNoaa19hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    connect( ui->btnM01hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    connect( ui->btnM02hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+
+    //connect( ui->btnVIIRSM, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    //connect( ui->btnVIIRSDNB, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
 
     //connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(showSegmentList(int)));
     connect(mapcyl, SIGNAL(wheelChange(int)), this, SLOT(changeScrollBar(int)));
@@ -219,6 +393,12 @@ void FormMapCyl::showSegmentcount()
     int cntselolciefr = segs->seglolciefr->NbrOfSegmentsSelected();
     int cntselolcierr = segs->seglolcierr->NbrOfSegmentsSelected();
 
+    int cntselmetopAhrpt = segs->seglmetopAhrpt->NbrOfSegmentsSelected();
+    int cntselmetopBhrpt = segs->seglmetopBhrpt->NbrOfSegmentsSelected();
+    int cntselnoaa19hrpt = segs->seglnoaa19hrpt->NbrOfSegmentsSelected();
+    int cntselM02hrpt = segs->seglM02hrpt->NbrOfSegmentsSelected();
+    int cntselM01hrpt = segs->seglM01hrpt->NbrOfSegmentsSelected();
+
     int cntmetop = segs->seglmetop->NbrOfSegments();
     int cntnoaa = segs->seglnoaa->NbrOfSegments();
     int cnthrp = segs->seglhrp->NbrOfSegments();
@@ -228,8 +408,16 @@ void FormMapCyl::showSegmentcount()
     int cntolciefr = segs->seglolciefr->NbrOfSegments();
     int cntolcierr = segs->seglolcierr->NbrOfSegments();
 
-    long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb + cntolciefr + cntolcierr;
-    long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb + cntselolciefr + cntselolcierr;
+    int cntmetopAhrpt = segs->seglmetopAhrpt->NbrOfSegments();
+    int cntmetopBhrpt = segs->seglmetopBhrpt->NbrOfSegments();
+    int cntnoaa19hrpt = segs->seglnoaa19hrpt->NbrOfSegments();
+    int cntM02hrpt = segs->seglM02hrpt->NbrOfSegments();
+    int cntM01hrpt = segs->seglM01hrpt->NbrOfSegments();
+
+    long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb + cntolciefr + cntolcierr +
+            cntmetopAhrpt + cntmetopBhrpt + cntnoaa19hrpt + cntM01hrpt + cntM02hrpt;
+    long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb + cntselolciefr + cntselolcierr +
+            cntselmetopAhrpt + cntselmetopBhrpt + cntselnoaa19hrpt + cntselM01hrpt + cntselM02hrpt;
 
     if ( totsegsel  > 0)
     {
@@ -240,16 +428,23 @@ void FormMapCyl::showSegmentcount()
         ui->btnRemoveSelected->setText(" No selected segments ");
     }
 
-    ui->btnMetop->setText((QString("Metop tracks # %1/%2").arg(cntselmetop).arg(cntmetop)));
-    ui->btnNoaa->setText((QString("Noaa tracks # %1/%2").arg(cntselnoaa).arg(cntnoaa)));
-    ui->btnGAC->setText((QString("GAC tracks # %1/%2").arg(cntselgac).arg(cntgac)));
-    ui->btnHRP->setText((QString("HRP tracks # %1/%2").arg(cntselhrp).arg(cnthrp)));
+    ui->btnMetop->setText((QString(" Metop # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
+    ui->btnNoaa->setText((QString(" Noaa # %1/%2 ").arg(cntselnoaa).arg(cntnoaa)));
+    ui->btnGAC->setText((QString(" GAC # %1/%2 ").arg(cntselgac).arg(cntgac)));
+    ui->btnHRP->setText((QString(" HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
 
-    ui->btnVIIRSM->setText((QString("VIIRS M tracks # %1/%2").arg(cntselviirsm).arg(cntviirsm)));
-    ui->btnVIIRSDNB->setText((QString("VIIRS DNB tracks # %1/%2").arg(cntselviirsdnb).arg(cntviirsdnb)));
+    ui->btnVIIRSM->setText((QString(" VIIRS M # %1/%2 ").arg(cntselviirsm).arg(cntviirsm)));
+    ui->btnVIIRSDNB->setText((QString(" VIIRS DNB # %1/%2 ").arg(cntselviirsdnb).arg(cntviirsdnb)));
 
-    ui->btnOLCIefr->setText((QString("S3A OLCI EFR tracks # %1/%2").arg(cntselolciefr).arg(cntolciefr)));
-    ui->btnOLCIerr->setText((QString("S3A OLCI ERR tracks # %1/%2").arg(cntselolcierr).arg(cntolcierr)));
+    ui->btnOLCIefr->setText((QString(" OLCI EFR # %1/%2 ").arg(cntselolciefr).arg(cntolciefr)));
+    ui->btnOLCIerr->setText((QString(" OLCI ERR # %1/%2 ").arg(cntselolcierr).arg(cntolcierr)));
+
+    ui->btnMetopAhrpt->setText((QString(" Metop A # %1/%2 ").arg(cntselmetopAhrpt).arg(cntmetopAhrpt)));
+    ui->btnMetopBhrpt->setText((QString(" Metop B # %1/%2 ").arg(cntselmetopBhrpt).arg(cntmetopBhrpt)));
+    ui->btnNoaa19hrpt->setText((QString(" NOAA19 # %1/%2 ").arg(cntselnoaa19hrpt).arg(cntnoaa19hrpt)));
+    ui->btnM02hrpt->setText((QString(" Metop A # %1/%2 ").arg(cntselM02hrpt).arg(cntM02hrpt)));
+    ui->btnM01hrpt->setText((QString(" Metop B # %1/%2 ").arg(cntselM01hrpt).arg(cntM01hrpt)));
+
 
 
 }
@@ -290,6 +485,26 @@ void FormMapCyl::updatesatmap(int index)
         if (opts.buttonGAC)
         {
             segs->seglgac->ShowSegment(ui->verticalScrollBar->value());
+        }
+        if (opts.buttonMetopAhrpt)
+        {
+            segs->seglmetopAhrpt->ShowSegment(ui->verticalScrollBar->value());
+        }
+        if (opts.buttonMetopBhrpt)
+        {
+            segs->seglmetopBhrpt->ShowSegment(ui->verticalScrollBar->value());
+        }
+        if (opts.buttonNoaa19hrpt)
+        {
+            segs->seglnoaa19hrpt->ShowSegment(ui->verticalScrollBar->value());
+        }
+        if (opts.buttonM01hrpt)
+        {
+            segs->seglM01hrpt->ShowSegment(ui->verticalScrollBar->value());
+        }
+        if (opts.buttonM02hrpt)
+        {
+            segs->seglM02hrpt->ShowSegment(ui->verticalScrollBar->value());
         }
         if (opts.buttonVIIRSM)
         {
@@ -339,36 +554,7 @@ void FormMapCyl::updatesatmap(int index)
         {
             tit = "OLCI ERR ";
         }
-/*
-        switch(imagetab->GetChannelShown())
-        {
-        case 1:
-            tit += "Channel 1";
-            break;
-        case 2:
-            tit += "Channel 2";
-            break;
-        case 3:
-            tit += "Channel 3";
-            break;
-        case 4:
-            tit += "Channel 4";
-            break;
-        case 5:
-            tit += "Channel 5";
-            break;
-        case 6:
-            tit += "Color image";
-            break;
-        case 7:
-            tit = "Expanded Color image";
-            break;
-        }
 
-        qDebug() << QString("channelshown = %1").arg(imagetab->GetChannelShown());
-
-        tabWidget->setTabText(4, tit);
-*/
      }
 }
 
@@ -384,11 +570,23 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
     opts.buttonOLCIefr = segtype == eSegmentType::SEG_OLCIEFR ? true : false;
     opts.buttonOLCIerr = segtype == eSegmentType::SEG_OLCIERR ? true : false;
     opts.buttonRealTime = segtype == eSegmentType::SEG_NONE ? true : false;
+    opts.buttonMetopAhrpt = segtype == eSegmentType::SEG_HRPT_METOPA ? true : false;
+    opts.buttonMetopBhrpt = segtype == eSegmentType::SEG_HRPT_METOPB ? true : false;
+    opts.buttonNoaa19hrpt = segtype == eSegmentType::SEG_HRPT_NOAA19 ? true : false;
+    opts.buttonM01hrpt = segtype == eSegmentType::SEG_HRPT_M01 ? true : false;
+    opts.buttonM02hrpt = segtype == eSegmentType::SEG_HRPT_M02 ? true : false;
 
     ui->btnMetop->setChecked(opts.buttonMetop);
     ui->btnNoaa->setChecked(opts.buttonNoaa);
     ui->btnGAC->setChecked(opts.buttonGAC);
     ui->btnHRP->setChecked(opts.buttonHRP);
+
+    ui->btnMetopAhrpt->setChecked(opts.buttonMetopAhrpt);
+    ui->btnMetopBhrpt->setChecked(opts.buttonMetopBhrpt);
+    ui->btnNoaa19hrpt->setChecked(opts.buttonNoaa19hrpt);
+    ui->btnM01hrpt->setChecked(opts.buttonM01hrpt);
+    ui->btnM02hrpt->setChecked(opts.buttonM02hrpt);
+
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
     ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
@@ -428,6 +626,31 @@ void FormMapCyl::setScrollBarMaximum()
     {
         ui->verticalScrollBar->setMaximum(segs->seglgac->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum GAC = %1").arg(segs->seglgac->NbrOfSegments());
+    }
+    else if (opts.buttonMetopAhrpt)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglmetopAhrpt->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum hrpt Metop A = %1").arg(segs->seglmetopAhrpt->NbrOfSegments());
+    }
+    else if (opts.buttonMetopBhrpt)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglmetopBhrpt->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum hrpt Metop B = %1").arg(segs->seglmetopBhrpt->NbrOfSegments());
+    }
+    else if (opts.buttonNoaa19hrpt)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglnoaa19hrpt->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum hrpt noaa19 = %1").arg(segs->seglnoaa19hrpt->NbrOfSegments());
+    }
+    else if (opts.buttonM01hrpt)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglM01hrpt->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum hrpt M01 = %1").arg(segs->seglM01hrpt->NbrOfSegments());
+    }
+    else if (opts.buttonM02hrpt)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglM02hrpt->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum hrpt M02 = %1").arg(segs->seglM02hrpt->NbrOfSegments());
     }
     else if (opts.buttonVIIRSM)
     {
@@ -495,6 +718,46 @@ void FormMapCyl::showSegmentList(int value)
         nbrseg = segs->seglgac->NbrOfSegments();
 
         outp = QString("GAC From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    if(opts.buttonMetopAhrpt)
+    {
+        segs->seglmetopAhrpt->ShowSegment(value);
+        segs->seglmetopAhrpt->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglmetopAhrpt->NbrOfSegments();
+
+        outp = QString("Metop A HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    if(opts.buttonMetopBhrpt)
+    {
+        segs->seglmetopBhrpt->ShowSegment(value);
+        segs->seglmetopBhrpt->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglmetopBhrpt->NbrOfSegments();
+
+        outp = QString("Metop B HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    if(opts.buttonNoaa19hrpt)
+    {
+        segs->seglnoaa19hrpt->ShowSegment(value);
+        segs->seglnoaa19hrpt->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglnoaa19hrpt->NbrOfSegments();
+
+        outp = QString("Noaa19 HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    if(opts.buttonM01hrpt)
+    {
+        segs->seglM01hrpt->ShowSegment(value);
+        segs->seglM01hrpt->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglM01hrpt->NbrOfSegments();
+
+        outp = QString("M01 HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    if(opts.buttonM02hrpt)
+    {
+        segs->seglM02hrpt->ShowSegment(value);
+        segs->seglM02hrpt->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglM02hrpt->NbrOfSegments();
+
+        outp = QString("M02 HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
     else if(opts.buttonVIIRSM)
     {
@@ -648,6 +911,43 @@ void FormMapCyl::on_btnGAC_clicked()
     this->setScrollBarMaximum();
 }
 
+void FormMapCyl::on_btnMetopAhrpt_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    toggleButton(eSegmentType::SEG_HRPT_METOPA);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+}
+
+void FormMapCyl::on_btnMetopBhrpt_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    toggleButton(eSegmentType::SEG_HRPT_METOPB);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+}
+void FormMapCyl::on_btnNoaa19hrpt_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    toggleButton(eSegmentType::SEG_HRPT_NOAA19);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+}
+void FormMapCyl::on_btnM01hrpt_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    toggleButton(eSegmentType::SEG_HRPT_M01);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+}
+void FormMapCyl::on_btnM02hrpt_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    toggleButton(eSegmentType::SEG_HRPT_M02);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+}
+
 void FormMapCyl::on_btnRealTime_clicked()
 {
     toggleButton(eSegmentType::SEG_NONE);
@@ -728,6 +1028,7 @@ void FormMapCyl::on_btnPhong_clicked()
 
     opts.buttonPhong = ui->btnPhong->isChecked();
 }
+
 
 
 
