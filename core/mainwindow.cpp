@@ -501,9 +501,6 @@ void MainWindow::on_actionImage_triggered()
     if(index == TAB_HISTOGRAM)
         return;
 
-    qDebug() << " MainWindow::on_actionImage_triggered() index = " << index;
-
-
     if(index == -1 || index == TAB_AVHRR)
     {
         formimage->displayImage(IMAGE_AVHRR_COL);
@@ -529,6 +526,7 @@ void MainWindow::on_actionImage_triggered()
     ui->actionCylindricalEquidistant->setChecked(false);
     ui->action3DGlobe->setChecked(false);
 
+    qDebug() << " MainWindow::on_actionImage_triggered() einde";
 
 
 }

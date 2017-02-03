@@ -245,6 +245,11 @@ void FormImage::displayImage(eImageType channel)
 
     g_mutex.lock();
 
+//    QImage myim(100, 100, QImage::Format_ARGB32);
+//    myim.fill(Qt::red);
+//    imageLabel->setPixmap(QPixmap::fromImage( myim ));
+
+
     switch(channelshown)
     {
     case IMAGE_AVHRR_CH1:
@@ -871,6 +876,7 @@ void FormImage::zoomOverlaySwitch()
 
 void FormImage::paintEvent( QPaintEvent * )
 {
+    qDebug() << "FormImage::paintEvent( QPaintEvent * ) 1";
     if (imageLabel->pixmap() == 0)
         return;
 
@@ -901,6 +907,8 @@ void FormImage::paintEvent( QPaintEvent * )
         displayVIIRSImageInfo();
     if(channelshown == IMAGE_OLCI)
         displayOLCIImageInfo();
+
+    qDebug() << "FormImage::paintEvent( QPaintEvent * ) 2";
 
     if(segs->seglmeteosat->bActiveSegmentList == true)
     {
@@ -952,6 +960,8 @@ void FormImage::paintEvent( QPaintEvent * )
     }
     else
         return;
+
+    qDebug() << "FormImage::paintEvent( QPaintEvent * ) 3";
 
 
     if(channelshown == IMAGE_GEOSTATIONARY)

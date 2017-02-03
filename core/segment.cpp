@@ -1029,6 +1029,7 @@ void Segment::ComposeSegmentImage()
 
     int half_earth_views = earth_views_per_scanline / 2;
 
+
     for (int line = 0; line < this->NbrOfLines; line++)
     {
 
@@ -1038,6 +1039,8 @@ void Segment::ComposeSegmentImage()
         row_ch[3] = (QRgb*)imageptrs->ptrimagecomp_ch[3]->scanLine(startheight + line);
         row_ch[4] = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(startheight + line);
         row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(startheight + line);
+
+        g_mutex.lock(); // see FormImage::displayImage(eImageType channel) for the mutex
 
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
@@ -1101,6 +1104,8 @@ void Segment::ComposeSegmentImage()
 
 
         }
+
+        g_mutex.unlock();
 
         if(opts.imageontextureOnAVHRR)
         {
