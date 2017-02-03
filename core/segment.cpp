@@ -991,6 +991,7 @@ void Segment::RenderSegmentInTexture(int channel, int nbrTotalLine)
 
 void Segment::ComposeSegmentImage()
 {
+
     QRgb *row_ch[5];
     QRgb *row_col;
     quint16 pixel[5];
@@ -1030,6 +1031,7 @@ void Segment::ComposeSegmentImage()
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
+
         row_ch[0] = (QRgb*)imageptrs->ptrimagecomp_ch[0]->scanLine(startheight + line);
         row_ch[1] = (QRgb*)imageptrs->ptrimagecomp_ch[1]->scanLine(startheight + line);
         row_ch[2] = (QRgb*)imageptrs->ptrimagecomp_ch[2]->scanLine(startheight + line);
@@ -1044,14 +1046,11 @@ void Segment::ComposeSegmentImage()
                 pixel[k] = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
                 R_value = imageptrs->lut_ch[k][pixel[k]]/4;
                 if (inverse.at(k) == "1")
-                    //row_ch[k][pixelx] = qRgb(255 - (pixel[k]/4), 255 - (pixel[k]/4), 255 - (pixel[k]/4));
                     row_ch[k][pixelx] = qRgb(255 - R_value, 255 - R_value, 255 - R_value);
                 else
                 {
-                    //row_ch[k][pixelx] = qRgb(pixel[k]/4, pixel[k]/4, pixel[k]/4);
                     row_ch[k][pixelx] = qRgb(R_value, R_value, R_value);
                 }
-
             }
 
             //int B = (int)(imageptrs->lut_ch[0][pixel[0]]/4);
@@ -1100,7 +1099,9 @@ void Segment::ComposeSegmentImage()
             else
                 row_col[pixelx] = qRgb(R_value, G_value, B_value);
 
+
         }
+
         if(opts.imageontextureOnAVHRR)
         {
             this->RenderSegmentlineInTexture( opts.channelontexture, line, startheight + line );

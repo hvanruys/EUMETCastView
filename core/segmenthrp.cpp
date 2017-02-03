@@ -455,7 +455,7 @@ void SegmentHRP::ComposeProjection(int inputchannel, eProjections proj)
     double epow3 = e * e * e;
 
     double epochcorrection = 0;
-    double yawcorrection = 0.02;
+    double yawcorrection = 0;
 
     for (int nbrLine = 0; nbrLine < this->NbrOfLines; nbrLine++)
     {
@@ -473,7 +473,7 @@ void SegmentHRP::ComposeProjection(int inputchannel, eProjections proj)
         double yaw_factor = 0.068766 * cos(PSO);
         double yaw = yaw_factor * (1 - yaw_factor * yaw_factor/3);
 
-        roll *= 2;
+        //roll *= 2;
 
         if( nbrLine == 0 || nbrLine == this->NbrOfLines - 1)
             qDebug() << QString("nbrline = %1 Pitch = %2  Roll = %3 Yaw = %4").arg(nbrLine).arg(pitch).arg(roll).arg(yaw);

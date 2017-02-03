@@ -222,14 +222,14 @@ void SegmentImage::InitializeAVHRRImages( int imagewidth, int imageheight) // , 
 {
     qDebug() << "voor initializeimages";
 
-    for(int k = 0; k < 5; k++)
-    {
-        if(ptrimagecomp_ch[k] != NULL)
-            delete ptrimagecomp_ch[k];
-    }
+//    for(int k = 0; k < 5; k++)
+//    {
+//        if(ptrimagecomp_ch[k] != NULL)
+//            delete ptrimagecomp_ch[k];
+//    }
 
-    if(ptrimagecomp_col != NULL)
-        delete ptrimagecomp_col;
+//    if(ptrimagecomp_col != NULL)
+//        delete ptrimagecomp_col;
 
     qDebug() << QString("Total nbr of pixels = %1").arg(imagewidth*imageheight);
 

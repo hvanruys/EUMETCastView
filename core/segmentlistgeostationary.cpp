@@ -10,6 +10,7 @@
 #else
 #include <hdf5/serial/hdf5.h>
 #endif
+#include <netcdf.h>
 
 #include "MSG_HRIT.h"
 #include <QMutex>
@@ -79,14 +80,21 @@ void doComposeGeostationaryXRITHimawari(SegmentListGeostationary *sm, QString se
     sm->ComposeSegmentImageXRITHimawari(segment_path, channelindex, spectrumvector, inversevector);
 }
 
+/*
 void doComposeGeostationaryHDF(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
     sm->ComposeSegmentImageHDF(segment_path, channelindex, spectrumvector, inversevector);
 }
+*/
 
 void doComposeGeostationaryHDFInThread(SegmentListGeostationary *sm, QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
     sm->ComposeSegmentImageHDFInThread(filelist, spectrumvector, inversevector);
+}
+
+void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm, QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector)
+{
+    sm->ComposeSegmentImagenetCDFInThread(strlist, spectrumvector, inversevector);
 }
 
 
@@ -246,10 +254,22 @@ bool SegmentListGeostationary::ComposeImageHDFInThread(QStringList strlist, QVec
     return true;
 }
 
+bool SegmentListGeostationary::ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector)
+{
+
+    qDebug() << QString("SegmentListGeostationary::ComposeImagenetCDFInThread spectrumvector = %2 %3 %4").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
+
+    QApplication::setOverrideCursor(( Qt::WaitCursor));
+    QFuture<void> future = QtConcurrent::run(doComposeGeostationarynetCDFInThread, this, strlist, spectrumvector, inversevector);
+    watcherRed[0].setFuture(future);
+
+    return true;
+}
+
+/*
 bool SegmentListGeostationary::ComposeImageHDFSerial(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
 
-    //"Z_SATE_C_BABJ_20150809101500_O_FY2E_FDI_IR1_001_NOM.HDF.gz"
     int filesequence = 1;
     QString filespectrum = fileinfo.fileName().mid(40, 3);
     QString filedate = fileinfo.fileName().mid(14, 12);
@@ -287,11 +307,13 @@ bool SegmentListGeostationary::ComposeImageHDFSerial(QFileInfo fileinfo, QVector
 
     return true;
 }
+*/
+
 
 void SegmentListGeostationary::InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence)
 {
     qDebug() << QString("InsertPresent ; spectrum %1 %2 %3    filespectrum  %4  fileseq %5").arg(spectrumvector[0]).arg(spectrumvector[1]).arg(spectrumvector[2]).arg(filespectrum).arg(filesequence);
-    if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8 || m_GeoSatellite == H8)
+    if(m_GeoSatellite == MET_10 || m_GeoSatellite == MET_9 || m_GeoSatellite == MET_8 || m_GeoSatellite == H8 || m_GeoSatellite == GOES_16)
     {
         if(spectrumvector.at(0) == filespectrum)
         {
@@ -1135,6 +1157,7 @@ void SegmentListGeostationary::recalcHimawari()
 
 }
 
+/*
 void SegmentListGeostationary::ComposeSegmentImageHDF( QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector )
 {
 
@@ -1389,6 +1412,7 @@ void SegmentListGeostationary::ComposeSegmentImageHDF( QFileInfo fileinfo, int c
     emit imagefinished();
 
 }
+*/
 
 void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector )
 {
@@ -1651,7 +1675,63 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
         H5Fclose(h5_file_id[j]);
     }
 
-    emit imagefinished();
+    //emit imagefinished();
+
+}
+
+void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector )
+{
+
+    QString ncfile[3];
+    QByteArray arrayncfile[3];
+    const char* pncfile[3];
+    int ncfileid[3];
+    int retval;
+
+    for(int i = 0; i < filelist.length(); i++)
+        qDebug() << "in thread strlist = " << filelist.at(i);
+
+    QImage *im;
+    QStringList outfilename;
+
+    im = imageptrs->ptrimageGeostationary;
+
+    for(int j = 0; j < filelist.size(); j++)
+    {
+        ncfile[j] = this->getImagePath() + "/" + filelist.at(j);
+        arrayncfile[j] = ncfile[j].toUtf8();
+        pncfile[j] = arrayncfile[j].constData();
+
+        qDebug() << "Starting netCDF file " + ncfile[j];
+        retval = nc_open(pncfile[j], NC_NOWRITE, &ncfileid[j]);
+        if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << filelist.at(j);
+
+        retval = nc_close(ncfileid[j]);
+        if (retval != NC_NOERR) qDebug() << "error closing file1";
+
+    }
+
+//    QStringList DatasetName;
+
+//    if(kindofimage == "VIS_IR")
+//    {
+//        imageptrs->ptrRed[0] = new quint16[2288 * 2288];
+//        memset(imageptrs->ptrRed[0], 0, 2288 * 2288 * sizeof(quint16));
+//        DatasetName.append("/NOMChannel" + filelist.at(0).mid(40, 3));
+//    }
+//    else if(kindofimage == "VIS_IR Color")
+//    {
+//        imageptrs->ptrRed[0] = new quint16[2288 * 2288];
+//        memset(imageptrs->ptrRed[0], 0, 2288 * 2288 * sizeof(quint16));
+//        DatasetName.append("/NOMChannel" + filelist.at(0).mid(40, 3));
+//        imageptrs->ptrGreen[0] = new quint16[2288 * 2288];
+//        memset(imageptrs->ptrGreen[0], 0, 2288 * 2288 * sizeof(quint16));
+//        DatasetName.append("/NOMChannel" + filelist.at(1).mid(40, 3));
+//        imageptrs->ptrBlue[0] = new quint16[2288 * 2288];
+//        memset(imageptrs->ptrBlue[0], 0, 2288 * 2288 * sizeof(quint16));
+//        DatasetName.append("/NOMChannel" + filelist.at(2).mid(40, 3));
+//    }
+
 
 }
 

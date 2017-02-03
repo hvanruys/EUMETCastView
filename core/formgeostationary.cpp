@@ -203,7 +203,6 @@ QStringList FormGeostationary::getGeostationarySegments(SegmentListGeostationary
                 QString st = *itc;
                 //qDebug() << "getGeostationarySegments in " << st;
                 //if(meteosatdir.match(filepattern, *itc))
-
                 //qDebug() << "meteosatdir.match => " << st << " pattern = " << filepattern;
 
                 if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
@@ -216,6 +215,14 @@ QStringList FormGeostationary::getGeostationarySegments(SegmentListGeostationary
                     {
                         QString spectrum = st.mid(8, 3);
                         strlistout.append(*itc);
+                    }
+                } else if(whichgeo == SegmentListGeostationary::GOES_16)
+                {
+                    //01234567890123456789012345678901234567890123456789
+                    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+                    if(meteosatdir.match(filepattern, st) && (st.mid(18, 3) == spectrumvector.at(0) || st.mid(18, 3) == spectrumvector.at(1) || st.mid(18, 3) == spectrumvector.at(2)))
+                    {
+                        strlistout.append(st);
                     }
                 }
                 else
@@ -1105,7 +1112,7 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglfy2g->bActiveSegmentList = false;
         segs->seglh8->bActiveSegmentList = false;
 
-        tex = (*treewidgetselectedgoes15dc4[0]).text(0);
+        tex = (*treewidgetselectedgoes16[0]).text(0);
         formtoolbox->createFilenamestring("GOES-16", tex, spectrumvector);
     }
     else if(treewidgetselectedfy2e.size() > 0)
@@ -1220,6 +1227,8 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
 
     if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
         CreateGeoImageHDF(sl, type, tex, spectrumvector, inversevector);
+    else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_16)
+        CreateGeoImagenetCDF(sl, type, tex, spectrumvector, inversevector);
     else
         CreateGeoImageXRIT(sl, type, tex, spectrumvector, inversevector);
 
@@ -1609,6 +1618,52 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
 
 }
 
+void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector)
+{
+//    QString filepath = "OR_ABI" + tex;
+//    if(type == "VIS_IR")
+//    {
+//        sl->ComposeImagenetCDFInThread(filepath, spectrumvector, inversevector);
+//    }
+
+
+    QString filetiming;
+    QString filedate;
+    QStringList llVIS_IR;
+    QString filepattern;
+
+    SegmentListGeostationary::eGeoSatellite whichgeo = sl->getGeoSatellite();
+
+    sl->COFF = COFF_NONHRV_GOES16;
+    sl->LOFF = LOFF_NONHRV_GOES16;
+    sl->CFAC = CFAC_NONHRV_GOES16;
+    sl->LFAC = LFAC_NONHRV_GOES16;
+
+    qDebug() << "====> tex = " << tex;
+
+    filetiming = tex.mid(0, 4) + tex.mid(8, 2) + tex.mid(5, 2);
+    filedate = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2);
+
+    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+    //01234567890123456789012345678901234567890123456789
+    if(whichgeo == SegmentListGeostationary::GOES_16 && (type == "VIS_IR" || type == "VIS_IR Color"))
+        filepattern = QString("OR_ABI-L1b-RadF-M4???_G16_s") + filetiming + QString("*.nc");
+    else
+        return;
+
+    sl->InsertPresent( spectrumvector, "", 0);
+
+    if(type == "VIS_IR" || type == "VIS_IR Color")
+    {
+        llVIS_IR = this->getGeostationarySegments(whichgeo, "VIS_IR", sl->getImagePath(), spectrumvector, filepattern);
+        qDebug() << QString("llVIS_IR count = %1").arg(llVIS_IR.count());
+        for (int j =  0; j < llVIS_IR.size(); ++j)
+        {
+            qDebug() << QString("llVIS_IR at %1 = %2 spectrumvector = %3").arg(j).arg(llVIS_IR.at(j)).arg(spectrumvector.at(j));
+        }
+        sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector);
+    }
+}
 
 void FormGeostationary::setTreeWidget(QTreeWidget *widget, bool state)
 {
@@ -1622,316 +1677,148 @@ void FormGeostationary::setTreeWidget(QTreeWidget *widget, bool state)
     }
 }
 
-void FormGeostationary::on_SegmenttreeWidget_itemClicked(QTreeWidgetItem *item, int column)
+void FormGeostationary::SelectGeoWidgetItem(SegmentListGeostationary::eGeoTreeWidget geowidget, QTreeWidgetItem *item, int column )
 {
 
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
+    SegmentListGeostationary::eGeoSatellite geosat;
+    QString geostring;
 
-    qDebug() << "MET-10 " + (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
+    if ( !item )
+          return;
+
+    setTreeWidget(ui->SegmenttreeWidget, geowidget == SegmentListGeostationary::TREEWIDGET_MET_10 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetRSS, geowidget == SegmentListGeostationary::TREEWIDGET_MET_9 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetMet8, geowidget == SegmentListGeostationary::TREEWIDGET_MET_8 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetMet7, geowidget == SegmentListGeostationary::TREEWIDGET_MET_7 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, geowidget == SegmentListGeostationary::TREEWIDGET_GOES_13DC3 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, geowidget == SegmentListGeostationary::TREEWIDGET_GOES_15DC3 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, geowidget == SegmentListGeostationary::TREEWIDGET_GOES_13DC4 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, geowidget == SegmentListGeostationary::TREEWIDGET_GOES_15DC4 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetGOES16, geowidget == SegmentListGeostationary::TREEWIDGET_GOES_16 ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetFY2E, geowidget == SegmentListGeostationary::TREEWIDGET_FY2E ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetFY2G, geowidget == SegmentListGeostationary::TREEWIDGET_FY2G ? true : false);
+    setTreeWidget(ui->SegmenttreeWidgetH8, geowidget == SegmentListGeostationary::TREEWIDGET_H8 ? true : false);
+
+    switch(geowidget)
+    {
+    case SegmentListGeostationary::TREEWIDGET_MET_10:
+        geosat = SegmentListGeostationary::MET_10;
+        geostring = "MET-10";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_MET_9:
+        geosat = SegmentListGeostationary::MET_9;
+        geostring = "MET-9";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_MET_8:
+        geosat = SegmentListGeostationary::MET_8;
+        geostring = "MET-8";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_MET_7:
+        geosat = SegmentListGeostationary::MET_7;
+        geostring = "MET7";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_GOES_13DC3:
+        geosat = SegmentListGeostationary::GOES_13;
+        geostring = "GOES-13";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_GOES_13DC4:
+        geosat = SegmentListGeostationary::GOES_13;
+        geostring = "GOES-13";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_GOES_15DC3:
+        geosat = SegmentListGeostationary::GOES_15;
+        geostring = "GOES-15";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_GOES_15DC4:
+        geosat = SegmentListGeostationary::GOES_15;
+        geostring = "GOES-15";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_GOES_16:
+        geosat = SegmentListGeostationary::GOES_16;
+        geostring = "GOES-16";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_FY2E:
+        geosat = SegmentListGeostationary::FY2E;
+        geostring = "FY2E";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_FY2G:
+        geosat = SegmentListGeostationary::FY2G;
+        geostring = "FY2G";
+        break;
+    case SegmentListGeostationary::TREEWIDGET_H8:
+        geosat = SegmentListGeostationary::H8;
+        geostring = "H8";
+        break;
+    }
+
+    qDebug() << geostring + " " + (*item).text(0);
 
     segs->seglmeteosat->setKindofImage("");
 
-    if ( !item )
-          return;
-
     QStringList tex;
-    tex << "MET-10";
+    tex << geostring;
     for(int i = 0; i < item->columnCount(); i++)
         tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::MET_10, tex);
+    emit geostationarysegmentschosen(geosat, tex);
+
 }
 
-
-
-
+void FormGeostationary::on_SegmenttreeWidget_itemClicked(QTreeWidgetItem *item, int column)
+{
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_MET_10, item, column);
+}
 
 void FormGeostationary::on_SegmenttreeWidgetRSS_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    segs->seglmeteosatrss->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    qDebug() << "MET-9 " << (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
-    QStringList tex;
-    tex << "MET-9";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::MET_9, tex);
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_MET_9, item, column);
 }
 
 void FormGeostationary::on_SegmenttreeWidgetMet8_itemClicked(QTreeWidgetItem *item, int column)
 {
-
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    qDebug() << "MET-8 " + (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
-
-    segs->seglmet8->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    QStringList tex;
-    tex << "MET-8";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::MET_8, tex);
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_MET_8, item, column);
 }
-
-
 
 void FormGeostationary::on_SegmenttreeWidgetMet7_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    segs->seglmet7->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    qDebug() << "MET-7 " << (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
-    QStringList tex;
-    tex << "MET-7";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::MET_7, tex);
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_MET_7, item, column);
 }
 
 void FormGeostationary::on_SegmenttreeWidgetGOES13dc3_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    segs->seglgoes13dc3->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    qDebug() << "GOES-13 " << (*item).text(0) << ";" << (*item).text(1) << ";" <<  (*item).text(2) << ";" << (*item).text(3) << ";" << (*item).text(4) << ";" << (*item).text(4);
-    QStringList tex;
-    tex << "GOES-13";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::GOES_13, tex);
-
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_GOES_13DC3, item, column);
 }
 
 void FormGeostationary::on_SegmenttreeWidgetGOES15dc3_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    segs->seglgoes15dc3->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    qDebug() << "GOES-15 " << (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
-    QStringList tex;
-    tex << "GOES-15";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::GOES_15, tex);
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_GOES_15DC3, item, column);
 }
-
-
 
 void FormGeostationary::on_SegmenttreeWidgetGOES13dc4_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    segs->seglgoes13dc4->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    qDebug() << "GOES-13 " << (*item).text(0) << ";" << (*item).text(1) << ";" <<  (*item).text(2) << ";" << (*item).text(3) << ";" << (*item).text(4) << ";" << (*item).text(4);
-    QStringList tex;
-    tex << "GOES-13";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::GOES_13, tex);
-
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_GOES_13DC4, item, column);
 }
 
 void FormGeostationary::on_SegmenttreeWidgetGOES15dc4_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    segs->seglgoes15dc4->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    qDebug() << "GOES-15 " << (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
-    QStringList tex;
-    tex << "GOES-15";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::GOES_15, tex);
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_GOES_15DC4, item, column);
 }
 
+void FormGeostationary::on_SegmenttreeWidgetGOES16_itemClicked(QTreeWidgetItem *item, int column)
+{
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_GOES_16, item, column);
+}
 
 void FormGeostationary::on_SegmenttreeWidgetFY2E_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    qDebug() << "FY2E " + (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
-
-    segs->seglfy2e->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    QStringList tex;
-    tex << "FY2E";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::FY2E, tex);
-
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_FY2E, item, column);
 }
 
 void FormGeostationary::on_SegmenttreeWidgetFY2G_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetH8, false);
-
-    qDebug() << "FY2G " + (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
-
-    segs->seglfy2g->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    QStringList tex;
-    tex << "FY2G";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::FY2G, tex);
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_FY2G, item, column);
 }
 
 void FormGeostationary::on_SegmenttreeWidgetH8_itemClicked(QTreeWidgetItem *item, int column)
 {
-    setTreeWidget(ui->SegmenttreeWidget, false);
-    setTreeWidget(ui->SegmenttreeWidgetRSS, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet8, false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetGOES15dc4, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2E, false);
-    setTreeWidget(ui->SegmenttreeWidgetFY2G, false);
-
-    qDebug() << "H8 " + (*item).text(0);  // << "  " << (*item).text(1); // << item->text(1).toInt(&ok, 10);
-
-    segs->seglh8->setKindofImage("");
-
-    if ( !item )
-          return;
-
-    QStringList tex;
-    tex << "H8";
-    for(int i = 0; i < item->columnCount(); i++)
-        tex << (*item).text(i);
-    emit geostationarysegmentschosen(SegmentListGeostationary::H8, tex);
-
+    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_H8, item, column);
 }

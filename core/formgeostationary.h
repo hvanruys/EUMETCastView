@@ -30,6 +30,8 @@ public:
     //int GetChannelIndex();
     void setTreeWidget(QTreeWidget *widget, bool state);
     void SetFormImage(FormImage *p_formimage) { formimage = p_formimage; }
+    void SelectGeoWidgetItem(SegmentListGeostationary::eGeoTreeWidget geosat, QTreeWidgetItem *item, int column );
+
     ~FormGeostationary();
 
 private:
@@ -38,6 +40,7 @@ private:
     void PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite whichgeo, QMap<QString, QMap<QString, QMap<int, QFileInfo> > > map, QTreeWidget *widget);
     void CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
 
     Ui::FormGeostationary *ui;
     AVHRRSatellite *segs;
@@ -67,6 +70,8 @@ private slots:
     void on_SegmenttreeWidgetGOES13dc4_itemClicked(QTreeWidgetItem *item, int column);
 
     void on_SegmenttreeWidgetGOES15dc4_itemClicked(QTreeWidgetItem *item, int column);
+
+    void on_SegmenttreeWidgetGOES16_itemClicked(QTreeWidgetItem *item, int column);
 
     void on_SegmenttreeWidgetFY2E_itemClicked(QTreeWidgetItem *item, int column);
 

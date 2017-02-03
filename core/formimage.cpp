@@ -209,44 +209,39 @@ void FormImage::displayImage(eImageType channel)
 
     this->channelshown = channel;
 
-//    switch(channelshown)
-//    {
-//    case IMAGE_AVHRR_CH1:
-//    case IMAGE_AVHRR_CH2:
-//    case IMAGE_AVHRR_CH3:
-//    case IMAGE_AVHRR_CH4:
-//    case IMAGE_AVHRR_CH5:
-//    case IMAGE_AVHRR_COL:
-//         if(imageptrs->ptrimagecomp_ch[0]->byteCount() == 0)
-//         {
-//             return;
-//         }
-//        break;
-//    case IMAGE_VIIRS_M:
-//         if(imageptrs->ptrimageViirsM->byteCount() == 0)
-//         {
-//             return;
-//         }
-//        break;
-//    case IMAGE_VIIRS_DNB:
-//         if(imageptrs->ptrimageViirsDNB->byteCount() == 0)
-//         {
-//             return;
-//         }
-//        break;
-//    case IMAGE_OLCI_EFR:
-//         if(imageptrs->ptrimageOLCIefr->byteCount() == 0)
-//         {
-//             return;
-//         }
-//        break;
-//    case IMAGE_OLCI_ERR:
-//         if(imageptrs->ptrimageOLCIerr->byteCount() == 0)
-//         {
-//             return;
-//         }
-//        break;
-//    }
+
+    switch(channelshown)
+    {
+    case IMAGE_AVHRR_CH1:
+    case IMAGE_AVHRR_CH2:
+    case IMAGE_AVHRR_CH3:
+    case IMAGE_AVHRR_CH4:
+    case IMAGE_AVHRR_CH5:
+    case IMAGE_AVHRR_COL:
+         if(imageptrs->ptrimagecomp_ch[0]->byteCount() == 0)
+         {
+             return;
+         }
+        break;
+    case IMAGE_VIIRS_M:
+         if(imageptrs->ptrimageViirsM->byteCount() == 0)
+         {
+             return;
+         }
+        break;
+    case IMAGE_VIIRS_DNB:
+         if(imageptrs->ptrimageViirsDNB->byteCount() == 0)
+         {
+             return;
+         }
+        break;
+    case IMAGE_OLCI:
+         if(imageptrs->ptrimageOLCI->byteCount() == 0)
+         {
+             return;
+         }
+        break;
+    }
 
     g_mutex.lock();
 
@@ -268,7 +263,7 @@ void FormImage::displayImage(eImageType channel)
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
         break;
     case IMAGE_AVHRR_COL:
-        imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_col)));
         break;
     case IMAGE_AVHRR_EXPAND:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
@@ -293,12 +288,12 @@ void FormImage::displayImage(eImageType channel)
 
     this->update();
     this->adjustImage();
+
     g_mutex.unlock();
 
     refreshoverlay = true;
 
     qDebug() << QString("after FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
-
 
 }
 
@@ -352,6 +347,13 @@ void FormImage::ComposeImage()
     qDebug() << QString("in FormImage::ComposeImage nbr of noaa segments selected = %1").arg(noaacount);
     qDebug() << QString("in FormImage::ComposeImage nbr of hrp segments selected = %1").arg(hrpcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of gac segments selected = %1").arg(gaccount);
+
+    qDebug() << QString("in FormImage::ComposeImage nbr of metopAhrpt segments selected = %1").arg(metopAhrptcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of metopBhrpt segments selected = %1").arg(metopBhrptcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of noaa19hrpt segments selected = %1").arg(noaa19hrptcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of M01hrpt segments selected = %1").arg(M01hrptcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of M02hrpt segments selected = %1").arg(M02hrptcount);
+
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsm segments selected = %1").arg(viirsmcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnb segments selected = %1").arg(viirsdnbcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of olciefr segments selected = %1").arg(olciefrcount);
@@ -362,8 +364,6 @@ void FormImage::ComposeImage()
     {
         if (metopcount + noaacount + hrpcount + gaccount + metopAhrptcount + metopBhrptcount + noaa19hrptcount + M01hrptcount + M02hrptcount > 0)
         {
-            displayImage(IMAGE_AVHRR_COL);
-
             if (metopcount > 0 && opts.buttonMetop)
             {
                 formtoolbox->setToolboxButtons(false);
@@ -555,7 +555,6 @@ void FormImage::ComposeImage()
         bandlist = formtoolbox->getOLCIBandList();
         colorlist = formtoolbox->getOLCIColorList();
         invertlist = formtoolbox->getOLCIInvertList();
-
 
         //          in Workerthread
         segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
@@ -934,6 +933,10 @@ void FormImage::paintEvent( QPaintEvent * )
     else if(segs->seglgoes15dc4->bActiveSegmentList == true)
     {
         sl = segs->seglgoes15dc4;
+    }
+    else if(segs->seglgoes16->bActiveSegmentList == true)
+    {
+        sl = segs->seglgoes16;
     }
     else if(segs->seglfy2e->bActiveSegmentList == true)
     {
@@ -1344,10 +1347,10 @@ void FormImage::adjustImage()
 
 }
 
-void FormImage::slotUpdateMeteosat()
+void FormImage::slotUpdateGeosat()
 {
 
-    qDebug() << "start FormImage::slotUpdateMeteosat()";
+    qDebug() << "start FormImage::slotUpdateGeosat()";
 
     refreshoverlay = true;
 
@@ -1424,7 +1427,7 @@ void FormImage::slotUpdateMeteosat()
             emit allsegmentsreceivedbuttons(true);
     }
 
-    qDebug() << "FormImage::slotUpdateMeteosat()";
+    qDebug() << "FormImage::slotUpdateGeosat()";
     this->update();
 
 }
@@ -1578,6 +1581,10 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     {
         sl = segs->seglgoes15dc4;
     }
+//    else if(segs->seglgoes16->bActiveSegmentList == true)
+//    {
+//        sl = segs->seglgoes16;
+//    }
     else if(segs->seglfy2e->bActiveSegmentList == true)
     {
         sl = segs->seglfy2e;
@@ -2286,13 +2293,21 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                 loff=LOFF_NONHRV_MET7/2;
             }
         }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15)
+        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15 )
         {
             lfac=LFAC_NONHRV_GOES;
             cfac=CFAC_NONHRV_GOES;
 
             coff=COFF_NONHRV_GOES;
             loff=LOFF_NONHRV_GOES;
+        }
+        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_16 )
+        {
+            lfac=LFAC_NONHRV_GOES16;
+            cfac=CFAC_NONHRV_GOES16;
+
+            coff=COFF_NONHRV_GOES16;
+            loff=LOFF_NONHRV_GOES16;
         }
         else if(sl->getGeoSatellite() == SegmentListGeostationary::H8)
         {

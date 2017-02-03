@@ -53,75 +53,79 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for( int i = 0; i < 8; i++)
     {
-        connect(&seglist->seglmeteosat->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-        connect(&seglist->seglmeteosat->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-        connect(&seglist->seglmeteosat->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmeteosat->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+        connect(&seglist->seglmeteosat->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+        connect(&seglist->seglmeteosat->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
     for( int i = 0; i < 24; i++)
     {
-        connect(&seglist->seglmeteosat->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmeteosat->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
 
     for( int i = 0; i < 8; i++)
     {
-        connect(&seglist->seglmeteosatrss->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-        connect(&seglist->seglmeteosatrss->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-        connect(&seglist->seglmeteosatrss->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmeteosatrss->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+        connect(&seglist->seglmeteosatrss->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+        connect(&seglist->seglmeteosatrss->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
     for( int i = 0; i < 24; i++)
     {
-        connect(&seglist->seglmeteosatrss->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmeteosatrss->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
     for( int i = 0; i < 8; i++)
     {
-        connect(&seglist->seglmet8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-        connect(&seglist->seglmet8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-        connect(&seglist->seglmet8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmet8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+        connect(&seglist->seglmet8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+        connect(&seglist->seglmet8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
     for( int i = 0; i < 24; i++)
     {
-        connect(&seglist->seglmet8->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmet8->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
 
     for( int i = 0; i < 10; i++)
     {
-        connect(&seglist->seglmet7->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglmet7->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
     for( int i = 0; i < 7; i++)
     {
-        connect(&seglist->seglgoes13dc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglgoes13dc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
     for( int i = 0; i < 7; i++)
     {
-        connect(&seglist->seglgoes15dc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglgoes15dc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
     for( int i = 0; i < 7; i++)
     {
-        connect(&seglist->seglgoes13dc4->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglgoes13dc4->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
     for( int i = 0; i < 7; i++)
     {
-        connect(&seglist->seglgoes15dc4->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglgoes15dc4->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
-    connect(seglist->seglfy2e, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateMeteosat()));
-    connect(seglist->seglfy2g, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateMeteosat()));
+//    connect(seglist->seglfy2e, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateGeosat()));
+//    connect(seglist->seglfy2g, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateGeosat()));
+
+    connect(&seglist->seglfy2e->watcherRed[0], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+    connect(&seglist->seglfy2g->watcherRed[0], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
 
     for( int i = 0; i < 10; i++)
     {
-        connect(&seglist->seglh8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-        connect(&seglist->seglh8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
-        connect(&seglist->seglh8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateMeteosat()));
+        connect(&seglist->seglh8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+        connect(&seglist->seglh8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
+        connect(&seglist->seglh8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
+    connect(&seglist->seglgoes16->watcherRed[0], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
 
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
     imageptrs->lcc = new LambertConformalConic(this, seglist);

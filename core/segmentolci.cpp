@@ -5,10 +5,6 @@
 #include "archive_entry.h"
 #include <netcdf.h>
 
-//using namespace std;
-//using namespace netCDF;
-//using namespace netCDF::exceptions;
-
 extern Options opts;
 extern SegmentImage *imageptrs;
 

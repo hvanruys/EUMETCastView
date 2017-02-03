@@ -25,10 +25,26 @@ public:
         NOGEO
     };
 
+    enum eGeoTreeWidget {
+        TREEWIDGET_MET_10 =0,
+        TREEWIDGET_MET_9,
+        TREEWIDGET_MET_8,
+        TREEWIDGET_MET_7,
+        TREEWIDGET_FY2E,
+        TREEWIDGET_FY2G,
+        TREEWIDGET_GOES_13DC3,
+        TREEWIDGET_GOES_13DC4,
+        TREEWIDGET_GOES_15DC3,
+        TREEWIDGET_GOES_15DC4,
+        TREEWIDGET_GOES_16,
+        TREEWIDGET_H8
+    };
+
     explicit SegmentListGeostationary(QObject *parent = 0);
     bool ComposeImageXRIT(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
-    bool ComposeImageHDFSerial(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    //bool ComposeImageHDFSerial(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
     bool ComposeImageHDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    bool ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector);
 
     void displayMinMax();
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
@@ -43,6 +59,7 @@ public:
 
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
+    void ComposeSegmentImagenetCDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2); //, quint16 x3, quint16 y3, quint16 x4, quint16 y4);
     quint16 ContrastStretch(quint16 val);
     void InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence);

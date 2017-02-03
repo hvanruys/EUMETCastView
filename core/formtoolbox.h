@@ -9,23 +9,6 @@
 #include "formgeostationary.h"
 #include "forminfrascales.h"
 
-//#define TAB_AVHRR 0
-//#define TAB_VIIRS 1
-//#define TAB_OLCI 2
-//#define TAB_GEOSTATIONARY 3
-//#define TAB_PROJECTION 4
-//#define TAB_HISTOGRAM 5
-
-//#define TAB_LLC 0
-//#define TAB_GVP 1
-//#define TAB_GS  2
-
-//#define CMB_HISTO_NONE_95 0
-//#define CMB_HISTO_NONE_100 1
-//#define CMB_HISTO_EQUALIZE 2
-//#define CMB_HISTO_EQUALIZE_PROJ 3
-//#define CMB_HISTO_CLAHE 4
-
 namespace Ui {
     class FormToolbox;
 }
@@ -156,6 +139,11 @@ private slots:
     void on_btnGeo10_clicked();
     void on_btnGeo11_clicked();
     void on_btnGeo12_clicked();
+    void on_btnGeo13_clicked();
+    void on_btnGeo14_clicked();
+    void on_btnGeo15_clicked();
+    void on_btnGeo16_clicked();
+
     void on_btnTextureMet_clicked();
     void on_btnTextureAVHRR_clicked();
     void on_tabWidget_currentChanged(int index);
@@ -239,7 +227,6 @@ private slots:
     void on_btnLCCFalseColor_clicked();
     void on_btnSGFalseColor_clicked();
 
-    void on_btnGeo13_clicked();
     void on_rdbOLCINormalized_toggled(bool checked);
     void on_cmbHistogram_activated(int index);
     void on_btnSaveAsPNG48bits_clicked();
