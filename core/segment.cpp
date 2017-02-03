@@ -1041,6 +1041,7 @@ void Segment::ComposeSegmentImage()
         row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(startheight + line);
 
         g_mutex.lock(); // see FormImage::displayImage(eImageType channel) for the mutex
+                        // also in SegmentOLCI::ComposeSegmentImage , SegmentVIIRSM::ComposeSegmentImage and SegmentVIIRSDNB::ComposeSegmentImageWindow
 
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {

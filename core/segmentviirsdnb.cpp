@@ -989,6 +989,7 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row = (QRgb*)imageptrs->ptrimageViirsDNB->scanLine(this->startLineNbr + line);
+        g_mutex.lock();
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
             float zenith = solar_zenith[line * earth_views_per_scanline + pixelx];
@@ -1011,6 +1012,7 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
 //            else
 //                row[pixelx] = qRgb(255, 0, 0 );
         }
+        g_mutex.unlock();
     }
 
     qDebug() << QString("Count neg = %1").arg(countneg);

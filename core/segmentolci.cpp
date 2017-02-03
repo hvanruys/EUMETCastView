@@ -1377,6 +1377,7 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row = (QRgb*)imageptrs->ptrimageOLCI->scanLine(this->startLineNbr + line);
+        g_mutex.lock();
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
             if(normalized) pixval[0] = this->ptrbaOLCInormalized[0][line * earth_views_per_scanline + pixelx];
@@ -1450,7 +1451,7 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
             }
 
         }
-
+        g_mutex.unlock();
         if(opts.imageontextureOnOLCI && line % 2 == 0)
         {
             this->RenderSegmentlineInTextureOLCI( line, row );

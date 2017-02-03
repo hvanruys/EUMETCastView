@@ -862,6 +862,7 @@ void SegmentVIIRSM::ComposeSegmentImage()
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row = (QRgb*)imageptrs->ptrimageViirsM->scanLine(this->startLineNbr + line);
+        g_mutex.lock();
         for (int pixelx = 0; pixelx < 3200; pixelx++)
         {
             pixval[0] = *(this->ptrbaVIIRS[0].data() + line * 3200 + pixelx);
@@ -933,6 +934,7 @@ void SegmentVIIRSM::ComposeSegmentImage()
 
         }
 
+        g_mutex.unlock();
         if(opts.imageontextureOnVIIRS) // && ((line + 5 ) % 16 == 0 || (line + 10) % 16 == 0) )
         {
             this->RenderSegmentlineInTextureVIIRS( line, row );
