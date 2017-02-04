@@ -24,6 +24,7 @@ gshhsData *gshhsdata;
 QFile loggingFile;
 QTextStream out(&loggingFile);
 bool doLogging;
+bool ptrimagebusy;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -96,6 +97,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 int main(int argc, char *argv[])
 {
     doLogging = false;
+    ptrimagebusy = false;
     loggingFile.setFileName("logging.txt");
     if (!loggingFile.open(QIODevice::WriteOnly | QIODevice::Text))
         return 0;

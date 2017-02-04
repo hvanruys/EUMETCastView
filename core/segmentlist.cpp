@@ -10,11 +10,7 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
-
-//void SegmentList::doComposeGVProjection(Segment *t)
-//{
-//    t->ComposeSegmentGVProjection(0, 0);
-//}
+extern bool ptrimagebusy;
 
 void SegmentList::doReadSegmentInMemory(Segment *t)
 {
@@ -759,6 +755,7 @@ void SegmentList::resultcomposeisready(int segmentnbr)
 void SegmentList::ComposeImage1()
 {
     qDebug() << "SegmentList::ComposeImage1()";
+    ptrimagebusy = true;
 
     watchercompose = new QFutureWatcher<void>(this);
     connect(watchercompose, SIGNAL(resultReadyAt(int)), SLOT(resultcomposeisready(int)));
@@ -773,6 +770,7 @@ void SegmentList::composefinished()
 {
 
     opts.texture_changed = true;
+    ptrimagebusy = false;
 
     qDebug() << "composefinished";
     qDebug() << QString("compose stat_min_ch1 = %1  stat_max_ch1 = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);

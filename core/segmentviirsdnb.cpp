@@ -980,6 +980,7 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
     float pixval;
     int r;
 
+
 //    upperlimit = 0.8E-2;
 //    lowerlimit = 2.0E-4;
 
@@ -989,7 +990,6 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row = (QRgb*)imageptrs->ptrimageViirsDNB->scanLine(this->startLineNbr + line);
-        g_mutex.lock();
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
             float zenith = solar_zenith[line * earth_views_per_scanline + pixelx];
@@ -1012,7 +1012,6 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
 //            else
 //                row[pixelx] = qRgb(255, 0, 0 );
         }
-        g_mutex.unlock();
     }
 
     qDebug() << QString("Count neg = %1").arg(countneg);
@@ -1156,8 +1155,6 @@ void SegmentVIIRSDNB::ComposeProjection(eProjections proj, int histogrammethod, 
 
     float lonpos1, latpos1;
 
-    //g_mutex.lock();
-
     float pixval;
 
     bool valok;
@@ -1211,9 +1208,6 @@ void SegmentVIIRSDNB::ComposeProjection(eProjections proj, int histogrammethod, 
         }
     }
 
-
-   // g_mutex.unlock();
-
 }
 
 
@@ -1253,7 +1247,7 @@ void SegmentVIIRSDNB::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
     QColor rgb;
     int posx, posy;
 
-    g_mutex.lock();
+    QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 
@@ -1293,7 +1287,7 @@ void SegmentVIIRSDNB::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
     }
 
     fb_painter.end();
-    g_mutex.unlock();
+
 }
 
 

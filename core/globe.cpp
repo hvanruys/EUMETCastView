@@ -1359,8 +1359,6 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::
 
     pixgeoConversion pixconv;
 
-    //g_mutex.lock();
-
     QPainter fb_painter(imageptrs->pmOut);
 
     scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(heightinimage);
@@ -1448,7 +1446,6 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::
     }
 
     fb_painter.end();
-   // g_mutex.unlock();
 
 }
 
@@ -1457,12 +1454,9 @@ void Globe::Render3DGeoSegmentFBO(SegmentListGeostationary::eGeoSatellite sat)
 
     qDebug() << "Globe::Render3DGeoSegmentFBO(SegmentListMeteosat::eGeoSatellite sat)";
 
-    //g_mutex.lock();
 
     for (int i = 0; i < imageptrs->ptrimageGeostationary->height(); i++)
         Render3DGeoSegmentLineFBO( i, sat);
-
-    //g_mutex.unlock();
 
     QApplication::restoreOverrideCursor();
     emit renderingglobefinished(true);

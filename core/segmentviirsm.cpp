@@ -862,7 +862,6 @@ void SegmentVIIRSM::ComposeSegmentImage()
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row = (QRgb*)imageptrs->ptrimageViirsM->scanLine(this->startLineNbr + line);
-        g_mutex.lock();
         for (int pixelx = 0; pixelx < 3200; pixelx++)
         {
             pixval[0] = *(this->ptrbaVIIRS[0].data() + line * 3200 + pixelx);
@@ -934,7 +933,6 @@ void SegmentVIIRSM::ComposeSegmentImage()
 
         }
 
-        g_mutex.unlock();
         if(opts.imageontextureOnVIIRS) // && ((line + 5 ) % 16 == 0 || (line + 10) % 16 == 0) )
         {
             this->RenderSegmentlineInTextureVIIRS( line, row );
@@ -1011,7 +1009,6 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj, int histogrammethod, bo
 
     float lonpos1, latpos1;
 
-    //g_mutex.lock();
 
     int pixval[3];
 
@@ -1343,7 +1340,7 @@ void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
     QColor rgb;
     int posx, posy;
 
-    g_mutex.lock();
+    QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 
@@ -1383,7 +1380,7 @@ void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
     }
 
     fb_painter.end();
-    g_mutex.unlock();
+
 }
 
 

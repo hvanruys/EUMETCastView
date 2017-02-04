@@ -11,7 +11,6 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 
 #include <QMutex>
-
 extern QMutex g_mutex;
 
 Segment::Segment(QObject *parent) :
@@ -929,7 +928,7 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
     int posx, posy;
     int posx1, posy1, posx2, posy2;
 
-    g_mutex.lock();
+    QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 
@@ -970,7 +969,6 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
     }
 
     fb_painter.end();
-    g_mutex.unlock();
 
     //qDebug() << QString("lon_first = %1 ; lat_first = %2 ; posx = %3 ; posy = %4").arg(lon_first).arg(lat_first).arg(posx).arg(posy);
 }
@@ -997,6 +995,9 @@ void Segment::ComposeSegmentImage()
     quint16 pixel[5];
     quint16 R_value, G_value, B_value;
     bool ok;
+
+    // see FormImage::displayImage(eImageType channel) for the mutex
+    // also in SegmentOLCI::ComposeSegmentImage , SegmentVIIRSM::ComposeSegmentImage and SegmentVIIRSDNB::ComposeSegmentImageWindow
 
     qDebug() << QString("start ComposeSegmentImage startLineNbr = %1 nbr of lines = %2").arg(this->startLineNbr).arg(this->NbrOfLines);
     int startheight = this->startLineNbr;
@@ -1029,10 +1030,8 @@ void Segment::ComposeSegmentImage()
 
     int half_earth_views = earth_views_per_scanline / 2;
 
-
     for (int line = 0; line < this->NbrOfLines; line++)
     {
-
         row_ch[0] = (QRgb*)imageptrs->ptrimagecomp_ch[0]->scanLine(startheight + line);
         row_ch[1] = (QRgb*)imageptrs->ptrimagecomp_ch[1]->scanLine(startheight + line);
         row_ch[2] = (QRgb*)imageptrs->ptrimagecomp_ch[2]->scanLine(startheight + line);
@@ -1040,17 +1039,18 @@ void Segment::ComposeSegmentImage()
         row_ch[4] = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(startheight + line);
         row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(startheight + line);
 
-        g_mutex.lock(); // see FormImage::displayImage(eImageType channel) for the mutex
-                        // also in SegmentOLCI::ComposeSegmentImage , SegmentVIIRSM::ComposeSegmentImage and SegmentVIIRSDNB::ComposeSegmentImageWindow
 
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
             for( int k = 0; k < 5; k++)
             {
+
                 pixel[k] = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
                 R_value = imageptrs->lut_ch[k][pixel[k]]/4;
                 if (inverse.at(k) == "1")
+                {
                     row_ch[k][pixelx] = qRgb(255 - R_value, 255 - R_value, 255 - R_value);
+                }
                 else
                 {
                     row_ch[k][pixelx] = qRgb(R_value, R_value, R_value);
@@ -1093,20 +1093,23 @@ void Segment::ComposeSegmentImage()
                 }
             }
 
+
             if(opts.sattrackinimage)
             {
                if (pixelx == half_earth_views - 1 || pixelx == half_earth_views)
-                    row_col[pixelx] = qRgb(255, 0, 0);
+               {
+                   row_col[pixelx] = qRgb(255, 0, 0);
+               }
                 else
-                    row_col[pixelx] = qRgb(R_value, G_value, B_value);
+               {
+                   row_col[pixelx] = qRgb(R_value, G_value, B_value);
+               }
             }
             else
+            {
                 row_col[pixelx] = qRgb(R_value, G_value, B_value);
-
-
+            }
         }
-
-        g_mutex.unlock();
 
         if(opts.imageontextureOnAVHRR)
         {

@@ -14,6 +14,7 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern bool ptrimagebusy;
 
 
 
@@ -41,6 +42,8 @@ bool SegmentListVIIRSM::ComposeVIIRSImage(QList<bool> bandlist, QList<int> color
     this->bandlist = bandlist;
     this->colorlist = colorlist;
     this->inverselist = invertlist;
+
+    ptrimagebusy = true;
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
     watcherviirs = new QFutureWatcher<void>(this);
@@ -442,6 +445,7 @@ void SegmentListVIIRSM::finishedviirs()
     qDebug() << "=============>SegmentListVIIRSM::readfinishedviirs()";
     emit progressCounter(100);
     opts.texture_changed = true;
+    ptrimagebusy = false;
     delete watcherviirs;
     QApplication::restoreOverrideCursor();
 

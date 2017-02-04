@@ -9,6 +9,7 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 
 #include <QMutex>
+
 extern QMutex g_mutex;
 
 void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
@@ -1177,7 +1178,7 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
     QColor rgb;
     int posx, posy;
 
-    g_mutex.lock();
+    QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 
@@ -1222,7 +1223,7 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
     }
 
     fb_painter.end();
-    g_mutex.unlock();
+
 }
 
 int SegmentOLCI::UntarSegmentToTemp()
@@ -1377,7 +1378,6 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row = (QRgb*)imageptrs->ptrimageOLCI->scanLine(this->startLineNbr + line);
-        g_mutex.lock();
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
             if(normalized) pixval[0] = this->ptrbaOLCInormalized[0][line * earth_views_per_scanline + pixelx];
@@ -1451,7 +1451,6 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
             }
 
         }
-        g_mutex.unlock();
         if(opts.imageontextureOnOLCI && line % 2 == 0)
         {
             this->RenderSegmentlineInTextureOLCI( line, row );
@@ -1486,8 +1485,6 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
     double map_x, map_y;
 
     float lonpos1, latpos1;
-
-    //g_mutex.lock();
 
     quint16 pixval[3];
 

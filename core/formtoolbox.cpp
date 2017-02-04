@@ -15,7 +15,6 @@ extern SegmentImage *imageptrs;
 #define BIT_DEPTH 8
 #define BYTES_PER_PIXEL ((3 * BIT_DEPTH)/8) + 1 //RGBA
 
-extern QMutex g_mutex;
 
 class SignalsBlocker
 {

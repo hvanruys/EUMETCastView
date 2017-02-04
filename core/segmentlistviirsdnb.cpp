@@ -13,6 +13,7 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern bool ptrimagebusy;
 
 void doComposeVIIRSDNBImageInThread(SegmentListVIIRSDNB *t)
 {
@@ -37,6 +38,7 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImage(QList<bool> bandlist, QList<int> col
 {
     qDebug() << QString("SegmentListVIIRSDNB::ComposeVIIRSImage");
 
+    ptrimagebusy = true;
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
     watcherviirs = new QFutureWatcher<void>(this);
@@ -350,7 +352,6 @@ void SegmentListVIIRSDNB::CalculateLUT()
     {
         qDebug() << j << " " << stats_ch[j];
     }
-
 }
 
 
@@ -361,6 +362,8 @@ void SegmentListVIIRSDNB::finishedviirs()
     qDebug() << "=============>SegmentListVIIRSDNB::readfinishedviirs()";
     emit progressCounter(100);
     opts.texture_changed = true;
+    ptrimagebusy = false;
+
     QApplication::restoreOverrideCursor();
     delete watcherviirs;
 

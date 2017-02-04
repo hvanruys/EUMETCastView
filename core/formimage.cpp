@@ -9,14 +9,13 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern gshhsData *gshhsdata;
+extern bool ptrimagebusy;
 
 #include <QMutex>
 #include <QDebug>
 
 #define MAP_X 3
 #define MAP_Y 3
-
-extern QMutex g_mutex;
 
 void doCLAHE(quint16 *t)
 {
@@ -201,6 +200,7 @@ void FormImage::setPixmapToLabelDNB(bool settoolboxbuttons)
 
 void FormImage::displayImage(eImageType channel)
 {
+
     qDebug() << QString("FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
     qDebug() << QString("FormImage ptrimagecomp[0] bytecount = %1").arg(imageptrs->ptrimagecomp_ch[0]->byteCount());
     qDebug() << QString("FormImage ptrimageviirsm bytecount = %1").arg(imageptrs->ptrimageViirsM->byteCount());
@@ -208,7 +208,6 @@ void FormImage::displayImage(eImageType channel)
     qDebug() << QString("FormImage ptrimageolci bytecount = %1").arg(imageptrs->ptrimageOLCI->byteCount());
 
     this->channelshown = channel;
-
 
     switch(channelshown)
     {
@@ -243,58 +242,67 @@ void FormImage::displayImage(eImageType channel)
         break;
     }
 
-    g_mutex.lock();
-
-//    QImage myim(100, 100, QImage::Format_ARGB32);
-//    myim.fill(Qt::red);
-//    imageLabel->setPixmap(QPixmap::fromImage( myim ));
-
-
-    switch(channelshown)
+    if(ptrimagebusy)
     {
-    case IMAGE_AVHRR_CH1:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
-        break;
-    case IMAGE_AVHRR_CH2:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
-        break;
-    case IMAGE_AVHRR_CH3:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
-        break;
-    case IMAGE_AVHRR_CH4:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
-        break;
-    case IMAGE_AVHRR_CH5:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
-        break;
-    case IMAGE_AVHRR_COL:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_col)));
-        break;
-    case IMAGE_AVHRR_EXPAND:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
-        break;
-    case IMAGE_GEOSTATIONARY:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
-        break;
-    case IMAGE_PROJECTION:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
-        break;
-    case IMAGE_VIIRS_M:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
-        break;
-    case IMAGE_VIIRS_DNB:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
-        break;
-    case IMAGE_OLCI:
-        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCI)));
-        break;
+        QPixmap pm(800, 200);
+        pm.fill(Qt::red);
+        QPainter painter(&pm);
 
+        QFont f("Courier", 40, QFont::Bold);
+        painter.setFont(f);
+        painter.setPen(Qt::yellow);
+
+        painter.drawText(10, 100, "Calculating image busy");
+
+        imageLabel->setPixmap(pm);
+    }
+    else
+    {
+
+        switch(channelshown)
+        {
+        case IMAGE_AVHRR_CH1:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
+            break;
+        case IMAGE_AVHRR_CH2:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
+            break;
+        case IMAGE_AVHRR_CH3:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
+            break;
+        case IMAGE_AVHRR_CH4:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
+            break;
+        case IMAGE_AVHRR_CH5:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
+            break;
+        case IMAGE_AVHRR_COL:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_col)));
+            break;
+        case IMAGE_AVHRR_EXPAND:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
+            break;
+        case IMAGE_GEOSTATIONARY:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+            break;
+        case IMAGE_PROJECTION:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
+            break;
+        case IMAGE_VIIRS_M:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
+            break;
+        case IMAGE_VIIRS_DNB:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
+            break;
+        case IMAGE_OLCI:
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCI)));
+            break;
+
+        }
     }
 
     this->update();
     this->adjustImage();
-
-    g_mutex.unlock();
 
     refreshoverlay = true;
 
@@ -1854,7 +1862,6 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             imageptrs->CLAHE(pixelsRed, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
     }
 
-    //g_mutex.lock();
 
     if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8 ))
     {
@@ -2071,7 +2078,6 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         }
     }
 
-    //g_mutex.unlock();
 
     if(sl->getKindofImage() == "VIS_IR Color" )
     {

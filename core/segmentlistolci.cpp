@@ -5,7 +5,7 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
-
+extern bool ptrimagebusy;
 
 void doComposeOLCIImageInThread(SegmentListOLCI *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool readnew)
 {
@@ -32,6 +32,7 @@ bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlis
     this->colorlist = colorlist;
     this->inverselist = invertlist;
 
+    ptrimagebusy = true;
     QApplication::setOverrideCursor(( Qt::WaitCursor));
     watcherolci = new QFutureWatcher<void>(this);
     connect(watcherolci, SIGNAL(finished()), this, SLOT(finishedolci()));
@@ -402,6 +403,7 @@ void SegmentListOLCI::finishedolci()
     qDebug() << "=============>SegmentListOLCIefr::finishedolci()";
     emit progressCounter(100);
     opts.texture_changed = true;
+    ptrimagebusy = false;
     delete watcherolci;
     QApplication::restoreOverrideCursor();
 
