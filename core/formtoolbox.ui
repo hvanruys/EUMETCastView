@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -2429,7 +2429,7 @@
             <item row="10" column="2">
              <widget class="QRadioButton" name="rbOLCI10">
               <property name="text">
-               <string>O10 (0.68125</string>
+               <string>O10 (0.68125)</string>
               </property>
              </widget>
             </item>

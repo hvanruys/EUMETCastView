@@ -144,8 +144,11 @@ public:
 
     QGeodetic cornerpointfirst1;
     QGeodetic cornerpointlast1;
+    QGeodetic cornerpointcenter1;
     QGeodetic cornerpointfirst2;
     QGeodetic cornerpointlast2;
+    QGeodetic cornerpointcenter2;
+
 
 
     bool channel_3a_3b[1080];

@@ -1688,9 +1688,6 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
     int ncfileid[3];
     int retval;
 
-    for(int i = 0; i < filelist.length(); i++)
-        qDebug() << "in thread strlist = " << filelist.at(i);
-
     QImage *im;
     QStringList outfilename;
 
@@ -1945,7 +1942,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
 
     if (this->getKindofImage() == "VIS_IR Color")
     {
-        if(m_GeoSatellite == FY2E || m_GeoSatellite == FY2G)
+        if(m_GeoSatellite == FY2E || m_GeoSatellite == FY2G || m_GeoSatellite == GOES_16)
         {
             return true;
         }

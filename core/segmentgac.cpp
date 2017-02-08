@@ -46,7 +46,7 @@ SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent)
 
     qsensingstart = QSgp4Date(sensing_start_year, sensing_start_month, sensing_start_day, sensing_start_hour, sensing_start_minute, sensing_start_second);
     qsensingend = qsensingstart;
-    qsensingend.AddMin(1.0);
+    qsensingend.AddMin(3.0);
 
     julian_sensing_start = qsensingstart.Julian();
     julian_sensing_end = qsensingend.Julian();
@@ -59,14 +59,16 @@ SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent)
 
     line1 = noaa19.line1;
     line2 = noaa19.line2;
-
+            //"1 NNNNNC NNNNNAAA NNNNN.NNNNNNNN +.NNNNNNNN +NNNNN-N +NNNNN-N N NNNNN"
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
+            //"2 NNNNN NNN.NNNN NNN.NNNN NNNNNNN NNN.NNNN NNN.NNNN NN.NNNNNNNNNNNNNN"
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
 
-    qtle.reset(new QTle(noaa19.sat_name, line1, line2, QTle::wgs72));
+    qtle.reset(new QTle(noaa19.sat_name, line1, line2, QTle::wgs84));
     qsgp4.reset(new QSgp4( *qtle ));
 
     julian_state_vector = qtle->Epoch();
+
 
     minutes_since_state_vector = ( julian_sensing_start - julian_state_vector ) * MIN_PER_DAY; //  + (1.0/12.0) / 60.0;
     minutes_sensing = 3;
@@ -175,30 +177,28 @@ SegmentGAC::~SegmentGAC()
 bool SegmentGAC::inspectMPHRrecord(QByteArray mphr_record)
 {
 
-    quint64 nextrecordlength = 0;
-    quint32 nextres = 0;
-    quint32 num32_1=0, num32_2=0, num32_3=0, num32_4=0;
-    qint64 offset_mdr;
-    long nbrmdr = 0;
     bool ok;
 
 
-    lat_start_deg = mphr_record.mid( 2396, 11).toDouble()/1000;
+    lat_start_deg = mphr_record.mid( 2396, 11).trimmed().toDouble()/1000;
     lat_start_rad = deg2rad( lat_start_deg );
-    lon_start_deg = mphr_record.mid( 2440, 11).toDouble()/1000;
+    lon_start_deg = mphr_record.mid( 2440, 11).trimmed().toDouble()/1000;
     lon_start_rad = deg2rad( lon_start_deg );
 
-    lat_end_deg = mphr_record.mid( 2484, 11).toDouble()/1000;
+    lat_end_deg = mphr_record.mid( 2484, 11).trimmed().toDouble()/1000;
     lat_end_rad = deg2rad( lat_end_deg );
-    lon_end_deg = mphr_record.mid( 2528, 11).toDouble()/1000;
+    lon_end_deg = mphr_record.mid( 2528, 11).trimmed().toDouble()/1000;
     lon_end_rad = deg2rad( lon_end_deg );
 
-    int state_vector_year = mphr_record.mid(1509, 4).toInt( &ok, 10);
-    int state_vector_month = mphr_record.mid(1513, 2).toInt( &ok, 10);
-    int state_vector_day = mphr_record.mid(1515, 2).toInt( &ok, 10);
-    int state_vector_hour = mphr_record.mid(1517, 2).toInt( &ok, 10);
-    int state_vector_minute = mphr_record.mid(1519, 2).toInt( &ok, 10);
-    int state_vector_second = mphr_record.mid(1521, 2).toInt( &ok, 10);
+    int state_vector_year = mphr_record.mid(1509, 4).trimmed().toInt( &ok, 10);
+    int state_vector_month = mphr_record.mid(1513, 2).trimmed().toInt( &ok, 10);
+    int state_vector_day = mphr_record.mid(1515, 2).trimmed().toInt( &ok, 10);
+    int state_vector_hour = mphr_record.mid(1517, 2).trimmed().toInt( &ok, 10);
+    int state_vector_minute = mphr_record.mid(1519, 2).trimmed().toInt( &ok, 10);
+    int state_vector_second = mphr_record.mid(1521, 2).trimmed().toInt( &ok, 10);
+
+
+    qDebug() << "state vector = " << mphr_record.mid(1509, 14);
 
 
     int day_of_year = DOY( state_vector_year, state_vector_month, state_vector_day );
@@ -209,13 +209,13 @@ bool SegmentGAC::inspectMPHRrecord(QByteArray mphr_record)
     double fraction_of_day = Fraction_of_Day( state_vector_hour, state_vector_minute, state_vector_second );
     //state_vector = (double)day_of_year + fraction_of_day;
 
-    double semi_major_axis = mphr_record.mid(1560, 11).toDouble()/1000000;  // in KM
-    double eccentricity = mphr_record.mid(1604, 11).toDouble()/1000000;
-    double inclination = mphr_record.mid(1648, 11).toDouble()/1000;
-    double perigee_argument = mphr_record.mid(1692, 11).toDouble()/1000;
-    double right_ascension = mphr_record.mid(1736, 11).toDouble()/1000;
-    double mean_anomaly = mphr_record.mid(1780, 11).toDouble()/1000;
-    quint32 orbit_start =  mphr_record.mid(1389, 5).toInt( &ok, 10);
+    double semi_major_axis = mphr_record.mid(1560, 11).trimmed().toDouble()/1000000;  // in KM
+    double eccentricity = mphr_record.mid(1604, 11).trimmed().toDouble()/1000000;
+    double inclination = mphr_record.mid(1648, 11).trimmed().toDouble()/1000;
+    double perigee_argument = mphr_record.mid(1692, 11).trimmed().toDouble()/1000;
+    double right_ascension = mphr_record.mid(1736, 11).trimmed().toDouble()/1000;
+    double mean_anomaly = mphr_record.mid(1780, 11).trimmed().toDouble()/1000;
+    quint32 orbit_start =  mphr_record.mid(1389, 5).trimmed().toInt( &ok, 10);
 
     double mean_motion_period = TWOPI * pow( pow( semi_major_axis, 3 ) / 398600.4418, 0.5); // in seconds
     double revs_per_day = SEC_PER_DAY / mean_motion_period;
@@ -225,12 +225,46 @@ bool SegmentGAC::inspectMPHRrecord(QByteArray mphr_record)
 
 
 
-    line1.append( "1 12345U 99001    ");
-    line1.append( mphr_record.mid(1511, 2) );
-    line1.append(QString("%1").arg( total_time, 11, 'f', 7));
-    line1.append("  -.00000000  00000-0  00000-0 0  8553");
 
-    line2.append( "2 12345 " );
+
+    qDebug() << "Voor reset tle";
+    qDebug() << "semi_major_axis = " << mphr_record.mid(1560, 11) << ";";  // in KM
+    qDebug() << "eccentricity = " << mphr_record.mid(1604, 11) << ";" << this->qtle->Eccentricity();
+    qDebug() << "inclination = " << mphr_record.mid(1648, 11) << ";" << this->qtle->Inclination()*180.0/PI;
+    qDebug() << "perigee_argument = " << mphr_record.mid(1692, 11) << ";" << this->qtle->ArgumentPerigee()*180.0/PI;
+    qDebug() << "right_ascension = " << mphr_record.mid(1736, 11);
+    qDebug() << "mean_anomaly = " << mphr_record.mid(1780, 11) << ";" << this->qtle->MeanAnomaly()*180.0/PI;
+    qDebug() << "orbit_start =  " << mphr_record.mid(1389, 5);
+
+
+
+
+
+
+
+
+
+
+
+
+    //"1 NNNNNC NNNNNAAA NNNNN.NNNNNNNN +.NNNNNNNN +NNNNN-N +NNNNN-N N NNNNN"
+//line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
+    //"2 NNNNN NNN.NNNN NNN.NNNN NNNNNNN NNN.NNNN NNN.NNNN NN.NNNNNNNNNNNNNN"
+//line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
+
+    qDebug() << "original line1 : " << QString("123456789012345678901234567890123456789012345678901234567890123456789");
+    qDebug() << "original line1 : " << QString("1 NNNNNC NNNNNAAA NNNNN.NNNNNNNN +.NNNNNNNN +NNNNN-N +NNNNN-N N NNNNN");
+    qDebug() << "original line1 : " << line1;
+    qDebug() << "original line2 : " << QString("2 NNNNN NNN.NNNN NNN.NNNN NNNNNNN NNN.NNNN NNN.NNNN NN.NNNNNNNNNNNNNN");
+    qDebug() << "original line2 : " << line2;
+    qDebug() << "minutes_since_state_vector = " << minutes_since_state_vector;
+
+    line2.clear();
+    line1.replace( 18, 2, mphr_record.mid(1511, 2));
+    line1.replace(20, 12, QString("%1").arg( total_time, 12, 'f', 8));
+
+    line2.append( "2 ");
+    line2.append( line1.mid(2, 5) + " ");
     line2.append(QString("%1").arg( inclination, 8, 'f', 4));
     line2.append( " " );
     line2.append(QString("%1").arg( right_ascension, 8, 'f', 4));
@@ -245,25 +279,25 @@ bool SegmentGAC::inspectMPHRrecord(QByteArray mphr_record)
     line2.append(QString("%1").arg( mean_anomaly, 8, 'f', 4));
 
     line2.append( " " );
-    line2.append(QString("%1").arg( revs_per_day, 10, 'f', 7));
+    line2.append(QString("%1").arg( revs_per_day, 12, 'f', 9));
     line2.append(QString("%1").arg( orbit_start, 5, 10, fill));
 
-    qtle.reset(new QTle( "GAC", line1, line2, QTle::wgs72));
+    qtle.reset(new QTle( "GAC", line1, line2, QTle::wgs84));
     qsgp4.reset(new QSgp4( *qtle ));
 
-    int sensing_start_year = mphr_record.mid(712, 4).toInt( &ok, 10);
-    int sensing_start_month = mphr_record.mid(716, 2).toInt( &ok, 10);
-    int sensing_start_day = mphr_record.mid(718, 2).toInt( &ok, 10);
-    int sensing_start_hour = mphr_record.mid(720, 2).toInt( &ok, 10);
-    int sensing_start_minute = mphr_record.mid(722, 2).toInt( &ok, 10);
-    int sensing_start_second = mphr_record.mid(724, 2).toInt( &ok, 10);
+    int sensing_start_year = mphr_record.mid(712, 4).trimmed().toInt( &ok, 10);
+    int sensing_start_month = mphr_record.mid(716, 2).trimmed().toInt( &ok, 10);
+    int sensing_start_day = mphr_record.mid(718, 2).trimmed().toInt( &ok, 10);
+    int sensing_start_hour = mphr_record.mid(720, 2).trimmed().toInt( &ok, 10);
+    int sensing_start_minute = mphr_record.mid(722, 2).trimmed().toInt( &ok, 10);
+    int sensing_start_second = mphr_record.mid(724, 2).trimmed().toInt( &ok, 10);
 
-    int sensing_end_year = mphr_record.mid(760, 4).toInt( &ok, 10);
-    int sensing_end_month = mphr_record.mid(764, 2).toInt( &ok, 10);
-    int sensing_end_day = mphr_record.mid(766, 2).toInt( &ok, 10);
-    int sensing_end_hour = mphr_record.mid(768, 2).toInt( &ok, 10);
-    int sensing_end_minute = mphr_record.mid(770, 2).toInt( &ok, 10);
-    int sensing_end_second = mphr_record.mid(772, 2).toInt( &ok, 10);
+    int sensing_end_year = mphr_record.mid(760, 4).trimmed().toInt( &ok, 10);
+    int sensing_end_month = mphr_record.mid(764, 2).trimmed().toInt( &ok, 10);
+    int sensing_end_day = mphr_record.mid(766, 2).trimmed().toInt( &ok, 10);
+    int sensing_end_hour = mphr_record.mid(768, 2).trimmed().toInt( &ok, 10);
+    int sensing_end_minute = mphr_record.mid(770, 2).trimmed().toInt( &ok, 10);
+    int sensing_end_second = mphr_record.mid(772, 2).trimmed().toInt( &ok, 10);
 
     QDateTime sensing_start(QDate(sensing_start_year,sensing_start_month, sensing_start_day), QTime(sensing_start_hour, sensing_start_minute, sensing_start_second));
     QDateTime sensing_end(QDate(sensing_end_year,sensing_end_month, sensing_end_day), QTime(sensing_end_hour, sensing_end_minute, sensing_end_second));
@@ -281,9 +315,25 @@ bool SegmentGAC::inspectMPHRrecord(QByteArray mphr_record)
 
     qdatetime_start.setDate(QDate(sensing_start_year, sensing_start_month, sensing_start_day));
     qdatetime_start.setTime(QTime(sensing_start_hour,sensing_start_minute, sensing_start_second));
-    NbrOfLines = mphr_record.mid(2969, 4).toInt( &ok, 10 );
+    NbrOfLines = mphr_record.mid(2969, 4).trimmed().toInt( &ok, 10 );
 
-    CalculateCornerPoints();
+    qDebug() << "na MPHR  line1 : " << QString("1 NNNNNC NNNNNAAA NNNNN.NNNNNNNN +.NNNNNNNN +NNNNN-N +NNNNN-N N NNNNN");
+    qDebug() << "na MPHR  line1 : " << line1;
+    qDebug() << "na MPHR  line2 : " << QString("2 NNNNN NNN.NNNN NNN.NNNN NNNNNNN NNN.NNNN NNN.NNNN NN.NNNNNNNNNNNNNN");
+    qDebug() << "na MPHR  line2 : " << line2;
+
+    qDebug() << "minutes_since_state_vector = " << minutes_since_state_vector;
+    qDebug() << QString("%1").arg( orbit_start, 5, 10, fill);
+
+
+    qDebug() << "Na reset tle";
+    qDebug() << "semi_major_axis = " << mphr_record.mid(1560, 11) << ";";  // in KM
+    qDebug() << "eccentricity = " << mphr_record.mid(1604, 11) << ";" << this->qtle->Eccentricity();
+    qDebug() << "inclination = " << mphr_record.mid(1648, 11) << ";" << this->qtle->Inclination()*180.0/PI;
+    qDebug() << "perigee_argument = " << mphr_record.mid(1692, 11) << ";" << this->qtle->ArgumentPerigee()*180.0/PI;
+    qDebug() << "right_ascension = " << mphr_record.mid(1736, 11);
+    qDebug() << "mean_anomaly = " << mphr_record.mid(1780, 11) << ";" << this->qtle->MeanAnomaly()*180.0/PI;
+    qDebug() << "orbit_start =  " << mphr_record.mid(1389, 5);
 
     return true;
 }
@@ -550,6 +600,11 @@ Segment *SegmentGAC::ReadSegmentInMemory()
          }
       }
     }
+
+    this->cornerpointfirst1 = QGeodetic(earthloc_lat[0]*PI/180.0, earthloc_lon[0]*PI/180.0, 0 );
+    this->cornerpointlast1 = QGeodetic(earthloc_lat[num_navigation_points-1]*PI/180.0, earthloc_lon[num_navigation_points-1]*PI/180.0, 0 );
+    this->cornerpointfirst2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points]*PI/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points]*PI/180.0, 0 );
+    this->cornerpointlast2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PI/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PI/180.0, 0 );
 
     qDebug() << QString("ReadSegmentInMemory stat_min_ch1 = %1  stat_max_ch1 = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
     qDebug() << QString("ReadSegmentInMemory stat_min_ch2 = %1  stat_max_ch2 = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);

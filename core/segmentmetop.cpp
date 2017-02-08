@@ -195,20 +195,20 @@ void SegmentMetop::inspectMPHRrecord(QByteArray mphr_record)
 
             qDebug() << mphr_record.mid(1225, 35);  // receiving_ground_station
 */
-    lat_start_deg = mphr_record.mid( 2396, 11).toDouble()/1000;
+    lat_start_deg = mphr_record.mid( 2396, 11).trimmed().toDouble()/1000;
     lat_start_rad = deg2rad( lat_start_deg );
-    lon_start_deg = mphr_record.mid( 2440, 11).toDouble()/1000;
+    lon_start_deg = mphr_record.mid( 2440, 11).trimmed().toDouble()/1000;
     lon_start_rad = deg2rad( lon_start_deg );
 
-    lat_end_deg = mphr_record.mid( 2484, 11).toDouble()/1000;
+    lat_end_deg = mphr_record.mid( 2484, 11).trimmed().toDouble()/1000;
     lat_end_rad = deg2rad( lat_end_deg );
-    lon_end_deg = mphr_record.mid( 2528, 11).toDouble()/1000;
+    lon_end_deg = mphr_record.mid( 2528, 11).trimmed().toDouble()/1000;
     lon_end_rad = deg2rad( lon_end_deg );
 
-    //            qDebug() << QString(" lat start = %1").arg(lat_start_deg, 0, 'f', 3);
-    //            qDebug() << QString(" lon start = %1").arg(lon_start_deg, 0, 'f', 3);
-    //            qDebug() << QString(" lat end = %1").arg(lat_end_deg, 0, 'f', 3);
-    //            qDebug() << QString(" lon end = %1").arg(lon_end_deg, 0, 'f', 3);
+                qDebug() << QString(" lat start = %1").arg(lat_start_deg, 0, 'f', 3);
+                qDebug() << QString(" lon start = %1").arg(lon_start_deg, 0, 'f', 3);
+                qDebug() << QString(" lat end = %1").arg(lat_end_deg, 0, 'f', 3);
+                qDebug() << QString(" lon end = %1").arg(lon_end_deg, 0, 'f', 3);
 
 
     state_vector_year = mphr_record.mid(1509, 4).toInt( &ok, 10);
@@ -228,7 +228,10 @@ void SegmentMetop::inspectMPHRrecord(QByteArray mphr_record)
     double perigee_argument = mphr_record.mid(1692, 11).toDouble()/1000;
     double right_ascension = mphr_record.mid(1736, 11).toDouble()/1000;
     double mean_anomaly = mphr_record.mid(1780, 11).toDouble()/1000;
+
     quint32 orbit_start =  mphr_record.mid(1389, 5).toInt( &ok, 10);
+
+
 
     // qDebug() << QString("inclination = %1").arg(inclination, 0, 'f', 6);
 
@@ -248,6 +251,9 @@ void SegmentMetop::inspectMPHRrecord(QByteArray mphr_record)
     //                qDebug() <<  mphr_record.mid(2452, 43) << " ; " << subsat_latitude_end; // subsat latitude end
     //                qDebug() <<  mphr_record.mid(2496, 43) << " ; " << subsat_longitude_end; // subsat longitude end
 
+    qDebug() <<  mphr_record.mid(2232, 43);
+    qDebug() <<  mphr_record.mid(2276, 43);
+    qDebug() <<  mphr_record.mid(2320, 43);
 
     //            qDebug() <<  mphr_record.mid(1528, 43); // semi major axis
     //            qDebug() <<  mphr_record.mid(1572, 43); // eccentricity
@@ -273,13 +279,15 @@ void SegmentMetop::inspectMPHRrecord(QByteArray mphr_record)
 
     const QChar fill = '0';
     double total_time = day_of_year + fraction_of_day;
+    qDebug() << "original line1 : " << line1;
+    qDebug() << "original line2 : " << line2;
+    qDebug() << "minutes_since_state_vector = " << minutes_since_state_vector;
+
 
     line1.append( "1 12345U 99001    ");
     line1.append( mphr_record.mid(1511, 2) );
     line1.append(QString("%1").arg( total_time, 12, 'f', 8));
     line1.append(" -.00000000  00000-0  00000-0 0  8553");
-
-    //qDebug() << "line 1 = " << line1;
 
     line2.append( "2 12345 " );
 
@@ -349,19 +357,23 @@ void SegmentMetop::inspectMPHRrecord(QByteArray mphr_record)
     qdatetime_start.setTime(QTime(sensing_start_hour,sensing_start_minute, sensing_start_second));
     NbrOfLines = mphr_record.mid(2969, 4).toInt( &ok, 10 );
 
+    qDebug() << "na MPHR  line1 : " << line1;
+    qDebug() << "na MPHR  line2 : " << line2;
+    qDebug() << "minutes_since_state_vector = " << minutes_since_state_vector;
+
+
     // qDebug() << "Bz2 file " + this->segment_name + " ; " + this->absolute_path + " is open " << QString::number(NbrOfLines);
 
     //qDebug() <<  mphr_record.mid(2969, 4); //nbr of mdr records
     //qDebug() << QString("nbr of mdr records = %1").arg(NbrOfLines);
 
-    //qDebug() << QString("minutes since state vector %1").arg(minutes_since_state_vector);
+    qDebug() << QString("in MPHR minutes since state vector %1").arg(minutes_since_state_vector);
     //qDebug() << QString("minutes_sensing = %1").arg(minutes_sensing);
     //qDebug() << QString("sensing start = %1").arg(sensing_start, 0, 'f', 8);
     //qDebug() << QString("sensing_start_year = %1").arg(sensing_start_year, 0, 'f', 8);
     //qDebug() << "------";
     //qDebug() << QString("julian_sensing_start  = %1").arg(julian_sensing_start);
 
-    CalculateCornerPoints();
 }
 
 int SegmentMetop::ReadNbrOfLines()
@@ -577,20 +589,14 @@ void SegmentMetop::inspectEarthLocations(QByteArray *mdr_record, int heightinseg
         num32_3 = 0xFF & mdr_record->at(21362 + i*8);
         num32_4 = 0xFF & mdr_record->at(21363 + i*8);
         llat_deg = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-        earthloc_lat[heightinsegment*103 + i] = (float)llat_deg/10000;
+        earthloc_lat[heightinsegment*num_navigation_points + i] = (float)llat_deg/10000;
 
         num32_1 = 0xFF & mdr_record->at(21364 + i*8);
         num32_2 = 0xFF & mdr_record->at(21365 + i*8);
         num32_3 = 0xFF & mdr_record->at(21366 + i*8);
         num32_4 = 0xFF & mdr_record->at(21367 + i*8);
         llon_deg = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-        earthloc_lon[heightinsegment*103 + i] = (float)llon_deg/10000;
-    }
-
-    if(num_navigation_points == 103 && (heightinsegment == 0 || heightinsegment == 540 || heightinsegment == 1079))
-    {
-        qDebug() << QString("------>IEL height = %1  lon[0] = %2, lon[52] = %3, lon[102] = %4").arg(heightinsegment).arg( earthloc_lon[heightinsegment*103]).arg( earthloc_lon[heightinsegment*103 + 52]).arg( earthloc_lon[heightinsegment * 103 + 102]);
-        qDebug() << QString("------>IEL height = %1  lat[0] = %2, lat[52] = %3, lat[102] = %4").arg(heightinsegment).arg( earthloc_lat[heightinsegment*103]).arg( earthloc_lat[heightinsegment*103 + 52]).arg( earthloc_lat[heightinsegment * 103 + 102]);
+        earthloc_lon[heightinsegment*num_navigation_points + i] = (float)llon_deg/10000;
     }
 
 }
@@ -707,24 +713,6 @@ bool SegmentMetop::get_next_header( QByteArray ba, quint32 *reclength )
 
 }
 
-//void SegmentMetop::RenderEarthLocationsGL()
-//{
-//    //glPushAttrib(GL_LIGHTING_BIT);
-//    //glDisable(GL_LIGHTING);
-//    glColor3ub(255, 255, 0);
-
-//    RenderSegmentContourline(earthloc_lat[0*103 + 51] * PI/180.0, earthloc_lon[0*103 + 51] * PI/180.0, earthloc_lat[1079*103 + 51] * PI/180.0, earthloc_lon[1079*103 + 51] * PI/180.0);
-//    RenderSegmentContourline(earthloc_lat[0*103 + 0] * PI/180.0, earthloc_lon[0*103 + 0] * PI/180.0, earthloc_lat[1079*103 + 0] * PI/180.0, earthloc_lon[1079*103 + 0] * PI/180.0);
-//    RenderSegmentContourline(earthloc_lat[0*103 + 102] * PI/180.0, earthloc_lon[0*103 + 102] * PI/180.0, earthloc_lat[1079*103 + 102] * PI/180.0, earthloc_lon[1079*103 + 102] * PI/180.0);
-//    //RenderSegmentContourline(earth_loc_lat[0][0] * PI/180.0, earth_loc_lon[0][0] * PI/180.0, earth_loc_lat[0][102] * PI/180.0, earth_loc_lon[0][102] * PI/180.0);
-//    //RenderSegmentContourline(earth_loc_lat[1079][0] * PI/180.0, earth_loc_lon[1079][0] * PI/180.0, earth_loc_lat[1079][102] * PI/180.0, earth_loc_lon[1079][102] * PI/180.0);
-
-//    //glPopAttrib();
-
-
-//}
-
-
 void SegmentMetop::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine )
 {
     RenderSegmentlineInTextureRad( channel, this->earth_loc_lat_first[nbrLine], earth_loc_lon_first[nbrLine],
@@ -778,8 +766,6 @@ Segment *SegmentMetop::ReadSegmentInMemory()
     earthloc_lat.reset(new float[1080*103]);
     solar_zenith_angle.reset(new float[1080*103]);
     cos_solar_zenith_angle.reset(new float[1080*2048]);
-
-    int save_ptrba = 0;
 
     while ( bzerror == BZ_OK )
     {
@@ -861,8 +847,6 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                         tot_norm_ch[3] = (float)tot_ch[3]*this->cos_solar_zenith_angle[heightinsegment * 2048 + j];
                         tot_norm_ch[4] = (float)tot_ch[4]*this->cos_solar_zenith_angle[heightinsegment * 2048 + j];
 
-//                        if(j == 1000)
-//                            qDebug() << QString("ptrbaChannel = %1 ptrbaChannelNormalized = %2 tot_norm_ch[0] = %3").arg(tot_ch[0]).arg(this->ptrbaChannelNormalized[0][heightinsegment * 2048 + j]).arg(tot_norm_ch[0]/1000);
 
                         for (int k=0; k < 5; k++)
                         {
@@ -874,8 +858,6 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                                 stat_min_norm_ch[k] = (quint16)(tot_norm_ch[k]/100.0f);
                             if (tot_norm_ch[k]/100.0f > stat_max_norm_ch[k] )
                                 stat_max_norm_ch[k] = (quint16)(tot_norm_ch[k]/100.0f);
-                            if(tot_norm_ch[k]/100.0f > 65535)
-                                save_ptrba = this->ptrbaChannelNormalized[0][heightinsegment * 2048 + j];
                         }
 
 
@@ -884,9 +866,6 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                         *(this->ptrbaChannelNormalized[2].data() + heightinsegment * 2048 + j) = (quint16)(tot_norm_ch[2]/100.0f);
                         *(this->ptrbaChannelNormalized[3].data() + heightinsegment * 2048 + j) = (quint16)(tot_norm_ch[3]/100.0f);
                         *(this->ptrbaChannelNormalized[4].data() + heightinsegment * 2048 + j) = (quint16)(tot_norm_ch[4]/100.0f);
-
-
-
 
                     }
 
@@ -935,12 +914,18 @@ Segment *SegmentMetop::ReadSegmentInMemory()
 //    for(int j = 0; j < 100; j++)
 //        qDebug() << QString("ptrbaChannel = %1 normalized 1/cos = %2").arg(this->ptrbaChannel[0][j]).arg(this->ptrbaChannelNormalized[0][j]);
 
+    this->cornerpointfirst1 = QGeodetic(earthloc_lat[0]*PI/180.0, earthloc_lon[0]*PI/180.0, 0 );
+    this->cornerpointlast1 = QGeodetic(earthloc_lat[num_navigation_points-1]*PI/180.0, earthloc_lon[num_navigation_points-1]*PI/180.0, 0 );
+    this->cornerpointfirst2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points]*PI/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points]*PI/180.0, 0 );
+    this->cornerpointlast2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PI/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PI/180.0, 0 );
+    this->cornerpointcenter1 = QGeodetic(lat_start_rad, lon_start_rad, 0);
+    this->cornerpointcenter2 = QGeodetic(lat_end_rad, lon_end_rad, 0);
+
+
     for(int i = 0; i < 5; i++)
     {
         qDebug() << QString("stat_min_ch[%1] = %2  stat_max_ch[%3] = %4").arg(i).arg(stat_min_ch[i]).arg(i).arg(stat_max_ch[i]);
         qDebug() << QString("stat_min_norm_ch[%1] = %2  stat_max_norm_ch[%3] = %4").arg(i).arg(stat_min_norm_ch[i]).arg(i).arg(stat_max_norm_ch[i]);
-        qDebug() << QString("save_ptrba = %1").arg(save_ptrba);
-
     }
     BZ2_bzclose ( b );
     fclose(f);

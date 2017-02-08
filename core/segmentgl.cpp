@@ -378,13 +378,13 @@ void SegmentGL::RenderContour(Segment *seg, QMatrix4x4 projection, QMatrix4x4 mo
     CalculateSegmentContour(&positions, seg->cornerpointlast2, seg->cornerpointfirst2);
     CalculateSegmentContour(&positions,seg->cornerpointfirst2, seg->cornerpointfirst1);
 
-    seg->qsgp4->getPosition(seg->minutes_since_state_vector, qeci);
-    QGeodetic first = qeci.ToGeo();
+//    seg->qsgp4->getPosition(seg->minutes_since_state_vector, qeci);
+//    QGeodetic first = qeci.ToGeo();
 
-    seg->qsgp4->getPosition(seg->minutes_since_state_vector + seg->minutes_sensing, qeci);
-    QGeodetic last = qeci.ToGeo();
+//    seg->qsgp4->getPosition(seg->minutes_since_state_vector + seg->minutes_sensing, qeci);
+//    QGeodetic last = qeci.ToGeo();
 
-    CalculateSegmentContour(&positions, first, last);
+    CalculateSegmentContour(&positions, seg->cornerpointcenter1, seg->cornerpointcenter2);
 
     positionsBuf.bind();
     positionsBuf.allocate(positions.data(), positions.size() * sizeof(GLfloat));

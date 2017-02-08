@@ -146,7 +146,7 @@ public:
    double MeanAnomaly() { return mo; } // in rad
    double AscendingNode() { return nodeo; } // in rad
    double ArgumentPerigee() { return argpo; } // in rad
-   double Eccenticity() { return ecco; }
+   double Eccentricity() { return ecco; }
    double Inclination() { return inclo; }  // in rad
    double MeanMotion() { return no; }  // in rad/min
    double Period();

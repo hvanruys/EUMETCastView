@@ -230,6 +230,16 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
 
     }
 
+    this->cornerpointfirst1 = QGeodetic(geolatitude[0]*PI/180.0, geolongitude[0]*PI/180.0, 0 );
+    this->cornerpointlast1 = QGeodetic(geolatitude[3199]*PI/180.0, geolongitude[3199]*PI/180.0, 0 );
+    this->cornerpointfirst2 = QGeodetic(geolatitude[760*3200]*PI/180.0, geolongitude[760*3200]*PI/180.0, 0 );
+    this->cornerpointlast2 = QGeodetic(geolatitude[760*3200 + 3199]*PI/180.0, geolongitude[760*3200 + 3199]*PI/180.0, 0 );
+    this->cornerpointcenter1 = QGeodetic(geolatitude[1600]*PI/180.0, geolongitude[1600]*PI/180.0, 0);
+    this->cornerpointcenter2 = QGeodetic(geolatitude[760*3200 + 1600]*PI/180.0, geolongitude[760*3200 + 1600]*PI/180.0, 0);
+
+    qDebug() << "first1 = (" << geolatitude[0] << "," << geolongitude[0] << ") last1 = (" << geolatitude[3199] << "," << geolongitude[3199] << ")";
+    qDebug() << "first2 = (" << geolatitude[750*3200] << "," << geolongitude[750*3200] << ") last2 = (" << geolatitude[750*3200 + 3199] << "," << geolongitude[750*3200 + 3199] << ")";
+
     h5_status = H5Fclose (h5_file_id);
 
     return this;

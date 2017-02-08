@@ -56,7 +56,7 @@ void Globe::initializeGL()
     qDebug() << "Globe::initializeGL()";
 
     initializeOpenGLFunctions();
-    dumpOpenGLdiagnostics();
+    //dumpOpenGLdiagnostics();
 
     distance = -3.0;
     trackBall = TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::Sphere);

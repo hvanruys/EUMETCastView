@@ -77,6 +77,9 @@ void Segment::CalculateCornerPoints()
         qDebug() << "qsgp4 is NULL !!!";
     qsgp4->getPosition(minutes_since_state_vector, qeci);
     QGeodetic qgeo = qeci.ToGeo();
+    cornerpointcenter1 = qgeo;
+
+
 
     QVector3D pos;
     QVector3D d3pos = qeci.GetPos_f();
@@ -92,7 +95,7 @@ void Segment::CalculateCornerPoints()
     QMatrix4x4 mat;
     QVector3D d3scan;
 
-    double e = qtle->Eccenticity();
+    double e = qtle->Eccentricity();
     double epow2 = e * e;
     double epow3 = e * e * e;
 
@@ -102,23 +105,27 @@ void Segment::CalculateCornerPoints()
     double trueAnomaly = M + C;
     double PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
+    qDebug() << QString("minutes_since_state_vector = %1 in CalculateCornerPoints").arg(minutes_since_state_vector);
 
-    if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
-            segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
-    {
-        double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
-        double roll_steering_angle = 0.00089 * sin(PSO);
-        double yaw_factor = 0.068766 * cos(PSO);
-        double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
+        if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
+                segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
+        {
+            double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
+            double roll_steering_angle = 0.00089 * sin(PSO);
+            double yaw_factor = 0.068766 * cos(PSO);
+            double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
 
-        mat.setToIdentity();
-        mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
-        mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
-        mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
-        d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
-    }
-    else
-        d3scan = QVector3D::crossProduct(d3pos,d3vel);
+            qDebug() << QString("minutes_since_state_vector = %1 yaw_steering_angle = %2").arg(minutes_since_state_vector).arg(yaw_steering_angle*180.0/PI);
+
+            mat.setToIdentity();
+            mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
+            mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
+            mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+            d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
+        }
+        else
+            d3scan = QVector3D::crossProduct(d3pos,d3vel);
+
 
     QVector3D d3scannorm = d3scan.normalized();
 
@@ -166,6 +173,7 @@ void Segment::CalculateCornerPoints()
 
     qsgp4->getPosition(minutes_since_state_vector + minutes_sensing, qeci);
     qgeo = qeci.ToGeo();
+    cornerpointcenter2 = qgeo;
 
     d3pos = qeci.GetPos_f();
     d3vel = qeci.GetVel_f();
@@ -184,23 +192,23 @@ void Segment::CalculateCornerPoints()
     trueAnomaly = M + C;
     PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
+        if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
+                segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
+        {
+            double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
+            double roll_steering_angle = 0.00089 * sin(PSO);
+            double yaw_factor = 0.068766 * cos(PSO);
+            double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
 
-    if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
-            segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
-    {
-        double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
-        double roll_steering_angle = 0.00089 * sin(PSO);
-        double yaw_factor = 0.068766 * cos(PSO);
-        double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
+            mat.setToIdentity();
+            mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
+            mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
+            mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+            d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
+        }
+        else
+            d3scan = QVector3D::crossProduct(d3pos,d3vel);
 
-        mat.setToIdentity();
-        mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
-        mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
-        mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
-        d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
-    }
-    else
-        d3scan = QVector3D::crossProduct(d3pos,d3vel);
 
     d3scannorm = d3scan.normalized();
 
@@ -267,7 +275,7 @@ void Segment::setupVector(double statevec, QSgp4Date sensing)
 
     vecvector.append(vec);
 
-    double e = qtle->Eccenticity();
+    double e = qtle->Eccentricity();
     double epow2 = e * e;
     double epow3 = e * e * e;
 
@@ -816,7 +824,7 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
     //2 29499  98.7382 346.7056 0001985  53.8175 306.3175 14.21469318258958
 
 
-    double e = qtle->Eccenticity();
+    double e = qtle->Eccentricity();
     double epow2 = e * e;
     double epow3 = e * e * e;
 

@@ -450,7 +450,7 @@ void SegmentHRP::ComposeProjection(int inputchannel, eProjections proj)
     QEci eciref;
 
     double angular_velocity = TWOPI/qtle->Period(); // period in seconds
-    double e = qtle->Eccenticity();
+    double e = qtle->Eccentricity();
     double epow2 = e * e;
     double epow3 = e * e * e;
 
@@ -530,7 +530,7 @@ void SegmentHRP::RenderSegmentlineInProjection( int channel, int heightintotalim
 
     QGeodetic georef = eciref.ToGeo();
 
-    double e = qtle->Eccenticity();
+    double e = qtle->Eccentricity();
 
     double epow2 = e * e;
     double epow3 = e * e * e;

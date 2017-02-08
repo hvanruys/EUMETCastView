@@ -884,7 +884,6 @@ void FormImage::zoomOverlaySwitch()
 
 void FormImage::paintEvent( QPaintEvent * )
 {
-    qDebug() << "FormImage::paintEvent( QPaintEvent * ) 1";
     if (imageLabel->pixmap() == 0)
         return;
 
@@ -915,8 +914,6 @@ void FormImage::paintEvent( QPaintEvent * )
         displayVIIRSImageInfo();
     if(channelshown == IMAGE_OLCI)
         displayOLCIImageInfo();
-
-    qDebug() << "FormImage::paintEvent( QPaintEvent * ) 2";
 
     if(segs->seglmeteosat->bActiveSegmentList == true)
     {
@@ -969,7 +966,6 @@ void FormImage::paintEvent( QPaintEvent * )
     else
         return;
 
-    qDebug() << "FormImage::paintEvent( QPaintEvent * ) 3";
 
 
     if(channelshown == IMAGE_GEOSTATIONARY)
@@ -1407,6 +1403,10 @@ void FormImage::slotUpdateGeosat()
     else if(segs->seglgoes15dc4->bActiveSegmentList == true)
     {
         sl = segs->seglgoes15dc4;
+    }
+    else if(segs->seglgoes16->bActiveSegmentList == true)
+    {
+        sl = segs->seglgoes16;
     }
     else if(segs->seglfy2e->bActiveSegmentList == true)
     {
