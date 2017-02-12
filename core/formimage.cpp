@@ -647,7 +647,7 @@ bool FormImage::ShowOLCIefrImage(int histogrammethod, bool normalized)
         colorlist = formtoolbox->getOLCIColorList();
         invertlist = formtoolbox->getOLCIInvertList();
         segs->seglolciefr->setHistogramMethod(histogrammethod, normalized);
-        segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, false); // parameter false = no untar file
+        segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, false); // parameter false = no decompression of the files
     }
     else
         ret = false;

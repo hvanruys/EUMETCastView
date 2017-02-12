@@ -7,9 +7,9 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 extern bool ptrimagebusy;
 
-void doComposeOLCIImageInThread(SegmentListOLCI *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool readnew)
+void doComposeOLCIImageInThread(SegmentListOLCI *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles)
 {
-    t->ComposeOLCIImageInThread(bandlist, colorlist, invertlist, readnew);
+    t->ComposeOLCIImageInThread(bandlist, colorlist, invertlist, decompressfiles);
 }
 
 
@@ -24,7 +24,7 @@ SegmentListOLCI::SegmentListOLCI(eSegmentType type, SatelliteList *satl, QObject
     normalized = false;
 }
 
-bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles)
+bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles)
 {
     qDebug() << QString("SegmentListOLCI::ComposeOLCIImage");
 
@@ -38,14 +38,14 @@ bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlis
     connect(watcherolci, SIGNAL(finished()), this, SLOT(finishedolci()));
 
     QFuture<void> future;
-    future = QtConcurrent::run(doComposeOLCIImageInThread, this, bandlist, colorlist, invertlist, untarfiles);
+    future = QtConcurrent::run(doComposeOLCIImageInThread, this, bandlist, colorlist, invertlist, decompressfiles);
     watcherolci->setFuture(future);
 
     return true;
 
 }
 
-bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles)
+bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles)
 {
 
     qDebug() << "bool SegmentListOLCIefr::ComposeOLCIImageInThread() started";
@@ -114,13 +114,13 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
     int deltaprogress = 99 / (totalnbrofsegments*3);
     int totalprogress = 0;
 
-    if(untarfiles)
+    if(decompressfiles)
     {
         segsel = segsselected.begin();
         while ( segsel != segsselected.end() )
         {
             SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
-            segm->UntarSegmentToTemp();
+            segm->DecompressSegmentToTemp();
             totalprogress += deltaprogress;
             emit progressCounter(totalprogress);
             ++segsel;

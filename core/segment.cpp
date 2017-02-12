@@ -105,7 +105,7 @@ void Segment::CalculateCornerPoints()
     double trueAnomaly = M + C;
     double PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
-    qDebug() << QString("minutes_since_state_vector = %1 in CalculateCornerPoints").arg(minutes_since_state_vector);
+    //qDebug() << QString("minutes_since_state_vector = %1 in CalculateCornerPoints").arg(minutes_since_state_vector);
 
         if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
                 segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
@@ -115,7 +115,7 @@ void Segment::CalculateCornerPoints()
             double yaw_factor = 0.068766 * cos(PSO);
             double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
 
-            qDebug() << QString("minutes_since_state_vector = %1 yaw_steering_angle = %2").arg(minutes_since_state_vector).arg(yaw_steering_angle*180.0/PI);
+            //qDebug() << QString("minutes_since_state_vector = %1 yaw_steering_angle = %2").arg(minutes_since_state_vector).arg(yaw_steering_angle*180.0/PI);
 
             mat.setToIdentity();
             mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw

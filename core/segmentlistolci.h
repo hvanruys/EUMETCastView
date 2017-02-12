@@ -15,8 +15,8 @@ class SegmentListOLCI : public SegmentList
 
 public:
     SegmentListOLCI(eSegmentType type = SEG_OLCIEFR, SatelliteList *satl = 0, QObject *parent = 0);
-    bool ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
-    bool ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool untarfiles);
+    bool ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles);
+    bool ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles);
 
     void ComposeGVProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeLCCProjection(int inputchannel, int histogrammethod, bool normalized);

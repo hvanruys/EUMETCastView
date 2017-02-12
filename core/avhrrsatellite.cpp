@@ -344,7 +344,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segviirsdnb;
-        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR" && fileInfo.fileName().mid( 100, 3) == "tar") // S3A EFR
+        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR") // && fileInfo.fileName().mid( 100, 3) == "tar") // S3A EFR
         {
             //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -359,7 +359,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segolciefr;
-        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR" && fileInfo.fileName().mid( 100, 3) == "tar") // S3A ERR
+        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR") // && fileInfo.fileName().mid( 100, 3) == "tar") // S3A ERR
         {
             //S3A_OL_1_ERR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -1225,7 +1225,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789
         //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3
-        else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR")
+        else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR") // && fileinfo.completeSuffix() == ".tar")
         {
             *sentinel3Tle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
@@ -1242,7 +1242,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789
         //S3A_OL_1_ERR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3
-        else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR")
+        else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR") // && fileinfo.completeSuffix() == ".tar")
         {
             *sentinel3Tle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());

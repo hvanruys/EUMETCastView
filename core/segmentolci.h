@@ -30,7 +30,7 @@ public:
     void recalculateStatsInProjection(bool normalized);
     void RecalculateProjection(bool normalized);
     void CalcOverlayLatLon(int columnslength, int rowslength);
-    int UntarSegmentToTemp();
+    int DecompressSegmentToTemp();
 
 
     ~SegmentOLCI();

@@ -1226,7 +1226,7 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
 
 }
 
-int SegmentOLCI::UntarSegmentToTemp()
+int SegmentOLCI::DecompressSegmentToTemp()
 {
 
     int flags = ARCHIVE_EXTRACT_TIME;
@@ -1252,7 +1252,7 @@ int SegmentOLCI::UntarSegmentToTemp()
     a = archive_read_new();
     ext = archive_write_disk_new();
     //archive_read_support_filter_all(a);
-    archive_read_support_format_tar(a);
+    archive_read_support_format_all(a);
 
     archive_write_disk_set_options(ext, flags);
 
