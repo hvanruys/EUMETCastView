@@ -15,7 +15,7 @@ class SegmentOLCI : public Segment
     Q_OBJECT
 
 public:
-    explicit SegmentOLCI(eSegmentType type, QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *satl = 0, QObject *parent = 0);
     Segment *ReadSegmentInMemory();
 
     void ComposeSegmentImage(int histogrammethod, bool normalized);

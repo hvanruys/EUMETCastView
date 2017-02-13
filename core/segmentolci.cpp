@@ -18,7 +18,7 @@ void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
 }
 
 
-SegmentOLCI::SegmentOLCI(eSegmentType type, QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *satl, QObject *parent) :
   Segment(parent)
 {
 
@@ -26,7 +26,9 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFile *filesegment, SatelliteList *s
 
     satlist = satl;
 
-    fileInfo.setFile(*filesegment);
+    //fileInfo.setFile(*filesegment);
+    this->fileInfo = fileinfo;
+
     if(type == SEG_OLCIEFR)
     {
         segment_type = "OLCIEFR";
@@ -170,7 +172,9 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
     bool iscolorimage = this->bandlist.at(0);
 
-    QString geofile = this->fileInfo.baseName() + ".SEN3/geo_coordinates.nc";
+    QString geofile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/geo_coordinates.nc" : fileInfo.baseName() + ".SEN3/geo_coordinates.nc";
+    qDebug() << "geofile = " << geofile;
+
     QByteArray arraygeo = geofile.toUtf8();
     const char *pgeofile = arraygeo.constData();
 
@@ -208,7 +212,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
     QFuture<void> future = QtConcurrent::run(doCalcOverlayLatLon, this, columnslength, rowslength);
 
-    QString tiegeofile = this->fileInfo.baseName() + ".SEN3/tie_geometries.nc";
+    QString tiegeofile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/tie_geometries.nc" : fileInfo.baseName() + ".SEN3/tie_geometries.nc";
     QByteArray arraytiegeo = tiegeofile.toUtf8();
     const char *ptiegeofile = arraytiegeo.constData();
 
@@ -243,7 +247,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 //         qDebug() << i << " " << tieSZA[i];
 
 
-    QString qualityflagfile = this->fileInfo.baseName() + ".SEN3/qualityFlags.nc";
+    QString qualityflagfile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/qualityFlags.nc" : this->fileInfo.baseName() + ".SEN3/qualityFlags.nc";
     QByteArray arrayquality = qualityflagfile.toUtf8();
     const char *pqualityflagfile = arrayquality.constData();
 
@@ -673,195 +677,6 @@ float SegmentOLCI::getSolarZenith(int *tieSZA, int navpoint, int intpoint, int n
 
 }
 
-//Segment *SegmentOLCI::ReadSegmentInMemory()
-//{
-
-//    QString fname1;
-//    QString fname2;
-//    QString fname3;
-//    QByteArray array1;
-//    QByteArray array2;
-//    QByteArray array3;
-//    const char* pfname1;
-//    const char* pfname2;
-//    const char* pfname3;
-//    QString var1;
-//    QString var2;
-//    QString var3;
-//    const char* pvar1;
-//    const char* pvar2;
-//    const char* pvar3;
-//    NcVar radiance1;
-//    NcVar radiance2;
-//    NcVar radiance3;
-
-//    bool iscolorimage = this->bandlist.at(0);
-
-
-//    qDebug() << "Starting netCDF geo_coordinates";
-
-
-//    QString geofile = this->fileInfo.baseName() + ".SEN3/geo_coordinates.nc";
-//    QByteArray arraygeo = geofile.toUtf8();
-//    const char *pgeofile = arraygeo.constData();
-//    NcFile geoFile(pgeofile, NcFile::read);
-//    if(geoFile.isNull()) qDebug() << "error opening geoFile";
-
-
-//    NcDim coldim = geoFile.getDim("columns");
-//    NcDim rowdim = geoFile.getDim("rows");
-//    int columns = coldim.getSize();
-//    int rows = rowdim.getSize();
-
-
-//    this->longitude.reset(new int[columns * rows]);
-//    this->latitude.reset(new int[columns * rows]);
-
-//    NcVar geolon = geoFile.getVar("longitude");
-//    if(geolon.isNull()) qDebug() << "error getVar geolon";
-//    geolon.getVar(this->longitude.data());
-
-//    NcVar geolat = geoFile.getVar("latitude");
-//    if(geolat.isNull()) qDebug() << "error getVar geolat";
-//    geolat.getVar(this->latitude.data());
-
-//    if(iscolorimage)
-//    {
-//        qDebug() << "Starting netCDF color";
-//        getDatasetNameFromColor(0, &fname1, &var1);
-//        getDatasetNameFromColor(1, &fname2, &var2);
-//        getDatasetNameFromColor(2, &fname3, &var3);
-
-//        qDebug() << "getDatasetNameFromBand fname1 = " << fname1 << " var1 = " << var1;
-//        qDebug() << "getDatasetNameFromBand fname2 = " << fname2 << " var2 = " << var2;
-//        qDebug() << "getDatasetNameFromBand fname3 = " << fname3 << " var3 = " << var3;
-
-
-//        array1 = fname1.toUtf8();
-//        array2 = fname2.toUtf8();
-//        array3 = fname3.toUtf8();
-//        pfname1 = array1.constData();
-//        pfname2 = array2.constData();
-//        pfname3 = array3.constData();
-
-//        NcFile dataFile1(pfname1, NcFile::read);
-//        if(dataFile1.isNull()) qDebug() << "error opening dataFile1";
-
-//        NcFile dataFile2(pfname2, NcFile::read);
-//        if(dataFile2.isNull()) qDebug() << "error opening dataFile2";
-
-//        NcFile dataFile3(pfname3, NcFile::read);
-//        if(dataFile3.isNull()) qDebug() << "error opening dataFile3";
-
-
-//        NcDim coldim = dataFile1.getDim("columns");
-//        NcDim rowdim = dataFile1.getDim("rows");
-//        this->earth_views_per_scanline = coldim.getSize();
-//        this->NbrOfLines = rowdim.getSize();
-
-
-//        this->initializeMemory();
-
-//        for(int k = 0; k < 3; k++)
-//        {
-//            stat_max_ch[k] = 0;
-//            stat_min_ch[k] = 9999999;
-//            active_pixels[k] = 0;
-//        }
-
-
-//        array1 = var1.toUtf8();
-//        array2 = var2.toUtf8();
-//        array3 = var3.toUtf8();
-//        pvar1 = array1.constData();
-//        pvar2 = array2.constData();
-//        pvar3 = array3.constData();
-
-
-//        radiance1 = dataFile1.getVar(pvar1);
-//        if(radiance1.isNull()) qDebug() << "error getVar radiance1";
-//        radiance1.getVar(ptrbaOLCI[0].data());
-
-//        radiance2 = dataFile2.getVar(pvar2);
-//        if(radiance2.isNull()) qDebug() << "error getVar radiance2";
-//        radiance2.getVar(ptrbaOLCI[1].data());
-
-//        radiance3 = dataFile3.getVar(pvar3);
-//        if(radiance3.isNull()) qDebug() << "error getVar radiance3";
-//        radiance3.getVar(ptrbaOLCI[2].data());
-
-//    }
-//    else
-//    {
-//        qDebug() << "Starting netCDF mono";
-
-//        getDatasetNameFromBand(&fname1, &var1);
-//        qDebug() << "getDatasetNameFromBand fname1 = " << fname1 << " var1 = " << var1;
-//        array1 = fname1.toUtf8();
-//        pfname1 = array1.constData();
-//        NcFile dataFile1(pfname1, NcFile::read);
-//        if(dataFile1.isNull()) qDebug() << "error opening dataFile1";
-
-
-//        NcDim coldim = dataFile1.getDim("columns");
-//        NcDim rowdim = dataFile1.getDim("rows");
-//        this->earth_views_per_scanline = coldim.getSize();
-//        this->NbrOfLines = rowdim.getSize();
-
-//        qDebug() << QString("num_dims = %1 num_vars = %2 num_atts = %3 group_dim = %4")
-//                            .arg(dataFile1.getDimCount())
-//                            .arg(dataFile1.getVarCount())
-//                            .arg(dataFile1.getAttCount())
-//                            .arg(dataFile1.getGroupCount());
-
-//        this->initializeMemory();
-//        for(int k = 0; k < 3; k++)
-//        {
-//            stat_max_ch[k] = 0;
-//            stat_min_ch[k] = 9999999;
-//            active_pixels[k] = 0;
-//        }
-
-//        array1 = var1.toUtf8();
-//        pvar1 = array1.constData();
-
-//        radiance1 = dataFile1.getVar(pvar1);
-//        if(radiance1.isNull()) qDebug() << "error getVar radiance1";
-//        radiance1.getVar(ptrbaOLCI[0].data());
-
-//    }
-
-
-
-//    for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
-//    {
-//        for(int j=0; j < NbrOfLines; j++)
-//        {
-//            for(int i=0; i < earth_views_per_scanline; i++)
-//            {
-//                if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < 65535)
-//                {
-//                    if(ptrbaOLCI[k][j*earth_views_per_scanline + i] > stat_max_ch[k])
-//                        stat_max_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
-//                    if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < stat_min_ch[k])
-//                        stat_min_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
-//                    active_pixels[k]++;
-//                }
-
-//            }
-//        }
-//    }
-
-//    qDebug() << QString("ptrbaOLCI min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
-//    if(iscolorimage)
-//    {
-//        qDebug() << QString("ptrbaOLCI min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
-//        qDebug() << QString("ptrbaOLCI min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
-
-//    }
-
-
-//}
 
 void SegmentOLCI::getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename, int *saturationindex)
 {
@@ -873,147 +688,147 @@ void SegmentOLCI::getDatasetNameFromColor(int colorindex, QString *datasetname, 
     if(colorlist.at(0) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(0);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa01_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa01_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa01_radiance.nc";
         *variablename = "Oa01_radiance";
         *saturationindex = 11;
     }
     else if(colorlist.at(1) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(1);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa02_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa02_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa02_radiance.nc";
         *variablename = "Oa02_radiance";
         *saturationindex = 12;
     }
     else if(colorlist.at(2) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(2);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa03_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa03_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa03_radiance.nc";
         *variablename = "Oa03_radiance";
         *saturationindex = 13;
     }
     else if(colorlist.at(3) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(3);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa04_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa04_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa04_radiance.nc";
         *variablename = "Oa04_radiance";
         *saturationindex = 14;
     }
     else if(colorlist.at(4) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(4);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa05_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa05_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa05_radiance.nc";
         *variablename = "Oa05_radiance";
         *saturationindex = 15;
     }
     else if(colorlist.at(5) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(5);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa06_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa06_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa06_radiance.nc";
         *variablename = "Oa06_radiance";
         *saturationindex = 16;
     }
     else if(colorlist.at(6) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(6);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa07_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa07_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa07_radiance.nc";
         *variablename = "Oa07_radiance";
         *saturationindex = 17;
     }
     else if(colorlist.at(7) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(7);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa08_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa08_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa08_radiance.nc";
         *variablename = "Oa08_radiance";
         *saturationindex = 18;
     }
     else if(colorlist.at(8) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(8);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa09_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa09_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa09_radiance.nc";
         *variablename = "Oa09_radiance";
         *saturationindex = 19;
     }
     else if(colorlist.at(9) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(9);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa10_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa10_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa10_radiance.nc";
         *variablename = "Oa10_radiance";
         *saturationindex = 20;
    }
     else if(colorlist.at(10) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(10);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa11_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa11_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa11_radiance.nc";
         *variablename = "Oa11_radiance";
         *saturationindex = 21;
     }
     else if(colorlist.at(11) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(11);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa12_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa12_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa12_radiance.nc";
         *variablename = "Oa12_radiance";
         *saturationindex = 22;
     }
     else if(colorlist.at(12) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(12);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa13_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa13_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa13_radiance.nc";
         *variablename = "Oa13_radiance";
         *saturationindex = 23;
     }
     else if(colorlist.at(13) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(13);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa14_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa14_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa14_radiance.nc";
         *variablename = "Oa14_radiance";
         *saturationindex = 24;
     }
     else if(colorlist.at(14) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(14);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa15_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa15_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa15_radiance.nc";
         *variablename = "Oa15_radiance";
         *saturationindex = 25;
     }
     else if(colorlist.at(15) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(15);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa16_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa16_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa16_radiance.nc";
         *variablename = "Oa16_radiance";
         *saturationindex = 26;
     }
     else if(colorlist.at(16) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(16);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa17_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa17_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa17_radiance.nc";
         *variablename = "Oa17_radiance";
         *saturationindex = 27;
     }
     else if(colorlist.at(17) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(17);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa18_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa18_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa18_radiance.nc";
         *variablename = "Oa18_radiance";
         *saturationindex = 28;
     }
     else if(colorlist.at(18) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(18);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa19_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa19_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa19_radiance.nc";
         *variablename = "Oa19_radiance";
         *saturationindex = 29;
     }
     else if(colorlist.at(19) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(19);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa20_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa20_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa20_radiance.nc";
         *variablename = "Oa20_radiance";
         *saturationindex = 30;
     }
     else if(colorlist.at(20) == colorindex)
     {
         invertthissegment[colorindex-1] = invertlist.at(20);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa21_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa21_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa21_radiance.nc";
         *variablename = "Oa21_radiance";
         *saturationindex = 31;
     }
@@ -1024,147 +839,147 @@ void SegmentOLCI::getDatasetNameFromBand(QString *datasetname, QString *variable
     if(bandlist.at(1))
     {
         invertthissegment[0] = invertlist.at(0);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa01_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa01_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa01_radiance.nc";
         *variablename = "Oa01_radiance";
         *saturationindex = 11;
     }
     else if(bandlist.at(2))
     {
         invertthissegment[0] = invertlist.at(1);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa02_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa02_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa02_radiance.nc";
         *variablename = "Oa02_radiance";
         *saturationindex = 12;
     }
     else if(bandlist.at(3))
     {
         invertthissegment[0] = invertlist.at(2);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa03_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa03_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa03_radiance.nc";
         *variablename = "Oa03_radiance";
         *saturationindex = 13;
     }
     else if(bandlist.at(4))
     {
         invertthissegment[0] = invertlist.at(3);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa04_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa04_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa04_radiance.nc";
         *variablename = "Oa04_radiance";
         *saturationindex = 14;
     }
     else if(bandlist.at(5))
     {
         invertthissegment[0] = invertlist.at(4);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa05_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa05_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa05_radiance.nc";
         *variablename = "Oa05_radiance";
         *saturationindex = 15;
     }
     else if(bandlist.at(6))
     {
        invertthissegment[0] = invertlist.at(5);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa06_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa06_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa06_radiance.nc";
         *variablename = "Oa06_radiance";
        *saturationindex = 16;
     }
     else if(bandlist.at(7))
     {
         invertthissegment[0] = invertlist.at(6);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa07_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa07_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa07_radiance.nc";
         *variablename = "Oa07_radiance";
         *saturationindex = 17;
     }
     else if(bandlist.at(8))
     {
         invertthissegment[0] = invertlist.at(7);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa08_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa08_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa08_radiance.nc";
         *variablename = "Oa08_radiance";
         *saturationindex = 18;
     }
     else if(bandlist.at(9))
     {
         invertthissegment[0] = invertlist.at(8);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa09_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa09_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa09_radiance.nc";
         *variablename = "Oa09_radiance";
         *saturationindex = 19;
     }
     else if(bandlist.at(10))
     {
         invertthissegment[0] = invertlist.at(9);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa10_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa10_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa10_radiance.nc";
         *variablename = "Oa10_radiance";
         *saturationindex = 20;
     }
     else if(bandlist.at(11))
     {
         invertthissegment[0] = invertlist.at(10);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa11_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa11_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa11_radiance.nc";
         *variablename = "Oa11_radiance";
         *saturationindex = 21;
     }
     else if(bandlist.at(12))
     {
         invertthissegment[0] = invertlist.at(11);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa12_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa12_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa12_radiance.nc";
         *variablename = "Oa12_radiance";
         *saturationindex = 22;
     }
     else if(bandlist.at(13))
     {
         invertthissegment[0] = invertlist.at(12);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa13_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa13_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa13_radiance.nc";
         *variablename = "Oa13_radiance";
         *saturationindex = 23;
     }
     else if(bandlist.at(14))
     {
         invertthissegment[0] = invertlist.at(13);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa14_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa14_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa14_radiance.nc";
         *variablename = "Oa14_radiance";
         *saturationindex = 24;
     }
     else if(bandlist.at(15))
     {
         invertthissegment[0] = invertlist.at(14);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa15_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa15_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa15_radiance.nc";
         *variablename = "Oa15_radiance";
         *saturationindex = 25;
     }
     else if(bandlist.at(16))
     {
         invertthissegment[0] = invertlist.at(15);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa16_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa16_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa16_radiance.nc";
         *variablename = "Oa16_radiance";
         *saturationindex = 26;
     }
     else if(bandlist.at(17))
     {
         invertthissegment[0] = invertlist.at(16);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa17_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa17_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa17_radiance.nc";
         *variablename = "Oa17_radiance";
         *saturationindex = 27;
     }
     else if(bandlist.at(18))
     {
         invertthissegment[0] = invertlist.at(17);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa18_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa18_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa18_radiance.nc";
         *variablename = "Oa18_radiance";
         *saturationindex = 28;
     }
     else if(bandlist.at(19))
     {
         invertthissegment[0] = invertlist.at(18);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa19_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa19_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa19_radiance.nc";
         *variablename = "Oa19_radiance";
         *saturationindex = 29;
     }
     else if(bandlist.at(20))
     {
         invertthissegment[0] = invertlist.at(19);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa20_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa20_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa20_radiance.nc";
         *variablename = "Oa20_radiance";
         *saturationindex = 30;
     }
     else if(bandlist.at(21))
     {
         invertthissegment[0] = invertlist.at(20);
-        *datasetname = this->fileInfo.baseName() + ".SEN3/Oa21_radiance.nc";
+        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa21_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa21_radiance.nc";
         *variablename = "Oa21_radiance";
         *saturationindex = 31;
     }
@@ -1238,6 +1053,10 @@ int SegmentOLCI::DecompressSegmentToTemp()
     QString intarfile = this->fileInfo.absoluteFilePath();
 
     qDebug() << "Start UntarSegmentToTemp 1 for absolutefilepath " + intarfile;
+    qDebug() << "fileInfo.completeBaseName() = " << fileInfo.completeBaseName();
+
+    if(this->fileInfo.isDir())
+        return 0;
 
     QDir direxist(this->fileInfo.completeBaseName());
     if (direxist.exists())
@@ -1256,7 +1075,6 @@ int SegmentOLCI::DecompressSegmentToTemp()
 
     archive_write_disk_set_options(ext, flags);
 
-    // r = archive_read_open_filename(a, p, 10240); // Note 1
     r = archive_read_open_filename(a, p, 20480);
     if (r != ARCHIVE_OK)
     {

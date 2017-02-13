@@ -186,15 +186,21 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     for (int i = 0; i < fileinfolist.size(); ++i)
     {
         fileInfo = fileinfolist.at(i);
+        qDebug() << "lijst = " << fileInfo.fileName() << " isFile = " << fileInfo.isFile() << " isDir = " << fileInfo.isDir();
+    }
+
+    for (int i = 0; i < fileinfolist.size(); ++i)
+    {
+        fileInfo = fileinfolist.at(i);
         counter++;
 
         if (fileInfo.size() == 0)
             continue;
 
-        if (fileInfo.fileName().mid( 0, 8) == "AVHR_xxx" && fileInfo.fileName().mid( 67, 4) == ".bz2")   // EPS-10
+        if (fileInfo.fileName().mid( 0, 8) == "AVHR_xxx" && fileInfo.fileName().mid( 67, 4) == ".bz2" && fileInfo.isFile())   // EPS-10
         {
             seglmetop->SetDirectoryName(fileInfo.absolutePath());
-            QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+            QFile file( fileInfo.absoluteFilePath());
             segmetop = new SegmentMetop(&file,satlist);
             if(segmetop->segmentok == true)
             {
@@ -203,12 +209,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segmetop;
-        } else if (fileInfo.fileName().mid( 0, 6) == "avhrr_" && fileInfo.fileName().mid( 22, 6) == "noaa19")  // Data Channel 1
+        } else if (fileInfo.fileName().mid( 0, 6) == "avhrr_" && fileInfo.fileName().mid( 22, 6) == "noaa19" && fileInfo.isFile())  // Data Channel 1
         {
             seglnoaa->SetDirectoryName(fileInfo.absolutePath());
             if (satlist->SatExistInList(33591) )
             {
-                QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+                QFile file( fileInfo.absoluteFilePath());
                 segnoaa = new SegmentNoaa(&file, satlist);
                 if(segnoaa->segmentok == true)
                 {
@@ -218,10 +224,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 else
                     delete segnoaa;
             }
-        } else if (fileInfo.fileName().mid( 0, 8) == "AVHR_HRP" && fileInfo.fileName().mid( 67, 4) == ".bz2")   // Data Channel 1
+        } else if (fileInfo.fileName().mid( 0, 8) == "AVHR_HRP" && fileInfo.fileName().mid( 67, 4) == ".bz2" && fileInfo.isFile())   // Data Channel 1
         {
             seglhrp->SetDirectoryName(fileInfo.absolutePath());
-            QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+            QFile file( fileInfo.absoluteFilePath());
             seghrp = new SegmentHRP(&file,satlist);
             if(seghrp->segmentok == true)
             {
@@ -231,10 +237,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             else
                 delete seghrp;
 
-        } else if (fileInfo.fileName().mid( 0, 8) == "AVHR_GAC") // EPS-15
+        } else if (fileInfo.fileName().mid( 0, 8) == "AVHR_GAC" && fileInfo.isFile()) // EPS-15
         {
             seglgac->SetDirectoryName(fileInfo.absolutePath());
-            QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+            QFile file( fileInfo.absoluteFilePath());
             seggac = new SegmentGAC(&file, satlist);
             if(seggac->segmentok == true)
             {
@@ -243,12 +249,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete seggac;
-        } else if (fileInfo.fileName().mid( 16, 6) == "MetopA" && fileInfo.completeSuffix() == "hpt")
+        } else if (fileInfo.fileName().mid( 16, 6) == "MetopA" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglmetopAhrpt->SetDirectoryName(fileInfo.absolutePath());
             if (satlist->SatExistInList(29499) )
             {
-                QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+                QFile file( fileInfo.absoluteFilePath());
                 segmetopAhrpt = new SegmentHRPT(SEG_HRPT_METOPA, &file, satlist);
                 if(segmetopAhrpt->segmentok == true)
                 {
@@ -258,12 +264,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 else
                     delete segmetopAhrpt;
             }
-        } else if (fileInfo.fileName().mid( 16, 6) == "MetopB" && fileInfo.completeSuffix() == "hpt")
+        } else if (fileInfo.fileName().mid( 16, 6) == "MetopB" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglmetopBhrpt->SetDirectoryName(fileInfo.absolutePath());
             if (satlist->SatExistInList(38771) )
             {
-                QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+                QFile file( fileInfo.absoluteFilePath());
                 segmetopBhrpt = new SegmentHRPT(SEG_HRPT_METOPB, &file, satlist);
                 if(segmetopBhrpt->segmentok == true)
                 {
@@ -273,12 +279,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 else
                     delete segmetopBhrpt;
             }
-        } else if (fileInfo.fileName().mid( 16, 6) == "NOAA19" && fileInfo.completeSuffix() == "hpt")
+        } else if (fileInfo.fileName().mid( 16, 6) == "NOAA19" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglnoaa19hrpt->SetDirectoryName(fileInfo.absolutePath());
             if (satlist->SatExistInList(33591) )
             {
-                QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+                QFile file( fileInfo.absoluteFilePath());
                 segnoaa19hrpt = new SegmentHRPT(SEG_HRPT_NOAA19, &file, satlist);
                 if(segnoaa19hrpt->segmentok == true)
                 {
@@ -288,12 +294,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 else
                     delete segnoaa19hrpt;
             }
-        } else if (fileInfo.fileName().mid( 16, 3) == "M01" && fileInfo.completeSuffix() == "hpt")
+        } else if (fileInfo.fileName().mid( 16, 3) == "M01" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglM01hrpt->SetDirectoryName(fileInfo.absolutePath());
             if (satlist->SatExistInList(38771) )
             {
-                QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+                QFile file( fileInfo.absoluteFilePath());
                 segM01hrpt = new SegmentHRPT(SEG_HRPT_M01, &file, satlist);
                 if(segM01hrpt->segmentok == true)
                 {
@@ -303,12 +309,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 else
                     delete segM01hrpt;
             }
-        } else if (fileInfo.fileName().mid( 16, 3) == "M02" && fileInfo.completeSuffix() == "hpt")
+        } else if (fileInfo.fileName().mid( 16, 3) == "M02" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglM02hrpt->SetDirectoryName(fileInfo.absolutePath());
             if (satlist->SatExistInList(29499) )
             {
-                QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+                QFile file( fileInfo.absoluteFilePath());
                 segM02hrpt = new SegmentHRPT(SEG_HRPT_M02, &file, satlist);
                 if(segM02hrpt->segmentok == true)
                 {
@@ -318,10 +324,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 else
                     delete segM02hrpt;
             }
-        } else if (fileInfo.fileName().mid( 0, 8) == "SVMC_npp" && fileInfo.fileName().mid( 77, 3) == "bz2") // NPP-2
+        } else if (fileInfo.fileName().mid( 0, 8) == "SVMC_npp" && fileInfo.fileName().mid( 77, 3) == "bz2" && fileInfo.isFile()) // NPP-2
         {
             seglviirsm->SetDirectoryName(fileInfo.absolutePath());
-            QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+            QFile file( fileInfo.absoluteFilePath());
             segviirsm = new SegmentVIIRSM(&file, satlist);
             if(segviirsm->segmentok == true)
             {
@@ -330,12 +336,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segviirsm;
-        } else if (fileInfo.fileName().mid( 0, 10) == "SVDNBC_npp" && fileInfo.fileName().mid( 79, 3) == "bz2") // NPP-2
+        } else if (fileInfo.fileName().mid( 0, 10) == "SVDNBC_npp" && fileInfo.fileName().mid( 79, 3) == "bz2" && fileInfo.isFile()) // NPP-2
         {
             //SVDNBC_npp_d20150810_t0033443_e0035085_b19602_c20150824113128000166_eum_ops.h5.bz2
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901
             seglviirsdnb->SetDirectoryName(fileInfo.absolutePath());
-            QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
+            QFile file( fileInfo.absoluteFilePath());
             segviirsdnb = new SegmentVIIRSDNB(&file, satlist);
             if(segviirsdnb->segmentok == true)
             {
@@ -349,9 +355,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
             //0         1         2         3         4         5         6         7         8         9         10
+
+            qDebug() << "fileInfo.absoluteFilePath() = " << fileInfo.absoluteFilePath() << " isDir = " << fileInfo.isDir() << " fileName = " << fileInfo.fileName();
+
             seglolciefr->SetDirectoryName(fileInfo.absolutePath());
-            QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
-            segolciefr = new SegmentOLCI(SEG_OLCIEFR, &file, satlist);
+            //QFile file( fileInfo.absoluteFilePath());
+            segolciefr = new SegmentOLCI(SEG_OLCIEFR, fileInfo, satlist);
             if(segolciefr->segmentok == true)
             {
                 slolciefr->append(segolciefr);
@@ -365,8 +374,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
             //0         1         2         3         4         5         6         7         8         9         10
             seglolcierr->SetDirectoryName(fileInfo.absolutePath());
-            QFile file( segmentdir.filePath(fileInfo.absoluteFilePath()));
-            segolcierr = new SegmentOLCI(SEG_OLCIERR, &file, satlist);
+            //QFile file( fileInfo.absoluteFilePath());
+            segolcierr = new SegmentOLCI(SEG_OLCIERR, fileInfo, satlist);
             if(segolcierr->segmentok == true)
             {
                 slolcierr->append(segolcierr);
@@ -375,7 +384,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             else
                 delete segolcierr;
         } else if (fileInfo.fileName().mid( 0, 9) == "H-000-MSG" && fileInfo.fileName().mid( 13, 3) == "MSG" &&
-                   fileInfo.fileName().mid( 18, 3) == "___" && fileInfo.fileName().mid( 59, 2) == "C_")
+                   fileInfo.fileName().mid( 18, 3) == "___" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile())
         // Data Channel 2
         {
             //012345678901234567890123456789012345678901234567890123456789012
@@ -413,7 +422,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
             }
         } else if (fileInfo.fileName().mid( 0, 9) == "H-000-MSG" && fileInfo.fileName().mid( 13, 3) == "MSG" &&
-                   fileInfo.fileName().mid( 18, 3) == "RSS" && fileInfo.fileName().mid( 59, 2) == "C_")
+                   fileInfo.fileName().mid( 18, 3) == "RSS" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile())
             //   // Data Channel 5
         {
             //H-000-MSG1__-MSG1_RSS____-HRV______-000016___-201211210610-C_
@@ -448,7 +457,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
             }
         } else if (fileInfo.fileName().mid( 0, 9) == "H-000-MSG" && fileInfo.fileName().mid( 13, 3) == "MSG" &&
-                   fileInfo.fileName().mid( 18, 4) == "IODC" && fileInfo.fileName().mid( 59, 2) == "C_")
+                   fileInfo.fileName().mid( 18, 4) == "IODC" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile())
             //   // E1B-GEO-1
         {
             //012345678901234567890123456789012345678901234567890123456789012
@@ -482,7 +491,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 }
 
             }
-        } else if (fileInfo.fileName().mid( 0, 17) == "L-000-MTP___-MET7" && fileInfo.fileName().mid( 59, 2) == "C_") // Data Channel 3
+        } else if (fileInfo.fileName().mid( 0, 17) == "L-000-MTP___-MET7" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile()) // Data Channel 3
         {
             //L-000-MTP___-MET7________-06_4_057E-000004___-201403300930-C_
             //L-000-MTP___-MET7________-06_4_057E-PRO______-201404011600-__
@@ -516,8 +525,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 }
 
             }
-        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" &&
-           //        && fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))  // Data Channel 3
+        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile() &&
                    (fileInfo.fileName().mid(54, 4) == "0000" ||
                     fileInfo.fileName().mid(54, 4) == "0300" ||
                     fileInfo.fileName().mid(54, 4) == "0600" ||
@@ -560,8 +568,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
             }
         }
-        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" &&
-              //     && fileInfo.absolutePath().contains("Data Channel 4", Qt::CaseInsensitive))  // Data Channel 4
+        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile() &&
                  (fileInfo.fileName().mid(54, 4) == "0100" ||
                   fileInfo.fileName().mid(54, 4) == "0200" ||
                   fileInfo.fileName().mid(54, 4) == "0400" ||
@@ -612,8 +619,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
             }
         }
-        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileInfo.fileName().mid( 59, 2) == "C_" &&
-              //     fileInfo.absolutePath().contains("Data Channel 3", Qt::CaseInsensitive))   // Data Channel 3
+        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile() &&
                  (fileInfo.fileName().mid(54, 4) == "0000" ||
                   fileInfo.fileName().mid(54, 4) == "0300" ||
                   fileInfo.fileName().mid(54, 4) == "0600" ||
@@ -656,8 +662,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 }
 
             }
-        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileInfo.fileName().mid( 59, 2) == "C_" &&
-                //   fileInfo.absolutePath().contains("Data Channel 4", Qt::CaseInsensitive))   // Data Channel 4
+        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile() &&
                    (fileInfo.fileName().mid(54, 4) == "0100" ||
                     fileInfo.fileName().mid(54, 4) == "0200" ||
                     fileInfo.fileName().mid(54, 4) == "0400" ||
@@ -712,7 +717,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         }
         //0123456789012345678901234567890123456789012345678901234567890123456789012345
         //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
-        else if (fileInfo.fileName().mid( 0, 6) == "OR_ABI")
+        else if (fileInfo.fileName().mid( 0, 6) == "OR_ABI" && fileInfo.isFile())
         {
             int filenbr = 0;
             QString strspectrum = fileInfo.fileName().mid(18, 3);
@@ -741,7 +746,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
 
         }
-        else if (fileInfo.fileName().mid( 0, 6) == "IMG_DK")  //E1B-TPG-1
+        else if (fileInfo.fileName().mid( 0, 6) == "IMG_DK" && fileInfo.isFile())  //E1B-TPG-1
             //IMG_DK01B04_201510090000_001.bz2
             //0123456789012345678901234567890
             //YYYYMMDDhhmm : YYYY=year, MM=month, DD=day of month, hh=hour, mm=minute
@@ -773,7 +778,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 hashspectrum.insert(strspectrum, hashfile);
                 segmentlistmaph8.insert( strdate, hashspectrum );
             }
-        } else if (fileInfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileInfo.fileName().mid( 31, 8) == "FY2E_FDI") // Data Channel 12
+        } else if (fileInfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileInfo.fileName().mid( 31, 8) == "FY2E_FDI" && fileInfo.isFile()) // Data Channel 12
         {
             //0123456789012345678901234567890123456789012345678901234567890
             //Z_SATE_C_BABJ_20150623131500_O_FY2D_FDI_IR1_001_NOM.HDF.gz
@@ -809,7 +814,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                     segmentlistmapfy2e.insert( strdate, hashspectrum );
                 }
             }
-        }  else if (fileInfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileInfo.fileName().mid( 31, 8) == "FY2G_FDI") // Data Channel 12
+        }  else if (fileInfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileInfo.fileName().mid( 31, 8) == "FY2G_FDI" && fileInfo.isFile()) // Data Channel 12
         {
             //0123456789012345678901234567890123456789012345678901234567890
             //Z_SATE_C_BABJ_20150623131500_O_FY2D_FDI_IR1_001_NOM.HDF.gz
@@ -949,7 +954,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
             if (*itc == "1")  //include checked
             {
                 segmentdir.cd( *its );
-                segmentdir.setFilter(QDir::Files | QDir::NoSymLinks);
+                segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
                 segmentdir.setSorting(QDir::Name);
                 fileinfolist = segmentdir.entryInfoList();
 
@@ -970,7 +975,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
                 if(segmentdir.cd( thepath ) || segmentdir.cd( thepathYYYYMMDD ))
                 {
-                    segmentdir.setFilter(QDir::Files | QDir::NoSymLinks);
+                    segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
                     segmentdir.setSorting(QDir::Name); //::Time);
                     fileinfolist.append(segmentdir.entryInfoList());
                     qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
@@ -1056,7 +1061,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
                     if(segmentdir.cd( pathbefore ))
                     {
-                        segmentdir.setFilter(QDir::Files | QDir::NoSymLinks);
+                        segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
                         segmentdir.setSorting(QDir::Name); //::Time);
                         fileinfolist = segmentdir.entryInfoList();
                         qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(pathbefore);
@@ -1138,7 +1143,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         fileok = false;
 
         //avhrr_20130701_151100_noaa19
-        if (fileinfo.fileName().mid( 0, 6) == "avhrr_" && fileinfo.fileName().mid( 22, 6) == "noaa19")
+        if (fileinfo.fileName().mid( 0, 6) == "avhrr_" && fileinfo.fileName().mid( 22, 6) == "noaa19" && fileinfo.isFile())
         {
             *noaaTle = true;
             QDate d(fileinfo.fileName().mid( 6, 4).toInt(), fileinfo.fileName().mid( 10, 2).toInt(), fileinfo.fileName().mid( 12, 2).toInt());
@@ -1153,9 +1158,9 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //AVHR_xxx_1B_M01_20130701051903Z_20130701052203Z_N_O_20130701054640Z
         //AVHR_GAC_1B_N19_20130701041003Z_20130701041303Z_N_O_20130701054958Z
         //AVHR_HRP_00_M02_20130701060200Z_20130701060300Z_N_O_20130701061314Z
-        else if (fileinfo.fileName().mid( 0, 11) == "AVHR_GAC_1B" ||
+        else if ((fileinfo.fileName().mid( 0, 11) == "AVHR_GAC_1B" ||
                  fileinfo.fileName().mid( 0, 11) == "AVHR_HRP_00" ||
-                 fileinfo.fileName().mid( 0, 11) == "AVHR_xxx_1B")
+                 fileinfo.fileName().mid( 0, 11) == "AVHR_xxx_1B" ) && fileinfo.isFile() )
         {
             *metopTle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
@@ -1171,7 +1176,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
 
         }
         else if ((fileinfo.fileName().mid( 16, 6) == "MetopA" || fileinfo.fileName().mid( 16, 3) == "M02" ||
-                  fileinfo.fileName().mid( 16, 6) == "MetopB" || fileinfo.fileName().mid( 16, 3) == "M01") && fileinfo.completeSuffix() == "hpt")
+                  fileinfo.fileName().mid( 16, 6) == "MetopB" || fileinfo.fileName().mid( 16, 3) == "M01") && fileinfo.completeSuffix() == "hpt" && fileinfo.isFile())
         {
             *metopTle = true;
             QDate d(fileinfo.fileName().mid( 0, 4).toInt(), fileinfo.fileName().mid( 5, 2).toInt(), fileinfo.fileName().mid( 8, 2).toInt());
@@ -1184,7 +1189,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
                 fileok = true;
 
         }
-        else if (fileinfo.fileName().mid( 16, 6) == "NOAA19" && fileinfo.completeSuffix() == "hpt")
+        else if (fileinfo.fileName().mid( 16, 6) == "NOAA19" && fileinfo.completeSuffix() == "hpt" && fileinfo.isFile())
         {
             *noaaTle = true;
             QDate d(fileinfo.fileName().mid( 0, 4).toInt(), fileinfo.fileName().mid( 5, 2).toInt(), fileinfo.fileName().mid( 8, 2).toInt());
@@ -1199,7 +1204,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
         //SVDNBC_npp_d20151019_t0013359_e0015001_b20595_c20151019002104000944_eum_ops.h5
-        else if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp")
+        else if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp" && fileinfo.isFile())
         {
             *nppTle = true;
             QDate d(fileinfo.fileName().mid( 10, 4).toInt(), fileinfo.fileName().mid( 14, 2).toInt(), fileinfo.fileName().mid( 16, 2).toInt());
@@ -1211,7 +1216,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
-        else if (fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp")
+        else if (fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp" && fileinfo.isFile())
         {
             *nppTle = true;
             QDate d(fileinfo.fileName().mid( 12, 4).toInt(), fileinfo.fileName().mid( 16, 2).toInt(), fileinfo.fileName().mid( 18, 2).toInt());
@@ -1257,7 +1262,6 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
-
         //H-000-MSG3__-MSG3________-HRV______-000001___-201310270845-C_
         //H-000-MSG1__-MSG1_RSS____-HRV______-000016___-201211210610-C_
         //H-000-GOMS1_-GOMS1_4_____-00_9_076E-000001___-201312231100-C_
@@ -1265,7 +1269,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //L-000-MSG3__-GOES13______-00_7_075W-000001___-201404031200-C_
         //L-000-MSG3__-GOES15______-00_7_135W-000001___-201404031500-C_
         //L-000-MSG3__-MTSAT2______-00_7_145E-000006___-201404032100-C_
-        else if (fileinfo.fileName().mid( 0, 9) == "H-000-MSG" && fileinfo.fileName().mid( 59, 2) == "C_")
+        else if (fileinfo.fileName().mid( 0, 9) == "H-000-MSG" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
         {
             QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
             filedate.setDate(d);
@@ -1274,7 +1278,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             if(hoursbefore == 0 )
                 fileok = true;
         }
-        else if (fileinfo.fileName().mid( 0, 11) == "H-000-GOMS1" && fileinfo.fileName().mid( 59, 2) == "C_")
+        else if (fileinfo.fileName().mid( 0, 17) == "L-000-MTP___-MET7" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
         {
             QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
             filedate.setDate(d);
@@ -1283,7 +1287,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             if(hoursbefore == 0)
                 fileok = true;
         }
-        else if (fileinfo.fileName().mid( 0, 17) == "L-000-MTP___-MET7" && fileinfo.fileName().mid( 59, 2) == "C_")
+        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
         {
             QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
             filedate.setDate(d);
@@ -1292,16 +1296,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             if(hoursbefore == 0)
                 fileok = true;
         }
-        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileinfo.fileName().mid( 59, 2) == "C_")
-        {
-            QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
-            filedate.setDate(d);
-            QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
-            filedate.setTime(t);
-            if(hoursbefore == 0)
-                fileok = true;
-        }
-        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_")
+        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
         {
             QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
             filedate.setDate(d);
@@ -1312,7 +1307,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789012345678901234567890123456789012345
         //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
-        else if (fileinfo.fileName().mid( 0, 6) == "OR_ABI")
+        else if (fileinfo.fileName().mid( 0, 6) == "OR_ABI" && fileinfo.isFile())
         {
             QDate d(fileinfo.fileName().mid( 27, 4).toInt(), fileinfo.fileName().mid( 33, 2).toInt(), fileinfo.fileName().mid( 31, 2).toInt());
             filedate.setDate(d);
@@ -1323,7 +1318,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789012345678901234567890
         //Z_SATE_C_BABJ_20150624130000_O_FY2G_FDI_IR1_001_NOM.HDF.gz
-        else if (fileinfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileinfo.fileName().mid( 31, 8) == "FY2E_FDI") // Data Channel 12
+        else if (fileinfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileinfo.fileName().mid( 31, 8) == "FY2E_FDI" && fileinfo.isFile()) // Data Channel 12
         {
             QDate d(fileinfo.fileName().mid( 14, 4).toInt(), fileinfo.fileName().mid( 18, 2).toInt(), fileinfo.fileName().mid( 20, 2).toInt());
             filedate.setDate(d);
@@ -1332,7 +1327,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             if(hoursbefore == 0)
                 fileok = true;
         }
-        else if (fileinfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileinfo.fileName().mid( 31, 8) == "FY2G_FDI") // Data Channel 12
+        else if (fileinfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileinfo.fileName().mid( 31, 8) == "FY2G_FDI" && fileinfo.isFile()) // Data Channel 12
         {
             QDate d(fileinfo.fileName().mid( 14, 4).toInt(), fileinfo.fileName().mid( 18, 2).toInt(), fileinfo.fileName().mid( 20, 2).toInt());
             filedate.setDate(d);
@@ -1346,7 +1341,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //YYYYMMDDhhmm : YYYY=year, MM=month, DD=day of month, hh=hour, mm=minute
         //nnnn : ‘_001’-‘_010’ for segmented full earth’s disk image data files
         //Sequence number is set only for dissemination of the segment files.
-        else if (fileinfo.fileName().mid( 0, 6) == "IMG_DK") //E1B-TPG-1
+        else if (fileinfo.fileName().mid( 0, 6) == "IMG_DK" && fileinfo.isFile()) //E1B-TPG-1
         {
             QDate d(fileinfo.fileName().mid( 12, 4).toInt(), fileinfo.fileName().mid( 16, 2).toInt(), fileinfo.fileName().mid( 18, 2).toInt());
             filedate.setDate(d);
