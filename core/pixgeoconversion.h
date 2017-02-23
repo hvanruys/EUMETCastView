@@ -38,8 +38,8 @@ const double  LFAC_NONHRV_MET7     =   1043037809.;   /* scaling coefficients (s
 const double  CFAC_NONHRV_GOES     =   585352820.;   /* scaling coefficients (see note above)  */
 const double  LFAC_NONHRV_GOES     =   585352820.;   /* scaling coefficients (see note above)  */
 
-const double  CFAC_NONHRV_GOES16   =   1463382050.;   /* scaling coefficients (see note above)  */
-const double  LFAC_NONHRV_GOES16   =   1463382050.;   /* scaling coefficients (see note above)  */
+const double  CFAC_NONHRV_GOES16   =   1474382050.*1.5;   /* scaling coefficients (see note above)  */
+const double  LFAC_NONHRV_GOES16   =   1474382050.*1.5;   /* scaling coefficients (see note above)  */
 
 const double  CFAC_NONHRV_MTSAT     =   586315045.;   /* scaling coefficients (see note above)  */
 const double  LFAC_NONHRV_MTSAT     =   586315045.;   /* scaling coefficients (see note above)  */

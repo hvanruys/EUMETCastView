@@ -10,7 +10,7 @@
 
 #define TAB_AVHRR 0
 #define TAB_VIIRS 1
-#define TAB_OLCI 2
+#define TAB_SENTINEL 2
 #define TAB_GEOSTATIONARY 3
 #define TAB_PROJECTION 4
 #define TAB_HISTOGRAM 5
@@ -42,6 +42,7 @@ public:
     int zoomfactorprojection;
     int zoomfactorviirs;
     int zoomfactorolci;
+    int zoomfactorslstr;
     QStringList segmentdirectorylist;
     QStringList segmentdirectorylistinc;
     bool buttonMetop;
@@ -52,6 +53,7 @@ public:
     bool buttonVIIRSDNB;
     bool buttonOLCIefr;
     bool buttonOLCIerr;
+    bool buttonSLSTR;
     bool buttonMetopAhrpt;
     bool buttonMetopBhrpt;
     bool buttonNoaa19hrpt;
@@ -137,6 +139,7 @@ public:
     bool imageontextureOnAVHRR;
     bool imageontextureOnVIIRS;
     bool imageontextureOnOLCI;
+    bool imageontextureOnSLSTR;
     bool windowvectors;
     bool udpmessages;
     bool gshhsglobe1On;
@@ -222,7 +225,8 @@ public:
     bool colormapPlasma;
     bool colormapViridis;
 
-    bool remove_S3A_dirs;
+    bool remove_OLCI_dirs;
+    bool remove_SLSTR_dirs;
     bool usesaturationmask;
 
     // Global variable not saved

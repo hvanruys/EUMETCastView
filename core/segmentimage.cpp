@@ -11,6 +11,7 @@ extern Options opts;
 SegmentImage::SegmentImage()
 {
 
+
     for(int k = 0; k < 5; k++)
     {
         this->ptrimagecomp_ch[k] = new QImage();
@@ -25,7 +26,10 @@ SegmentImage::SegmentImage()
     ptrimageViirsM = new QImage();
     ptrimageViirsDNB = new QImage();
     ptrimageOLCI = new QImage();
+    ptrimageSLSTR = new QImage();
     ptrProjectionBrightnessTemp.reset();
+
+    olcitype = SEG_NONE;
 
     CalcSatAngles();
 
@@ -102,28 +106,6 @@ void SegmentImage::CalcSatAngles()
         }
     }
     fractionGAC[404] = 1.0;
-
-//    int cnt = 0;
-//    int gacindex = 0;
-//    for(int i = 4; i < 409; i++)
-//    {
-//        qDebug() << QString("i = %1  gacindex = %2 SigmadistGAC[%3] = %4  fractionGAC = %5").arg(i).arg(gacindex).arg(i)
-//                    .arg(SigmadistGAC[i]).arg(fractionGAC[i]);
-
-//      if( i == 4 || cnt % 8 == 0)
-//        {
-//            gacindex++;
-//        }
-//        if(i > 3)
-//            cnt++;
-//    }
-
-
-//    for(int i = 4; i < 409; i++)
-//    {
-//        qDebug() << QString("SigmadistGAC[%1] = %2  fractionGAC = %3").arg(i).arg(SigmadistGAC[i]).arg(fractionGAC[i]);
-//    }
-
 }
 
 
@@ -181,6 +163,12 @@ void SegmentImage::DeleteImagePtrs()
     {
         delete ptrimageOLCI;
         ptrimageOLCI = NULL;
+    }
+
+    if(ptrimageSLSTR != NULL)
+    {
+        delete ptrimageSLSTR;
+        ptrimageSLSTR = NULL;
     }
 
     ResetPtrImage();

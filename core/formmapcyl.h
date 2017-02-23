@@ -77,6 +77,9 @@ private slots:
 
     void on_btnOLCIerr_clicked();
 
+    void on_btnSLSTR_clicked();
+
+
     void on_btnMetopAhrpt_clicked();
     void on_btnMetopBhrpt_clicked();
     void on_btnNoaa19hrpt_clicked();

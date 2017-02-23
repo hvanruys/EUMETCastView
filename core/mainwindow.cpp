@@ -150,6 +150,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglgoes15dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes13dc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes15dc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglgoes16, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglfy2e, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglfy2g, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglh8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
@@ -203,6 +204,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabelDNB(bool)));
     connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglslstr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
     connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -357,14 +359,32 @@ MainWindow::~MainWindow()
     workingdir1.setFilter(QDir::Dirs | QDir::NoSymLinks);
     QStringList infolist = workingdir1.entryList();
 
-    if(opts.remove_S3A_dirs)
+    if(opts.remove_OLCI_dirs)
     {
         for (int i = 0; i < infolist.size(); ++i)
         {
             QDir deletedir(infolist.at(i));
             bool gelukt = deletedir.removeRecursively();
             if(gelukt)
-                qDebug() << "removing S3A dir : " << infolist.at(i);
+                qDebug() << "removing OLCI dir : " << infolist.at(i);
+        }
+    }
+
+    QDir workingdir2(".");
+    filters.clear();
+    filters << "S3A_SL_1_*";
+    workingdir2.setNameFilters(filters);
+    workingdir2.setFilter(QDir::Dirs | QDir::NoSymLinks);
+    infolist = workingdir2.entryList();
+
+    if(opts.remove_SLSTR_dirs)
+    {
+        for (int i = 0; i < infolist.size(); ++i)
+        {
+            QDir deletedir(infolist.at(i));
+            bool gelukt = deletedir.removeRecursively();
+            if(gelukt)
+                qDebug() << "removing SLSTR dir : " << infolist.at(i);
         }
     }
 
@@ -400,7 +420,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br><b>Polar satellites :</b>"
     "<br>AVHHR images from Metop-A, Metop-B and the NOAA satellites"
     "<br>VIIRS images from SUOMI NPP (M-Band and Day/Night Band)"
-    "<br>OLCI EFR and ERR from Sentinel-3A"
+    "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A"
     "<br><br><b>Geostationary satellites :</b>"
     "<br>XRIT from Meteosat-10, Meteosat-9, Meteosat-8, Meteosat-7"
     "<br>FengYun 2E, FengYun 2G"
@@ -495,6 +515,7 @@ void MainWindow::on_actionImage_triggered()
     ui->stackedWidget->setCurrentIndex(3);
     int index = formtoolbox->getTabWidgetIndex();
     int indexviirs = formtoolbox->getTabWidgetVIIRSIndex();
+    int indexsentinel = formtoolbox->getTabWidgetSentinelIndex();
 
     Q_ASSERT(index < 6);
 
@@ -508,13 +529,16 @@ void MainWindow::on_actionImage_triggered()
     else if(index == TAB_VIIRS)
     {
         if(indexviirs == 0)
-            formimage->displayImage(IMAGE_VIIRS_M); //VIIRSM image
+            formimage->displayImage(IMAGE_VIIRSM); //VIIRSM image
         else
-            formimage->displayImage(IMAGE_VIIRS_DNB); //VIIRSDNB image
+            formimage->displayImage(IMAGE_VIIRSDNB); //VIIRSDNB image
     }
-    else if(index == TAB_OLCI)
+    else if(index == TAB_SENTINEL)
     {
-        formimage->displayImage(IMAGE_OLCI); //OLCI image
+        if(indexsentinel == 0)
+            formimage->displayImage(IMAGE_OLCI); //OLCI image
+        else
+            formimage->displayImage(IMAGE_SLSTR); //SLSTR image
     }
     else if(index == TAB_GEOSTATIONARY)
         formimage->displayImage(IMAGE_GEOSTATIONARY); //Geostationary image

@@ -4,12 +4,10 @@
 #include <QDebug>
 #include "archive_entry.h"
 #include <netcdf.h>
+#include <QMutex>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
-
-#include <QMutex>
-
 extern QMutex g_mutex;
 
 void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
@@ -33,11 +31,15 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *s
     {
         segment_type = "OLCIEFR";
         segtype = eSegmentType::SEG_OLCIEFR;
+        qDebug() << "Constructor SEG_OLCIEFR segment";
+
     }
     else if(type == SEG_OLCIERR)
     {
         segment_type = "OLCIERR";
         segtype = eSegmentType::SEG_OLCIERR;
+        qDebug() << "Constructor SEG_OLCIERR segment";
+
     }
 
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -119,7 +121,10 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *s
 
     CalculateCornerPoints();
     if(segtype == SEG_OLCIERR)
+    {
+        qDebug() << "start CalculateDetailCornerPoints()";
         CalculateDetailCornerPoints();
+    }
 
 
     invertthissegment[0] = false;
@@ -168,7 +173,6 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     int SZAid;
     QScopedArrayPointer<int> tieSZA;
     QScopedArrayPointer<float> secSZA;
-
 
     bool iscolorimage = this->bandlist.at(0);
 
@@ -1041,112 +1045,6 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
 
 }
 
-int SegmentOLCI::DecompressSegmentToTemp()
-{
-
-    int flags = ARCHIVE_EXTRACT_TIME;
-    struct archive *a;
-    struct archive *ext;
-    struct archive_entry *entry;
-    int r;
-
-    QString intarfile = this->fileInfo.absoluteFilePath();
-
-    qDebug() << "Start UntarSegmentToTemp 1 for absolutefilepath " + intarfile;
-    qDebug() << "fileInfo.completeBaseName() = " << fileInfo.completeBaseName();
-
-    if(this->fileInfo.isDir())
-        return 0;
-
-    QDir direxist(this->fileInfo.completeBaseName());
-    if (direxist.exists())
-    {
-        qDebug() << "Directory " << this->fileInfo.completeBaseName() << " exists !";
-        return 0;
-    }
-
-    QByteArray array = intarfile.toUtf8();
-    const char* p = array.constData();
-
-    a = archive_read_new();
-    ext = archive_write_disk_new();
-    //archive_read_support_filter_all(a);
-    archive_read_support_format_all(a);
-
-    archive_write_disk_set_options(ext, flags);
-
-    r = archive_read_open_filename(a, p, 20480);
-    if (r != ARCHIVE_OK)
-    {
-        qDebug() << "Tar file " << intarfile << " not found ....";
-        return(1);
-    }
-
-//    while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
-//    {
-//      qDebug() << QString("%1").arg(archive_entry_pathname(entry));
-//      archive_read_data_skip(a);  // Note 2
-//    }
-
-    int nbrblocks = 1;
-
-    for (;;)
-    {
-        r = archive_read_next_header(a, &entry);
-        if (r == ARCHIVE_EOF)
-            break;
-        if (r != ARCHIVE_OK)
-            qDebug() << "archive_read_next_header() " << QString(archive_error_string(a));
-        r = archive_write_header(ext, entry);
-        if (r != ARCHIVE_OK)
-            qDebug() << "archive_write_header() " << QString(archive_error_string(ext));
-        else
-        {
-            qDebug() << QString("Start copy_data ....%1").arg(nbrblocks);
-
-            copy_data(a, ext);
-            r = archive_write_finish_entry(ext);
-            if (r != ARCHIVE_OK)
-                qDebug() << "archive_write_finish_entry() " << QString(archive_error_string(ext));
-            nbrblocks++;
-        }
-    }
-
-    archive_read_close(a);
-    archive_read_free(a);
-
-    archive_write_close(ext);
-    archive_write_free(ext);
-
-    return(0);
-}
-
-
-int SegmentOLCI::copy_data(struct archive *ar, struct archive *aw)
-{
-    int r;
-    const void *buff;
-    size_t size;
-#if ARCHIVE_VERSION_NUMBER >= 3000000
-    int64_t offset;
-#else
-    off_t offset;
-#endif
-
-
-    for (;;) {
-        r = archive_read_data_block(ar, &buff, &size, &offset);
-        if (r == ARCHIVE_EOF)
-            return (ARCHIVE_OK);
-        if (r != ARCHIVE_OK)
-            return (r);
-        r = archive_write_data_block(aw, buff, size, offset);
-        if (r != ARCHIVE_OK) {
-            qDebug() << "archive_write_data_block() " << QString(archive_error_string(aw));
-            return (r);
-        }
-    }
-}
 
 void SegmentOLCI::initializeMemory()
 {

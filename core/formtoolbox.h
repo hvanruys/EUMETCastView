@@ -25,7 +25,7 @@ public:
     explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, FormInfraScales *p_forminfrascales = 0, AVHRRSatellite *seglist = 0);
     int getTabWidgetIndex();
     int getTabWidgetVIIRSIndex();
-    int getTabWidgetOLCIIndex();
+    int getTabWidgetSentinelIndex();
 
     QList<bool> getVIIRSMBandList();
     QList<int> getVIIRSMColorList();
@@ -33,17 +33,24 @@ public:
     QList<bool> getOLCIBandList();
     QList<int> getOLCIColorList();
     QList<bool> getOLCIInvertList();
+    QList<bool> getSLSTRBandList();
+    QList<int> getSLSTRColorList();
+    QList<bool> getSLSTRInvertList();
+    eSLSTRImageView getSLSTRImageView();
+
     void setTabWidgetIndex(int index);
     void setTabWidgetVIIRSIndex(int index);
+    void setTabWidgetSentinelIndex(int index);
     void writeInfoToAVHRR(QString info);
     void writeInfoToVIIRSM(QString info);
     void writeInfoToVIIRSDNB(QString info);
     void writeInfoToGeo(QString info);
-    void writeInfoToOLCI(QString info);
+    void writeInfoToSentinel(QString info);
     void createFilenamestring(QString sat, QString d, QVector<QString> spectrum);
     QString returnFilenamestring() { return filenamecreated; }
     bool comboColVIIRSOK();
     bool comboColOLCIOK();
+    bool comboColSLSTROK();
     bool comboColGeoOK();
     bool GridOnProjLCC();
     bool GridOnProjGVP();
@@ -51,6 +58,7 @@ public:
     void setPOIsettings();
     void setMConfigsettings();
     void setOLCIefrConfigsettings();
+    void setSLSTRConfigsettings();
 
 
     ~FormToolbox();
@@ -74,7 +82,9 @@ private:
     void setConfigMParameters(int strlindex);
     void setRadioButtonsMToFalse();
     void setConfigOLCIParameters(int strlindex);
+    void setConfigSLSTRParameters(int strlindex);
     void setRadioButtonsOLCIefrToFalse();
+    void setRadioButtonsSLSTRToFalse();
     void copyProjectionImage();
     void checkSegmentDateTime();
     void initializeScales();
@@ -206,6 +216,7 @@ private slots:
     void on_rbtnACh5_clicked();
     void on_btnTextureVIIRS_clicked();
     void on_btnTextureOLCI_clicked();
+    void on_btnTextureSLSTR_clicked();
     void on_sliCLAHE_sliderMoved(int position);
 
     void on_cbProjResolutions_currentIndexChanged(int index);
@@ -220,18 +231,23 @@ private slots:
 
     void on_comboMConfig_currentIndexChanged(int index);
     void on_comboOLCIConfig_currentIndexChanged(int index);
+    void on_comboSLSTRConfig_currentIndexChanged(int index);
     void on_btnAddMConfig_clicked();
 
     void on_tabWidgetVIIRS_currentChanged(int index);
+    void on_tabWidgetSentinel_currentChanged(int index);
+
     void on_btnGVPFalseColor_clicked();
     void on_btnLCCFalseColor_clicked();
     void on_btnSGFalseColor_clicked();
 
     void on_rdbOLCINormalized_toggled(bool checked);
     void on_cmbHistogram_activated(int index);
+    void on_cmbHistogramSLSTR_activated(int index);
     void on_btnSaveAsPNG48bits_clicked();
     void on_btnOverlayOLCI_clicked();
     void on_rdbGridOnOLCIimage_toggled(bool checked);
+    void on_btnUpdateSLSTRImage_clicked();
 };
 
 

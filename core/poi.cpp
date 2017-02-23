@@ -16,6 +16,7 @@ void Poi::Initialize()
     strlSGName = POIsettings.value("/SG/strlName").value<QStringList>();
     strlConfigNameM = POIsettings.value("/MConfig/strlName").value<QStringList>();
     strlConfigNameOLCI = POIsettings.value("/OLCIConfig/strlName").value<QStringList>();
+    strlConfigNameSLSTR = POIsettings.value("/SLSTRConfig/strlName").value<QStringList>();
 
     if(strlGVPName.count() == 0)
     {
@@ -279,10 +280,65 @@ void Poi::Initialize()
         strlInverseOLCI19 = POIsettings.value("/OLCIConfig/strlInverseOLCI19").value<QStringList>();
         strlInverseOLCI20 = POIsettings.value("/OLCIConfig/strlInverseOLCI20").value<QStringList>();
         strlInverseOLCI21 = POIsettings.value("/OLCIConfig/strlInverseOLCI21").value<QStringList>();
-
-
     }
 
+    if(strlConfigNameSLSTR.count() == 0)
+    {
+        strlConfigNameSLSTR << "User defined" << "Natural Colors" << "False Colors";
+        strlColorBandSLSTR << "0" << "0" << "0"; // "0" = color , "1" = S1, ..
+
+        strlComboSLSTRS1 << "3" << "3" << "0";
+        strlComboSLSTRS2 << "2" << "2" << "3";
+        strlComboSLSTRS3 << "1" << "1" << "2";
+        strlComboSLSTRS4 << "0" << "0" << "0";
+        strlComboSLSTRS5 << "0" << "0" << "1";
+        strlComboSLSTRS6 << "0" << "0" << "0";
+        strlComboSLSTRS7 << "0" << "0" << "0";
+        strlComboSLSTRS8 << "0" << "0" << "0";
+        strlComboSLSTRS9 << "0" << "0" << "0";
+        strlComboSLSTRF1 << "0" << "0" << "0";
+        strlComboSLSTRF2 << "0" << "0" << "0";
+
+        strlInverseSLSTRS1 << "0" << "0" << "0";
+        strlInverseSLSTRS2 << "0" << "0" << "0";
+        strlInverseSLSTRS3 << "0" << "0" << "0";
+        strlInverseSLSTRS4 << "0" << "0" << "0";
+        strlInverseSLSTRS5 << "0" << "0" << "0";
+        strlInverseSLSTRS6 << "0" << "0" << "0";
+        strlInverseSLSTRS7 << "0" << "0" << "0";
+        strlInverseSLSTRS8 << "0" << "0" << "0";
+        strlInverseSLSTRS9 << "0" << "0" << "0";
+        strlInverseSLSTRF1 << "0" << "0" << "0";
+        strlInverseSLSTRF2 << "0" << "0" << "0";
+    }
+    else
+    {
+        strlColorBandSLSTR = POIsettings.value("/SLSTRConfig/strlColorBandSLSTR").value<QStringList>();
+        strlComboSLSTRS1 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS1").value<QStringList>();
+        strlComboSLSTRS2 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS2").value<QStringList>();
+        strlComboSLSTRS3 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS3").value<QStringList>();
+        strlComboSLSTRS4 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS4").value<QStringList>();
+        strlComboSLSTRS5 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS5").value<QStringList>();
+        strlComboSLSTRS6 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS6").value<QStringList>();
+        strlComboSLSTRS7 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS7").value<QStringList>();
+        strlComboSLSTRS8 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS8").value<QStringList>();
+        strlComboSLSTRS9 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS9").value<QStringList>();
+        strlComboSLSTRF1 = POIsettings.value("/SLSTRConfig/strlComboSLSTRF1").value<QStringList>();
+        strlComboSLSTRF2 = POIsettings.value("/SLSTRConfig/strlComboSLSTRF2").value<QStringList>();
+
+        strlInverseSLSTRS1 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS1").value<QStringList>();
+        strlInverseSLSTRS2 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS2").value<QStringList>();
+        strlInverseSLSTRS3 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS3").value<QStringList>();
+        strlInverseSLSTRS4 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS4").value<QStringList>();
+        strlInverseSLSTRS5 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS5").value<QStringList>();
+        strlInverseSLSTRS6 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS6").value<QStringList>();
+        strlInverseSLSTRS7 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS7").value<QStringList>();
+        strlInverseSLSTRS8 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS8").value<QStringList>();
+        strlInverseSLSTRS9 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS9").value<QStringList>();
+        strlInverseSLSTRF1 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRF1").value<QStringList>();
+        strlInverseSLSTRF2 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRF2").value<QStringList>();
+
+    }
 }
 
 
@@ -409,6 +465,31 @@ void Poi::Save()
     POIsettings.setValue("/OLCIConfig/strlInverseOLCI20", strlInverseOLCI20);
     POIsettings.setValue("/OLCIConfig/strlInverseOLCI21", strlInverseOLCI21);
 
+    POIsettings.setValue("/SLSTRConfig/strlName", strlConfigNameSLSTR);
+    POIsettings.setValue("/SLSTRConfig/strlColorBandSLSTR", strlColorBandSLSTR);
 
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS1", strlComboSLSTRS1);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS2", strlComboSLSTRS2);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS3", strlComboSLSTRS3);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS4", strlComboSLSTRS4);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS5", strlComboSLSTRS5);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS6", strlComboSLSTRS6);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS7", strlComboSLSTRS7);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS8", strlComboSLSTRS8);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS9", strlComboSLSTRS9);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRF1", strlComboSLSTRF1);
+    POIsettings.setValue("/SLSTRConfig/strlComboSLSTRF2", strlComboSLSTRF2);
+
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS1", strlInverseSLSTRS1);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS2", strlInverseSLSTRS2);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS3", strlInverseSLSTRS3);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS4", strlInverseSLSTRS4);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS5", strlInverseSLSTRS5);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS6", strlInverseSLSTRS6);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS7", strlInverseSLSTRS7);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS8", strlInverseSLSTRS8);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS9", strlInverseSLSTRS9);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRF1", strlInverseSLSTRF1);
+    POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRF2", strlInverseSLSTRF2);
 }
 

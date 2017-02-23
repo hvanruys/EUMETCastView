@@ -70,6 +70,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     else
         ui->btnTextureOLCI->setText("Texture Off");
 
+    if (opts.imageontextureOnSLSTR)
+        ui->btnTextureSLSTR->setText("Texture On");
+    else
+        ui->btnTextureSLSTR->setText("Texture Off");
+
     ui->btnOverlayMeteosat->setText("Overlay On");
     ui->btnOverlayOLCI->setText("Overlay On");
     ui->btnOverlayProjectionGVP->setText("Overlay On");
@@ -123,6 +128,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     formimage->channelshown = IMAGE_GEOSTATIONARY;
     ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
     ui->tabWidgetVIIRS->setCurrentIndex(0);
+    ui->tabWidgetSentinel->setCurrentIndex(0);
 
     QStringList listResolution;
     listResolution << "User defined";
@@ -215,6 +221,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     setPOIsettings();
     setMConfigsettings();
     setOLCIefrConfigsettings();
+    setSLSTRConfigsettings();
 
 
     qDebug() << QString("Setting currenttoolbox = %1").arg(opts.currenttoolbox);
@@ -361,13 +368,16 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     lsthistogram << "None 95%" << "None 100%" << "Equalize";
     ui->cmbHistogram->addItems(lsthistogram);
     ui->cmbHistogram->setCurrentIndex(CMB_HISTO_NONE_95);
+    ui->cmbHistogramSLSTR->addItems(lsthistogram);
+    ui->cmbHistogramSLSTR->setCurrentIndex(CMB_HISTO_NONE_95);
+
     lsthistogram.clear();
     lsthistogram << "None 95%" << "None 100%" << "Equalize" << "Equalize Projection";
     ui->cmbHistogramProj->addItems(lsthistogram);
     ui->cmbHistogramProj->setCurrentIndex(CMB_HISTO_NONE_95);
 
     ui->rdbGridOnOLCIimage->setChecked(opts.gridonolciimage);
-
+    ui->rbNadir->setChecked(true);
     setAllWhatsThis();
 
     qDebug() << "constructor formtoolbox";
@@ -425,6 +435,20 @@ void FormToolbox::setOLCIefrConfigsettings()
     ui->comboOLCIConfig->blockSignals(false);
 }
 
+void FormToolbox::setSLSTRConfigsettings()
+{
+    qDebug() << "FormToolbox::setSLSTRConfigsettings()";
+
+    ui->comboSLSTRConfig->blockSignals(true);
+    ui->comboSLSTRConfig->clear();
+
+    ui->comboSLSTRConfig->addItems(poi.strlConfigNameSLSTR);
+
+    setConfigSLSTRParameters(0); // 0 = User Defines
+
+    ui->comboSLSTRConfig->blockSignals(false);
+}
+
 void FormToolbox::writeInfoToAVHRR(QString info)
 {
     ui->teAVHRR->clear();
@@ -449,11 +473,12 @@ void FormToolbox::writeInfoToGeo(QString info)
     ui->teGeo->append(info);
 }
 
-void FormToolbox::writeInfoToOLCI(QString info)
+void FormToolbox::writeInfoToSentinel(QString info)
 {
-    ui->teOLCI->clear();
-    ui->teOLCI->append(info);
+    ui->teSentinel->clear();
+    ui->teSentinel->append(info);
 }
+
 
 bool FormToolbox::eventFilter(QObject *target, QEvent *event)
 {
@@ -493,7 +518,6 @@ bool FormToolbox::eventFilter(QObject *target, QEvent *event)
 
 void FormToolbox::setValueProgressBar(int val)
 {
-    qDebug() << "FormToolbox::setValueProgressBar(int val) val = " << val;
     ui->pbProgress->setValue(val);
     //this->update();
 }
@@ -559,6 +583,19 @@ void FormToolbox::setupChannelCombo()
     ui->cmbOLCI19->addItem(tr("-"));ui->cmbOLCI19->addItem(tr("R"));ui->cmbOLCI19->addItem(tr("G"));ui->cmbOLCI19->addItem(tr("B"));
     ui->cmbOLCI20->addItem(tr("-"));ui->cmbOLCI20->addItem(tr("R"));ui->cmbOLCI20->addItem(tr("G"));ui->cmbOLCI20->addItem(tr("B"));
     ui->cmbOLCI21->addItem(tr("-"));ui->cmbOLCI21->addItem(tr("R"));ui->cmbOLCI21->addItem(tr("G"));ui->cmbOLCI21->addItem(tr("B"));
+
+    ui->cmbS1->addItem(tr("-"));ui->cmbS1->addItem(tr("R"));ui->cmbS1->addItem(tr("G"));ui->cmbS1->addItem(tr("B"));
+    ui->cmbS2->addItem(tr("-"));ui->cmbS2->addItem(tr("R"));ui->cmbS2->addItem(tr("G"));ui->cmbS2->addItem(tr("B"));
+    ui->cmbS3->addItem(tr("-"));ui->cmbS3->addItem(tr("R"));ui->cmbS3->addItem(tr("G"));ui->cmbS3->addItem(tr("B"));
+    ui->cmbS4->addItem(tr("-"));ui->cmbS4->addItem(tr("R"));ui->cmbS4->addItem(tr("G"));ui->cmbS4->addItem(tr("B"));
+    ui->cmbS5->addItem(tr("-"));ui->cmbS5->addItem(tr("R"));ui->cmbS5->addItem(tr("G"));ui->cmbS5->addItem(tr("B"));
+    ui->cmbS6->addItem(tr("-"));ui->cmbS6->addItem(tr("R"));ui->cmbS6->addItem(tr("G"));ui->cmbS6->addItem(tr("B"));
+    ui->cmbS7->addItem(tr("-"));ui->cmbS7->addItem(tr("R"));ui->cmbS7->addItem(tr("G"));ui->cmbS7->addItem(tr("B"));
+    ui->cmbS8->addItem(tr("-"));ui->cmbS8->addItem(tr("R"));ui->cmbS8->addItem(tr("G"));ui->cmbS8->addItem(tr("B"));
+    ui->cmbS9->addItem(tr("-"));ui->cmbS9->addItem(tr("R"));ui->cmbS9->addItem(tr("G"));ui->cmbS9->addItem(tr("B"));
+    ui->cmbF1->addItem(tr("-"));ui->cmbF1->addItem(tr("R"));ui->cmbF1->addItem(tr("G"));ui->cmbF1->addItem(tr("B"));
+    ui->cmbF2->addItem(tr("-"));ui->cmbF2->addItem(tr("R"));ui->cmbF2->addItem(tr("G"));ui->cmbF2->addItem(tr("B"));
+
 
 }
 
@@ -709,6 +746,49 @@ QList<bool> FormToolbox::getOLCIInvertList()
     Q_ASSERT(olcilist.count() == 21);
     return(olcilist);
 }
+
+QList<bool> FormToolbox::getSLSTRBandList()
+{
+    QList<bool> slstrlist;
+    slstrlist << ui->rbColorSLSTR->isChecked() << ui->rbS1->isChecked() << ui->rbS2->isChecked() << ui->rbS3->isChecked()
+             << ui->rbS4->isChecked() << ui->rbS5->isChecked() << ui->rbS6->isChecked() << ui->rbS7->isChecked()
+             << ui->rbS8->isChecked() << ui->rbS9->isChecked() << ui->rbF1->isChecked() << ui->rbF2->isChecked();
+
+    Q_ASSERT(slstrlist.count() == 12);
+
+    return(slstrlist);
+}
+
+QList<int> FormToolbox::getSLSTRColorList()
+{
+    QList<int> slstrlist;
+    slstrlist << ui->cmbS1->currentIndex() << ui->cmbS2->currentIndex() << ui->cmbS3->currentIndex() << ui->cmbS4->currentIndex()
+             << ui->cmbS5->currentIndex() << ui->cmbS6->currentIndex() << ui->cmbS7->currentIndex() << ui->cmbS8->currentIndex()
+             << ui->cmbS9->currentIndex() << ui->cmbF1->currentIndex() << ui->cmbF2->currentIndex();
+    Q_ASSERT(slstrlist.count() == 11);
+
+    return(slstrlist);
+}
+
+QList<bool> FormToolbox::getSLSTRInvertList()
+{
+    QList<bool> slstrlist;
+    slstrlist << ui->chkInverseS1->isChecked() << ui->chkInverseS2->isChecked() << ui->chkInverseS3->isChecked() << ui->chkInverseS4->isChecked()
+              << ui->chkInverseS5->isChecked() << ui->chkInverseS6->isChecked() << ui->chkInverseS7->isChecked() << ui->chkInverseS8->isChecked()
+              << ui->chkInverseS9->isChecked() << ui->chkInverseF1->isChecked() << ui->chkInverseF2->isChecked();
+    Q_ASSERT(slstrlist.count() == 11);
+    return(slstrlist);
+}
+
+eSLSTRImageView FormToolbox::getSLSTRImageView()
+{
+    if(ui->rbNadir->isChecked())
+        return NADIR;
+    else
+        return OBLIQUE;
+}
+
+
 
 int FormToolbox::searchResolution(int mapwidth, int mapheight)
 {
@@ -1169,6 +1249,55 @@ FormToolbox::~FormToolbox()
     poi.strlComboOLCI20.replace(0, QString("%1").arg(ui->cmbOLCI20->currentIndex()));
     poi.strlComboOLCI21.replace(0, QString("%1").arg(ui->cmbOLCI21->currentIndex()));
 
+    if(ui->rbColorSLSTR->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("0"));
+    else if(ui->rbS1->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("1"));
+    else if(ui->rbS2->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("2"));
+    else if(ui->rbS3->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("3"));
+    else if(ui->rbS4->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("4"));
+    else if(ui->rbS5->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("5"));
+    else if(ui->rbS6->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("6"));
+    else if(ui->rbS7->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("7"));
+    else if(ui->rbS8->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("8"));
+    else if(ui->rbS9->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("9"));
+    else if(ui->rbF1->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("10"));
+    else if(ui->rbF2->isChecked())
+        poi.strlColorBandSLSTR.replace(0, QString("%1").arg("11"));
+
+    poi.strlInverseSLSTRS1.replace(0, QString("%1").arg(ui->chkInverseS1->isChecked()));
+    poi.strlInverseSLSTRS2.replace(0, QString("%1").arg(ui->chkInverseS2->isChecked()));
+    poi.strlInverseSLSTRS3.replace(0, QString("%1").arg(ui->chkInverseS3->isChecked()));
+    poi.strlInverseSLSTRS4.replace(0, QString("%1").arg(ui->chkInverseS4->isChecked()));
+    poi.strlInverseSLSTRS5.replace(0, QString("%1").arg(ui->chkInverseS5->isChecked()));
+    poi.strlInverseSLSTRS6.replace(0, QString("%1").arg(ui->chkInverseS6->isChecked()));
+    poi.strlInverseSLSTRS7.replace(0, QString("%1").arg(ui->chkInverseS7->isChecked()));
+    poi.strlInverseSLSTRS8.replace(0, QString("%1").arg(ui->chkInverseS8->isChecked()));
+    poi.strlInverseSLSTRS9.replace(0, QString("%1").arg(ui->chkInverseS9->isChecked()));
+    poi.strlInverseSLSTRF1.replace(0, QString("%1").arg(ui->chkInverseF1->isChecked()));
+    poi.strlInverseSLSTRF2.replace(0, QString("%1").arg(ui->chkInverseF2->isChecked()));
+
+    poi.strlComboSLSTRS1.replace(0, QString("%1").arg(ui->cmbS1->currentIndex()));
+    poi.strlComboSLSTRS2.replace(0, QString("%1").arg(ui->cmbS2->currentIndex()));
+    poi.strlComboSLSTRS3.replace(0, QString("%1").arg(ui->cmbS3->currentIndex()));
+    poi.strlComboSLSTRS4.replace(0, QString("%1").arg(ui->cmbS4->currentIndex()));
+    poi.strlComboSLSTRS5.replace(0, QString("%1").arg(ui->cmbS5->currentIndex()));
+    poi.strlComboSLSTRS6.replace(0, QString("%1").arg(ui->cmbS6->currentIndex()));
+    poi.strlComboSLSTRS7.replace(0, QString("%1").arg(ui->cmbS7->currentIndex()));
+    poi.strlComboSLSTRS8.replace(0, QString("%1").arg(ui->cmbS8->currentIndex()));
+    poi.strlComboSLSTRS9.replace(0, QString("%1").arg(ui->cmbS9->currentIndex()));
+    poi.strlComboSLSTRF1.replace(0, QString("%1").arg(ui->cmbF1->currentIndex()));
+    poi.strlComboSLSTRF2.replace(0, QString("%1").arg(ui->cmbF2->currentIndex()));
+
 
     delete ui;
 }
@@ -1506,6 +1635,12 @@ void FormToolbox::setTabWidgetVIIRSIndex(int index)
     ui->tabWidgetVIIRS->setCurrentIndex(index);
 }
 
+void FormToolbox::setTabWidgetSentinelIndex(int index)
+{
+    qDebug() << "FormToolbox::setTabWidgetSentinelIndex(int index)";
+    ui->tabWidgetSentinel->setCurrentIndex(index);
+}
+
 void FormToolbox::setToolboxButtons(bool state)
 {
     qDebug() << QString("FormToolbox::setToolboxButtons state = %1").arg(state);
@@ -1832,6 +1967,19 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->rbOLCI19->setEnabled(state);
     ui->rbOLCI20->setEnabled(state);
     ui->rbOLCI21->setEnabled(state);
+
+    ui->rbColorSLSTR->setEnabled(state);
+    ui->rbS1->setEnabled(state);
+    ui->rbS2->setEnabled(state);
+    ui->rbS3->setEnabled(state);
+    ui->rbS4->setEnabled(state);
+    ui->rbS5->setEnabled(state);
+    ui->rbS6->setEnabled(state);
+    ui->rbS7->setEnabled(state);
+    ui->rbS8->setEnabled(state);
+    ui->rbS9->setEnabled(state);
+    ui->rbF1->setEnabled(state);
+    ui->rbF2->setEnabled(state);
 
 }
 
@@ -2562,6 +2710,21 @@ void FormToolbox::on_btnTextureOLCI_clicked()
 
 }
 
+void FormToolbox::on_btnTextureSLSTR_clicked()
+{
+    if (opts.imageontextureOnSLSTR)
+    {
+        opts.imageontextureOnSLSTR = false;
+        ui->btnTextureSLSTR->setText("Texture Off");
+    }
+    else
+    {
+        opts.imageontextureOnSLSTR = true;
+        ui->btnTextureSLSTR->setText("Texture On");
+    }
+
+}
+
 void FormToolbox::on_tabWidget_currentChanged(int index)
 {
     qDebug() << "on_tabWidget_currentChanged(int index) index = " << index;
@@ -2585,17 +2748,16 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     else if (index == TAB_VIIRS) // VIIRS
     {
         if(ui->tabWidgetVIIRS->currentIndex() == 0)
-        {
-            formimage->displayImage(IMAGE_VIIRS_M);
-        }
+            formimage->displayImage(IMAGE_VIIRSM);
         else
-        {
-            formimage->displayImage(IMAGE_VIIRS_DNB);
-        }
+            formimage->displayImage(IMAGE_VIIRSDNB);
     }
-    else if (index == TAB_OLCI) // OLCI
+    else if (index == TAB_SENTINEL) // OLCI or SLSTR
     {
-        formimage->displayImage(IMAGE_OLCI);
+        if(ui->tabWidgetSentinel->currentIndex() == 0)
+            formimage->displayImage(IMAGE_OLCI);
+        else
+            formimage->displayImage((IMAGE_SLSTR));
     }
     else if (index == TAB_GEOSTATIONARY) // Geostationair
     {
@@ -2629,11 +2791,26 @@ void FormToolbox::on_tabWidgetVIIRS_currentChanged(int index)
     ui->btnLCCFalseColor->setChecked(false);
 
     if (index == 0) //VIIRSM
-        formimage->displayImage(IMAGE_VIIRS_M);
-    else if (index == 1) // VIIRSDNB
-        formimage->displayImage(IMAGE_VIIRS_DNB);
+        formimage->displayImage(IMAGE_VIIRSM);
+    else if (index == 1) //VIIRSDNB
+        formimage->displayImage(IMAGE_VIIRSDNB);
+}
 
+void FormToolbox::on_tabWidgetSentinel_currentChanged(int index)
+{
 
+    qDebug() << "on_tabWidgetSentinel_currentChanged(int index) index = " << index;
+
+    if(!forminfrascales->isHidden())
+        forminfrascales->hide();
+    ui->btnGVPFalseColor->setChecked(false);
+    ui->btnSGFalseColor->setChecked(false);
+    ui->btnLCCFalseColor->setChecked(false);
+
+    if (index == 0) //OLCI
+        formimage->displayImage(IMAGE_OLCI);
+    else if (index == 1) //SLSTR
+        formimage->displayImage(IMAGE_SLSTR);
 }
 
 void FormToolbox::on_chkShowLambert_stateChanged(int arg1)
@@ -3319,6 +3496,11 @@ int FormToolbox::getTabWidgetVIIRSIndex()
     return ui->tabWidgetVIIRS->currentIndex();
 }
 
+int FormToolbox::getTabWidgetSentinelIndex()
+{
+    return ui->tabWidgetSentinel->currentIndex();
+}
+
 void FormToolbox::on_toolBox_currentChanged(int index)
 {
     qDebug() << QString("FormToolbox::on_toolBox_currentChanged(int index) index = %1").arg(index);
@@ -3687,6 +3869,29 @@ bool FormToolbox::comboColOLCIOK()
     else
         return false;
 }
+
+bool FormToolbox::comboColSLSTROK()
+{
+    int cnt = 0;
+
+    cnt += ui->cmbS1->currentIndex();
+    cnt += ui->cmbS2->currentIndex();
+    cnt += ui->cmbS3->currentIndex();
+    cnt += ui->cmbS4->currentIndex();
+    cnt += ui->cmbS5->currentIndex();
+    cnt += ui->cmbS6->currentIndex();
+    cnt += ui->cmbS7->currentIndex();
+    cnt += ui->cmbS8->currentIndex();
+    cnt += ui->cmbS9->currentIndex();
+    cnt += ui->cmbF1->currentIndex();
+    cnt += ui->cmbF2->currentIndex();
+
+    if(cnt == 6)
+        return true;
+    else
+        return false;
+}
+
 bool FormToolbox::comboColGeoOK()
 {
     int cnt = 0;
@@ -3794,6 +3999,41 @@ void FormToolbox::on_btnUpdateOLCIImage_clicked()
     }
 }
 
+void FormToolbox::on_btnUpdateSLSTRImage_clicked()
+{
+    if(!comboColSLSTROK())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Need color choices for 3 different bands in the SLSTR tab.");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
+        return;
+    }
+
+    if(opts.buttonSLSTR)
+    {
+        if(segs->seglslstr->NbrOfSegmentsSelected() > 0)
+        {
+
+            ui->btnGVPFalseColor->setChecked(false);
+            ui->btnSGFalseColor->setChecked(false);
+            ui->btnLCCFalseColor->setChecked(false);
+
+            ui->pbProgress->reset();
+            formimage->ShowSLSTRImage(ui->cmbHistogram->currentIndex());
+        }
+    }
+
+}
 void FormToolbox::on_rbtnAColor_clicked()
 {
     if(ui->rbtnAColor->isChecked())
@@ -4319,6 +4559,90 @@ void FormToolbox::setConfigOLCIParameters(int strlindex)
 
 }
 
+
+void FormToolbox::setConfigSLSTRParameters(int strlindex)
+{
+    qDebug() << "FormToolbox::setConfigSLSTRParameters(int strlindex)";
+
+    int theband = poi.strlColorBandSLSTR.at(strlindex).toInt();
+    if( theband == 0) // is color
+    {
+        setRadioButtonsSLSTRToFalse();
+        ui->rbColorSLSTR->setChecked(true);
+    }
+    else
+    {
+        ui->rbColorSLSTR->setChecked(false);
+        setRadioButtonsSLSTRToFalse();
+        switch (theband)
+        {
+        case 1:
+            ui->rbS1->setChecked(true);
+            break;
+        case 2:
+            ui->rbS2->setChecked(true);
+            break;
+        case 3:
+            ui->rbS3->setChecked(true);
+            break;
+        case 4:
+            ui->rbS4->setChecked(true);
+            break;
+        case 5:
+            ui->rbS5->setChecked(true);
+            break;
+        case 6:
+            ui->rbS6->setChecked(true);
+            break;
+        case 7:
+            ui->rbS7->setChecked(true);
+            break;
+        case 8:
+            ui->rbS8->setChecked(true);
+            break;
+        case 9:
+            ui->rbS9->setChecked(true);
+            break;
+        case 10:
+            ui->rbF1->setChecked(true);
+            break;
+        case 11:
+            ui->rbF2->setChecked(true);
+            break;
+        }
+
+    }
+
+    ui->chkInverseS1->setChecked(poi.strlInverseSLSTRS1.at(strlindex).toInt());
+    ui->chkInverseS2->setChecked(poi.strlInverseSLSTRS2.at(strlindex).toInt());
+    ui->chkInverseS3->setChecked(poi.strlInverseSLSTRS3.at(strlindex).toInt());
+    ui->chkInverseS4->setChecked(poi.strlInverseSLSTRS4.at(strlindex).toInt());
+    ui->chkInverseS5->setChecked(poi.strlInverseSLSTRS5.at(strlindex).toInt());
+    ui->chkInverseS6->setChecked(poi.strlInverseSLSTRS6.at(strlindex).toInt());
+    ui->chkInverseS7->setChecked(poi.strlInverseSLSTRS7.at(strlindex).toInt());
+    ui->chkInverseS8->setChecked(poi.strlInverseSLSTRS8.at(strlindex).toInt());
+    ui->chkInverseS9->setChecked(poi.strlInverseSLSTRS9.at(strlindex).toInt());
+    ui->chkInverseF1->setChecked(poi.strlInverseSLSTRF1.at(strlindex).toInt());
+    ui->chkInverseF2->setChecked(poi.strlInverseSLSTRF2.at(strlindex).toInt());
+
+    qDebug() << "FormToolbox::setConfigSLSTRParameters(int strlindex) 3";
+
+    ui->cmbS1->setCurrentIndex(poi.strlComboSLSTRS1.at(strlindex).toInt());
+    ui->cmbS2->setCurrentIndex(poi.strlComboSLSTRS2.at(strlindex).toInt());
+    ui->cmbS3->setCurrentIndex(poi.strlComboSLSTRS3.at(strlindex).toInt());
+    ui->cmbS4->setCurrentIndex(poi.strlComboSLSTRS4.at(strlindex).toInt());
+    ui->cmbS5->setCurrentIndex(poi.strlComboSLSTRS5.at(strlindex).toInt());
+    ui->cmbS6->setCurrentIndex(poi.strlComboSLSTRS6.at(strlindex).toInt());
+    ui->cmbS7->setCurrentIndex(poi.strlComboSLSTRS7.at(strlindex).toInt());
+    ui->cmbS8->setCurrentIndex(poi.strlComboSLSTRS8.at(strlindex).toInt());
+    ui->cmbS9->setCurrentIndex(poi.strlComboSLSTRS9.at(strlindex).toInt());
+    ui->cmbF1->setCurrentIndex(poi.strlComboSLSTRF1.at(strlindex).toInt());
+    ui->cmbF2->setCurrentIndex(poi.strlComboSLSTRF2.at(strlindex).toInt());
+
+    qDebug() << "FormToolbox::setConfigSLSTRParameters(int strlindex) 4";
+
+}
+
 void FormToolbox::setRadioButtonsOLCIefrToFalse()
 {
     ui->rbOLCI01->setChecked(false);
@@ -4337,6 +4661,26 @@ void FormToolbox::setRadioButtonsOLCIefrToFalse()
     ui->rbOLCI14->setChecked(false);
     ui->rbOLCI15->setChecked(false);
     ui->rbOLCI16->setChecked(false);
+    ui->rbOLCI17->setChecked(false);
+    ui->rbOLCI18->setChecked(false);
+    ui->rbOLCI19->setChecked(false);
+    ui->rbOLCI20->setChecked(false);
+    ui->rbOLCI21->setChecked(false);
+}
+
+void FormToolbox::setRadioButtonsSLSTRToFalse()
+{
+    ui->rbS1->setChecked(false);
+    ui->rbS2->setChecked(false);
+    ui->rbS3->setChecked(false);
+    ui->rbS4->setChecked(false);
+    ui->rbS5->setChecked(false);
+    ui->rbS6->setChecked(false);
+    ui->rbS7->setChecked(false);
+    ui->rbS8->setChecked(false);
+    ui->rbS9->setChecked(false);
+    ui->rbF1->setChecked(false);
+    ui->rbF2->setChecked(false);
 }
 
 void FormToolbox::on_comboPOI_currentIndexChanged(int index)
@@ -4462,6 +4806,11 @@ void FormToolbox::on_comboMConfig_currentIndexChanged(int index)
 void FormToolbox::on_comboOLCIConfig_currentIndexChanged(int index)
 {
     setConfigOLCIParameters(index);
+}
+
+void FormToolbox::on_comboSLSTRConfig_currentIndexChanged(int index)
+{
+    setConfigSLSTRParameters(index);
 }
 
 void FormToolbox::on_btnAddMConfig_clicked()
@@ -4865,7 +5214,7 @@ void FormToolbox::on_cmbHistogram_activated(int index)
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            formimage->ShowHistogramImage(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+            formimage->ShowHistogramImageOLCI(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
         }
     }
     else if(opts.buttonOLCIerr)
@@ -4878,10 +5227,29 @@ void FormToolbox::on_cmbHistogram_activated(int index)
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            formimage->ShowHistogramImage(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+            formimage->ShowHistogramImageOLCI(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
         }
     }
 
+}
+
+void FormToolbox::on_cmbHistogramSLSTR_activated(int index)
+{
+    formimage->setHistogramMethodSLSTR(ui->cmbHistogramSLSTR->currentIndex());
+
+    if(opts.buttonSLSTR)
+    {
+        if(segs->seglslstr->NbrOfSegmentsSelected() > 0)
+        {
+
+            ui->btnGVPFalseColor->setChecked(false);
+            ui->btnSGFalseColor->setChecked(false);
+            ui->btnLCCFalseColor->setChecked(false);
+
+            ui->pbProgress->reset();
+            formimage->ShowHistogramImageSLSTR(ui->cmbHistogramSLSTR->currentIndex());
+        }
+    }
 }
 
 void FormToolbox::setAllWhatsThis()
@@ -4960,4 +5328,6 @@ void FormToolbox::on_rdbGridOnOLCIimage_toggled(bool checked)
     opts.gridonolciimage = checked;
     formimage->toggleOverlayGridOnOLCI();
 }
+
+
 

@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.2.1"
+#define APPVERSION "1.2.3"
 using namespace std;
 
 QMutex g_mutex;
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
-    if (QCoreApplication::arguments().contains(QStringLiteral("--multisample")))
+    //if (QCoreApplication::arguments().contains(QStringLiteral("--multisample")))
         format.setSamples(4);
 
     QSurfaceFormat::setDefaultFormat(format);

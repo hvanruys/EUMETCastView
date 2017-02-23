@@ -16,18 +16,23 @@
 #include "qsgp4.h"
 #include "qeci.h"
 
+enum eProjections {
+    LCC = 0,
+    GVP,
+    SG
+};
+
+enum eSLSTRImageView
+{
+    OBLIQUE = 0,
+    NADIR
+};
+
 class Segment : public QObject
 {
     Q_OBJECT
 
 public:
-
-    enum eProjections {
-        LCC = 0,
-        GVP,
-        SG
-    };
-
     explicit Segment(QObject *parent = 0);
     ~Segment();
     virtual Segment *ReadSegmentInMemory();
@@ -76,6 +81,9 @@ public:
     qint32 getProjectionX(int line, int pixelx);
     qint32 getProjectionY(int line, int pixelx);
     QRgb getProjectionValue(int line, int pixelx);
+    int DecompressSegmentToTemp();
+    int copy_data(struct archive *ar, struct archive *aw);
+
 
     bool segmentok;   // check if segment is read
     bool segmentselected; // selected for display
@@ -102,9 +110,11 @@ public:
     QScopedArrayPointer<quint16> ptrbaChannel[5];
     QScopedArrayPointer<quint16> ptrbaChannelNormalized[5];
     QScopedArrayPointer<quint16> ptrbaVIIRS[3];
+    QScopedArrayPointer<float> ptrbaVIIRSDNB;
     QScopedArrayPointer<quint16> ptrbaOLCI[3];
     QScopedArrayPointer<quint16> ptrbaOLCInormalized[3];
-    QScopedArrayPointer<float> ptrbaVIIRSDNB;
+    QScopedArrayPointer<qint16> ptrbaSLSTR[3];
+    QScopedArrayPointer<qint16> ptrbaSLSTRnormalized[3];
 
     QString line1;
     QString line2;

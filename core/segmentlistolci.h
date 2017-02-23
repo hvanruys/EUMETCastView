@@ -53,7 +53,6 @@ private:
     bool normalized;
 
 protected:
-
     QFutureWatcher<void> *watcherolci;
 
 protected slots:

@@ -52,8 +52,6 @@ MapFieldCyl::~MapFieldCyl()
     qDebug() << "closing MapFieldCyl";
 }
 
-
-
 void MapFieldCyl::timerEvent(QTimerEvent *event)
 {
     //qDebug() << "Timer ID:" << event->timerId();
@@ -86,191 +84,54 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
 
     double first_julian, last_julian;
 
+    SegmentList *sl = NULL;
 
     if (opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglmetop->RenderSegments( &painter, QColor(Qt::magenta), true );
-        }
-        else
-        {
-            segs->seglmetop->GetFirstLastVisible(&first_julian, &last_julian);
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglmetop->RenderSegments( &painter, QColor(Qt::magenta), false );
-        }
-    }
+        sl = segs->seglmetop;
+    else if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
+        sl = segs->seglnoaa;
+    else if (opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
+        sl = segs->seglhrp;
+    else if (opts.buttonGAC && segs->seglgac->NbrOfSegments() > 0)
+        sl = segs->seglgac;
+    else if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
+        sl = segs->seglmetopAhrpt;
+    else if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
+        sl = segs->seglmetopBhrpt;
+    else if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
+        sl = segs->seglnoaa19hrpt;
+    else if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
+        sl = segs->seglM01hrpt;
+    else if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
+        sl = segs->seglM02hrpt;
+    else if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
+        sl = segs->seglviirsm;
+    else if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+        sl = segs->seglviirsdnb;
+    else if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
+        sl = segs->seglolciefr;
+    else if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
+        sl = segs->seglolcierr;
+    else if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
+        sl = segs->seglslstr;
 
-    if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
+    if (sl != NULL)
     {
         if(segs->getShowAllSegments())
         {
-            segs->seglnoaa->RenderSegments( &painter, QColor(Qt::green), true );
+            sl->RenderSegments( &painter, QColor(Qt::magenta), true );
         }
         else
         {
-            segs->seglnoaa->GetFirstLastVisible( &first_julian, &last_julian );
+            sl->GetFirstLastVisible(&first_julian, &last_julian);
             showSunPosition(&painter, first_julian, last_julian);
-            segs->seglnoaa->RenderSegments( &painter, QColor(Qt::green), false );
-        }
-    }
-
-    if (opts.buttonGAC && segs->seglgac->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglgac->RenderSegments( &painter, QColor(Qt::darkYellow), true );
-        }
-        else
-        {
-            segs->seglgac->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglgac->RenderSegments( &painter, QColor(Qt::darkYellow), false );
-        }
-    }
-
-    if (opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglhrp->RenderSegments( &painter, QColor(Qt::darkRed), true );
-        }
-        else
-        {
-            segs->seglhrp->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglhrp->RenderSegments( &painter, QColor(Qt::darkRed), false );
-        }
-    }
-
-    if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglmetopAhrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
-        }
-        else
-        {
-            segs->seglmetopAhrpt->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglmetopAhrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
-        }
-    }
-
-    if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglmetopBhrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
-        }
-        else
-        {
-            segs->seglmetopBhrpt->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglmetopBhrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
-        }
-    }
-
-    if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglnoaa19hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
-        }
-        else
-        {
-            segs->seglnoaa19hrpt->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglnoaa19hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
-        }
-    }
-
-    if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglM01hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
-        }
-        else
-        {
-            segs->seglM01hrpt->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglM01hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
-        }
-    }
-
-    if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglM02hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
-        }
-        else
-        {
-            segs->seglM02hrpt->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglM02hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
-        }
-    }
-
-    if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglviirsm->RenderSegments( &painter, QColor(Qt::cyan), true );
-        }
-        else
-        {
-            segs->seglviirsm->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglviirsm->RenderSegments( &painter, QColor(Qt::cyan), false );
-        }
-    }
-
-    if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglviirsdnb->RenderSegments( &painter, QColor(Qt::cyan), true );
-        }
-        else
-        {
-            segs->seglviirsdnb->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglviirsdnb->RenderSegments( &painter, QColor(Qt::cyan), false );
-        }
-    }
-
-    if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglolciefr->RenderSegments( &painter, QColor(Qt::cyan), true );
-        }
-        else
-        {
-            segs->seglolciefr->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglolciefr->RenderSegments( &painter, QColor(Qt::cyan), false );
-        }
-    }
-
-    if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
-    {
-        if(segs->getShowAllSegments())
-        {
-            segs->seglolcierr->RenderSegments( &painter, QColor(Qt::cyan), true );
-        }
-        else
-        {
-            segs->seglolcierr->GetFirstLastVisible( &first_julian, &last_julian );
-            showSunPosition(&painter, first_julian, last_julian);
-            segs->seglolcierr->RenderSegments( &painter, QColor(Qt::cyan), false );
+            sl->RenderSegments( &painter, QColor(Qt::magenta), false );
         }
     }
 
     if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false &&
-            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false && opts.buttonOLCIefr == false && opts.buttonOLCIerr == false &&
+            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false &&
+            opts.buttonOLCIefr == false && opts.buttonOLCIerr == false && opts.buttonSLSTR == false &&
             opts.buttonMetopAhrpt == false && opts.buttonMetopBhrpt == false && opts.buttonNoaa19hrpt == false && opts.buttonM01hrpt == false &&
             opts.buttonM02hrpt == false)
         showSunPosition(&painter);
@@ -285,6 +146,218 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
     paint.drawPixmap( 0, 0, pmScaled_res );
 
 }
+
+//void MapFieldCyl::paintEvent( QPaintEvent * )
+//{
+
+//    QPainter painter(&pmScaled_res);
+//    painter.drawPixmap(0, 0, pmScaled);
+//    sats->RenderAllSatellites( &painter );
+//    sats->showHorizon( deg2rad(opts.getObsLon()), deg2rad(opts.getObsLat()), sats->GetSelectedSatAlt(), &painter);
+
+//    //qDebug() << QString("in paintevent MapFieldCyl nbr seglist %1 selected %2").arg(segs->segmentlistmetop->NbrOfSegments()).arg(segs->segmentlistmetop->NbrOfSegmentsSelected());
+
+//    double first_julian, last_julian;
+
+
+//    if (opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglmetop->RenderSegments( &painter, QColor(Qt::magenta), true );
+//        }
+//        else
+//        {
+//            segs->seglmetop->GetFirstLastVisible(&first_julian, &last_julian);
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglmetop->RenderSegments( &painter, QColor(Qt::magenta), false );
+//        }
+//    }
+
+//    if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglnoaa->RenderSegments( &painter, QColor(Qt::green), true );
+//        }
+//        else
+//        {
+//            segs->seglnoaa->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglnoaa->RenderSegments( &painter, QColor(Qt::green), false );
+//        }
+//    }
+
+//    if (opts.buttonGAC && segs->seglgac->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglgac->RenderSegments( &painter, QColor(Qt::darkYellow), true );
+//        }
+//        else
+//        {
+//            segs->seglgac->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglgac->RenderSegments( &painter, QColor(Qt::darkYellow), false );
+//        }
+//    }
+
+//    if (opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglhrp->RenderSegments( &painter, QColor(Qt::darkRed), true );
+//        }
+//        else
+//        {
+//            segs->seglhrp->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglhrp->RenderSegments( &painter, QColor(Qt::darkRed), false );
+//        }
+//    }
+
+//    if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglmetopAhrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+//        }
+//        else
+//        {
+//            segs->seglmetopAhrpt->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglmetopAhrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+//        }
+//    }
+
+//    if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglmetopBhrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+//        }
+//        else
+//        {
+//            segs->seglmetopBhrpt->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglmetopBhrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+//        }
+//    }
+
+//    if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglnoaa19hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+//        }
+//        else
+//        {
+//            segs->seglnoaa19hrpt->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglnoaa19hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+//        }
+//    }
+
+//    if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglM01hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+//        }
+//        else
+//        {
+//            segs->seglM01hrpt->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglM01hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+//        }
+//    }
+
+//    if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglM02hrpt->RenderSegments( &painter, QColor(Qt::darkRed), true );
+//        }
+//        else
+//        {
+//            segs->seglM02hrpt->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglM02hrpt->RenderSegments( &painter, QColor(Qt::darkRed), false );
+//        }
+//    }
+
+//    if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglviirsm->RenderSegments( &painter, QColor(Qt::cyan), true );
+//        }
+//        else
+//        {
+//            segs->seglviirsm->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglviirsm->RenderSegments( &painter, QColor(Qt::cyan), false );
+//        }
+//    }
+
+//    if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglviirsdnb->RenderSegments( &painter, QColor(Qt::cyan), true );
+//        }
+//        else
+//        {
+//            segs->seglviirsdnb->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglviirsdnb->RenderSegments( &painter, QColor(Qt::cyan), false );
+//        }
+//    }
+
+//    if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglolciefr->RenderSegments( &painter, QColor(Qt::cyan), true );
+//        }
+//        else
+//        {
+//            segs->seglolciefr->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglolciefr->RenderSegments( &painter, QColor(Qt::cyan), false );
+//        }
+//    }
+
+//    if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
+//    {
+//        if(segs->getShowAllSegments())
+//        {
+//            segs->seglolcierr->RenderSegments( &painter, QColor(Qt::cyan), true );
+//        }
+//        else
+//        {
+//            segs->seglolcierr->GetFirstLastVisible( &first_julian, &last_julian );
+//            showSunPosition(&painter, first_julian, last_julian);
+//            segs->seglolcierr->RenderSegments( &painter, QColor(Qt::cyan), false );
+//        }
+//    }
+
+//    if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false &&
+//            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false && opts.buttonOLCIefr == false && opts.buttonOLCIerr == false &&
+//            opts.buttonMetopAhrpt == false && opts.buttonMetopBhrpt == false && opts.buttonNoaa19hrpt == false && opts.buttonM01hrpt == false &&
+//            opts.buttonM02hrpt == false)
+//        showSunPosition(&painter);
+
+//    if (down)
+//    {
+//        //showSunPosition(&painter);
+//        //qDebug() << QString("first_utc = %1, last_utc = %2").arg(first_utc).arg(last_utc);
+//    }
+
+//    QPainter paint(this);
+//    paint.drawPixmap( 0, 0, pmScaled_res );
+
+//}
 
 void MapFieldCyl::resizeEvent( QResizeEvent * )
 {
@@ -337,6 +410,8 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
         isselected = segs->seglolciefr->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
     else if (opts.buttonOLCIerr)
         isselected = segs->seglolcierr->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonSLSTR)
+        isselected = segs->seglslstr->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
 
 
     if(isselected)

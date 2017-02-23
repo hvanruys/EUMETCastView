@@ -248,6 +248,8 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->seglolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonOLCIerr)
             isselected = segs->seglolcierr->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonSLSTR)
+            isselected = segs->seglslstr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else
             isselected = false;
 
@@ -556,66 +558,71 @@ void Globe::paintGL()
         {
             segs->seglmetop->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglmetop->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
         {
             segs->seglnoaa->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglnoaa->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
         {
             segs->seglhrp->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglhrp->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonGAC && segs->seglgac->NbrOfSegments() > 0)
         {
             segs->seglgac->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglgac->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
         {
             segs->seglmetopAhrpt->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglmetopAhrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
         {
             segs->seglmetopBhrpt->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglmetopBhrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
         {
             segs->seglnoaa19hrpt->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglnoaa19hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
         {
             segs->seglM01hrpt->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglM01hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
         {
             segs->seglM02hrpt->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglM02hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
         {
             segs->seglviirsm->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglviirsm->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
         {
             segs->seglviirsdnb->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglviirsdnb->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
         {
             segs->seglolciefr->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglolciefr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-        }
+        } else
         if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
         {
             segs->seglolcierr->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglolcierr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        } else
+        if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
+        {
+            segs->seglslstr->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglslstr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         }
     }
 
@@ -791,6 +798,15 @@ void Globe::paintGL()
         if(segmentnameselected.mid(0,12) == "S3A_OL_1_ERR")
             painter.drawText(10, this->height() - 20, "Sentinel-3A ERR" + segdate);
     }
+    else if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
+                .arg(segmentnameselected.mid(25, 2)).arg(segmentnameselected.mid(27, 2)).arg(segmentnameselected.mid(29, 2));
+
+        if(segmentnameselected.mid(0,12) == "S3A_SL_1_RBT")
+            painter.drawText(10, this->height() - 20, "Sentinel-3A SLSTR" + segdate);
+    }
 
 
     if (bSegmentNames && opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
@@ -824,6 +840,10 @@ void Globe::paintGL()
     else if (bSegmentNames && opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_OLCIERR, segs->seglolcierr->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_SLSTR, segs->seglslstr->GetSegmentlistptr());
     }
 
 
@@ -1050,7 +1070,6 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
     for(int i = 0; i < 16; i++)
         projmatrix[i] = *(ptr + i);
 
-
     QList<Segment*>::iterator segit = segptr->begin();
     QString renderout;
     QVector3D vec;
@@ -1110,6 +1129,10 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 {
                     renderout = QString("ERR %1:%2").arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
                 }
+                else if(seg == eSegmentType::SEG_SLSTR)
+                {
+                    renderout = QString("SLSTR %1:%2").arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
+                }
                 else
                 {
                     renderout = QString("Wrong segmentlist");
@@ -1126,35 +1149,35 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
 
 
 QVector2D Globe::glhProjectf(QVector3D obj, float *modelview, float *projection, int width, int height)
-  {
-      //Transformation vectors
-      float fTempo[8];
-      //Modelview transform
-      fTempo[0]=modelview[0]*obj.x()+modelview[4]*obj.y()+modelview[8]*obj.z()+modelview[12];  //w is always 1
-      fTempo[1]=modelview[1]*obj.x()+modelview[5]*obj.y()+modelview[9]*obj.z()+modelview[13];
-      fTempo[2]=modelview[2]*obj.x()+modelview[6]*obj.y()+modelview[10]*obj.z()+modelview[14];
-      fTempo[3]=modelview[3]*obj.x()+modelview[7]*obj.y()+modelview[11]*obj.z()+modelview[15];
-      //Projection transform, the final row of projection matrix is always [0 0 -1 0]
-      //so we optimize for that.
-      fTempo[4]=projection[0]*fTempo[0]+projection[4]*fTempo[1]+projection[8]*fTempo[2]+projection[12]*fTempo[3];
-      fTempo[5]=projection[1]*fTempo[0]+projection[5]*fTempo[1]+projection[9]*fTempo[2]+projection[13]*fTempo[3];
-      fTempo[6]=projection[2]*fTempo[0]+projection[6]*fTempo[1]+projection[10]*fTempo[2]+projection[14]*fTempo[3];
-      fTempo[7]=-fTempo[2];
-      //The result normalizes between -1 and 1
-//      if(fTempo[7]==0.0)	//The w value
-//         return 0;
-      fTempo[7]=1.0/fTempo[7];
-      //Perspective division
-      fTempo[4]*=fTempo[7];
-      fTempo[5]*=fTempo[7];
-      fTempo[6]*=fTempo[7];
-      //Window coordinates
-      //Map x, y to range 0-1
-      QVector2D win((fTempo[4]*0.5+0.5)*width, (fTempo[5]*0.5+0.5)*height);
-      //This is only correct when glDepthRange(0.0, 1.0)
-      //windowCoordinate[2]=(1.0+fTempo[6])*0.5;	//Between 0 and 1
-      return win;
-  }
+{
+    //Transformation vectors
+    float fTempo[8];
+    //Modelview transform
+    fTempo[0]=modelview[0]*obj.x()+modelview[4]*obj.y()+modelview[8]*obj.z()+modelview[12];  //w is always 1
+    fTempo[1]=modelview[1]*obj.x()+modelview[5]*obj.y()+modelview[9]*obj.z()+modelview[13];
+    fTempo[2]=modelview[2]*obj.x()+modelview[6]*obj.y()+modelview[10]*obj.z()+modelview[14];
+    fTempo[3]=modelview[3]*obj.x()+modelview[7]*obj.y()+modelview[11]*obj.z()+modelview[15];
+    //Projection transform, the final row of projection matrix is always [0 0 -1 0]
+    //so we optimize for that.
+    fTempo[4]=projection[0]*fTempo[0]+projection[4]*fTempo[1]+projection[8]*fTempo[2]+projection[12]*fTempo[3];
+    fTempo[5]=projection[1]*fTempo[0]+projection[5]*fTempo[1]+projection[9]*fTempo[2]+projection[13]*fTempo[3];
+    fTempo[6]=projection[2]*fTempo[0]+projection[6]*fTempo[1]+projection[10]*fTempo[2]+projection[14]*fTempo[3];
+    fTempo[7]=-fTempo[2];
+    //The result normalizes between -1 and 1
+    //      if(fTempo[7]==0.0)	//The w value
+    //         return 0;
+    fTempo[7]=1.0/fTempo[7];
+    //Perspective division
+    fTempo[4]*=fTempo[7];
+    fTempo[5]*=fTempo[7];
+    fTempo[6]*=fTempo[7];
+    //Window coordinates
+    //Map x, y to range 0-1
+    QVector2D win((fTempo[4]*0.5+0.5)*width, (fTempo[5]*0.5+0.5)*height);
+    //This is only correct when glDepthRange(0.0, 1.0)
+    //windowCoordinate[2]=(1.0+fTempo[6])*0.5;	//Between 0 and 1
+    return win;
+}
 
 
 bool Globe::CreateAndLlinkShader(QOpenGLShaderProgram *program, QString vertexshader, QString fragmentshader)

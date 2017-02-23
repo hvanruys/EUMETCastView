@@ -53,6 +53,9 @@ public:
     QImage *ptrimageViirsM;
     QImage *ptrimageViirsDNB;
     QImage *ptrimageOLCI;
+    QImage *ptrimageSLSTR;
+    eSegmentType olcitype;
+
 
     QImage *ptrimageGeostationary;
     QImage *ptrimageProjection;

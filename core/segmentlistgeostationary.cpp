@@ -1687,11 +1687,21 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
     const char* pncfile[3];
     int ncfileid[3];
     int retval;
-
+    int varid;
     QImage *im;
     QStringList outfilename;
+    float max_radiance_value_of_valid_pixels[3];
+    float mean_radiance_value_of_valid_pixels[3];
+    float min_radiance_value_of_valid_pixels[3];
 
-    im = imageptrs->ptrimageGeostationary;
+    emit this->progressCounter(0);
+
+    nc_type rh_type;
+    int rh_ndims;
+    int  rh_dimids[NC_MAX_VAR_DIMS];
+    int rh_natts;
+    size_t xdim, ydim;
+
 
     for(int j = 0; j < filelist.size(); j++)
     {
@@ -1703,31 +1713,119 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
         retval = nc_open(pncfile[j], NC_NOWRITE, &ncfileid[j]);
         if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << filelist.at(j);
 
+        retval = nc_inq_varid(ncfileid[j], "max_radiance_value_of_valid_pixels", &varid);
+        if (retval != NC_NOERR) qDebug() << "error reading max_radiance_value_of_valid_pixels id";
+        retval = nc_get_var_float(ncfileid[j], varid, &max_radiance_value_of_valid_pixels[j]);
+        if (retval != NC_NOERR) qDebug() << "error reading max_radiance_value_of_valid_pixels values";
+
+        retval = nc_inq_varid(ncfileid[j], "mean_radiance_value_of_valid_pixels", &varid);
+        if (retval != NC_NOERR) qDebug() << "error reading mean_radiance_value_of_valid_pixels id";
+        retval = nc_get_var_float(ncfileid[j], varid, &mean_radiance_value_of_valid_pixels[j]);
+        if (retval != NC_NOERR) qDebug() << "error reading mean_radiance_value_of_valid_pixels values";
+
+        retval = nc_inq_varid(ncfileid[j], "min_radiance_value_of_valid_pixels", &varid);
+        if (retval != NC_NOERR) qDebug() << "error reading min_radiance_value_of_valid_pixels id";
+        retval = nc_get_var_float(ncfileid[j], varid, &min_radiance_value_of_valid_pixels[j]);
+        if (retval != NC_NOERR) qDebug() << "error reading min_radiance_value_of_valid_pixels values";
+
+
+        retval = nc_inq_varid(ncfileid[j], "Rad", &varid);
+        if (retval != NC_NOERR) qDebug() << "error reading Rad id";
+        retval = nc_inq_var (ncfileid[j], varid, 0, &rh_type, &rh_ndims, rh_dimids, &rh_natts);
+        if (retval != NC_NOERR) qDebug() << "error reading inq var";
+        retval = nc_inq_dimlen(ncfileid[j], rh_dimids[0], &xdim);
+        if (retval != NC_NOERR) qDebug() << "error reading xdim";
+        retval = nc_inq_dimlen(ncfileid[j], rh_dimids[1], &ydim);
+        if (retval != NC_NOERR) qDebug() << "error reading ydim";
+
+
+        if(j==0)
+        {
+            imageptrs->ptrRed[0] = new quint16[xdim * ydim];
+            memset(imageptrs->ptrRed[0], 0, xdim * ydim * sizeof(quint16));
+
+            retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrRed[0]);
+            if (retval != NC_NOERR) qDebug() << "error reading Rad values";
+        } else if(j==1)
+        {
+            imageptrs->ptrGreen[0] = new quint16[xdim * ydim];
+            memset(imageptrs->ptrGreen[0], 0, xdim * ydim * sizeof(quint16));
+
+            retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrGreen[0]);
+            if (retval != NC_NOERR) qDebug() << "error reading Rad values";
+        } else if(j == 2)
+        {
+            imageptrs->ptrBlue[0] = new quint16[xdim * ydim];
+            memset(imageptrs->ptrBlue[0], 0, xdim * ydim * sizeof(quint16));
+
+            retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrBlue[0]);
+            if (retval != NC_NOERR) qDebug() << "error reading Rad values";
+        }
+
+
+        qDebug() << "type is = " << rh_type;
+        qDebug() << "number of dimensions = " << rh_ndims;
+        qDebug() << "rh_dimids[0] = " << rh_dimids[0] << " " << rh_dimids[1];
+        qDebug() << "rh_natts = " << rh_natts;
+        qDebug() << "xdim = " << xdim << " ydim = " << ydim;
+
+
+        qDebug() << "min_radiance_value_of_valid_pixels = " << min_radiance_value_of_valid_pixels[j];
+        qDebug() << "max_radiance_value_of_valid_pixels = " << max_radiance_value_of_valid_pixels[j];
+        qDebug() << "mean_radiance_value_of_valid_pixels = " << mean_radiance_value_of_valid_pixels[j];
+
         retval = nc_close(ncfileid[j]);
         if (retval != NC_NOERR) qDebug() << "error closing file1";
 
     }
 
-//    QStringList DatasetName;
+    quint16 rc, gc, bc;
+    int r,g, b;
+    QRgb *row_col;
 
-//    if(kindofimage == "VIS_IR")
-//    {
-//        imageptrs->ptrRed[0] = new quint16[2288 * 2288];
-//        memset(imageptrs->ptrRed[0], 0, 2288 * 2288 * sizeof(quint16));
-//        DatasetName.append("/NOMChannel" + filelist.at(0).mid(40, 3));
-//    }
-//    else if(kindofimage == "VIS_IR Color")
-//    {
-//        imageptrs->ptrRed[0] = new quint16[2288 * 2288];
-//        memset(imageptrs->ptrRed[0], 0, 2288 * 2288 * sizeof(quint16));
-//        DatasetName.append("/NOMChannel" + filelist.at(0).mid(40, 3));
-//        imageptrs->ptrGreen[0] = new quint16[2288 * 2288];
-//        memset(imageptrs->ptrGreen[0], 0, 2288 * 2288 * sizeof(quint16));
-//        DatasetName.append("/NOMChannel" + filelist.at(1).mid(40, 3));
-//        imageptrs->ptrBlue[0] = new quint16[2288 * 2288];
-//        memset(imageptrs->ptrBlue[0], 0, 2288 * 2288 * sizeof(quint16));
-//        DatasetName.append("/NOMChannel" + filelist.at(2).mid(40, 3));
-//    }
+
+    imageptrs->InitializeImageGeostationary(xdim, ydim);
+    im = imageptrs->ptrimageGeostationary;
+
+    int progcounter = 30;
+    emit this->progressCounter(progcounter);
+
+    for(int line = 0; line < ydim; line++)
+    {
+        row_col = (QRgb*)im->scanLine(line);
+
+        for (int pixelx = 0 ; pixelx < xdim; pixelx++)
+        {
+            if(kindofimage == "VIS_IR Color")
+            {
+                rc = *(imageptrs->ptrRed[0] + line * xdim + pixelx);
+                gc = *(imageptrs->ptrGreen[0] + line * xdim + pixelx);
+                bc = *(imageptrs->ptrBlue[0] + line * xdim + pixelx);
+                r = 255 * ((rc - min_radiance_value_of_valid_pixels[0]) / (max_radiance_value_of_valid_pixels[0] - min_radiance_value_of_valid_pixels[0]));
+                g = 255 * ((rc - min_radiance_value_of_valid_pixels[1]) / (max_radiance_value_of_valid_pixels[1] - min_radiance_value_of_valid_pixels[1]));
+                b = 255 * ((rc - min_radiance_value_of_valid_pixels[2]) / (max_radiance_value_of_valid_pixels[2] - min_radiance_value_of_valid_pixels[2]));
+
+
+            }
+            else if(kindofimage == "VIS_IR" || kindofimage == "HRV")
+            {
+                rc = *(imageptrs->ptrRed[0] + line * xdim + pixelx);
+                r = 255 * ((rc - min_radiance_value_of_valid_pixels[0]) / (max_radiance_value_of_valid_pixels[0] - min_radiance_value_of_valid_pixels[0]));
+                g = r;
+                b = r;
+
+            }
+            row_col[pixelx] = qRgb(r,g,b);
+
+        }
+        if(line % 160 == 0)
+        {
+            progcounter++;
+            emit this->progressCounter(progcounter);
+        }
+    }
+
+    emit this->progressCounter(100);
 
 
 }

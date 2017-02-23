@@ -36,6 +36,7 @@ Segment::Segment(QObject *parent) :
         stat_min_norm_ch[k] = 999999999;
         list_stat_max_ch[k] = 0;
         list_stat_min_ch[k] = 999999999;
+        active_pixels[k] = 0;
     }
 
 //    list_stat_3_0_max_ch = 0;
@@ -107,7 +108,7 @@ void Segment::CalculateCornerPoints()
 
     //qDebug() << QString("minutes_since_state_vector = %1 in CalculateCornerPoints").arg(minutes_since_state_vector);
 
-        if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
+        if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" || segment_type == "SLSTR" ||
                 segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
         {
             double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
@@ -140,7 +141,7 @@ void Segment::CalculateCornerPoints()
         delta1 = 56.28 * PI / 180.0;  // (in rad) for VIIRS
         delta2 = delta1;
     }
-    else if(segment_type == "OLCIEFR" || segment_type == "OLCIERR")
+    else if(segment_type == "OLCIEFR" || segment_type == "OLCIERR" || segment_type == "SLSTR")
     {
         delta2 = 22.1 * PI / 180.0;  // see page 97 of Sentinel-3 User Handbook
         delta1 = 46.5 * PI / 180.0;
@@ -192,7 +193,7 @@ void Segment::CalculateCornerPoints()
     trueAnomaly = M + C;
     PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
-        if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" ||
+        if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" || segment_type == "SLSTR" ||
                 segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
         {
             double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
@@ -365,6 +366,8 @@ void Segment::resetMemory()
         ptrbaVIIRS[k].reset();
         ptrbaOLCI[k].reset();
         ptrbaOLCInormalized[k].reset();
+        ptrbaSLSTR[k].reset();
+        ptrbaSLSTRnormalized[k].reset();
     }
     ptrbaVIIRSDNB.reset();
 
@@ -1187,28 +1190,6 @@ qint32 Segment::getProjectionY(int line, int pixelx)
 QRgb Segment::getProjectionValue(int line, int pixelx)
 {
     return projectionCoordValue[line * earth_views_per_scanline + pixelx];
-
-//    switch(segtype)
-//    {
-//    case eSegmentType::SEG_METOP:
-//    case eSegmentType::SEG_NOAA:
-//    case eSegmentType::SEG_HRP:
-//        return projectionCoordValue[line * 2048 + pixelx];
-//        break;
-//    case eSegmentType::SEG_GAC:
-//        return projectionCoordValue[line * 409 + pixelx];
-//        break;
-//    case eSegmentType::SEG_VIIRSM:
-//        return projectionCoordValue[line * 3200 + pixelx];
-//        break;
-//    case eSegmentType::SEG_VIIRSDNB:
-//        return projectionCoordValue[line * 4064 + pixelx];
-//        break;
-//    case eSegmentType::SEG_OLCIEFR:
-//    case eSegmentType::SEG_OLCIERR:
-//        return projectionCoordValue[line * earth_views_per_scanline + pixelx];
-//        break;
-//    }
 }
 
 void Segment::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)
@@ -1339,3 +1320,118 @@ complicated algorithm is necessary if greater distances are allowed:
      lon=mod( lon1-dlon +pi,2*pi )-pi
 */
 
+int Segment::DecompressSegmentToTemp()
+{
+
+    int flags = ARCHIVE_EXTRACT_TIME;
+    struct archive *a;
+    struct archive *ext;
+    struct archive_entry *entry;
+    int r;
+
+    QString intarfile = this->fileInfo.absoluteFilePath();
+
+    qDebug() << "Start UntarSegmentToTemp 1 for absolutefilepath " + intarfile;
+    qDebug() << "fileInfo.completeBaseName() = " << fileInfo.completeBaseName();
+
+    if(this->fileInfo.isDir())
+        return 0;
+
+    QString basename = fileInfo.completeBaseName();
+    if(!basename.endsWith(".SEN3"))
+        basename += ".SEN3";
+
+    QDir curdir(basename);
+
+
+    qDebug() << "curdir().dirName = " << curdir.dirName();
+
+    if (curdir.exists())
+    {
+        qDebug() << "Directory " << basename << " exist !";
+        return 0;
+    }
+    else
+        qDebug() << "Directory " << basename << " does not exist !";
+
+    QByteArray array = intarfile.toUtf8();
+    const char* p = array.constData();
+
+    a = archive_read_new();
+    ext = archive_write_disk_new();
+    //archive_read_support_filter_all(a);
+    archive_read_support_format_all(a);
+
+    archive_write_disk_set_options(ext, flags);
+
+    r = archive_read_open_filename(a, p, 20480);
+    if (r != ARCHIVE_OK)
+    {
+        qDebug() << "Tar file " << intarfile << " not found ....";
+        return(1);
+    }
+
+//    while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
+//    {
+//      qDebug() << QString("%1").arg(archive_entry_pathname(entry));
+//      archive_read_data_skip(a);  // Note 2
+//    }
+
+    int nbrblocks = 1;
+
+    for (;;)
+    {
+        r = archive_read_next_header(a, &entry);
+        if (r == ARCHIVE_EOF)
+            break;
+        if (r != ARCHIVE_OK)
+            qDebug() << "archive_read_next_header() " << QString(archive_error_string(a));
+        r = archive_write_header(ext, entry);
+        if (r != ARCHIVE_OK)
+            qDebug() << "archive_write_header() " << QString(archive_error_string(ext));
+        else
+        {
+            qDebug() << QString("Start copy_data ....%1").arg(nbrblocks);
+
+            copy_data(a, ext);
+            r = archive_write_finish_entry(ext);
+            if (r != ARCHIVE_OK)
+                qDebug() << "archive_write_finish_entry() " << QString(archive_error_string(ext));
+            nbrblocks++;
+        }
+    }
+
+    archive_read_close(a);
+    archive_read_free(a);
+
+    archive_write_close(ext);
+    archive_write_free(ext);
+
+    return(0);
+}
+
+int Segment::copy_data(struct archive *ar, struct archive *aw)
+{
+    int r;
+    const void *buff;
+    size_t size;
+#if ARCHIVE_VERSION_NUMBER >= 3000000
+    int64_t offset;
+#else
+    off_t offset;
+#endif
+
+
+    for (;;) {
+        r = archive_read_data_block(ar, &buff, &size, &offset);
+        if (r == ARCHIVE_EOF)
+            return (ARCHIVE_OK);
+        if (r != ARCHIVE_OK)
+            return (r);
+        r = archive_write_data_block(aw, buff, size, offset);
+        if (r != ARCHIVE_OK) {
+            qDebug() << "archive_write_data_block() " << QString(archive_error_string(aw));
+            return (r);
+        }
+    }
+}

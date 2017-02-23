@@ -1212,8 +1212,8 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
             imageptrs->InitializeImageGeostationary(2816, 464*7);
         else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_15)
             imageptrs->InitializeImageGeostationary(2816, 464*7);
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_16)
-            imageptrs->InitializeImageGeostationary(10848, 10848);
+//        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_16)
+//            imageptrs->InitializeImageGeostationary(10848, 10848);
         else if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
             imageptrs->InitializeImageGeostationary(2288, 2288);
         else if(sl->getGeoSatellite() == SegmentListGeostationary::H8)

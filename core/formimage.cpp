@@ -47,6 +47,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     zoomValueprojection = opts.zoomfactorprojection;
     zoomValueviirs = opts.zoomfactorviirs;
     zoomValueolci = opts.zoomfactorolci;
+    zoomValueslstr = opts.zoomfactorslstr;
 
     scaleFactor = (double)getZoomValue()/100;
     qDebug() << QString("FormImage::FormImage scalefactor = %1").arg(scaleFactor);
@@ -82,6 +83,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     viirsdnbcount = 0;
     olciefrcount = 0;
     olcierrcount = 0;
+    slstrcount = 0;
     txtInfo = "";
 
 
@@ -135,6 +137,9 @@ bool FormImage::toggleOverlayProjection()
 void FormImage::setPixmapToLabel(bool settoolboxbuttons)
 {
 
+    qDebug() << "FormImage::setPixmapToLabel(bool settoolboxbuttons) width = " << imageptrs->ptrimageSLSTR->size().width() << " height = "
+             << imageptrs->ptrimageSLSTR->size().height() << " channelshown = " << channelshown;
+
     refreshoverlay = true;
 
     emit allsegmentsreceivedbuttons(settoolboxbuttons);
@@ -168,17 +173,21 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
     case IMAGE_PROJECTION:
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
         break;
-    case IMAGE_VIIRS_M:
-        displayVIIRSImageInfo();
+    case IMAGE_VIIRSM:
+        displayVIIRSImageInfo(SEG_VIIRSM);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
         break;
-    case IMAGE_VIIRS_DNB:
-        displayVIIRSImageInfo();
+    case IMAGE_VIIRSDNB:
+        displayVIIRSImageInfo(SEG_VIIRSDNB);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
         break;
     case IMAGE_OLCI:
-        displayOLCIImageInfo();
+        displaySentinelImageInfo(SEG_OLCIEFR);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCI)));
+        break;
+    case IMAGE_SLSTR:
+        displaySentinelImageInfo(SEG_SLSTR);
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageSLSTR)));
         break;
 
     }
@@ -206,41 +215,17 @@ void FormImage::displayImage(eImageType channel)
     qDebug() << QString("FormImage ptrimageviirsm bytecount = %1").arg(imageptrs->ptrimageViirsM->byteCount());
     qDebug() << QString("FormImage ptrimageviirsdnb bytecount = %1").arg(imageptrs->ptrimageViirsDNB->byteCount());
     qDebug() << QString("FormImage ptrimageolci bytecount = %1").arg(imageptrs->ptrimageOLCI->byteCount());
+    qDebug() << QString("FormImage ptrimageslstr bytecount = %1").arg(imageptrs->ptrimageSLSTR->byteCount());
 
     this->channelshown = channel;
 
-    switch(channelshown)
-    {
-    case IMAGE_AVHRR_CH1:
-    case IMAGE_AVHRR_CH2:
-    case IMAGE_AVHRR_CH3:
-    case IMAGE_AVHRR_CH4:
-    case IMAGE_AVHRR_CH5:
-    case IMAGE_AVHRR_COL:
-         if(imageptrs->ptrimagecomp_ch[0]->byteCount() == 0)
-         {
-             return;
-         }
-        break;
-    case IMAGE_VIIRS_M:
-         if(imageptrs->ptrimageViirsM->byteCount() == 0)
-         {
-             return;
-         }
-        break;
-    case IMAGE_VIIRS_DNB:
-         if(imageptrs->ptrimageViirsDNB->byteCount() == 0)
-         {
-             return;
-         }
-        break;
-    case IMAGE_OLCI:
-         if(imageptrs->ptrimageOLCI->byteCount() == 0)
-         {
-             return;
-         }
-        break;
-    }
+    QPixmap pm(800, 200);
+    pm.fill(Qt::red);
+    QPainter painter(&pm);
+
+    QFont f("Courier", 40, QFont::Bold);
+    painter.setFont(f);
+    painter.setPen(Qt::yellow);
 
     if(ptrimagebusy)
     {
@@ -258,44 +243,136 @@ void FormImage::displayImage(eImageType channel)
     }
     else
     {
-
         switch(channelshown)
         {
         case IMAGE_AVHRR_CH1:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
+            if(imageptrs->ptrimagecomp_ch[0]->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No AVHRR image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
             break;
         case IMAGE_AVHRR_CH2:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
+            if(imageptrs->ptrimagecomp_ch[1]->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No AVHRR image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
             break;
         case IMAGE_AVHRR_CH3:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
+            if(imageptrs->ptrimagecomp_ch[2]->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No AVHRR image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
             break;
         case IMAGE_AVHRR_CH4:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
+            if(imageptrs->ptrimagecomp_ch[3]->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No AVHRR image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
             break;
         case IMAGE_AVHRR_CH5:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
+            if(imageptrs->ptrimagecomp_ch[4]->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No AVHRR image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
             break;
         case IMAGE_AVHRR_COL:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_col)));
+            if(imageptrs->ptrimagecomp_col->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No AVHRR image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_col)));
             break;
         case IMAGE_AVHRR_EXPAND:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
+            if(imageptrs->ptrexpand_col->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No AVHRR image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
             break;
         case IMAGE_GEOSTATIONARY:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+            if(imageptrs->ptrimageGeostationary->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No geostationary image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
             break;
         case IMAGE_PROJECTION:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
+            if(imageptrs->ptrimageProjection->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No Projection image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
             break;
-        case IMAGE_VIIRS_M:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
+        case IMAGE_VIIRSM:
+            if(imageptrs->ptrimageViirsM->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No VIIRS M image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+            {
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
+                displayVIIRSImageInfo(SEG_VIIRSM);
+            }
             break;
-        case IMAGE_VIIRS_DNB:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
+        case IMAGE_VIIRSDNB:
+            if(imageptrs->ptrimageViirsDNB->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No VIIRS DNB image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+            {
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
+                displayVIIRSImageInfo(SEG_VIIRSDNB);
+            }
             break;
         case IMAGE_OLCI:
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCI)));
+            if(imageptrs->ptrimageOLCI->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No OLCI image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+            {
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageOLCI)));
+                this->displaySentinelImageInfo(imageptrs->olcitype);
+            }
+            break;
+        case IMAGE_SLSTR:
+            if(imageptrs->ptrimageSLSTR->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No SLSTR image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+            {
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageSLSTR)));
+                this->displaySentinelImageInfo(SEG_SLSTR);
+            }
             break;
 
         }
@@ -349,6 +426,10 @@ void FormImage::ComposeImage()
     {
         olcierrcount = segs->seglolcierr->NbrOfSegmentsSelected();
     }
+    else if(opts.buttonSLSTR)
+    {
+        slstrcount = segs->seglslstr->NbrOfSegmentsSelected();
+    }
     else
         return;
 
@@ -371,6 +452,7 @@ void FormImage::ComposeImage()
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnb segments selected = %1").arg(viirsdnbcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of olciefr segments selected = %1").arg(olciefrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of olcierr segments selected = %1").arg(olcierrcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of slstr segments selected = %1").arg(slstrcount);
 
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonGAC || opts.buttonHRP ||
             opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt || opts.buttonM01hrpt || opts.buttonM02hrpt )
@@ -476,7 +558,7 @@ void FormImage::ComposeImage()
 
         formtoolbox->setToolboxButtons(false);
 
-        this->displayImage(IMAGE_VIIRS_M);
+        this->displayImage(IMAGE_VIIRSM);
         this->kindofimage = "VIIRSM";
         this->setSegmentType(SEG_VIIRSM);
         bandlist = formtoolbox->getVIIRSMBandList();
@@ -495,7 +577,7 @@ void FormImage::ComposeImage()
             segs->seglviirsdnb->graphvalues[i] = 0;
 
 
-        this->displayImage(IMAGE_VIIRS_DNB);
+        this->displayImage(IMAGE_VIIRSDNB);
         this->kindofimage = "VIIRSDNB";
         this->setSegmentType(SEG_VIIRSDNB);
 
@@ -527,6 +609,7 @@ void FormImage::ComposeImage()
 
         formtoolbox->setToolboxButtons(false);
 
+        imageptrs->olcitype = SEG_OLCIEFR;
         this->displayImage(IMAGE_OLCI);
         this->kindofimage = "OLCIEFR";
         this->setSegmentType(SEG_OLCIEFR);
@@ -561,6 +644,7 @@ void FormImage::ComposeImage()
 
         formtoolbox->setToolboxButtons(false);
 
+        imageptrs->olcitype = SEG_OLCIERR;
         this->displayImage(IMAGE_OLCI);
         this->kindofimage = "OLCIERR";
         this->setSegmentType(SEG_OLCIERR);
@@ -572,13 +656,42 @@ void FormImage::ComposeImage()
         //          in Workerthread
         segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
     }
+    else if(slstrcount > 0 && opts.buttonSLSTR)
+    {
+        if(!formtoolbox->comboColSLSTROK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the SLSTR tab.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        formtoolbox->setToolboxButtons(false);
+
+        this->displayImage(IMAGE_SLSTR);
+        this->kindofimage = "SLSTR";
+        this->setSegmentType(SEG_SLSTR);
+
+        bandlist = formtoolbox->getSLSTRBandList();
+        colorlist = formtoolbox->getSLSTRColorList();
+        invertlist = formtoolbox->getSLSTRInvertList();
+        eSLSTRImageView slstrimageview = formtoolbox->getSLSTRImageView();
+
+        //          in Workerthread
+        segs->seglslstr->ComposeSLSTRImage(bandlist, colorlist, invertlist, true, slstrimageview);
+    }
     else
         return;
-}
-
-void FormImage::slotShowVIIRSMImage()
-{
-    this->ShowVIIRSMImage();
 }
 
 bool FormImage::ShowVIIRSMImage()
@@ -597,7 +710,7 @@ bool FormImage::ShowVIIRSMImage()
     {
 
         ret = true;
-        displayImage(IMAGE_VIIRS_M);
+        displayImage(IMAGE_VIIRSM);
 
         emit allsegmentsreceivedbuttons(false);
 
@@ -616,10 +729,6 @@ bool FormImage::ShowVIIRSMImage()
 
 }
 
-void FormImage::slotShowOLCIefrImage(int histogrammethod, bool normalized)
-{
-    this->ShowOLCIefrImage(histogrammethod, normalized);
-}
 
 bool FormImage::ShowOLCIefrImage(int histogrammethod, bool normalized)
 {
@@ -656,10 +765,6 @@ bool FormImage::ShowOLCIefrImage(int histogrammethod, bool normalized)
 
 }
 
-void FormImage::slotShowOLCIerrImage(int histogrammethod, bool normalized)
-{
-    this->ShowOLCIerrImage(histogrammethod, normalized);
-}
 
 bool FormImage::ShowOLCIerrImage(int histogrammethod, bool normalized)
 {
@@ -696,12 +801,42 @@ bool FormImage::ShowOLCIerrImage(int histogrammethod, bool normalized)
 
 }
 
-void FormImage::slotShowHistogramImage(int histogrammethod, bool normalized)
+bool FormImage::ShowSLSTRImage(int histogrammethod)
 {
-    this->ShowHistogramImage(histogrammethod, normalized);
+    bool ret = false;
+
+    slstrcount = segs->seglslstr->NbrOfSegmentsSelected();
+
+    QList<bool> bandlist;
+    QList<int> colorlist;
+    QList<bool> invertlist;
+
+    qDebug() << QString("in FormImage::ShowSLSTRImage nbr of slstr segments selected = %1").arg(slstrcount);
+
+    if (slstrcount > 0)
+    {
+
+        ret = true;
+        displayImage(IMAGE_SLSTR);
+
+        emit allsegmentsreceivedbuttons(false);
+
+        this->kindofimage = "SLSTR";
+
+        bandlist = formtoolbox->getSLSTRBandList();
+        colorlist = formtoolbox->getSLSTRColorList();
+        invertlist = formtoolbox->getSLSTRInvertList();
+        segs->seglslstr->setHistogramMethod(histogrammethod);
+        segs->seglslstr->ComposeSLSTRImage(bandlist, colorlist, invertlist, false, formtoolbox->getSLSTRImageView());
+    }
+    else
+        ret = false;
+
+    return ret;
+
 }
 
-bool FormImage::ShowHistogramImage(int histogrammethod, bool normalized)
+bool FormImage::ShowHistogramImageOLCI(int histogrammethod, bool normalized)
 {
     int olciefrcount = segs->seglolciefr->NbrOfSegmentsSelected();
     int olcierrcount = segs->seglolcierr->NbrOfSegmentsSelected();
@@ -721,6 +856,20 @@ bool FormImage::ShowHistogramImage(int histogrammethod, bool normalized)
     return false;
 }
 
+bool FormImage::ShowHistogramImageSLSTR(int histogrammethod)
+{
+    int slstrcount = segs->seglslstr->NbrOfSegmentsSelected();
+
+    if(slstrcount > 0)
+    {
+        segs->seglslstr->setHistogramMethod(histogrammethod);
+        segs->seglslstr->ChangeHistogramMethod();
+        return true;
+    }
+    else
+        return false;
+}
+
 bool FormImage::ShowVIIRSDNBImage()
 {
     bool ret = false;
@@ -731,7 +880,7 @@ bool FormImage::ShowVIIRSDNBImage()
     if (viirsdnbcount > 0)
     {
         ret = true;
-        displayImage(IMAGE_VIIRS_DNB);
+        displayImage(IMAGE_VIIRSDNB);
 
         emit allsegmentsreceivedbuttons(false);
 
@@ -829,14 +978,18 @@ void FormImage::setZoomValue(int z)
         zoomValueprojection = z;
         opts.zoomfactorprojection = z;
         break;
-    case IMAGE_VIIRS_M:
-    case IMAGE_VIIRS_DNB:
+    case IMAGE_VIIRSM:
+    case IMAGE_VIIRSDNB:
         zoomValueviirs = z;
         opts.zoomfactorviirs = z;
         break;
     case IMAGE_OLCI:
         zoomValueolci = z;
         opts.zoomfactorolci = z;
+        break;
+    case IMAGE_SLSTR:
+        zoomValueslstr = z;
+        opts.zoomfactorslstr = z;
         break;
 
     }
@@ -862,12 +1015,15 @@ int FormImage::getZoomValue()
     case IMAGE_PROJECTION:
         zoomValue = zoomValueprojection;
         break;
-    case IMAGE_VIIRS_M:
-    case IMAGE_VIIRS_DNB:
+    case IMAGE_VIIRSM:
+    case IMAGE_VIIRSDNB:
         zoomValue = zoomValueviirs;
         break;
     case IMAGE_OLCI:
         zoomValue = zoomValueolci;
+        break;
+    case IMAGE_SLSTR:
+        zoomValue = zoomValueslstr;
         break;
 
     }
@@ -908,12 +1064,6 @@ void FormImage::paintEvent( QPaintEvent * )
 
     SegmentListGeostationary *sl = NULL;
 
-    if(channelshown >= 1 && channelshown <= 6)
-        displayAVHRRImageInfo();
-    if(channelshown == IMAGE_VIIRS_M || channelshown == IMAGE_VIIRS_DNB)
-        displayVIIRSImageInfo();
-    if(channelshown == IMAGE_OLCI)
-        displayOLCIImageInfo();
 
     if(segs->seglmeteosat->bActiveSegmentList == true)
     {
@@ -1075,14 +1225,12 @@ void FormImage::displayAVHRRImageInfo()
 
 }
 
-void FormImage::displayVIIRSImageInfo()
+void FormImage::displayVIIRSImageInfo(eSegmentType type)
 {
     QString segtype;
-    eSegmentType type;
     int nbrselected;
     float moonillum;
 
-    type = getSegmentType();
     switch(type)
     {
     case SEG_NONE:
@@ -1117,7 +1265,7 @@ void FormImage::displayVIIRSImageInfo()
                           "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirsM->width()).arg(imageptrs->ptrimageViirsM->height());
         formtoolbox->writeInfoToVIIRSM(txtInfo);
 
-    }
+    } else
     if(type == SEG_VIIRSDNB)
     {
         txtInfo = QString("<!DOCTYPE html>"
@@ -1192,14 +1340,12 @@ void FormImage::displayGeoImageInformation(QString satname)
     formtoolbox->writeInfoToGeo(txtInfo);
 }
 
-void FormImage::displayOLCIImageInfo()
+void FormImage::displaySentinelImageInfo(eSegmentType type)
 {
     QString segtype;
-    eSegmentType type;
     int nbrselected;
     long nbrofsaturatedpixels;
 
-    type = getSegmentType();
     switch(type)
     {
     case SEG_NONE:
@@ -1209,13 +1355,15 @@ void FormImage::displayOLCIImageInfo()
         segtype = "OLCI efr";
         nbrselected = segs->seglolciefr->NbrOfSegmentsSelected();
         nbrofsaturatedpixels = segs->seglolciefr->NbrOfSaturatedPixels();
-
         break;
     case SEG_OLCIERR:
         segtype = "OLCI err";
         nbrselected = segs->seglolcierr->NbrOfSegmentsSelected();
         nbrofsaturatedpixels = segs->seglolcierr->NbrOfSaturatedPixels();
-
+        break;
+    case SEG_SLSTR:
+        segtype = "SLSTR";
+        nbrselected = segs->seglslstr->NbrOfSegmentsSelected();
         break;
     default:
         segtype = "NA";
@@ -1234,7 +1382,19 @@ void FormImage::displayOLCIImageInfo()
                           "Image width = %3 height = %4<br>"
                           "Nbr of saturated pixels = %5<br>"
                           "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageOLCI->width()).arg(imageptrs->ptrimageOLCI->height()).arg(nbrofsaturatedpixels);
-        formtoolbox->writeInfoToOLCI(txtInfo);
+        formtoolbox->writeInfoToSentinel(txtInfo);
+    }
+    else if(type == SEG_SLSTR)
+    {
+        txtInfo = QString("<!DOCTYPE html>"
+                          "<html><head><title>Info</title></head>"
+                          "<body>"
+                          "<h3 style='color:blue'>Image Information</h3>"
+                          "<p>Segment type = %1<br>"
+                          "Nbr of segments = %2<br>"
+                          "Image width = %3 height = %4<br>"
+                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageSLSTR->width()).arg(imageptrs->ptrimageSLSTR->height());
+        formtoolbox->writeInfoToSentinel(txtInfo);
     }
 
 }
@@ -1285,12 +1445,12 @@ void FormImage::adjustPicSize(bool setwidth)
        w=imageptrs->ptrimageProjection->width();
        h=imageptrs->ptrimageProjection->height();
     }
-    else if(channelshown == IMAGE_VIIRS_M)
+    else if(channelshown == IMAGE_VIIRSM)
     {
        w=imageptrs->ptrimageViirsM->width();
        h=imageptrs->ptrimageViirsM->height();
     }
-    else if(channelshown == IMAGE_VIIRS_DNB)
+    else if(channelshown == IMAGE_VIIRSDNB)
     {
        w=imageptrs->ptrimageViirsDNB->width();
        h=imageptrs->ptrimageViirsDNB->height();
@@ -1299,6 +1459,11 @@ void FormImage::adjustPicSize(bool setwidth)
     {
        w=imageptrs->ptrimageOLCI->width();
        h=imageptrs->ptrimageOLCI->height();
+    }
+    else if(channelshown == IMAGE_SLSTR)
+    {
+       w=imageptrs->ptrimageSLSTR->width();
+       h=imageptrs->ptrimageSLSTR->height();
     }
 
     mw=this->parentWidget()->width();
@@ -3030,11 +3195,29 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
 void FormImage::OverlayOLCI(QPainter *paint)
 {
     SegmentListOLCI *sl;
-    qDebug() << "FormImage::OverlayOLCI(QPainter *paint)";
+    qDebug() << "FormImage::OverlayOLCI(QPainter *paint) 0";
     int height = imageptrs->ptrimageOLCI->height();
     int width = imageptrs->ptrimageOLCI->width();
     if( height == 0 || width == 0)
         return;
+    qDebug() << "FormImage::OverlayOLCI(QPainter *paint) 1";
+    qDebug() << "opts.buttonOLCIefr = " << opts.buttonOLCIefr;
+    qDebug() << "opts.buttonOLCIerr = " << opts.buttonOLCIerr;
+    qDebug() << "opts.buttonSLSTR   = " << opts.buttonSLSTR;
+
+    if(opts.buttonOLCIefr)
+    {
+        if(segs->seglolciefr->GetSegmentlistptr()->count() == 0)
+            return;
+    }
+    else if(opts.buttonOLCIerr)
+    {
+        if(segs->seglolcierr->GetSegmentlistptr()->count() == 0)
+            return;
+    }
+    else if(opts.buttonSLSTR)
+            return;
+    qDebug() << "FormImage::OverlayOLCI(QPainter *paint) 2";
 
     if(opts.buttonOLCIefr)
         sl = segs->seglolciefr;
@@ -3043,9 +3226,20 @@ void FormImage::OverlayOLCI(QPainter *paint)
 
     long nbrpt = 0;
 
+    qDebug() << "FormImage::OverlayOLCI(QPainter *paint) 3";
+    qDebug() << "FormImage::OverlayOLCI(QPainter *paint) ptrimageOLCI height = " << imageptrs->ptrimageOLCI->height();
+    qDebug() << "opts.buttonOLCIefr = " << opts.buttonOLCIefr;
+    qDebug() << "opts.buttonOLCIerr = " << opts.buttonOLCIerr;
+    qDebug() << "opts.buttonSLSTR   = " << opts.buttonSLSTR;
+    qDebug() << "segs->seglolciefr->GetSegmentlistptr()->count() = " << segs->seglolciefr->GetSegmentlistptr()->count();
+    qDebug() << "segs->seglolcierr->GetSegmentlistptr()->count() = " << segs->seglolcierr->GetSegmentlistptr()->count();
+    qDebug() << "segs->seglslstr->GetSegmentlistptr()->count() = " << segs->seglslstr->GetSegmentlistptr()->count();
 
     if(sl->GetSegsSelectedptr()->count() > 0)
     {
+
+        qDebug() << "FormImage::OverlayOLCI(QPainter *paint) 4";
+
         qDebug() << "segs->seglolci count selected = " << sl->GetSegsSelectedptr()->count();
         qDebug() << "height = " << imageptrs->ptrimageOLCI->height();
         qDebug() << "width = " << imageptrs->ptrimageOLCI->width();
@@ -3235,6 +3429,11 @@ void FormImage::setHistogramMethod(int histogrammethod, bool normalized)
 {
     segs->seglolciefr->setHistogramMethod(histogrammethod, normalized);
     segs->seglolcierr->setHistogramMethod(histogrammethod, normalized);
+}
+
+void FormImage::setHistogramMethodSLSTR(int histogrammethod)
+{
+    segs->seglslstr->setHistogramMethod(histogrammethod);
 }
 
 bool FormImage::SaveAsPNG48bits(bool mapto65535)

@@ -27,7 +27,9 @@ public:
     bool ShowVIIRSDNBImage();
     bool ShowOLCIefrImage(int histogrammethod, bool normalized);
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
+    bool ShowSLSTRImage(int histogrammethod);
     void setHistogramMethod(int histogrammethod, bool normalized);
+    void setHistogramMethodSLSTR(int histogrammethod);
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
@@ -67,7 +69,8 @@ public:
 
     void adjustImage();
     void adjustPicSize(bool setwidth);
-    bool ShowHistogramImage(int histogrammethod, bool normalized);
+    bool ShowHistogramImageOLCI(int histogrammethod, bool normalized);
+    bool ShowHistogramImageSLSTR(int histogrammethod);
 
     void UpdateProjection();
     bool SaveAsPNG48bits(bool mapto65535);
@@ -87,6 +90,7 @@ public:
     int viirsdnbcount;
     int olciefrcount;
     int olcierrcount;
+    int slstrcount;
 
 
     eImageType channelshown; // which button channel
@@ -100,8 +104,8 @@ public:
 private:
 
     void displayAVHRRImageInfo();
-    void displayVIIRSImageInfo();
-    void displayOLCIImageInfo();
+    void displayVIIRSImageInfo(eSegmentType type);
+    void displaySentinelImageInfo(eSegmentType type);
     void displayGeoImageInfo();
     void displayGeoImageInformation(QString satname);
 
@@ -135,6 +139,7 @@ private:
     int zoomValueprojection;
     int zoomValueviirs;
     int zoomValueolci;
+    int zoomValueslstr;
     int zoomIncrement;
     int maxZoomValue;
     int minZoomValue;
@@ -153,10 +158,6 @@ signals:
 
 public slots:
     void slotMakeImage();
-    void slotShowVIIRSMImage();
-    void slotShowOLCIefrImage(int histogrammethod, bool normalized);
-    void slotShowOLCIerrImage(int histogrammethod, bool normalized);
-    void slotShowHistogramImage(int histogrammethod, bool normalized);
 
     void setPixmapToLabel(bool settoolboxbuttons);
     void setPixmapToLabelDNB(bool settoolboxbuttons);
@@ -196,34 +197,5 @@ signals:
     void coordinateChanged(QString str);
 
 };
-
-//class AspectRatioPixmapLabel : public QLabel
-//{
-//    Q_OBJECT
-//public:
-//    explicit AspectRatioPixmapLabel(QWidget *parent = 0);
-//    virtual int heightForWidth( int width ) const;
-//    virtual QSize sizeHint() const;
-//    QPixmap scaledPixmap() const;
-//public slots:
-//    void setPixmap ( const QPixmap & );
-//    void resizeEvent(QResizeEvent *);
-//private:
-//    QPixmap pix;
-//};
-
-//class AspectRatioPixmapLabel : public QLabel
-//{
-//    Q_OBJECT
-//public:
-//    explicit AspectRatioPixmapLabel(const QPixmap &pixmap, QWidget *parent = 0);
-//    virtual int heightForWidth(int width) const;
-//    virtual bool hasHeightForWidth() { return true; }
-//    virtual QSize sizeHint() const { return pixmap()->size(); }
-//    virtual QSize minimumSizeHint() const { return QSize(0, 0); }
-
-
-//};
-
 
 #endif // FORMIMAGE_H

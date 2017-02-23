@@ -114,7 +114,8 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->chkImageOnTextureMet->setChecked(opts.imageontextureOnMet);
     ui->chkImageOnTextureAVHRR->setChecked(opts.imageontextureOnAVHRR);
     ui->chkImageOnTextureVIIRS->setChecked(opts.imageontextureOnVIIRS);
-    ui->chkImageOnTextureOLCIefr->setChecked(opts.imageontextureOnOLCI);
+    ui->chkImageOnTextureOLCI->setChecked(opts.imageontextureOnOLCI);
+    ui->chkImageOnTextureSLSTR->setChecked(opts.imageontextureOnSLSTR);
     ui->chkWindowVectors->setChecked(opts.windowvectors);
     ui->chkUDPMessages->setChecked(opts.udpmessages);
 
@@ -145,7 +146,8 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->rbPlasma->setChecked(opts.colormapPlasma);
     ui->rbViridis->setChecked(opts.colormapViridis);
 
-    ui->rdbRemoveS3ADirs->setChecked(opts.remove_S3A_dirs);
+    ui->rdbRemoveOLCIDirs->setChecked(opts.remove_OLCI_dirs);
+    ui->rdbRemoveSLSTRDirs->setChecked(opts.remove_SLSTR_dirs);
     ui->rdbSaturation->setChecked(opts.usesaturationmask);
 
     setupStationsTable();
@@ -155,6 +157,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupPOISGTable();
     setupVIIRSMConfigTable();
     setupOLCIefrConfigTable();
+    setupSLSTRConfigTable();
 
     POItablechanged = false;
 
@@ -168,8 +171,10 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->stackedWidget->setCurrentIndex(0);
     ui->listWidget->item(0)->setSelected(true);
 
-    const QString htmlstring = "When checked the created OLCI ERR and EFR directories will be removed";
-    ui->rdbRemoveS3ADirs->setWhatsThis(htmlstring);
+    QString htmlstring = "When checked the created OLCI ERR and EFR directories will be removed";
+    ui->rdbRemoveOLCIDirs->setWhatsThis(htmlstring);
+    htmlstring = "When checked the created SLSTR directories will be removed";
+    ui->rdbRemoveSLSTRDirs->setWhatsThis(htmlstring);
 
 }
 
@@ -304,6 +309,26 @@ void DialogPreferences::setupOLCIefrConfigTable()
 
 }
 
+void DialogPreferences::setupSLSTRConfigTable()
+{
+    mySLSTRConfigModel = new SLSTRConfigModel(this);
+
+    ui->tbvSLSTRConfig->setModel(mySLSTRConfigModel);
+    ui->tbvSLSTRConfig->setColumnWidth(0, 100);
+
+    for(int i = 1; i < 13; i++)
+        ui->tbvSLSTRConfig->setColumnWidth(i, 50);
+
+    QHeaderView *hheader = ui->tbvSLSTRConfig->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddSLSTRConfig, SIGNAL(clicked()), this, SLOT(addSLSTRConfigRow()));
+    connect(ui->btnDeleteSLSTRConfig, SIGNAL(clicked()), this, SLOT(deleteSLSTRConfigRow()));
+
+}
+
 void DialogPreferences::addStationRow()
 {
     myStationModel->insertRows(myStationModel->rowCount(), 1, QModelIndex());
@@ -423,6 +448,21 @@ void DialogPreferences::deleteOLCIefrConfigRow()
     myOLCIefrConfigModel->removeRow(row, QModelIndex());
 }
 
+void DialogPreferences::addSLSTRConfigRow()
+{
+    //POItablechanged = true;
+
+    mySLSTRConfigModel->insertRows(mySLSTRConfigModel->rowCount(), 1, QModelIndex());
+}
+
+void DialogPreferences::deleteSLSTRConfigRow()
+{
+    //POItablechanged = true;
+
+    int row = ui->tbvSLSTRConfig->currentIndex().row();
+    mySLSTRConfigModel->removeRow(row, QModelIndex());
+}
+
 void DialogPreferences::changePage(QListWidgetItem *current, QListWidgetItem *previous)
 {
     if (!current)
@@ -484,7 +524,8 @@ void DialogPreferences::dialogaccept()
     opts.imageontextureOnMet = ui->chkImageOnTextureMet->isChecked();
     opts.imageontextureOnAVHRR = ui->chkImageOnTextureAVHRR->isChecked();
     opts.imageontextureOnVIIRS = ui->chkImageOnTextureVIIRS->isChecked();
-    opts.imageontextureOnOLCI = ui->chkImageOnTextureOLCIefr->isChecked();
+    opts.imageontextureOnOLCI = ui->chkImageOnTextureOLCI->isChecked();
+    opts.imageontextureOnSLSTR = ui->chkImageOnTextureSLSTR->isChecked();
     opts.windowvectors = ui->chkWindowVectors->isChecked();
     opts.udpmessages = ui->chkUDPMessages->isChecked();
 
@@ -514,7 +555,8 @@ void DialogPreferences::dialogaccept()
     opts.colormapPlasma = ui->rbPlasma->isChecked();
     opts.colormapViridis = ui->rbViridis->isChecked();
 
-    opts.remove_S3A_dirs = ui->rdbRemoveS3ADirs->isChecked();
+    opts.remove_OLCI_dirs = ui->rdbRemoveOLCIDirs->isChecked();
+    opts.remove_SLSTR_dirs = ui->rdbRemoveSLSTRDirs->isChecked();
     opts.usesaturationmask = ui->rdbSaturation->isChecked();
 
     if(POItablechanged)
@@ -967,6 +1009,66 @@ void DialogPreferences::on_btnEquirectangularDirectory_clicked()
     if ( !dir.isEmpty() )
     {
         ui->ledEquirectangularDirectory->setText(dir);
+    }
+
+}
+
+void DialogPreferences::on_btnGeoImageOverlayColor1_clicked()
+{
+    QColor color(opts.geoimageoverlaycolor1);
+    color = QColorDialog::getColor(color, this);
+
+    if (color.isValid())
+    {
+        ui->btnGeoImageOverlayColor1->setText(color.name());
+        ui->lblGeoImageOverlayColor1->setPalette(QPalette(color));
+        ui->lblGeoImageOverlayColor1->setAutoFillBackground(true);
+        opts.geoimageoverlaycolor1 = ui->btnGeoImageOverlayColor1->text();
+
+    }
+}
+
+void DialogPreferences::on_btnGeoImageOverlayColor2_clicked()
+{
+    QColor color(opts.geoimageoverlaycolor2);
+    color = QColorDialog::getColor(color, this);
+
+    if (color.isValid())
+    {
+        ui->btnGeoImageOverlayColor2->setText(color.name());
+        ui->lblGeoImageOverlayColor2->setPalette(QPalette(color));
+        ui->lblGeoImageOverlayColor2->setAutoFillBackground(true);
+        opts.geoimageoverlaycolor2 = ui->btnGeoImageOverlayColor2->text();
+    }
+}
+
+void DialogPreferences::on_btnGeoImageOverlayColor3_clicked()
+{
+    QColor color(opts.geoimageoverlaycolor3);
+    color = QColorDialog::getColor(color, this);
+
+    if (color.isValid())
+    {
+        ui->btnGeoImageOverlayColor3->setText(color.name());
+        ui->lblGeoImageOverlayColor3->setPalette(QPalette(color));
+        ui->lblGeoImageOverlayColor3->setAutoFillBackground(true);
+        opts.geoimageoverlaycolor3 = ui->btnGeoImageOverlayColor3->text();
+    }
+}
+
+
+void DialogPreferences::on_btnOLCIImageOverlayColor_clicked()
+{
+    QColor color(opts.olciimageoverlaycolor);
+    color = QColorDialog::getColor(color, this);
+
+    if (color.isValid())
+    {
+        ui->btnOLCIImageOverlayColor->setText(color.name());
+        ui->lblOLCIImageOverlayColor->setPalette(QPalette(color));
+        ui->lblOLCIImageOverlayColor->setAutoFillBackground(true);
+        opts.olciimageoverlaycolor = ui->btnOLCIImageOverlayColor->text();
+
     }
 
 }
@@ -2381,63 +2483,227 @@ Qt::ItemFlags OLCIefrConfigModel::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
 
-void DialogPreferences::on_btnGeoImageOverlayColor1_clicked()
+
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+SLSTRConfigModel::SLSTRConfigModel(QObject *parent)
+    :QAbstractTableModel(parent)
 {
-    QColor color(opts.geoimageoverlaycolor1);
-    color = QColorDialog::getColor(color, this);
 
-    if (color.isValid())
-    {
-        ui->btnGeoImageOverlayColor1->setText(color.name());
-        ui->lblGeoImageOverlayColor1->setPalette(QPalette(color));
-        ui->lblGeoImageOverlayColor1->setAutoFillBackground(true);
-        opts.geoimageoverlaycolor1 = ui->btnGeoImageOverlayColor1->text();
-
-    }
 }
 
-void DialogPreferences::on_btnGeoImageOverlayColor2_clicked()
+int SLSTRConfigModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    QColor color(opts.geoimageoverlaycolor2);
-    color = QColorDialog::getColor(color, this);
-
-    if (color.isValid())
-    {
-        ui->btnGeoImageOverlayColor2->setText(color.name());
-        ui->lblGeoImageOverlayColor2->setPalette(QPalette(color));
-        ui->lblGeoImageOverlayColor2->setAutoFillBackground(true);
-        opts.geoimageoverlaycolor2 = ui->btnGeoImageOverlayColor2->text();
-    }
+    return poi.strlConfigNameSLSTR.count();
 }
 
-void DialogPreferences::on_btnGeoImageOverlayColor3_clicked()
+int SLSTRConfigModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    QColor color(opts.geoimageoverlaycolor3);
-    color = QColorDialog::getColor(color, this);
+    return 13;
+}
 
-    if (color.isValid())
+QVariant SLSTRConfigModel::data(const QModelIndex &index, int role) const
+{
+
+    if (role == Qt::DisplayRole)
     {
-        ui->btnGeoImageOverlayColor3->setText(color.name());
-        ui->lblGeoImageOverlayColor3->setPalette(QPalette(color));
-        ui->lblGeoImageOverlayColor3->setAutoFillBackground(true);
-        opts.geoimageoverlaycolor3 = ui->btnGeoImageOverlayColor3->text();
+        switch(index.column())
+        {
+        case 0:
+            return poi.strlConfigNameSLSTR.at(index.row());
+            break;
+        case 1:
+            return poi.strlColorBandSLSTR.at(index.row());
+            break;
+        case 2:
+            return poi.strlComboSLSTRS1.at(index.row());
+            break;
+        case 3:
+            return poi.strlComboSLSTRS2.at(index.row());
+            break;
+        case 4:
+            return poi.strlComboSLSTRS3.at(index.row());
+            break;
+        case 5:
+            return poi.strlComboSLSTRS4.at(index.row());
+            break;
+        case 6:
+            return poi.strlComboSLSTRS5.at(index.row());
+            break;
+        case 7:
+            return poi.strlComboSLSTRS6.at(index.row());
+            break;
+        case 8:
+            return poi.strlComboSLSTRS7.at(index.row());
+            break;
+        case 9:
+            return poi.strlComboSLSTRS8.at(index.row());
+            break;
+        case 10:
+            return poi.strlComboSLSTRS9.at(index.row());
+            break;
+        case 11:
+            return poi.strlComboSLSTRF1.at(index.row());
+            break;
+        case 12:
+            return poi.strlComboSLSTRF2.at(index.row());
+            break;
+        }
     }
+
+    return QVariant();
+
+
 }
 
 
-void DialogPreferences::on_btnOLCIImageOverlayColor_clicked()
+
+bool SLSTRConfigModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
-    QColor color(opts.olciimageoverlaycolor);
-    color = QColorDialog::getColor(color, this);
-
-    if (color.isValid())
+    if (role == Qt::EditRole)
     {
-        ui->btnOLCIImageOverlayColor->setText(color.name());
-        ui->lblOLCIImageOverlayColor->setPalette(QPalette(color));
-        ui->lblOLCIImageOverlayColor->setAutoFillBackground(true);
-        opts.olciimageoverlaycolor = ui->btnOLCIImageOverlayColor->text();
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            poi.strlConfigNameSLSTR.replace(index.row(), value.toString());
+            break;
+        case 1:
+            poi.strlColorBandSLSTR.replace(index.row(), value.toString());
+            break;
+        case 2:
+            poi.strlComboSLSTRS1.replace(index.row(), value.toString());
+            break;
+        case 3:
+            poi.strlComboSLSTRS2.replace(index.row(), value.toString());
+            break;
+        case 4:
+            poi.strlComboSLSTRS3.replace(index.row(), value.toString());
+            break;
+        case 5:
+            poi.strlComboSLSTRS4.replace(index.row(), value.toString());
+            break;
+        case 6:
+            poi.strlComboSLSTRS5.replace(index.row(), value.toString());
+            break;
+        case 7:
+            poi.strlComboSLSTRS6.replace(index.row(), value.toString());
+            break;
+        case 8:
+            poi.strlComboSLSTRS7.replace(index.row(), value.toString());
+            break;
+        case 9:
+            poi.strlComboSLSTRS8.replace(index.row(), value.toString());
+            break;
+        case 10:
+            poi.strlComboSLSTRS9.replace(index.row(), value.toString());
+            break;
+        case 11:
+            poi.strlComboSLSTRF1.replace(index.row(), value.toString());
+            break;
+        case 12:
+            poi.strlComboSLSTRF2.replace(index.row(), value.toString());
+            break;
+        }
 
+        emit editCompleted();
     }
 
+    return true;
 }
+
+QVariant SLSTRConfigModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Name");
+        case 1:
+            return tr("Band");
+        case 2:
+            return tr("S1");
+        case 3:
+            return tr("S2");
+        case 4:
+            return tr("S3");
+        case 5:
+            return tr("S4");
+        case 6:
+            return tr("S5");
+        case 7:
+            return tr("S6");
+        case 8:
+            return tr("S7");
+        case 9:
+            return tr("S8");
+        case 10:
+            return tr("S9");
+        case 11:
+            return tr("F1");
+        case 12:
+            return tr("F2");
+
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+
+}
+
+bool SLSTRConfigModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlConfigNameSLSTR.append( " " );
+    poi.strlColorBandSLSTR.append( "0" );
+    poi.strlComboSLSTRS1.append( "0" );
+    poi.strlComboSLSTRS2.append( "0" );
+    poi.strlComboSLSTRS3.append( "0" );
+    poi.strlComboSLSTRS4.append( "0" );
+    poi.strlComboSLSTRS5.append( "0" );
+    poi.strlComboSLSTRS6.append( "0" );
+    poi.strlComboSLSTRS7.append( "0" );
+    poi.strlComboSLSTRS8.append( "0" );
+    poi.strlComboSLSTRS9.append( "0" );
+    poi.strlComboSLSTRF1.append( "0" );
+    poi.strlComboSLSTRF2.append( "0" );
+
+    poi.strlInverseSLSTRS1.append( "0" );
+    poi.strlInverseSLSTRS2.append( "0" );
+    poi.strlInverseSLSTRS3.append( "0" );
+    poi.strlInverseSLSTRS4.append( "0" );
+    poi.strlInverseSLSTRS5.append( "0" );
+    poi.strlInverseSLSTRS6.append( "0" );
+    poi.strlInverseSLSTRS7.append( "0" );
+    poi.strlInverseSLSTRS8.append( "0" );
+    poi.strlInverseSLSTRS9.append( "0" );
+    poi.strlInverseSLSTRF1.append( "0" );
+    poi.strlInverseSLSTRF2.append( "0" );
+
+    endInsertRows();
+    return true;
+
+}
+
+bool SLSTRConfigModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+    endRemoveRows();
+    return true;
+
+}
+
+Qt::ItemFlags SLSTRConfigModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
 

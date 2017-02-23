@@ -27,6 +27,7 @@ void Options::Initialize()
     buttonVIIRSDNB=settings.value("/window/buttonviirsdnb", false ).toBool();
     buttonOLCIefr=settings.value("/window/buttonolciefr", false ).toBool();
     buttonOLCIerr=settings.value("/window/buttonolcierr", false ).toBool();
+    buttonSLSTR=settings.value("/window/buttonslstr", false ).toBool();
     buttonMetopAhrpt=settings.value("/window/buttonmetopAhrpt", false ).toBool();
     buttonMetopBhrpt=settings.value("/window/buttonmetopBhrpt", false ).toBool();
     buttonNoaa19hrpt=settings.value("/window/buttonnoaa19hrpt", false ).toBool();
@@ -142,7 +143,8 @@ void Options::Initialize()
     imageontextureOnMet = settings.value("/window/imageontextureonmet", false ).toBool();
     imageontextureOnAVHRR = settings.value("/window/imageontextureonavhrr", true ).toBool();
     imageontextureOnVIIRS = settings.value("/window/imageontextureonviirs", true ).toBool();
-    imageontextureOnOLCI = settings.value("/window/imageontextureonolciefr", true ).toBool();
+    imageontextureOnOLCI = settings.value("/window/imageontextureonolci", true ).toBool();
+    imageontextureOnSLSTR = settings.value("/window/imageontextureonslstr", true ).toBool();
     windowvectors = settings.value("/window/windowsvectors", false ).toBool();
 
     localdirremote = settings.value("/window/localdirremote", "").value<QString>();
@@ -177,6 +179,10 @@ void Options::Initialize()
     zoomfactorolci = settings.value("/window/zoomfactorolci", 100).toInt();
     if( zoomfactorolci < 5 || zoomfactorolci > 500 )
         zoomfactorolci = 100;
+
+    zoomfactorslstr = settings.value("/window/zoomfactorslstr", 100).toInt();
+    if( zoomfactorslstr < 5 || zoomfactorslstr > 500 )
+        zoomfactorslstr = 100;
 
     currenttoolbox = settings.value("/parameters/currenttoolbox", 0).toInt();
 
@@ -251,7 +257,8 @@ void Options::Initialize()
     colormapPlasma = settings.value("/projection/colormapplasma", true ).toBool();
     colormapViridis = settings.value("/projection/colormapviridis", false ).toBool();
 
-    remove_S3A_dirs = settings.value("/parameters/removes3adirs", false).toBool();
+    remove_OLCI_dirs = settings.value("/parameters/removeolcidirs", false).toBool();
+    remove_SLSTR_dirs = settings.value("/parameters/removeslstrdirs", false).toBool();
     usesaturationmask = settings.value("/parameters/usesaturationmask", true).toBool();
 
     checkStringListValues();
@@ -354,6 +361,7 @@ void Options::Save()
     settings.setValue( "/window/buttonviirsdnb", buttonVIIRSDNB );
     settings.setValue( "/window/buttonolciefr", buttonOLCIefr );
     settings.setValue( "/window/buttonolcierr", buttonOLCIerr );
+    settings.setValue( "/window/buttonslstr", buttonSLSTR );
     settings.setValue( "/window/buttonmetopAhrpt", buttonMetopAhrpt );
     settings.setValue( "/window/buttonmetopBhrpt", buttonMetopBhrpt );
     settings.setValue( "/window/buttonnoaa19hrpt", buttonNoaa19hrpt );
@@ -434,7 +442,8 @@ void Options::Save()
     settings.setValue("/window/imageontextureonmet", imageontextureOnMet );
     settings.setValue("/window/imageontextureonavhrr", imageontextureOnAVHRR );
     settings.setValue("/window/imageontextureonviirs", imageontextureOnVIIRS );
-    settings.setValue("/window/imageontextureonolciefr", imageontextureOnOLCI );
+    settings.setValue("/window/imageontextureonolci", imageontextureOnOLCI );
+    settings.setValue("/window/imageontextureonslstr", imageontextureOnSLSTR );
     settings.setValue("/window/windowsvectors", windowvectors );
 
     settings.setValue("/window/gshhsglobe1on", gshhsglobe1On );
@@ -457,6 +466,7 @@ void Options::Save()
     settings.setValue("/window/zoomfactorprojection", zoomfactorprojection );
     settings.setValue("/window/zoomfactorviirs", zoomfactorviirs );
     settings.setValue("/window/zoomfactorolci", zoomfactorolci );
+    settings.setValue("/window/zoomfactorslstr", zoomfactorslstr );
 
 
     qDebug() << QString("saving currenttoolbox = %1 currenttabwidget = %2").arg(currenttoolbox).arg(currenttabwidget);
@@ -539,7 +549,8 @@ void Options::Save()
     settings.setValue( "/projection/colormapplasma", colormapPlasma);
     settings.setValue( "/projection/colormapviridis", colormapViridis);
 
-    settings.setValue("/parameters/removes3adirs", remove_S3A_dirs);
+    settings.setValue("/parameters/removeolcidirs", remove_OLCI_dirs);
+    settings.setValue("/parameters/removeslstrdirs", remove_SLSTR_dirs);
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
 
 

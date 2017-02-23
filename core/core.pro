@@ -78,7 +78,9 @@ SOURCES += main.cpp \
     segmentolci.cpp \
     dialogsaveimage.cpp \
     segmenthrpt.cpp \
-    segmentlisthrpt.cpp
+    segmentlisthrpt.cpp \
+    segmentslstr.cpp \
+    segmentlistslstr.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -146,7 +148,9 @@ HEADERS  += mainwindow.h \
     FreeImage.h \
     dialogsaveimage.h \
     segmenthrpt.h \
-    segmentlisthrpt.h
+    segmentlisthrpt.h \
+    segmentslstr.h \
+    segmentlistslstr.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

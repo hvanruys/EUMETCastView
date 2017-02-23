@@ -24,6 +24,7 @@ public:
     void setupPOISGTable();
     void setupVIIRSMConfigTable();
     void setupOLCIefrConfigTable();
+    void setupSLSTRConfigTable();
 
     ~DialogPreferences();
 
@@ -49,6 +50,8 @@ private slots:
     void deleteVIIRSMConfigRow();
     void addOLCIefrConfigRow();
     void deleteOLCIefrConfigRow();
+    void addSLSTRConfigRow();
+    void deleteSLSTRConfigRow();
 
     void on_btnLocalDirRemote_clicked();
 
@@ -111,6 +114,7 @@ private:
     QAbstractTableModel *myPOISGModel;
     QAbstractTableModel *myVIIRSMConfigModel;
     QAbstractTableModel *myOLCIefrConfigModel;
+    QAbstractTableModel *mySLSTRConfigModel;
     QColorDialog *colordialog;
     bool POItablechanged;
 
@@ -255,4 +259,25 @@ private:
 signals:
     void editCompleted();
 };
+
+class SLSTRConfigModel : public QAbstractTableModel
+{
+    Q_OBJECT
+public:
+    SLSTRConfigModel(QObject *parent);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex & index) const ;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+
+private:
+
+signals:
+    void editCompleted();
+};
+
 #endif // DIALOGPREFERENCES_H

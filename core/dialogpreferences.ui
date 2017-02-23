@@ -114,7 +114,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/satellite.jpg</normaloff>:/icons/icons/satellite.jpg</iconset>
+          <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
         </property>
        </item>
        <item>
@@ -126,12 +126,21 @@
           <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>SLSTR Config</string>
+        </property>
+        <property name="icon">
+         <iconset resource="EUMETCastView.qrc">
+          <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>8</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -829,16 +838,16 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_18">
            <item>
-            <widget class="QCheckBox" name="chkImageOnTextureOLCIefr">
+            <widget class="QCheckBox" name="chkImageOnTextureOLCI">
              <property name="text">
-              <string>OLCI efr Image on Texture</string>
+              <string>OLCI Image on Texture</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="chkImageOnTextureOLCIerr">
+            <widget class="QCheckBox" name="chkImageOnTextureSLSTR">
              <property name="text">
-              <string>OLCI err Image on Texture</string>
+              <string>SLSTR Image on Texture</string>
              </property>
             </widget>
            </item>
@@ -1719,9 +1728,9 @@
        <widget class="QWidget" name="pageOLCIConfig">
         <layout class="QVBoxLayout" name="verticalLayout_17">
          <item>
-          <widget class="QRadioButton" name="rdbRemoveS3ADirs">
+          <widget class="QRadioButton" name="rdbRemoveOLCIDirs">
            <property name="text">
-            <string>Remove the created S3A directories</string>
+            <string>Remove the created OLCI directories</string>
            </property>
            <property name="autoExclusive">
             <bool>false</bool>
@@ -1779,6 +1788,74 @@
            </item>
            <item>
             <spacer name="horizontalSpacer_14">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pageSLSTRConfig">
+        <layout class="QVBoxLayout" name="verticalLayout_18">
+         <item>
+          <widget class="QRadioButton" name="rdbRemoveSLSTRDirs">
+           <property name="text">
+            <string>Remove the created SLSTR directories</string>
+           </property>
+           <property name="autoExclusive">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Band = Nbr of the channel ( 0 =  Color)     Oa01,Oa02, ...,Oa21 combobox index (1 = R, 2 = G, 3 = B)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTableView" name="tbvSLSTRConfig"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_20">
+           <item>
+            <spacer name="horizontalSpacer_15">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnAddSLSTRConfig">
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnDeleteSLSTRConfig">
+             <property name="text">
+              <string>Delete</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_16">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>

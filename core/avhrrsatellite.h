@@ -13,6 +13,7 @@
 #include "segmentviirsdnb.h"
 #include "segmentolci.h"
 #include "segmenthrpt.h"
+#include "segmentslstr.h"
 
 #include "segmentlistmetop.h"
 #include "segmentlistnoaa.h"
@@ -23,6 +24,7 @@
 #include "segmentlistviirsdnb.h"
 #include "segmentlistolci.h"
 #include "segmentlisthrpt.h"
+#include "segmentlistslstr.h"
 
 #include "segmentimage.h"
 #include "options.h"
@@ -36,6 +38,7 @@ class SegmentListGAC;
 class SegmentListVIIRSM;
 class SegmentListVIIRSDNB;
 class SegmentListOLCI;
+class SegmentListSLSTR;
 class SegmentListHRPT;
 
 
@@ -53,12 +56,14 @@ public:
     bool SelectedVIIRSDNBSegments();
     bool SelectedOLCIefrSegments();
     bool SelectedOLCIerrSegments();
+    bool SelectedSLSTRSegments();
 
     void RemoveAllSelectedAVHRR();
     void RemoveAllSelectedVIIRSM();
     void RemoveAllSelectedVIIRSDNB();
     void RemoveAllSelectedOLCIefr();
     void RemoveAllSelectedOLCIerr();
+    void RemoveAllSelectedSLSTR();
 
     void emitProgressCounter(int);
 
@@ -78,6 +83,7 @@ public:
     QStringList GetOverviewSegmentsVIIRSDNB();
     QStringList GetOverviewSegmentsOLCIefr();
     QStringList GetOverviewSegmentsOLCIerr();
+    QStringList GetOverviewSegmentsSLSTR();
 
     QStringList GetOverviewSegmentsMeteosat();
     QStringList GetOverviewSegmentsMeteosatRss();
@@ -103,6 +109,7 @@ public:
     SegmentListVIIRSDNB *seglviirsdnb;
     SegmentListOLCI *seglolciefr;
     SegmentListOLCI *seglolcierr;
+    SegmentListSLSTR *seglslstr;
     SegmentListHRPT *seglmetopAhrpt;
     SegmentListHRPT *seglmetopBhrpt;
     SegmentListHRPT *seglnoaa19hrpt;
@@ -155,6 +162,7 @@ private:
     long countviirsmdnb;
     long countolciefr;
     long countolcierr;
+    long countslstr;
     long countmetopAhrpt;
     long countmetopBhrpt;
     long countnoaa19hrpt;

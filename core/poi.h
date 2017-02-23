@@ -54,6 +54,9 @@ public:
     QStringList strlConfigNameOLCI;
     QStringList strlColorBandOLCI; // 0 = color , 1 = Oa01 , 2 = Oa02 , ...
 
+    QStringList strlConfigNameSLSTR;
+    QStringList strlColorBandSLSTR; // 0 = color , 1 = S1 , 2 = S2 , ...
+
     QStringList strlComboM1;
     QStringList strlComboM2;
     QStringList strlComboM3;
@@ -131,6 +134,32 @@ public:
     QStringList strlInverseOLCI19;
     QStringList strlInverseOLCI20;
     QStringList strlInverseOLCI21;
+
+    QStringList strlComboSLSTRS1;
+    QStringList strlComboSLSTRS2;
+    QStringList strlComboSLSTRS3;
+    QStringList strlComboSLSTRS4;
+    QStringList strlComboSLSTRS5;
+    QStringList strlComboSLSTRS6;
+    QStringList strlComboSLSTRS7;
+    QStringList strlComboSLSTRS8;
+    QStringList strlComboSLSTRS9;
+    QStringList strlComboSLSTRF1;
+    QStringList strlComboSLSTRF2;
+
+    QStringList strlInverseSLSTRS1;
+    QStringList strlInverseSLSTRS2;
+    QStringList strlInverseSLSTRS3;
+    QStringList strlInverseSLSTRS4;
+    QStringList strlInverseSLSTRS5;
+    QStringList strlInverseSLSTRS6;
+    QStringList strlInverseSLSTRS7;
+    QStringList strlInverseSLSTRS8;
+    QStringList strlInverseSLSTRS9;
+    QStringList strlInverseSLSTRF1;
+    QStringList strlInverseSLSTRF2;
+
+
 
 }; 
 

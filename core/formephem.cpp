@@ -259,6 +259,7 @@ void FormEphem::NewSegmentOverviewItem()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSDNB(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIefr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIerr(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsSLSTR(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosatRss(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat8(), 0  );
