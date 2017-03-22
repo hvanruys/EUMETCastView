@@ -1,3 +1,5 @@
+// ( ͡° ͜ʖ ͡°)﻿
+
 #include "formmapcyl.h"
 #include "ui_formmapcyl.h"
 
@@ -23,6 +25,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->stackedWidget->addWidget(globe);
 
     ui->stackedWidget->setCurrentIndex(0);
+    ui->tabWidget->setCurrentIndex(0);
 
     ui->btnMetop->setCheckable(true);
     ui->btnNoaa->setCheckable(true);
@@ -39,10 +42,16 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnOLCIefr->setCheckable(true);
     ui->btnOLCIerr->setCheckable(true);
     ui->btnSLSTR->setCheckable(true);
+    ui->btnOLCIefrDatahub->setCheckable(true);
+    ui->btnOLCIerrDatahub->setCheckable(true);
+    ui->btnSLSTRDatahub->setCheckable(true);
+
     ui->btnRealTime->setCheckable(true);
     ui->btnPhong->setCheckable(true);
     ui->btnAllSegments->setCheckable(true);
 
+    ui->pbProduct1->setValue(0);
+    ui->pbProduct2->setValue(0);
 
     if (opts.buttonMetop)
     {
@@ -60,6 +69,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
         opts.buttonOLCIefr = false;
         opts.buttonOLCIerr = false;
         opts.buttonSLSTR = false;
+        opts.buttonDatahubOLCIefr = false;
+        opts.buttonDatahubOLCIerr = false;
+        opts.buttonDatahubSLSTR = false;
         opts.buttonRealTime = false;
     }
     else
@@ -79,6 +91,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
             opts.buttonOLCIefr = false;
             opts.buttonOLCIerr = false;
             opts.buttonSLSTR = false;
+            opts.buttonDatahubOLCIefr = false;
+            opts.buttonDatahubOLCIerr = false;
+            opts.buttonDatahubSLSTR = false;
             opts.buttonRealTime = false;
         }
         else
@@ -98,6 +113,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                 opts.buttonOLCIefr = false;
                 opts.buttonOLCIerr = false;
                 opts.buttonSLSTR = false;
+                opts.buttonDatahubOLCIefr = false;
+                opts.buttonDatahubOLCIerr = false;
+                opts.buttonDatahubSLSTR = false;
                 opts.buttonRealTime = false;
             }
             else
@@ -117,6 +135,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                     opts.buttonOLCIefr = false;
                     opts.buttonOLCIerr = false;
                     opts.buttonSLSTR = false;
+                    opts.buttonDatahubOLCIefr = false;
+                    opts.buttonDatahubOLCIerr = false;
+                    opts.buttonDatahubSLSTR = false;
                     opts.buttonRealTime = false;
                 }
                 else
@@ -137,6 +158,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                         opts.buttonOLCIefr = false;
                         opts.buttonOLCIerr = false;
                         opts.buttonSLSTR = false;
+                        opts.buttonDatahubOLCIefr = false;
+                        opts.buttonDatahubOLCIerr = false;
+                        opts.buttonDatahubSLSTR = false;
                     }
                     else
                         if (opts.buttonVIIRSM)
@@ -156,6 +180,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                             opts.buttonOLCIefr = false;
                             opts.buttonOLCIerr = false;
                             opts.buttonSLSTR = false;
+                            opts.buttonDatahubOLCIefr = false;
+                            opts.buttonDatahubOLCIerr = false;
+                            opts.buttonDatahubSLSTR = false;
                             formtoolbox->setTabWidgetIndex(TAB_VIIRS);
                             formtoolbox->setTabWidgetVIIRSIndex(0);
                         }
@@ -177,6 +204,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                 opts.buttonOLCIefr = false;
                                 opts.buttonOLCIerr = false;
                                 opts.buttonSLSTR = false;
+                                opts.buttonDatahubOLCIefr = false;
+                                opts.buttonDatahubOLCIerr = false;
+                                opts.buttonDatahubSLSTR = false;
                                 formtoolbox->setTabWidgetIndex(TAB_VIIRS);
                                 formtoolbox->setTabWidgetVIIRSIndex(1);
                             }
@@ -198,6 +228,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                     opts.buttonVIIRSDNB = false;
                                     opts.buttonOLCIerr = false;
                                     opts.buttonSLSTR = false;
+                                    opts.buttonDatahubOLCIefr = false;
+                                    opts.buttonDatahubOLCIerr = false;
+                                    opts.buttonDatahubSLSTR = false;
                                     formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
                                     formtoolbox->setTabWidgetSentinelIndex(0);
                                 }
@@ -219,6 +252,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                         opts.buttonVIIRSDNB = false;
                                         opts.buttonOLCIefr = false;
                                         opts.buttonSLSTR = false;
+                                        opts.buttonDatahubOLCIefr = false;
+                                        opts.buttonDatahubOLCIerr = false;
+                                        opts.buttonDatahubSLSTR = false;
                                         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
                                         formtoolbox->setTabWidgetSentinelIndex(0);
                                     }
@@ -240,6 +276,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                             opts.buttonVIIRSDNB = false;
                                             opts.buttonOLCIefr = false;
                                             opts.buttonOLCIerr = false;
+                                            opts.buttonDatahubOLCIefr = false;
+                                            opts.buttonDatahubOLCIerr = false;
+                                            opts.buttonDatahubSLSTR = false;
                                             formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
                                             formtoolbox->setTabWidgetSentinelIndex(1);
                                         }
@@ -262,6 +301,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                             opts.buttonOLCIefr = false;
                                             opts.buttonOLCIerr = false;
                                             opts.buttonSLSTR = false;
+                                            opts.buttonDatahubOLCIefr = false;
+                                            opts.buttonDatahubOLCIerr = false;
+                                            opts.buttonDatahubSLSTR = false;
                                             formtoolbox->setTabWidgetIndex(TAB_AVHRR);
                                         }
                                         else
@@ -283,6 +325,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                                 opts.buttonOLCIefr = false;
                                                 opts.buttonOLCIerr = false;
                                                 opts.buttonSLSTR = false;
+                                                opts.buttonDatahubOLCIefr = false;
+                                                opts.buttonDatahubOLCIerr = false;
+                                                opts.buttonDatahubSLSTR = false;
                                                 formtoolbox->setTabWidgetIndex(TAB_AVHRR);
                                             }
                                             else
@@ -304,6 +349,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                                     opts.buttonOLCIefr = false;
                                                     opts.buttonOLCIerr = false;
                                                     opts.buttonSLSTR = false;
+                                                    opts.buttonDatahubOLCIefr = false;
+                                                    opts.buttonDatahubOLCIerr = false;
+                                                    opts.buttonDatahubSLSTR = false;
                                                     formtoolbox->setTabWidgetIndex(TAB_AVHRR);
                                                 }
                                                 else
@@ -325,6 +373,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                                         opts.buttonOLCIefr = false;
                                                         opts.buttonOLCIerr = false;
                                                         opts.buttonSLSTR = false;
+                                                        opts.buttonDatahubOLCIefr = false;
+                                                        opts.buttonDatahubOLCIerr = false;
+                                                        opts.buttonDatahubSLSTR = false;
                                                         formtoolbox->setTabWidgetIndex(TAB_AVHRR);
                                                     }
                                                     else
@@ -346,8 +397,87 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
                                                             opts.buttonOLCIefr = false;
                                                             opts.buttonOLCIerr = false;
                                                             opts.buttonSLSTR = false;
+                                                            opts.buttonDatahubOLCIefr = false;
+                                                            opts.buttonDatahubOLCIerr = false;
+                                                            opts.buttonDatahubSLSTR = false;
                                                             formtoolbox->setTabWidgetIndex(TAB_AVHRR);
                                                         }
+                                                        else
+                                                            if (opts.buttonDatahubOLCIefr)
+                                                            {
+                                                                opts.buttonMetop = false;
+                                                                opts.buttonNoaa = false;
+                                                                opts.buttonGAC = false;
+                                                                opts.buttonHRP = false;
+
+                                                                opts.buttonMetopAhrpt = false;
+                                                                opts.buttonMetopBhrpt = false;
+                                                                opts.buttonNoaa19hrpt = false;
+                                                                opts.buttonM01hrpt = false;
+                                                                opts.buttonM02hrpt = false;
+
+                                                                opts.buttonRealTime = false;
+                                                                opts.buttonVIIRSM = false;
+                                                                opts.buttonVIIRSDNB = false;
+                                                                opts.buttonOLCIefr = false;
+                                                                opts.buttonOLCIerr = false;
+                                                                opts.buttonSLSTR = false;
+                                                                opts.buttonDatahubOLCIerr = false;
+                                                                opts.buttonDatahubSLSTR = false;
+                                                                formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+                                                                formtoolbox->setTabWidgetSentinelIndex(0);
+                                                            }
+                                                            else
+                                                                if (opts.buttonDatahubOLCIerr)
+                                                                {
+                                                                    opts.buttonMetop = false;
+                                                                    opts.buttonNoaa = false;
+                                                                    opts.buttonGAC = false;
+                                                                    opts.buttonHRP = false;
+
+                                                                    opts.buttonMetopAhrpt = false;
+                                                                    opts.buttonMetopBhrpt = false;
+                                                                    opts.buttonNoaa19hrpt = false;
+                                                                    opts.buttonM01hrpt = false;
+                                                                    opts.buttonM02hrpt = false;
+
+                                                                    opts.buttonRealTime = false;
+                                                                    opts.buttonVIIRSM = false;
+                                                                    opts.buttonVIIRSDNB = false;
+                                                                    opts.buttonOLCIefr = false;
+                                                                    opts.buttonOLCIerr = false;
+                                                                    opts.buttonSLSTR = false;
+                                                                    opts.buttonDatahubOLCIefr = false;
+                                                                    opts.buttonDatahubSLSTR = false;
+                                                                    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+                                                                    formtoolbox->setTabWidgetSentinelIndex(0);
+                                                                }
+                                                                else
+                                                                    if (opts.buttonDatahubSLSTR)
+                                                                    {
+                                                                        opts.buttonMetop = false;
+                                                                        opts.buttonNoaa = false;
+                                                                        opts.buttonGAC = false;
+                                                                        opts.buttonHRP = false;
+
+                                                                        opts.buttonMetopAhrpt = false;
+                                                                        opts.buttonMetopBhrpt = false;
+                                                                        opts.buttonNoaa19hrpt = false;
+                                                                        opts.buttonM01hrpt = false;
+                                                                        opts.buttonM02hrpt = false;
+
+                                                                        opts.buttonRealTime = false;
+                                                                        opts.buttonVIIRSM = false;
+                                                                        opts.buttonVIIRSDNB = false;
+                                                                        opts.buttonOLCIefr = false;
+                                                                        opts.buttonOLCIerr = false;
+                                                                        opts.buttonSLSTR = false;
+                                                                        opts.buttonDatahubOLCIefr = false;
+                                                                        opts.buttonDatahubOLCIerr = false;
+                                                                        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+                                                                        formtoolbox->setTabWidgetSentinelIndex(1);
+                                                                    }
+
 
 
 
@@ -366,6 +496,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
     ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
     ui->btnSLSTR->setChecked(opts.buttonSLSTR);
+    ui->btnOLCIefrDatahub->setChecked(opts.buttonDatahubOLCIefr);
+    ui->btnOLCIerrDatahub->setChecked(opts.buttonDatahubOLCIerr);
+    ui->btnSLSTRDatahub->setChecked(opts.buttonDatahubSLSTR);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
     ui->btnPhong->setChecked(opts.buttonPhong);
     ui->btnAllSegments->setChecked(opts.buttonShowAllSegments);
@@ -385,12 +518,12 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 
     //connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(showSegmentList(int)));
     connect(mapcyl, SIGNAL(wheelChange(int)), this, SLOT(changeScrollBar(int)));
-    connect(mapcyl, SIGNAL(mapClicked()), this, SLOT(showSegmentcount()));
-    connect(globe, SIGNAL(mapClicked()), this, SLOT(showSegmentcount()));
+    connect(mapcyl, SIGNAL(mapClicked()), this, SLOT(showSegmentCount()));
+    connect(globe, SIGNAL(mapClicked()), this, SLOT(showSegmentCount()));
 
     segs->setShowAllSegments(ui->btnAllSegments->isChecked());
 
-    this->showSegmentcount();
+    this->showSegmentCount();
 
 }
 
@@ -419,7 +552,7 @@ void FormMapCyl::setCylOrGlobe(int ind)
 
 }
 
-void FormMapCyl::showSegmentcount()
+void FormMapCyl::showSegmentCount()
 {
     qDebug() << "FormMapCyl::showSegmentcount";
 
@@ -432,6 +565,10 @@ void FormMapCyl::showSegmentcount()
     int cntselolciefr = segs->seglolciefr->NbrOfSegmentsSelected();
     int cntselolcierr = segs->seglolcierr->NbrOfSegmentsSelected();
     int cntselslstr = segs->seglslstr->NbrOfSegmentsSelected();
+    int cntseldatahubolciefr = segs->segldatahubolciefr->NbrOfSegmentsSelected();
+    int cntseldatahubolcierr = segs->segldatahubolcierr->NbrOfSegmentsSelected();
+    int cntseldatahubslstr = segs->segldatahubslstr->NbrOfSegmentsSelected();
+
 
     int cntselmetopAhrpt = segs->seglmetopAhrpt->NbrOfSegmentsSelected();
     int cntselmetopBhrpt = segs->seglmetopBhrpt->NbrOfSegmentsSelected();
@@ -448,6 +585,9 @@ void FormMapCyl::showSegmentcount()
     int cntolciefr = segs->seglolciefr->NbrOfSegments();
     int cntolcierr = segs->seglolcierr->NbrOfSegments();
     int cntslstr = segs->seglslstr->NbrOfSegments();
+    int cntdatahubolciefr = segs->segldatahubolciefr->NbrOfSegments();
+    int cntdatahubolcierr = segs->segldatahubolcierr->NbrOfSegments();
+    int cntdatahubslstr = segs->segldatahubslstr->NbrOfSegments();
 
     int cntmetopAhrpt = segs->seglmetopAhrpt->NbrOfSegments();
     int cntmetopBhrpt = segs->seglmetopBhrpt->NbrOfSegments();
@@ -456,9 +596,9 @@ void FormMapCyl::showSegmentcount()
     int cntM01hrpt = segs->seglM01hrpt->NbrOfSegments();
 
     long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb + cntolciefr + cntolcierr + cntslstr +
-            cntmetopAhrpt + cntmetopBhrpt + cntnoaa19hrpt + cntM01hrpt + cntM02hrpt;
+            cntmetopAhrpt + cntmetopBhrpt + cntnoaa19hrpt + cntM01hrpt + cntM02hrpt + cntdatahubolciefr + cntdatahubolcierr + cntdatahubslstr;
     long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb + cntselolciefr + cntselolcierr + cntselslstr +
-            cntselmetopAhrpt + cntselmetopBhrpt + cntselnoaa19hrpt + cntselM01hrpt + cntselM02hrpt;
+            cntselmetopAhrpt + cntselmetopBhrpt + cntselnoaa19hrpt + cntselM01hrpt + cntselM02hrpt + cntseldatahubolciefr + cntseldatahubolcierr + cntseldatahubslstr;
 
     if ( totsegsel  > 0)
     {
@@ -487,6 +627,10 @@ void FormMapCyl::showSegmentcount()
     ui->btnNoaa19hrpt->setText((QString(" NOAA19 # %1/%2 ").arg(cntselnoaa19hrpt).arg(cntnoaa19hrpt)));
     ui->btnM02hrpt->setText((QString(" Metop A # %1/%2 ").arg(cntselM02hrpt).arg(cntM02hrpt)));
     ui->btnM01hrpt->setText((QString(" Metop B # %1/%2 ").arg(cntselM01hrpt).arg(cntM01hrpt)));
+
+    ui->btnOLCIefrDatahub->setText((QString(" OLCI EFR # %1/%2 ").arg(cntseldatahubolciefr).arg(cntdatahubolciefr)));
+    ui->btnOLCIerrDatahub->setText((QString(" OLCI ERR # %1/%2 ").arg(cntseldatahubolcierr).arg(cntdatahubolcierr)));
+    ui->btnSLSTRDatahub->setText((QString(" SLSTR # %1/%2 ").arg(cntseldatahubslstr).arg(cntdatahubslstr)));
 }
 
 void FormMapCyl::changeScrollBar(int value)
@@ -617,6 +761,9 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
     opts.buttonOLCIefr = segtype == eSegmentType::SEG_OLCIEFR ? true : false;
     opts.buttonOLCIerr = segtype == eSegmentType::SEG_OLCIERR ? true : false;
     opts.buttonSLSTR = segtype == eSegmentType::SEG_SLSTR ? true : false;
+    opts.buttonDatahubOLCIefr = segtype == eSegmentType::SEG_DATAHUB_OLCIEFR ? true : false;
+    opts.buttonDatahubOLCIerr = segtype == eSegmentType::SEG_DATAHUB_OLCIERR ? true : false;
+    opts.buttonDatahubSLSTR = segtype == eSegmentType::SEG_DATAHUB_SLSTR ? true : false;
     opts.buttonRealTime = segtype == eSegmentType::SEG_NONE ? true : false;
     opts.buttonMetopAhrpt = segtype == eSegmentType::SEG_HRPT_METOPA ? true : false;
     opts.buttonMetopBhrpt = segtype == eSegmentType::SEG_HRPT_METOPB ? true : false;
@@ -640,11 +787,14 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
     ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
     ui->btnSLSTR->setChecked(opts.buttonSLSTR);
+    ui->btnOLCIefrDatahub->setChecked(opts.buttonDatahubOLCIefr);
+    ui->btnOLCIerrDatahub->setChecked(opts.buttonDatahubOLCIerr);
+    ui->btnSLSTRDatahub->setChecked(opts.buttonDatahubSLSTR);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
     this->showSegmentList(0);
 
     //imagetab->SetGammaSpinboxes();
-    this->RemoveAllSelected();
+    //this->RemoveAllSelected();
     this->setScrollBarMaximum();
 
 
@@ -725,6 +875,21 @@ void FormMapCyl::setScrollBarMaximum()
     {
         ui->verticalScrollBar->setMaximum(segs->seglslstr->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum SLSTR = %1").arg(segs->seglslstr->NbrOfSegments());
+    }
+    else if (opts.buttonDatahubOLCIefr)
+    {
+        ui->verticalScrollBar->setMaximum(segs->segldatahubolciefr->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum Datahub OLCIefr = %1").arg(segs->segldatahubolciefr->NbrOfSegments());
+    }
+    else if (opts.buttonDatahubOLCIerr)
+    {
+        ui->verticalScrollBar->setMaximum(segs->segldatahubolcierr->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum Datahub OLCIerr = %1").arg(segs->segldatahubolcierr->NbrOfSegments());
+    }
+    else if (opts.buttonDatahubSLSTR)
+    {
+        ui->verticalScrollBar->setMaximum(segs->segldatahubslstr->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum Datahub SLSTR = %1").arg(segs->segldatahubslstr->NbrOfSegments());
     }
     else if (opts.buttonRealTime)
     {
@@ -853,6 +1018,30 @@ void FormMapCyl::showSegmentList(int value)
 
         outp = QString("SLSTR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
+    else if(opts.buttonDatahubOLCIefr)
+    {
+        segs->segldatahubolciefr->ShowSegment(value);
+        segs->segldatahubolciefr->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->segldatahubolciefr->NbrOfSegments();
+
+        outp = QString("Datahub OLCI EFR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    else if(opts.buttonDatahubOLCIerr)
+    {
+        segs->segldatahubolcierr->ShowSegment(value);
+        segs->segldatahubolcierr->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->segldatahubolcierr->NbrOfSegments();
+
+        outp = QString("Datahub OLCI ERR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    else if(opts.buttonDatahubSLSTR)
+    {
+        segs->segldatahubslstr->ShowSegment(value);
+        segs->segldatahubslstr->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->segldatahubslstr->NbrOfSegments();
+
+        outp = QString("Datahub SLSTR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
     else if(opts.buttonRealTime)
     {
         outp = QString("Real time");
@@ -871,18 +1060,21 @@ void FormMapCyl::RemoveAllSelected()
     segs->RemoveAllSelectedOLCIefr();
     segs->RemoveAllSelectedOLCIerr();
     segs->RemoveAllSelectedSLSTR();
+    segs->RemoveAllSelectedDatahubOLCIefr();
+    segs->RemoveAllSelectedDatahubOLCIerr();
+    segs->RemoveAllSelectedDatahubSLSTR();
 
     imageptrs->ptrProjectionBrightnessTemp.reset();
     imageptrs->ptrProjectionInfra.reset();
 
     mapcyl->update();
-    showSegmentcount();
+    showSegmentCount();
 
 }
 
-void FormMapCyl::slotNothingSelected()
+void FormMapCyl::slotShowSegmentCount()
 {
-    showSegmentcount();
+    showSegmentCount();
 }
 
 void FormMapCyl::on_btnRemoveSelected_clicked()
@@ -911,7 +1103,7 @@ void FormMapCyl::on_btnMakeImage_clicked()
         return;
     }
 
-    emit emitMakeImage();
+    emit signalMakeImage();
 }
 
 void FormMapCyl::on_btnSaveTexture_clicked()
@@ -1027,7 +1219,7 @@ void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
     toggleButton(eSegmentType::SEG_VIIRSM);
     segs->RemoveAllSelectedAVHRR();
     mapcyl->update();
-    this->showSegmentcount();
+    this->showSegmentCount();
     this->setScrollBarMaximum();
     return;
 }
@@ -1039,7 +1231,7 @@ void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
     toggleButton(eSegmentType::SEG_VIIRSDNB);
     segs->RemoveAllSelectedAVHRR();
     mapcyl->update();
-    this->showSegmentcount();
+    this->showSegmentCount();
     this->setScrollBarMaximum();
     return;
 }
@@ -1051,7 +1243,7 @@ void FormMapCyl::on_btnOLCIefr_clicked()
     toggleButton(eSegmentType::SEG_OLCIEFR);
     this->RemoveAllSelected();
     mapcyl->update();
-    this->showSegmentcount();
+    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -1064,7 +1256,7 @@ void FormMapCyl::on_btnOLCIerr_clicked()
     toggleButton(eSegmentType::SEG_OLCIERR);
     this->RemoveAllSelected();
     mapcyl->update();
-    this->showSegmentcount();
+    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -1077,7 +1269,49 @@ void FormMapCyl::on_btnSLSTR_clicked()
     toggleButton(eSegmentType::SEG_SLSTR);
     this->RemoveAllSelected();
     mapcyl->update();
-    this->showSegmentcount();
+    this->showSegmentCount();
+    this->setScrollBarMaximum();
+
+    return;
+}
+
+void FormMapCyl::on_btnOLCIefrDatahub_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+    formtoolbox->setTabWidgetSentinelIndex(0);
+    toggleButton(eSegmentType::SEG_DATAHUB_OLCIEFR);
+    //this->RemoveAllSelected();
+    mapcyl->update();
+    this->showSegmentCount();
+    this->setScrollBarMaximum();
+
+    return;
+}
+
+void FormMapCyl::on_btnOLCIerrDatahub_clicked()
+{
+    qDebug() << "FormMapCyl::on_btnOLCIerrDatahub_clicked()";
+
+    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+    formtoolbox->setTabWidgetSentinelIndex(0);
+    toggleButton(eSegmentType::SEG_DATAHUB_OLCIERR);
+    //this->RemoveAllSelected();
+    mapcyl->update();
+    this->showSegmentCount();
+    this->setScrollBarMaximum();
+    qDebug() << "einde FormMapCyl::on_btnOLCIerrDatahub_clicked()";
+
+    return;
+}
+
+void FormMapCyl::on_btnSLSTRDatahub_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+    formtoolbox->setTabWidgetSentinelIndex(1);
+    toggleButton(eSegmentType::SEG_DATAHUB_SLSTR);
+    //this->RemoveAllSelected();
+    mapcyl->update();
+    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -1091,20 +1325,89 @@ void FormMapCyl::on_btnAllSegments_clicked()
 
 void FormMapCyl::on_btnPhong_clicked()
 {
-//    if(opts.buttonPhong)
-//    {
-//        ui->btnPhong->setChecked(false);
-//        opts.buttonPhong = false;
-//    }
-//    else
-//    {
-//        ui->btnPhong->setChecked(true);
-//        opts.buttonPhong = true;
-//    }
-
     opts.buttonPhong = ui->btnPhong->isChecked();
 }
 
 
 
+void FormMapCyl::on_btnDownloadProduct_clicked()
+{
+//    QStringList productstodownloadlist;
+//    QStringList uuidtodownloadlist;
 
+    eDatahub hub;
+    if(opts.provideresaoreumetsat)
+        hub = HUBESA;
+    else
+        hub = HUBEUMETSAT;
+
+    if(productstodownloadlist.count() > 0)
+    {
+        for(int i = 0; i < productstodownloadlist.count(); i++)
+        {
+            hubmanagerprod1.DownloadProduct(uuidtodownloadlist.at(i), productstodownloadlist.at(i), hub );
+        }
+    }
+}
+
+void FormMapCyl::showSelectedSegmentToDownloadList()
+{
+    QList<Segment*> *sldatahubolciefr = segs->segldatahubolciefr->GetSegmentlistptr();
+    QList<Segment*> *sldatahubolcierr = segs->segldatahubolcierr->GetSegmentlistptr();
+    QList<Segment*> *sldatahubslstr = segs->segldatahubslstr->GetSegmentlistptr();
+
+    ui->lwSelectedProducts->clear();
+    productstodownloadlist.clear();
+    uuidtodownloadlist.clear();
+
+    //if (opts.buttonDatahubOLCIefr)
+    {
+        QList<Segment*>::iterator segitolciefr = sldatahubolciefr->begin();
+        while ( segitolciefr != sldatahubolciefr->end() )
+        {
+            if((*segitolciefr)->IsSelected())
+            {
+                productstodownloadlist << (*segitolciefr)->fileInfo.fileName();
+                uuidtodownloadlist << ((SegmentDatahub *)(*segitolciefr))->getUUID();
+            }
+            ++segitolciefr;
+        }
+
+    }
+    //else if (opts.buttonDatahubOLCIerr)
+    {
+        QList<Segment*>::iterator segitolcierr = sldatahubolcierr->begin();
+        while ( segitolcierr != sldatahubolcierr->end() )
+        {
+            if((*segitolcierr)->IsSelected())
+            {
+                productstodownloadlist << (*segitolcierr)->fileInfo.fileName();
+                uuidtodownloadlist << ((SegmentDatahub *)(*segitolcierr))->getUUID();
+            }
+            ++segitolcierr;
+        }
+
+    }
+    //else if (opts.buttonDatahubSLSTR)
+    {
+        QList<Segment*>::iterator segitslstr = sldatahubslstr->begin();
+        while ( segitslstr != sldatahubslstr->end() )
+        {
+            if((*segitslstr)->IsSelected())
+            {
+                productstodownloadlist << (*segitslstr)->fileInfo.fileName();
+                uuidtodownloadlist << ((SegmentDatahub *)(*segitslstr))->getUUID();
+            }
+            ++segitslstr;
+        }
+
+    }
+
+    ui->lwSelectedProducts->addItems(productstodownloadlist);
+
+}
+
+void FormMapCyl::slotShowXMLProgress(QString str)
+{
+    ui->lblTotalAvailable->setText(str);
+}

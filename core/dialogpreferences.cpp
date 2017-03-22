@@ -158,6 +158,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupVIIRSMConfigTable();
     setupOLCIefrConfigTable();
     setupSLSTRConfigTable();
+    setupDatahubConfig();
 
     POItablechanged = false;
 
@@ -327,6 +328,22 @@ void DialogPreferences::setupSLSTRConfigTable()
     connect(ui->btnAddSLSTRConfig, SIGNAL(clicked()), this, SLOT(addSLSTRConfigRow()));
     connect(ui->btnDeleteSLSTRConfig, SIGNAL(clicked()), this, SLOT(deleteSLSTRConfigRow()));
 
+}
+
+void DialogPreferences::setupDatahubConfig()
+{
+    ui->leEsaUser->setText(opts.esauser);
+    ui->leEsaPassword->setText(opts.esapassword);
+    ui->leEumetsatUser->setText(opts.eumetsatuser);
+    ui->leEumetsatPassword->setText(opts.eumetsatpassword);
+    ui->leProductDirectory->setText(opts.productdirectory);
+    ui->spbNbrofPagesToDownload->setValue(opts.nbrofpagestodownload);
+    if(opts.provideresaoreumetsat)
+        ui->rdbUseScihub->setChecked(true);
+    else
+        ui->rdbUseCoda->setChecked(true);
+
+    ui->rdbLoadXMLonStartup->setChecked(opts.loadxmlonstartup);
 }
 
 void DialogPreferences::addStationRow()
@@ -558,6 +575,18 @@ void DialogPreferences::dialogaccept()
     opts.remove_OLCI_dirs = ui->rdbRemoveOLCIDirs->isChecked();
     opts.remove_SLSTR_dirs = ui->rdbRemoveSLSTRDirs->isChecked();
     opts.usesaturationmask = ui->rdbSaturation->isChecked();
+
+    opts.esauser = ui->leEsaUser->text();
+    opts.esapassword = ui->leEsaPassword->text();
+    opts.eumetsatuser = ui->leEumetsatUser->text();
+    opts.eumetsatpassword = ui->leEumetsatPassword->text();
+    opts.productdirectory = ui->leProductDirectory->text();
+    opts.nbrofpagestodownload = ui->spbNbrofPagesToDownload->value();
+    if(ui->rdbUseScihub->isChecked())
+        opts.provideresaoreumetsat = true;
+    else
+        opts.provideresaoreumetsat = false;
+    opts.loadxmlonstartup = ui->rdbLoadXMLonStartup->isChecked();
 
     if(POItablechanged)
         done(2);
@@ -2707,3 +2736,23 @@ Qt::ItemFlags SLSTRConfigModel::flags(const QModelIndex & /*index*/) const
 }
 
 
+
+void DialogPreferences::on_btnSearchProductDirectory_clicked()
+{
+    QFileInfo info(ui->leProductDirectory->text());
+
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                    ".",
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+//    QString proddir = QFileDialog::geto ::getOpenFileName( 0,
+//                    tr("Select the 3D image file"),
+//                    info.absoluteDir().absolutePath(),
+//                    tr("Image Files (*.png *.jpg *.bmp)"));
+
+    if ( !dir.isEmpty() )
+    {
+        ui->leProductDirectory->setText(dir);
+    }
+
+}

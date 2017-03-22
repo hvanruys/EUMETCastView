@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMessageBox>
+#include <QtXml>
 
 #include "satellite.h"
 #include "segmentmetop.h"
@@ -14,6 +15,7 @@
 #include "segmentolci.h"
 #include "segmenthrpt.h"
 #include "segmentslstr.h"
+#include "segmentdatahub.h"
 
 #include "segmentlistmetop.h"
 #include "segmentlistnoaa.h"
@@ -25,6 +27,8 @@
 #include "segmentlistolci.h"
 #include "segmentlisthrpt.h"
 #include "segmentlistslstr.h"
+#include "segmentlistdatahub.h"
+#include "datahubaccessmanager.h"
 
 #include "segmentimage.h"
 #include "options.h"
@@ -40,6 +44,7 @@ class SegmentListVIIRSDNB;
 class SegmentListOLCI;
 class SegmentListSLSTR;
 class SegmentListHRPT;
+class SegmentListDatahub;
 
 
 class AVHRRSatellite  : public QObject
@@ -64,6 +69,9 @@ public:
     void RemoveAllSelectedOLCIefr();
     void RemoveAllSelectedOLCIerr();
     void RemoveAllSelectedSLSTR();
+    void RemoveAllSelectedDatahubOLCIefr();
+    void RemoveAllSelectedDatahubOLCIerr();
+    void RemoveAllSelectedDatahubSLSTR();
 
     void emitProgressCounter(int);
 
@@ -85,6 +93,10 @@ public:
     QStringList GetOverviewSegmentsOLCIerr();
     QStringList GetOverviewSegmentsSLSTR();
 
+    QStringList GetOverviewSegmentsDatahubOLCIefr();
+    QStringList GetOverviewSegmentsDatahubOLCIerr();
+    QStringList GetOverviewSegmentsDatahubSLSTR();
+
     QStringList GetOverviewSegmentsMeteosat();
     QStringList GetOverviewSegmentsMeteosatRss();
     QStringList GetOverviewSegmentsMeteosat7();
@@ -101,6 +113,11 @@ public:
     bool getShowAllSegments() { return showallsegments; }
     void setShowAllSegments(bool allseg) { showallsegments = allseg; }
 
+    void LoadXMLfromDatahub(QDate seldate);
+    void DownloadProductfromDatahub(QString uuid, QString filename);
+
+    void ReadXMLfiles();
+
     SegmentListMetop *seglmetop;
     SegmentListNoaa *seglnoaa;
     SegmentListHRP *seglhrp;
@@ -115,6 +132,9 @@ public:
     SegmentListHRPT *seglnoaa19hrpt;
     SegmentListHRPT *seglM01hrpt;
     SegmentListHRPT *seglM02hrpt;
+    SegmentListDatahub *segldatahubolciefr;
+    SegmentListDatahub *segldatahubolcierr;
+    SegmentListDatahub *segldatahubslstr;
 
 
     SegmentListGeostationary *seglmeteosat;
@@ -150,7 +170,9 @@ private:
 
     void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, QDate seldate, int hoursbefore);
     void RemoveFromList(QList<Segment*> *sl);
-
+    void CreateListfromXML(QDomDocument document);
+    DatahubAccessManager hubmanager;
+    QDate xmlselectdate;
     SatelliteList *satlist;
     long nbrofpointsselected;
     long countmetop;
@@ -168,6 +190,9 @@ private:
     long countnoaa19hrpt;
     long countM01hrpt;
     long countM02hrpt;
+    long countdatahubolciefr;
+    long countdatahubolcierr;
+    long countdatahubslstr;
 
     bool showallsegments;
 
@@ -175,9 +200,16 @@ signals:
     void signalProgress(int progress); // in formephem
     void signalResetProgressbar(int max, const QString &text);
     void signalAddedSegmentlist(void);
-    void signalNothingSelected(void);
+    void signalShowSegmentCount(void);
     //void signalMeteosatSegment(QString, QString, int);
     void progressCounter(int);
+    void signalXMLProgress(QString);
+
+private slots:
+    void XMLFileDownloaded();
+    void XMLPagesDownloaded(int pages);
+    void productFileDownloaded();
+    void productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 public slots:
     void AddSegmentsToListFromUdp(QByteArray thefilepath);

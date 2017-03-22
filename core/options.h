@@ -54,6 +54,9 @@ public:
     bool buttonOLCIefr;
     bool buttonOLCIerr;
     bool buttonSLSTR;
+    bool buttonDatahubOLCIefr;
+    bool buttonDatahubOLCIerr;
+    bool buttonDatahubSLSTR;
     bool buttonMetopAhrpt;
     bool buttonMetopBhrpt;
     bool buttonNoaa19hrpt;
@@ -234,6 +237,16 @@ public:
     bool fbo_changed;
     bool texture_changed;
     bool gridonolciimage;
+
+    QString esauser;
+    QString esapassword;
+    QString eumetsatuser;
+    QString eumetsatpassword;
+    QString productdirectory;
+    int nbrofpagestodownload;
+    bool provideresaoreumetsat; // 0 = ESA , 1 = eumetsat
+    bool loadxmlonstartup;
+    bool downloadfromdatahub;
 
 
 

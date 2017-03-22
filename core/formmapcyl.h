@@ -35,6 +35,12 @@ private:
     MapFieldCyl *mapcyl;
     Globe *globe;
     FormToolbox *formtoolbox;
+
+    DatahubAccessManager hubmanagerprod1;
+    DatahubAccessManager hubmanagerprod2;
+    QStringList productstodownloadlist;
+    QStringList uuidtodownloadlist;
+
     void RemoveAllSelected();
 
 private slots:
@@ -42,8 +48,8 @@ private slots:
     void toggleButton(eSegmentType segtype);
     void updatesatmap(int);
     void setScrollBarMaximum();
-    void slotNothingSelected();
-
+    void slotShowSegmentCount();
+    void showSelectedSegmentToDownloadList();
 
     void on_btnRemoveSelected_clicked();
 
@@ -86,14 +92,21 @@ private slots:
     void on_btnM01hrpt_clicked();
     void on_btnM02hrpt_clicked();
 
+    void on_btnOLCIefrDatahub_clicked();
+    void on_btnOLCIerrDatahub_clicked();
+    void on_btnSLSTRDatahub_clicked();
+
+    void on_btnDownloadProduct_clicked();
+
 public slots:
       void showSegmentList(int);
-      void showSegmentcount();
+      void showSegmentCount();
       void changeScrollBar(int);
+      void slotShowXMLProgress(QString);
 
 signals:
     void signalSegmentChanged(QString);
-    void emitMakeImage();
+    void signalMakeImage();
 
 protected:
     void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;

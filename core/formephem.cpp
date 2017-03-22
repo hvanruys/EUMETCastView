@@ -103,6 +103,8 @@ FormEphem::FormEphem(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     ui->selectedsegmentwidget->header()->setStretchLastSection(true);
     ui->selectedsegmentwidget->setColumnWidth(0, 300);
 
+    ui->rdbDownloadFromDatahub->setChecked(opts.downloadfromdatahub);
+
 /*    QDate now =QDate::currentDate();
     ui->calendar->setSelectedDate(now);
 
@@ -151,6 +153,7 @@ void FormEphem::resetProgressBar(int maxprogress, const QString &mytext)
 FormEphem::~FormEphem()
 {
     opts.ephemsplittersizes = ui->splitter->saveState();
+    opts.downloadfromdatahub = ui->rdbDownloadFromDatahub->isChecked();
     qDebug() << "closing FormEphem";
 
 }
@@ -222,6 +225,14 @@ void FormEphem::setSegmentsShownValue()
         segs->seglolciefr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
     else if (opts.buttonOLCIerr)
         segs->seglolcierr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonSLSTR)
+        segs->seglslstr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonDatahubOLCIefr)
+        segs->segldatahubolciefr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonDatahubOLCIerr)
+        segs->segldatahubolcierr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonDatahubSLSTR)
+        segs->segldatahubslstr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
 
     opts.nbrofvisiblesegments = ui->segmentsslider->value();
 
@@ -260,6 +271,11 @@ void FormEphem::NewSegmentOverviewItem()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIefr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIerr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsSLSTR(), 0  );
+
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubOLCIefr(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubOLCIerr(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubSLSTR(), 0  );
+
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosatRss(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat8(), 0  );
@@ -639,6 +655,7 @@ void FormEphem::showSelectedSegmentList(void)
     QList<Segment*> *slviirsdnb = segs->seglviirsdnb->GetSegmentlistptr();
     QList<Segment*> *slolciefr = segs->seglolciefr->GetSegmentlistptr();
     QList<Segment*> *slolcierr = segs->seglolcierr->GetSegmentlistptr();
+    QList<Segment*> *slslstr = segs->seglslstr->GetSegmentlistptr();
     QList<QTreeWidgetItem *> items;
 
     ui->selectedsegmentwidget->clear();
@@ -874,6 +891,25 @@ void FormEphem::showSelectedSegmentList(void)
         }
 
     }
+    else
+    if (opts.buttonSLSTR)
+    {
+        QList<Segment*>::iterator segitslstr = slslstr->begin();
+        while ( segitslstr != slslstr->end() )
+        {
+            if((*segitslstr)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segitslstr)->fileInfo.fileName() << QString("%1").arg((*segitslstr)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segitslstr)->fileInfo.absolutePath());
+            }
+            ++segitslstr;
+        }
+
+    }
+
 
     ui->selectedsegmentwidget->insertTopLevelItems(0, items);
 }
@@ -931,4 +967,9 @@ void FormEphem::on_btnReload_clicked()
 void FormEphem::on_calendar_selectionChanged()
 {
     getSegmentsForCalendar();
+}
+
+void FormEphem::on_rdbDownloadFromDatahub_clicked(bool checked)
+{
+    opts.downloadfromdatahub = checked;
 }

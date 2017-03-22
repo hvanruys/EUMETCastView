@@ -26,6 +26,7 @@
 
 #include "options.h"
 #include "poi.h"
+#include "datahubaccessmanager.h"
 
 namespace Ui {
 class MainWindow;
@@ -41,7 +42,7 @@ public:
 
     SatelliteList *satlist;
     AVHRRSatellite *seglist;
-
+    //void LoadXMLfromDatahub();
 
     ~MainWindow();
     
@@ -54,6 +55,7 @@ private:
     void saveLayout();
 
     Ui::MainWindow *ui;
+
     FormEphem *formephem;
     FormMapCyl *formglobecyl;
     FormImage *formimage;
@@ -72,11 +74,10 @@ private:
     QLabel *timeLabel;
     QLabel *formulaLabel;
     QLabel *coordinateLabel;
-    //ZoomObject *zoomobject;
 
+    DatahubAccessManager hubmanager;
 
 protected:
-
 
 private slots:
     void timerDone(void);
@@ -104,6 +105,10 @@ private slots:
     void slotPreferencesFinished(int result);
 
     void on_actionWhatsthis_triggered();
+
+//    void OLCIfileDownloaded(QString instrumentshortname);
+//    void SLSTRfileDownloaded(QString instrumentshortname);
+//    void XMLfileDownloaded();
 
 public slots:
     void updateStatusBarIndicator(const QString &text);

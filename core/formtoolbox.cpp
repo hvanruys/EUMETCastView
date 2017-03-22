@@ -1556,7 +1556,7 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
     else if(whichgeo == SegmentListGeostationary::H8)
     {
 
-        if(rowchosen.at(15).toInt() == 0)
+        if(rowchosen.at(16).toInt() == 0)
             ui->btnGeo1->setEnabled(false);
         if(rowchosen.at(7).toInt() == 0)
             ui->btnGeo2->setEnabled(false);
@@ -1574,14 +1574,16 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
             ui->btnGeo8->setEnabled(false);
         if(rowchosen.at(12).toInt() == 0)
             ui->btnGeo9->setEnabled(false);
-        if(rowchosen.at(3).toInt() == 0)
-            ui->btnGeo10->setEnabled(false);
         if(rowchosen.at(13).toInt() == 0)
+            ui->btnGeo10->setEnabled(false);
+        if(rowchosen.at(3).toInt() == 0)
             ui->btnGeo11->setEnabled(false);
-        if(rowchosen.at(4).toInt() == 0)
-            ui->btnGeo12->setEnabled(false);
         if(rowchosen.at(14).toInt() == 0)
+            ui->btnGeo12->setEnabled(false);
+        if(rowchosen.at(4).toInt() == 0)
             ui->btnGeo13->setEnabled(false);
+        if(rowchosen.at(15).toInt() == 0)
+            ui->btnGeo14->setEnabled(false);
 
         ui->btnGeo1->setText("VIS");
         ui->btnGeo2->setText("B04");
@@ -1592,10 +1594,11 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
         ui->btnGeo7->setText("B09");
         ui->btnGeo8->setText("B10");
         ui->btnGeo9->setText("B11");
-        ui->btnGeo10->setText("IR1");
-        ui->btnGeo11->setText("B14");
-        ui->btnGeo12->setText("IR2");
-        ui->btnGeo13->setText("B16");
+        ui->btnGeo10->setText("B12");
+        ui->btnGeo11->setText("IR1");
+        ui->btnGeo12->setText("B14");
+        ui->btnGeo13->setText("IR2");
+        ui->btnGeo14->setText("B16");
         ui->btnHRV->setText("");
     }
 
@@ -1813,13 +1816,14 @@ void FormToolbox::setToolboxButtons(bool state)
         ui->lblGeo7->setText("6.9");
         ui->lblGeo8->setText("7.3");
         ui->lblGeo9->setText("8.6");
-        ui->lblGeo10->setText("10.4");
-        ui->lblGeo11->setText("11.2");
-        ui->lblGeo12->setText("12.4");
-        ui->lblGeo13->setText("13.3");
-        ui->lblGeo14->setText("");
+        ui->lblGeo10->setText("9.6");
+        ui->lblGeo11->setText("10.4");
+        ui->lblGeo12->setText("11.2");
+        ui->lblGeo13->setText("12.4");
+        ui->lblGeo14->setText("13.3");
         ui->lblGeo15->setText("");
         ui->lblGeo16->setText("");
+
 
         break;
 
@@ -2133,7 +2137,7 @@ void FormToolbox::on_btnGeo10_clicked()
     else if(whichgeo == SegmentListGeostationary::MET_7)
         onButtonChannel("11_5_0", ui->chkInverseGeo10->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("IR1", ui->chkInverseGeo10->isChecked());
+        onButtonChannel("B12", ui->chkInverseGeo10->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_16)
         onButtonChannel("C10", ui->chkInverseGeo10->isChecked());
 
@@ -2145,7 +2149,7 @@ void FormToolbox::on_btnGeo11_clicked()
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_134", ui->chkInverseGeo11->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("B14", ui->chkInverseGeo11->isChecked());
+        onButtonChannel("IR1", ui->chkInverseGeo11->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_16)
         onButtonChannel("C11", ui->chkInverseGeo11->isChecked());
 
@@ -2155,7 +2159,7 @@ void FormToolbox::on_btnGeo12_clicked()
 {
     checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("IR2", ui->chkInverseGeo12->isChecked());
+        onButtonChannel("B14", ui->chkInverseGeo12->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_16)
         onButtonChannel("C12", ui->chkInverseGeo12->isChecked());
 
@@ -2165,7 +2169,7 @@ void FormToolbox::on_btnGeo13_clicked()
 {
     checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::H8)
-        onButtonChannel("B16", ui->chkInverseGeo13->isChecked());
+        onButtonChannel("IR2", ui->chkInverseGeo13->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_16)
         onButtonChannel("C13", ui->chkInverseGeo13->isChecked());
 
@@ -2174,7 +2178,9 @@ void FormToolbox::on_btnGeo13_clicked()
 void FormToolbox::on_btnGeo14_clicked()
 {
     checkSegmentDateTime();
-    if(whichgeo == SegmentListGeostationary::GOES_16)
+    if(whichgeo == SegmentListGeostationary::H8)
+        onButtonChannel("B16", ui->chkInverseGeo13->isChecked());
+    else if(whichgeo == SegmentListGeostationary::GOES_16)
         onButtonChannel("C14", ui->chkInverseGeo14->isChecked());
 }
 

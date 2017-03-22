@@ -122,10 +122,16 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         sl = segs->seglolcierr;
     else if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
         sl = segs->seglslstr;
+    else if (opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
+        sl = segs->segldatahubolciefr;
+    else if (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
+        sl = segs->segldatahubolcierr;
+    else if (opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0)
+        sl = segs->segldatahubslstr;
     else
         return;
 
-    if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
+    if ((opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0) || (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0))
     {
         QList<Segment*>::iterator segit = sl->GetSegmentlistptr()->begin();
         while ( segit != sl->GetSegmentlistptr()->end() )
@@ -139,7 +145,7 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
             {
                 if ((*segit)->segmentshow)
                 {
-                    RenderContourDetail(*segit, projection, modelview, width, height);
+                   RenderContourDetail(*segit, projection, modelview, width, height);
                 }
             }
             ++segit;

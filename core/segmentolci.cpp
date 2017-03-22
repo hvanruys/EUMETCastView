@@ -23,8 +23,6 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *s
     bool ok;
 
     satlist = satl;
-
-    //fileInfo.setFile(*filesegment);
     this->fileInfo = fileinfo;
 
     if(type == SEG_OLCIEFR)
@@ -122,10 +120,8 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *s
     CalculateCornerPoints();
     if(segtype == SEG_OLCIERR)
     {
-        qDebug() << "start CalculateDetailCornerPoints()";
         CalculateDetailCornerPoints();
     }
-
 
     invertthissegment[0] = false;
     invertthissegment[1] = false;
@@ -133,8 +129,6 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *s
     saturationindex[0] = 0;
     saturationindex[1] = 0;
     saturationindex[2] = 0;
-
-
 }
 
 

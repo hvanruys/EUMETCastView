@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui network widgets printsupport
-QT       += concurrent
+QT       += concurrent xml
 unix:TARGET = ../EUMETCastView
 else:win32:TARGET = ../../EUMETCastView
 TEMPLATE = app
@@ -80,7 +80,10 @@ SOURCES += main.cpp \
     segmenthrpt.cpp \
     segmentlisthrpt.cpp \
     segmentslstr.cpp \
-    segmentlistslstr.cpp
+    segmentlistslstr.cpp \
+    datahubaccessmanager.cpp \
+    segmentdatahub.cpp \
+    segmentlistdatahub.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -150,7 +153,10 @@ HEADERS  += mainwindow.h \
     segmenthrpt.h \
     segmentlisthrpt.h \
     segmentslstr.h \
-    segmentlistslstr.h
+    segmentlistslstr.h \
+    datahubaccessmanager.h \
+    segmentdatahub.h \
+    segmentlistdatahub.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

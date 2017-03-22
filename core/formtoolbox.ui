@@ -2156,7 +2156,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidgetSentinel">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabOLCI">
           <attribute name="title">
@@ -2198,14 +2198,14 @@
                 <item row="5" column="5">
                  <widget class="QRadioButton" name="rbOLCI15">
                   <property name="text">
-                   <string>O15 (0.7675)</string>
+                   <string>O15 (0.768)</string>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="2">
                  <widget class="QRadioButton" name="rbOLCI03">
                   <property name="text">
-                   <string>O03 (0.4425)</string>
+                   <string>O03 (0.443)</string>
                   </property>
                  </widget>
                 </item>
@@ -2236,7 +2236,7 @@
                 <item row="9" column="2">
                  <widget class="QRadioButton" name="rbOLCI09">
                   <property name="text">
-                   <string>O09 (0.67375)</string>
+                   <string>O09 (0.674)</string>
                   </property>
                  </widget>
                 </item>
@@ -2253,7 +2253,7 @@
                 <item row="10" column="2">
                  <widget class="QRadioButton" name="rbOLCI10">
                   <property name="text">
-                   <string>O10 (0.68125)</string>
+                   <string>O10 (0.681)</string>
                   </property>
                  </widget>
                 </item>
@@ -2352,7 +2352,7 @@
                 <item row="1" column="5">
                  <widget class="QRadioButton" name="rbOLCI11">
                   <property name="text">
-                   <string>O11 (0.70875)</string>
+                   <string>O11 (0.709)</string>
                   </property>
                  </widget>
                 </item>
@@ -2441,7 +2441,7 @@
                 <item row="2" column="5">
                  <widget class="QRadioButton" name="rbOLCI12">
                   <property name="text">
-                   <string>O12 (0.75375)</string>
+                   <string>O12 (0.754)</string>
                   </property>
                  </widget>
                 </item>
@@ -2517,7 +2517,7 @@
                 <item row="3" column="5">
                  <widget class="QRadioButton" name="rbOLCI13">
                   <property name="text">
-                   <string>O13 (0.76125)</string>
+                   <string>O13 (0.761)</string>
                   </property>
                  </widget>
                 </item>
@@ -2603,7 +2603,7 @@
                 <item row="2" column="2">
                  <widget class="QRadioButton" name="rbOLCI02">
                   <property name="text">
-                   <string>O02 (0.4125)</string>
+                   <string>O02 (0.413)</string>
                   </property>
                  </widget>
                 </item>
@@ -2627,7 +2627,7 @@
                 <item row="6" column="5">
                  <widget class="QRadioButton" name="rbOLCI16">
                   <property name="text">
-                   <string>O16 (0.77875)</string>
+                   <string>O16 (0.779)</string>
                   </property>
                  </widget>
                 </item>
@@ -2665,7 +2665,7 @@
                 <item row="4" column="5">
                  <widget class="QRadioButton" name="rbOLCI14">
                   <property name="text">
-                   <string>O14 (0.76438)</string>
+                   <string>O14 (0.764)</string>
                   </property>
                  </widget>
                 </item>

@@ -231,7 +231,7 @@ void Globe::mouseDownAction(int x, int y)
         else if (opts.buttonGAC)
             isselected = segs->seglgac->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonMetopAhrpt)
-            isselected = segs->seglmetopAhrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+            isselected = segs->seglmetopAhrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname ); // must be extended test !
         else if (opts.buttonMetopBhrpt)
             isselected = segs->seglmetopBhrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonNoaa19hrpt)
@@ -250,6 +250,12 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->seglolcierr->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonSLSTR)
             isselected = segs->seglslstr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonDatahubOLCIefr)
+            isselected = segs->segldatahubolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonDatahubOLCIerr)
+            isselected = segs->segldatahubolcierr->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonDatahubSLSTR)
+            isselected = segs->segldatahubslstr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else
             isselected = false;
 
@@ -623,6 +629,21 @@ void Globe::paintGL()
         {
             segs->seglslstr->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglslstr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        } else
+        if (opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
+        {
+            segs->segldatahubolciefr->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->segldatahubolciefr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        } else
+        if (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
+        {
+            segs->segldatahubolcierr->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->segldatahubolcierr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        } else
+        if (opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0)
+        {
+            segs->segldatahubslstr->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->segldatahubslstr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         }
     }
 
@@ -844,6 +865,18 @@ void Globe::paintGL()
     else if (bSegmentNames && opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_SLSTR, segs->seglslstr->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_DATAHUB_OLCIEFR, segs->segldatahubolciefr->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_DATAHUB_OLCIERR, segs->segldatahubolcierr->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_DATAHUB_SLSTR, segs->segldatahubslstr->GetSegmentlistptr());
     }
 
 
@@ -1073,9 +1106,20 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
     QList<Segment*>::iterator segit = segptr->begin();
     QString renderout;
     QVector3D vec;
+
+    bool showsegmenttext = false;
+    if(segs->getShowAllSegments())
+    {
+        if( (*segit)->segtype == SEG_DATAHUB_OLCIEFR || (*segit)->segtype == SEG_DATAHUB_OLCIERR || (*segit)->segtype == SEG_DATAHUB_SLSTR ||
+            (*segit)->segtype == SEG_OLCIEFR || (*segit)->segtype == SEG_OLCIERR || (*segit)->segtype == SEG_SLSTR)
+            showsegmenttext = true;
+        else
+            showsegmenttext = false;
+    }
+
     while ( segit != segptr->end() )
     {
-        if ((*segit)->segmentshow)
+        if ((*segit)->segmentshow || showsegmenttext)
         {
             vec = (*segit)->vec1 * 1.005;
             win = glhProjectf( vec, mvmatrix, projmatrix, this->width(), this->height());
@@ -1132,6 +1176,21 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 else if(seg == eSegmentType::SEG_SLSTR)
                 {
                     renderout = QString("SLSTR %1:%2").arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
+                }
+                else if(seg == eSegmentType::SEG_DATAHUB_OLCIEFR)
+                {
+                    SegmentDatahub *segm = (SegmentDatahub *)(*segit);
+                    renderout = QString("EFR %1:%2").arg((*segm).getName().mid(25, 2)).arg((*segm).getName().mid(27, 2));
+                }
+                else if(seg == eSegmentType::SEG_DATAHUB_OLCIERR)
+                {
+                    SegmentDatahub *segm = (SegmentDatahub *)(*segit);
+                    renderout = QString("ERR %1:%2").arg((*segm).getName().mid(25, 2)).arg((*segm).getName().mid(27, 2));
+                }
+                else if(seg == eSegmentType::SEG_DATAHUB_SLSTR)
+                {
+                    SegmentDatahub *segm = (SegmentDatahub *)(*segit);
+                    renderout = QString("SLSTR %1:%2").arg((*segm).getName().mid(25, 2)).arg((*segm).getName().mid(27, 2));
                 }
                 else
                 {

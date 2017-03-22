@@ -162,6 +162,10 @@ bool SegmentListSLSTR::ComposeSLSTRImageInThread(QList<bool> bandlist, QList<int
     }
 
     imageptrs->ptrimageSLSTR = new QImage(this->earth_views_per_scanline, totalnbroflines, QImage::Format_ARGB32);
+    if(bandlist.at(0) == true)
+        imageptrs->ptrimageSLSTR->fill(qRgba(0, 0, 0, 0));
+    else
+        imageptrs->ptrimageSLSTR->fill(Qt::blue);
     qDebug() << QString("ptrimageSLSTR created %1 x %2").arg(this->earth_views_per_scanline).arg(totalnbroflines);
 
 

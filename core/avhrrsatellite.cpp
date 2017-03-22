@@ -45,6 +45,10 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     seglM01hrpt = new SegmentListHRPT(SEG_HRPT_M01, satlist);
     seglM02hrpt = new SegmentListHRPT(SEG_HRPT_M02, satlist);
 
+    segldatahubolciefr = new SegmentListDatahub();
+    segldatahubolcierr = new SegmentListDatahub();
+    segldatahubslstr = new SegmentListDatahub();
+
     seglmeteosat = new SegmentListGeostationary();
     seglmeteosat->bisRSS = false;
     seglmeteosat->bActiveSegmentList = true;
@@ -132,6 +136,9 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     countnoaa19hrpt = 0;
     countM01hrpt = 0;
     countM02hrpt = 0;
+    countdatahubolciefr = 0;
+    countdatahubolcierr = 0;
+    countdatahubslstr = 0;
 
     showallsegments = false;
 
@@ -865,8 +872,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
 void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 {
-    QFileInfoList fileinfolist; // QList<QFileInfo>
-
+    QFileInfoList fileinfolist;
 
     qDebug() << QString("in AVHRRSatellite:ReadDirectories(QDate, int) hoursbefore = %1").arg(hoursbefore);
 
@@ -888,6 +894,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QList<Segment*> *slM01hrpt = seglM01hrpt->GetSegmentlistptr();
     QList<Segment*> *slM02hrpt = seglM02hrpt->GetSegmentlistptr();
 
+    QList<Segment*> *sldatahubolciefr = segldatahubolciefr->GetSegmentlistptr();
+    QList<Segment*> *sldatahubolcierr = segldatahubolcierr->GetSegmentlistptr();
+    QList<Segment*> *sldatahubslstr = segldatahubslstr->GetSegmentlistptr();
 
     qDebug() << QString("Start clearing segments");
 
@@ -906,6 +915,10 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     seglnoaa19hrpt->ClearSegments();
     seglM01hrpt->ClearSegments();
     seglM02hrpt->ClearSegments();
+
+    segldatahubolciefr->ClearSegments();
+    segldatahubolcierr->ClearSegments();
+    segldatahubslstr->ClearSegments();
 
     segmentlistmapmeteosat.clear();
     segmentlistmapmeteosatrss.clear();
@@ -940,6 +953,10 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     this->countM01hrpt = 0;
     this->countM02hrpt = 0;
 
+    this->countdatahubolciefr = 0;
+    this->countdatahubolcierr = 0;
+    this->countdatahubslstr = 0;
+
     imageptrs->ptrProjectionBrightnessTemp.reset();
     imageptrs->ptrProjectionInfra.reset();
 
@@ -951,6 +968,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     bool metopTle = false;
     bool nppTle = false;
     bool sentinel3Tle = false;
+
+    if(opts.downloadfromdatahub)
+        this->LoadXMLfromDatahub(seldate);
 
     if (opts.segmentdirectorylist.count() > 0)
     {
@@ -996,8 +1016,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
                     }
 
-                    for(int i= 0; i < fileinfolist.size(); i++)
-                        qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
+//                    for(int i= 0; i < fileinfolist.size(); i++)
+//                        qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
 
                     QMap<QString, QFileInfo> map;
 
@@ -1129,6 +1149,10 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString("Count segmentlisthrpt M01     = %1").arg(slM01hrpt->count());
     qDebug() << QString("Count segmentlisthrpt M02     = %1").arg(slM02hrpt->count());
 
+    qDebug() << QString("Count segmentlistdatahubolciefr = %1").arg(sldatahubolciefr->count());
+    qDebug() << QString("Count segmentlistdatahubolcierr = %1").arg(sldatahubolcierr->count());
+    qDebug() << QString("Count segmentlistdatahubslstr = %1").arg(sldatahubslstr->count());
+
     qDebug() << QString( "Nbr of items in segmentlist MET-10     = %1").arg(segmentlistmapmeteosat.size());
     qDebug() << QString( "Nbr of items in segmentlist MET-9      = %1").arg(segmentlistmapmeteosatrss.size());
     qDebug() << QString( "Nbr of items in segmentlist MET-8      = %1").arg(segmentlistmapmet8.size());
@@ -1150,7 +1174,176 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                                                         segmentlistmapgoes16.size() +
                                                         segmentlistmaph8.size());
     emit signalResetProgressbar(1, strtot);
-    emit signalNothingSelected();
+    emit signalShowSegmentCount();
+}
+
+void AVHRRSatellite::DownloadProductfromDatahub(QString uuid, QString filename)
+{
+
+    QObject::connect(&hubmanager, &DatahubAccessManager::productFinished, this, &AVHRRSatellite::productFileDownloaded);
+    QObject::connect(&hubmanager, &DatahubAccessManager::productProgress, this, &AVHRRSatellite::productDownloadProgress);
+    eDatahub hub;
+    if(opts.provideresaoreumetsat)
+        hub = HUBESA;
+    else
+        hub = HUBEUMETSAT;
+    hubmanager.DownloadProduct( uuid, filename, hub);
+
+
+}
+
+void AVHRRSatellite::productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+
+}
+
+void AVHRRSatellite::productFileDownloaded()
+{
+    QObject::disconnect(&hubmanager, &DatahubAccessManager::productFinished, this, &AVHRRSatellite::productFileDownloaded);
+    QObject::disconnect(&hubmanager, &DatahubAccessManager::productProgress, this, &AVHRRSatellite::productDownloadProgress);
+
+}
+
+void AVHRRSatellite::LoadXMLfromDatahub(QDate seldate)
+{
+    this->xmlselectdate = seldate;
+    QObject::connect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &AVHRRSatellite::XMLFileDownloaded);
+    QObject::connect(&hubmanager, &DatahubAccessManager::XMLProgress, this, &AVHRRSatellite::XMLPagesDownloaded);
+    emit signalXMLProgress(QString("Start download available products"));
+    eDatahub hub;
+    if(opts.provideresaoreumetsat)
+        hub = HUBESA;
+    else
+        hub = HUBEUMETSAT;
+    hubmanager.DownloadXML(seldate, hub);
+}
+
+
+void AVHRRSatellite::XMLFileDownloaded()
+{
+    qDebug() << "XML file created";
+    ReadXMLfiles();
+
+    QObject::disconnect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &AVHRRSatellite::XMLFileDownloaded);
+    QObject::disconnect(&hubmanager, &DatahubAccessManager::XMLProgress, this, &AVHRRSatellite::XMLPagesDownloaded);
+}
+
+void AVHRRSatellite::XMLPagesDownloaded(int pages)
+{
+    emit signalXMLProgress(QString("Pages downloaded %1").arg(pages));
+    qDebug() << "=== Pages downloaded " << pages;
+}
+
+
+void AVHRRSatellite::ReadXMLfiles()
+{
+    qDebug() << "AVHRRSatellite::ReadXMLfiles()";
+
+    QDomDocument document;
+
+    QFile xmlfile("Segments.xml");
+    if(!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file";
+    }
+    else
+    {
+        if(!document.setContent(&xmlfile))
+        {
+            qDebug() << "Failed to load document";
+            return;
+        }
+        xmlfile.close();
+    }
+
+    emit signalXMLProgress(QString("All Pages downloaded"));
+    CreateListfromXML(document);
+
+}
+
+void AVHRRSatellite::CreateListfromXML(QDomDocument document)
+{
+    SegmentDatahub *segdatahub;
+    QString selstring = xmlselectdate.toString("yyyyMMdd").mid(0, 8);
+    //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+
+
+    QList<Segment*> *sldatahubolciefr = segldatahubolciefr->GetSegmentlistptr();
+    QList<Segment*> *sldatahubolcierr = segldatahubolcierr->GetSegmentlistptr();
+    QList<Segment*> *sldatahubslstr = segldatahubslstr->GetSegmentlistptr();
+
+    QDomElement root = document.firstChildElement();
+
+    QDomNodeList segments = root.elementsByTagName("Segment");
+    for(int i = 0; i < segments.count(); i++)
+    {
+        QDomNode segmentnode = segments.at(i);
+        //convert to an element
+        if(segmentnode.isElement())
+        {
+            QDomElement segment = segmentnode.toElement();
+            if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_EFR") // && selstring == segment.attribute("Name").mid(16, 8))
+            {
+                segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIEFR, segment.attribute("Name"), this->satlist);
+                segdatahub->setUUID(segment.attribute("uuid"));
+                segdatahub->segtype = SEG_DATAHUB_OLCIEFR;
+                sldatahubolciefr->append(segdatahub);
+                this->countdatahubolciefr++;
+            }
+            else if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_ERR") // && selstring == segment.attribute("Name").mid(16, 8))
+            {
+                segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIERR, segment.attribute("Name"), this->satlist);
+                segdatahub->setUUID(segment.attribute("uuid"));
+                segdatahub->segtype = SEG_DATAHUB_OLCIERR;
+                sldatahubolcierr->append(segdatahub);
+                this->countdatahubolcierr++;
+            }
+            else if(segment.attribute("Name").mid(0, 12) == "S3A_SL_1_RBT") // && selstring == segment.attribute("Name").mid(16, 8))
+            {
+                segdatahub = new SegmentDatahub(SEG_DATAHUB_SLSTR, segment.attribute("Name"), this->satlist);
+                segdatahub->setUUID(segment.attribute("uuid"));
+                segdatahub->segtype = SEG_DATAHUB_SLSTR;
+                sldatahubslstr->append(segdatahub);
+                this->countdatahubslstr++;
+            }
+        }
+    }
+    //S3A_OL_1_ERR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+    //0         1         2         3         4         5         6         7         8         9         10
+
+    // Sort the segments in time
+    int n;
+    int i;
+    for (n=0; n < sldatahubolciefr->count(); n++)
+    {
+        for (i=n+1; i < sldatahubolciefr->count(); i++)
+        {
+            QString valorN=((SegmentDatahub *)(sldatahubolciefr->at(n)))->getName();
+            QString valorI=((SegmentDatahub *)(sldatahubolciefr->at(i)))->getName();
+            if (valorN.mid(25, 6) > valorI.mid(25, 6))
+            {
+                sldatahubolciefr->move(i, n);
+                n=0;
+            }
+        }
+    }
+    for (n=0; n < sldatahubslstr->count(); n++)
+    {
+        for (i=n+1; i < sldatahubslstr->count(); i++)
+        {
+            QString valorN=((SegmentDatahub *)(sldatahubslstr->at(n)))->getName();
+            QString valorI=((SegmentDatahub *)(sldatahubslstr->at(i)))->getName();
+            if (valorN.mid(25, 6) > valorI.mid(25, 6))
+            {
+                sldatahubslstr->move(i, n);
+                n=0;
+            }
+        }
+    }
+
+    emit signalShowSegmentCount();
 }
 
 void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, QDate seldate, int hoursbefore)
@@ -1624,6 +1817,33 @@ void AVHRRSatellite::RemoveAllSelectedSLSTR()
     seglslstr->GetSegsSelectedptr()->clear();
 }
 
+void AVHRRSatellite::RemoveAllSelectedDatahubOLCIefr()
+{
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedDatahubOLCIefr()";
+
+    QList<Segment*> *slolciefr = segldatahubolciefr->GetSegmentlistptr();
+    RemoveFromList(slolciefr);
+    segldatahubolciefr->GetSegsSelectedptr()->clear();
+}
+
+void AVHRRSatellite::RemoveAllSelectedDatahubOLCIerr()
+{
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedDatahubOLCIerr()";
+
+    QList<Segment*> *slolcierr = segldatahubolcierr->GetSegmentlistptr();
+    RemoveFromList(slolcierr);
+    segldatahubolcierr->GetSegsSelectedptr()->clear();
+}
+
+void AVHRRSatellite::RemoveAllSelectedDatahubSLSTR()
+{
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedDatahubSLSTR()";
+
+    QList<Segment*> *slslstr = segldatahubslstr->GetSegmentlistptr();
+    RemoveFromList(slslstr);
+    segldatahubslstr->GetSegsSelectedptr()->clear();
+}
+
 bool AVHRRSatellite::SelectedAVHRRSegments()
 {
     qDebug() << "AVHRRSatellite::SelectedAVHRRSegments()";
@@ -1896,6 +2116,36 @@ QStringList AVHRRSatellite::GetOverviewSegmentsSLSTR()
     return strlist;
 
 }
+
+QStringList AVHRRSatellite::GetOverviewSegmentsDatahubOLCIefr()
+{
+
+    QStringList strlist;
+    strlist << segldatahubolciefr->GetDirectoryName() << QString("Datahub OLCIefr") <<  QString("%1").arg(countdatahubolciefr);
+
+    return strlist;
+
+}
+QStringList AVHRRSatellite::GetOverviewSegmentsDatahubOLCIerr()
+{
+
+    QStringList strlist;
+    strlist << segldatahubolcierr->GetDirectoryName() << QString("Datahub OLCIerr") <<  QString("%1").arg(countdatahubolcierr);
+
+    return strlist;
+
+}
+
+QStringList AVHRRSatellite::GetOverviewSegmentsDatahubSLSTR()
+{
+
+    QStringList strlist;
+    strlist << segldatahubslstr->GetDirectoryName() << QString("Datahub SLSTR") <<  QString("%1").arg(countdatahubslstr);
+
+    return strlist;
+
+}
+
 
 QStringList AVHRRSatellite::GetOverviewSegmentsMeteosat()
 {

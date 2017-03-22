@@ -28,6 +28,10 @@ void Options::Initialize()
     buttonOLCIefr=settings.value("/window/buttonolciefr", false ).toBool();
     buttonOLCIerr=settings.value("/window/buttonolcierr", false ).toBool();
     buttonSLSTR=settings.value("/window/buttonslstr", false ).toBool();
+    buttonDatahubOLCIefr=settings.value("/window/buttondatahubolciefr", false ).toBool();
+    buttonDatahubOLCIerr=settings.value("/window/buttondatahubolcierr", false ).toBool();
+    buttonDatahubSLSTR=settings.value("/window/buttondatahubslstr", false ).toBool();
+
     buttonMetopAhrpt=settings.value("/window/buttonmetopAhrpt", false ).toBool();
     buttonMetopBhrpt=settings.value("/window/buttonmetopBhrpt", false ).toBool();
     buttonNoaa19hrpt=settings.value("/window/buttonnoaa19hrpt", false ).toBool();
@@ -266,6 +270,17 @@ void Options::Initialize()
     texture_changed = false;
     gridonolciimage = false;
 
+    esauser = settings.value("/datahub/esauser", "").value<QString>();
+    esapassword = settings.value("/datahub/esapassword", "").value<QString>();
+    eumetsatuser = settings.value("/datahub/eumetsatuser", "").value<QString>();
+    eumetsatpassword = settings.value("/datahub/eumetsatpassword", "").value<QString>();
+    productdirectory = settings.value("/datahub/productdirectory", "").value<QString>();
+    nbrofpagestodownload = settings.value("/datahub/nbrofpagestodownload", 1).toInt();
+    provideresaoreumetsat = settings.value("/datahub/provideresaoreumetsat", false).toBool();
+    loadxmlonstartup = settings.value("/datahub/loadxmlonstartup", true).toBool();
+    downloadfromdatahub  = settings.value("/datahub/downloadfromdatahub", true).toBool();
+
+
 }
 
 void Options::checkStringListValues()
@@ -362,6 +377,9 @@ void Options::Save()
     settings.setValue( "/window/buttonolciefr", buttonOLCIefr );
     settings.setValue( "/window/buttonolcierr", buttonOLCIerr );
     settings.setValue( "/window/buttonslstr", buttonSLSTR );
+    settings.setValue( "/window/buttondatahubolciefr", buttonDatahubOLCIefr );
+    settings.setValue( "/window/buttondatahubolcierr", buttonDatahubOLCIerr );
+    settings.setValue( "/window/buttondatahubslstr", buttonDatahubSLSTR );
     settings.setValue( "/window/buttonmetopAhrpt", buttonMetopAhrpt );
     settings.setValue( "/window/buttonmetopBhrpt", buttonMetopBhrpt );
     settings.setValue( "/window/buttonnoaa19hrpt", buttonNoaa19hrpt );
@@ -553,6 +571,15 @@ void Options::Save()
     settings.setValue("/parameters/removeslstrdirs", remove_SLSTR_dirs);
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
 
+    settings.setValue("/datahub/esauser", esauser);
+    settings.setValue("/datahub/esapassword", esapassword);
+    settings.setValue("/datahub/eumetsatuser", eumetsatuser);
+    settings.setValue("/datahub/eumetsatpassword", eumetsatpassword);
+    settings.setValue("/datahub/productdirectory", productdirectory);
+    settings.setValue("/datahub/nbrofpagestodownload", nbrofpagestodownload);
+    settings.setValue("/datahub/provideresaoreumetsat", provideresaoreumetsat);
+    settings.setValue("/datahub/loadxmlonstartup", loadxmlonstartup);
+    settings.setValue("/datahub/downloadfromdatahub", downloadfromdatahub);
 
 }
 

@@ -173,7 +173,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     formglobecyl = new FormMapCyl( this, mapcyl, globe, formtoolbox, satlist, seglist);
 
-    connect(seglist, SIGNAL(signalNothingSelected()), formglobecyl, SLOT(slotNothingSelected()));
+    connect(seglist, SIGNAL(signalShowSegmentCount()), formglobecyl, SLOT(slotShowSegmentCount()));
 
     createDockWidget();
 
@@ -222,6 +222,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
+    connect(seglist, SIGNAL(signalXMLProgress(QString)), formglobecyl, SLOT(slotShowXMLProgress(QString)));
+
 
     connect( formglobecyl, SIGNAL(signalSegmentChanged(QString)), this, SLOT(updateStatusBarIndicator(QString)) );
     connect( ui->stackedWidget, SIGNAL(currentChanged(int)),formglobecyl, SLOT(updatesatmap(int)) );
@@ -229,9 +231,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( seglist,SIGNAL(signalAddedSegmentlist()), formephem, SLOT(showSegmentsAdded()));
 
     connect( formephem,SIGNAL(signalDirectoriesRead()), formglobecyl, SLOT(setScrollBarMaximum()));
-    connect( formglobecyl, SIGNAL(emitMakeImage()), formimage, SLOT(slotMakeImage()));
+    connect( formglobecyl, SIGNAL(signalMakeImage()), formimage, SLOT(slotMakeImage()));
 
     connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
+    connect( globe , SIGNAL(mapClicked()), formglobecyl, SLOT(showSelectedSegmentToDownloadList()));
     connect( mapcyl , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
 
     connect( formephem, SIGNAL(signalDatagram(QByteArray)), seglist, SLOT(AddSegmentsToListFromUdp(QByteArray)));
@@ -266,8 +269,64 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug() << QString("HDF5 library %1.%2.%3").arg(majnum).arg(minnum).arg(relnum);
 
     loadLayout();
+
+//    if (opts.loadxmlonstartup)
+//        LoadXMLfromDatahub();
+    seglist->ReadXMLfiles();
+
+
+
+    qDebug() << QString("ideal threadcount = %1  max threadcount = %2 active threadcount = %3").
+                arg(QThread::idealThreadCount()).
+                arg(QThreadPool::globalInstance()->maxThreadCount()).
+                arg(QThreadPool::globalInstance()->activeThreadCount());
+
+
+
+    qDebug() << "currentthreadid = " << QThread::currentThreadId();
+    QList<QThread*> mainwindowthreadslist = this->findChildren <QThread*> ();
+    for(int i = 0; i < mainwindowthreadslist.count(); i++)
+        qDebug() << mainwindowthreadslist.at(i)->currentThread()->currentThreadId();
+
 }
 
+//void MainWindow::LoadXMLfromDatahub()
+//{
+
+//    QObject::connect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::XMLfileDownloaded);
+//    eDatahub hub;
+//    if(opts.provideresaoreumetsat)
+//        hub = HUBESA;
+//    else
+//        hub = HUBEUMETSAT;
+//    hubmanager.DownloadXML(opts.nbrofpagestodownload, hub);
+//}
+
+//void MainWindow::OLCIfileDownloaded(QString instrumentshortname)
+//{
+//    qDebug() << "XML file " << instrumentshortname << " created";
+//    QObject::disconnect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::OLCIfileDownloaded);
+//    QObject::connect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::SLSTRfileDownloaded);
+//    eDatahub hub;
+//    if(opts.provideresaoreumetsat)
+//        hub = HUBESA;
+//    else
+//        hub = HUBEUMETSAT;
+//    hubmanager.DownloadXML("SLSTR", opts.nbrofpagestodownload, hub);
+//}
+
+//void MainWindow::SLSTRfileDownloaded(QString instrumentshortname)
+//{
+//    qDebug() << "XML file " << instrumentshortname << " created";
+//    QObject::disconnect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::SLSTRfileDownloaded);
+//}
+
+//void MainWindow::XMLfileDownloaded()
+//{
+//    qDebug() << "XML file created";
+//    QObject::disconnect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::XMLfileDownloaded);
+
+//}
 
 void MainWindow::slotSwitchStackedWindow(int ind)
 {
@@ -390,6 +449,13 @@ MainWindow::~MainWindow()
 
     qDebug() << "================closing MainWindow================";
     loggingFile.close();
+
+    qDebug() << QThread::currentThreadId();
+
+    QList<QThread*> mainwindowthreadslist = this->findChildren <QThread*> ();
+    for(int i = 0; i < mainwindowthreadslist.count(); i++)
+        qDebug() << mainwindowthreadslist.at(i)->currentThread()->currentThreadId();
+
 
 }
 

@@ -51,7 +51,7 @@
 
 #include <stdio.h>
 
-extern Options opts;
+extern QNetworkAccessManager networkaccessmanager;
 
 DownloadManager::DownloadManager(QObject *parent)
     : QObject(parent), downloadedCount(0), totalCount(0)
@@ -88,21 +88,10 @@ QString DownloadManager::saveFileName(const QUrl &url)
 {
     QString path = url.path();
     QString basename = QFileInfo(path).fileName();
-    QString basepath = QFileInfo(path).absolutePath();
-    if(basepath.mid(0,1) == "/")
-        basepath = basepath.mid(1);
-    QDir dir(basepath);
-    if (!dir.exists())
-    {
-        qDebug() << QString(" basepath = %1 does not exist").arg(basepath);
-        dir.mkpath(basepath);
-    }
-
-    qDebug() << QString(" basepath = %1, basename = %2").arg(basepath).arg(basename);
     if (basename.isEmpty())
         basename = "download";
 
-    return "./" + basename; //path;
+    return "./" + basename;
 }
 
 void DownloadManager::startNextDownload()
@@ -126,7 +115,7 @@ void DownloadManager::startNextDownload()
     }
 
     QNetworkRequest request(url);
-    currentDownload = manager.get(request);
+    currentDownload = networkaccessmanager.get(request);
     connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
             SLOT(downloadProgress(qint64,qint64)));
     connect(currentDownload, SIGNAL(finished()),
@@ -141,7 +130,6 @@ void DownloadManager::startNextDownload()
 
 void DownloadManager::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    //progressBar.setStatus(bytesReceived, bytesTotal);
 
     // calculate the download speed
     double speed = bytesReceived * 1000.0 / downloadTime.elapsed();
@@ -157,19 +145,18 @@ void DownloadManager::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
     }
 
     emit progress(QString::fromLatin1("%1 %2").arg(speed, 3, 'f', 1).arg(unit));
-    //progressBar.update();
+
 }
 
 void DownloadManager::downloadFinished()
 {
-    //progressBar.clear();
     output.close();
 
     if (currentDownload->error()) {
         // download failed
-        fprintf(stderr, "Failed: %s\n", qPrintable(currentDownload->errorString()));
+        qDebug() << "Failed: " << currentDownload->errorString();
     } else {
-        printf("Succeeded.\n");
+        qDebug() << "Download succeeded.";
         ++downloadedCount;
     }
 

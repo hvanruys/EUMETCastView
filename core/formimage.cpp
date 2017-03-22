@@ -147,24 +147,31 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
     switch(channelshown)
     {
     case IMAGE_AVHRR_CH1:
+        displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
         break;
     case IMAGE_AVHRR_CH2:
+        displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
         break;
     case IMAGE_AVHRR_CH3:
+        displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
         break;
     case IMAGE_AVHRR_CH4:
+        displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
         break;
     case IMAGE_AVHRR_CH5:
+        displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
         break;
     case IMAGE_AVHRR_COL:
+        displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
         break;
     case IMAGE_AVHRR_EXPAND:
+        displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
         break;
     case IMAGE_GEOSTATIONARY:
@@ -1214,10 +1221,10 @@ void FormImage::displayAVHRRImageInfo()
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"
                       "<body>"
-                      "<h2 style='color:blue'>Image Information</h1>"
-                      "<h3>Segment type = %1</h3>"
-                      "<h3>Nbr of segments = %2</h3>"
-                      "<h3>Image width = %3 height = %4</h3>"
+                      "<h3 style='color:blue'>Image Information</h3>"
+                      "<p>Segment type = %1<br>"
+                      "Nbr of segments = %2<br>"
+                      "Image width = %3 height = %4<br>"
                       "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimagecomp_col->width()).arg(imageptrs->ptrimagecomp_col->height());
 
 

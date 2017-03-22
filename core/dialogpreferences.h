@@ -25,6 +25,7 @@ public:
     void setupVIIRSMConfigTable();
     void setupOLCIefrConfigTable();
     void setupSLSTRConfigTable();
+    void setupDatahubConfig();
 
     ~DialogPreferences();
 
@@ -104,6 +105,8 @@ private slots:
 
     void on_btnOLCIImageOverlayColor_clicked();
 
+
+    void on_btnSearchProductDirectory_clicked();
 
 private:
     Ui::DialogPreferences *ui;

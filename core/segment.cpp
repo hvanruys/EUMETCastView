@@ -108,24 +108,25 @@ void Segment::CalculateCornerPoints()
 
     //qDebug() << QString("minutes_since_state_vector = %1 in CalculateCornerPoints").arg(minutes_since_state_vector);
 
-        if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" || segment_type == "SLSTR" ||
-                segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
-        {
-            double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
-            double roll_steering_angle = 0.00089 * sin(PSO);
-            double yaw_factor = 0.068766 * cos(PSO);
-            double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
+    if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
+            segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || segtype == SEG_HRPT_NOAA19 ||
+            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR )
+    {
+        double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
+        double roll_steering_angle = 0.00089 * sin(PSO);
+        double yaw_factor = 0.068766 * cos(PSO);
+        double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
 
-            //qDebug() << QString("minutes_since_state_vector = %1 yaw_steering_angle = %2").arg(minutes_since_state_vector).arg(yaw_steering_angle*180.0/PI);
+        //qDebug() << QString("minutes_since_state_vector = %1 yaw_steering_angle = %2").arg(minutes_since_state_vector).arg(yaw_steering_angle*180.0/PI);
 
-            mat.setToIdentity();
-            mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
-            mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
-            mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
-            d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
-        }
-        else
-            d3scan = QVector3D::crossProduct(d3pos,d3vel);
+        mat.setToIdentity();
+        mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
+        mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
+        mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+        d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
+    }
+    else
+        d3scan = QVector3D::crossProduct(d3pos,d3vel);
 
 
     QVector3D d3scannorm = d3scan.normalized();
@@ -136,12 +137,12 @@ void Segment::CalculateCornerPoints()
     double delta1;
     double delta2;
 
-    if(segment_type == "VIIRS")
+    if(segtype == SEG_VIIRSM || segtype == SEG_VIIRSDNB)
     {
         delta1 = 56.28 * PI / 180.0;  // (in rad) for VIIRS
         delta2 = delta1;
     }
-    else if(segment_type == "OLCIEFR" || segment_type == "OLCIERR" || segment_type == "SLSTR")
+    else if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR || segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR)
     {
         delta2 = 22.1 * PI / 180.0;  // see page 97 of Sentinel-3 User Handbook
         delta1 = 46.5 * PI / 180.0;
@@ -193,22 +194,23 @@ void Segment::CalculateCornerPoints()
     trueAnomaly = M + C;
     PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
-        if (segment_type == "HRP" || segment_type == "Metop" || segment_type == "OLCIEFR" || segment_type == "OLCIERR" || segment_type == "SLSTR" ||
-                segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
-        {
-            double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
-            double roll_steering_angle = 0.00089 * sin(PSO);
-            double yaw_factor = 0.068766 * cos(PSO);
-            double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
+    if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
+                segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || segtype == SEG_HRPT_NOAA19 ||
+            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR )
+    {
+        double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
+        double roll_steering_angle = 0.00089 * sin(PSO);
+        double yaw_factor = 0.068766 * cos(PSO);
+        double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
 
-            mat.setToIdentity();
-            mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
-            mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
-            mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
-            d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
-        }
-        else
-            d3scan = QVector3D::crossProduct(d3pos,d3vel);
+        mat.setToIdentity();
+        mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
+        mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
+        mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+        d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
+    }
+    else
+    d3scan = QVector3D::crossProduct(d3pos,d3vel);
 
 
     d3scannorm = d3scan.normalized();
@@ -302,7 +304,8 @@ void Segment::setupVector(double statevec, QSgp4Date sensing)
     QVector3D d3scannorm = d3scan.normalized();
 
     double delta1, delta2;
-    if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR)
+    if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
+            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR)
     {
         delta2 = 23.0 * PI / 180.0;
         delta1 = 47.0 * PI / 180.0;

@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.2.3"
+#define APPVERSION "1.2.4"
 using namespace std;
 
 QMutex g_mutex;
@@ -23,6 +23,8 @@ SegmentImage *imageptrs;
 gshhsData *gshhsdata;
 QFile loggingFile;
 QTextStream out(&loggingFile);
+QNetworkAccessManager networkaccessmanager;
+
 bool doLogging;
 bool ptrimagebusy;
 

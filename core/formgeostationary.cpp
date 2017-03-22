@@ -150,14 +150,14 @@ FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AV
 
     ui->SegmenttreeWidgetH8->setRootIsDecorated(false);
     ui->SegmenttreeWidgetH8->header()->setStretchLastSection(true);
-    ui->SegmenttreeWidgetH8->setColumnCount(15);
-    for(int i = 0; i < 15; i++)
+    ui->SegmenttreeWidgetH8->setColumnCount(16);
+    for(int i = 0; i < 16; i++)
     {
         ui->SegmenttreeWidgetH8->setColumnWidth(i, 200);
         ui->SegmenttreeWidgetH8->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
     }
     ui->SegmenttreeWidgetH8->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << "IR1" << "IR2" << "IR3" << "IR4"
-          << "B04" << "B05" << "B06" << "B09" << "B10" << "B11" << "B14" << "B16" << "VIS");
+          << "B04" << "B05" << "B06" << "B09" << "B10" << "B11" << "B12" << "B14" << "B16" << "VIS");
 
 }
 
@@ -394,6 +394,7 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
     int cnt_B09 = 0;
     int cnt_B10 = 0;
     int cnt_B11 = 0;
+    int cnt_B12 = 0;
     int cnt_B14 = 0;
     int cnt_B16 = 0;
 
@@ -444,6 +445,7 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
         cnt_B09 = 0;
         cnt_B10 = 0;
         cnt_B11 = 0;
+        cnt_B12 = 0;
         cnt_B14 = 0;
         cnt_B16 = 0;
 
@@ -578,6 +580,8 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
             else if (strspectrum == "B10")
                 strspectrumlist += "B";
             else if (strspectrum == "B11")
+                strspectrumlist += "B";
+            else if (strspectrum == "B12")
                 strspectrumlist += "B";
             else if (strspectrum == "B14")
                 strspectrumlist += "B";
@@ -746,6 +750,8 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
                     cnt_B10++;
                 else if (strspectrum == "B11")
                     cnt_B11++;
+                else if (strspectrum == "B12")
+                    cnt_B12++;
                 else if (strspectrum == "B14")
                     cnt_B14++;
                 else if (strspectrum == "B16")
@@ -802,7 +808,7 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
             strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 1) + "0" << strspectrumlist <<
                    QString("%1").arg(cnt_IR1) << QString("%1").arg(cnt_IR2) << QString("%1").arg(cnt_IR3) << QString("%1").arg(cnt_IR4)
                        << QString("%1").arg(cnt_B04) << QString("%1").arg(cnt_B05) << QString("%1").arg(cnt_B06) << QString("%1").arg(cnt_B09) << QString("%1").arg(cnt_B10) << QString("%1").arg(cnt_B11)
-                       << QString("%1").arg(cnt_B14) << QString("%1").arg(cnt_B16) << QString("%1").arg(cnt_VIS);
+                       << QString("%1").arg(cnt_B12) << QString("%1").arg(cnt_B14) << QString("%1").arg(cnt_B16) << QString("%1").arg(cnt_VIS);
         }
 
         newitem = new QTreeWidgetItem( widget, strlist, 0  );
@@ -855,7 +861,7 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
         else if (whichgeo == SegmentListGeostationary::H8)
         {
             if (cnt_IR1 == 10 && cnt_IR2 == 10 && cnt_IR3 == 10 && cnt_IR4 == 10 && cnt_VIS == 10
-                    && cnt_B04 == 10 && cnt_B05 == 10 && cnt_B06 == 10 && cnt_B09 == 10 && cnt_B10 == 10 && cnt_B11 == 10 && cnt_B14 == 10 && cnt_B16 == 10)
+                    && cnt_B04 == 10 && cnt_B05 == 10 && cnt_B06 == 10 && cnt_B09 == 10 && cnt_B10 == 10 && cnt_B11 == 10 && cnt_B12 == 10 && cnt_B14 == 10 && cnt_B16 == 10)
                 col.setRgb(174, 225, 184);
             else
                 col.setRgb(225, 171, 196);

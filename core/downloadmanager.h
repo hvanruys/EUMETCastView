@@ -47,7 +47,7 @@
 #include <QTime>
 #include <QUrl>
 #include <QNetworkAccessManager>
-#include "options.h"
+//#include "options.h"
 
 
 class DownloadManager: public QObject
@@ -73,7 +73,6 @@ private slots:
     void downloadReadyRead();
 
 private:
-    QNetworkAccessManager manager;
     QQueue<QUrl> downloadQueue;
     QNetworkReply *currentDownload;
     QFile output;
