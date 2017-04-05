@@ -243,12 +243,11 @@ public:
     QString eumetsatuser;
     QString eumetsatpassword;
     QString productdirectory;
-    int nbrofpagestodownload;
     bool provideresaoreumetsat; // 0 = ESA , 1 = eumetsat
-    bool loadxmlonstartup;
-    bool downloadfromdatahub;
-
-
+    bool downloadfromdatahub; // radiobutton in formephem
+    bool downloadxmlolciefr;
+    bool downloadxmlolcierr;
+    bool downloadxmlslstr;
 
 }; 
 

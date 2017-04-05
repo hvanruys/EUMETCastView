@@ -14,8 +14,10 @@ public:
     explicit SegmentDatahub(eSegmentType type = SEG_NONE, QString name = 0, SatelliteList *satl = 0, QObject *parent = 0);
     void setName(QString name) { this->name = name; }
     void setUUID(QString uuid) { this->uuid = uuid; }
+    void setSize(QString size) { this->size = size; }
     QString getName() { return name; }
     QString getUUID() { return uuid; }
+    QString getSize() { return size; }
 
 signals:
 
@@ -23,6 +25,7 @@ public slots:
 private:
     QString name;
     QString uuid;
+    QString size;
 
 protected:
     SatelliteList *satlist;

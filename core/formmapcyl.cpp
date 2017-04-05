@@ -52,433 +52,131 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 
     ui->pbProduct1->setValue(0);
     ui->pbProduct2->setValue(0);
+    ui->pbXMLprogress->setValue(0);
+
+    ui->twSelectedProducts->setColumnCount(6);
+    QStringList hlst;
+    hlst << "Status" << "Type" << "Date" << "Start" << "End" << "Size";
+    ui->twSelectedProducts->setHorizontalHeaderLabels(hlst);
+    ui->twSelectedProducts->verticalHeader()->setVisible(false);
+    ui->twSelectedProducts->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->twSelectedProducts->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->twSelectedProducts->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->twSelectedProducts->setShowGrid(true);
+    ui->twSelectedProducts->setStyleSheet("QTableView {selection-background-color: green;}");
+    ui->lblTotalDownloadSize->setText("No selected segments");
 
     if (opts.buttonMetop)
     {
-        opts.buttonNoaa = false;
-        opts.buttonGAC = false;
-        opts.buttonHRP = false;
-        opts.buttonMetopAhrpt = false;
-        opts.buttonMetopBhrpt = false;
-        opts.buttonNoaa19hrpt = false;
-        opts.buttonM01hrpt = false;
-        opts.buttonM02hrpt = false;
-
-        opts.buttonVIIRSM = false;
-        opts.buttonVIIRSDNB = false;
-        opts.buttonOLCIefr = false;
-        opts.buttonOLCIerr = false;
-        opts.buttonSLSTR = false;
-        opts.buttonDatahubOLCIefr = false;
-        opts.buttonDatahubOLCIerr = false;
-        opts.buttonDatahubSLSTR = false;
-        opts.buttonRealTime = false;
+        SetAllButtonsToFalse();
+        opts.buttonMetop = true;
     }
-    else
-        if (opts.buttonNoaa)
-        {
-            opts.buttonMetop = false;
-            opts.buttonGAC = false;
-            opts.buttonHRP = false;
-            opts.buttonMetopAhrpt = false;
-            opts.buttonMetopBhrpt = false;
-            opts.buttonNoaa19hrpt = false;
-            opts.buttonM01hrpt = false;
-            opts.buttonM02hrpt = false;
-
-            opts.buttonVIIRSM = false;
-            opts.buttonVIIRSDNB = false;
-            opts.buttonOLCIefr = false;
-            opts.buttonOLCIerr = false;
-            opts.buttonSLSTR = false;
-            opts.buttonDatahubOLCIefr = false;
-            opts.buttonDatahubOLCIerr = false;
-            opts.buttonDatahubSLSTR = false;
-            opts.buttonRealTime = false;
-        }
-        else
-            if (opts.buttonGAC)
-            {
-                opts.buttonNoaa = false;
-                opts.buttonMetop = false;
-                opts.buttonHRP = false;
-                opts.buttonMetopAhrpt = false;
-                opts.buttonMetopBhrpt = false;
-                opts.buttonNoaa19hrpt = false;
-                opts.buttonM01hrpt = false;
-                opts.buttonM02hrpt = false;
-
-                opts.buttonVIIRSM = false;
-                opts.buttonVIIRSDNB = false;
-                opts.buttonOLCIefr = false;
-                opts.buttonOLCIerr = false;
-                opts.buttonSLSTR = false;
-                opts.buttonDatahubOLCIefr = false;
-                opts.buttonDatahubOLCIerr = false;
-                opts.buttonDatahubSLSTR = false;
-                opts.buttonRealTime = false;
-            }
-            else
-                if (opts.buttonHRP)
-                {
-                    opts.buttonNoaa = false;
-                    opts.buttonGAC = false;
-                    opts.buttonMetop = false;
-                    opts.buttonMetopAhrpt = false;
-                    opts.buttonMetopBhrpt = false;
-                    opts.buttonNoaa19hrpt = false;
-                    opts.buttonM01hrpt = false;
-                    opts.buttonM02hrpt = false;
-
-                    opts.buttonVIIRSM = false;
-                    opts.buttonVIIRSDNB = false;
-                    opts.buttonOLCIefr = false;
-                    opts.buttonOLCIerr = false;
-                    opts.buttonSLSTR = false;
-                    opts.buttonDatahubOLCIefr = false;
-                    opts.buttonDatahubOLCIerr = false;
-                    opts.buttonDatahubSLSTR = false;
-                    opts.buttonRealTime = false;
-                }
-                else
-                    if (opts.buttonRealTime)
-                    {
-                        opts.buttonNoaa = false;
-                        opts.buttonGAC = false;
-                        opts.buttonHRP = false;
-                        opts.buttonMetop = false;
-                        opts.buttonMetopAhrpt = false;
-                        opts.buttonMetopBhrpt = false;
-                        opts.buttonNoaa19hrpt = false;
-                        opts.buttonM01hrpt = false;
-                        opts.buttonM02hrpt = false;
-
-                        opts.buttonVIIRSM = false;
-                        opts.buttonVIIRSDNB = false;
-                        opts.buttonOLCIefr = false;
-                        opts.buttonOLCIerr = false;
-                        opts.buttonSLSTR = false;
-                        opts.buttonDatahubOLCIefr = false;
-                        opts.buttonDatahubOLCIerr = false;
-                        opts.buttonDatahubSLSTR = false;
-                    }
-                    else
-                        if (opts.buttonVIIRSM)
-                        {
-                            opts.buttonNoaa = false;
-                            opts.buttonGAC = false;
-                            opts.buttonHRP = false;
-                            opts.buttonMetop = false;
-                            opts.buttonMetopAhrpt = false;
-                            opts.buttonMetopBhrpt = false;
-                            opts.buttonNoaa19hrpt = false;
-                            opts.buttonM01hrpt = false;
-                            opts.buttonM02hrpt = false;
-
-                            opts.buttonRealTime = false;
-                            opts.buttonVIIRSDNB = false;
-                            opts.buttonOLCIefr = false;
-                            opts.buttonOLCIerr = false;
-                            opts.buttonSLSTR = false;
-                            opts.buttonDatahubOLCIefr = false;
-                            opts.buttonDatahubOLCIerr = false;
-                            opts.buttonDatahubSLSTR = false;
-                            formtoolbox->setTabWidgetIndex(TAB_VIIRS);
-                            formtoolbox->setTabWidgetVIIRSIndex(0);
-                        }
-                        else
-                            if (opts.buttonVIIRSDNB)
-                            {
-                                opts.buttonNoaa = false;
-                                opts.buttonGAC = false;
-                                opts.buttonHRP = false;
-                                opts.buttonMetop = false;
-                                opts.buttonMetopAhrpt = false;
-                                opts.buttonMetopBhrpt = false;
-                                opts.buttonNoaa19hrpt = false;
-                                opts.buttonM01hrpt = false;
-                                opts.buttonM02hrpt = false;
-
-                                opts.buttonRealTime = false;
-                                opts.buttonVIIRSM = false;
-                                opts.buttonOLCIefr = false;
-                                opts.buttonOLCIerr = false;
-                                opts.buttonSLSTR = false;
-                                opts.buttonDatahubOLCIefr = false;
-                                opts.buttonDatahubOLCIerr = false;
-                                opts.buttonDatahubSLSTR = false;
-                                formtoolbox->setTabWidgetIndex(TAB_VIIRS);
-                                formtoolbox->setTabWidgetVIIRSIndex(1);
-                            }
-                            else
-                                if (opts.buttonOLCIefr)
-                                {
-                                    opts.buttonNoaa = false;
-                                    opts.buttonGAC = false;
-                                    opts.buttonHRP = false;
-                                    opts.buttonMetop = false;
-                                    opts.buttonMetopAhrpt = false;
-                                    opts.buttonMetopBhrpt = false;
-                                    opts.buttonNoaa19hrpt = false;
-                                    opts.buttonM01hrpt = false;
-                                    opts.buttonM02hrpt = false;
-
-                                    opts.buttonRealTime = false;
-                                    opts.buttonVIIRSM = false;
-                                    opts.buttonVIIRSDNB = false;
-                                    opts.buttonOLCIerr = false;
-                                    opts.buttonSLSTR = false;
-                                    opts.buttonDatahubOLCIefr = false;
-                                    opts.buttonDatahubOLCIerr = false;
-                                    opts.buttonDatahubSLSTR = false;
-                                    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-                                    formtoolbox->setTabWidgetSentinelIndex(0);
-                                }
-                                else
-                                    if (opts.buttonOLCIerr)
-                                    {
-                                        opts.buttonNoaa = false;
-                                        opts.buttonGAC = false;
-                                        opts.buttonHRP = false;
-                                        opts.buttonMetop = false;
-                                        opts.buttonMetopAhrpt = false;
-                                        opts.buttonMetopBhrpt = false;
-                                        opts.buttonNoaa19hrpt = false;
-                                        opts.buttonM01hrpt = false;
-                                        opts.buttonM02hrpt = false;
-
-                                        opts.buttonRealTime = false;
-                                        opts.buttonVIIRSM = false;
-                                        opts.buttonVIIRSDNB = false;
-                                        opts.buttonOLCIefr = false;
-                                        opts.buttonSLSTR = false;
-                                        opts.buttonDatahubOLCIefr = false;
-                                        opts.buttonDatahubOLCIerr = false;
-                                        opts.buttonDatahubSLSTR = false;
-                                        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-                                        formtoolbox->setTabWidgetSentinelIndex(0);
-                                    }
-                                    else
-                                        if (opts.buttonSLSTR)
-                                        {
-                                            opts.buttonNoaa = false;
-                                            opts.buttonGAC = false;
-                                            opts.buttonHRP = false;
-                                            opts.buttonMetop = false;
-                                            opts.buttonMetopAhrpt = false;
-                                            opts.buttonMetopBhrpt = false;
-                                            opts.buttonNoaa19hrpt = false;
-                                            opts.buttonM01hrpt = false;
-                                            opts.buttonM02hrpt = false;
-
-                                            opts.buttonRealTime = false;
-                                            opts.buttonVIIRSM = false;
-                                            opts.buttonVIIRSDNB = false;
-                                            opts.buttonOLCIefr = false;
-                                            opts.buttonOLCIerr = false;
-                                            opts.buttonDatahubOLCIefr = false;
-                                            opts.buttonDatahubOLCIerr = false;
-                                            opts.buttonDatahubSLSTR = false;
-                                            formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-                                            formtoolbox->setTabWidgetSentinelIndex(1);
-                                        }
-                                    else
-                                        if (opts.buttonMetopAhrpt)
-                                        {
-                                            opts.buttonMetop = false;
-                                            opts.buttonNoaa = false;
-                                            opts.buttonGAC = false;
-                                            opts.buttonHRP = false;
-
-                                            opts.buttonMetopBhrpt = false;
-                                            opts.buttonNoaa19hrpt = false;
-                                            opts.buttonM01hrpt = false;
-                                            opts.buttonM02hrpt = false;
-
-                                            opts.buttonRealTime = false;
-                                            opts.buttonVIIRSM = false;
-                                            opts.buttonVIIRSDNB = false;
-                                            opts.buttonOLCIefr = false;
-                                            opts.buttonOLCIerr = false;
-                                            opts.buttonSLSTR = false;
-                                            opts.buttonDatahubOLCIefr = false;
-                                            opts.buttonDatahubOLCIerr = false;
-                                            opts.buttonDatahubSLSTR = false;
-                                            formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-                                        }
-                                        else
-                                            if (opts.buttonMetopBhrpt)
-                                            {
-                                                opts.buttonMetop = false;
-                                                opts.buttonNoaa = false;
-                                                opts.buttonGAC = false;
-                                                opts.buttonHRP = false;
-
-                                                opts.buttonMetopAhrpt = false;
-                                                opts.buttonNoaa19hrpt = false;
-                                                opts.buttonM01hrpt = false;
-                                                opts.buttonM02hrpt = false;
-
-                                                opts.buttonRealTime = false;
-                                                opts.buttonVIIRSM = false;
-                                                opts.buttonVIIRSDNB = false;
-                                                opts.buttonOLCIefr = false;
-                                                opts.buttonOLCIerr = false;
-                                                opts.buttonSLSTR = false;
-                                                opts.buttonDatahubOLCIefr = false;
-                                                opts.buttonDatahubOLCIerr = false;
-                                                opts.buttonDatahubSLSTR = false;
-                                                formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-                                            }
-                                            else
-                                                if (opts.buttonNoaa19hrpt)
-                                                {
-                                                    opts.buttonMetop = false;
-                                                    opts.buttonNoaa = false;
-                                                    opts.buttonGAC = false;
-                                                    opts.buttonHRP = false;
-
-                                                    opts.buttonMetopAhrpt = false;
-                                                    opts.buttonMetopBhrpt = false;
-                                                    opts.buttonM01hrpt = false;
-                                                    opts.buttonM02hrpt = false;
-
-                                                    opts.buttonRealTime = false;
-                                                    opts.buttonVIIRSM = false;
-                                                    opts.buttonVIIRSDNB = false;
-                                                    opts.buttonOLCIefr = false;
-                                                    opts.buttonOLCIerr = false;
-                                                    opts.buttonSLSTR = false;
-                                                    opts.buttonDatahubOLCIefr = false;
-                                                    opts.buttonDatahubOLCIerr = false;
-                                                    opts.buttonDatahubSLSTR = false;
-                                                    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-                                                }
-                                                else
-                                                    if (opts.buttonM01hrpt)
-                                                    {
-                                                        opts.buttonMetop = false;
-                                                        opts.buttonNoaa = false;
-                                                        opts.buttonGAC = false;
-                                                        opts.buttonHRP = false;
-
-                                                        opts.buttonMetopAhrpt = false;
-                                                        opts.buttonMetopBhrpt = false;
-                                                        opts.buttonNoaa19hrpt = false;
-                                                        opts.buttonM02hrpt = false;
-
-                                                        opts.buttonRealTime = false;
-                                                        opts.buttonVIIRSM = false;
-                                                        opts.buttonVIIRSDNB = false;
-                                                        opts.buttonOLCIefr = false;
-                                                        opts.buttonOLCIerr = false;
-                                                        opts.buttonSLSTR = false;
-                                                        opts.buttonDatahubOLCIefr = false;
-                                                        opts.buttonDatahubOLCIerr = false;
-                                                        opts.buttonDatahubSLSTR = false;
-                                                        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-                                                    }
-                                                    else
-                                                        if (opts.buttonM02hrpt)
-                                                        {
-                                                            opts.buttonMetop = false;
-                                                            opts.buttonNoaa = false;
-                                                            opts.buttonGAC = false;
-                                                            opts.buttonHRP = false;
-
-                                                            opts.buttonMetopAhrpt = false;
-                                                            opts.buttonMetopBhrpt = false;
-                                                            opts.buttonNoaa19hrpt = false;
-                                                            opts.buttonM01hrpt = false;
-
-                                                            opts.buttonRealTime = false;
-                                                            opts.buttonVIIRSM = false;
-                                                            opts.buttonVIIRSDNB = false;
-                                                            opts.buttonOLCIefr = false;
-                                                            opts.buttonOLCIerr = false;
-                                                            opts.buttonSLSTR = false;
-                                                            opts.buttonDatahubOLCIefr = false;
-                                                            opts.buttonDatahubOLCIerr = false;
-                                                            opts.buttonDatahubSLSTR = false;
-                                                            formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-                                                        }
-                                                        else
-                                                            if (opts.buttonDatahubOLCIefr)
-                                                            {
-                                                                opts.buttonMetop = false;
-                                                                opts.buttonNoaa = false;
-                                                                opts.buttonGAC = false;
-                                                                opts.buttonHRP = false;
-
-                                                                opts.buttonMetopAhrpt = false;
-                                                                opts.buttonMetopBhrpt = false;
-                                                                opts.buttonNoaa19hrpt = false;
-                                                                opts.buttonM01hrpt = false;
-                                                                opts.buttonM02hrpt = false;
-
-                                                                opts.buttonRealTime = false;
-                                                                opts.buttonVIIRSM = false;
-                                                                opts.buttonVIIRSDNB = false;
-                                                                opts.buttonOLCIefr = false;
-                                                                opts.buttonOLCIerr = false;
-                                                                opts.buttonSLSTR = false;
-                                                                opts.buttonDatahubOLCIerr = false;
-                                                                opts.buttonDatahubSLSTR = false;
-                                                                formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-                                                                formtoolbox->setTabWidgetSentinelIndex(0);
-                                                            }
-                                                            else
-                                                                if (opts.buttonDatahubOLCIerr)
-                                                                {
-                                                                    opts.buttonMetop = false;
-                                                                    opts.buttonNoaa = false;
-                                                                    opts.buttonGAC = false;
-                                                                    opts.buttonHRP = false;
-
-                                                                    opts.buttonMetopAhrpt = false;
-                                                                    opts.buttonMetopBhrpt = false;
-                                                                    opts.buttonNoaa19hrpt = false;
-                                                                    opts.buttonM01hrpt = false;
-                                                                    opts.buttonM02hrpt = false;
-
-                                                                    opts.buttonRealTime = false;
-                                                                    opts.buttonVIIRSM = false;
-                                                                    opts.buttonVIIRSDNB = false;
-                                                                    opts.buttonOLCIefr = false;
-                                                                    opts.buttonOLCIerr = false;
-                                                                    opts.buttonSLSTR = false;
-                                                                    opts.buttonDatahubOLCIefr = false;
-                                                                    opts.buttonDatahubSLSTR = false;
-                                                                    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-                                                                    formtoolbox->setTabWidgetSentinelIndex(0);
-                                                                }
-                                                                else
-                                                                    if (opts.buttonDatahubSLSTR)
-                                                                    {
-                                                                        opts.buttonMetop = false;
-                                                                        opts.buttonNoaa = false;
-                                                                        opts.buttonGAC = false;
-                                                                        opts.buttonHRP = false;
-
-                                                                        opts.buttonMetopAhrpt = false;
-                                                                        opts.buttonMetopBhrpt = false;
-                                                                        opts.buttonNoaa19hrpt = false;
-                                                                        opts.buttonM01hrpt = false;
-                                                                        opts.buttonM02hrpt = false;
-
-                                                                        opts.buttonRealTime = false;
-                                                                        opts.buttonVIIRSM = false;
-                                                                        opts.buttonVIIRSDNB = false;
-                                                                        opts.buttonOLCIefr = false;
-                                                                        opts.buttonOLCIerr = false;
-                                                                        opts.buttonSLSTR = false;
-                                                                        opts.buttonDatahubOLCIefr = false;
-                                                                        opts.buttonDatahubOLCIerr = false;
-                                                                        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-                                                                        formtoolbox->setTabWidgetSentinelIndex(1);
-                                                                    }
-
-
+    else if (opts.buttonNoaa)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonNoaa = true;
+    }
+    else if (opts.buttonGAC)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonGAC = true;
+    }
+    else if (opts.buttonHRP)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonHRP = true;
+    }
+    else if (opts.buttonRealTime)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonRealTime = true;
+    }
+    else if (opts.buttonVIIRSM)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonVIIRSM = true;
+        formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+        formtoolbox->setTabWidgetVIIRSIndex(0);
+    }
+    else if (opts.buttonVIIRSDNB)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonVIIRSDNB = true;
+        formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+        formtoolbox->setTabWidgetVIIRSIndex(1);
+    }
+    else if (opts.buttonOLCIefr)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonOLCIefr = true;
+        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+        formtoolbox->setTabWidgetSentinelIndex(0);
+    }
+    else if (opts.buttonOLCIerr)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonOLCIerr = true;
+        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+        formtoolbox->setTabWidgetSentinelIndex(0);
+    }
+    else if (opts.buttonSLSTR)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonSLSTR = true;
+        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+        formtoolbox->setTabWidgetSentinelIndex(1);
+    }
+    else if (opts.buttonMetopAhrpt)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonMetopAhrpt = true;
+        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    }
+    else if (opts.buttonMetopBhrpt)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonMetopBhrpt = true;
+        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    }
+    else if (opts.buttonNoaa19hrpt)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonNoaa19hrpt = true;
+        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    }
+    else if (opts.buttonM01hrpt)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonM01hrpt = true;
+        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    }
+    else if (opts.buttonM02hrpt)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonM02hrpt = true;
+        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
+    }
+    else if (opts.buttonDatahubOLCIefr)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonDatahubOLCIefr = true;
+        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+        formtoolbox->setTabWidgetSentinelIndex(0);
+    }
+    else if (opts.buttonDatahubOLCIerr)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonDatahubOLCIerr = true;
+        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+        formtoolbox->setTabWidgetSentinelIndex(0);
+    }
+    else if (opts.buttonDatahubSLSTR)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonDatahubSLSTR = true;
+        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
+        formtoolbox->setTabWidgetSentinelIndex(1);
+    }
 
 
     ui->btnMetop->setChecked(opts.buttonMetop);
@@ -524,6 +222,30 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     segs->setShowAllSegments(ui->btnAllSegments->isChecked());
 
     this->showSegmentCount();
+
+}
+
+void FormMapCyl::SetAllButtonsToFalse()
+{
+    opts.buttonMetop = false;
+    opts.buttonNoaa = false;
+    opts.buttonGAC = false;
+    opts.buttonHRP = false;
+    opts.buttonMetopAhrpt = false;
+    opts.buttonMetopBhrpt = false;
+    opts.buttonNoaa19hrpt = false;
+    opts.buttonM01hrpt = false;
+    opts.buttonM02hrpt = false;
+
+    opts.buttonVIIRSM = false;
+    opts.buttonVIIRSDNB = false;
+    opts.buttonOLCIefr = false;
+    opts.buttonOLCIerr = false;
+    opts.buttonSLSTR = false;
+    opts.buttonDatahubOLCIefr = false;
+    opts.buttonDatahubOLCIerr = false;
+    opts.buttonDatahubSLSTR = false;
+    opts.buttonRealTime = false;
 
 }
 
@@ -1328,37 +1050,120 @@ void FormMapCyl::on_btnPhong_clicked()
     opts.buttonPhong = ui->btnPhong->isChecked();
 }
 
-
-
 void FormMapCyl::on_btnDownloadProduct_clicked()
 {
-//    QStringList productstodownloadlist;
-//    QStringList uuidtodownloadlist;
 
+    if(todownloadlist.count() ==  0)
+        return;
+
+    SearchForFreeManager();
+
+}
+
+void FormMapCyl::SearchForFreeManager()
+{
     eDatahub hub;
     if(opts.provideresaoreumetsat)
         hub = HUBESA;
     else
         hub = HUBEUMETSAT;
 
-    if(productstodownloadlist.count() > 0)
+    qDebug() <<  "FormMapCyl::SearchForFreeManager()";
+
+    for(int i = 0; i < todownloadlist.count() ; i++)
     {
-        for(int i = 0; i < productstodownloadlist.count(); i++)
+        if(todownloadlist.at(i).status == "waiting")
         {
-            hubmanagerprod1.DownloadProduct(uuidtodownloadlist.at(i), productstodownloadlist.at(i), hub );
+            if(!hubmanagerprod1.isProductDownloadBusy())
+            {
+                qDebug() << "hubmanagerprod1.DownloadProduct";
+                QObject::connect(&hubmanagerprod1, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
+                QObject::connect(&hubmanagerprod1, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
+                todownloadlist[i].status = "busy";
+                hubmanagerprod1.DownloadProduct(todownloadlist, i, hub, 0 );
+                showSelectedSegmentToDownloadList();
+            }
+            else if(!hubmanagerprod2.isProductDownloadBusy())
+            {
+                qDebug() << "hubmanagerprod2.DownloadProduct";
+
+                QObject::connect(&hubmanagerprod2, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
+                QObject::connect(&hubmanagerprod2, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
+                todownloadlist[i].status = "busy";
+                hubmanagerprod2.DownloadProduct(todownloadlist, i, hub, 1 );
+                showSelectedSegmentToDownloadList();
+            }
         }
+    }
+
+    for(int i = 0; i < todownloadlist.count() ; i++)
+    {
+        if(todownloadlist.at(i).status == "busy")
+        {
+            ui->btnDownloadProduct->setEnabled(false);
+            break;
+        }
+    }
+
+}
+
+void FormMapCyl::productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal, int whichdownload)
+{
+    if( whichdownload == 0)
+    {
+        ui->pbProduct1->setMaximum(bytesTotal);
+        ui->pbProduct1->setValue(bytesReceived);
+    }
+    else
+    {
+        ui->pbProduct2->setMaximum(bytesTotal);
+        ui->pbProduct2->setValue(bytesReceived);
     }
 }
 
-void FormMapCyl::showSelectedSegmentToDownloadList()
+void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex)
+{
+    if(whichdownload == 0)
+    {
+        qDebug() << "FormMapCyl::productFileDownloaded whichdownload = 0";
+        QObject::disconnect(&hubmanagerprod1, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
+        QObject::disconnect(&hubmanagerprod1, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
+        ui->pbProduct1->setValue(0);
+    }
+    else
+    {
+        qDebug() << "FormMapCyl::productFileDownloaded whichdownload = 1";
+
+        QObject::disconnect(&hubmanagerprod2, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
+        QObject::disconnect(&hubmanagerprod2, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
+        ui->pbProduct2->setValue(0);
+    }
+
+    if(downloadindex < todownloadlist.count())
+        todownloadlist[downloadindex].status = "finished";
+
+    showSelectedSegmentToDownloadList();
+
+    qDebug() << "hubmanagerprod1.isProductDownloadBusy() = " << hubmanagerprod1.isProductDownloadBusy();
+    qDebug() << "hubmanagerprod2.isProductDownloadBusy() = " << hubmanagerprod2.isProductDownloadBusy();
+
+    if((!hubmanagerprod1.isProductDownloadBusy()) && (!hubmanagerprod2.isProductDownloadBusy()))
+    {
+        ui->btnDownloadProduct->setEnabled(true);
+        ui->btnCancelDownloadProduct->setEnabled(true);
+    }
+
+    SearchForFreeManager();
+
+}
+
+void FormMapCyl::createSelectedSegmentToDownloadList()
 {
     QList<Segment*> *sldatahubolciefr = segs->segldatahubolciefr->GetSegmentlistptr();
     QList<Segment*> *sldatahubolcierr = segs->segldatahubolcierr->GetSegmentlistptr();
     QList<Segment*> *sldatahubslstr = segs->segldatahubslstr->GetSegmentlistptr();
 
-    ui->lwSelectedProducts->clear();
-    productstodownloadlist.clear();
-    uuidtodownloadlist.clear();
+    todownloadlist.clear();
 
     //if (opts.buttonDatahubOLCIefr)
     {
@@ -1367,8 +1172,12 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
         {
             if((*segitolciefr)->IsSelected())
             {
-                productstodownloadlist << (*segitolciefr)->fileInfo.fileName();
-                uuidtodownloadlist << ((SegmentDatahub *)(*segitolciefr))->getUUID();
+                ProductList prodlist;
+                prodlist.productname = (*segitolciefr)->fileInfo.fileName();
+                prodlist.uuid = ((SegmentDatahub *)(*segitolciefr))->getUUID();
+                prodlist.size = ((SegmentDatahub *)(*segitolciefr))->getSize();
+                prodlist.status = "waiting";
+                todownloadlist.append(prodlist);
             }
             ++segitolciefr;
         }
@@ -1381,8 +1190,12 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
         {
             if((*segitolcierr)->IsSelected())
             {
-                productstodownloadlist << (*segitolcierr)->fileInfo.fileName();
-                uuidtodownloadlist << ((SegmentDatahub *)(*segitolcierr))->getUUID();
+                ProductList prodlist;
+                prodlist.productname = (*segitolcierr)->fileInfo.fileName();
+                prodlist.uuid = ((SegmentDatahub *)(*segitolcierr))->getUUID();
+                prodlist.size = ((SegmentDatahub *)(*segitolcierr))->getSize();
+                prodlist.status = "waiting";
+                todownloadlist.append(prodlist);
             }
             ++segitolcierr;
         }
@@ -1395,19 +1208,124 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
         {
             if((*segitslstr)->IsSelected())
             {
-                productstodownloadlist << (*segitslstr)->fileInfo.fileName();
-                uuidtodownloadlist << ((SegmentDatahub *)(*segitslstr))->getUUID();
+                ProductList prodlist;
+                prodlist.productname = (*segitslstr)->fileInfo.fileName();
+                prodlist.uuid = ((SegmentDatahub *)(*segitslstr))->getUUID();
+                prodlist.size = ((SegmentDatahub *)(*segitslstr))->getSize();
+                prodlist.status = "waiting";
+                todownloadlist.append(prodlist);
             }
             ++segitslstr;
         }
 
     }
 
-    ui->lwSelectedProducts->addItems(productstodownloadlist);
-
+    showSelectedSegmentToDownloadList();
 }
 
-void FormMapCyl::slotShowXMLProgress(QString str)
+void FormMapCyl::showSelectedSegmentToDownloadList()
 {
-    ui->lblTotalAvailable->setText(str);
+    bool ok;
+
+    long totalsize = 0;
+    ui->twSelectedProducts->clearContents();
+    ui->twSelectedProducts->setRowCount(0);
+
+    //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+
+    for( int i = 0; i < todownloadlist.count(); ++i )
+    {
+        ui->twSelectedProducts->insertRow(i);
+        QTableWidgetItem *item0 = new QTableWidgetItem(todownloadlist.at(i).status);
+        ui->twSelectedProducts->setItem(i, 0, item0);
+        QTableWidgetItem *item1 = new QTableWidgetItem("");
+        if(todownloadlist.at(i).productname.mid(0, 12) == "S3A_OL_1_EFR")
+        {
+            item1->setText("OLCI EFR");
+        }
+        else if(todownloadlist.at(i).productname.mid(0, 12) == "S3A_OL_1_ERR")
+        {
+            item1->setText("OLCI ERR");
+        }
+        else if(todownloadlist.at(i).productname.mid(0, 12) == "S3A_SL_1_RBT")
+        {
+            item1->setText("SLSTR");
+        }
+
+        ui->twSelectedProducts->setItem(i, 1, item1);
+
+        QString year = todownloadlist.at(i).productname.mid(16, 4);
+        QString month = todownloadlist.at(i).productname.mid(20, 2);
+        QString day = todownloadlist.at(i).productname.mid(22, 2);
+        QTableWidgetItem *item2 = new QTableWidgetItem(year + "-" + month + "-" + day);
+        ui->twSelectedProducts->setItem(i, 2, item2);
+
+        QString hour = todownloadlist.at(i).productname.mid(25, 2);
+        QString min = todownloadlist.at(i).productname.mid(27, 2);
+        QString sec = todownloadlist.at(i).productname.mid(29, 2);
+        QTableWidgetItem *item3 = new QTableWidgetItem(hour + ":" + min + ":" + sec);
+        ui->twSelectedProducts->setItem(i, 3, item3);
+
+        hour = todownloadlist.at(i).productname.mid(41, 2);
+        min = todownloadlist.at(i).productname.mid(43, 2);
+        sec = todownloadlist.at(i).productname.mid(45, 2);
+        QTableWidgetItem *item4 = new QTableWidgetItem(hour + ":" + min + ":" + sec);
+        ui->twSelectedProducts->setItem(i, 4, item4);
+
+        long lsize = todownloadlist.at(i).size.toLong(&ok);
+        totalsize += lsize;
+        if(ok)
+        {
+            float fsize = (float)lsize/1000000;
+            QString strsize = QString("%1 Mb").arg(fsize, 0, 'f', 2);
+            QTableWidgetItem *item5 = new QTableWidgetItem(strsize);
+            ui->twSelectedProducts->setItem(i, 5, item5);
+        }
+
+        ui->twSelectedProducts->setColumnWidth(0, 60); // status
+        ui->twSelectedProducts->setColumnWidth(1, 80); // type
+        ui->twSelectedProducts->setColumnWidth(2, 80); // date
+        ui->twSelectedProducts->setColumnWidth(3, 70); // start
+        ui->twSelectedProducts->setColumnWidth(4, 70); // end
+        ui->twSelectedProducts->setColumnWidth(5, 80); // size
+    }
+
+    float ftotalsize = (float)totalsize/1000000;
+    ui->lblTotalDownloadSize->setText(QString("Total size to download = %1 Mb").arg(ftotalsize, 0, 'f', 2));
+
+    ui->twSelectedProducts->resizeRowsToContents();
+    ui->twSelectedProducts->show();
 }
+
+void FormMapCyl::slotShowXMLProgress(QString str, int pages, bool downloadinprogress)
+{
+    ui->pbXMLprogress->setMaximum(10);
+
+    ui->lblTotalAvailable->setText(str);
+    if(downloadinprogress)
+    {
+        ui->btnDownloadProduct->setEnabled(false);
+        ui->btnCancelDownloadProduct->setEnabled(false);
+    }
+    else
+    {
+        ui->btnDownloadProduct->setEnabled(true);
+        ui->btnCancelDownloadProduct->setEnabled(true);
+    }
+
+    if(pages == 999)
+        ui->pbXMLprogress->setValue(10);
+    else
+        ui->pbXMLprogress->setValue(pages);
+}
+
+
+void FormMapCyl::on_btnCancelDownloadProduct_clicked()
+{
+    hubmanagerprod1.CancelDownload();
+    hubmanagerprod2.CancelDownload();
+    ui->pbProduct1->setValue(0);
+    ui->pbProduct2->setValue(0);
+}
+

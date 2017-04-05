@@ -156,7 +156,8 @@ HEADERS  += mainwindow.h \
     segmentlistslstr.h \
     datahubaccessmanager.h \
     segmentdatahub.h \
-    segmentlistdatahub.h
+    segmentlistdatahub.h \
+    productlist.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

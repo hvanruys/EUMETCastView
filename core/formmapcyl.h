@@ -8,6 +8,7 @@
 #include "mapcyl.h"
 #include "globe.h"
 #include "formtoolbox.h"
+#include "productlist.h"
 
 #include <QWidget>
 
@@ -16,6 +17,7 @@ namespace Ui {
 }
 
 class FormToolbox;
+class ProductList;
 
 class FormMapCyl : public QWidget
 {
@@ -38,10 +40,16 @@ private:
 
     DatahubAccessManager hubmanagerprod1;
     DatahubAccessManager hubmanagerprod2;
-    QStringList productstodownloadlist;
-    QStringList uuidtodownloadlist;
+    QString currentDownloadFilename1;
+    QString currentDownloadFilename2;
+
+    QList<ProductList> todownloadlist;
 
     void RemoveAllSelected();
+    void SearchForFreeManager();
+    void SetAllButtonsToFalse();
+    void showSelectedSegmentToDownloadList();
+
 
 private slots:
 
@@ -49,7 +57,10 @@ private slots:
     void updatesatmap(int);
     void setScrollBarMaximum();
     void slotShowSegmentCount();
-    void showSelectedSegmentToDownloadList();
+    void createSelectedSegmentToDownloadList();
+
+    void productFileDownloaded(int whichdownload, int downloadindex);
+    void productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal, int whichdownload);
 
     void on_btnRemoveSelected_clicked();
 
@@ -98,11 +109,13 @@ private slots:
 
     void on_btnDownloadProduct_clicked();
 
+    void on_btnCancelDownloadProduct_clicked();
+
 public slots:
       void showSegmentList(int);
       void showSegmentCount();
       void changeScrollBar(int);
-      void slotShowXMLProgress(QString);
+      void slotShowXMLProgress(QString, int pages, bool downloadinprogress);
 
 signals:
     void signalSegmentChanged(QString);

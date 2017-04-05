@@ -142,6 +142,8 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
 
     showallsegments = false;
 
+    xmlselectdate =QDate::currentDate();
+
 }
 
 void AVHRRSatellite::emitProgressCounter(int counter)
@@ -971,6 +973,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
     if(opts.downloadfromdatahub)
         this->LoadXMLfromDatahub(seldate);
+    else
+        this->ReadXMLfiles();
 
     if (opts.segmentdirectorylist.count() > 0)
     {
@@ -1177,39 +1181,12 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     emit signalShowSegmentCount();
 }
 
-void AVHRRSatellite::DownloadProductfromDatahub(QString uuid, QString filename)
-{
-
-    QObject::connect(&hubmanager, &DatahubAccessManager::productFinished, this, &AVHRRSatellite::productFileDownloaded);
-    QObject::connect(&hubmanager, &DatahubAccessManager::productProgress, this, &AVHRRSatellite::productDownloadProgress);
-    eDatahub hub;
-    if(opts.provideresaoreumetsat)
-        hub = HUBESA;
-    else
-        hub = HUBEUMETSAT;
-    hubmanager.DownloadProduct( uuid, filename, hub);
-
-
-}
-
-void AVHRRSatellite::productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
-{
-
-}
-
-void AVHRRSatellite::productFileDownloaded()
-{
-    QObject::disconnect(&hubmanager, &DatahubAccessManager::productFinished, this, &AVHRRSatellite::productFileDownloaded);
-    QObject::disconnect(&hubmanager, &DatahubAccessManager::productProgress, this, &AVHRRSatellite::productDownloadProgress);
-
-}
-
 void AVHRRSatellite::LoadXMLfromDatahub(QDate seldate)
 {
     this->xmlselectdate = seldate;
     QObject::connect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &AVHRRSatellite::XMLFileDownloaded);
     QObject::connect(&hubmanager, &DatahubAccessManager::XMLProgress, this, &AVHRRSatellite::XMLPagesDownloaded);
-    emit signalXMLProgress(QString("Start download available products"));
+    emit signalXMLProgress(QString("Start download available products"), 0, 1);
     eDatahub hub;
     if(opts.provideresaoreumetsat)
         hub = HUBESA;
@@ -1230,10 +1207,9 @@ void AVHRRSatellite::XMLFileDownloaded()
 
 void AVHRRSatellite::XMLPagesDownloaded(int pages)
 {
-    emit signalXMLProgress(QString("Pages downloaded %1").arg(pages));
+    emit signalXMLProgress(QString("Pages downloaded %1").arg(pages), pages, 1);
     qDebug() << "=== Pages downloaded " << pages;
 }
-
 
 void AVHRRSatellite::ReadXMLfiles()
 {
@@ -1245,6 +1221,7 @@ void AVHRRSatellite::ReadXMLfiles()
     if(!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "Failed to open file";
+        return;
     }
     else
     {
@@ -1256,7 +1233,7 @@ void AVHRRSatellite::ReadXMLfiles()
         xmlfile.close();
     }
 
-    emit signalXMLProgress(QString("All Pages downloaded"));
+    emit signalXMLProgress(QString("All Pages downloaded"), 999, 0);
     CreateListfromXML(document);
 
 }
@@ -1283,27 +1260,30 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
         if(segmentnode.isElement())
         {
             QDomElement segment = segmentnode.toElement();
-            if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_EFR") // && selstring == segment.attribute("Name").mid(16, 8))
+            if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_EFR" && selstring == segment.attribute("Name").mid(16, 8))
             {
                 segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIEFR, segment.attribute("Name"), this->satlist);
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_OLCIEFR;
+                segdatahub->setSize(segment.attribute("size"));
                 sldatahubolciefr->append(segdatahub);
                 this->countdatahubolciefr++;
             }
-            else if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_ERR") // && selstring == segment.attribute("Name").mid(16, 8))
+            else if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_ERR" && selstring == segment.attribute("Name").mid(16, 8))
             {
                 segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIERR, segment.attribute("Name"), this->satlist);
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_OLCIERR;
+                segdatahub->setSize(segment.attribute("size"));
                 sldatahubolcierr->append(segdatahub);
                 this->countdatahubolcierr++;
             }
-            else if(segment.attribute("Name").mid(0, 12) == "S3A_SL_1_RBT") // && selstring == segment.attribute("Name").mid(16, 8))
+            else if(segment.attribute("Name").mid(0, 12) == "S3A_SL_1_RBT" && selstring == segment.attribute("Name").mid(16, 8))
             {
                 segdatahub = new SegmentDatahub(SEG_DATAHUB_SLSTR, segment.attribute("Name"), this->satlist);
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_SLSTR;
+                segdatahub->setSize(segment.attribute("size"));
                 sldatahubslstr->append(segdatahub);
                 this->countdatahubslstr++;
             }

@@ -275,11 +275,11 @@ void Options::Initialize()
     eumetsatuser = settings.value("/datahub/eumetsatuser", "").value<QString>();
     eumetsatpassword = settings.value("/datahub/eumetsatpassword", "").value<QString>();
     productdirectory = settings.value("/datahub/productdirectory", "").value<QString>();
-    nbrofpagestodownload = settings.value("/datahub/nbrofpagestodownload", 1).toInt();
     provideresaoreumetsat = settings.value("/datahub/provideresaoreumetsat", false).toBool();
-    loadxmlonstartup = settings.value("/datahub/loadxmlonstartup", true).toBool();
     downloadfromdatahub  = settings.value("/datahub/downloadfromdatahub", true).toBool();
-
+    downloadxmlolciefr = settings.value("/datahub/downloadxmlolciefr", false).toBool();
+    downloadxmlolcierr = settings.value("/datahub/downloadxmlolcierr", false).toBool();
+    downloadxmlslstr = settings.value("/datahub/downloadxmlslstr", true).toBool();
 
 }
 
@@ -487,7 +487,6 @@ void Options::Save()
     settings.setValue("/window/zoomfactorslstr", zoomfactorslstr );
 
 
-    qDebug() << QString("saving currenttoolbox = %1 currenttabwidget = %2").arg(currenttoolbox).arg(currenttabwidget);
     settings.setValue("/parameters/currenttoolbox", currenttoolbox);
     settings.setValue("/parameters/currenttabwidget", currenttabwidget);
     settings.setValue("/parameters/parallel1", parallel1);
@@ -576,10 +575,15 @@ void Options::Save()
     settings.setValue("/datahub/eumetsatuser", eumetsatuser);
     settings.setValue("/datahub/eumetsatpassword", eumetsatpassword);
     settings.setValue("/datahub/productdirectory", productdirectory);
-    settings.setValue("/datahub/nbrofpagestodownload", nbrofpagestodownload);
     settings.setValue("/datahub/provideresaoreumetsat", provideresaoreumetsat);
-    settings.setValue("/datahub/loadxmlonstartup", loadxmlonstartup);
-    settings.setValue("/datahub/downloadfromdatahub", downloadfromdatahub);
+    settings.setValue("/datahub/downloadfromdatahub", false);  // downloadfromdatahub);
+
+    settings.setValue("/datahub/downloadxmlolciefr", downloadxmlolciefr);
+    settings.setValue("/datahub/downloadxmlolcierr", downloadxmlolcierr);
+    settings.setValue("/datahub/downloadxmlslstr", downloadxmlslstr);
+
+    qDebug() << QString("saving downloadXMLOLCIERR = %1").arg(downloadxmlolcierr);
+
 
 }
 

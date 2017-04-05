@@ -380,7 +380,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->rbNadir->setChecked(true);
     setAllWhatsThis();
 
-    qDebug() << "constructor formtoolbox";
+    qDebug() << "constructor formtoolbox width = " << this->width();
 
 }
 

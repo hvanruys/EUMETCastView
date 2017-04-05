@@ -1883,6 +1883,21 @@
        <widget class="QWidget" name="pageScihubCodaConfig">
         <layout class="QVBoxLayout" name="verticalLayout_21">
          <item>
+          <widget class="QLabel" name="label_21">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Scihub/CODA Config</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_29">
            <item>
             <widget class="QGroupBox" name="groupBox_4">
@@ -1915,34 +1930,6 @@
                 </item>
                 <item>
                  <widget class="QLineEdit" name="leEsaPassword"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_25">
-                <item>
-                 <widget class="QLabel" name="label_19">
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="leScihubServiceUri"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_27">
-                <item>
-                 <widget class="QLabel" name="label_21">
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="leScihubOpenSearchUri"/>
                 </item>
                </layout>
               </item>
@@ -1983,34 +1970,6 @@
                 </item>
                </layout>
               </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_26">
-                <item>
-                 <widget class="QLabel" name="label_20">
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="leCodaServiceUri"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_28">
-                <item>
-                 <widget class="QLabel" name="label_22">
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="leCodaOpenSearchUri"/>
-                </item>
-               </layout>
-              </item>
              </layout>
             </widget>
            </item>
@@ -2025,14 +1984,14 @@
             <item>
              <widget class="QRadioButton" name="rdbUseScihub">
               <property name="text">
-               <string>Use Scihub</string>
+               <string>Use Scihub (scihub.copernicus.eu/s3)</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QRadioButton" name="rdbUseCoda">
               <property name="text">
-               <string>Use CODA</string>
+               <string>Use CODA (coda.eumetsat.int)</string>
               </property>
              </widget>
             </item>
@@ -2040,16 +1999,96 @@
           </widget>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_25">
+           <item>
+            <widget class="QLabel" name="label_19">
+             <property name="toolTip">
+              <string>Choose the available segments you want to see on the 3D Globe</string>
+             </property>
+             <property name="text">
+              <string>Download only available</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rdbDownloadXMLOLCIEFR">
+             <property name="toolTip">
+              <string>Choose the available segments you want to see on the 3D Globe</string>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::RightToLeft</enum>
+             </property>
+             <property name="text">
+              <string>OLCI EFR</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rdbDownloadXMLOLCIERR">
+             <property name="toolTip">
+              <string>Choose the available segments you want to see on the 3D Globe</string>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::RightToLeft</enum>
+             </property>
+             <property name="text">
+              <string> or OLCI ERR</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rdbDownloadXMLSLSTR">
+             <property name="toolTip">
+              <string>Choose the available segments you want to see on the 3D Globe</string>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::RightToLeft</enum>
+             </property>
+             <property name="text">
+              <string> or SLSTR</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_20">
+             <property name="text">
+              <string> segments  (XML format)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_19">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
             <widget class="QLabel" name="label_23">
+             <property name="toolTip">
+              <string>Directory where you want to save the downloaded segments</string>
+             </property>
              <property name="text">
               <string>Product Directory :</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="leProductDirectory"/>
+            <widget class="QLineEdit" name="leProductDirectory">
+             <property name="toolTip">
+              <string>Directory where you want to save the downloaded segments</string>
+             </property>
+            </widget>
            </item>
            <item row="0" column="2">
             <widget class="QPushButton" name="btnSearchProductDirectory">
@@ -2081,16 +2120,6 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_30">
            <item>
-            <widget class="QRadioButton" name="rdbLoadXMLonStartup">
-             <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
-             </property>
-             <property name="text">
-              <string>Download available segments on Startup</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <spacer name="horizontalSpacer_17">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -2108,17 +2137,24 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_31">
            <item>
-            <widget class="QLabel" name="label_24">
-             <property name="text">
-              <string>Nbr of pages to download : </string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="spbNbrofPagesToDownload"/>
-           </item>
-           <item>
             <spacer name="horizontalSpacer_18">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_27">
+           <item>
+            <spacer name="horizontalSpacer_20">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>

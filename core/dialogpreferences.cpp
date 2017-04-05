@@ -337,13 +337,13 @@ void DialogPreferences::setupDatahubConfig()
     ui->leEumetsatUser->setText(opts.eumetsatuser);
     ui->leEumetsatPassword->setText(opts.eumetsatpassword);
     ui->leProductDirectory->setText(opts.productdirectory);
-    ui->spbNbrofPagesToDownload->setValue(opts.nbrofpagestodownload);
     if(opts.provideresaoreumetsat)
         ui->rdbUseScihub->setChecked(true);
     else
         ui->rdbUseCoda->setChecked(true);
-
-    ui->rdbLoadXMLonStartup->setChecked(opts.loadxmlonstartup);
+    ui->rdbDownloadXMLOLCIEFR->setChecked(opts.downloadxmlolciefr);
+    ui->rdbDownloadXMLOLCIERR->setChecked(opts.downloadxmlolcierr);
+    ui->rdbDownloadXMLSLSTR->setChecked(opts.downloadxmlslstr);
 }
 
 void DialogPreferences::addStationRow()
@@ -581,12 +581,15 @@ void DialogPreferences::dialogaccept()
     opts.eumetsatuser = ui->leEumetsatUser->text();
     opts.eumetsatpassword = ui->leEumetsatPassword->text();
     opts.productdirectory = ui->leProductDirectory->text();
-    opts.nbrofpagestodownload = ui->spbNbrofPagesToDownload->value();
     if(ui->rdbUseScihub->isChecked())
         opts.provideresaoreumetsat = true;
     else
         opts.provideresaoreumetsat = false;
-    opts.loadxmlonstartup = ui->rdbLoadXMLonStartup->isChecked();
+
+    opts.downloadxmlolciefr = ui->rdbDownloadXMLOLCIEFR->isChecked();
+    opts.downloadxmlolcierr = ui->rdbDownloadXMLOLCIERR->isChecked();
+    opts.downloadxmlslstr = ui->rdbDownloadXMLSLSTR->isChecked();
+
 
     if(POItablechanged)
         done(2);

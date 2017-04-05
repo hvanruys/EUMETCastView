@@ -114,7 +114,7 @@ public:
     void setShowAllSegments(bool allseg) { showallsegments = allseg; }
 
     void LoadXMLfromDatahub(QDate seldate);
-    void DownloadProductfromDatahub(QString uuid, QString filename);
+    // void DownloadProductfromDatahub(QString uuid, QString filename);
 
     void ReadXMLfiles();
 
@@ -203,13 +203,11 @@ signals:
     void signalShowSegmentCount(void);
     //void signalMeteosatSegment(QString, QString, int);
     void progressCounter(int);
-    void signalXMLProgress(QString);
+    void signalXMLProgress(QString, int, bool);
 
 private slots:
     void XMLFileDownloaded();
     void XMLPagesDownloaded(int pages);
-    void productFileDownloaded();
-    void productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 public slots:
     void AddSegmentsToListFromUdp(QByteArray thefilepath);

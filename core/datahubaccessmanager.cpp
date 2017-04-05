@@ -16,6 +16,9 @@ extern Options opts;
 DatahubAccessManager::DatahubAccessManager()
 {
     m_pBuffer = new QByteArray();
+    isAborted = false;
+    isProductBusy = false;
+    reply = NULL;
 }
 
 void DatahubAccessManager::DownloadXML(int nbrofpages, eDatahub hub)
@@ -65,7 +68,7 @@ void DatahubAccessManager::DownloadXML(int nbrofpages, eDatahub hub)
 
 // https://scihub.copernicus.eu/s3/odata/v1/Products?$select=Id&$filter=substringof('S3A_OL_1_EFR____20170309T',Name)
 // https://coda.eumetsat.int/odata/v1/Products?$select=Id&$filter=substringof('S3A_OL_1_EFR____20170309T',Name)
-//S3A_OL_1_EFR____20170212T100905_20170212T101205_20170212T120355_0179_014_179_2159_SVL_O_NR_002
+// S3A_OL_1_EFR____20170212T100905_20170212T101205_20170212T120355_0179_014_179_2159_SVL_O_NR_002
 
 void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
 {
@@ -73,7 +76,6 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
     QUrl url;
 
     qDebug() << "start DownloadXML";
-    Q_ASSERT(nbrofpages > 0);
 
     QString strselectdate = selectdate.toString("yyyyMMdd");
 
@@ -86,12 +88,15 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
     //QUrl url = QUrl("https://coda.eumetsat.int/odata/v1/Products('52e48b83-c717-484a-a33a-f4ebc941dd84')/$value");
     //QUrl url = QUrl("https://scihub.copernicus.eu/s3/odata/v1/Products");
     //QUrl url = QUrl("https://coda.eumetsat.int/odata/v1/Products?$select=Id&$filter=substringof(%2720170131T185414%27,Name)");
-//https://scihub.copernicus.eu/s3/odata/v1/Products?$filter=substringof(%27S3A_OL_1_EFR____20170131T%27,Name)&$skip=400&$top=100
+    //https://scihub.copernicus.eu/s3/odata/v1/Products?$filter=substringof(%27S3A_OL_1_EFR____20170131T%27,Name)&$skip=400&$top=100
 
     QDomElement root = docout.createElement("Segments");
     docout.appendChild(root);
 
-    QString resourcepath = QString("Products?$skip=0&$top=100&$filter=substringof('S3A_OL_1_EFR____%1',Name) or substringof('S3A_OL_1_ERR____%1',Name) or substringof('S3A_SL_1_RBT____%1',Name)").arg(strselectdate);
+    QString resourcepath = getresourcepath(this->selectdate, nbrofpagescounter - 1);
+    if (resourcepath.isEmpty())
+        return;
+
     if(this->hub == HUBESA)
         strurl = "https://scihub.copernicus.eu/s3/odata/v1/" + resourcepath;
     else
@@ -116,8 +121,7 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
     reply = networkaccessmanager.get(request);
 
     connect(reply, SIGNAL(readyRead()), this, SLOT(slotReadDataXML()));
-    connect(reply, SIGNAL(finished()), this,SLOT(slotFinishedXML()));
-
+    connect(reply, SIGNAL(finished()), this, SLOT(slotFinishedXML()));
 }
 
 void DatahubAccessManager::slotFinishedXML()
@@ -128,11 +132,13 @@ void DatahubAccessManager::slotFinishedXML()
     disconnect(reply,SIGNAL(readyRead()),this,SLOT(slotReadDataXML()));
     disconnect(reply,SIGNAL(finished()), this,SLOT(slotFinishedXML()));
 
-     //if(nbrofpages == nbrofpagescounter)
+
     if(appendToOutDocument() == false)
     {
+        isAborted = false;
         qDebug() << "All pages received !";
         reply->deleteLater();
+        reply = NULL;
         endTransmission();
         emit XMLProgress(0);
     }
@@ -142,11 +148,10 @@ void DatahubAccessManager::slotFinishedXML()
         nbrofpagescounter++;
 
         QString strurl;
-        QString resourcepath = QString("Products?$skip=%2&$top=100&$filter=substringof('S3A_OL_1_EFR____%1',Name) or substringof('S3A_OL_1_ERR____%1',Name) or substringof('S3A_SL_1_RBT____%1',Name)").arg(this->selectdate).arg((nbrofpagescounter-1) * 100);
         if(this->hub == HUBESA)
-            strurl = "https://scihub.copernicus.eu/s3/odata/v1/" + resourcepath;
+            strurl = "https://scihub.copernicus.eu/s3/odata/v1/" + getresourcepath(this->selectdate, nbrofpagescounter - 1);
         else
-            strurl = "https://coda.eumetsat.int/odata/v1/" + resourcepath;
+            strurl = "https://coda.eumetsat.int/odata/v1/" + getresourcepath(this->selectdate, nbrofpagescounter - 1);
 
         QUrl url = QUrl(strurl);
         qDebug() << strurl;
@@ -165,6 +170,7 @@ void DatahubAccessManager::slotFinishedXML()
         reply = networkaccessmanager.get(request);
         connect(reply,SIGNAL(readyRead()),this,SLOT(slotReadDataXML()));
         connect(reply,SIGNAL(finished()), this,SLOT(slotFinishedXML()));
+
     }
 }
 
@@ -212,7 +218,10 @@ bool DatahubAccessManager::appendToOutDocument()
 
     QDomNodeList entries = xmlroot.elementsByTagName("entry");
     if(entries.count() == 0)
+    {
+        m_pBuffer->clear();
         return false;
+    }
 
     qDebug() << "nbr of entries " << entries.count();
     //qDebug() << QString::fromUtf8((char *)m_pBuffer->data());
@@ -243,7 +252,50 @@ bool DatahubAccessManager::appendToOutDocument()
 
 
     m_pBuffer->clear();
+
+    if(entries.count() < 100)
+        return false;
+
     return true;
+
+}
+
+QString DatahubAccessManager::getresourcepath(QString strselectdate, int page)
+{
+    //QString resourcepath = QString("Products?$skip=0&$top=100&$filter=substringof('S3A_OL_1_EFR____%1',Name) or substringof('S3A_OL_1_ERR____%1',Name) or substringof('S3A_SL_1_RBT____%1',Name)").arg(strselectdate);
+    QString resourcepath = QString("Products?$skip=%1&$top=100&$filter=").arg(page * 100);
+    QString resourcepatholciefr = QString("substringof('S3A_OL_1_EFR____%1',Name)").arg(strselectdate);
+    QString resourcepatholcierr = QString("substringof('S3A_OL_1_ERR____%1',Name)").arg(strselectdate);
+    QString resourcepathslstr = QString("substringof('S3A_SL_1_RBT____%1',Name)").arg(strselectdate);
+
+    int countopts = 0;
+    if (opts.downloadxmlolciefr) countopts++;
+    if (opts.downloadxmlolcierr) countopts++;
+    if (opts.downloadxmlslstr) countopts++;
+
+    if(countopts == 0)
+        return "";
+    if(countopts == 1)
+    {
+        if(opts.downloadxmlolciefr)
+            resourcepath += resourcepatholciefr;
+        else if(opts.downloadxmlolcierr)
+            resourcepath += resourcepatholcierr;
+        else if(opts.downloadxmlslstr)
+            resourcepath += resourcepathslstr;
+    }
+    else if(countopts == 2)
+    {
+        if(opts.downloadxmlolciefr && opts.downloadxmlolcierr)
+            resourcepath += resourcepatholciefr + " or " + resourcepatholcierr;
+        else if(opts.downloadxmlolciefr && opts.downloadxmlslstr)
+            resourcepath += resourcepatholciefr + " or " + resourcepathslstr;
+        else if(opts.downloadxmlolcierr && opts.downloadxmlslstr)
+            resourcepath += resourcepatholcierr + " or " + resourcepathslstr;
+    }
+    else if(countopts == 3)
+        resourcepath += resourcepatholciefr + " or " + resourcepatholcierr + " or " + resourcepathslstr;
+    return resourcepath;
 
 }
 
@@ -266,17 +318,21 @@ QString DatahubAccessManager::extractFootprint(QString footprint)
         return("");
 }
 
-void DatahubAccessManager::DownloadProduct(QString uuid, QString filename, eDatahub hub)
+void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int index, eDatahub hub, int whichdownload)
 {
 
     isAborted = false;
-    this->filename = filename;
+    isProductBusy = true;
+    this->whichdownload = whichdownload;
+    this->downloadindex = index;
+
+    this->filename = prodlist.at(index).productname;
     QString strurl;
 
     if(hub == HUBESA)
-        strurl = QString("https://scihub.copernicus.eu/s3/odata/v1/Products('%1')/$value").arg(uuid);
+        strurl = QString("https://scihub.copernicus.eu/s3/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
     else
-        strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/$value").arg(uuid);
+        strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
 
     qDebug() << strurl;
 
@@ -301,9 +357,20 @@ void DatahubAccessManager::DownloadProduct(QString uuid, QString filename, eData
     connect(reply,SIGNAL(downloadProgress(qint64,qint64)), this,SLOT(slotdownloadproductProgress(qint64,qint64)));
 }
 
-void DatahubAccessManager::CancelDownloadProduct()
+
+void DatahubAccessManager::CancelDownload()
 {
     isAborted = true;
+    isProductBusy = false;
+
+    if(reply == NULL)
+        return;
+
+    if(reply->isFinished())
+    {
+        return;
+    }
+
     reply->abort();
 }
 
@@ -319,16 +386,23 @@ void DatahubAccessManager::slotFinishedProduct()
     disconnect(reply,SIGNAL(readyRead()),this,SLOT(slotReadDataXML()));
     disconnect(reply,SIGNAL(finished()), this,SLOT(slotFinishedXML()));
     reply->deleteLater();
+    reply = NULL;
 
     if(!isAborted)
     {
-        QFile file(QCoreApplication::applicationDirPath() + "/" + filename + ".zip");
+
+        QString dirpath;
+        if(opts.productdirectory.isEmpty())
+            dirpath = QCoreApplication::applicationDirPath() + "/" + filename + ".zip";
+        else
+            dirpath = opts.productdirectory + "/" + filename + ".zip";
+        QFile file(dirpath);
 
         if(file.open(QIODevice::WriteOnly))
         {
             file.write(*m_pBuffer);
             file.close();
-            qDebug() << "File has been saved!";
+            qDebug() << "File has been saved to " << dirpath;
         }
         else
         {
@@ -337,13 +411,14 @@ void DatahubAccessManager::slotFinishedProduct()
     }
 
     m_pBuffer->clear();
-    emit productFinished();
+    isProductBusy = false;
+    emit productFinished(whichdownload, downloadindex);
 
 }
 
 void DatahubAccessManager::slotdownloadproductProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    emit productProgress(bytesReceived, bytesTotal);
+    emit productProgress(bytesReceived, bytesTotal, whichdownload);
 }
 
 DatahubAccessManager::~DatahubAccessManager()

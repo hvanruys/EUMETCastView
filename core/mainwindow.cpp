@@ -222,8 +222,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
-    connect(seglist, SIGNAL(signalXMLProgress(QString)), formglobecyl, SLOT(slotShowXMLProgress(QString)));
-
+    connect(seglist, SIGNAL(signalXMLProgress(QString, int, bool)), formglobecyl, SLOT(slotShowXMLProgress(QString, int, bool)));
 
     connect( formglobecyl, SIGNAL(signalSegmentChanged(QString)), this, SLOT(updateStatusBarIndicator(QString)) );
     connect( ui->stackedWidget, SIGNAL(currentChanged(int)),formglobecyl, SLOT(updatesatmap(int)) );
@@ -234,7 +233,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formglobecyl, SIGNAL(signalMakeImage()), formimage, SLOT(slotMakeImage()));
 
     connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
-    connect( globe , SIGNAL(mapClicked()), formglobecyl, SLOT(showSelectedSegmentToDownloadList()));
+    connect( globe , SIGNAL(mapClicked()), formglobecyl, SLOT(createSelectedSegmentToDownloadList()));
     connect( mapcyl , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
 
     connect( formephem, SIGNAL(signalDatagram(QByteArray)), seglist, SLOT(AddSegmentsToListFromUdp(QByteArray)));
@@ -270,11 +269,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     loadLayout();
 
-//    if (opts.loadxmlonstartup)
-//        LoadXMLfromDatahub();
     seglist->ReadXMLfiles();
-
-
 
     qDebug() << QString("ideal threadcount = %1  max threadcount = %2 active threadcount = %3").
                 arg(QThread::idealThreadCount()).
@@ -342,7 +337,10 @@ void MainWindow::createDockWidget()
     scrollArea->setWidget(formtoolbox);
     scrollArea->setWidgetResizable(true);
     dockwidget->setWidget(scrollArea);
-    dockwidget->setMinimumWidth(400);
+
+    dockwidget->resize(800, dockwidget->height());
+
+    //dockwidget->setMinimumWidth(480);
     //dockwidget->close();
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
 }
