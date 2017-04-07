@@ -111,6 +111,8 @@ private slots:
 
     void on_btnCancelDownloadProduct_clicked();
 
+    void on_btnDownloadFromDatahub_clicked();
+
 public slots:
       void showSegmentList(int);
       void showSegmentCount();

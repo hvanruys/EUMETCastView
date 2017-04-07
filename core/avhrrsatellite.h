@@ -113,10 +113,9 @@ public:
     bool getShowAllSegments() { return showallsegments; }
     void setShowAllSegments(bool allseg) { showallsegments = allseg; }
 
-    void LoadXMLfromDatahub(QDate seldate);
-    // void DownloadProductfromDatahub(QString uuid, QString filename);
-
+    void LoadXMLfromDatahub();
     void ReadXMLfiles();
+    void setXMLDate(QDate date) { xmlselectdate = date; }
 
     SegmentListMetop *seglmetop;
     SegmentListNoaa *seglnoaa;

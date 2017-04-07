@@ -244,7 +244,6 @@ public:
     QString eumetsatpassword;
     QString productdirectory;
     bool provideresaoreumetsat; // 0 = ESA , 1 = eumetsat
-    bool downloadfromdatahub; // radiobutton in formephem
     bool downloadxmlolciefr;
     bool downloadxmlolcierr;
     bool downloadxmlslstr;

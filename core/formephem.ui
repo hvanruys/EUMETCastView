@@ -215,6 +215,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="btnDownloadFromDatahub">
+               <property name="text">
+                <string>Download available segments from Scihub/CODA</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
                 <widget class="QLabel" name="lblProgress">
@@ -259,13 +266,6 @@
                  <string notr="true">1</string>
                 </property>
                </column>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="rdbDownloadFromDatahub">
-               <property name="text">
-                <string>Download available segments from Scihub/CODA</string>
-               </property>
               </widget>
              </item>
              <item>

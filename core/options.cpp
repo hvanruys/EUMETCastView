@@ -276,7 +276,6 @@ void Options::Initialize()
     eumetsatpassword = settings.value("/datahub/eumetsatpassword", "").value<QString>();
     productdirectory = settings.value("/datahub/productdirectory", "").value<QString>();
     provideresaoreumetsat = settings.value("/datahub/provideresaoreumetsat", false).toBool();
-    downloadfromdatahub  = settings.value("/datahub/downloadfromdatahub", true).toBool();
     downloadxmlolciefr = settings.value("/datahub/downloadxmlolciefr", false).toBool();
     downloadxmlolcierr = settings.value("/datahub/downloadxmlolcierr", false).toBool();
     downloadxmlslstr = settings.value("/datahub/downloadxmlslstr", true).toBool();

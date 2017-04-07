@@ -29,6 +29,7 @@ FormEphem::FormEphem(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 
     sats = satlist;
     segs = seglist;
+    segs->setXMLDate(ui->calendar->selectedDate());
 
     resetProgressBar(1, "    ");
 
@@ -103,8 +104,6 @@ FormEphem::FormEphem(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     ui->selectedsegmentwidget->header()->setStretchLastSection(true);
     ui->selectedsegmentwidget->setColumnWidth(0, 300);
 
-    ui->rdbDownloadFromDatahub->setChecked(opts.downloadfromdatahub);
-
 /*    QDate now =QDate::currentDate();
     ui->calendar->setSelectedDate(now);
 
@@ -153,7 +152,6 @@ void FormEphem::resetProgressBar(int maxprogress, const QString &mytext)
 FormEphem::~FormEphem()
 {
     opts.ephemsplittersizes = ui->splitter->saveState();
-    opts.downloadfromdatahub = ui->rdbDownloadFromDatahub->isChecked();
     qDebug() << "closing FormEphem";
 
 }
@@ -966,10 +964,12 @@ void FormEphem::on_btnReload_clicked()
 
 void FormEphem::on_calendar_selectionChanged()
 {
+    segs->setXMLDate(ui->calendar->selectedDate());
     getSegmentsForCalendar();
 }
 
-void FormEphem::on_rdbDownloadFromDatahub_clicked(bool checked)
+void FormEphem::on_btnDownloadFromDatahub_clicked()
 {
-    opts.downloadfromdatahub = checked;
+    segs->setXMLDate(ui->calendar->selectedDate());
+    segs->LoadXMLfromDatahub();
 }

@@ -74,7 +74,7 @@ private slots:
 
     void on_calendar_selectionChanged();
 
-    void on_rdbDownloadFromDatahub_clicked(bool checked);
+    void on_btnDownloadFromDatahub_clicked();
 
 public slots:
     void showSegmentsAdded();

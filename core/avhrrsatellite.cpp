@@ -971,10 +971,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     bool nppTle = false;
     bool sentinel3Tle = false;
 
-    if(opts.downloadfromdatahub)
-        this->LoadXMLfromDatahub(seldate);
-    else
-        this->ReadXMLfiles();
+    this->ReadXMLfiles();
 
     if (opts.segmentdirectorylist.count() > 0)
     {
@@ -1181,9 +1178,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     emit signalShowSegmentCount();
 }
 
-void AVHRRSatellite::LoadXMLfromDatahub(QDate seldate)
+void AVHRRSatellite::LoadXMLfromDatahub()
 {
-    this->xmlselectdate = seldate;
     QObject::connect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &AVHRRSatellite::XMLFileDownloaded);
     QObject::connect(&hubmanager, &DatahubAccessManager::XMLProgress, this, &AVHRRSatellite::XMLPagesDownloaded);
     emit signalXMLProgress(QString("Start download available products"), 0, 1);
@@ -1192,7 +1188,7 @@ void AVHRRSatellite::LoadXMLfromDatahub(QDate seldate)
         hub = HUBESA;
     else
         hub = HUBEUMETSAT;
-    hubmanager.DownloadXML(seldate, hub);
+    hubmanager.DownloadXML(this->xmlselectdate, hub);
 }
 
 

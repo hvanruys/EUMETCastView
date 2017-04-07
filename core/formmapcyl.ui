@@ -485,6 +485,19 @@
           </layout>
          </item>
          <item>
+          <widget class="QPushButton" name="btnDownloadFromDatahub">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Download available segments from Scihub/CODA</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer_4">
            <property name="orientation">
             <enum>Qt::Vertical</enum>

@@ -1329,3 +1329,8 @@ void FormMapCyl::on_btnCancelDownloadProduct_clicked()
     ui->pbProduct2->setValue(0);
 }
 
+
+void FormMapCyl::on_btnDownloadFromDatahub_clicked()
+{
+    segs->LoadXMLfromDatahub();
+}
