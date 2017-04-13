@@ -1,5 +1,4 @@
 #include "avhrrsatellite.h"
-
 #include <QDebug>
 #include <QDate>
 #include <QApplication>
@@ -918,9 +917,6 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     seglM01hrpt->ClearSegments();
     seglM02hrpt->ClearSegments();
 
-    segldatahubolciefr->ClearSegments();
-    segldatahubolcierr->ClearSegments();
-    segldatahubslstr->ClearSegments();
 
     segmentlistmapmeteosat.clear();
     segmentlistmapmeteosatrss.clear();
@@ -1188,6 +1184,11 @@ void AVHRRSatellite::LoadXMLfromDatahub()
         hub = HUBESA;
     else
         hub = HUBEUMETSAT;
+
+    segldatahubolciefr->ClearSegments();
+    segldatahubolcierr->ClearSegments();
+    segldatahubslstr->ClearSegments();
+
     hubmanager.DownloadXML(this->xmlselectdate, hub);
 }
 
@@ -1209,11 +1210,13 @@ void AVHRRSatellite::XMLPagesDownloaded(int pages)
 
 void AVHRRSatellite::ReadXMLfiles()
 {
-    qDebug() << "AVHRRSatellite::ReadXMLfiles()";
+
 
     QDomDocument document;
 
-    QFile xmlfile("Segments.xml");
+    qDebug() << "AVHRRSatellite::ReadXMLfiles() workingdir = " <<  QCoreApplication::applicationDirPath();
+
+    QFile xmlfile(QCoreApplication::applicationDirPath() +  "/Segments.xml");
     if(!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "Failed to open file";
@@ -1241,6 +1244,7 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
     //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
 
+    qDebug() << "AVHRRSatellite::CreateListfromXML(QDomDocument document) selstring = " << selstring;
 
     QList<Segment*> *sldatahubolciefr = segldatahubolciefr->GetSegmentlistptr();
     QList<Segment*> *sldatahubolcierr = segldatahubolcierr->GetSegmentlistptr();
@@ -1256,6 +1260,7 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
         if(segmentnode.isElement())
         {
             QDomElement segment = segmentnode.toElement();
+
             if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_EFR" && selstring == segment.attribute("Name").mid(16, 8))
             {
                 segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIEFR, segment.attribute("Name"), this->satlist);

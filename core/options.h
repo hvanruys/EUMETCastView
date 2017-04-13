@@ -247,6 +247,7 @@ public:
     bool downloadxmlolciefr;
     bool downloadxmlolcierr;
     bool downloadxmlslstr;
+    bool xmllogging;
 
 }; 
 

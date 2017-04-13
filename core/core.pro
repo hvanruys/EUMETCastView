@@ -181,8 +181,12 @@ else:win32:INCLUDEPATH += "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2
 
 CONFIG(release, debug|release) {
 #This is a release build
+#    unix:LIBS += -lpthread -lz -lfreeimage \
+#        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lpng -lbz2 -lhdf5_serial -larchive \
+#        -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
+#        #-L/usr/local/hdf5/lib -lhdf5
     unix:LIBS += -lpthread -lz -lfreeimage \
-        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lpng -lbz2 -lhdf5_serial -larchive \
+        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive \
         -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
         #-L/usr/local/hdf5/lib -lhdf5
     else:win32:LIBS += -lfreeimage \

@@ -344,6 +344,7 @@ void DialogPreferences::setupDatahubConfig()
     ui->rdbDownloadXMLOLCIEFR->setChecked(opts.downloadxmlolciefr);
     ui->rdbDownloadXMLOLCIERR->setChecked(opts.downloadxmlolcierr);
     ui->rdbDownloadXMLSLSTR->setChecked(opts.downloadxmlslstr);
+    ui->rdbXMLlogging->setChecked(opts.xmllogging);
 }
 
 void DialogPreferences::addStationRow()
@@ -589,6 +590,7 @@ void DialogPreferences::dialogaccept()
     opts.downloadxmlolciefr = ui->rdbDownloadXMLOLCIEFR->isChecked();
     opts.downloadxmlolcierr = ui->rdbDownloadXMLOLCIERR->isChecked();
     opts.downloadxmlslstr = ui->rdbDownloadXMLSLSTR->isChecked();
+    opts.xmllogging = ui->rdbXMLlogging->isChecked();
 
 
     if(POItablechanged)

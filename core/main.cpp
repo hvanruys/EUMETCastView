@@ -106,6 +106,8 @@ int main(int argc, char *argv[])
 
     qInstallMessageHandler(myMessageOutput);
 
+    QCoreApplication::addLibraryPath(".");
+
     QApplication app(argc, argv);
 
     QStringList styles = QStyleFactory::keys();

@@ -6,7 +6,8 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QDir>
-
+#include <QMessageBox>
+#include <QTextDocument>
 
 extern QNetworkAccessManager networkaccessmanager;
 extern Options opts;
@@ -77,6 +78,16 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
 
     qDebug() << "start DownloadXML";
 
+    if(opts.xmllogging)
+    {
+        QFile xmlloggingfile(QCoreApplication::applicationDirPath() + "/xmllogging.txt");
+        if (xmlloggingfile.open(QFile::WriteOnly | QFile::Truncate)) {
+            QTextStream out(&xmlloggingfile);
+            out << "Start logging : " << QDate::currentDate().toString();
+            xmlloggingfile.close();
+        }
+    }
+
     QString strselectdate = selectdate.toString("yyyyMMdd");
 
     m_pBuffer->clear();
@@ -120,8 +131,20 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
 
     reply = networkaccessmanager.get(request);
 
-    connect(reply, SIGNAL(readyRead()), this, SLOT(slotReadDataXML()));
-    connect(reply, SIGNAL(finished()), this, SLOT(slotFinishedXML()));
+
+    qDebug() << "Errorstring = " << reply->errorString() << " errorcode = " << reply->error();
+
+    if(reply->error() != QNetworkReply::NoError)
+    {
+        QMessageBox msgBox;
+        msgBox.setText(QString("The network error code = %1").arg(reply->error()));
+        msgBox.exec();
+    }
+    else
+    {
+        connect(reply, SIGNAL(readyRead()), this, SLOT(slotReadDataXML()));
+        connect(reply, SIGNAL(finished()), this, SLOT(slotFinishedXML()));
+    }
 }
 
 void DatahubAccessManager::slotFinishedXML()
@@ -177,6 +200,17 @@ void DatahubAccessManager::slotFinishedXML()
 void DatahubAccessManager::slotReadDataXML()
 {
     *m_pBuffer += reply->readAll();
+
+    if(opts.xmllogging)
+    {
+        QFile xmlloggingfile(QCoreApplication::applicationDirPath() + "/xmllogging.txt");
+        if (xmlloggingfile.open(QFile::WriteOnly | QFile::Append)) {
+            QTextStream out(&xmlloggingfile);
+            out << *m_pBuffer;
+            xmlloggingfile.close();
+        }
+    }
+
 }
 
 void DatahubAccessManager::endTransmission()
@@ -210,8 +244,19 @@ bool DatahubAccessManager::appendToOutDocument()
     if(document.setContent(*m_pBuffer, false, &errortext, &errorline, &errorcol ) == false)
     {
         qDebug() << "!!!!!!!!!!!!! document wrong ! " << errortext << " linenbr = " << errorline ;
+        //qDebug() << "m_pBuffer = " << *m_pBuffer;
+
+        QString title = QString("Error Message");
+        QTextDocument textdoc(*m_pBuffer);
+        QString strdoc = textdoc.toPlainText();
+        if( strdoc.mid(0, 15) == "<!DOCTYPE html>")
+            strdoc.remove(0, 15);
+        QMessageBox msgBox;
+        msgBox.setText(strdoc);
+        msgBox.exec();
         return false;
     }
+
     //get the xml root element
     QDomElement xmlroot = document.firstChildElement();
 
@@ -249,7 +294,6 @@ bool DatahubAccessManager::appendToOutDocument()
         docout.firstChildElement().appendChild(segment);
 
     }
-
 
     m_pBuffer->clear();
 

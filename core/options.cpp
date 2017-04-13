@@ -279,6 +279,7 @@ void Options::Initialize()
     downloadxmlolciefr = settings.value("/datahub/downloadxmlolciefr", false).toBool();
     downloadxmlolcierr = settings.value("/datahub/downloadxmlolcierr", false).toBool();
     downloadxmlslstr = settings.value("/datahub/downloadxmlslstr", true).toBool();
+    xmllogging = false;
 
 }
 
@@ -575,7 +576,6 @@ void Options::Save()
     settings.setValue("/datahub/eumetsatpassword", eumetsatpassword);
     settings.setValue("/datahub/productdirectory", productdirectory);
     settings.setValue("/datahub/provideresaoreumetsat", provideresaoreumetsat);
-    settings.setValue("/datahub/downloadfromdatahub", false);  // downloadfromdatahub);
 
     settings.setValue("/datahub/downloadxmlolciefr", downloadxmlolciefr);
     settings.setValue("/datahub/downloadxmlolcierr", downloadxmlolcierr);

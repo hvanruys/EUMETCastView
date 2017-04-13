@@ -90,6 +90,7 @@ void Globe::dumpOpenGLdiagnostics()
     {
         context->functions()->initializeOpenGLFunctions();
         qDebug() << "initializeOpenGLFunctions()...";
+
         QOpenGLFunctions::OpenGLFeatures oglFeatures=context->functions()->openGLFeatures();
         qDebug() << "OpenGL Features:";
         qDebug() << " - glActiveTexture() function" << (oglFeatures&QOpenGLFunctions::Multitexture ? "is" : "is NOT") << "available.";
@@ -143,6 +144,10 @@ void Globe::dumpOpenGLdiagnostics()
         if (programParameterPtr == 0) {
             qDebug() << "glProgramParameteriEXT cannot be resolved here. BAD!";
         }
+
+        QString versionString1(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
+        qDebug() << "Driver Version String:" << versionString1;
+
     }
     else
     {

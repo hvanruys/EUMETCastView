@@ -2120,6 +2120,13 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_30">
            <item>
+            <widget class="QRadioButton" name="rdbXMLlogging">
+             <property name="text">
+              <string>XML logging</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="horizontalSpacer_17">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
