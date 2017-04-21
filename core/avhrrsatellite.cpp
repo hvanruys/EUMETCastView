@@ -61,12 +61,6 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     seglmeteosatrss->geosatlon = opts.geostationarylistlon[SegmentListGeostationary::MET_9].toDouble();
     seglmeteosatrss->geosatname = opts.geostationarylistname[SegmentListGeostationary::MET_9];
 
-    seglmet7 = new SegmentListGeostationary();
-    seglmet7->bisRSS = false;
-    seglmet7->setGeoSatellite(SegmentListGeostationary::MET_7);
-    seglmet7->geosatlon = opts.geostationarylistlon[SegmentListGeostationary::MET_7].toDouble();
-    seglmet7->geosatname = opts.geostationarylistname[SegmentListGeostationary::MET_7];
-
     seglmet8 = new SegmentListGeostationary();
     seglmet8->bisRSS = false;
     seglmet8->setGeoSatellite(SegmentListGeostationary::MET_8);
@@ -504,41 +498,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 }
 
             }
-        } else if (fileInfo.fileName().mid( 0, 17) == "L-000-MTP___-MET7" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile()) // Data Channel 3
-        {
-            //L-000-MTP___-MET7________-06_4_057E-000004___-201403300930-C_
-            //L-000-MTP___-MET7________-06_4_057E-PRO______-201404011600-__
-
-            int filenbr = fileInfo.fileName().mid(36, 6).toInt();
-            QString strspectrum = fileInfo.fileName().mid(26, 6);
-            QString strdate = fileInfo.fileName().mid(46, 12);
-            //qDebug() << strdate << strspectrum << QString("%1").arg(filenbr);
-
-            if (strspectrum != "______")
-            {
-                seglmet7->setImagePath(fileInfo.absolutePath());
-
-                QMap<int, QFileInfo> hashfile;
-                QMap<QString, QMap<int, QFileInfo> > hashspectrum;
-
-                if (segmentlistmapmet7.contains(strdate))
-                {
-                    hashspectrum = segmentlistmapmet7.value(strdate);
-                    if (hashspectrum.contains(strspectrum))
-                        hashfile = hashspectrum.value(strspectrum);
-                    hashfile.insert( filenbr, fileInfo );
-                    hashspectrum.insert( strspectrum, hashfile);
-                    segmentlistmapmet7.insert(strdate, hashspectrum);
-                }
-                else
-                {
-                    hashfile.insert( filenbr, fileInfo );
-                    hashspectrum.insert(strspectrum, hashfile);
-                    segmentlistmapmet7.insert( strdate, hashspectrum );
-                }
-
-            }
-        } else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile() &&
+        }
+        else if (fileInfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileInfo.fileName().mid( 59, 2) == "C_" && fileInfo.isFile() &&
                    (fileInfo.fileName().mid(54, 4) == "0000" ||
                     fileInfo.fileName().mid(54, 4) == "0300" ||
                     fileInfo.fileName().mid(54, 4) == "0600" ||
@@ -920,7 +881,6 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
     segmentlistmapmeteosat.clear();
     segmentlistmapmeteosatrss.clear();
-    segmentlistmapmet7.clear();
     segmentlistmapmet8.clear();
     segmentlistmapgoes13dc3.clear();
     segmentlistmapgoes15dc3.clear();
@@ -1153,7 +1113,6 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString( "Nbr of items in segmentlist MET-10     = %1").arg(segmentlistmapmeteosat.size());
     qDebug() << QString( "Nbr of items in segmentlist MET-9      = %1").arg(segmentlistmapmeteosatrss.size());
     qDebug() << QString( "Nbr of items in segmentlist MET-8      = %1").arg(segmentlistmapmet8.size());
-    qDebug() << QString( "Nbr of items in segmentlist MET-7      = %1").arg(segmentlistmapmet7.size());
     qDebug() << QString( "Nbr of items in segmentlist GOES-13    = %1").arg(segmentlistmapgoes13dc3.size() + segmentlistmapgoes13dc4.size());
     qDebug() << QString( "Nbr of items in segmentlist GOES-15    = %1").arg(segmentlistmapgoes15dc3.size() + segmentlistmapgoes15dc4.size());
     qDebug() << QString( "Nbr of items in segmentlist GOES-16    = %1").arg(segmentlistmapgoes16.size());
@@ -1164,7 +1123,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QString strtot = QString("Total segments = %1").arg(slmetop->count()+slnoaa->count()+slgac->count()+slhrp->count()+slviirsm->count()
                                                         +slolciefr->count()+slolcierr->count()+slslstr->count() +
                                                         segmentlistmapmeteosat.size()+segmentlistmapmeteosatrss.size() +
-                                                        segmentlistmapmet7.size() + segmentlistmapmet8.size() +
+                                                        segmentlistmapmet8.size() +
                                                         segmentlistmapfy2e.size() + segmentlistmapfy2g.size() +
                                                         segmentlistmapgoes13dc3.size() + segmentlistmapgoes13dc4.size() +
                                                         segmentlistmapgoes15dc3.size() + segmentlistmapgoes15dc4.size() +
@@ -2144,14 +2103,6 @@ QStringList AVHRRSatellite::GetOverviewSegmentsMeteosatRss()
     return strlist;
 }
 
-QStringList AVHRRSatellite::GetOverviewSegmentsMeteosat7()
-{
-    QStringList strlist;
-    strlist << " " << QString("Meteosat-7") << QString("%1").arg(this->segmentlistmapmet7.count());
-
-    return strlist;
-}
-
 QStringList AVHRRSatellite::GetOverviewSegmentsMeteosat8()
 {
     QStringList strlist;
@@ -2492,15 +2443,10 @@ SegmentListGeostationary *AVHRRSatellite::getActiveSegmentList()
         activelist = "Meteosat-9";
         sl = seglmeteosatrss;
     }
-    else if(seglmet7->bActiveSegmentList == true)
+    else if(seglmet8->bActiveSegmentList == true)
     {
         activelist = "Meteosat-8";
         sl = seglmet8;
-    }
-    else if(seglmet7->bActiveSegmentList == true)
-    {
-        activelist = "Meteosat-7";
-        sl = seglmet7;
     }
     else if(seglgoes13dc3->bActiveSegmentList == true)
     {

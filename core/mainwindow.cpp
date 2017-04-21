@@ -88,12 +88,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(&seglist->seglmet8->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
     }
 
-
-    for( int i = 0; i < 10; i++)
-    {
-        connect(&seglist->seglmet7->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-
     for( int i = 0; i < 7; i++)
     {
         connect(&seglist->seglgoes13dc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
@@ -145,7 +139,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglmeteosat, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmeteosatrss, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmet8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglmet7, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes13dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes15dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglgoes13dc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));

@@ -1429,8 +1429,7 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
     this->setToolboxButtons(true);
 
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8 ||
-        whichgeo == SegmentListGeostationary::MET_7 || whichgeo == SegmentListGeostationary::GOES_13 ||
-        whichgeo == SegmentListGeostationary::GOES_15 )
+        whichgeo == SegmentListGeostationary::GOES_13 || whichgeo == SegmentListGeostationary::GOES_15 )
     {
         ui->btnGeo1->setText("VIS006");
         ui->btnGeo2->setText("VIS008");
@@ -1451,16 +1450,7 @@ void FormToolbox::geostationarysegmentsChosen(SegmentListGeostationary::eGeoSate
         ui->btnHRV->setText("HRV");
     }
 
-    if(whichgeo == SegmentListGeostationary::MET_7)
-    {
-        if(rowchosen.at(3).toInt() == 0)
-            ui->btnGeo2->setEnabled(false);
-        if(rowchosen.at(4).toInt() == 0)
-            ui->btnGeo5->setEnabled(false);
-        if(rowchosen.at(5).toInt() == 0)
-            ui->btnGeo10->setEnabled(false);
-    }
-    else if(whichgeo == SegmentListGeostationary::GOES_13 || whichgeo == SegmentListGeostationary::GOES_15)
+    if(whichgeo == SegmentListGeostationary::GOES_13 || whichgeo == SegmentListGeostationary::GOES_15)
     {
         if(rowchosen.at(3).toInt() == 0)
             ui->btnGeo2->setEnabled(false);
@@ -1658,48 +1648,6 @@ void FormToolbox::setToolboxButtons(bool state)
 
     switch(whichgeo)
     {
-    case SegmentListGeostationary::MET_7:
-        ui->btnGeoColor->setEnabled(false);
-        ui->btnGeo1->setEnabled(false);
-        ui->btnGeo2->setEnabled(state);
-        ui->btnGeo3->setEnabled(false);
-        ui->btnGeo4->setEnabled(false);
-        ui->btnGeo5->setEnabled(state);
-        ui->btnGeo6->setEnabled(false);
-        ui->btnGeo7->setEnabled(false);
-        ui->btnGeo8->setEnabled(false);
-        ui->btnGeo9->setEnabled(false);
-        ui->btnGeo10->setEnabled(state);
-        ui->btnGeo11->setEnabled(false);
-        ui->btnGeo12->setEnabled(false);
-        ui->btnGeo13->setEnabled(false);
-        ui->btnGeo14->setEnabled(false);
-        ui->btnGeo15->setEnabled(false);
-        ui->btnGeo16->setEnabled(false);
-
-        ui->btnHRV->setEnabled(false);
-        ui->cmbHRVtype->setEnabled(false);
-        ui->chkColorHRV->setEnabled(false);
-
-        ui->lblGeo1->setText("   ");
-        ui->lblGeo2->setText("   ");
-        ui->lblGeo3->setText("   ");
-        ui->lblGeo4->setText("   ");
-        ui->lblGeo5->setText("   ");
-        ui->lblGeo6->setText("   ");
-        ui->lblGeo7->setText("   ");
-        ui->lblGeo8->setText("   ");
-        ui->lblGeo9->setText("   ");
-        ui->lblGeo10->setText("   ");
-        ui->lblGeo11->setText("   ");
-        ui->lblGeo12->setText("   ");
-        ui->lblGeo13->setText("   ");
-        ui->lblGeo14->setText("   ");
-        ui->lblGeo15->setText("   ");
-        ui->lblGeo16->setText("   ");
-
-
-        break;
     case SegmentListGeostationary::GOES_13:
     case SegmentListGeostationary::GOES_15:
         ui->btnGeoColor->setEnabled(false);
@@ -2007,10 +1955,6 @@ void FormToolbox::on_btnGeo2_clicked()
     checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("VIS008", ui->chkInverseGeo2->isChecked());
-    //else if(whichgeo == SegmentListGeostationary::ELECTRO_N1)
-    //    onButtonChannel("00_9_0", ui->chkInverseGeo2->isChecked());
-    else if(whichgeo == SegmentListGeostationary::MET_7)
-        onButtonChannel("00_7_0", ui->chkInverseGeo2->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_13)
         onButtonChannel("00_7_0", ui->chkInverseGeo2->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_15)
@@ -2066,8 +2010,6 @@ void FormToolbox::on_btnGeo5_clicked()
         onButtonChannel("06_6_0", ui->chkInverseGeo5->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_15)
         onButtonChannel("06_6_1", ui->chkInverseGeo5->isChecked());
-    else if(whichgeo == SegmentListGeostationary::MET_7)
-        onButtonChannel("06_4_0", ui->chkInverseGeo5->isChecked());
     else if(whichgeo == SegmentListGeostationary::FY2E || whichgeo == SegmentListGeostationary::FY2G)
         onButtonChannel("VIS", ui->chkInverseGeo5->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
@@ -2135,8 +2077,6 @@ void FormToolbox::on_btnGeo10_clicked()
     checkSegmentDateTime();
     if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8)
         onButtonChannel("IR_120", ui->chkInverseGeo10->isChecked());
-    else if(whichgeo == SegmentListGeostationary::MET_7)
-        onButtonChannel("11_5_0", ui->chkInverseGeo10->isChecked());
     else if(whichgeo == SegmentListGeostationary::H8)
         onButtonChannel("B12", ui->chkInverseGeo10->isChecked());
     else if(whichgeo == SegmentListGeostationary::GOES_16)
@@ -2213,13 +2153,6 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
         ui->pbProgress->setMaximum(8);
     else if(whichgeo == SegmentListGeostationary::MET_9)
         ui->pbProgress->setMaximum(3);
-    else if(whichgeo == SegmentListGeostationary::MET_7)
-    {
-        if(channel == "00_7_0")
-            ui->pbProgress->setMaximum(10);
-        else
-            ui->pbProgress->setMaximum(5);
-    }
     else if(whichgeo == SegmentListGeostationary::GOES_13)
         ui->pbProgress->setMaximum(7);
     else if(whichgeo == SegmentListGeostationary::GOES_15)
@@ -2234,7 +2167,6 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
     segs->seglmeteosat->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglmeteosatrss->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglmet8->areatype = ui->cmbHRVtype->currentIndex();
-    segs->seglmet7->areatype = 1;
     segs->seglgoes13dc3->areatype = 1;
     segs->seglgoes15dc3->areatype = 1;
     segs->seglgoes13dc4->areatype = 1;
@@ -2248,7 +2180,6 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
     segs->seglmeteosat->setKindofImage("VIS_IR");
     segs->seglmeteosatrss->setKindofImage("VIS_IR");
     segs->seglmet8->setKindofImage("VIS_IR");
-    segs->seglmet7->setKindofImage("VIS_IR");
     segs->seglgoes13dc3->setKindofImage("VIS_IR");
     segs->seglgoes15dc3->setKindofImage("VIS_IR");
     segs->seglgoes13dc4->setKindofImage("VIS_IR");

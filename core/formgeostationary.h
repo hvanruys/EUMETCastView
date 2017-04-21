@@ -61,8 +61,6 @@ private slots:
 
     void on_SegmenttreeWidgetMet8_itemClicked(QTreeWidgetItem *item, int column);
 
-    void on_SegmenttreeWidgetMet7_itemClicked(QTreeWidgetItem *item, int column);
-
     void on_SegmenttreeWidgetGOES13dc3_itemClicked(QTreeWidgetItem *item, int column);
 
     void on_SegmenttreeWidgetGOES15dc3_itemClicked(QTreeWidgetItem *item, int column);

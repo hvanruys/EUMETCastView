@@ -20,15 +20,14 @@ FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AV
     ui->tabGeostationary->setTabText( 0, "MET-10 : " + opts.geostationarylistlon.at(SegmentListGeostationary::MET_10) + "°");
     ui->tabGeostationary->setTabText( 1, "MET-9 : " + opts.geostationarylistlon.at(SegmentListGeostationary::MET_9) + "°");
     ui->tabGeostationary->setTabText( 2, "MET-8 : " + opts.geostationarylistlon.at(SegmentListGeostationary::MET_8) + "°");
-    ui->tabGeostationary->setTabText( 3, "MET-7 : " + opts.geostationarylistlon.at(SegmentListGeostationary::MET_7) + "°");
-    ui->tabGeostationary->setTabText( 4, "FY2E : " + opts.geostationarylistlon.at(SegmentListGeostationary::FY2E) + "°");
-    ui->tabGeostationary->setTabText( 5, "FY2G : " + opts.geostationarylistlon.at(SegmentListGeostationary::FY2G) + "°");
-    ui->tabGeostationary->setTabText( 6, "GOES-13 (DC-3) : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_13) + "°");
-    ui->tabGeostationary->setTabText( 7, "GOES-13 (DC-4) : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_13) + "°");
-    ui->tabGeostationary->setTabText( 8, "GOES-15 (DC-3) : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_15) + "°");
-    ui->tabGeostationary->setTabText( 9, "GOES-15 (DC-4) : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_15) + "°");
-    ui->tabGeostationary->setTabText( 10, "GOES-16 : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_16) + "°");
-    ui->tabGeostationary->setTabText( 11, "Himawari-8 : " + opts.geostationarylistlon.at(SegmentListGeostationary::H8) + "°");
+    ui->tabGeostationary->setTabText( 3, "FY2E : " + opts.geostationarylistlon.at(SegmentListGeostationary::FY2E) + "°");
+    ui->tabGeostationary->setTabText( 4, "FY2G : " + opts.geostationarylistlon.at(SegmentListGeostationary::FY2G) + "°");
+    ui->tabGeostationary->setTabText( 5, "GOES-13 (DC-3) : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_13) + "°");
+    ui->tabGeostationary->setTabText( 6, "GOES-13 (DC-4) : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_13) + "°");
+    ui->tabGeostationary->setTabText( 7, "GOES-15 (DC-3) : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_15) + "°");
+    ui->tabGeostationary->setTabText( 8, "GOES-15 (DC-4) : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_15) + "°");
+    ui->tabGeostationary->setTabText( 9, "GOES-16 : " + opts.geostationarylistlon.at(SegmentListGeostationary::GOES_16) + "°");
+    ui->tabGeostationary->setTabText( 10, "Himawari-8 : " + opts.geostationarylistlon.at(SegmentListGeostationary::H8) + "°");
 
     ui->SegmenttreeWidget->setRootIsDecorated(false);
     ui->SegmenttreeWidget->header()->setStretchLastSection(true);
@@ -61,17 +60,6 @@ FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AV
         ui->SegmenttreeWidgetMet8->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
     }
     ui->SegmenttreeWidgetMet8->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << "HRV" << "0.6" << "0.8" << "1.6" << "3.9" << "6.2" << "7.3" << "8.7" << "9.7" << "10.8" << "12.8" << "13.4" );
-
-
-    ui->SegmenttreeWidgetMet7->setRootIsDecorated(false);
-    ui->SegmenttreeWidgetMet7->header()->setStretchLastSection(true);
-    ui->SegmenttreeWidgetMet7->setColumnCount(3);
-    for(int i = 0; i < 3; i++)
-    {
-        ui->SegmenttreeWidgetMet7->setColumnWidth(i, 200);
-        ui->SegmenttreeWidgetMet7->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
-    }
-    ui->SegmenttreeWidgetMet7->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << "0.7" << "6.4" << "11.5" );
 
 
     ui->SegmenttreeWidgetGOES13dc3->setRootIsDecorated(false);
@@ -779,11 +767,6 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
                    QString("%1").arg(cnt_wv062) << QString("%1").arg(cnt_wv073) << QString("%1").arg(cnt_ir087) << QString("%1").arg(cnt_ir097) <<
                    QString("%1").arg(cnt_ir108) << QString("%1").arg(cnt_ir120) << QString("%1").arg(cnt_ir134);
         }
-        else if(whichgeo == SegmentListGeostationary::MET_7)
-        {
-            strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
-                   QString("%1").arg(cnt_vis008) << QString("%1").arg(cnt_wv062) << QString("%1").arg(cnt_ir108);
-        }
         else if(whichgeo == SegmentListGeostationary::GOES_13 || whichgeo == SegmentListGeostationary::GOES_15)
         {
             strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
@@ -824,13 +807,6 @@ void FormGeostationary::PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite 
         {
             if (cnt_hrv == 9 && cnt_ir016 == 3 && cnt_ir039 == 3 && cnt_ir087 == 3 && cnt_ir097 == 3 && cnt_ir108 == 3 && cnt_ir120 == 3 && cnt_ir134 == 3 && cnt_vis006 == 3
                 && cnt_vis008 == 3 && cnt_wv062 == 3 && cnt_wv073 == 3)
-                col.setRgb(174, 225, 184);
-            else
-                col.setRgb(225, 171, 196);
-        }
-        else if(whichgeo == SegmentListGeostationary::MET_7)
-        {
-            if (cnt_vis008 == 10 && cnt_wv062 == 5 && cnt_ir108 == 5 )
                 col.setRgb(174, 225, 184);
             else
                 col.setRgb(225, 171, 196);
@@ -900,7 +876,6 @@ void FormGeostationary::PopulateTree()
     PopulateTreeGeo(SegmentListGeostationary::MET_10, segs->segmentlistmapmeteosat, ui->SegmenttreeWidget);
     PopulateTreeGeo(SegmentListGeostationary::MET_9, segs->segmentlistmapmeteosatrss, ui->SegmenttreeWidgetRSS);
     PopulateTreeGeo(SegmentListGeostationary::MET_8, segs->segmentlistmapmet8, ui->SegmenttreeWidgetMet8);
-    PopulateTreeGeo(SegmentListGeostationary::MET_7, segs->segmentlistmapmet7, ui->SegmenttreeWidgetMet7);
     PopulateTreeGeo(SegmentListGeostationary::GOES_13, segs->segmentlistmapgoes13dc3, ui->SegmenttreeWidgetGOES13dc3);
     PopulateTreeGeo(SegmentListGeostationary::GOES_13, segs->segmentlistmapgoes13dc4, ui->SegmenttreeWidgetGOES13dc4);
     PopulateTreeGeo(SegmentListGeostationary::GOES_15, segs->segmentlistmapgoes15dc3, ui->SegmenttreeWidgetGOES15dc3);
@@ -938,7 +913,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
     QList<QTreeWidgetItem *> treewidgetselected = ui->SegmenttreeWidget->selectedItems();
     QList<QTreeWidgetItem *> treewidgetselectedrss = ui->SegmenttreeWidgetRSS->selectedItems();
     QList<QTreeWidgetItem *> treewidgetselectedmet8 = ui->SegmenttreeWidgetMet8->selectedItems();
-    QList<QTreeWidgetItem *> treewidgetselectedmet7 = ui->SegmenttreeWidgetMet7->selectedItems();
     QList<QTreeWidgetItem *> treewidgetselectedgoes13dc3 = ui->SegmenttreeWidgetGOES13dc3->selectedItems();
     QList<QTreeWidgetItem *> treewidgetselectedgoes13dc4 = ui->SegmenttreeWidgetGOES13dc4->selectedItems();
     QList<QTreeWidgetItem *> treewidgetselectedgoes15dc3 = ui->SegmenttreeWidgetGOES15dc3->selectedItems();
@@ -956,7 +930,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         sl->bActiveSegmentList = true;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
@@ -975,7 +948,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         sl->bActiveSegmentList = true;
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
@@ -994,7 +966,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         sl->bActiveSegmentList = true;
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
@@ -1007,25 +978,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         tex = (*treewidgetselectedmet8[0]).text(0);
         formtoolbox->createFilenamestring("MET-8", tex, spectrumvector);
     }
-    else if(treewidgetselectedmet7.size() > 0)
-    {
-        sl = segs->seglmet7;
-        sl->bActiveSegmentList = true;
-        segs->seglmeteosat->bActiveSegmentList = false;
-        segs->seglmeteosatrss->bActiveSegmentList = false;
-        segs->seglmet8->bActiveSegmentList = false;
-        segs->seglgoes13dc3->bActiveSegmentList = false;
-        segs->seglgoes15dc3->bActiveSegmentList = false;
-        segs->seglgoes13dc4->bActiveSegmentList = false;
-        segs->seglgoes15dc4->bActiveSegmentList = false;
-        segs->seglgoes16->bActiveSegmentList = false;
-        segs->seglfy2e->bActiveSegmentList = false;
-        segs->seglfy2g->bActiveSegmentList = false;
-        segs->seglh8->bActiveSegmentList = false;
-
-        tex = (*treewidgetselectedmet7[0]).text(0);
-        formtoolbox->createFilenamestring("MET-7", tex, spectrumvector);
-    }
     else if(treewidgetselectedgoes13dc3.size() > 0)
     {
         sl = segs->seglgoes13dc3;
@@ -1033,7 +985,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
         segs->seglgoes15dc4->bActiveSegmentList = false;
@@ -1052,7 +1003,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
         segs->seglgoes15dc4->bActiveSegmentList = false;
@@ -1071,7 +1021,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes15dc4->bActiveSegmentList = false;
@@ -1090,7 +1039,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
@@ -1109,7 +1057,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
@@ -1128,7 +1075,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
@@ -1147,7 +1093,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
@@ -1166,7 +1111,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
         segs->seglmeteosat->bActiveSegmentList = false;
         segs->seglmeteosatrss->bActiveSegmentList = false;
         segs->seglmet8->bActiveSegmentList = false;
-        segs->seglmet7->bActiveSegmentList = false;
         segs->seglgoes13dc3->bActiveSegmentList = false;
         segs->seglgoes15dc3->bActiveSegmentList = false;
         segs->seglgoes13dc4->bActiveSegmentList = false;
@@ -1207,13 +1151,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
             imageptrs->InitializeImageGeostationary(3712, 3712);
         else if(sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
             imageptrs->InitializeImageGeostationary(3712, 464*3);
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::MET_7)
-        {
-            if(spectrumvector.at(0) == "00_7_0")
-                imageptrs->InitializeImageGeostationary(5032, 500*10);
-            else
-                imageptrs->InitializeImageGeostationary(2532, 500*5);
-        }
         else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_13)
             imageptrs->InitializeImageGeostationary(2816, 464*7);
         else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_15)
@@ -1275,9 +1212,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     //    filepattern1 = QString("H-???-??????-????????____-?????????-0?????___-") + filetiming + QString("-C_");
     //  filepattern1 = QString("H-???-??????-MSG?_???____-??????___-0?????___-") + filetiming + QString("-C_");
 
-    if(whichgeo == SegmentListGeostationary::MET_7)
-        filepattern = QString("L-???") + QString("-??????") + QString("-MET7*") + filetiming + QString("-C_");
-    else if(whichgeo == SegmentListGeostationary::GOES_13)
+    if(whichgeo == SegmentListGeostationary::GOES_13)
         filepattern = QString("L-???") + QString("-??????") + QString("-GOES13*") + filetiming + QString("-C_");
     else if(whichgeo == SegmentListGeostationary::GOES_15 )
         filepattern = QString("L-???") + QString("-??????") + QString("-GOES15*") + filetiming + QString("-C_");
@@ -1354,8 +1289,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
 
         if(whichgeo == SegmentListGeostationary::MET_10 || whichgeo == SegmentListGeostationary::MET_9 || whichgeo == SegmentListGeostationary::MET_8 ||
-                whichgeo == SegmentListGeostationary::MET_7 || whichgeo == SegmentListGeostationary::GOES_13 ||
-                whichgeo == SegmentListGeostationary::GOES_15 )
+                whichgeo == SegmentListGeostationary::GOES_13 || whichgeo == SegmentListGeostationary::GOES_15 )
         {
 
             fa = (type == "VIS_IR" || type == "VIS_IR Color" ? faVIS_IR : faHRV);
@@ -1469,24 +1403,6 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 sl->CFAC = CFAC_NONHRV;
                 sl->LFAC = LFAC_NONHRV;
              }
-        }
-        else if(whichgeo == SegmentListGeostationary::MET_7)
-        {
-            if(spectrumvector.at(0) == "00_7_0")
-            {
-                sl->COFF = COFF_NONHRV_MET7;
-                sl->LOFF = LOFF_NONHRV_MET7;
-                sl->CFAC = CFAC_NONHRV_MET7;
-                sl->LFAC = LFAC_NONHRV_MET7;
-            }
-            else
-            {
-                sl->COFF = COFF_NONHRV_MET7/2;
-                sl->LOFF = LOFF_NONHRV_MET7/2;
-                sl->CFAC = CFAC_NONHRV_MET7/2;
-                sl->LFAC = LFAC_NONHRV_MET7/2;
-            }
-
         }
         else if(whichgeo == SegmentListGeostationary::GOES_13 || whichgeo == SegmentListGeostationary::GOES_15)
         {
@@ -1695,7 +1611,6 @@ void FormGeostationary::SelectGeoWidgetItem(SegmentListGeostationary::eGeoTreeWi
     setTreeWidget(ui->SegmenttreeWidget, geowidget == SegmentListGeostationary::TREEWIDGET_MET_10 ? true : false);
     setTreeWidget(ui->SegmenttreeWidgetRSS, geowidget == SegmentListGeostationary::TREEWIDGET_MET_9 ? true : false);
     setTreeWidget(ui->SegmenttreeWidgetMet8, geowidget == SegmentListGeostationary::TREEWIDGET_MET_8 ? true : false);
-    setTreeWidget(ui->SegmenttreeWidgetMet7, geowidget == SegmentListGeostationary::TREEWIDGET_MET_7 ? true : false);
     setTreeWidget(ui->SegmenttreeWidgetGOES13dc3, geowidget == SegmentListGeostationary::TREEWIDGET_GOES_13DC3 ? true : false);
     setTreeWidget(ui->SegmenttreeWidgetGOES15dc3, geowidget == SegmentListGeostationary::TREEWIDGET_GOES_15DC3 ? true : false);
     setTreeWidget(ui->SegmenttreeWidgetGOES13dc4, geowidget == SegmentListGeostationary::TREEWIDGET_GOES_13DC4 ? true : false);
@@ -1718,10 +1633,6 @@ void FormGeostationary::SelectGeoWidgetItem(SegmentListGeostationary::eGeoTreeWi
     case SegmentListGeostationary::TREEWIDGET_MET_8:
         geosat = SegmentListGeostationary::MET_8;
         geostring = "MET-8";
-        break;
-    case SegmentListGeostationary::TREEWIDGET_MET_7:
-        geosat = SegmentListGeostationary::MET_7;
-        geostring = "MET7";
         break;
     case SegmentListGeostationary::TREEWIDGET_GOES_13DC3:
         geosat = SegmentListGeostationary::GOES_13;
@@ -1782,11 +1693,6 @@ void FormGeostationary::on_SegmenttreeWidgetRSS_itemClicked(QTreeWidgetItem *ite
 void FormGeostationary::on_SegmenttreeWidgetMet8_itemClicked(QTreeWidgetItem *item, int column)
 {
     SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_MET_8, item, column);
-}
-
-void FormGeostationary::on_SegmenttreeWidgetMet7_itemClicked(QTreeWidgetItem *item, int column)
-{
-    SelectGeoWidgetItem(SegmentListGeostationary::TREEWIDGET_MET_7, item, column);
 }
 
 void FormGeostationary::on_SegmenttreeWidgetGOES13dc3_itemClicked(QTreeWidgetItem *item, int column)

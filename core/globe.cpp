@@ -1484,15 +1484,6 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::
                 fb_painter.drawPoint(x, y);
             }
         }
-        else if(sat == SegmentListGeostationary::MET_7)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglmet7->geosatlon, pix, heightinimage, COFF_NONHRV_MET7, LOFF_NONHRV_MET7, CFAC_NONHRV_MET7, LFAC_NONHRV_MET7, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
-        }
         else if(sat == SegmentListGeostationary::GOES_13 || sat == SegmentListGeostationary::GOES_15)
         {
             if(pixconv.pixcoord2geocoord((sat == SegmentListGeostationary::GOES_13 ? segs->seglgoes13dc3->geosatlon : segs->seglgoes15dc3->geosatlon), pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
@@ -1604,19 +1595,6 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, SegmentListGeostationar
         else if(sat == SegmentListGeostationary::MET_8)
         {
             if(pixconv.pixcoord2geocoord(segs->seglmet8->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
-                positions.append((float)(y / (imageptrs->pmOriginal->height()/2) - 1));
-                texpositions.append((float)(pix /imageptrs->pmOriginal->width()));
-                rainbow.append(qRed(rgbval));
-                rainbow.append(qGreen(rgbval));
-                rainbow.append(qBlue(rgbval));
-            }
-        }
-        else if(sat == SegmentListGeostationary::MET_7)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglmet7->geosatlon, pix, heightinimage, COFF_NONHRV_MET7, LOFF_NONHRV_MET7, CFAC_NONHRV_MET7, LFAC_NONHRV_MET7, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));

@@ -175,7 +175,7 @@ bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QStr
         QFuture<void> future = QtConcurrent::run(doComposeGeostationaryXRIT, this, fileinfo.filePath(), 0, spectrumvector, inversevector);
         watcherHRV[filesequence].setFuture(future);
     }
-    else if(m_GeoSatellite == MET_7 || m_GeoSatellite == GOES_13 || m_GeoSatellite == GOES_15 )
+    else if( m_GeoSatellite == GOES_13 || m_GeoSatellite == GOES_15 )
     {
         QFuture<void> future = QtConcurrent::run(doComposeGeostationaryXRIT, this, fileinfo.filePath(), 0, spectrumvector, inversevector);
         watcherMono[filesequence].setFuture(future);
@@ -332,7 +332,7 @@ void SegmentListGeostationary::InsertPresent( QVector<QString> spectrumvector, Q
             isPresentHRV[filesequence] = true;
         }
     }
-    else if(m_GeoSatellite == MET_7 || m_GeoSatellite == GOES_13 || m_GeoSatellite == GOES_15)
+    else if(m_GeoSatellite == GOES_13 || m_GeoSatellite == GOES_15)
     {
         isPresentMono[filesequence] = true;
     }
@@ -633,18 +633,14 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
 
     quint8 valcontrast;
 
-    if(m_GeoSatellite == MET_7)
-        gammafactor = 255 / pow(255, gamma);
-    else
-        gammafactor = 1023 / pow(1023, gamma);
-
+    gammafactor = 1023 / pow(1023, gamma);
 
     if (filespectrum == "HRV___")
     {
         imageptrs->ptrHRV[filesequence] = new quint16[number_of_lines * number_of_columns];
         memset(imageptrs->ptrHRV[filesequence], 0, number_of_lines * number_of_columns *sizeof(quint16));
     }
-    else if(m_GeoSatellite == MET_7 || m_GeoSatellite == GOES_13 || m_GeoSatellite == GOES_15)
+    else if(m_GeoSatellite == GOES_13 || m_GeoSatellite == GOES_15)
     {
         imageptrs->ptrRed[filesequence] = new quint16[number_of_lines * number_of_columns];
         memset(imageptrs->ptrRed[filesequence], 0, number_of_lines * number_of_columns *sizeof(quint16));
@@ -806,7 +802,7 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     {
         this->issegmentcomposedHRV[filesequence] = true;
     }
-    else if(m_GeoSatellite == MET_7 || m_GeoSatellite == GOES_13 || m_GeoSatellite == GOES_15)
+    else if(m_GeoSatellite == GOES_13 || m_GeoSatellite == GOES_15)
     {
         this->issegmentcomposedMono[filesequence] = true;
     }
@@ -2091,14 +2087,6 @@ bool SegmentListGeostationary::allSegmentsReceived()
                     pbCounter++;
             }
         }
-        else if(m_GeoSatellite == MET_7)
-        {
-            for(int i = 0; i < 10; i++)
-            {
-                if (isPresentMono[i] && issegmentcomposedMono[i] == true)
-                    pbCounter++;
-            }
-        }
         else if(m_GeoSatellite == GOES_13)
         {
             for(int i = 0; i < 7; i++)
@@ -2195,14 +2183,6 @@ bool SegmentListGeostationary::allSegmentsReceived()
             for(int i = 5; i < 8; i++)
             {
                 if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-                    return false;
-            }
-        }
-        else if(m_GeoSatellite == MET_7)
-        {
-            for(int i = 0; i < 10; i++)
-            {
-                if (isPresentMono[i] && issegmentcomposedMono[i] == false)
                     return false;
             }
         }
