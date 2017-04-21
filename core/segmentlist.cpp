@@ -2479,7 +2479,7 @@ void SegmentList::MapCanvas12bits(quint16 *canvasred, quint16 *canvasgreen, quin
                      imageptrs->ptrimageProjectionRed[(anchorY + h) * width + anchorX + w] = r;
                      imageptrs->ptrimageProjectionGreen[(anchorY + h) * width + anchorX + w] = g;
                      imageptrs->ptrimageProjectionBlue[(anchorY + h) * width + anchorX + w] = b;
-                     imageptrs->ptrimageProjectionAlpha[(anchorY + h) * width + anchorX + w] = 64535;
+                     imageptrs->ptrimageProjectionAlpha[(anchorY + h) * width + anchorX + w] = 65535;
                 }
             }
         }
