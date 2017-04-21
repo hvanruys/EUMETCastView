@@ -1204,6 +1204,9 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
     projectionCoordX.reset(new qint32[NbrOfLines * earth_views_per_scanline]);
     projectionCoordY.reset(new qint32[NbrOfLines * earth_views_per_scanline]);
     projectionCoordValue.reset(new QRgb[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueRed.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueGreen.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueBlue.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
 
     for( int i = 0; i < NbrOfLines; i++)
     {
@@ -1212,9 +1215,11 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
             projectionCoordX[i * earth_views_per_scanline + j] = 65535;
             projectionCoordY[i * earth_views_per_scanline + j] = 65535;
             projectionCoordValue[i * earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
+            projectionCoordValueRed[i * earth_views_per_scanline + j] = 0;
+            projectionCoordValueGreen[i * earth_views_per_scanline + j] = 0;
+            projectionCoordValueBlue[i * earth_views_per_scanline + j] = 0;
         }
     }
-    qDebug() << "SegmentOLCIefr::ComposeProjection(eProjections proj)";
 
     for( int i = 0; i < this->NbrOfLines; i++)
     {
@@ -1272,6 +1277,10 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
                 projectionCoordX[i * earth_views_per_scanline + j] = 65535;
                 projectionCoordY[i * earth_views_per_scanline + j] = 65535;
                 projectionCoordValue[i * earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
+                projectionCoordValueRed[i * earth_views_per_scanline + j] = 0;
+                projectionCoordValueGreen[i * earth_views_per_scanline + j] = 0;
+                projectionCoordValueBlue[i * earth_views_per_scanline + j] = 0;
+
             }
         }
     }
@@ -1283,14 +1292,16 @@ void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, boo
     int indexout[3];
     quint16 pixval[3];
     quint16 pixval1024[3];
+    quint16 pixval4096[3];
 
-    int color[3];
+    int color8[3];
+    int color12[3];
     QRgb rgbvalue = qRgba(0,0,0,0);
 
     if(normalized) pixval[0] = ptrbaOLCInormalized[0][lines * earth_views_per_scanline + views];
     else pixval[0] = ptrbaOLCI[0][lines * earth_views_per_scanline + views];
 
-    if(color)
+    if(iscolor)
     {
         if(normalized) pixval[1] = ptrbaOLCInormalized[1][lines * earth_views_per_scanline + views];
         else pixval[1] = ptrbaOLCI[1][lines * earth_views_per_scanline + views];
@@ -1308,6 +1319,8 @@ void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, boo
 
         for(int k = 0; k < (iscolor ? 3 : 1); k++)
         {
+            pixval4096[k] =  (quint16)qMin(qMax(qRound(4095.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 4095);
+
             if(normalized) pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_norm_ch[k] ) / (float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0), 1023);
             else pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
 
@@ -1323,25 +1336,48 @@ void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, boo
 
             if(invertthissegment[k])
             {
-                if(normalized) color[k] = 255 - imageptrs->lut_norm_ch[k][indexout[k]]/4;
-                else color[k] = 255 - imageptrs->lut_ch[k][indexout[k]]/4;
-            }
-            else
-            {
+                color12[k] = 4095 - pixval4096[k];
+
                 if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
                 {
-                    color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
+                    color8[k] = 255 - (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
                 }
                 else if(histogrammethod == CMB_HISTO_EQUALIZE || histogrammethod == CMB_HISTO_EQUALIZE_PROJ)
                 {
-                    if(normalized) color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
-                    else color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
+                    if(normalized)
+                    {
+                        color8[k] = 255 - (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
+                    }
+                    else
+                    {
+                        color8[k] = 255 - (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
+                    }
+                }
+            }
+            else
+            {
+                color12[k] = pixval4096[k];
+
+                if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
+                {
+                    color8[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
+                }
+                else if(histogrammethod == CMB_HISTO_EQUALIZE || histogrammethod == CMB_HISTO_EQUALIZE_PROJ)
+                {
+                    if(normalized)
+                    {
+                        color8[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
+                    }
+                    else
+                    {
+                        color8[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
+                    }
                 }
             }
         }
 
 
-        rgbvalue = qRgba(color[0], iscolor ? color[1] : color[0], iscolor ? color[2] : color[0], 255 );
+        rgbvalue = qRgba(color8[0], iscolor ? color8[1] : color8[0], iscolor ? color8[2] : color8[0], 255 );
 
 
 //        if(opts.sattrackinimage)
@@ -1365,6 +1401,17 @@ void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, boo
             if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
                 imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
             projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+            projectionCoordValueRed[lines * earth_views_per_scanline + views] = color12[0];
+            if(iscolor)
+            {
+                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[1];
+                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[2];
+            }
+            else
+            {
+                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[0];
+                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[0];
+            }
 //        }
     }
 }
@@ -1429,19 +1476,20 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
 
     quint16 indexout[3];
     quint16 pixval[3];
-    int r, g, b;
+    int r8, g8, b8;
+    int r10, g10, b10;
     QRgb rgbvalue = qRgb(0,0,0);
 
     int map_x, map_y;
 
-    bool color = bandlist.at(0);
+    bool iscolor = bandlist.at(0);
     bool valok[3];
 
     for( int j = 0; j < this->NbrOfLines; j++)
     {
         for( int i = 0; i < this->earth_views_per_scanline ; i++ )
         {
-            for(int k = 0; k < (color ? 3 : 1); k++)
+            for(int k = 0; k < (iscolor ? 3 : 1); k++)
             {
                 if(normalized) pixval[k] = this->ptrbaOLCInormalized[k][j * earth_views_per_scanline + i];
                 else pixval[k] = this->ptrbaOLCI[k][j * earth_views_per_scanline + i];
@@ -1452,57 +1500,80 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
 
             if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
             {
-
-
-                for(int k = 0; k < (color ? 3 : 1); k++)
+                for(int k = 0; k < (iscolor ? 3 : 1); k++)
                 {
                     indexout[k] =  (quint16)qMin(qMax((qRound(1023.0 * (float)( pixval[k] - imageptrs->stat_min_proj_ch[k] ) / (float)(imageptrs->stat_max_proj_ch[k] - imageptrs->stat_min_proj_ch[k]))), 0), 1023);
                 }
 
-                if(color)
+                if(iscolor)
                 {
                     if(invertthissegment[0])
                     {
-                        r = 255 - imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                        r8 = 255 - imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                        r10 = 1023 - imageptrs->lut_proj_ch[0][indexout[0]];
                     }
                     else
-                        r = imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                    {
+                        r8 = imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                        r10 = imageptrs->lut_proj_ch[0][indexout[0]];
+                    }
 
                     if(invertthissegment[1])
                     {
-                        g = 255 - imageptrs->lut_proj_ch[1][indexout[1]]/4;
+                        g8 = 255 - imageptrs->lut_proj_ch[1][indexout[1]]/4;
+                        g10 = 255 - imageptrs->lut_proj_ch[1][indexout[1]];
                     }
                     else
-                        g = imageptrs->lut_proj_ch[1][indexout[1]]/4;
+                    {
+                        g8 = imageptrs->lut_proj_ch[1][indexout[1]]/4;
+                        g10 = imageptrs->lut_proj_ch[1][indexout[1]];
+                    }
 
                     if(invertthissegment[2])
                     {
-                        b = 255 - imageptrs->lut_proj_ch[2][indexout[2]]/4;
+                        b8 = 255 - imageptrs->lut_proj_ch[2][indexout[2]]/4;
+                        b10 = 255 - imageptrs->lut_proj_ch[2][indexout[2]];
                     }
                     else
-                        b = imageptrs->lut_proj_ch[2][indexout[2]]/4;
+                    {
+                        b8 = imageptrs->lut_proj_ch[2][indexout[2]]/4;
+                        b10 = imageptrs->lut_proj_ch[2][indexout[2]];
+                    }
 
                     //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
-                    rgbvalue = qRgba(r, g, b, 255);
+                    rgbvalue = qRgba(r8, g8, b8, 255);
 
                 }
                 else
                 {
                     if(invertthissegment[0])
                     {
-                        r = 255 - imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                        r8 = 255 - imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                        r10 = 255 - imageptrs->lut_proj_ch[0][indexout[0]];
                     }
                     else
-                        r = imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                    {
+                        r8 = imageptrs->lut_proj_ch[0][indexout[0]]/4;
+                        r10 = imageptrs->lut_proj_ch[0][indexout[0]];
+                    }
 
-                    rgbvalue = qRgba(r, r, r, 255);
+                    rgbvalue = qRgba(r8, r8, r8, 255);
                 }
 
                 if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
                     imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 projectionCoordValue[j * earth_views_per_scanline + i] = rgbvalue;
-
-
+                projectionCoordValueRed[j * earth_views_per_scanline + i] = r10;
+                if(iscolor)
+                {
+                    projectionCoordValueGreen[j * earth_views_per_scanline + i] = g10;
+                    projectionCoordValueBlue[j * earth_views_per_scanline + i] = b10;
+                }
+                else
+                {
+                    projectionCoordValueGreen[j * earth_views_per_scanline + i] = r10;
+                    projectionCoordValueBlue[j * earth_views_per_scanline + i] = r10;
+                }
             }
         }
     }

@@ -512,11 +512,7 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
 {
 
     quint16 pixval[3], pixval65535[3];
-    quint16 pixval1024[3];
-
     bool iscolor = bandlist.at(0);
-    bool valok[3];
-
 
     for (int line = 0; line < segm->GetNbrOfLines(); line++)
     {
@@ -530,7 +526,8 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
                 {
                     if(mapto65535)
                     {
-                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 65535);
+//                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 65535);
+                        pixval65535[k] =  (quint16)qMin(qMax(qRound(16.0 * (float)(pixval[k])), 0), 65535);
                         //pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 65535);
                         pixval[k] = pixval65535[k];
                     }
@@ -547,6 +544,70 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
         }
     }
 }
+
+//void SegmentListOLCI::Compose48bitProjectionPNG(QString fileName, bool mapto65535)
+//{
+//    quint16 pixval, pixvalout;
+//    bool iscolor = bandlist.at(0);
+
+//    int height = imageptrs->ptrimageProjection->height();
+//    int width = imageptrs->ptrimageProjection->width();
+
+//    // initialize the FreeImage library
+//    FreeImage_Initialise();
+
+//    FIBITMAP *bitmap = FreeImage_AllocateT(FIT_RGB16, width, height);
+
+//    for (int line = 0; line < height; line++)
+//    {
+//        FIRGB16 *bits = (FIRGB16 *)FreeImage_GetScanLine(bitmap, height - line - 1);
+//        for (int pixelx = 0; pixelx < width; pixelx++)
+//        {
+//            pixval = imageptrs->ptrimageProjectionRed[line * width + pixelx];
+//            if(mapto65535)
+//                pixvalout = (quint16)qMin(qMax(16 * pixval, 0), 65535);
+//            else
+//                pixvalout = pixval;
+
+//            bits[pixelx].red = pixvalout;
+//            if(iscolor)
+//            {
+//                pixval = imageptrs->ptrimageProjectionGreen[line * width + pixelx];
+//                if(mapto65535)
+//                    pixvalout = (quint16)qMin(qMax(16 * pixval, 0), 65535);
+//                else
+//                    pixvalout = pixval;
+//                bits[pixelx].green = pixvalout;
+
+//                pixval = imageptrs->ptrimageProjectionBlue[line * width + pixelx];
+//                if(mapto65535)
+//                    pixvalout = (quint16)qMin(qMax(16 * pixval, 0), 65535);
+//                else
+//                    pixvalout = pixval;
+//                bits[pixelx].blue = pixvalout;
+//            }
+//            else
+//            {
+//                bits[pixelx].green = bits[pixelx].red;
+//                bits[pixelx].blue = bits[pixelx].red;
+//            }
+//        }
+//    }
+
+//    QByteArray array = fileName.toLocal8Bit();
+//    char* pfileName = array.data();
+
+//    if(FreeImage_Save(FIF_PNG,bitmap, pfileName,0))
+//    {
+//        qDebug() << "bitmap successfully saved!";
+//    }
+
+//    FreeImage_Unload(bitmap);
+
+//    FreeImage_DeInitialise();
+
+
+//}
 
 long SegmentListOLCI::NbrOfSaturatedPixels()
 {
@@ -1042,9 +1103,6 @@ void SegmentListOLCI::SmoothOLCIImage(bool combine)
 {
 
     qDebug() << "start SegmentListOLCI::SmoothOLCIImage()";
-
-    int lineimage = 0;
-
     QList<Segment *>::iterator segsel;
     segsel = segsselected.begin();
 
@@ -1058,7 +1116,27 @@ void SegmentListOLCI::SmoothOLCIImage(bool combine)
         segmsave = segm;
         BilinearInterpolation(segm, combine);
         ++segsel;
-        lineimage += segm->NbrOfLines;
+    }
+}
+
+void SegmentListOLCI::SmoothOLCIImage12bits()
+{
+
+    qDebug() << "start SegmentListOLCI::SmoothOLCIImage12bits()";
+
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+
+    SegmentOLCI *segmsave;
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
+        if(segsel != segsselected.begin())
+            BilinearBetweenSegments12bits(segmsave, segm);
+        segmsave = segm;
+        BilinearInterpolation12bits(segm);
+        ++segsel;
     }
 }
 

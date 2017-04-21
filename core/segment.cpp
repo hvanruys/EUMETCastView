@@ -377,6 +377,9 @@ void Segment::resetMemory()
     projectionCoordX.reset();
     projectionCoordY.reset();
     projectionCoordValue.reset();
+    projectionCoordValueRed.reset();
+    projectionCoordValueGreen.reset();
+    projectionCoordValueBlue.reset();
 
 
     earthloc_lon.reset();
@@ -1193,6 +1196,21 @@ qint32 Segment::getProjectionY(int line, int pixelx)
 QRgb Segment::getProjectionValue(int line, int pixelx)
 {
     return projectionCoordValue[line * earth_views_per_scanline + pixelx];
+}
+
+quint16 Segment::getProjectionValueRed(int line, int pixelx)
+{
+    return projectionCoordValueRed[line * earth_views_per_scanline + pixelx];
+}
+
+quint16 Segment::getProjectionValueGreen(int line, int pixelx)
+{
+    return projectionCoordValueGreen[line * earth_views_per_scanline + pixelx];
+}
+
+quint16 Segment::getProjectionValueBlue(int line, int pixelx)
+{
+    return projectionCoordValueBlue[line * earth_views_per_scanline + pixelx];
 }
 
 void Segment::setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert)

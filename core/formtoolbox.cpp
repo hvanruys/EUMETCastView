@@ -48,6 +48,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     setupChannelCombo();
     setChannelComboBoxes();
     currentAVHRRimage = IMAGE_AVHRR_COL;
+    currentProjectionType = PROJ_NONE;
 
 
     if (opts.imageontextureOnAVHRR)
@@ -2932,6 +2933,8 @@ void FormToolbox::on_spbGVPscale_valueChanged(double arg1)
 
 void FormToolbox::on_btnCreatePerspective_clicked()
 {
+    ui->pbProgress->reset();
+
     if(ui->rdbCombine->isChecked() && ui->rdbVIIRSDNBin->isChecked())
     {
         QRgb *row, *rowcopy;
@@ -3033,7 +3036,10 @@ void FormToolbox::on_btnCreatePerspective_clicked()
 
 
     if(ui->rdbAVHRRin->isChecked())
+    {
+        currentProjectionType = PROJ_AVHRR;
         imageptrs->gvp->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
+    }
     else if(ui->rdbVIIRSMin->isChecked())
     {
         imageptrs->ptrProjectionBrightnessTemp.reset(new float[width * height]);
@@ -3046,22 +3052,34 @@ void FormToolbox::on_btnCreatePerspective_clicked()
             }
         }
 
+        currentProjectionType = PROJ_VIIRSM;
+
         ui->btnGVPFalseColor->setChecked(false);
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
         initializeScales();
 
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
+    {
+        currentProjectionType = PROJ_VIIRSDNB;
         imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+    }
     else if(ui->rdbOLCIefrin->isChecked())
     {
         qDebug() << "voor CreateMapFromOLCI currentindex = " << ui->cmbHistogramProj->currentIndex() << " " <<  ui->rdbOLCIprojNormalized->isChecked();
+        currentProjectionType = PROJ_OLCI_EFR;
         imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, false, ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
     }
     else if(ui->rdbOLCIerrin->isChecked())
+    {
+        currentProjectionType = PROJ_OLCI_ERR;
         imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, false, ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
     else if(ui->rdbMeteosatin->isChecked())
+    {
+        currentProjectionType = PROJ_GEOSTATIONARY;
         imageptrs->gvp->CreateMapFromGeoStationary();
+    }
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -3121,6 +3139,8 @@ void FormToolbox::copyProjectionImage()
 
 void FormToolbox::on_btnCreateLambert_clicked()
 {
+    ui->pbProgress->reset();
+
     if(ui->rdbCombine->isChecked())
     {
         QRgb *row, *rowcopy;
@@ -3136,48 +3156,73 @@ void FormToolbox::on_btnCreateLambert_clicked()
         }
     }
 
-    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt ||
-            opts.buttonM01hrpt || opts.buttonM02hrpt)
+    if(ui->rdbAVHRRin->isChecked())
     {
-        if(ui->rdbAVHRRin->isChecked())
+        if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt ||
+                opts.buttonM01hrpt || opts.buttonM02hrpt)
         {
             if(!segs->SelectedAVHRRSegments())
+            {
+                QMessageBox::information( this, "AVHHR", "No selected AVHRR segments  !" );
                 return;
+            }
         }
     }
-    else if(opts.buttonVIIRSM)
+    else if(ui->rdbVIIRSMin->isChecked())
     {
-        if(ui->rdbVIIRSMin->isChecked())
+        if(opts.buttonVIIRSM)
         {
             if(!segs->SelectedVIIRSMSegments())
+            {
+                QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
                 return;
+            }
         }
 
     }
-    else if(opts.buttonVIIRSDNB)
+    else if(ui->rdbVIIRSDNBin->isChecked())
     {
-        if(ui->rdbVIIRSDNBin->isChecked())
+        if(opts.buttonVIIRSDNB)
         {
             if(!segs->SelectedVIIRSDNBSegments())
+            {
+                QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
                 return;
+            }
         }
 
     }
-    else if(opts.buttonOLCIefr)
+    else if(ui->rdbOLCIefrin->isChecked())
     {
-        if(ui->rdbOLCIefrin->isChecked())
+        if(opts.buttonOLCIefr)
         {
             if(!segs->SelectedOLCIefrSegments())
+            {
+                QMessageBox::information( this, "OLCI EFR 1", "No selected OLCI EFR segments  !" );
                 return;
+            }
+        }
+        else
+        {
+            QMessageBox::information( this, "OLCI EFR 2", "No selected OLCI EFR segments  !" );
+            return;
         }
 
     }
-    else if(opts.buttonOLCIerr)
+    else if(ui->rdbOLCIerrin->isChecked())
     {
-        if(ui->rdbOLCIerrin->isChecked())
+        if(opts.buttonOLCIerr)
         {
             if(!segs->SelectedOLCIerrSegments())
+            {
+                QMessageBox::information( this, "OLCI ERR 1", "No selected OLCI ERR segments  !" );
                 return;
+            }
+        }
+        else
+        {
+            QMessageBox::information( this, "OLCI ERR 2", "No selected OLCI ERR segments  !" );
+            return;
         }
 
     }
@@ -3197,7 +3242,10 @@ void FormToolbox::on_btnCreateLambert_clicked()
     ui->btnLCCFalseColor->setChecked(false);
 
     if(ui->rdbAVHRRin->isChecked())
+    {
+        currentProjectionType = PROJ_AVHRR;
         imageptrs->lcc->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
+    }
     else if(ui->rdbVIIRSMin->isChecked())
     {
         imageptrs->ptrProjectionBrightnessTemp.reset(new float[width * height]);
@@ -3211,17 +3259,30 @@ void FormToolbox::on_btnCreateLambert_clicked()
         }
 
         ui->btnLCCFalseColor->setChecked(false);
+        currentProjectionType = PROJ_VIIRSM;
         imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
         initializeScales();
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
+    {
+        currentProjectionType = PROJ_VIIRSDNB;
         imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+    }
     else if(ui->rdbMeteosatin->isChecked())
+    {
+        currentProjectionType = PROJ_GEOSTATIONARY;
         imageptrs->lcc->CreateMapFromGeostationary();
+    }
     else if(ui->rdbOLCIefrin->isChecked())
+    {
+        currentProjectionType = PROJ_OLCI_EFR;
         imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
     else if(ui->rdbOLCIerrin->isChecked())
+    {
+        currentProjectionType = PROJ_OLCI_ERR;
         imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -3304,7 +3365,10 @@ void FormToolbox::on_btnCreateStereo_clicked()
     ui->btnLCCFalseColor->setChecked(false);
 
     if(ui->rdbAVHRRin->isChecked())
+    {
+        currentProjectionType = PROJ_AVHRR;
         imageptrs->sg->CreateMapFromAVHRR(ui->cmbInputAVHRRChannel->currentIndex(), formimage->getSegmentType());
+    }
     else if(ui->rdbVIIRSMin->isChecked())
     {
         imageptrs->ptrProjectionBrightnessTemp.reset(new float[width * height]);
@@ -3319,17 +3383,30 @@ void FormToolbox::on_btnCreateStereo_clicked()
 
         ui->btnSGFalseColor->setChecked(false);
 
+        currentProjectionType = PROJ_VIIRSM;
         imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
         initializeScales();
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
+    {
+        currentProjectionType = PROJ_VIIRSDNB;
         imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+    }
     else if(ui->rdbMeteosatin->isChecked())
+    {
+        currentProjectionType = PROJ_GEOSTATIONARY;
         imageptrs->sg->CreateMapFromGeostationary();
+    }
     else if(ui->rdbOLCIefrin->isChecked())
+    {
+        currentProjectionType = PROJ_OLCI_EFR;
         imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIEFR,  ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(),ui->rdbOLCIprojNormalized->isChecked());
+    }
     else if(ui->rdbOLCIerrin->isChecked())
+    {
+        currentProjectionType = PROJ_OLCI_ERR;
         imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR,  ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -5336,4 +5413,111 @@ void FormToolbox::on_rdbGridOnOLCIimage_toggled(bool checked)
 }
 
 
+void FormToolbox::on_btnSaveProjectionAsPNG48bits_clicked()
+{
 
+    if(currentProjectionType == PROJ_NONE)
+    {
+        QMessageBox::information( this, "Projection image", "No projection image created !" );
+        return;
+    }
+
+
+    QString filestr;
+
+    filestr.append("./");
+
+    switch(currentProjectionType)
+    {
+    case PROJ_AVHRR:
+        filestr += "avhrr_image.png";
+        QMessageBox::information( this, "48bit PNG Projection image", "AVHRR not yet implemented !" );
+        return;
+
+        break;
+    case PROJ_GEOSTATIONARY:
+        filestr += "geostationary_image.png";
+        QMessageBox::information( this, "48bit PNG Projection image", "Geostationary not yet implemented !" );
+        return;
+
+        break;
+    case PROJ_OLCI_EFR:
+        if(segs->seglolciefr->NbrOfSegmentsSelectedinMemory() == 0)
+        {
+            QMessageBox::information( this, "48bit PNG Projection image", "No selected OLCI EFR segments !" );
+            return;
+        }
+        filestr += "olci_efr_image.png";
+        break;
+    case PROJ_OLCI_ERR:
+        if(segs->seglolcierr->NbrOfSegmentsSelectedinMemory() == 0)
+        {
+            QMessageBox::information( this, "48bit PNG Projection image", "No selected OLCI ERR segments !" );
+            return;
+        }
+        filestr += "olci_err_image.png";
+        break;
+    case PROJ_SLSTR:
+        filestr += "slstr_image.png";
+        QMessageBox::information( this, "48bit PNG Projection image", "SLSTR not yet implemented !" );
+        return;
+
+        break;
+    case PROJ_VIIRSM:
+        if(segs->seglviirsm->NbrOfSegmentsSelectedinMemory() == 0)
+        {
+            QMessageBox::information( this, "48bit PNG Projection image", "No selected VIIRS M segments !" );
+            return;
+        }
+        filestr += "viirs_m_image.png";
+
+        break;
+    case PROJ_VIIRSDNB:
+        filestr += "viirs_dnb_image.png";
+        QMessageBox::information( this, "48bit PNG Projection image", "VIIRSDNB not yet implemented !" );
+        return;
+
+        break;
+    default:
+        return;
+    }
+
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Save image"), filestr,
+                                                    tr("*.png"));
+    if (fileName.isEmpty())
+        return;
+    else
+    {
+            QApplication::setOverrideCursor(Qt::WaitCursor);
+            if(fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
+                fileName.append(".png");
+            switch(currentProjectionType)
+            {
+            case PROJ_AVHRR:
+                break;
+            case PROJ_GEOSTATIONARY:
+                break;
+            case PROJ_OLCI_EFR:
+                segs->seglolciefr->SmoothOLCIImage12bits();
+                segs->seglolciefr->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
+                break;
+            case PROJ_OLCI_ERR:
+                segs->seglolcierr->SmoothOLCIImage12bits();
+                segs->seglolcierr->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
+                break;
+            case PROJ_SLSTR:
+                break;
+            case PROJ_VIIRSM:
+                segs->seglviirsm->SmoothVIIRSImage12bits();
+                segs->seglviirsm->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
+                break;
+            case PROJ_VIIRSDNB:
+                break;
+            default:
+                return;
+            }
+            QApplication::restoreOverrideCursor();
+    }
+}

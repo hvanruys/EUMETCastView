@@ -52,6 +52,18 @@ enum eImageType
     IMAGE_SLSTR
 };
 
+enum eProjectionType
+{
+    PROJ_NONE = 0,
+    PROJ_AVHRR,
+    PROJ_GEOSTATIONARY,
+    PROJ_VIIRSM,
+    PROJ_VIIRSDNB,
+    PROJ_OLCI_EFR,
+    PROJ_OLCI_ERR,
+    PROJ_SLSTR
+};
+
 // structures
 struct floatVector {
         float x, y, z;

@@ -147,6 +147,11 @@ void SegmentImage::DeleteImagePtrs()
         ptrimageProjection = NULL;
     }
 
+    ptrimageProjectionRed.reset();
+    ptrimageProjectionGreen.reset();
+    ptrimageProjectionBlue.reset();
+    ptrimageProjectionAlpha.reset();
+
     if(ptrimageViirsM != NULL)
     {
         delete ptrimageViirsM;

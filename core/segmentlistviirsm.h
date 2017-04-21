@@ -17,6 +17,7 @@ public:
 
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     void SmoothVIIRSImage(bool combine);
+    void SmoothVIIRSImage12bits();
     void SmoothProjectionBrightnessTemp();
     float getMinBrightnessTemp() { return minBrightnessTemp; }
     float getMaxBrightnessTemp() { return maxBrightnessTemp; }
@@ -49,9 +50,9 @@ private:
     float maxBrightnessTemp;
     float minBrightnessTempProjection;
     float maxBrightnessTempProjection;
-    QList<bool> bandlist;
-    QList<int> colorlist;
-    QList<bool> inverselist;
+//    QList<bool> bandlist;
+//    QList<int> colorlist;
+//    QList<bool> inverselist;
 
 protected:
 

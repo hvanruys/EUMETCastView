@@ -201,15 +201,15 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
 
     for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
     {
-        for (j = 0; j < 768; j++) {
-            for (i = 0; i < 3200; i++)
+        for (j = 0; j < NbrOfLines; j++) {
+            for (i = 0; i < earth_views_per_scanline; i++)
             {
-                if(ptrbaVIIRS[k][j * 3200 + i] > 0 && ptrbaVIIRS[k][j * 3200 + i] < 65528)
+                if(ptrbaVIIRS[k][j * earth_views_per_scanline + i] > 0 && ptrbaVIIRS[k][j * earth_views_per_scanline + i] < 65528)
                 {
-                    if(ptrbaVIIRS[k][j * 3200 + i] >= stat_max_ch[k])
-                        stat_max_ch[k] = ptrbaVIIRS[k][j * 3200 + i];
-                    if(ptrbaVIIRS[k][j * 3200 + i] < stat_min_ch[k])
-                        stat_min_ch[k] = ptrbaVIIRS[k][j * 3200 + i];
+                    if(ptrbaVIIRS[k][j * earth_views_per_scanline + i] >= stat_max_ch[k])
+                        stat_max_ch[k] = ptrbaVIIRS[k][j * earth_views_per_scanline + i];
+                    if(ptrbaVIIRS[k][j * earth_views_per_scanline + i] < stat_min_ch[k])
+                        stat_min_ch[k] = ptrbaVIIRS[k][j * earth_views_per_scanline + i];
                     active_pixels[k]++;
                 }
             }
@@ -232,13 +232,13 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
 
     this->cornerpointfirst1 = QGeodetic(geolatitude[0]*PI/180.0, geolongitude[0]*PI/180.0, 0 );
     this->cornerpointlast1 = QGeodetic(geolatitude[3199]*PI/180.0, geolongitude[3199]*PI/180.0, 0 );
-    this->cornerpointfirst2 = QGeodetic(geolatitude[760*3200]*PI/180.0, geolongitude[760*3200]*PI/180.0, 0 );
-    this->cornerpointlast2 = QGeodetic(geolatitude[760*3200 + 3199]*PI/180.0, geolongitude[760*3200 + 3199]*PI/180.0, 0 );
+    this->cornerpointfirst2 = QGeodetic(geolatitude[760*earth_views_per_scanline]*PI/180.0, geolongitude[760*earth_views_per_scanline]*PI/180.0, 0 );
+    this->cornerpointlast2 = QGeodetic(geolatitude[760*earth_views_per_scanline + 3199]*PI/180.0, geolongitude[760*earth_views_per_scanline + 3199]*PI/180.0, 0 );
     this->cornerpointcenter1 = QGeodetic(geolatitude[1600]*PI/180.0, geolongitude[1600]*PI/180.0, 0);
-    this->cornerpointcenter2 = QGeodetic(geolatitude[760*3200 + 1600]*PI/180.0, geolongitude[760*3200 + 1600]*PI/180.0, 0);
+    this->cornerpointcenter2 = QGeodetic(geolatitude[760*earth_views_per_scanline + 1600]*PI/180.0, geolongitude[760*earth_views_per_scanline + 1600]*PI/180.0, 0);
 
     qDebug() << "first1 = (" << geolatitude[0] << "," << geolongitude[0] << ") last1 = (" << geolatitude[3199] << "," << geolongitude[3199] << ")";
-    qDebug() << "first2 = (" << geolatitude[750*3200] << "," << geolongitude[750*3200] << ") last2 = (" << geolatitude[750*3200 + 3199] << "," << geolongitude[750*3200 + 3199] << ")";
+    qDebug() << "first2 = (" << geolatitude[750*earth_views_per_scanline] << "," << geolongitude[750*earth_views_per_scanline] << ") last2 = (" << geolatitude[750*earth_views_per_scanline + 3199] << "," << geolongitude[750*earth_views_per_scanline + 3199] << ")";
 
     h5_status = H5Fclose (h5_file_id);
 
@@ -377,8 +377,8 @@ void SegmentVIIRSM::ReadVIIRSM_GEO_All(hid_t h5_file_id)
     tiepoints_lon.reset(new float[96 * 201]);
     aligncoef.reset(new float[200]);
     expanscoef.reset(new float[200]);
-    geolongitude.reset(new float[768 * 3200]);
-    geolatitude.reset(new float[768 * 3200]);
+    geolongitude.reset(new float[NbrOfLines * earth_views_per_scanline]);
+    geolatitude.reset(new float[NbrOfLines * earth_views_per_scanline]);
 
 
     tiepoints_lat_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/Latitude", H5P_DEFAULT);
@@ -443,15 +443,15 @@ Segment *SegmentVIIRSM::ReadDatasetsInMemory()
 
     for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
     {
-        for (int j = 0; j < 768; j++) {
-            for (int i = 0; i < 3200; i++)
+        for (int j = 0; j < NbrOfLines; j++) {
+            for (int i = 0; i < earth_views_per_scanline; i++)
             {
-                if(ptrbaVIIRS[k][j * 3200 + i] > 0 && ptrbaVIIRS[k][j * 3200 + i] < 65528)
+                if(ptrbaVIIRS[k][j * earth_views_per_scanline + i] > 0 && ptrbaVIIRS[k][j * earth_views_per_scanline + i] < 65528)
                 {
-                    if(ptrbaVIIRS[k][j * 3200 + i] >= stat_max_ch[k])
-                        stat_max_ch[k] = ptrbaVIIRS[k][j * 3200 + i];
-                    if(ptrbaVIIRS[k][j * 3200 + i] < stat_min_ch[k])
-                        stat_min_ch[k] = ptrbaVIIRS[k][j * 3200 + i];
+                    if(ptrbaVIIRS[k][j * earth_views_per_scanline + i] >= stat_max_ch[k])
+                        stat_max_ch[k] = ptrbaVIIRS[k][j * earth_views_per_scanline + i];
+                    if(ptrbaVIIRS[k][j * earth_views_per_scanline + i] < stat_min_ch[k])
+                        stat_min_ch[k] = ptrbaVIIRS[k][j * earth_views_per_scanline + i];
                 }
             }
         }
@@ -686,10 +686,10 @@ void SegmentVIIRSM::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48
     lon_D = tiepoints_lon[iD * 201 + jD];
 
 
-    val_A = ptrbaVIIRS[0][((itrack * 16)) * 3200 + (iscan * 16)];
-    val_B = ptrbaVIIRS[0][((itrack * 16)) * 3200 + (iscan * 16) + 15];
-    val_C = ptrbaVIIRS[0][((itrack * 16) + 15) * 3200 + (iscan * 16) + 15];
-    val_D = ptrbaVIIRS[0][((itrack * 16) + 15) * 3200 + (iscan * 16)];
+    val_A = ptrbaVIIRS[0][((itrack * 16)) * earth_views_per_scanline + (iscan * 16)];
+    val_B = ptrbaVIIRS[0][((itrack * 16)) * earth_views_per_scanline + (iscan * 16) + 15];
+    val_C = ptrbaVIIRS[0][((itrack * 16) + 15) * earth_views_per_scanline + (iscan * 16) + 15];
+    val_D = ptrbaVIIRS[0][((itrack * 16) + 15) * earth_views_per_scanline + (iscan * 16)];
 
     if( val_A == 0 || val_A > 65528 || val_B == 0 || val_B > 65528 || val_C == 0 || val_C > 65528 || val_D == 0 || val_D > 65528)
     {
@@ -699,10 +699,10 @@ void SegmentVIIRSM::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48
         {
             for(int rels = 0; rels < 16; rels++)
             {
-                if(ptrbaVIIRS[0][((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] == 0 || ptrbaVIIRS[0][((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] >= 65528)
+                if(ptrbaVIIRS[0][((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] == 0 || ptrbaVIIRS[0][((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] >= 65528)
                 {
-                    geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = 65535;
-                    geolongitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = 65535;
+                    geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
+                    geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
                 }
             }
         }
@@ -744,8 +744,8 @@ void SegmentVIIRSM::interpolateViaLonLat(int itrack, int iscan, float lon_A, flo
             lon_2 = (1 - ascan) * lon_D + ascan * lon_C;
             lon = (1 - atrack) * lon_1 + atrack * lon_2;
 
-            geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = lat;
-            geolongitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = lon;
+            geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lat;
+            geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lon;
 
 
         }
@@ -755,7 +755,7 @@ void SegmentVIIRSM::interpolateViaLonLat(int itrack, int iscan, float lon_A, flo
 //    {
 //        for (int relt = 0; relt < 16; relt++) {
 //            for (int rels = 0; rels < 16; rels++)
-//               cout << " " <<  geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels];
+//               cout << " " <<  geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels];
 //            cout << endl;
 //        }
 //    }
@@ -821,8 +821,8 @@ void SegmentVIIRSM::interpolateViaVector(int itrack, int iscan, float lon_A, flo
             lon_deg = atan2(y, x) * 180.0/PI;
             lat_deg = atan2(z, sqrt(x * x + y * y)) * 180.0/PI;
 
-            geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = lat_deg;
-            geolongitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels] = lon_deg;
+            geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lat_deg;
+            geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lon_deg;
 
 
         }
@@ -833,13 +833,13 @@ void SegmentVIIRSM::interpolateViaVector(int itrack, int iscan, float lon_A, flo
 //        cout << "geolatitude" << endl;
 //        for (int relt = 0; relt < 16; relt++) {
 //            for (int rels = 0; rels < 16; rels++)
-//               cout << " " <<  geolatitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels];
+//               cout << " " <<  geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels];
 //            cout << endl;
 //        }
 //        cout << "geolongitude" << endl;
 //        for (int relt = 0; relt < 16; relt++) {
 //            for (int rels = 0; rels < 16; rels++)
-//               cout << " " <<  geolongitude[((itrack * 16) + relt) * 3200 + (iscan * 16) + rels];
+//               cout << " " <<  geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels];
 //            cout << endl;
 //        }
 //    }
@@ -872,13 +872,13 @@ void SegmentVIIRSM::ComposeSegmentImage()
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row = (QRgb*)imageptrs->ptrimageViirsM->scanLine(this->startLineNbr + line);
-        for (int pixelx = 0; pixelx < 3200; pixelx++)
+        for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
-            pixval[0] = *(this->ptrbaVIIRS[0].data() + line * 3200 + pixelx);
+            pixval[0] = *(this->ptrbaVIIRS[0].data() + line * earth_views_per_scanline + pixelx);
             if(color)
             {
-                pixval[1] = *(this->ptrbaVIIRS[1].data() + line * 3200 + pixelx);
-                pixval[2] = *(this->ptrbaVIIRS[2].data() + line * 3200 + pixelx);
+                pixval[1] = *(this->ptrbaVIIRS[1].data() + line * earth_views_per_scanline + pixelx);
+                pixval[2] = *(this->ptrbaVIIRS[2].data() + line * earth_views_per_scanline + pixelx);
             }
 
             valok[0] = pixval[0] < 65528 && pixval[0] > 0;
@@ -889,6 +889,8 @@ void SegmentVIIRSM::ComposeSegmentImage()
             {
                 for(int i = 0; i < (color ? 3 : 1); i++)
                 {
+//                    pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
+
                     indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
                     indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
                 }
@@ -969,18 +971,18 @@ void SegmentVIIRSM::recalculateStatsInProjection()
 
     for(int k = 0; k < (color ? 3 : 1); k++)
     {
-        for (int j = 0; j < 768; j++)
+        for (int j = 0; j < NbrOfLines; j++)
         {
-            for (int i = 0; i < 3200; i++)
+            for (int i = 0; i < earth_views_per_scanline; i++)
             {
-                x = *(this->projectionCoordX.data() + j * 3200 + i);
-                y = *(this->projectionCoordY.data() + j * 3200 + i);
+                x = *(this->projectionCoordX.data() + j * earth_views_per_scanline + i);
+                y = *(this->projectionCoordY.data() + j * earth_views_per_scanline + i);
                 if(x >= 0 && x < imageptrs->ptrimageProjection->width() && y >= 0 && y < imageptrs->ptrimageProjection->height())
                 {
-                    if(ptrbaVIIRS[k][j * 3200 + i] >= statmax[k])
-                        statmax[k] = ptrbaVIIRS[k][j * 3200 + i];
-                    if(ptrbaVIIRS[k][j * 3200 + i] < statmin[k])
-                        statmin[k] = ptrbaVIIRS[k][j * 3200 + i];
+                    if(ptrbaVIIRS[k][j * earth_views_per_scanline + i] >= statmax[k])
+                        statmax[k] = ptrbaVIIRS[k][j * earth_views_per_scanline + i];
+                    if(ptrbaVIIRS[k][j * earth_views_per_scanline + i] < statmin[k])
+                        statmin[k] = ptrbaVIIRS[k][j * earth_views_per_scanline + i];
                     active_pixels[k]++;
                 }
             }
@@ -1025,40 +1027,45 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj, int histogrammethod, bo
     bool color = bandlist.at(0);
     bool valok[3];
 
-    projectionCoordX.reset(new qint32[768 * 3200]);
-    projectionCoordY.reset(new qint32[768 * 3200]);
-    projectionCoordValue.reset(new QRgb[768 * 3200]);
+    projectionCoordX.reset(new qint32[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordY.reset(new qint32[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValue.reset(new QRgb[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueRed.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueGreen.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueBlue.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
 
-    for( int i = 0; i < 768; i++)
+    for( int i = 0; i < NbrOfLines; i++)
     {
-        for( int j = 0; j < 3200 ; j++ )
+        for( int j = 0; j < earth_views_per_scanline; j++ )
         {
-            projectionCoordX[i * 3200 + j] = 65535;
-            projectionCoordY[i * 3200 + j] = 65535;
-            projectionCoordValue[i * 3200 + j] = qRgba(0, 0, 0, 0);
+            projectionCoordX[i * earth_views_per_scanline + j] = 65535;
+            projectionCoordY[i * earth_views_per_scanline + j] = 65535;
+            projectionCoordValue[i * earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
+            projectionCoordValueRed[i * earth_views_per_scanline + j] = 0;
+            projectionCoordValueGreen[i * earth_views_per_scanline + j] = 0;
+            projectionCoordValueBlue[i * earth_views_per_scanline + j] = 0;
         }
     }
-    qDebug() << "SegmentVIIRS::ComposeProjection(eProjections proj)";
 
     for( int i = 0; i < this->NbrOfLines; i++)
     {
         for( int j = 0; j < this->earth_views_per_scanline ; j++ )
         {
-            pixval[0] = ptrbaVIIRS[0][i * 3200 + j];
+            pixval[0] = ptrbaVIIRS[0][i * earth_views_per_scanline + j];
             valok[0] = pixval[0] > 0 && pixval[0] < 65528;
 
             if(color)
             {
-                pixval[1] = ptrbaVIIRS[1][i * 3200 + j];
-                pixval[2] = ptrbaVIIRS[2][i * 3200 + j];
+                pixval[1] = ptrbaVIIRS[1][i * earth_views_per_scanline + j];
+                pixval[2] = ptrbaVIIRS[2][i * earth_views_per_scanline + j];
                 valok[1] = pixval[1] > 0 && pixval[1] < 65528;
                 valok[2] = pixval[2] > 0 && pixval[2] < 65528;
             }
 
             if( valok[0] && (color ? valok[1] && valok[2] : true))
             {
-                latpos1 = geolatitude[i * 3200 + j];
-                lonpos1 = geolongitude[i * 3200 + j];
+                latpos1 = geolatitude[i * earth_views_per_scanline + j];
+                lonpos1 = geolongitude[i * earth_views_per_scanline + j];
 
                 if(proj == LCC) //Lambert
                 {
@@ -1084,9 +1091,12 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj, int histogrammethod, bo
                 }
             } else
             {
-                projectionCoordX[i * 3200 + j] = 65535;
-                projectionCoordY[i * 3200 + j] = 65535;
-                projectionCoordValue[i * 3200 + j] = qRgba(0, 0, 0, 0);
+                projectionCoordX[i * earth_views_per_scanline + j] = 65535;
+                projectionCoordY[i * earth_views_per_scanline + j] = 65535;
+                projectionCoordValue[i * earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
+                projectionCoordValueRed[i * earth_views_per_scanline + j] = 0;
+                projectionCoordValueGreen[i * earth_views_per_scanline + j] = 0;
+                projectionCoordValueBlue[i * earth_views_per_scanline + j] = 0;
             }
         }
     }
@@ -1110,17 +1120,17 @@ void SegmentVIIRSM::RecalculateProjection()
     {
         for( int j = 0; j < this->earth_views_per_scanline ; j++ )
         {
-            pixval[0] = ptrbaVIIRS[0][i * 3200 + j];
+            pixval[0] = ptrbaVIIRS[0][i * earth_views_per_scanline + j];
 
             if(color)
             {
-                pixval[1] = ptrbaVIIRS[1][i * 3200 + j];
-                pixval[2] = ptrbaVIIRS[2][i * 3200 + j];
+                pixval[1] = ptrbaVIIRS[1][i * earth_views_per_scanline + j];
+                pixval[2] = ptrbaVIIRS[2][i * earth_views_per_scanline + j];
             }
 
 
-            map_x = projectionCoordX[i * 3200 + j];
-            map_y = projectionCoordY[i * 3200 + j];
+            map_x = projectionCoordX[i * earth_views_per_scanline + j];
+            map_y = projectionCoordY[i * earth_views_per_scanline + j];
 
             if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
             {
@@ -1203,7 +1213,7 @@ void SegmentVIIRSM::RecalculateProjection()
 //    {
 //        for( int j = 0; j < this->earth_views_per_scanline ; j++ )
 //        {
-//            if(projectionCoordX[i * 3200 + j] != 65535)
+//            if(projectionCoordX[i * earth_views_per_scanline + j] != 65535)
 //                cntcoord++;
 //            cnttotal++;
 
@@ -1221,15 +1231,15 @@ void SegmentVIIRSM::RecalculateProjection()
     {
         for( int j = 0; j < 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
         {
-            if(projectionCoordX[i * 3200 + j] < 10000 && projectionCoordX[i * 3200 + j + 1] < 10000)
+            if(projectionCoordX[i * earth_views_per_scanline + j] < 10000 && projectionCoordX[i * earth_views_per_scanline + j + 1] < 10000)
             {
-                if(maxX < abs(projectionCoordX[i * 3200 + j] - projectionCoordX[i * 3200 + j + 1]) )
-                    maxX = abs(projectionCoordX[i * 3200 + j] - projectionCoordX[i * 3200 + j + 1]);
-                if(maxY < abs(projectionCoordY[i * 3200 + j] - projectionCoordY[i * 3200 + j + 1]) )
-                    maxY = abs(projectionCoordY[i * 3200 + j] - projectionCoordY[i * 3200 + j + 1]);
+                if(maxX < abs(projectionCoordX[i * earth_views_per_scanline + j] - projectionCoordX[i * earth_views_per_scanline + j + 1]) )
+                    maxX = abs(projectionCoordX[i * earth_views_per_scanline + j] - projectionCoordX[i * earth_views_per_scanline + j + 1]);
+                if(maxY < abs(projectionCoordY[i * earth_views_per_scanline + j] - projectionCoordY[i * earth_views_per_scanline + j + 1]) )
+                    maxY = abs(projectionCoordY[i * earth_views_per_scanline + j] - projectionCoordY[i * earth_views_per_scanline + j + 1]);
             }
 
-            fprintf(stderr, "%u ", projectionCoordX[i * 3200 + j]);
+            fprintf(stderr, "%u ", projectionCoordX[i * earth_views_per_scanline + j]);
         }
 
         fprintf(stderr, "\n");
@@ -1241,7 +1251,7 @@ void SegmentVIIRSM::RecalculateProjection()
     {
         for( int j = 0; j < 16; j++) //this->earth_views_per_scanline - 1 ; j++ )
         {
-            fprintf(stderr, "%u ", projectionCoordY[i * 3200 + j]);
+            fprintf(stderr, "%u ", projectionCoordY[i * earth_views_per_scanline + j]);
         }
 
         fprintf(stderr, "\n");
@@ -1290,12 +1300,12 @@ void SegmentVIIRSM::RecalculateProjection()
 //                {
 //                    if(col == 1500 && row == 400)
 //                        counter++;
-//                    pixval[0] = ptrbaVIIRS[0][col * 3200 + row];
+//                    pixval[0] = ptrbaVIIRS[0][col * earth_views_per_scanline + row];
 //                    valok[0] = pixval[0] > 0 && pixval[0] < 65528;
 //                    if(color)
 //                    {
-//                        pixval[1] = ptrbaVIIRS[1][col * 3200 + row];
-//                        pixval[2] = ptrbaVIIRS[2][col * 3200 + row];
+//                        pixval[1] = ptrbaVIIRS[1][col * earth_views_per_scanline + row];
+//                        pixval[2] = ptrbaVIIRS[2][col * earth_views_per_scanline + row];
 //                        valok[1] = pixval[1] > 0 && pixval[1] < 65528;
 //                        valok[2] = pixval[2] > 0 && pixval[2] < 65528;
 //                    }
@@ -1322,18 +1332,18 @@ void SegmentVIIRSM::LonLatMax()
     latMin = +90.0;
     latMax = -90.0;
 
-    for (int j = 0; j < 768; j+=1)
+    for (int j = 0; j < NbrOfLines; j+=1)
     {
-        for (int i = 0; i < 3200; i+=1)
+        for (int i = 0; i < earth_views_per_scanline; i+=1)
         {
-           if(geolatitude[j * 3200 + i] > latMax)
-               latMax = geolatitude[j * 3200 + i];
-           if(geolatitude[j * 3200 + i] <= latMin)
-               latMin = geolatitude[j * 3200 + i];
-           if(geolongitude[j * 3200 + i] > lonMax)
-               lonMax = geolongitude[j * 3200 + i];
-           if(geolongitude[j * 3200 + i] <= lonMin)
-               lonMin = geolongitude[j * 3200 + i];
+           if(geolatitude[j * earth_views_per_scanline + i] > latMax)
+               latMax = geolatitude[j * earth_views_per_scanline + i];
+           if(geolatitude[j * earth_views_per_scanline + i] <= latMin)
+               latMin = geolatitude[j * earth_views_per_scanline + i];
+           if(geolongitude[j * earth_views_per_scanline + i] > lonMax)
+               lonMax = geolongitude[j * earth_views_per_scanline + i];
+           if(geolongitude[j * earth_views_per_scanline + i] <= lonMin)
+               lonMin = geolongitude[j * earth_views_per_scanline + i];
         }
      }
 
@@ -1369,12 +1379,12 @@ void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 
     for (int pix = 0 ; pix < earthviews; pix+=2)
     {
-        pixval[0] = ptrbaVIIRS[0][nbrLine * 3200 + pix];
+        pixval[0] = ptrbaVIIRS[0][nbrLine * earth_views_per_scanline + pix];
         valok[0] = pixval[0] < 65528 && pixval[0] > 0;
         if(color)
         {
-            pixval[1] = ptrbaVIIRS[1][nbrLine * 3200 + pix];
-            pixval[2] = ptrbaVIIRS[2][nbrLine * 3200 + pix];
+            pixval[1] = ptrbaVIIRS[1][nbrLine * earth_views_per_scanline + pix];
+            pixval[2] = ptrbaVIIRS[2][nbrLine * earth_views_per_scanline + pix];
             valok[1] = pixval[1] < 65528 && pixval[1] > 0;
             valok[2] = pixval[2] < 65528 && pixval[2] > 0;
         }
@@ -1382,7 +1392,7 @@ void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 
         if( valok[0] && (color ? valok[1] && valok[2] : true))
         {
-            sphericalToPixel( this->geolongitude[nbrLine * 3200 + pix] * PI/180.0, this->geolatitude[nbrLine * 3200 + pix] * PI/180.0, posx, posy, devwidth, devheight );
+            sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, posx, posy, devwidth, devheight );
             rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
             fb_painter.setPen(rgb);
             fb_painter.drawPoint( posx , posy );
@@ -1394,103 +1404,208 @@ void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 }
 
 
-void SegmentVIIRSM::MapPixel( int lines, int views, double map_x, double map_y, bool color)
+//void SegmentVIIRSM::MapPixel( int lines, int views, double map_x, double map_y, bool iscolor)
+//{
+//    int indexout[3];
+//    quint16 pixval[3];
+//    quint16 pixval4096[3];
+
+//    int color8[3];
+//    int color12[3];
+
+//    int r, g, b;
+//    QRgb rgbvalue = qRgba(0,0,0,0);
+
+//    pixval[0] = ptrbaVIIRS[0][lines * earth_views_per_scanline + views];
+//    if(iscolor)
+//    {
+//        pixval[1] = ptrbaVIIRS[1][lines * earth_views_per_scanline + views];
+//        pixval[2] = ptrbaVIIRS[2][lines * earth_views_per_scanline + views];
+//    }
+
+//    if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
+//    {
+
+//        projectionCoordX[lines * earth_views_per_scanline + views] = (qint32)map_x;
+//        projectionCoordY[lines * earth_views_per_scanline + views] = (qint32)map_y;
+
+//        for(int k = 0; k < (color ? 3 : 1); k++)
+//        {
+//            pixval4096[k] =  (quint16)qMin(qMax(qRound(4095.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 4095);
+
+//            indexout[k] =  (int)(255 * ( pixval[k] - imageptrs->stat_min_ch[k] ) / (imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k]));
+//            indexout[k] = ( indexout[k] > 255 ? 255 : indexout[k] );
+//        }
+
+//        if(iscolor)
+//        {
+//            if(invertthissegment[0])
+//            {
+//                color12[0] = 4095 - pixval4096[0];
+//                r = 255 - imageptrs->lut_ch[0][indexout[0]];
+//            }
+//            else
+//            {
+//                color12[0] = pixval4096[0];
+//                r = imageptrs->lut_ch[0][indexout[0]];
+//            }
+//            if(invertthissegment[1])
+//            {
+//                color12[1] = 4095 - pixval4096[1];
+//                g = 255 - imageptrs->lut_ch[1][indexout[1]];
+//            }
+//            else
+//            {
+//                color12[1] = pixval4096[1];
+//                g = imageptrs->lut_ch[1][indexout[1]];
+//            }
+//            if(invertthissegment[2])
+//            {
+//                color12[2] = 4095 - pixval4096[2];
+//                b = 255 - imageptrs->lut_ch[2][indexout[2]];
+//            }
+//            else
+//            {
+//                color12[2] = pixval4096[k];
+//                b = imageptrs->lut_ch[2][indexout[2]];
+//            }
+//            //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
+//            rgbvalue = qRgba(r, g, b, 255);
+
+//        }
+//        else
+//        {
+//            if(invertthissegment[0])
+//            {
+//                color12[0] = 4095 - pixval4096[0];
+//                r = 255 - imageptrs->lut_ch[0][indexout[0]];
+//            }
+//            else
+//                r = imageptrs->lut_ch[0][indexout[0]];
+
+//             rgbvalue = qRgba(r, r, r, 255);
+//        }
+
+//        if(opts.sattrackinimage)
+//        {
+//            if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
+//            {
+//                rgbvalue = qRgb(250, 0, 0);
+//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//            }
+//            else
+//            {
+//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+
+//            }
+//        }
+//        else
+//        {
+//            if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//            projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+//        }
+//        if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//        {
+//            float tmp = getBrightnessTemp(lines, views);
+//            imageptrs->ptrProjectionBrightnessTemp[(int)map_y * imageptrs->ptrimageProjection->width() + (int)map_x] = tmp;
+//        }
+//    }
+//}
+
+void SegmentVIIRSM::MapPixel(int lines, int views, double map_x, double map_y, bool iscolor)
 {
     int indexout[3];
-    int pixval[3];
-    int r, g, b;
-    QRgb rgbvalue = qRgb(0,0,0);
+    quint16 pixval[3];
+    quint16 pixval256[3];
+    quint16 pixval4096[3];
 
-    pixval[0] = ptrbaVIIRS[0][lines * 3200 + views];
-    if(color)
+    int color8[3];
+    int color12[3];
+    QRgb rgbvalue = qRgba(0,0,0,0);
+
+    pixval[0] = ptrbaVIIRS[0][lines * earth_views_per_scanline + views];
+
+    if(iscolor)
     {
-        pixval[1] = ptrbaVIIRS[1][lines * 3200 + views];
-        pixval[2] = ptrbaVIIRS[2][lines * 3200 + views];
+        pixval[1] = ptrbaVIIRS[1][lines * earth_views_per_scanline + views];
+        pixval[2] = ptrbaVIIRS[2][lines * earth_views_per_scanline + views];
     }
 
     if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
     {
 
-        projectionCoordX[lines * 3200 + views] = (qint32)map_x;
-        projectionCoordY[lines * 3200 + views] = (qint32)map_y;
+        projectionCoordX[lines * earth_views_per_scanline + views] = (qint32)map_x;
+        projectionCoordY[lines * earth_views_per_scanline + views] = (qint32)map_y;
 
-        for(int i = 0; i < (color ? 3 : 1); i++)
+
+        for(int k = 0; k < (iscolor ? 3 : 1); k++)
         {
-            indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
-            indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
+            pixval4096[k] =  (quint16)qMin(qMax(qRound(4095.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 4095);
+            pixval256[k] =  (quint16)qMin(qMax(qRound(255.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 255);
+
+            indexout[k] =  pixval256[k];
+
+
+            if(invertthissegment[k])
+            {
+                color12[k] = 4095 - pixval4096[k];
+                color8[k] = 255 - (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval256[k]]), 0), 255);
+            }
+            else
+            {
+                color12[k] = pixval4096[k];
+                color8[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval256[k]]), 0), 255);
+            }
         }
 
-        if(color)
-        {
-            if(invertthissegment[0])
-            {
-                r = 255 - imageptrs->lut_ch[0][indexout[0]];
-            }
-            else
-                r = imageptrs->lut_ch[0][indexout[0]];
-            if(invertthissegment[1])
-            {
-                g = 255 - imageptrs->lut_ch[1][indexout[1]];
-            }
-            else
-                g = imageptrs->lut_ch[1][indexout[1]];
-            if(invertthissegment[2])
-            {
-                b = 255 - imageptrs->lut_ch[2][indexout[2]];
-            }
-            else
-                b = imageptrs->lut_ch[2][indexout[2]];
 
-            //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
-            rgbvalue = qRgba(r, g, b, 255);
+        rgbvalue = qRgba(color8[0], iscolor ? color8[1] : color8[0], iscolor ? color8[2] : color8[0], 255 );
 
-        }
-        else
-        {
-            if(invertthissegment[0])
-            {
-                r = 255 - imageptrs->lut_ch[0][indexout[0]];
-            }
-            else
-                r = imageptrs->lut_ch[0][indexout[0]];
 
-             rgbvalue = qRgba(r, r, r, 255);
-        }
+//        if(opts.sattrackinimage)
+//        {
+//            if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
+//            {
+//                rgbvalue = qRgb(250, 0, 0);
+//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//            }
+//            else
+//            {
+//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
 
-        if(opts.sattrackinimage)
-        {
-            if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
-            {
-                rgbvalue = qRgb(250, 0, 0);
-                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-            }
-            else
-            {
-                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-                projectionCoordValue[lines * 3200 + views] = rgbvalue;
-
-            }
-        }
-        else
-        {
+//            }
+//        }
+//        else
+//        {
             if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
                 imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-            projectionCoordValue[lines * 3200 + views] = rgbvalue;
-        }
-        if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-        {
-            float tmp = getBrightnessTemp(lines, views);
-            imageptrs->ptrProjectionBrightnessTemp[(int)map_y * imageptrs->ptrimageProjection->width() + (int)map_x] = tmp;
-        }
+            projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+            projectionCoordValueRed[lines * earth_views_per_scanline + views] = color12[0];
+            if(iscolor)
+            {
+                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[1];
+                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[2];
+            }
+            else
+            {
+                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[0];
+                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[0];
+            }
+//        }
     }
 }
 
 float SegmentVIIRSM::getBrightnessTemp(int lines, int views)
 {
     float radiancefloat;
-    int radint = this->ptrbaVIIRS[0][lines * 3200 + views];
+    int radint = this->ptrbaVIIRS[0][lines * earth_views_per_scanline + views];
 
     if(radint >= 0 && radint < threshold[0])
         radiancefloat = radianceoffsetlow[0] + radiancescalelow[0] * radint;
@@ -1532,7 +1647,7 @@ float SegmentVIIRSM::getRadiance(int lines, int views) // in W/sr*cm*cm
 {
 
     float radiancefloat;
-    int radint = this->ptrbaVIIRS[0][lines * 3200 + views];
+    int radint = this->ptrbaVIIRS[0][lines * earth_views_per_scanline + views];
 
     if(radint >= 0 && radint < threshold[0])
         radiancefloat = radianceoffsetlow[0] + radiancescalelow[0] * radint;

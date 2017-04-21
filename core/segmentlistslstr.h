@@ -26,9 +26,9 @@ private:
 
     SatelliteList *satlist;
 
-    QList<bool> bandlist;
-    QList<int> colorlist;
-    QList<bool> inverselist;
+//    QList<bool> bandlist;
+//    QList<int> colorlist;
+//    QList<bool> inverselist;
 
     int histogrammethod;
 

@@ -70,6 +70,21 @@ int SegmentList::NbrOfSegmentsSelected()
 
 }
 
+int SegmentList::NbrOfSegmentsSelectedinMemory()
+{
+    int nbr = 0;
+
+    QList<Segment*>::iterator segit = segsselected.begin();
+
+    while ( segit != segsselected.end() )
+    {
+        nbr++;
+        ++segit;
+    }
+
+    return nbr;
+}
+
 
 int SegmentList::NbrOfSegmentsShown()
 {
@@ -911,7 +926,6 @@ void SegmentList::SmoothProjectionImageBilinear()
 
     qDebug() << "start SegmentList::SmoothProjectionImageBilinear()";
 
-
     int lineimage = 0;
 
     QList<Segment *>::iterator segsel;
@@ -1004,15 +1018,6 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
     int earthviews = this->NbrOfEartviewsPerScanline();
 
     qDebug() << "===> start SegmentList::BilinearInterpolation(Segment *segm) for " << segm->segment_type;
-
-//    int line = 500;
-//    {
-//        for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
-//        {
-//            x11 = segm->getProjectionX(line, pixelx);
-//            qDebug() << QString("line = %1 pixelx = %2 x11 = %3").arg(line).arg(pixelx).arg(x11);
-//        }
-//    }
 
     for (int line = 0; line < segm->NbrOfLines-1; line++)
     {
@@ -1133,6 +1138,171 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
     }
 
     qDebug() << QString("====> end SegmentList::BilinearInterpolation(Segment *segm) counter = %1 countern = %2").arg(counter).arg(counterb);
+
+}
+
+
+void SegmentList::BilinearInterpolation12bits(Segment *segm)
+{
+    qint32 x11;
+    qint32 y11;
+    quint16 col11[3];
+
+    qint32 x12;
+    qint32 y12;
+    quint16 col12[3];
+
+    qint32 x21;
+    qint32 y21;
+    quint16 col21[3];
+
+    qint32 x22;
+    qint32 y22;
+    quint16 col22[3];
+
+    qint32 xc11;
+    qint32 yc11;
+
+    qint32 xc12;
+    qint32 yc12;
+
+    qint32 xc21;
+    qint32 yc21;
+
+    qint32 xc22;
+    qint32 yc22;
+
+    qint32 minx;
+    qint32 miny;
+    qint32 maxx;
+    qint32 maxy;
+
+    qint32 anchorX;
+    qint32 anchorY;
+
+    int dimx, dimy;
+
+    long counter = 0;
+
+    quint16 *canvasred;
+    quint16 *canvasgreen;
+    quint16 *canvasblue;
+    quint8 *canvasalpha;
+
+    int earthviews = this->NbrOfEartviewsPerScanline();
+
+    qDebug() << "===> start SegmentList::BilinearInterpolation12bits(Segment *segm) for " << segm->segment_type;
+
+    for (int line = 0; line < segm->NbrOfLines-1; line++)
+    {
+        for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
+        {
+            x11 = segm->getProjectionX(line, pixelx);
+            y11 = segm->getProjectionY(line, pixelx);
+
+            x12 = segm->getProjectionX(line, pixelx+1);
+            y12 = segm->getProjectionY(line, pixelx+1);
+
+            x21 = segm->getProjectionX(line+1, pixelx);
+            y21 = segm->getProjectionY(line+1, pixelx);
+
+            x22 = segm->getProjectionX(line+1, pixelx+1);
+            y22 = segm->getProjectionY(line+1, pixelx+1);
+
+            if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
+                    && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528)
+                    // && x11 > -50 && x12 > -50 && x21 > -50 && x22 > -50
+                    // && y11 > -50 && y12 > -50 && y21 > -50 && y22 > -50 )
+            {
+                minx = Min(x11, x12, x21, x22);
+                miny = Min(y11, y12, y21, y22);
+                maxx = Max(x11, x12, x21, x22);
+                maxy = Max(y11, y12, y21, y22);
+
+                anchorX = minx;
+                anchorY = miny;
+                dimx = maxx + 1 - minx;
+                dimy = maxy + 1 - miny;
+                if( (dimx == 1 && dimy == 1) || (dimx > 50 && dimy > 50))
+                {
+                    counter++;
+                }
+                else
+                {
+                    col11[0] = segm->getProjectionValueRed(line, pixelx);
+                    col12[0] = segm->getProjectionValueRed(line, pixelx+1);
+                    col21[0] = segm->getProjectionValueRed(line+1, pixelx);
+                    col22[0] = segm->getProjectionValueRed(line+1, pixelx+1);
+
+                    col11[1] = segm->getProjectionValueGreen(line, pixelx);
+                    col12[1] = segm->getProjectionValueGreen(line, pixelx+1);
+                    col21[1] = segm->getProjectionValueGreen(line+1, pixelx);
+                    col22[1] = segm->getProjectionValueGreen(line+1, pixelx+1);
+
+                    col11[2] = segm->getProjectionValueBlue(line, pixelx);
+                    col12[2] = segm->getProjectionValueBlue(line, pixelx+1);
+                    col21[2] = segm->getProjectionValueBlue(line+1, pixelx);
+                    col22[2] = segm->getProjectionValueBlue(line+1, pixelx+1);
+
+                    xc11 = x11 - minx;
+                    xc12 = x12 - minx;
+                    xc21 = x21 - minx;
+                    xc22 = x22 - minx;
+                    yc11 = y11 - miny;
+                    yc12 = y12 - miny;
+                    yc21 = y21 - miny;
+                    yc22 = y22 - miny;
+
+                    canvasred = new quint16[dimx * dimy];
+                    canvasgreen = new quint16[dimx * dimy];
+                    canvasblue = new quint16[dimx * dimy];
+                    canvasalpha = new quint8[dimx * dimy];
+
+                    for(int i = 0 ; i < dimx * dimy ; i++)
+                    {
+                        canvasred[i] = 0;
+                        canvasgreen[i] = 0;
+                        canvasblue[i] = 0;
+                        canvasalpha[i] = 0;
+                    }
+
+                    canvasred[yc11 * dimx + xc11] = col11[0];
+                    canvasred[yc12 * dimx + xc12] = col12[0];
+                    canvasred[yc21 * dimx + xc21] = col21[0];
+                    canvasred[yc22 * dimx + xc22] = col22[0];
+
+                    canvasgreen[yc11 * dimx + xc11] = col11[1];
+                    canvasgreen[yc12 * dimx + xc12] = col12[1];
+                    canvasgreen[yc21 * dimx + xc21] = col21[1];
+                    canvasgreen[yc22 * dimx + xc22] = col22[1];
+
+                    canvasblue[yc11 * dimx + xc11] = col11[2];
+                    canvasblue[yc12 * dimx + xc12] = col12[2];
+                    canvasblue[yc21 * dimx + xc21] = col21[2];
+                    canvasblue[yc22 * dimx + xc22] = col22[2];
+
+                    canvasalpha[yc11 * dimx + xc11] = 255;
+                    canvasalpha[yc12 * dimx + xc12] = 255;
+                    canvasalpha[yc21 * dimx + xc21] = 255;
+                    canvasalpha[yc22 * dimx + xc22] = 255;
+
+                    bhm_line12bits(xc11, yc11, xc12, yc12, col11, col12, canvasred, canvasgreen, canvasblue, canvasalpha, dimx);
+                    bhm_line12bits(xc12, yc12, xc22, yc22, col12, col22, canvasred, canvasgreen, canvasblue, canvasalpha, dimx);
+                    bhm_line12bits(xc22, yc22, xc21, yc21, col22, col21, canvasred, canvasgreen, canvasblue, canvasalpha, dimx);
+                    bhm_line12bits(xc21, yc21, xc11, yc11, col21, col11, canvasred, canvasgreen, canvasblue, canvasalpha, dimx);
+
+                    MapInterpolation12bits(canvasred, canvasgreen, canvasblue, canvasalpha, dimx, dimy);
+                    MapCanvas12bits(canvasred, canvasgreen, canvasblue, canvasalpha, anchorX, anchorY, dimx, dimy);
+
+                    delete [] canvasred;
+                    delete [] canvasgreen;
+                    delete [] canvasblue;
+                    delete [] canvasalpha;
+                }
+            }
+        }
+    }
+
 
 }
 
@@ -1259,6 +1429,173 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext,
 
 
     qDebug() << QString("====> end SegmentList::BilinearInbetween(Segment *segmfirst, Segment *segmnext) counter = %1 counterb = %2").arg(counter).arg(counterb);
+
+}
+
+void SegmentList::BilinearBetweenSegments12bits(Segment *segmfirst, Segment *segmnext)
+{
+    qint32 x11;
+    qint32 y11;
+    quint16 col11[3];
+
+    qint32 x12;
+    qint32 y12;
+    quint16 col12[3];
+
+    qint32 x21;
+    qint32 y21;
+    quint16 col21[3];
+
+    qint32 x22;
+    qint32 y22;
+    quint16 col22[3];
+
+    qint32 xc11;
+    qint32 yc11;
+
+    qint32 xc12;
+    qint32 yc12;
+
+    qint32 xc21;
+    qint32 yc21;
+
+    qint32 xc22;
+    qint32 yc22;
+
+    qint32 minx;
+    qint32 miny;
+    qint32 maxx;
+    qint32 maxy;
+
+    qint32 anchorX;
+    qint32 anchorY;
+
+    int dimx, dimy;
+
+    long counter = 0;
+    long counterb = 0;
+
+    quint16 *canvasred;
+    quint16 *canvasgreen;
+    quint16 *canvasblue;
+    quint8 *canvasalpha;
+
+    int earthviews = this->NbrOfEartviewsPerScanline();
+
+    for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
+    {
+        x11 = segmfirst->getProjectionX(segmfirst->NbrOfLines-1, pixelx);
+        y11 = segmfirst->getProjectionY(segmfirst->NbrOfLines-1, pixelx);
+
+        x12 = segmfirst->getProjectionX(segmfirst->NbrOfLines-1, pixelx+1);
+        y12 = segmfirst->getProjectionY(segmfirst->NbrOfLines-1, pixelx+1);
+
+        x21 = segmnext->getProjectionX(0, pixelx);
+        y21 = segmnext->getProjectionY(0, pixelx);
+
+        x22 = segmnext->getProjectionX(0, pixelx+1);
+        y22 = segmnext->getProjectionY(0, pixelx+1);
+
+        if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
+                && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
+                //&& x11 >= -20 && x12 >= -20 && x21 >= -20 && x22 >= -20
+                //&& y11 >= -20 && y12 >= -20 && y21 >= -20 && y22 >= -20
+                && abs(x11 - x21) < 100)
+        {
+
+            minx = Min(x11, x12, x21, x22);
+            miny = Min(y11, y12, y21, y22);
+            maxx = Max(x11, x12, x21, x22);
+            maxy = Max(y11, y12, y21, y22);
+
+            anchorX = minx;
+            anchorY = miny;
+            dimx = maxx + 1 - minx;
+            dimy = maxy + 1 - miny;
+            if( dimx == 1 && dimy == 1 )
+            {
+                counter++;
+            }
+            else
+            {
+                col11[0] = segmfirst->getProjectionValueRed(segmfirst->NbrOfLines-1, pixelx);
+                col12[0] = segmfirst->getProjectionValueRed(segmfirst->NbrOfLines-1, pixelx+1);
+                col21[0] = segmnext->getProjectionValueRed(0, pixelx);
+                col22[0] = segmnext->getProjectionValueRed(0, pixelx+1);
+
+                col11[1] = segmfirst->getProjectionValueGreen(segmfirst->NbrOfLines-1, pixelx);
+                col12[1] = segmfirst->getProjectionValueGreen(segmfirst->NbrOfLines-1, pixelx+1);
+                col21[1] = segmnext->getProjectionValueGreen(0, pixelx);
+                col22[1] = segmnext->getProjectionValueGreen(0, pixelx+1);
+
+                col11[2] = segmfirst->getProjectionValueBlue(segmfirst->NbrOfLines-1, pixelx);
+                col12[2] = segmfirst->getProjectionValueBlue(segmfirst->NbrOfLines-1, pixelx+1);
+                col21[2] = segmnext->getProjectionValueBlue(0, pixelx);
+                col22[2] = segmnext->getProjectionValueBlue(0, pixelx+1);
+
+                xc11 = x11 - minx;
+                xc12 = x12 - minx;
+                xc21 = x21 - minx;
+                xc22 = x22 - minx;
+                yc11 = y11 - miny;
+                yc12 = y12 - miny;
+                yc21 = y21 - miny;
+                yc22 = y22 - miny;
+
+                canvasred = new quint16[dimx * dimy];
+                canvasgreen = new quint16[dimx * dimy];
+                canvasblue = new quint16[dimx * dimy];
+                canvasalpha = new quint8[dimx * dimy];
+
+                for(int i = 0 ; i < dimx * dimy ; i++)
+                {
+                    canvasred[i] = 0;
+                    canvasgreen[i] = 0;
+                    canvasblue[i] = 0;
+                    canvasalpha[i] = 0;
+                }
+
+
+                canvasred[yc11 * dimx + xc11] = col11[0];
+                canvasred[yc12 * dimx + xc12] = col12[0];
+                canvasred[yc21 * dimx + xc21] = col21[0];
+                canvasred[yc22 * dimx + xc22] = col22[0];
+
+                canvasgreen[yc11 * dimx + xc11] = col11[1];
+                canvasgreen[yc12 * dimx + xc12] = col12[1];
+                canvasgreen[yc21 * dimx + xc21] = col21[1];
+                canvasgreen[yc22 * dimx + xc22] = col22[1];
+
+                canvasblue[yc11 * dimx + xc11] = col11[2];
+                canvasblue[yc12 * dimx + xc12] = col12[2];
+                canvasblue[yc21 * dimx + xc21] = col21[2];
+                canvasblue[yc22 * dimx + xc22] = col22[2];
+
+                canvasalpha[yc11 * dimx + xc11] = 255;
+                canvasalpha[yc12 * dimx + xc12] = 255;
+                canvasalpha[yc21 * dimx + xc21] = 255;
+                canvasalpha[yc22 * dimx + xc22] = 255;
+
+
+                bhm_line12bits(xc11, yc11, xc12, yc12, col11, col12, canvasred, canvasgreen, canvasblue, canvasalpha, dimx);
+                bhm_line12bits(xc12, yc12, xc22, yc22, col12, col22, canvasred, canvasgreen, canvasblue, canvasalpha, dimx);
+                bhm_line12bits(xc22, yc22, xc21, yc21, col22, col21, canvasred, canvasgreen, canvasblue, canvasalpha, dimx);
+                bhm_line12bits(xc21, yc21, xc11, yc11, col21, col11, canvasred, canvasgreen, canvasblue, canvasalpha, dimx);
+
+                MapInterpolation12bits(canvasred, canvasgreen, canvasblue, canvasalpha, dimx, dimy);
+                MapCanvas12bits(canvasred, canvasgreen, canvasblue, canvasalpha, anchorX, anchorY, dimx, dimy);
+
+                delete [] canvasred;
+                delete [] canvasgreen;
+                delete [] canvasblue;
+                delete [] canvasalpha;
+
+            }
+        }
+    }
+
+
+    qDebug() << QString("====> end SegmentList::BilinearBetweenSegments12bit(Segment *segmfirst, Segment *segmnext) counter = %1 counterb = %2").arg(counter).arg(counterb);
 
 }
 
@@ -1430,6 +1767,189 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
 }
 
 
+bool SegmentList::bhm_line12bits(int x1, int y1, int x2, int y2, quint16 col1[3], quint16 col2[], quint16 *canvasred, quint16 *canvasgreen, quint16 *canvasblue, quint8 *canvasalpha, int dimx)
+{
+    int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
+    float deltared, deltagreen, deltablue;
+    float red1, red2, green1, green2, blue1, blue2;
+
+    dx=x2-x1;
+    dy=y2-y1;
+    dx1=abs(dx);
+    dy1=abs(dy);
+    px=2*dy1-dx1;
+    py=2*dx1-dy1;
+
+    red1 = col1[0];
+    red2 = col2[0];
+    green1 = col1[1];
+    green2 = col2[1];
+    blue1 = col1[2];
+    blue2 = col2[2];
+
+    if(dy1<=dx1)
+    {
+        if(dx1==0)
+            return false;
+
+        if(dx>=0)
+        {
+            x=x1;
+            y=y1;
+            xe=x2;
+            deltared = (float)(col2[0] - col1[0])/ (float)dx1 ;
+            deltagreen = (float)(col2[1] - col1[1])/ (float)dx1 ;
+            deltablue = (float)(col2[2] - col1[2])/ (float)dx1 ;
+//            canvas[y * yy + x] = val1;
+
+        }
+        else
+        {
+            x=x2;
+            y=y2;
+            xe=x1;
+            deltared = (float)(col1[0] - col2[0])/ (float)dx1 ;
+            deltagreen = (float)(col1[1] - col2[1])/ (float)dx1 ;
+            deltablue = (float)(col1[2] - col2[2])/ (float)dx1 ;
+//            canvas[y * yy + x] = val2;
+
+        }
+
+        for(i=0;x<xe;i++)
+        {
+            x=x+1;
+
+            if(px<0)
+            {
+                px=px+2*dy1;
+            }
+            else
+            {
+                if((dx<0 && dy<0) || (dx>0 && dy>0))
+                {
+                    y=y+1;
+                }
+                else
+                {
+                    y=y-1;
+                }
+                px=px+2*(dy1-dx1);
+            }
+            if(dx>=0)
+            {
+                red1 += deltared;
+                green1 += deltagreen;
+                blue1 += deltablue;
+
+                if( x != xe)
+                {
+                    canvasred[y * dimx + x] = red1;
+                    canvasgreen[y * dimx + x] = green1;
+                    canvasblue[y * dimx + x] = blue1;
+                    canvasalpha[y * dimx + x] = 255;
+                }
+            }
+            else
+            {
+                red2 += deltared;
+                green2 += deltagreen;
+                blue2 += deltablue;
+
+                if( x != xe)
+                {
+                    canvasred[y * dimx + x] = red2;
+                    canvasgreen[y * dimx + x] = green2;
+                    canvasblue[y * dimx + x] = blue2;
+                    canvasalpha[y * dimx + x] = 255;
+                }
+            }
+
+        }
+    }
+    else
+    {
+        if(dy1==0)
+            return false;
+
+        if(dy>=0)
+        {
+            x=x1;
+            y=y1;
+            ye=y2;
+            deltared = (float)(col2[0] - col1[0])/ (float)dy1 ;
+            deltagreen = (float)(col2[1] - col1[1])/ (float)dy1 ;
+            deltablue = (float)(col2[2] - col1[2])/ (float)dy1 ;
+
+//            canvas[y * yy + x] = val1;
+        }
+        else
+        {
+            x=x2;
+            y=y2;
+            ye=y1;
+            deltared = (float)(col1[0] - col2[0])/ (float)dy1 ;
+            deltagreen = (float)(col1[1] - col2[1])/ (float)dy1 ;
+            deltablue = (float)(col1[2] - col2[2])/ (float)dy1 ;
+
+//            canvas[y * yy + x] = val2;
+        }
+
+
+        for(i=0;y<ye;i++)
+        {
+            y=y+1;
+
+            if(py<=0)
+            {
+                py=py+2*dx1;
+            }
+            else
+            {
+                if((dx<0 && dy<0) || (dx>0 && dy>0))
+                {
+                    x=x+1;
+                }
+                else
+                {
+                    x=x-1;
+                }
+                py=py+2*(dx1-dy1);
+            }
+            if(dy>=0)
+            {
+                red1 += deltared;
+                green1 += deltagreen;
+                blue1 += deltablue;
+
+                if( y != ye)
+                {
+                    canvasred[y * dimx + x] = red1;
+                    canvasgreen[y * dimx + x] = green1;
+                    canvasblue[y * dimx + x] = blue1;
+                    canvasalpha[y * dimx + x] = 255;
+                }
+            }
+            else
+            {
+                red2 += deltared;
+                green2 += deltagreen;
+                blue2 += deltablue;
+
+                if( y != ye)
+                {
+                    canvasred[y * dimx + x] = red2;
+                    canvasgreen[y * dimx + x] = green2;
+                    canvasblue[y * dimx + x] = blue2;
+                    canvasalpha[y * dimx + x] = 255;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+
 
 void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
 {
@@ -1567,6 +2087,191 @@ void SegmentList::MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy)
         }
     }
 
+
+}
+
+void SegmentList::MapInterpolation12bits(quint16 *canvasred, quint16 *canvasgreen, quint16 *canvasblue, quint8 *canvasalpha, quint16 dimx, quint16 dimy)
+{
+
+    for(int h = 0; h < dimy; h++ )
+    {
+        quint16 startred = 0;
+        quint16 startgreen = 0;
+        quint16 startblue = 0;
+
+        quint16 endred = 0;
+        quint16 endgreen = 0;
+        quint16 endblue = 0;
+
+        bool hole = false;
+        bool first = false;
+        bool last = false;
+        int holecount = 0;
+
+        for(int w = 0; w < dimx; w++)
+        {
+            quint16 r = canvasred[h * dimx + w];
+            quint16 g = canvasgreen[h * dimx + w];
+            quint16 b = canvasblue[h * dimx + w];
+            quint16 a = canvasalpha[h * dimx + w];
+            if(a == 255 && hole == false)
+            {
+                startred = r;
+                startgreen = g;
+                startblue = b;
+                first = true;
+            }
+            else if(a == 255 && hole == true)
+            {
+                endred = r;
+                endgreen = g;
+                endblue = b;
+                last = true;
+                break;
+            }
+            else if(a == 0 && first == true)
+            {
+                hole = true;
+                holecount++;
+                canvasred[h * dimx + w] = 0;
+                canvasgreen[h * dimx + w] = 0;
+                canvasblue[h * dimx + w] = 0;
+                canvasalpha[h * dimx + w] = 100;
+            }
+        }
+
+        if(holecount == 0)
+            continue;
+        if(first == false || last == false)
+        {
+            for(int w = 0; w < dimx; w++)
+            {
+                quint16 r = canvasred[h * dimx + w];
+                quint16 g = canvasgreen[h * dimx + w];
+                quint16 b = canvasblue[h * dimx + w];
+                quint8 a = canvasalpha[h * dimx + w];
+
+                if(a == 100)
+                {
+                    canvasred[h * dimx + w] = 0;
+                    canvasgreen[h * dimx + w] = 0;
+                    canvasblue[h * dimx + w] = 0;
+                    canvasalpha[h * dimx + w] = 0;
+                }
+            }
+            continue;
+        }
+
+
+
+        float deltared = (float)(endred - startred) / (float)(holecount+1);
+        float deltagreen = (float)(endgreen - startgreen) / (float)(holecount+1);
+        float deltablue = (float)(endblue - startblue) / (float)(holecount+1);
+
+        float red = (float)startred;
+        float green = (float)startgreen;
+        float blue = (float)startblue;
+
+        for(int w = 0; w < dimx; w++)
+        {
+            quint16 r = canvasred[h * dimx + w];
+            quint16 g = canvasgreen[h * dimx + w];
+            quint16 b = canvasblue[h * dimx + w];
+            quint8 a = canvasalpha[h * dimx + w];
+
+            if(a == 100)
+            {
+                red += deltared;
+                green += deltagreen;
+                blue += deltablue;
+                canvasred[h * dimx + w] = (quint16)red;
+                canvasgreen[h * dimx + w] = (quint16)green;
+                canvasblue[h * dimx + w] = (quint16)blue;
+                canvasalpha[h * dimx + w] = 100;
+
+            }
+        }
+    }
+
+
+    for(int w = 0; w < dimx; w++)
+    {
+        quint16 startred = 0;
+        quint16 startgreen = 0;
+        quint16 startblue = 0;
+
+        quint16 endred = 0;
+        quint16 endgreen = 0;
+        quint16 endblue = 0;
+
+        int hcount = 0;
+
+        bool startok = false;
+
+        for(int h = 0; h < dimy; h++)
+        {
+            quint16 r = canvasred[h * dimx + w];
+            quint16 g = canvasgreen[h * dimx + w];
+            quint16 b = canvasblue[h * dimx + w];
+            quint8 a = canvasalpha[h * dimx + w];
+            if(a == 255 && !startok)
+            {
+                startred = r;
+                startgreen = g;
+                startblue = b;
+            }
+            else
+            {
+                if(a == 255)
+                {
+                    endred = r;
+                    endgreen = g;
+                    endblue = b;
+                    break;
+                }
+                else if(a == 100)
+                {
+                    startok = true;
+                    hcount++;
+                }
+
+            }
+        }
+
+        if(hcount == 0)
+            continue;
+
+        float fredstart = (float)startred;
+        float fgreenstart = (float)startgreen;
+        float fbluestart = (float)startblue;
+
+        float deltared = (float)(endred - startred) / (float)(hcount+1);
+        float deltagreen = (float)(endgreen - startgreen) / (float)(hcount+1);
+        float deltablue = (float)(endblue - startblue) / (float)(hcount+1);
+
+
+        for(int h = 0; h < dimy; h++)
+        {
+            quint16 r = canvasred[h * dimx + w];
+            quint16 g = canvasgreen[h * dimx + w];
+            quint16 b = canvasblue[h * dimx + w];
+            quint8 a = canvasalpha[h * dimx + w];
+            if(a == 100)
+            {
+                fredstart += deltared;
+                fgreenstart += deltagreen;
+                fbluestart += deltablue;
+                float redtotal = (canvasred[h * dimx + w] + fredstart)/2;
+                float greentotal = (canvasgreen[h * dimx + w] + fgreenstart)/2;
+                float bluetotal = (canvasblue[h * dimx + w] + fbluestart)/2;
+
+                canvasred[h * dimx + w] = (quint16)redtotal;
+                canvasgreen[h * dimx + w] = (quint16)greentotal;
+                canvasblue[h * dimx + w] = (quint16)bluetotal;
+                canvasalpha[h * dimx + w] = 255;
+            }
+        }
+    }
 
 }
 
@@ -1754,6 +2459,32 @@ void SegmentList::MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint1
     }
 }
 
+void SegmentList::MapCanvas12bits(quint16 *canvasred, quint16 *canvasgreen, quint16 *canvasblue, quint8 *canvasalpha, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy)
+{
+    int height = imageptrs->ptrimageProjection->height();
+    int width = imageptrs->ptrimageProjection->width();
+    for(int h = 0; h < dimy; h++ )
+    {
+        for(int w = 0; w < dimx; w++)
+        {
+            quint16 r = canvasred[h * dimx + w];
+            quint16 g = canvasgreen[h * dimx + w];
+            quint16 b = canvasblue[h * dimx + w];
+            quint8 a = canvasalpha[h * dimx + w];
+
+            if(a == 255)
+            {
+                if (anchorX + w >= 0 && anchorX + w < width && anchorY + h >= 0 && anchorY + h < height)
+                {
+                     imageptrs->ptrimageProjectionRed[(anchorY + h) * width + anchorX + w] = r;
+                     imageptrs->ptrimageProjectionGreen[(anchorY + h) * width + anchorX + w] = g;
+                     imageptrs->ptrimageProjectionBlue[(anchorY + h) * width + anchorX + w] = b;
+                     imageptrs->ptrimageProjectionAlpha[(anchorY + h) * width + anchorX + w] = 64535;
+                }
+            }
+        }
+    }
+}
 
 double SegmentList::cubicInterpolate (double p[4], double x) {
     return p[1] + 0.5 * x*(p[2] - p[0] + x*(2.0*p[0] - 5.0*p[1] + 4.0*p[2] - p[3] + x*(3.0*(p[1] - p[2]) + p[3] - p[0])));
@@ -1794,4 +2525,70 @@ qint32 SegmentList::Max(const qint32 v11, const qint32 v12, const qint32 v21, co
             Maximum = v22;
 
     return Maximum;
+}
+
+void SegmentList::Compose48bitProjectionPNG(QString fileName, bool mapto65535)
+{
+    quint16 pixval, pixvalout;
+    bool iscolor = bandlist.at(0);
+
+    int height = imageptrs->ptrimageProjection->height();
+    int width = imageptrs->ptrimageProjection->width();
+
+    // initialize the FreeImage library
+    FreeImage_Initialise();
+
+    FIBITMAP *bitmap = FreeImage_AllocateT(FIT_RGBA16, width, height); // 64 bit RGBA image
+
+    for (int line = 0; line < height; line++)
+    {
+        FIRGBA16 *bits = (FIRGBA16 *)FreeImage_GetScanLine(bitmap, height - line - 1);
+        for (int pixelx = 0; pixelx < width; pixelx++)
+        {
+            pixval = imageptrs->ptrimageProjectionRed[line * width + pixelx];
+            if(mapto65535)
+                pixvalout = (quint16)qMin(qMax(16 * pixval, 0), 65535);
+            else
+                pixvalout = pixval;
+
+            bits[pixelx].red = pixvalout;
+            if(iscolor)
+            {
+                pixval = imageptrs->ptrimageProjectionGreen[line * width + pixelx];
+                if(mapto65535)
+                    pixvalout = (quint16)qMin(qMax(16 * pixval, 0), 65535);
+                else
+                    pixvalout = pixval;
+                bits[pixelx].green = pixvalout;
+
+                pixval = imageptrs->ptrimageProjectionBlue[line * width + pixelx];
+                if(mapto65535)
+                    pixvalout = (quint16)qMin(qMax(16 * pixval, 0), 65535);
+                else
+                    pixvalout = pixval;
+                bits[pixelx].blue = pixvalout;
+                bits[pixelx].alpha = imageptrs->ptrimageProjectionAlpha[line * width + pixelx];
+            }
+            else
+            {
+                bits[pixelx].green = bits[pixelx].red;
+                bits[pixelx].blue = bits[pixelx].red;
+                bits[pixelx].alpha = imageptrs->ptrimageProjectionAlpha[line * width + pixelx];
+            }
+        }
+    }
+
+    QByteArray array = fileName.toLocal8Bit();
+    char* pfileName = array.data();
+
+    if(FreeImage_Save(FIF_PNG,bitmap, pfileName,0))
+    {
+        qDebug() << "bitmap successfully saved!";
+    }
+
+    FreeImage_Unload(bitmap);
+
+    FreeImage_DeInitialise();
+
+
 }

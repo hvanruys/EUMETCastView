@@ -56,7 +56,19 @@ void StereoGraphic::Initialize(double center_lon, double center_lat, double insc
     {
         delete imageptrs->ptrimageProjection;
         imageptrs->ptrimageProjection = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
-        imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
+    }
+    imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
+    imageptrs->ptrimageProjectionRed.reset(new quint16[imagewidth * imageheight]);
+    imageptrs->ptrimageProjectionGreen.reset(new quint16[imagewidth * imageheight]);
+    imageptrs->ptrimageProjectionBlue.reset(new quint16[imagewidth * imageheight]);
+    imageptrs->ptrimageProjectionAlpha.reset(new quint16[imagewidth * imageheight]);
+
+    for(int i = 0; i < imagewidth * imageheight; i++)
+    {
+        imageptrs->ptrimageProjectionRed[i] = 0;
+        imageptrs->ptrimageProjectionGreen[i] = 0;
+        imageptrs->ptrimageProjectionBlue[i] = 0;
+        imageptrs->ptrimageProjectionAlpha[i] = 0;
     }
 
     int mapwh;
@@ -287,7 +299,6 @@ void StereoGraphic::CreateMapFromAVHRR(int inputchannel, eSegmentType type)
             segs->seglgac->SmoothProjectionImageBilinear();
         else if( type == SEG_HRP)
             segs->seglhrp->SmoothProjectionImageBilinear();
-//            imageptrs->SmoothProjectionImage();
         else if( type == SEG_HRPT_METOPA)
             segs->seglmetopAhrpt->SmoothProjectionImageBilinear();
         else if( type == SEG_HRPT_METOPB)

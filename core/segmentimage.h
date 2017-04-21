@@ -63,6 +63,10 @@ public:
 
     QScopedArrayPointer<float> ptrProjectionBrightnessTemp;
     QScopedArrayPointer<quint8> ptrProjectionInfra; // for Infra
+    QScopedArrayPointer<quint16> ptrimageProjectionRed;
+    QScopedArrayPointer<quint16> ptrimageProjectionGreen;
+    QScopedArrayPointer<quint16> ptrimageProjectionBlue;
+    QScopedArrayPointer<quint16> ptrimageProjectionAlpha;
 
     QPixmap *pmOriginal;
     QPixmap *pmOut;

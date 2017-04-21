@@ -23,6 +23,7 @@ public:
     void ComposeSGProjection(int inputchannel, int histogrammethod, bool normalized);
 
     void SmoothOLCIImage(bool combine);
+    void SmoothOLCIImage12bits();
     void ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview);
 //    bool TestForSegmentGLextended(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
     void setHistogramMethod(int histo, bool normal) { histogrammethod = histo; normalized = normal;}
@@ -31,6 +32,8 @@ public:
     void ComposeSegments();
     void Compose48bitPNG(QString fileName, bool mapto65535);
     void Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap, int heightinsegment, bool mapto65535);
+    //void Compose48bitProjectionPNG(QString fileName, bool mapto65535);
+
 
     void RecalculateCLAHEOLCI();
     long NbrOfSaturatedPixels();
@@ -45,9 +48,9 @@ private:
     void CalculateProjectionLUT();
     SatelliteList *satlist;
 
-    QList<bool> bandlist;
-    QList<int> colorlist;
-    QList<bool> inverselist;
+//    QList<bool> bandlist;
+//    QList<int> colorlist;
+//    QList<bool> inverselist;
 
     int histogrammethod;
     bool normalized;

@@ -81,6 +81,9 @@ public:
     qint32 getProjectionX(int line, int pixelx);
     qint32 getProjectionY(int line, int pixelx);
     QRgb getProjectionValue(int line, int pixelx);
+    quint16 getProjectionValueRed(int line, int pixelx);
+    quint16 getProjectionValueGreen(int line, int pixelx);
+    quint16 getProjectionValueBlue(int line, int pixelx);
     int DecompressSegmentToTemp();
     int copy_data(struct archive *ar, struct archive *aw);
 
@@ -205,6 +208,9 @@ protected:
     QScopedArrayPointer<int> projectionCoordX;
     QScopedArrayPointer<int> projectionCoordY;
     QScopedArrayPointer<QRgb> projectionCoordValue;
+    QScopedArrayPointer<quint16> projectionCoordValueRed;
+    QScopedArrayPointer<quint16> projectionCoordValueGreen;
+    QScopedArrayPointer<quint16> projectionCoordValueBlue;
 
     QList<bool> bandlist;
     QList<int> colorlist;

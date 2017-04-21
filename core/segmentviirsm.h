@@ -50,7 +50,7 @@ public:
 
 private:
 
-    void MapPixel(int lines, int views, double map_x, double map_y, bool color);
+    void MapPixel(int lines, int views, double map_x, double map_y, bool iscolor);
 
     void GetAlpha( float &ascan, float &atrack, int rels, int relt, int scan);
     void CalcGeoLocations(int itrack, int iscan);

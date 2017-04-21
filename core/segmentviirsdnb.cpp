@@ -1012,6 +1012,12 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
 //            else
 //                row[pixelx] = qRgb(255, 0, 0 );
         }
+        if(opts.imageontextureOnVIIRS) // && ((line + 5 ) % 16 == 0 || (line + 10) % 16 == 0) )
+        {
+            this->RenderSegmentlineInTextureVIIRS( line, row );
+            opts.texture_changed = true;
+        }
+
     }
 
     qDebug() << QString("Count neg = %1").arg(countneg);
@@ -1268,16 +1274,8 @@ void SegmentVIIRSDNB::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
     {
         pixval[0] = ptrbaVIIRSDNB[nbrLine * earth_views_per_scanline + pix];
         valok[0] = pixval[0] < 65528 && pixval[0] > 0;
-        if(color)
-        {
-            pixval[1] = ptrbaVIIRS[1][nbrLine * earth_views_per_scanline + pix];
-            pixval[2] = ptrbaVIIRS[2][nbrLine * earth_views_per_scanline + pix];
-            valok[1] = pixval[1] < 65528 && pixval[1] > 0;
-            valok[2] = pixval[2] < 65528 && pixval[2] > 0;
-        }
 
-
-        if( valok[0] && (color ? valok[1] && valok[2] : true))
+        if( valok[0] )
         {
             sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, posx, posy, devwidth, devheight );
             rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));

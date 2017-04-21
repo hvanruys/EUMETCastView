@@ -32,6 +32,7 @@ public:
     void ClearSegments();
     int NbrOfSegments();
     int NbrOfSegmentsSelected();
+    int NbrOfSegmentsSelectedinMemory();
     int NbrOfSegmentsShown();
     int NbrOfSegmentLinesSelected();
 
@@ -52,6 +53,8 @@ public:
     void ComposeSGProjection(int inputchannel);
     void SmoothProjectionImageBilinear();
     void SmoothProjectionImageBicubic();
+    void Compose48bitProjectionPNG(QString fileName, bool mapto65535);
+
 
     static void doReadSegmentInMemory(Segment *t);
     static void doComposeSegmentImage(Segment *t);
@@ -63,11 +66,17 @@ public:
 
 protected:
     void BilinearInterpolation(Segment *segm, bool combine);
+    void BilinearInterpolation12bits(Segment *segm);
     void BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext, bool combine);
+    void BilinearBetweenSegments12bits(Segment *segmfirst, Segment *segmnext);
     bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
+    bool bhm_line12bits(int x1, int y1, int x2, int y2, quint16 col1[3], quint16 col2[3], quint16 *canvasred, quint16 *canvasgreen, quint16 *canvasblue, quint8 *canvasalpha, int dimx);
     void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
     void MapInterpolation1(QRgb *canvas, quint16 dimx, quint16 dimy);
+    void MapInterpolation12bits(quint16 *canvasred, quint16 *canvasgreen, quint16 *canvasblue, quint8 *canvasalpha, quint16 dimx, quint16 dimy);
+
     void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine);
+    void MapCanvas12bits(quint16 *canvasred, quint16 *canvasgreen, quint16 *canvasblue, quint8 *canvasalpha, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy);
 
     double cubicInterpolate (double p[4], double x);
     double bicubicInterpolate (double p[4][4], double x, double y);
@@ -96,6 +105,11 @@ protected:
     int progressresultready; // for progresscounter
     int projectioninputchannel;
     bool channel_3_select;
+
+    QList<bool> bandlist;
+    QList<int> colorlist;
+    QList<bool> inverselist;
+
 
 signals:
     void segmentlistfinished(bool settoolboxbuttons);

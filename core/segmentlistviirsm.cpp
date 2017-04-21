@@ -641,8 +641,6 @@ void SegmentListVIIRSM::SmoothVIIRSImage(bool combine)
 
     qDebug() << "start SegmentListVIIRSM::SmoothVIIRSImage()";
 
-    int lineimage = 0;
-
     QList<Segment *>::iterator segsel;
     segsel = segsselected.begin();
 
@@ -655,9 +653,28 @@ void SegmentListVIIRSM::SmoothVIIRSImage(bool combine)
             BilinearBetweenSegments(segmsave, segm, combine);
         segmsave = segm;
         BilinearInterpolation(segm, combine);
-        //printData(segm);
         ++segsel;
-        lineimage += segm->NbrOfLines;
+    }
+}
+
+void SegmentListVIIRSM::SmoothVIIRSImage12bits()
+{
+
+    qDebug() << "start SegmentListVIIRSM::SmoothVIIRSImage12bits()";
+
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+
+    SegmentVIIRSM *segmsave;
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+        if(segsel != segsselected.begin())
+            BilinearBetweenSegments12bits(segmsave, segm);
+        segmsave = segm;
+        BilinearInterpolation12bits(segm);
+        ++segsel;
     }
 }
 
