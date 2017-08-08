@@ -1490,40 +1490,8 @@ void FormImage::slotUpdateGeosat()
 
     imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
     this->adjustImage();
+    emit allsegmentsreceivedbuttons(true);
 
-//    SegmentListGeostationary *sl = NULL;
-
-//    sl = segs->getActiveSegmentList();
-
-//    if(sl == NULL)
-//        return;
-
-//    if(sl->allSegmentsReceived())
-//    {
-//        QApplication::restoreOverrideCursor();
-//        if(sl->getGeoSatellite() == eGeoSatellite::H8)
-//        {
-//            EnhanceDarkSpace();
-//        }
-
-//        if(opts.imageontextureOnMet)
-//        {
-//            if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
-//            {
-//                qDebug() << "all HRV received !!!!!!!!!!!!!!";
-//                emit allsegmentsreceivedbuttons(true);
-//            }
-//            else
-//            {
-//                qDebug() << "all VIS_IR received !!!!!!!!!!!!!!";
-//                emit render3dgeo(sl->getGeoSatellite());
-//            }
-//        }
-//        else
-//            emit allsegmentsreceivedbuttons(true);
-//    }
-
-//    qDebug() << "FormImage::slotUpdateGeosat()";
     this->update();
 
 }
@@ -1571,7 +1539,7 @@ void FormImage::slotcomposefinished(QString kindofimage, int channelindex, int f
             else
             {
                 qDebug() << "all VIS_IR received !!!!!!!!!!!!!!";
-                emit render3dgeo(sl->getGeoSatellite());
+                emit render3dgeo(sl->getGeoSatelliteIndex());
             }
         }
         else
@@ -2323,7 +2291,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     if(sl->getKindofImage() != "HRV" && sl->getKindofImage() != "HRV Color")
         if(opts.imageontextureOnMet)
-            emit render3dgeo(sl->getGeoSatellite());
+            emit render3dgeo(sl->getGeoSatelliteIndex());
 
     QApplication::restoreOverrideCursor();
 }

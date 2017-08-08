@@ -2119,13 +2119,13 @@ bool SegmentListGeostationary::allSegmentsReceived()
         }
         else if(m_GeoSatellite == eGeoSatellite::H8)
         {
-            qDebug() << "=======================================";
-            for(int i = 0; i < 10; i++)
-            {
-                qDebug() << QString("%1 isPresentRed = %2 issegmentcomposedRed = %3").arg(i).arg(isPresentRed[i]).arg(issegmentcomposedRed[i]);
+//            qDebug() << "=======================================";
+//            for(int i = 0; i < 10; i++)
+//            {
+//                qDebug() << QString("%1 isPresentRed = %2 issegmentcomposedRed = %3").arg(i).arg(isPresentRed[i]).arg(issegmentcomposedRed[i]);
 
-            }
-            qDebug() << "=======================================";
+//            }
+//            qDebug() << "=======================================";
             for(int i = 0; i < 10; i++)
             {
                 if (isPresentRed[i] && issegmentcomposedRed[i] == false)

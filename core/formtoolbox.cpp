@@ -1681,6 +1681,9 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->rbF1->setEnabled(state);
     ui->rbF2->setEnabled(state);
 
+    if(state)
+        QApplication::restoreOverrideCursor();
+
 }
 
 void FormToolbox::setToolboxButtonLabels(int geoindex)

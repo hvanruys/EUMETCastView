@@ -19,9 +19,9 @@ extern gshhsData *gshhsdata;
 
 extern QMutex g_mutex;
 
-void Render3DColorTexture(Globe *gl, eGeoSatellite sat)
+void Render3DColorTexture(Globe *gl, int geoindex)
 {
-      gl->Render3DGeoSegment( sat );
+      gl->Render3DGeoSegment( geoindex );
 }
 
 void Render3DColorFBO(Globe *gl, eGeoSatellite sat)
@@ -1398,7 +1398,7 @@ QSize Globe::sizeHint() const
 }
 
 
-void Globe::Render3DGeo(eGeoSatellite sat)
+void Globe::Render3DGeo(int geoindex)
 {
 
     if(futureRender3DGeo.isRunning())
@@ -1406,7 +1406,7 @@ void Globe::Render3DGeo(eGeoSatellite sat)
 
     if (segs->seglgeo[0]->getKindofImage() != "HRV" && segs->seglgeo[0]->getKindofImage() != "HRV Color")
     {
-        futureRender3DGeo = QtConcurrent::run(Render3DColorTexture, this, sat);
+        futureRender3DGeo = QtConcurrent::run(Render3DColorTexture, this, geoindex);
         watcher.setFuture(futureRender3DGeo);
     }
 }
@@ -1416,7 +1416,7 @@ void Globe::slotRender3DGeoFinished()
     qDebug() << "=======> futureRender3DGeo is finished";
 }
 
-void Globe::Render3DGeoSegment(eGeoSatellite sat)
+void Globe::Render3DGeoSegment(int geoindex)
 {
 
     qDebug() << "Globe::Render3DGeoSegment(SegmentListMeteosat::eGeoSatellite sat)";
@@ -1424,7 +1424,7 @@ void Globe::Render3DGeoSegment(eGeoSatellite sat)
     g_mutex.lock();
 
     for (int i = 0; i < imageptrs->ptrimageGeostationary->height(); i++)
-        Render3DGeoSegmentLine( i, sat);
+        Render3DGeoSegmentLine( i, geoindex);
 
     g_mutex.unlock();
 
@@ -1434,13 +1434,11 @@ void Globe::Render3DGeoSegment(eGeoSatellite sat)
 }
 
 
-void Globe::Render3DGeoSegmentLine(int heightinimage, eGeoSatellite geo)
+void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
 {
 
     QRgb *scanl;
     QRgb rgbval;
-//    int map_x, map_y;
-//    double lon_rad, lat_rad;
     double lon_deg, lat_deg;
     int x, y;
 
@@ -1457,77 +1455,11 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, eGeoSatellite geo)
     {
         rgbval = scanl[pix];
 
-        if(geo == eGeoSatellite::MET_10)
+        if(pixconv.pixcoord2geocoord(segs->seglgeo[geoindex]->geosatlon, pix, heightinimage, segs->seglgeo[geoindex]->COFF, segs->seglgeo[geoindex]->LOFF, segs->seglgeo[geoindex]->CFAC, segs->seglgeo[geoindex]->LFAC, &lat_deg, &lon_deg) == 0)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[0]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
-        }
-        else if(geo == eGeoSatellite::MET_9)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[1]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
-        }
-        else if(geo == eGeoSatellite::MET_8)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[2]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
-        }
-        else if(geo == eGeoSatellite::GOMS2)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[3]->geosatlon, pix, heightinimage, COFF_NONHRV_GOMS2, LOFF_NONHRV_GOMS2, CFAC_NONHRV_GOMS2, LFAC_NONHRV_GOMS2, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
-        }
-        else if(geo == eGeoSatellite::GOES_13 || geo == eGeoSatellite::GOES_15)
-        {
-            if(pixconv.pixcoord2geocoord((geo == eGeoSatellite::GOES_13 ? segs->seglgeo[6]->geosatlon : segs->seglgeo[7]->geosatlon), pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
-        }
-        else if(geo == eGeoSatellite::FY2E)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[4]->geosatlon, pix, heightinimage, COFF_NONHRV_FENGYUN, LOFF_NONHRV_FENGYUN, CFAC_NONHRV_FENGYUN, LFAC_NONHRV_FENGYUN, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
-        }
-        else if(geo == eGeoSatellite::FY2G)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[5]->geosatlon, pix, heightinimage, COFF_NONHRV_FENGYUN, LOFF_NONHRV_FENGYUN, CFAC_NONHRV_FENGYUN, LFAC_NONHRV_FENGYUN, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
-        }
-        else if(geo == eGeoSatellite::H8)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[9]->geosatlon, pix, heightinimage, COFF_NONHRV_H8, LOFF_NONHRV_H8, CFAC_NONHRV_H8, LFAC_NONHRV_H8, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                fb_painter.setPen(rgbval);
-                fb_painter.drawPoint(x, y);
-            }
+            sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+            fb_painter.setPen(rgbval);
+            fb_painter.drawPoint(x, y);
         }
 
     }

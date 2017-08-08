@@ -166,7 +166,7 @@ signals:
     void picSizeChanged();
     void pixmapChanged();
     void wheelZoom(int);
-    void render3dgeo(eGeoSatellite geo);
+    void render3dgeo(int geoindex);
     void allsegmentsreceivedbuttons(bool);
 
 public slots:

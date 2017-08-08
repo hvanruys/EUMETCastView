@@ -161,7 +161,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formephem, SIGNAL(signalDatagram(QByteArray)), seglist, SLOT(AddSegmentsToListFromUdp(QByteArray)));
 
-    connect( formimage, SIGNAL(render3dgeo(eGeoSatellite)), globe, SLOT(Render3DGeo(eGeoSatellite)));
+    connect( formimage, SIGNAL(render3dgeo(int)), globe, SLOT(Render3DGeo(int)));
     connect( formimage, SIGNAL(allsegmentsreceivedbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
     connect( formimage->imageLabel, SIGNAL(coordinateChanged(QString)), this, SLOT(updateStatusBarCoordinate(QString)));
 
@@ -485,7 +485,7 @@ void MainWindow::on_actionMeteosat_triggered()
 {
      ui->stackedWidget->setCurrentIndex(1);
      formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
-     formtoolbox->setButtons(formtoolbox->getGeoIndex(), false);
+     //formtoolbox->setButtons(formtoolbox->getGeoIndex(), true);
 }
 
 void MainWindow::on_actionCylindricalEquidistant_triggered()

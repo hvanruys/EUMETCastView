@@ -52,7 +52,7 @@ class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
 
 public:
     Globe(QWidget *parent = NULL, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
-    void Render3DGeoSegment(eGeoSatellite sat);
+    void Render3DGeoSegment(int geoindex);
     void Render3DGeoSegmentFBO(eGeoSatellite sat);
     void drawSatelliteNames(QPainter *painter, QMatrix4x4 modelview);
     void drawStationNames(QPainter *painter, QMatrix4x4 modelview);
@@ -71,7 +71,7 @@ public:
 
 
 public slots:
-    void Render3DGeo(eGeoSatellite sat);
+    void Render3DGeo(int geoindex);
 private slots:
     void slotRender3DGeoFinished();
 
@@ -107,7 +107,7 @@ private:
     //void displayVector (QVector3D vec);
     //void RenderAllScanAreaGL();
     void TestForSegmentGL( int x, int realy, float distance, const QMatrix4x4 &m);
-    void Render3DGeoSegmentLine(int heightinimage, eGeoSatellite geo);
+    void Render3DGeoSegmentLine(int heightinimage, int geoindex);
     void Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo);
 
 

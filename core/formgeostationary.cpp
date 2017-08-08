@@ -113,58 +113,58 @@ QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QStr
     return strlistout;
 }
 
-QStringList FormGeostationary::getGeostationarySegmentsFengYun(eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern)
-{
+//QStringList FormGeostationary::getGeostationarySegmentsFengYun(eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern)
+//{
 
-    qDebug() << QString("getGeostationarySegmentsFengYun type = %1  Filepath = %2 filepattern = %3").arg(imagetype).arg(filepath).arg(filepattern);
-    qDebug() << QString("getGeostationarySegmentsFengYun spectrumvector %1 %2 %3").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
+//    qDebug() << QString("getGeostationarySegmentsFengYun type = %1  Filepath = %2 filepattern = %3").arg(imagetype).arg(filepath).arg(filepattern);
+//    qDebug() << QString("getGeostationarySegmentsFengYun spectrumvector %1 %2 %3").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
 
-    QDir fydir(filepath);
-    fydir.setFilter(QDir::Files | QDir::NoSymLinks);
-    fydir.setSorting(QDir::Name);
+//    QDir fydir(filepath);
+//    fydir.setFilter(QDir::Files | QDir::NoSymLinks);
+//    fydir.setSorting(QDir::Name);
 
-    QStringList strlist = fydir.entryList();
-    QStringList strlistout;
+//    QStringList strlist = fydir.entryList();
+//    QStringList strlistout;
 
 
-    QStringList::Iterator itc = strlist.begin();
+//    QStringList::Iterator itc = strlist.begin();
 
-    if(imagetype == "HRV" )
-    {
-        while( itc != strlist.end() )
-        {
-            QString st = *itc;
-            if(fydir.match(filepattern, *itc) && st.mid(40, 6) == "VIS1KM")
-                    strlistout.append(*itc);
-            itc++;
-        }
-    }
-    else
-        if(imagetype == "VIS_IR")
-        {
-            for( int j = 0; j < spectrumvector.size(); j++)
-            {
-                while( itc != strlist.end() )
-                {
-                    QString st = *itc;
+//    if(imagetype == "HRV" )
+//    {
+//        while( itc != strlist.end() )
+//        {
+//            QString st = *itc;
+//            if(fydir.match(filepattern, *itc) && st.mid(40, 6) == "VIS1KM")
+//                    strlistout.append(*itc);
+//            itc++;
+//        }
+//    }
+//    else
+//        if(imagetype == "VIS_IR")
+//        {
+//            for( int j = 0; j < spectrumvector.size(); j++)
+//            {
+//                while( itc != strlist.end() )
+//                {
+//                    QString st = *itc;
 
-                    if(fydir.match(filepattern, *itc) && (st.mid(40, 3) == spectrumvector.at(j)))
-                        strlistout.append(*itc);
-                    itc++;
-                }
-                itc = strlist.begin();
-            }
-        }
+//                    if(fydir.match(filepattern, *itc) && (st.mid(40, 3) == spectrumvector.at(j)))
+//                        strlistout.append(*itc);
+//                    itc++;
+//                }
+//                itc = strlist.begin();
+//            }
+//        }
 
-    //L-???-??????-GOES13______-?????????-0?????___-201404181000-C_
+//    //L-???-??????-GOES13______-?????????-0?????___-201404181000-C_
 
-    for (int j = 0; j < strlistout.size(); ++j)
-    {
-        qDebug() << QString("getMeteosatSegment out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
-    }
+//    for (int j = 0; j < strlistout.size(); ++j)
+//    {
+//        qDebug() << QString("getMeteosatSegment out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
+//    }
 
-    return strlistout;
-}
+//    return strlistout;
+//}
 
 QStringList FormGeostationary::globit(const QString filepath, const QString filepattern)
 {
