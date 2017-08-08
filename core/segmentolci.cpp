@@ -29,15 +29,11 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *s
     {
         segment_type = "OLCIEFR";
         segtype = eSegmentType::SEG_OLCIEFR;
-        qDebug() << "Constructor SEG_OLCIEFR segment";
-
     }
     else if(type == SEG_OLCIERR)
     {
         segment_type = "OLCIERR";
         segtype = eSegmentType::SEG_OLCIERR;
-        qDebug() << "Constructor SEG_OLCIERR segment";
-
     }
 
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012

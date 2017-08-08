@@ -97,15 +97,8 @@ public:
     QStringList GetOverviewSegmentsDatahubOLCIerr();
     QStringList GetOverviewSegmentsDatahubSLSTR();
 
-    QStringList GetOverviewSegmentsMeteosat();
-    QStringList GetOverviewSegmentsMeteosatRss();
-    QStringList GetOverviewSegmentsMeteosat8();
-    QStringList GetOverviewSegmentsGOES13();
-    QStringList GetOverviewSegmentsGOES15();
-    QStringList GetOverviewSegmentsGOES16();
-    QStringList GetOverviewSegmentsFY2E();
-    QStringList GetOverviewSegmentsFY2G();
-    QStringList GetOverviewSegmentsH8();
+    QStringList GetOverviewSegmentsGeo(int geoindex);
+
 
 
     void drawOverlay(char *pFileName );
@@ -115,6 +108,8 @@ public:
     void LoadXMLfromDatahub();
     void ReadXMLfiles();
     void setXMLDate(QDate date) { xmlselectdate = date; }
+    void setAbsolutePathFromMap(int geoindex, QString strdate);
+
 
     SegmentListMetop *seglmetop;
     SegmentListNoaa *seglnoaa;
@@ -134,32 +129,8 @@ public:
     SegmentListDatahub *segldatahubolcierr;
     SegmentListDatahub *segldatahubslstr;
 
-
-    SegmentListGeostationary *seglmeteosat;
-    SegmentListGeostationary *seglmeteosatrss;
-    SegmentListGeostationary *seglmet8;
-    SegmentListGeostationary *seglgoes13dc3;
-    SegmentListGeostationary *seglgoes15dc3;
-    SegmentListGeostationary *seglgoes13dc4;
-    SegmentListGeostationary *seglgoes15dc4;
-    SegmentListGeostationary *seglgoes16;
-    SegmentListGeostationary *seglfy2e;
-    SegmentListGeostationary *seglfy2g;
-    SegmentListGeostationary *seglh8;
-
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmeteosat;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmeteosatrss;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapmet8;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes13dc3;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes15dc3;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes13dc4;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes15dc4;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapgoes16;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2e;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmapfy2g;
-    QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmaph8;
-
-
+    QList<SegmentListGeostationary *> seglgeo;
+    QList<QMap<QString, QMap<QString, QMap< int, QFileInfo > > > > segmentlistmapgeo;
 
 
 private:
@@ -167,6 +138,8 @@ private:
     void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, QDate seldate, int hoursbefore);
     void RemoveFromList(QList<Segment*> *sl);
     void CreateListfromXML(QDomDocument document);
+    void getFilenameParameters(int geosatindex, QString filename, QString &strspectrum, QString &strdate, int &filenbr);
+
     DatahubAccessManager hubmanager;
     QDate xmlselectdate;
     SatelliteList *satlist;

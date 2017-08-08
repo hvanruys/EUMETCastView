@@ -25,6 +25,57 @@
 #define CMB_HISTO_EQUALIZE_PROJ 3
 #define CMB_HISTO_CLAHE 4
 
+struct GeoSatellites
+{
+    QString fullname;
+    QString shortname;
+    double longitude;
+    QString protocol;
+    bool rss;
+    QString searchstring;
+    int indexsearchstring;
+    QString filepattern;
+    int imagewidth;
+    int imageheight;
+    int imagewidthhrv0;
+    int imageheighthrv0;
+    int imagewidthhrv1;
+    int imageheighthrv1;
+    QStringList spectrumlist;
+    QStringList spectrumvalueslist;
+    int indexspectrum;
+    int indexfilenbr;
+    int lengthfilenbr;
+    int indexdate;
+    int lengthdate;
+    QString spectrumhrv;
+    QString spectrumvaluehrv;
+    int indexspectrumhrv;
+    int indexfilenbrhrv;
+    int lengthfilenbrhrv;
+    int indexdatehrv;
+    int lengthdatehrv;
+    bool color;
+    int maxsegments;
+    int maxsegmentshrv;
+    int startsegmentnbrtype0;
+    int startsegmentnbrhrvtype0;
+    int startsegmentnbrtype1;
+    int startsegmentnbrhrvtype1;
+    bool prologfile;
+    bool epilogfile;
+    long coff;
+    long loff;
+    double cfac;
+    double lfac;
+    long coffhrv;
+    long loffhrv;
+    double cfachrv;
+    double lfachrv;
+
+
+};
+
 class Options 
 {
 public:
@@ -32,6 +83,7 @@ public:
 	void Initialize();
     void checkStringListValues();
 	void Save();
+    void CreateGeoSatelliteIni();
 
 /* Calendar date and time (UTC) */
 	struct tm utc;
@@ -249,7 +301,21 @@ public:
     bool downloadxmlslstr;
     bool xmllogging;
 
+    QList<GeoSatellites> geosatellites;
+
 }; 
+
+//Met-10, 0, XRIT, H-???-??????-?????????___-?????????-0?????___-, 12, HRV, 0.6, 0.8, 1.6, 3.9, 6.2, 7.3, 8.7, 9.7, 10.8, 12.8, 13.4
+//Met-9, 9.2, XRIT, H-???-??????-?????????___-?????????-0?????___-, 12, HRV, 0.6, 0.8, 1.6, 3.9, 6.2, 7.3, 8.7, 9.7, 10.8, 12.8, 13.4
+//Met-8, 41, XRIT, H-???-??????-?????????___-?????????-0?????___-, 12, HRV, 0.6, 0.8, 1.6, 3.9, 6.2, 7.3, 8.7, 9.7, 10.8, 12.8, 13.4
+//Electro-L2, 76.1, XRIT, H-000-GOMS2_-GOMS2_4_____-?????????-??????___-XXXXXXXXXXXX-C_, 6, 0.9, 3.8, 8.0, 9.7, 10.7, 11.9
+//FY2E, 86.5, HDF5, Z_SATE_C_BABJ_ + filetiming + _O_FY2E_FDI_???_001_NOM.HDF.gz, IR1, IR2, IR3, IR4, VIS, VIS1KM
+//FY2G, 104.5, HDF5, Z_SATE_C_BABJ_ + filetiming + _O_FY2G_FDI_???_001_NOM.HDF.gz, IR1, IR2, IR3, IR4, VIS, VIS1KM
+//Himawari-8, 140.6, XRIT, IMG_DK01???_ + filetiming.mid(0, 11) + ?*, 14, IR1, IR2, IR3, IR4, B04, B05, B06, B09, B10, B11, B12, B14, B16, VIS
+//GOES-15, 224.6, XRIT, L-???-??????-GOES15*, 4, 0.7, 3.9, 6.6, 10.7
+//GOES-16, 270.5, netCDF,
+//GOES-13, 284.9, XRIT, L-???-??????-GOES13*, 4, 0.7, 3.9, 6.6, 10.7
+
 
 
 #endif

@@ -36,7 +36,8 @@ public:
     void recalculateCLAHEOLCI(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CLAHEprojection();
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
-    void OverlayProjection(QPainter *paint,  SegmentListGeostationary *sl);
+    void OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationary *sl, int geoindex);
+    void OverlayProjection(QPainter *paint);
     void OverlayOLCI(QPainter *paint);
     void ToInfraColorProjection();
     void FromInfraColorProjection();
@@ -74,6 +75,7 @@ public:
 
     void UpdateProjection();
     bool SaveAsPNG48bits(bool mapto65535);
+    void setupGeoOverlay(int geoindex);
 
     int metopcount;
     int noaacount;
@@ -92,6 +94,8 @@ public:
     int olcierrcount;
     int slstrcount;
 
+    QVector<QVector2D> geooverlay;
+
 
     eImageType channelshown; // which button channel
     QString txtInfo;
@@ -108,6 +112,10 @@ private:
     void displaySentinelImageInfo(eSegmentType type);
     void displayGeoImageInfo();
     void displayGeoImageInformation(QString satname);
+    void EnhanceDarkSpace(int geoindex);
+    void calchimawari(QRgb rgb, int &minred, int &maxred, int &mingreen, int &maxgreen, int &minblue, int &maxblue);
+    QRgb ContrastStretch(QRgb val);
+    void SetupContrastStretch(quint16 x1r, quint16 y1r, quint16 x2r, quint16 y2r, quint16 x1g, quint16 y1g, quint16 x2g, quint16 y2g, quint16 x1b, quint16 y1b, quint16 x2b, quint16 y2b);
 
     SatelliteList *sats;
     AVHRRSatellite *segs;
@@ -148,12 +156,17 @@ private:
     void fillptrimageHRV(quint16 *pixHRV);
     void formwheelZoom(int d);
 
+    int currentgeooverlay;
+    double A1red, B1red;
+    double A1green, B1green;
+    double A1blue, B1blue;
+
 signals:
     void moveImage(QPoint, QPoint);
     void picSizeChanged();
     void pixmapChanged();
     void wheelZoom(int);
-    void render3dgeo(SegmentListGeostationary::eGeoSatellite);
+    void render3dgeo(eGeoSatellite geo);
     void allsegmentsreceivedbuttons(bool);
 
 public slots:
@@ -162,7 +175,7 @@ public slots:
     void setPixmapToLabel(bool settoolboxbuttons);
     void setPixmapToLabelDNB(bool settoolboxbuttons);
     void slotUpdateGeosat();
-    // void slotUpdateHimawari();
+    void slotcomposefinished(QString kindofimage, int channelindex, int filesequence);
     void slotRefreshOverlay();
     void slotRepaintProjectionImage();
 

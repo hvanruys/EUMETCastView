@@ -86,7 +86,8 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     slstrcount = 0;
     txtInfo = "";
 
-
+    this->currentgeooverlay = 0;
+    this->setupGeoOverlay(0);
 }
 
 QLabel *FormImage::returnimageLabelptr()
@@ -384,11 +385,11 @@ void FormImage::displayImage(eImageType channel)
 
         }
     }
+    refreshoverlay = true;
 
     this->update();
     this->adjustImage();
 
-    refreshoverlay = true;
 
     qDebug() << QString("after FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
 
@@ -1069,57 +1070,9 @@ void FormImage::paintEvent( QPaintEvent * )
     }
 
 
-    SegmentListGeostationary *sl = NULL;
+    SegmentListGeostationary *slgeo = NULL;
 
-
-    if(segs->seglmeteosat->bActiveSegmentList == true)
-    {
-        sl = segs->seglmeteosat;
-    }
-    else if(segs->seglmeteosatrss->bActiveSegmentList == true)
-    {
-        sl = segs->seglmeteosatrss;
-    }
-    else if(segs->seglmet8->bActiveSegmentList == true)
-    {
-        sl = segs->seglmet8;
-    }
-    else if(segs->seglgoes13dc3->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes13dc3;
-    }
-    else if(segs->seglgoes15dc3->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes15dc3;
-    }
-    else if(segs->seglgoes13dc4->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes13dc4;
-    }
-    else if(segs->seglgoes15dc4->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes15dc4;
-    }
-    else if(segs->seglgoes16->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes16;
-    }
-    else if(segs->seglfy2e->bActiveSegmentList == true)
-    {
-        sl = segs->seglfy2e;
-    }
-    else if(segs->seglfy2g->bActiveSegmentList == true)
-    {
-        sl = segs->seglfy2g;
-    }
-    else if(segs->seglh8->bActiveSegmentList == true)
-    {
-        sl = segs->seglh8;
-    }
-    else
-        return;
-
-
+    slgeo = segs->getActiveSegmentList();
 
     if(channelshown == IMAGE_GEOSTATIONARY)
         displayGeoImageInfo();
@@ -1127,12 +1080,15 @@ void FormImage::paintEvent( QPaintEvent * )
 
     if (channelshown == IMAGE_GEOSTATIONARY && overlaymeteosat && refreshoverlay)
     {
-        this->OverlayGeostationary(&painter, sl);
-        refreshoverlay = false;
+        if(slgeo != NULL)
+        {
+            this->OverlayGeostationary(&painter, slgeo);
+            refreshoverlay = false;
+        }
     }
     if(channelshown == IMAGE_PROJECTION && overlayprojection && refreshoverlay)
     {
-        this->OverlayProjection(&painter, sl);
+        this->OverlayProjection(&painter);
         refreshoverlay = false;
     }
 
@@ -1147,7 +1103,9 @@ void FormImage::paintEvent( QPaintEvent * )
         changeinfraprojection = false;
     }
 
-    //this->adjustImage();
+    this->adjustImage();
+
+    //qDebug() << "FormImage::paintEvent( QPaintEvent * )";
 
 }
 
@@ -1291,34 +1249,31 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
 void FormImage::displayGeoImageInfo()
 {
 
-    if(segs->seglmeteosat->bActiveSegmentList == true)
+    if(segs->seglgeo[0]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Meteosat 10");
-    } else if(segs->seglmeteosatrss->bActiveSegmentList == true)
+    } else if(segs->seglgeo[1]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Meteosat 9");
-    } else if(segs->seglmet8->bActiveSegmentList == true)
+    } else if(segs->seglgeo[2]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Meteosat 8");
-    } else if(segs->seglgoes13dc3->bActiveSegmentList == true)
+    } else if(segs->seglgeo[3]->bActiveSegmentList == true)
+    {
+        displayGeoImageInformation("GOMS2");
+    } else if(segs->seglgeo[6]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("GOES 13");
-    } else if(segs->seglgoes13dc4->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("GOES 13");
-    } else if(segs->seglgoes15dc3->bActiveSegmentList == true)
+    } else if(segs->seglgeo[7]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("GOES 15");
-    } else if(segs->seglgoes15dc4->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("GOES 15");
-    } else if(segs->seglfy2e->bActiveSegmentList == true)
+    } else if(segs->seglgeo[4]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Feng Yun 2E");
-    } else if(segs->seglfy2g->bActiveSegmentList == true)
+    } else if(segs->seglgeo[5]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Feng Yun 2G");
-    } else if(segs->seglh8->bActiveSegmentList == true)
+    } else if(segs->seglgeo[9]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Himawari-8");
     }
@@ -1536,58 +1491,75 @@ void FormImage::slotUpdateGeosat()
     imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
     this->adjustImage();
 
-    SegmentListGeostationary *sl;
-    if(segs->seglmeteosat->bActiveSegmentList == true)
-    {
-        sl = segs->seglmeteosat;
-    }
-    else if(segs->seglmeteosatrss->bActiveSegmentList == true)
-    {
-        sl = segs->seglmeteosatrss;
-    }
-    else if(segs->seglmet8->bActiveSegmentList == true)
-    {
-        sl = segs->seglmet8;
-    }
-    else if(segs->seglgoes13dc3->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes13dc3;
-    }
-    else if(segs->seglgoes15dc3->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes15dc3;
-    }
-    else if(segs->seglgoes13dc4->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes13dc4;
-    }
-    else if(segs->seglgoes15dc4->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes15dc4;
-    }
-    else if(segs->seglgoes16->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes16;
-    }
-    else if(segs->seglfy2e->bActiveSegmentList == true)
-    {
-        sl = segs->seglfy2e;
-    }
-    else if(segs->seglfy2g->bActiveSegmentList == true)
-    {
-        sl = segs->seglfy2g;
-    }
-    else if(segs->seglh8->bActiveSegmentList == true)
-    {
-        sl = segs->seglh8;
-    }
-    else
-        return;
+//    SegmentListGeostationary *sl = NULL;
 
+//    sl = segs->getActiveSegmentList();
+
+//    if(sl == NULL)
+//        return;
+
+//    if(sl->allSegmentsReceived())
+//    {
+//        QApplication::restoreOverrideCursor();
+//        if(sl->getGeoSatellite() == eGeoSatellite::H8)
+//        {
+//            EnhanceDarkSpace();
+//        }
+
+//        if(opts.imageontextureOnMet)
+//        {
+//            if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
+//            {
+//                qDebug() << "all HRV received !!!!!!!!!!!!!!";
+//                emit allsegmentsreceivedbuttons(true);
+//            }
+//            else
+//            {
+//                qDebug() << "all VIS_IR received !!!!!!!!!!!!!!";
+//                emit render3dgeo(sl->getGeoSatellite());
+//            }
+//        }
+//        else
+//            emit allsegmentsreceivedbuttons(true);
+//    }
+
+//    qDebug() << "FormImage::slotUpdateGeosat()";
+    this->update();
+
+}
+
+void FormImage::slotcomposefinished(QString kindofimage, int channelindex, int filesequence)
+{
+    qDebug() << QString("start FormImage::slotcomposefinisged kindofimage = %1, channelindex = %2, filesequence = %3)").arg(kindofimage).arg(channelindex).arg(filesequence);
+
+    imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+    //this->adjustImage();
+    refreshoverlay = true;
+
+    SegmentListGeostationary *sl = NULL;
+    sl = segs->getActiveSegmentList();
+
+    if(channelindex == 0)
+        sl->issegmentcomposedRed[filesequence] = true;
+    else if(channelindex == 1)
+        sl->issegmentcomposedGreen[filesequence] = true;
+    else if(channelindex == 2)
+        sl->issegmentcomposedBlue[filesequence] = true;
+
+    if(kindofimage == "HRV")
+        sl->issegmentcomposedHRV[filesequence] = true;
 
     if(sl->allSegmentsReceived())
     {
-        QApplication::restoreOverrideCursor();
+
+        //refreshoverlay = true;
+
+        if(sl->getGeoSatellite() == eGeoSatellite::H8)
+        {
+            EnhanceDarkSpace(sl->getGeoSatelliteIndex());
+            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+            refreshoverlay = true;
+        }
 
         if(opts.imageontextureOnMet)
         {
@@ -1604,55 +1576,185 @@ void FormImage::slotUpdateGeosat()
         }
         else
             emit allsegmentsreceivedbuttons(true);
+        QApplication::restoreOverrideCursor();
+
     }
 
-    qDebug() << "FormImage::slotUpdateGeosat()";
+    qDebug() << "end FormImage::slotcomposefinished()";
     this->update();
+
 
 }
 
-//void FormImage::slotUpdateHimawari()
-//{
+void FormImage::EnhanceDarkSpace(int geoindex)
+{
+    QRgb *row_col;
+    QRgb rgb;
+    quint16 r,g, b;
+    double l2, el2;
+    int x0, y0;
+    int maxhimred, minhimred;
+    int maxhimgreen, minhimgreen;
+    int maxhimblue, minhimblue;
+    long cnt = 0;
 
-//    qDebug() << "start FormImage::slotUpdateHimawari()";
+    maxhimred = 0;
+    minhimred = 65535;
+    maxhimgreen = 0;
+    minhimgreen = 65535;
+    maxhimblue = 0;
+    minhimblue = 65535;
 
-//    refreshoverlay = true;
+    int ela = opts.geosatellites.at(geoindex).coff - 28; //- 28;
+    int elb = opts.geosatellites.at(geoindex).loff - 40; //- 40;
+    double ela2 = (double)(ela*ela);
+    double elb2 = (double)(elb*elb);
+    double eta = 1.0;
+    double ka;
 
-//    imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+    for (int line = 0; line < 5500; line++)
+    {
+        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
 
-//    SegmentListGeostationary *sl;
 
-//    if(segs->seglh8->bActiveSegmentList == true)
+        for (int pixelx = 0; pixelx < 5500; pixelx++)
+        {
+            y0 = line - 2750;
+            x0 = pixelx - 2750;
+            rgb = row_col[pixelx];
+
+                    double x2 = (double)(x0*x0);
+                    double y2 = (double)(y0*y0);
+
+//                    ka = (eta - x2/ela2);
+//                    el2 = ka * elb2;
+
+//                    if(y2 < el2)
+//                        row_col[pixelx] = qRgb(255, 0, 0);
+
+
+                    //eta = 1.1;
+                    ka = (eta - x2/ela2);
+                    el2 = ka * elb2;
+
+                    if(y2 > el2 && (y2 - 80000) <= el2)
+                    {
+                        row_col[pixelx] = qRgb(0, 255, 0);
+                        //calchimawari(rgb, minhimred, maxhimred, minhimgreen, maxhimgreen, minhimblue, maxhimblue);
+                    }
+                    //else if((y2 <= el2) && ((el2 - 900000) < y2))
+                    //    row_col[pixelx] = qRgb(0, 255, 0);
+
+        }
+    }
+
+    qDebug() << QString("Himawari min rgb = %1 %2 %3 max rgb = %4 %5 %6  cnt = %7").arg(minhimred).arg(minhimgreen).arg(minhimblue).arg(maxhimred).arg(maxhimgreen).arg(maxhimblue).arg(cnt);
+
+//    SetupContrastStretch(minhimred, 0, maxhimred, 255, minhimgreen, 0, maxhimgreen, 255, minhimblue, 0, maxhimblue, 255 );
+
+//    for (int line = 0; line < 5500; line++)
 //    {
-//        sl = segs->seglh8;
-//    }
-//    else
-//        return;
+//        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
 
 
-//    if(sl->allSegmentsReceived())
-//    {
-
-//        QApplication::restoreOverrideCursor();
-
-//        if(opts.imageontextureOnMet)
+//        for (int pixelx = 0; pixelx < 5500; pixelx++)
 //        {
-//            qDebug() << "all VIS_IR received !!!!!!!!!!!!!!";
-//            emit render3dgeo(sl->getGeoSatellite());
+//            y0 = line - 2750;
+//            x0 = pixelx - 2750;
+//            rgb = row_col[pixelx];
+
+//            if(y0 > elb || y0 < -elb)
+//            {
+//                row_col[pixelx] = ContrastStretch(rgb);
+//            }
+//            else
+//            {
+
+//                if(x0 < -ela || x0 > ela)
+//                {
+//                    row_col[pixelx] = ContrastStretch(rgb);
+//                }
+//                else
+//                {
+//                    double x2 = (double)(x0*x0);
+//                    double y2 = (double)(y0*y0);
+
+//                    //l2 = x2 + y2;
+//                    double ka = (1 - x2/ela2);
+//                    el2 = ka * elb2;
+
+//                    if(y2 > el2)
+//                    {
+//                        row_col[pixelx] = ContrastStretch(rgb);
+//                    }
+//                }
+//            }
 //        }
-//        else
-//            emit allsegmentsreceivedbuttons(true);
 //    }
 
-//    //imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
 
-//    qDebug() << "FormImage::slotUpdateHimawari()";
+}
 
-//    this->update();
+QRgb FormImage::ContrastStretch(QRgb val)
+{
+    double resred, resgreen, resblue;
+    resred = double(qRed(val))*A1red + B1red;
+    resgreen = double(qGreen(val))*A1green + B1green;
+    resblue = double(qBlue(val))*A1blue + B1blue;
+    resred = resred > 255.0 ? 255 : quint16(resred);
+    resgreen = resgreen > 255.0 ? 255 : quint16(resgreen);
+    resblue = resblue > 255.0 ? 255 : quint16(resblue);
+    return qRgb(resred, resgreen, resblue);
+}
 
-//}
+void FormImage::SetupContrastStretch(quint16 x1r, quint16 y1r, quint16 x2r, quint16 y2r, quint16 x1g, quint16 y1g, quint16 x2g, quint16 y2g, quint16 x1b, quint16 y1b, quint16 x2b, quint16 y2b)
+{
+    double d_x1r = (double)x1r;
+    double d_x2r = (double)x2r;
+    double d_y1r = (double)y1r;
+    double d_y2r = (double)y2r;
+
+    double d_x1g = (double)x1g;
+    double d_x2g = (double)x2g;
+    double d_y1g = (double)y1g;
+    double d_y2g = (double)y2g;
+
+    double d_x1b = (double)x1b;
+    double d_x2b = (double)x2b;
+    double d_y1b = (double)y1b;
+    double d_y2b = (double)y2b;
+
+    A1red = (d_y2r - d_y1r)/(d_x2r - d_x1r);
+    B1red = (d_y2r - (A1red*d_x2r));
+    A1green = (d_y2g - d_y1g)/(d_x2g - d_x1g);
+    B1green = (d_y2g - (A1green*d_x2g));
+    A1blue = (d_y2b - d_y1b)/(d_x2b - d_x1b);
+    B1blue = (d_y2b - (A1blue*d_x2b));
+}
 
 
+void FormImage::calchimawari(QRgb rgb, int &minred, int &maxred, int &mingreen, int &maxgreen, int &minblue, int &maxblue)
+{
+    quint16 r,g,b;
+
+    r = qRed(rgb);
+    g = qGreen(rgb);
+    b = qBlue(rgb);
+
+    if(minred > r)
+        minred = r;
+    if(maxred < r)
+        maxred = r;
+    if(mingreen > g)
+        mingreen = g;
+    if(maxgreen < g)
+        maxgreen = g;
+    if(minblue > b)
+        minblue = b;
+    if(maxblue < b)
+        maxblue = b;
+
+}
 
 void FormImage::UpdateProjection()
 {
@@ -1728,59 +1830,17 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     SegmentListGeostationary *sl;
 
-    if(segs->seglmeteosat->bActiveSegmentList == true)
-    {
-        sl = segs->seglmeteosat;
-    }
-    else if(segs->seglmeteosatrss->bActiveSegmentList == true)
-    {
-        sl = segs->seglmeteosatrss;
-    }
-    else if(segs->seglmet8->bActiveSegmentList == true)
-    {
-        sl = segs->seglmet8;
-    }
-    else if(segs->seglgoes13dc3->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes13dc3;
-    }
-    else if(segs->seglgoes15dc3->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes15dc3;
-    }
-    else if(segs->seglgoes13dc4->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes13dc4;
-    }
-    else if(segs->seglgoes15dc4->bActiveSegmentList == true)
-    {
-        sl = segs->seglgoes15dc4;
-    }
-//    else if(segs->seglgoes16->bActiveSegmentList == true)
-//    {
-//        sl = segs->seglgoes16;
-//    }
-    else if(segs->seglfy2e->bActiveSegmentList == true)
-    {
-        sl = segs->seglfy2e;
-    }
-    else if(segs->seglfy2g->bActiveSegmentList == true)
-    {
-        sl = segs->seglfy2g;
-    }
-    else if(segs->seglh8->bActiveSegmentList == true)
-    {
-        sl = segs->seglh8;
-    }
-    else
+    sl = segs->getActiveSegmentList();
+    if(sl == NULL)
         return;
+
 
     if (sl->getKindofImage() == "HRV Color")
         return;
 
     size_t npix;
     size_t npixHRV;
-    if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8)
+    if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
     {
         npix = 3712*3712;
         if (sl->areatype == 1)
@@ -1788,22 +1848,27 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         else
             npixHRV = 5568*5*464;
     }
-    else if(sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
+    else if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
     {
         npix = 3712*3*464;
         npixHRV = 5568*5*464;
     }
-    else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15)
+    else if(sl->getGeoSatellite() == eGeoSatellite::GOES_13 || sl->getGeoSatellite() == eGeoSatellite::GOES_15)
     {
         npix = 2816*7*464;
         npixHRV = 0;
     }
-    else if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
+    else if(sl->getGeoSatellite() == eGeoSatellite::GOMS2)
+    {
+        npix = 2784*6*464;
+        npixHRV = 0;
+    }
+    else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
     {
         npix = 2288*2288;
         npixHRV = 9152*9152;
     }
-    else if(sl->getGeoSatellite() == SegmentListGeostationary::H8)
+    else if(sl->getGeoSatellite() == eGeoSatellite::H8)
     {
         npix = 5500*10*550;
         npixHRV = 0;
@@ -1819,7 +1884,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     qDebug() << QString("recalculateCLAHE() ; kind of image = %1").arg(sl->getKindofImage());
 
-    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8 ))
+    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         pixelsRed = new quint16[npix];
         pixelsGreen = new quint16[npix];
@@ -1841,7 +1906,29 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 memcpy(pixelsBlue + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrBlue[i], 464 * 3712 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == SegmentListGeostationary::H8)
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::GOMS2)
+    {
+        pixelsRed = new quint16[npix];
+        pixelsGreen = new quint16[npix];
+        pixelsBlue = new quint16[npix];
+
+        for( int i = 0; i < 6; i++)
+        {
+            if(sl->isPresentRed[i])
+                memcpy(pixelsRed + i * 464 * 2784, imageptrs->ptrRed[i], 464 * 2784 * sizeof(quint16));
+        }
+        for( int i = 0; i < 6; i++)
+        {
+            if(sl->isPresentGreen[i])
+                memcpy(pixelsGreen + i * 464 * 2784, imageptrs->ptrGreen[i], 464 * 2784 * sizeof(quint16));
+        }
+        for( int i = 0; i < 6; i++)
+        {
+            if(sl->isPresentBlue[i])
+                memcpy(pixelsBlue + i * 464 * 2784, imageptrs->ptrBlue[i], 464 * 2784 * sizeof(quint16));
+        }
+    }
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8)
     {
         qDebug() << QString("memcpy(pixelsRed .....");
 
@@ -1865,7 +1952,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 memcpy(pixelsBlue + i * 550 * 5500, imageptrs->ptrBlue[i], 550 * 5500 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8 ))
+    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         pixelsHRV = new quint16[npixHRV];
         for( int i = 0, k = 0; i < (sl->bisRSS ? 5 : ( sl->areatype == 1 ? 24 : 5)); i++)
@@ -1878,12 +1965,12 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
-    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G ))
+    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
     {
         pixelsHRV = new quint16[npixHRV];
         memcpy(pixelsHRV, imageptrs->ptrHRV[0], 9152 * 9152 * sizeof(quint16));
     }
-    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8 ))
+    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         pixelsRed = new quint16[npix];
         for( int i = (sl->bisRSS ? 5 : 0); i < 8 ; i++)
@@ -1892,24 +1979,33 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 memcpy(pixelsRed + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrRed[i], 464 * 3712 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15))
+    else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == eGeoSatellite::GOMS2)
+    {
+        pixelsRed = new quint16[npix];
+        for( int i = 0; i < 6 ; i++)
+        {
+            if(sl->isPresentRed[i])
+                memcpy(pixelsRed + i * 464 * 2784, imageptrs->ptrRed[i], 464 * 2784 * sizeof(quint16));
+        }
+    }
+    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::GOES_13 || sl->getGeoSatellite() == eGeoSatellite::GOES_15))
     {
         pixelsRed = new quint16[npix];
         for( int i = 0; i < 7 ; i++)
         {
-            if(sl->isPresentMono[i])
+            if(sl->isPresentRed[i])
                 memcpy(pixelsRed + i * 464 * 2816, imageptrs->ptrRed[i], 464 * 2816 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G ))
+    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
     {
         pixelsRed = new quint16[npix];
-        if(sl->isPresentMono[0])
+        if(sl->isPresentRed[0])
         {
             memcpy(pixelsRed, imageptrs->ptrRed[0], 2288 * 2288 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == SegmentListGeostationary::H8)
+    else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == eGeoSatellite::H8)
     {
         pixelsRed = new quint16[npix];
         for( int i = 0; i < 10 ; i++)
@@ -1922,13 +2018,19 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     int ret = 0;
 
 
-    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8 ))
+    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         imageptrs->CLAHE(pixelsRed, 3712, (sl->bisRSS ? 3*464 : 3712), 0, 1023, 16, 16, 256, opts.clahecliplimit);
         imageptrs->CLAHE(pixelsGreen, 3712, (sl->bisRSS ? 3*464 : 3712), 0, 1023, 16, 16, 256, opts.clahecliplimit);
         imageptrs->CLAHE(pixelsBlue, 3712, (sl->bisRSS ? 3*464 : 3712), 0, 1023, 16, 16, 256, opts.clahecliplimit);
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == SegmentListGeostationary::H8 )
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::GOMS2)
+    {
+        imageptrs->CLAHE(pixelsRed, 2784, 2784, 0, 1023, 16, 16, 256, opts.clahecliplimit);
+        imageptrs->CLAHE(pixelsGreen, 2784, 2784, 0, 1023, 16, 16, 256, opts.clahecliplimit);
+        imageptrs->CLAHE(pixelsBlue, 2784, 2784, 0, 1023, 16, 16, 256, opts.clahecliplimit);
+    }
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8 )
     {
         ret = imageptrs->CLAHE(pixelsRed, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
         qDebug() << QString("CLAHE return code = %1").arg(ret);
@@ -1937,7 +2039,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         imageptrs->CLAHE(pixelsBlue, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
         qDebug() << QString("CLAHE return code = %1").arg(ret);
     }
-    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8))
+    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8))
     {
         if(sl->bisRSS)
         {
@@ -1959,26 +2061,32 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
-    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G ))
+    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
     {
         imageptrs->CLAHE(pixelsHRV, 9152, 9152, 0, 255, 16, 16, 256, opts.clahecliplimit);
     }
     else if(sl->getKindofImage() == "VIS_IR")
     {
-        if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8)
+        if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
             imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, opts.clahecliplimit);
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
+        else if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
             imageptrs->CLAHE(pixelsRed, 3712, 3*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15)
+        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_13 || sl->getGeoSatellite() == eGeoSatellite::GOES_15)
             imageptrs->CLAHE(pixelsRed, 2816, 464*7, 0, 1023, 16, 16, 256, opts.clahecliplimit);
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
+        else if(sl->getGeoSatellite() == eGeoSatellite::GOMS2)
+        {
+            qDebug() << QString("CLAHE");
+            ret = imageptrs->CLAHE(pixelsRed, 2784, 464*6, 0, 1023, 16, 16, 256, opts.clahecliplimit);
+            qDebug() << QString("CLAHE return code = %1").arg(ret);
+        }
+        else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
             imageptrs->CLAHE(pixelsRed, 2288, 2288, 0, 255, 16, 16, 256, opts.clahecliplimit);
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::H8)
+        else if(sl->getGeoSatellite() == eGeoSatellite::H8)
             imageptrs->CLAHE(pixelsRed, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
     }
 
 
-    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8 ))
+    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         for(int i = 0; i < (sl->bisRSS ? 3 : 8); i++)
         {
@@ -2002,7 +2110,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == SegmentListGeostationary::H8)
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8)
     {
 
         for(int i = 0; i < 10; i++)
@@ -2025,9 +2133,32 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::GOMS2)
+    {
+
+        for(int i = 0; i < 6; i++)
+        {
+            for (int line = 0; line < 464; line++)
+            {
+                row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(i * 464 + line);
+                for (int pixelx = 0; pixelx < 2784; pixelx++)
+                {
+                    cred = *(pixelsRed + i * 464 * 2784 + line * 2784  + pixelx);
+                    cgreen = *(pixelsGreen + i * 464 * 2784 + line * 2784  + pixelx);
+                    cblue = *(pixelsBlue + i * 464 * 2784 + line * 2784  + pixelx);
+
+                    r = quint8(inversevector[0] ? 255 - cred/4 : cred/4);
+                    g = quint8(inversevector[1] ? 255 - cgreen/4 : cgreen/4);
+                    b = quint8(inversevector[2] ? 255 - cblue/4 : cblue/4);
+
+                    row_col[pixelx] = qRgb(r,g,b);
+                }
+            }
+        }
+    }
     else if(sl->getKindofImage() == "HRV")
     {
-        if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8)
+        if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
         {
             for(int i = 0; i < (sl->bisRSS ? 5 : (sl->areatype == 1 ? 24 : 5)); i++)
             {
@@ -2046,7 +2177,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
+        else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
         {
             for (int line = 0; line < 9152; line++)
             {
@@ -2065,7 +2196,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     }
     else if(sl->getKindofImage() == "VIS_IR")
     {
-        if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8 )
+        if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 )
         {
             for(int i = 0 ; i < (sl->bisRSS ? 3 : 8); i++)
             {
@@ -2085,7 +2216,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15)
+        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_13 || sl->getGeoSatellite() == eGeoSatellite::GOES_15)
         {
             for(int i = 0 ; i < 7; i++)
             {
@@ -2106,9 +2237,33 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::H8 )
+        else if(sl->getGeoSatellite() == eGeoSatellite::GOMS2)
         {
-            qDebug() << "in if(sl->getGeoSatellite() == SegmentListGeostationary::H8 )";
+            for(int i = 0 ; i < 6; i++)
+            {
+                //for (int line = 463; line >= 0; line--)
+                for (int line = 0; line < 464; line++)
+                {
+                    row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(i * 464 + line);
+                    for (int pixelx = 0; pixelx < 2784; pixelx++)
+                    {
+                        c = *(pixelsRed + i * 464 * 2784 + line * 2784 + pixelx);
+
+                        if(i == 0 && line == 300)
+                            qDebug() << pixelx << " " << c;
+
+                        r = quint8(inversevector[0] ? 255 - c/4 : c/4);
+                        g = quint8(inversevector[0] ? 255 - c/4 : c/4);
+                        b = quint8(inversevector[0] ? 255 - c/4 : c/4);
+
+                        row_col[pixelx] = qRgb(r,g,b);
+                    }
+                }
+            }
+        }
+        else if(sl->getGeoSatellite() == eGeoSatellite::H8 )
+        {
+            qDebug() << "in if(sl->getGeoSatellite() == eGeoSatellite::H8 )";
 
             for(int i = 0 ; i < 10; i++)
             {
@@ -2129,7 +2284,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
+        else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
         {
             qDebug() << "recalculate CLAHE ; VIS_IR and FY2E/G move to ptrImageGeostationary";
 
@@ -2268,11 +2423,11 @@ void FormImage::fillptrimageHRV(quint16 *pixHRV)
     int r,g, b;
 
     qDebug() << "in fillptrimageHRV";
-    for(int i = 0; i < (segs->seglmeteosat->areatype == 1 ? 24 : 5); i++)
+    for(int i = 0; i < (segs->seglgeo[0]->areatype == 1 ? 24 : 5); i++)
     {
         for (int line = 463; line >= 0; line--)
         {
-            row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine((segs->seglmeteosat->areatype == 1 ? 24 : 5)*464 - i * 464 - line);
+            row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine((segs->seglgeo[0]->areatype == 1 ? 24 : 5)*464 - i * 464 - line);
             for (int pixelx = 5567; pixelx >= 0; pixelx--)
             {
                 c = *(pixHRV + i * 464 * 5568 + line * 5568  + pixelx);
@@ -2287,7 +2442,6 @@ void FormImage::fillptrimageHRV(quint16 *pixHRV)
     }
 }
 
-
 void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl)
 {
 
@@ -2295,98 +2449,43 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
 
     if (imageLabel->pixmap() == 0)
         return;
+    if(sl == NULL)
+        return;
+
     pixgeoConversion pixconv;
+
+    int col, save_col;
+    int row, save_row;
+    bool first = true;
+
+    double lat_deg;
+    double lon_deg;
+    int ret;
+    bool hrvimage;
 
     long coff;
     long loff;
     double cfac;
     double lfac;
 
-    int col, save_col;
-    int row, save_row;
-    bool first = true;
+    int geoindex = sl->getGeoSatelliteIndex();
 
-    double radius;
-    QVector3D pos;
-    double lat_deg;
-    double lon_deg;
-    //QRgb rgbval = qRgb(255, 255, 255);
-    int ret;
-
-
-    if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
+    if(sl != NULL)
     {
-        if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
-        {
-        } else
-        {
-            if(sl->LowerNorthLineActual == 0)
-                return;
-        }
-    }
-
-    if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-    {
-        if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
-        {
-            lfac=LFAC_HRV_FENGYUN;
-            cfac=CFAC_HRV_FENGYUN;
-
-            coff=COFF_HRV_FENGYUN;
-            loff=LOFF_HRV_FENGYUN;
-        }
+        if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
+            hrvimage = true;
         else
-        {
-            lfac=LFAC_HRV;
-            cfac=CFAC_HRV;
+            hrvimage = false;
 
-            coff=COFF_HRV;
-            loff=LOFF_HRV;
+        if(sl->getGeoSatellite() == eGeoSatellite::H8)
+        {
+            QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
+            paint->setPen(qRgb(0, 0, 255));
+            paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
         }
     }
     else
-    {
-        if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9 || sl->getGeoSatellite() == SegmentListGeostationary::MET_8)
-        {
-            lfac=LFAC_NONHRV;
-            cfac=CFAC_NONHRV;
-
-            coff=COFF_NONHRV;
-            loff=LOFF_NONHRV;
-        }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
-        {
-            lfac=LFAC_NONHRV_FENGYUN;
-            cfac=CFAC_NONHRV_FENGYUN;
-
-            coff=COFF_NONHRV_FENGYUN;
-            loff=LOFF_NONHRV_FENGYUN;
-        }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_13 || sl->getGeoSatellite() == SegmentListGeostationary::GOES_15 )
-        {
-            lfac=LFAC_NONHRV_GOES;
-            cfac=CFAC_NONHRV_GOES;
-
-            coff=COFF_NONHRV_GOES;
-            loff=LOFF_NONHRV_GOES;
-        }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::GOES_16 )
-        {
-            lfac=LFAC_NONHRV_GOES16;
-            cfac=CFAC_NONHRV_GOES16;
-
-            coff=COFF_NONHRV_GOES16;
-            loff=LOFF_NONHRV_GOES16;
-        }
-        else if(sl->getGeoSatellite() == SegmentListGeostationary::H8)
-        {
-            lfac=LFAC_NONHRV_H8;
-            cfac=CFAC_NONHRV_H8;
-
-            coff=COFF_NONHRV_H8;
-            loff=LOFF_NONHRV_H8;
-        }
-    }
+        return;
 
     double sub_lon = sl->geosatlon;
     lat_deg = opts.obslat;
@@ -2394,33 +2493,24 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
     if (lon_deg > 180.0)
         lon_deg -= 360.0;
 
-    qDebug() << QString("in  FormImage::OverlayGeostationary(QPainter *paint) kindofimage = %1 isRSS = %2 getgeosatellite = %3 sub_lon = %4").arg(sl->getKindofImage()).arg(sl->bisRSS).arg(sl->getGeoSatellite()).arg(sub_lon);
-
-    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg,coff,loff,cfac,lfac,&col, &row);
-    if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-    {
-        row+=3;
-        col+=2;
-    }
+    coff = hrvimage ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+    loff = hrvimage ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+    cfac = hrvimage ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+    lfac = hrvimage ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
 
 
+    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
     if(ret == 0)
     {
-        if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
+        if(hrvimage)
         {
-
-        } else
-        {
-            if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
+            if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
             {
-                if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
-                {
-                    col = col - (11136 - sl->LowerWestColumnActual);
-                }
-                else //UPPER
-                {
-                    col = col - (11136 - sl->UpperWestColumnActual - 1);
-                }
+                col = col - (11136 - sl->LowerWestColumnActual);
+            }
+            else //UPPER
+            {
+                col = col - (11136 - sl->UpperWestColumnActual - 1);
             }
         }
 
@@ -2436,8 +2526,67 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         //paint->drawEllipse(pt, 2, 2);
     }
 
+
+    if(!hrvimage)
+    {
+        for(int i = 0; i < this->geooverlay.count(); i++)
+        {
+            if (this->geooverlay.at(i).x() < 0)
+            {
+                first = true;
+            }
+            else if(first == true)
+            {
+                first = false;
+                save_col = (int)this->geooverlay.at(i).x();
+                save_row = (int)this->geooverlay.at(i).y();
+            }
+            else
+            {
+                paint->setPen(opts.geoimageoverlaycolor1);
+                paint->drawLine(save_col, save_row, (int)this->geooverlay.at(i).x(), (int)this->geooverlay.at(i).y());
+                save_col = (int)this->geooverlay.at(i).x();
+                save_row = (int)this->geooverlay.at(i).y();
+            }
+        }
+    }
+    else
+        OverlayGeostationaryHRV(paint, sl, geoindex);
+}
+
+void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationary *sl, int geoindex)
+{
+
+    long coff;
+    long loff;
+    double cfac;
+    double lfac;
+
+    int col, save_col;
+    int row, save_row;
+    bool first = true;
+
+    double lat_deg;
+    double lon_deg;
+    int ret;
+
+    pixgeoConversion pixconv;
+
+    //if(sl->LowerNorthLineActual == 0)
+    //    return;
+
+    coff = opts.geosatellites.at(geoindex).coffhrv;
+    loff = opts.geosatellites.at(geoindex).loffhrv;
+    cfac = opts.geosatellites.at(geoindex).cfachrv;
+    lfac = opts.geosatellites.at(geoindex).lfachrv;
+
+    double sub_lon = sl->geosatlon;
+
+
     if(opts.gshhsglobe1On)
     {
+        first = true;
+
         for (int i=0; i<gshhsdata->vxp_data_overlay[0]->nFeatures; i++)
         {
             for (int j=0; j<gshhsdata->vxp_data_overlay[0]->pFeatures[i].nVerts; j++)
@@ -2447,20 +2596,15 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                 if (lon_deg > 180.0)
                     lon_deg -= 360.0;
 
-                if((lon_deg < 90.0 || lon_deg > -90.0)) // && ( sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color" ? (sl->bisRSS ? lat_deg > 30.0 : (sl->areatype == 0 ? lat_deg > 30.0 : true )) : true))
+                if((lon_deg < 90.0 || lon_deg > -90.0))
                 {
-                    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg,coff,loff,cfac,lfac,&col, &row);
-                    if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-                    {
-                        row+=3;
-                        col+=2;
-                    }
-                    if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
-                    {
+                    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
+                    row+=3;
+                    col+=2;
 
-                    } else
+                    if(ret == 0)
                     {
-                        if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
+                        if(sl->getGeoSatellite() != eGeoSatellite::FY2E && sl->getGeoSatellite() != eGeoSatellite::FY2G)
                         {
                             if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
                             {
@@ -2475,14 +2619,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                                 col = col - (11136 - sl->UpperWestColumnActual - 1);
                             }
                         }
-                    }
 
-                    if(ret == 0)
-                    {
-//                        if(sl->getGeoSatellite() == SegmentListGeostationary::ELECTRO_N1)
-//                        {
-//                            col+=3;
-//                        }
                         if (first)
                         {
                             first = false;
@@ -2520,20 +2657,13 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
 
                 if(lon_deg < 90.0 || lon_deg > -90.0)
                 {
-                    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg,coff,loff,cfac,lfac,&col, &row);
-                    if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-                    {
-                        row+=3;
-                        col+=2;
-                    }
+                    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
+                    row+=3;
+                    col+=2;
 
-                    if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
+                    if(ret == 0)
                     {
-
-                    }
-                    else
-                    {
-                        if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
+                        if(sl->getGeoSatellite() != eGeoSatellite::FY2E && sl->getGeoSatellite() != eGeoSatellite::FY2G)
                         {
                             if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
                             {
@@ -2548,10 +2678,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                                 col = col - (11136 - sl->UpperWestColumnActual - 1);
                             }
                         }
-                    }
 
-                    if(ret == 0)
-                    {
                         if (first)
                         {
                             first = false;
@@ -2590,20 +2717,13 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                 if(lon_deg < 90.0 || lon_deg > -90.0)
                 {
 
-                    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg,coff,loff,cfac,lfac,&col, &row);
-                    if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-                    {
-                        row+=3;
-                        col+=2;
-                    }
+                    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
+                    row+=3;
+                    col+=2;
 
-                    if(sl->getGeoSatellite() == SegmentListGeostationary::FY2E || sl->getGeoSatellite() == SegmentListGeostationary::FY2G)
+                    if(ret == 0)
                     {
-
-                    }
-                    else
-                    {
-                        if(sl->getKindofImage() == "HRV" || sl->getKindofImage()  == "HRV Color")
+                        if(sl->getGeoSatellite() != eGeoSatellite::FY2E && sl->getGeoSatellite() != eGeoSatellite::FY2G)
                         {
                             if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
                             {
@@ -2618,10 +2738,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                                 col = col - (11136 - sl->UpperWestColumnActual - 1);
                             }
                         }
-                    }
 
-                    if(ret == 0)
-                    {
                         if (first)
                         {
                             first = false;
@@ -2643,8 +2760,79 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
             first = true;
         }
     }
+
+    //this->update();
 }
 
+void FormImage::setupGeoOverlay(int geoindex)
+{
+
+    int col, save_col;
+    int row, save_row;
+    bool first = true;
+
+    double lat_deg;
+    double lon_deg;
+    int ret;
+    double sub_lon;
+
+    pixgeoConversion pixconv;
+
+    sub_lon = opts.geosatellites.at(geoindex).longitude;
+
+    this->geooverlay.clear();
+
+    for(int k = 0; k < 2; k++)
+    {
+        if(opts.gshhsglobe1On)
+        {
+            first = true;
+
+            for (int i=0; i<gshhsdata->vxp_data_overlay[k]->nFeatures; i++)
+            {
+                for (int j=0; j<gshhsdata->vxp_data_overlay[k]->pFeatures[i].nVerts; j++)
+                {
+                    lat_deg = gshhsdata->vxp_data_overlay[k]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
+                    lon_deg = gshhsdata->vxp_data_overlay[k]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
+                    if (lon_deg > 180.0)
+                        lon_deg -= 360.0;
+
+                    if(lon_deg < 90.0 || lon_deg > -90.0)
+                    {
+                        ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, opts.geosatellites.at(geoindex).coff,
+                                                        opts.geosatellites.at(geoindex).loff, opts.geosatellites.at(geoindex).cfac, opts.geosatellites.at(geoindex).lfac, &col, &row);
+                        if(ret == 0)
+                        {
+                            if (first)
+                            {
+                                first = false;
+                                save_col = col;
+                                save_row = row;
+                                this->geooverlay.append(QVector2D(-1, -1));
+
+                            }
+                            else
+                            {
+                                save_col = col;
+                                save_row = row;
+
+                            }
+
+                            this->geooverlay.append(QVector2D(col, row));
+
+                        }
+                        else
+                            first = true;
+                    }
+                }
+                first = true;
+            }
+        }
+    }
+
+    qDebug() << QString("geooverlay length = %1").arg(this->geooverlay.count());
+
+}
 
 
 
@@ -2683,11 +2871,10 @@ void FormImage::OverlayAVHRRImage(QPainter *paint)
 }
 */
 
-void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
+void FormImage::OverlayProjection(QPainter *paint)
 {
     qDebug() << QString("FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl) opts.currenttoolbox = %1").arg(opts.currenttoolbox);
 
-    bool first = true;
     double lat_deg;
     double lon_deg;
     bool bret;
@@ -2709,11 +2896,6 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
 
     if(bret)
     {
-        if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-        {
-            map_x+=MAP_X;
-            map_y+=MAP_Y;
-        }
 
         QPoint pt(map_x, map_y);
         QPoint ptleft(map_x-5, map_y);
@@ -2730,6 +2912,7 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
 //        paint->drawEllipse(pt, 2, 2);
     }
 
+    bool first = true;
 
     if(opts.gshhsglobe1On)
     {
@@ -2749,11 +2932,6 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
                 else                                //SG
                     bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
 
-                if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-                {
-                    map_x+=MAP_X;
-                    map_y+=MAP_Y;
-                }
 
                 if(bret)
                 {
@@ -2798,12 +2976,6 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
                 else                                //SG
                     bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
 
-                if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-                {
-                    map_x+=MAP_X;
-                    map_y+=MAP_Y;
-                }
-
                 if(bret)
                 {
                     if (first)
@@ -2846,12 +3018,6 @@ void FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)
                     bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
                 else                                //SG
                     bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-
-                if(sl->getKindofImage()  == "HRV" || sl->getKindofImage()  == "HRV Color")
-                {
-                    map_x+=MAP_X;
-                    map_y+=MAP_Y;
-                }
 
                 if(bret)
                 {

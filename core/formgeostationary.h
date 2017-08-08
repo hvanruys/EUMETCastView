@@ -30,14 +30,16 @@ public:
     //int GetChannelIndex();
     void setTreeWidget(QTreeWidget *widget, bool state);
     void SetFormImage(FormImage *p_formimage) { formimage = p_formimage; }
-    void SelectGeoWidgetItem(SegmentListGeostationary::eGeoTreeWidget geosat, QTreeWidgetItem *item, int column );
-
+    void SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item, int column );
+    SegmentListGeostationary *setActiveSegmentList(int geoindex);
+    int getTabWidgetGeoIndex();
     ~FormGeostationary();
 
 private:
-    QStringList getGeostationarySegments(SegmentListGeostationary::eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
-    QStringList getGeostationarySegmentsFengYun(SegmentListGeostationary::eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
-    void PopulateTreeGeo(SegmentListGeostationary::eGeoSatellite whichgeo, QMap<QString, QMap<QString, QMap<int, QFileInfo> > > map, QTreeWidget *widget);
+    //QStringList getGeostationarySegments(eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
+    QStringList getGeostationarySegments(int geoindex, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
+    QStringList getGeostationarySegmentsFengYun(eGeoSatellite whichgeo, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
+    void PopulateTreeGeo(int geoindex);
     void CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
@@ -47,6 +49,7 @@ private:
     SatelliteList *sats;
     FormToolbox *formtoolbox;
     FormImage *formimage;
+    QList<QTreeWidget *> geotreewidgetlist;
 
 
 public slots:
@@ -55,30 +58,12 @@ public slots:
 
 
 private slots:
-    void on_SegmenttreeWidget_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetRSS_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetMet8_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetGOES13dc3_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetGOES15dc3_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetGOES13dc4_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetGOES15dc4_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetGOES16_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetFY2E_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetFY2G_itemClicked(QTreeWidgetItem *item, int column);
-
-    void on_SegmenttreeWidgetH8_itemClicked(QTreeWidgetItem *item, int column);
+    void ontreeWidgetitemClicked(QTreeWidgetItem *item, int column);
+    void on_tabGeostationary_tabBarClicked(int index);
 
 signals:
-    void geostationarysegmentschosen(SegmentListGeostationary::eGeoSatellite geo, QStringList ll);
+    void geostationarysegmentschosen(int geoindex, QStringList ll);
+    void setbuttonlabels(int geoindex, bool state);
     void enabletoolboxbuttons(bool);
 };
 

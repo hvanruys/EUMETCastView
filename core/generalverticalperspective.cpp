@@ -231,7 +231,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
     int UWCA = 0;
     int UNLA = 0;
 
-    if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
+    if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9)
     {
         LECA = 11136 - sl->LowerEastColumnActual;
         LSLA = 11136 - sl->LowerSouthLineActual;
@@ -268,7 +268,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
         {
             if (this->map_inverse(i, j, lon_rad, lat_rad))
             {
-                if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10 || sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
+                if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9)
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                     {
@@ -285,7 +285,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                         }
                         else
                         {
-                            if(sl->getGeoSatellite() == SegmentListGeostationary::MET_9)
+                            if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
                             {
                                 if( row < 5*464)
                                 {
@@ -305,7 +305,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                                 }
 
                             }
-                            else if(sl->getGeoSatellite() == SegmentListGeostationary::MET_10)
+                            else if(sl->getGeoSatellite() == eGeoSatellite::MET_10)
                             {
                                 if( row < (sl->areatype == 0 ? 5*464 : 11136))
                                 {

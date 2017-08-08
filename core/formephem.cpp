@@ -274,16 +274,10 @@ void FormEphem::NewSegmentOverviewItem()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubOLCIerr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubSLSTR(), 0  );
 
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosatRss(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMeteosat8(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES13(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES15(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGOES16(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2E(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsFY2G(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsH8(), 0  );
-
+    for(int i = 0; i < opts.geosatellites.count(); i++)
+    {
+        newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGeo(i), 0  );
+    }
 }
 
 void FormEphem::showSegmentsAdded()

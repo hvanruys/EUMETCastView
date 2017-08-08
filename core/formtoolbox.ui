@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -4919,7 +4919,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_12">
          <item>
-          <widget class="QPushButton" name="btnCLAHEMeteosat">
+          <widget class="QPushButton" name="btnCLAHEGeostationary">
            <property name="toolTip">
             <string>Contrast Limited Adaptive Histogram Equalization</string>
            </property>

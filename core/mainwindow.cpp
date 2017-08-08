@@ -15,6 +15,8 @@ extern QFile loggingFile;
 
 class SegmentListGeostationary;
 
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -51,75 +53,11 @@ MainWindow::MainWindow(QWidget *parent) :
     formgeostationary->SetFormImage(formimage);
     connect(formimage, SIGNAL(moveImage(QPoint, QPoint)), this, SLOT(moveImage(QPoint, QPoint)));
 
-    for( int i = 0; i < 8; i++)
-    {
-        connect(&seglist->seglmeteosat->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-        connect(&seglist->seglmeteosat->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-        connect(&seglist->seglmeteosat->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-
-    for( int i = 0; i < 24; i++)
-    {
-        connect(&seglist->seglmeteosat->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
 
 
-    for( int i = 0; i < 8; i++)
-    {
-        connect(&seglist->seglmeteosatrss->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-        connect(&seglist->seglmeteosatrss->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-        connect(&seglist->seglmeteosatrss->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
+    for(int i = 0; i < opts.geosatellites.count(); i++)
+        connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString, int, int)), formimage, SLOT(slotcomposefinished(QString, int, int)));
 
-    for( int i = 0; i < 24; i++)
-    {
-        connect(&seglist->seglmeteosatrss->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-
-    for( int i = 0; i < 8; i++)
-    {
-        connect(&seglist->seglmet8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-        connect(&seglist->seglmet8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-        connect(&seglist->seglmet8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-
-    for( int i = 0; i < 24; i++)
-    {
-        connect(&seglist->seglmet8->watcherHRV[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-
-    for( int i = 0; i < 7; i++)
-    {
-        connect(&seglist->seglgoes13dc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-    for( int i = 0; i < 7; i++)
-    {
-        connect(&seglist->seglgoes15dc3->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-
-    for( int i = 0; i < 7; i++)
-    {
-        connect(&seglist->seglgoes13dc4->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-    for( int i = 0; i < 7; i++)
-    {
-        connect(&seglist->seglgoes15dc4->watcherMono[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-
-//    connect(seglist->seglfy2e, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateGeosat()));
-//    connect(seglist->seglfy2g, SIGNAL(imagefinished()), formimage, SLOT(slotUpdateGeosat()));
-
-    connect(&seglist->seglfy2e->watcherRed[0], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    connect(&seglist->seglfy2g->watcherRed[0], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-
-    for( int i = 0; i < 10; i++)
-    {
-        connect(&seglist->seglh8->watcherRed[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-        connect(&seglist->seglh8->watcherGreen[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-        connect(&seglist->seglh8->watcherBlue[i], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
-    }
-
-    connect(&seglist->seglgoes16->watcherRed[0], SIGNAL(finished()), formimage, SLOT(slotUpdateGeosat()));
 
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
     imageptrs->lcc = new LambertConformalConic(this, seglist);
@@ -136,17 +74,9 @@ MainWindow::MainWindow(QWidget *parent) :
     formimage->SetFormToolbox(formtoolbox);
     formgeostationary->SetFormToolBox(formtoolbox);
 
-    connect(seglist->seglmeteosat, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglmeteosatrss, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglmet8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglgoes13dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglgoes15dc3, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglgoes13dc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglgoes15dc4, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglgoes16, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglfy2e, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglfy2g, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglh8, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    for(int i = 0; i < opts.geosatellites.count(); i++)
+        connect(seglist->seglgeo[i], SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+
     connect(seglist->seglviirsm, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglviirsdnb, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglolciefr, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
@@ -231,13 +161,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formephem, SIGNAL(signalDatagram(QByteArray)), seglist, SLOT(AddSegmentsToListFromUdp(QByteArray)));
 
-    connect( formimage, SIGNAL(render3dgeo(SegmentListGeostationary::eGeoSatellite)), globe, SLOT(Render3DGeo(SegmentListGeostationary::eGeoSatellite)));
+    connect( formimage, SIGNAL(render3dgeo(eGeoSatellite)), globe, SLOT(Render3DGeo(eGeoSatellite)));
     connect( formimage, SIGNAL(allsegmentsreceivedbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
     connect( formimage->imageLabel, SIGNAL(coordinateChanged(QString)), this, SLOT(updateStatusBarCoordinate(QString)));
 
     connect( globe, SIGNAL(renderingglobefinished(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 
-    connect( formgeostationary, SIGNAL(geostationarysegmentschosen(SegmentListGeostationary::eGeoSatellite, QStringList)), formtoolbox, SLOT(geostationarysegmentsChosen(SegmentListGeostationary::eGeoSatellite, QStringList)));
+    connect( formgeostationary, SIGNAL(geostationarysegmentschosen(int, QStringList)), formtoolbox, SLOT(geostationarysegmentsChosen(int, QStringList)));
+    connect( formgeostationary, SIGNAL(setbuttonlabels(int, bool)), formtoolbox, SLOT(setButtons(int, bool)));
+
     connect( formtoolbox, SIGNAL(getmeteosatchannel(QString, QVector<QString>, QVector<bool>)), formgeostationary, SLOT(CreateGeoImage(QString, QVector<QString>, QVector<bool>)));
     connect( formtoolbox, SIGNAL(switchstackedwidget(int)), this, SLOT(slotSwitchStackedWindow(int)));
 
@@ -318,7 +250,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::slotSwitchStackedWindow(int ind)
 {
+    qDebug() << QString("MainWindow::slotSwitchStackedWindow ind = %1").arg(ind);
     ui->stackedWidget->setCurrentIndex(ind);
+    QApplication::processEvents();
+
 }
 
 void MainWindow::createDockWidget()
@@ -479,7 +414,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br>VIIRS images from SUOMI NPP (M-Band and Day/Night Band)"
     "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A"
     "<br><br><b>Geostationary satellites :</b>"
-    "<br>XRIT from Meteosat-10, Meteosat-9, Meteosat-8, Meteosat-7"
+    "<br>XRIT from Meteosat-10, Meteosat-9, Meteosat-8"
     "<br>FengYun 2E, FengYun 2G"
     "<br>GOES-13, GOES-15"
     "<br>and Himawari-8"
@@ -549,9 +484,9 @@ void MainWindow::on_actionSatSelection_triggered()
 void MainWindow::on_actionMeteosat_triggered()
 {
      ui->stackedWidget->setCurrentIndex(1);
-
+     formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
+     formtoolbox->setButtons(formtoolbox->getGeoIndex(), false);
 }
-
 
 void MainWindow::on_actionCylindricalEquidistant_triggered()
 {
@@ -573,6 +508,7 @@ void MainWindow::on_actionImage_triggered()
     int index = formtoolbox->getTabWidgetIndex();
     int indexviirs = formtoolbox->getTabWidgetVIIRSIndex();
     int indexsentinel = formtoolbox->getTabWidgetSentinelIndex();
+    int indexgeostationary = formgeostationary->getTabWidgetGeoIndex();
 
     Q_ASSERT(index < 6);
 
@@ -598,7 +534,9 @@ void MainWindow::on_actionImage_triggered()
             formimage->displayImage(IMAGE_SLSTR); //SLSTR image
     }
     else if(index == TAB_GEOSTATIONARY)
+    {
         formimage->displayImage(IMAGE_GEOSTATIONARY); //Geostationary image
+    }
     else if(index == TAB_PROJECTION)
         formimage->displayImage(IMAGE_PROJECTION); //Projection image
 

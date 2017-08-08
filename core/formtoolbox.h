@@ -26,6 +26,7 @@ public:
     int getTabWidgetIndex();
     int getTabWidgetVIIRSIndex();
     int getTabWidgetSentinelIndex();
+    int getGeoIndex() { return geoindex; }
 
     QList<bool> getVIIRSMBandList();
     QList<int> getVIIRSMColorList();
@@ -87,7 +88,7 @@ private:
     void setRadioButtonsOLCIefrToFalse();
     void setRadioButtonsSLSTRToFalse();
     void copyProjectionImage();
-    void checkSegmentDateTime();
+    bool checkSegmentDateTime();
     void initializeScales();
     void setLogValue(int deg, double rad);
     void fitCurve();
@@ -98,7 +99,7 @@ private:
 
     QVector<QString> spectrumvector;
     QVector<bool> inversevector;
-    SegmentListGeostationary::eGeoSatellite whichgeo;
+    int geoindex;
     QStringList rowchosen;
     QString filenamecreated;
     QVector<int> resolutionX;
@@ -109,8 +110,11 @@ private:
 public slots:
     void setChannelComboBoxes();
     void setChannelIndex();
-    void geostationarysegmentsChosen(SegmentListGeostationary::eGeoSatellite geo, QStringList tex);
+    void geostationarysegmentsChosen(int geoindex, QStringList tex);
     void setToolboxButtons(bool state);
+    void setToolboxButtonLabels(int geoindex);
+    void setButtons(int geoindex, bool state);
+
     void slotDisplayDNBGraph();
 
 signals:
@@ -133,7 +137,7 @@ private slots:
 
 
     void on_btnGeoColor_clicked();
-    void on_btnCLAHEMeteosat_clicked();
+    void on_btnCLAHEGeostationary_clicked();
     void on_btnExpandImage_clicked();
     void on_btnRotate180_clicked();
     void on_btnOverlayMeteosat_clicked();

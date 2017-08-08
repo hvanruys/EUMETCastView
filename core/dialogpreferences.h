@@ -23,6 +23,7 @@ public:
     void setupPOIGVPTable();
     void setupPOISGTable();
     void setupVIIRSMConfigTable();
+    void setupGeoConfigTable();
     void setupOLCIefrConfigTable();
     void setupSLSTRConfigTable();
     void setupDatahubConfig();
@@ -49,6 +50,8 @@ private slots:
     void deletePOISGRow();
     void addVIIRSMConfigRow();
     void deleteVIIRSMConfigRow();
+    void addGeoConfigRow();
+    void deleteGeoConfigRow();
     void addOLCIefrConfigRow();
     void deleteOLCIefrConfigRow();
     void addSLSTRConfigRow();
@@ -118,6 +121,7 @@ private:
     QAbstractTableModel *myVIIRSMConfigModel;
     QAbstractTableModel *myOLCIefrConfigModel;
     QAbstractTableModel *mySLSTRConfigModel;
+    QAbstractTableModel *myGeoConfigModel;
     QColorDialog *colordialog;
     bool POItablechanged;
 
@@ -208,6 +212,26 @@ class POISGModel : public QAbstractTableModel
     Q_OBJECT
 public:
     POISGModel(QObject *parent);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex & index) const ;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+
+private:
+
+signals:
+    void editCompleted();
+};
+
+class GeoConfigModel : public QAbstractTableModel
+{
+    Q_OBJECT
+public:
+    GeoConfigModel(QObject *parent);
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

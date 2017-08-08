@@ -19,12 +19,12 @@ extern gshhsData *gshhsdata;
 
 extern QMutex g_mutex;
 
-void Render3DColorTexture(Globe *gl, SegmentListGeostationary::eGeoSatellite sat)
+void Render3DColorTexture(Globe *gl, eGeoSatellite sat)
 {
       gl->Render3DGeoSegment( sat );
 }
 
-void Render3DColorFBO(Globe *gl, SegmentListGeostationary::eGeoSatellite sat)
+void Render3DColorFBO(Globe *gl, eGeoSatellite sat)
 {
       gl->Render3DGeoSegmentFBO( sat );
 }
@@ -1398,13 +1398,13 @@ QSize Globe::sizeHint() const
 }
 
 
-void Globe::Render3DGeo(SegmentListGeostationary::eGeoSatellite sat)
+void Globe::Render3DGeo(eGeoSatellite sat)
 {
 
     if(futureRender3DGeo.isRunning())
         return;
 
-    if (segs->seglmeteosat->getKindofImage() != "HRV" && segs->seglmeteosat->getKindofImage() != "HRV Color")
+    if (segs->seglgeo[0]->getKindofImage() != "HRV" && segs->seglgeo[0]->getKindofImage() != "HRV Color")
     {
         futureRender3DGeo = QtConcurrent::run(Render3DColorTexture, this, sat);
         watcher.setFuture(futureRender3DGeo);
@@ -1416,7 +1416,7 @@ void Globe::slotRender3DGeoFinished()
     qDebug() << "=======> futureRender3DGeo is finished";
 }
 
-void Globe::Render3DGeoSegment(SegmentListGeostationary::eGeoSatellite sat)
+void Globe::Render3DGeoSegment(eGeoSatellite sat)
 {
 
     qDebug() << "Globe::Render3DGeoSegment(SegmentListMeteosat::eGeoSatellite sat)";
@@ -1434,7 +1434,7 @@ void Globe::Render3DGeoSegment(SegmentListGeostationary::eGeoSatellite sat)
 }
 
 
-void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::eGeoSatellite sat)
+void Globe::Render3DGeoSegmentLine(int heightinimage, eGeoSatellite geo)
 {
 
     QRgb *scanl;
@@ -1457,63 +1457,72 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::
     {
         rgbval = scanl[pix];
 
-        if(sat == SegmentListGeostationary::MET_10)
+        if(geo == eGeoSatellite::MET_10)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglmeteosat->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[0]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
                 fb_painter.drawPoint(x, y);
             }
         }
-        else if(sat == SegmentListGeostationary::MET_9)
+        else if(geo == eGeoSatellite::MET_9)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglmeteosatrss->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[1]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
                 fb_painter.drawPoint(x, y);
             }
         }
-        else if(sat == SegmentListGeostationary::MET_8)
+        else if(geo == eGeoSatellite::MET_8)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglmet8->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[2]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
                 fb_painter.drawPoint(x, y);
             }
         }
-        else if(sat == SegmentListGeostationary::GOES_13 || sat == SegmentListGeostationary::GOES_15)
+        else if(geo == eGeoSatellite::GOMS2)
         {
-            if(pixconv.pixcoord2geocoord((sat == SegmentListGeostationary::GOES_13 ? segs->seglgoes13dc3->geosatlon : segs->seglgoes15dc3->geosatlon), pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[3]->geosatlon, pix, heightinimage, COFF_NONHRV_GOMS2, LOFF_NONHRV_GOMS2, CFAC_NONHRV_GOMS2, LFAC_NONHRV_GOMS2, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
                 fb_painter.drawPoint(x, y);
             }
         }
-        else if(sat == SegmentListGeostationary::FY2E)
+        else if(geo == eGeoSatellite::GOES_13 || geo == eGeoSatellite::GOES_15)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglfy2e->geosatlon, pix, heightinimage, COFF_NONHRV_FENGYUN, LOFF_NONHRV_FENGYUN, CFAC_NONHRV_FENGYUN, LFAC_NONHRV_FENGYUN, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord((geo == eGeoSatellite::GOES_13 ? segs->seglgeo[6]->geosatlon : segs->seglgeo[7]->geosatlon), pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
                 fb_painter.drawPoint(x, y);
             }
         }
-        else if(sat == SegmentListGeostationary::FY2G)
+        else if(geo == eGeoSatellite::FY2E)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglfy2g->geosatlon, pix, heightinimage, COFF_NONHRV_FENGYUN, LOFF_NONHRV_FENGYUN, CFAC_NONHRV_FENGYUN, LFAC_NONHRV_FENGYUN, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[4]->geosatlon, pix, heightinimage, COFF_NONHRV_FENGYUN, LOFF_NONHRV_FENGYUN, CFAC_NONHRV_FENGYUN, LFAC_NONHRV_FENGYUN, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
                 fb_painter.drawPoint(x, y);
             }
         }
-        else if(sat == SegmentListGeostationary::H8)
+        else if(geo == eGeoSatellite::FY2G)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglh8->geosatlon, pix, heightinimage, COFF_NONHRV_H8, LOFF_NONHRV_H8, CFAC_NONHRV_H8, LFAC_NONHRV_H8, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[5]->geosatlon, pix, heightinimage, COFF_NONHRV_FENGYUN, LOFF_NONHRV_FENGYUN, CFAC_NONHRV_FENGYUN, LFAC_NONHRV_FENGYUN, &lat_deg, &lon_deg) == 0)
+            {
+                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                fb_painter.setPen(rgbval);
+                fb_painter.drawPoint(x, y);
+            }
+        }
+        else if(geo == eGeoSatellite::H8)
+        {
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[9]->geosatlon, pix, heightinimage, COFF_NONHRV_H8, LOFF_NONHRV_H8, CFAC_NONHRV_H8, LFAC_NONHRV_H8, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
@@ -1527,7 +1536,7 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, SegmentListGeostationary::
 
 }
 
-void Globe::Render3DGeoSegmentFBO(SegmentListGeostationary::eGeoSatellite sat)
+void Globe::Render3DGeoSegmentFBO(eGeoSatellite sat)
 {
 
     qDebug() << "Globe::Render3DGeoSegmentFBO(SegmentListMeteosat::eGeoSatellite sat)";
@@ -1542,7 +1551,7 @@ void Globe::Render3DGeoSegmentFBO(SegmentListGeostationary::eGeoSatellite sat)
 
 }
 
-void Globe::Render3DGeoSegmentLineFBO(int heightinimage, SegmentListGeostationary::eGeoSatellite sat)
+void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
 {
 
     QRgb *scanl;
@@ -1566,9 +1575,9 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, SegmentListGeostationar
         rgbval = scanl[pix];
 
 
-        if(sat == SegmentListGeostationary::MET_10)
+        if(geo == eGeoSatellite::MET_10)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglmeteosat->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[0]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
@@ -1579,9 +1588,9 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, SegmentListGeostationar
                 rainbow.append(qBlue(rgbval));
             }
         }
-        else if(sat == SegmentListGeostationary::MET_9)
+        else if(geo == eGeoSatellite::MET_9)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglmeteosatrss->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[1]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
@@ -1592,9 +1601,9 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, SegmentListGeostationar
                 rainbow.append(qBlue(rgbval));
             }
         }
-        else if(sat == SegmentListGeostationary::MET_8)
+        else if(geo == eGeoSatellite::MET_8)
         {
-            if(pixconv.pixcoord2geocoord(segs->seglmet8->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[2]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
@@ -1605,9 +1614,9 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, SegmentListGeostationar
                 rainbow.append(qBlue(rgbval));
             }
         }
-        else if(sat == SegmentListGeostationary::GOES_13 || sat == SegmentListGeostationary::GOES_15)
+        else if(geo == eGeoSatellite::GOES_13 || geo == eGeoSatellite::GOES_15)
         {
-            if(pixconv.pixcoord2geocoord((sat == SegmentListGeostationary::GOES_13 ? segs->seglgoes13dc3->geosatlon : segs->seglgoes15dc3->geosatlon), pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord((geo == eGeoSatellite::GOES_13 ? segs->seglgeo[6]->geosatlon : segs->seglgeo[7]->geosatlon), pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));

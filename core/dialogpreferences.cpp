@@ -156,6 +156,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupPOIGVPTable();
     setupPOISGTable();
     setupVIIRSMConfigTable();
+    setupGeoConfigTable();
     setupOLCIefrConfigTable();
     setupSLSTRConfigTable();
     setupDatahubConfig();
@@ -287,6 +288,26 @@ void DialogPreferences::setupVIIRSMConfigTable()
 
     connect(ui->btnAddMConfig, SIGNAL(clicked()), this, SLOT(addVIIRSMConfigRow()));
     connect(ui->btnDeleteMConfig, SIGNAL(clicked()), this, SLOT(deleteVIIRSMConfigRow()));
+
+}
+
+void DialogPreferences::setupGeoConfigTable()
+{
+    myGeoConfigModel = new GeoConfigModel(this);
+
+    ui->tbvGeoConfig->setModel(myGeoConfigModel);
+    ui->tbvGeoConfig->setColumnWidth(0, 150);
+
+    for(int i = 1; i < 4; i++)
+        ui->tbvGeoConfig->setColumnWidth(i, 150);
+
+    QHeaderView *hheader = ui->tbvGeoConfig->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddGeoConfig, SIGNAL(clicked()), this, SLOT(addGeoConfigRow()));
+    connect(ui->btnDeleteGeoConfig, SIGNAL(clicked()), this, SLOT(deleteGeoConfigRow()));
 
 }
 
@@ -438,45 +459,45 @@ void DialogPreferences::deletePOISGRow()
 
 void DialogPreferences::addVIIRSMConfigRow()
 {
-    //POItablechanged = true;
-
     myVIIRSMConfigModel->insertRows(myVIIRSMConfigModel->rowCount(), 1, QModelIndex());
 }
 
 void DialogPreferences::deleteVIIRSMConfigRow()
 {
-    //POItablechanged = true;
-
     int row = ui->tbvVIIRSMConfig->currentIndex().row();
     myVIIRSMConfigModel->removeRow(row, QModelIndex());
 }
 
+
+void DialogPreferences::addGeoConfigRow()
+{
+    myGeoConfigModel->insertRows(myGeoConfigModel->rowCount(), 1, QModelIndex());
+}
+
+void DialogPreferences::deleteGeoConfigRow()
+{
+    int row = ui->tbvGeoConfig->currentIndex().row();
+    myGeoConfigModel->removeRow(row, QModelIndex());
+}
+
 void DialogPreferences::addOLCIefrConfigRow()
 {
-    //POItablechanged = true;
-
     myOLCIefrConfigModel->insertRows(myOLCIefrConfigModel->rowCount(), 1, QModelIndex());
 }
 
 void DialogPreferences::deleteOLCIefrConfigRow()
 {
-    //POItablechanged = true;
-
     int row = ui->tbvOLCIefrConfig->currentIndex().row();
     myOLCIefrConfigModel->removeRow(row, QModelIndex());
 }
 
 void DialogPreferences::addSLSTRConfigRow()
 {
-    //POItablechanged = true;
-
     mySLSTRConfigModel->insertRows(mySLSTRConfigModel->rowCount(), 1, QModelIndex());
 }
 
 void DialogPreferences::deleteSLSTRConfigRow()
 {
-    //POItablechanged = true;
-
     int row = ui->tbvSLSTRConfig->currentIndex().row();
     mySLSTRConfigModel->removeRow(row, QModelIndex());
 }
@@ -2191,6 +2212,210 @@ bool VIIRSMConfigModel::removeRows(int position, int rows, const QModelIndex &in
 }
 
 Qt::ItemFlags VIIRSMConfigModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+GeoConfigModel::GeoConfigModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+
+}
+
+int GeoConfigModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return opts.geosatellites.count();
+}
+
+//struct GeoSatellites
+//{
+//    QString fullname;
+//    QString shortname;
+//    double longitude;
+//    QString protocol;
+//    QString searchstring;
+//    int indexsearchstring;
+//    int indexdatestring;
+//    int lengthdatestring;
+//    int indexspectrumstring;
+//    int lengthspectrumstring;
+//    int indexfilenbrstring;
+//    int lengthfilenbrstring;
+//    int imagewidth;
+//    int imageheight;
+//    int hvrimagewidth;
+//    int hvrimageheight;
+
+//};
+
+int GeoConfigModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 9;
+}
+
+QVariant GeoConfigModel::data(const QModelIndex &index, int role) const
+{
+
+    if (role == Qt::DisplayRole)
+    {
+        switch(index.column())
+        {
+        case 0:
+            return opts.geosatellites.at(index.row()).fullname;
+            break;
+        case 1:
+            return opts.geosatellites.at(index.row()).shortname;
+            break;
+        case 2:
+            return opts.geosatellites.at(index.row()).longitude;
+            break;
+        case 3:
+            return opts.geosatellites.at(index.row()).protocol;
+            break;
+        case 4:
+            return opts.geosatellites.at(index.row()).rss;
+            break;
+        case 5:
+            return opts.geosatellites.at(index.row()).searchstring;
+            break;
+        case 6:
+            return opts.geosatellites.at(index.row()).indexsearchstring;
+            break;
+        case 7:
+            return opts.geosatellites.at(index.row()).imagewidth;
+            break;
+        case 8:
+            return opts.geosatellites.at(index.row()).imageheight;
+            break;
+        }
+    }
+
+    return QVariant();
+
+
+}
+
+
+
+bool GeoConfigModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            opts.geosatellites[index.row()].fullname = value.toString();
+            break;
+        case 1:
+            opts.geosatellites[index.row()].shortname = value.toString();
+            break;
+        case 2:
+            opts.geosatellites[index.row()].longitude = value.toDouble();
+            break;
+        case 3:
+            opts.geosatellites[index.row()].protocol = value.toString();
+            break;
+        case 4:
+            opts.geosatellites[index.row()].rss = value.toBool();
+            break;
+        case 5:
+            opts.geosatellites[index.row()].searchstring = value.toString();
+            break;
+        case 6:
+            opts.geosatellites[index.row()].indexsearchstring = value.toInt();
+            break;
+        case 7:
+            opts.geosatellites[index.row()].imagewidth = value.toInt();
+            break;
+        case 8:
+            opts.geosatellites[index.row()].imageheight = value.toInt();
+            break;
+        }
+
+        emit editCompleted();
+    }
+
+    return true;
+}
+
+QVariant GeoConfigModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Fullname");
+
+        case 1:
+            return tr("Shortname");
+
+        case 2:
+            return tr("Longitude");
+
+        case 3:
+            return tr("Protocol");
+
+        case 4:
+            return tr("RSS");
+
+        case 5:
+            return tr("Searchstring");
+
+        case 6:
+            return tr("Index Search");
+
+        case 7:
+            return tr("Image width");
+
+        case 8:
+            return tr("Image height");
+
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+
+}
+
+bool GeoConfigModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    GeoSatellites sats;
+    sats.fullname = " ";
+    sats.shortname = " ";
+    sats.longitude = 0.0;
+    sats.protocol = " ";
+    sats.rss = false;
+    sats.searchstring = " ";
+    sats.indexsearchstring = 0;
+    sats.imagewidth = 0;
+    sats.imageheight = 0;
+    opts.geosatellites.append(sats);
+
+    endInsertRows();
+    return true;
+
+}
+
+bool GeoConfigModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+    opts.geosatellites.removeAt(position);
+    endRemoveRows();
+    return true;
+
+}
+
+Qt::ItemFlags GeoConfigModel::flags(const QModelIndex & /*index*/) const
 {
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
