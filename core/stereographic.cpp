@@ -56,8 +56,9 @@ void StereoGraphic::Initialize(double center_lon, double center_lat, double insc
     {
         delete imageptrs->ptrimageProjection;
         imageptrs->ptrimageProjection = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
+        imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     }
-    imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
+
     imageptrs->ptrimageProjectionRed.reset(new quint16[imagewidth * imageheight]);
     imageptrs->ptrimageProjectionGreen.reset(new quint16[imagewidth * imageheight]);
     imageptrs->ptrimageProjectionBlue.reset(new quint16[imagewidth * imageheight]);
@@ -118,7 +119,6 @@ void StereoGraphic::CreateMapFromGeostationary()
     int row, picrow;
     int hrvmap = 0;
 
-    //imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     qDebug() << QString("Start StereoGraphic::CreateMapFromMeteosat");
 
     SegmentListGeostationary *sl;

@@ -1261,18 +1261,21 @@ void FormImage::displayGeoImageInfo()
     } else if(segs->seglgeo[3]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("GOMS2");
-    } else if(segs->seglgeo[6]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("GOES 13");
-    } else if(segs->seglgeo[7]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("GOES 15");
     } else if(segs->seglgeo[4]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Feng Yun 2E");
     } else if(segs->seglgeo[5]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Feng Yun 2G");
+    } else if(segs->seglgeo[6]->bActiveSegmentList == true)
+    {
+        displayGeoImageInformation("GOES 13");
+    } else if(segs->seglgeo[7]->bActiveSegmentList == true)
+    {
+        displayGeoImageInformation("GOES 15");
+    } else if(segs->seglgeo[8]->bActiveSegmentList == true)
+    {
+        displayGeoImageInformation("GOES 16");
     } else if(segs->seglgeo[9]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Himawari-8");
@@ -1559,7 +1562,7 @@ void FormImage::EnhanceDarkSpace(int geoindex)
     QRgb *row_col;
     QRgb rgb;
     quint16 r,g, b;
-    double l2, el2;
+    double l2, el2_1, el2_2;
     int x0, y0;
     int maxhimred, minhimred;
     int maxhimgreen, minhimgreen;
@@ -1577,8 +1580,72 @@ void FormImage::EnhanceDarkSpace(int geoindex)
     int elb = opts.geosatellites.at(geoindex).loff - 40; //- 40;
     double ela2 = (double)(ela*ela);
     double elb2 = (double)(elb*elb);
-    double eta = 1.0;
-    double ka;
+    double eta1 = 1.003;
+    double eta2 = 1.005;
+    double ka1, ka2;
+
+    for (int line = 0; line < 5500; line++)
+    {
+        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
+
+
+//        for (int pixelx = 0; pixelx < 5500; pixelx++)
+//        {
+//            y0 = line - 2750;
+//            x0 = pixelx - 2750;
+//            rgb = row_col[pixelx];
+
+//                    double x2 = (double)(x0*x0);
+//                    double y2 = (double)(y0*y0);
+
+////                    ka = (eta - x2/ela2);
+////                    el2 = ka * elb2;
+
+////                    if(y2 < el2)
+////                        row_col[pixelx] = qRgb(255, 0, 0);
+
+
+//                    //eta = 1.1;
+//                    ka = (eta - x2/ela2);
+//                    el2 = ka * elb2;
+
+//                    if(y2 > el2 && (y2 - 80000) <= el2)
+//                    {
+//                        row_col[pixelx] = qRgb(0, 255, 0);
+//                        //calchimawari(rgb, minhimred, maxhimred, minhimgreen, maxhimgreen, minhimblue, maxhimblue);
+//                    }
+//                    //else if((y2 <= el2) && ((el2 - 900000) < y2))
+//                    //    row_col[pixelx] = qRgb(0, 255, 0);
+
+//        }
+
+
+        for (int pixelx = 0; pixelx < 5500; pixelx++)
+        {
+            y0 = line - 2750;
+            x0 = pixelx - 2750;
+            rgb = row_col[pixelx];
+
+            double x2 = (double)(x0*x0);
+            double y2 = (double)(y0*y0);
+
+            ka1 = (eta1 - x2/ela2);
+            el2_1 = ka1 * elb2;
+
+
+            ka2 = (eta2 - x2/ela2);
+            el2_2 = ka2 * elb2;
+
+            if(y2 > el2_1) //  || y2 > el2_2)
+                calchimawari(rgb, minhimred, maxhimred, minhimgreen, maxhimgreen, minhimblue, maxhimblue);
+
+        }
+
+    }
+
+    qDebug() << QString("Himawari min rgb = %1 %2 %3 max rgb = %4 %5 %6  cnt = %7").arg(minhimred).arg(minhimgreen).arg(minhimblue).arg(maxhimred).arg(maxhimgreen).arg(maxhimblue).arg(cnt);
+
+    SetupContrastStretch(minhimred, 0, maxhimred, 255, minhimgreen, 0, maxhimgreen, 255, minhimblue, 0, maxhimblue, 255 );
 
     for (int line = 0; line < 5500; line++)
     {
@@ -1591,74 +1658,18 @@ void FormImage::EnhanceDarkSpace(int geoindex)
             x0 = pixelx - 2750;
             rgb = row_col[pixelx];
 
-                    double x2 = (double)(x0*x0);
-                    double y2 = (double)(y0*y0);
+            double x2 = (double)(x0*x0);
+            double y2 = (double)(y0*y0);
 
-//                    ka = (eta - x2/ela2);
-//                    el2 = ka * elb2;
+            double ka2 = (eta2 - x2/ela2);
+            el2_2 = ka2 * elb2;
 
-//                    if(y2 < el2)
-//                        row_col[pixelx] = qRgb(255, 0, 0);
-
-
-                    //eta = 1.1;
-                    ka = (eta - x2/ela2);
-                    el2 = ka * elb2;
-
-                    if(y2 > el2 && (y2 - 80000) <= el2)
-                    {
-                        row_col[pixelx] = qRgb(0, 255, 0);
-                        //calchimawari(rgb, minhimred, maxhimred, minhimgreen, maxhimgreen, minhimblue, maxhimblue);
-                    }
-                    //else if((y2 <= el2) && ((el2 - 900000) < y2))
-                    //    row_col[pixelx] = qRgb(0, 255, 0);
-
+            if(y2 > el2_2)
+            {
+                row_col[pixelx] = ContrastStretch(rgb);
+            }
         }
     }
-
-    qDebug() << QString("Himawari min rgb = %1 %2 %3 max rgb = %4 %5 %6  cnt = %7").arg(minhimred).arg(minhimgreen).arg(minhimblue).arg(maxhimred).arg(maxhimgreen).arg(maxhimblue).arg(cnt);
-
-//    SetupContrastStretch(minhimred, 0, maxhimred, 255, minhimgreen, 0, maxhimgreen, 255, minhimblue, 0, maxhimblue, 255 );
-
-//    for (int line = 0; line < 5500; line++)
-//    {
-//        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
-
-
-//        for (int pixelx = 0; pixelx < 5500; pixelx++)
-//        {
-//            y0 = line - 2750;
-//            x0 = pixelx - 2750;
-//            rgb = row_col[pixelx];
-
-//            if(y0 > elb || y0 < -elb)
-//            {
-//                row_col[pixelx] = ContrastStretch(rgb);
-//            }
-//            else
-//            {
-
-//                if(x0 < -ela || x0 > ela)
-//                {
-//                    row_col[pixelx] = ContrastStretch(rgb);
-//                }
-//                else
-//                {
-//                    double x2 = (double)(x0*x0);
-//                    double y2 = (double)(y0*y0);
-
-//                    //l2 = x2 + y2;
-//                    double ka = (1 - x2/ela2);
-//                    el2 = ka * elb2;
-
-//                    if(y2 > el2)
-//                    {
-//                        row_col[pixelx] = ContrastStretch(rgb);
-//                    }
-//                }
-//            }
-//        }
-//    }
 
 
 }
@@ -1898,7 +1909,6 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     }
     else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8)
     {
-        qDebug() << QString("memcpy(pixelsRed .....");
 
         pixelsRed = new quint16[npix];
         pixelsGreen = new quint16[npix];
@@ -1928,7 +1938,6 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             k = (sl->bisRSS ? 19 + i : (sl->areatype == 1 ? i : 19 + i));
             if(sl->isPresentHRV[k])
             {
-                qDebug() << QString("is present %1").arg(k);
                 memcpy(pixelsHRV + i * 464 * 5568, imageptrs->ptrHRV[k], 464 * 5568 * sizeof(quint16));
             }
         }
@@ -2001,17 +2010,13 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8 )
     {
         ret = imageptrs->CLAHE(pixelsRed, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
-        qDebug() << QString("CLAHE return code = %1").arg(ret);
         imageptrs->CLAHE(pixelsGreen, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
-        qDebug() << QString("CLAHE return code = %1").arg(ret);
         imageptrs->CLAHE(pixelsBlue, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
-        qDebug() << QString("CLAHE return code = %1").arg(ret);
     }
     else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8))
     {
         if(sl->bisRSS)
         {
-            qDebug() << "recalculateCLAHE() ; isRSS = true";
             imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
 
         }
@@ -2019,12 +2024,10 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         {
             if(sl->areatype == 1)
             {
-                qDebug() << "recalculateCLAHE() ; areatype == 1";
                 imageptrs->CLAHE(pixelsHRV, 5568, 11136, 0, 1023, 16, 16, 256, opts.clahecliplimit);
             }
             else
             {
-                qDebug() << "recalculateCLAHE() ; areatype == 0";
                 imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
             }
         }
@@ -2043,9 +2046,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             imageptrs->CLAHE(pixelsRed, 2816, 464*7, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::GOMS2)
         {
-            qDebug() << QString("CLAHE");
             ret = imageptrs->CLAHE(pixelsRed, 2784, 464*6, 0, 1023, 16, 16, 256, opts.clahecliplimit);
-            qDebug() << QString("CLAHE return code = %1").arg(ret);
         }
         else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
             imageptrs->CLAHE(pixelsRed, 2288, 2288, 0, 255, 16, 16, 256, opts.clahecliplimit);
@@ -2217,8 +2218,8 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                     {
                         c = *(pixelsRed + i * 464 * 2784 + line * 2784 + pixelx);
 
-                        if(i == 0 && line == 300)
-                            qDebug() << pixelx << " " << c;
+//                        if(i == 0 && line == 300)
+//                            qDebug() << pixelx << " " << c;
 
                         r = quint8(inversevector[0] ? 255 - c/4 : c/4);
                         g = quint8(inversevector[0] ? 255 - c/4 : c/4);
@@ -2445,12 +2446,12 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         else
             hrvimage = false;
 
-        if(sl->getGeoSatellite() == eGeoSatellite::H8)
-        {
-            QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
-            paint->setPen(qRgb(0, 0, 255));
-            paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
-        }
+//        if(sl->getGeoSatellite() == eGeoSatellite::H8)
+//        {
+//            QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
+//            paint->setPen(qRgb(0, 0, 255));
+//            paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
+//        }
     }
     else
         return;
@@ -2744,11 +2745,19 @@ void FormImage::setupGeoOverlay(int geoindex)
     int ret;
     double sub_lon;
 
+    double fgf_x, fgf_y;
+
     pixgeoConversion pixconv;
 
     sub_lon = opts.geosatellites.at(geoindex).longitude;
 
     this->geooverlay.clear();
+
+    double scale_x = 0.000056;
+    double scale_y = -0.000056;
+    double offset_x = -0.151844;
+    double offset_y = 0.151844;
+    int sat = 1;
 
     for(int k = 0; k < 2; k++)
     {
@@ -2767,8 +2776,29 @@ void FormImage::setupGeoOverlay(int geoindex)
 
                     if(lon_deg < 90.0 || lon_deg > -90.0)
                     {
-                        ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, opts.geosatellites.at(geoindex).coff,
+                        if(opts.geosatellites.at(geoindex).shortname == "GOES_16")
+                        {
+                        //earth_to_fgf_(const int  *sat, const double *lon_degrees, const double *lat_degrees, const double *scale_x, const double *offset_x,
+                        //                   const double *scale_y, const double *offset_y, const double *sub_lon_degrees, double *fgf_x, double *fgf_y)
+
+//                            lon_deg = sub_lon;
+//                            lat_deg = 0.0;
+                            pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
+                            if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
+                            {
+                                col = (int)fgf_x;
+                                row = (int)fgf_y;
+                                ret = 0;
+                            }
+                            else
+                                ret = 1;
+                        }
+                        else
+                        {
+                            ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, opts.geosatellites.at(geoindex).coff,
                                                         opts.geosatellites.at(geoindex).loff, opts.geosatellites.at(geoindex).cfac, opts.geosatellites.at(geoindex).lfac, &col, &row);
+
+                        }
                         if(ret == 0)
                         {
                             if (first)
@@ -2777,13 +2807,11 @@ void FormImage::setupGeoOverlay(int geoindex)
                                 save_col = col;
                                 save_row = row;
                                 this->geooverlay.append(QVector2D(-1, -1));
-
                             }
                             else
                             {
                                 save_col = col;
                                 save_row = row;
-
                             }
 
                             this->geooverlay.append(QVector2D(col, row));

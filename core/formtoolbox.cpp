@@ -225,6 +225,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     setSLSTRConfigsettings();
 
 
+
     qDebug() << QString("Setting currenttoolbox = %1").arg(opts.currenttoolbox);
     ui->toolBox->setCurrentIndex(opts.currenttoolbox); // in projection tab LCC GVP or SG
     ui->comboPOI->setCurrentIndex(0);
@@ -260,30 +261,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
 
 
-    ui->comboGeo1->setCurrentIndex(opts.lastcomboMet006);
-    ui->comboGeo2->setCurrentIndex(opts.lastcomboMet008);
-    ui->comboGeo3->setCurrentIndex(opts.lastcomboMet016);
-    ui->comboGeo4->setCurrentIndex(opts.lastcomboMet039);
-    ui->comboGeo5->setCurrentIndex(opts.lastcomboMet062);
-    ui->comboGeo6->setCurrentIndex(opts.lastcomboMet073);
-    ui->comboGeo7->setCurrentIndex(opts.lastcomboMet087);
-    ui->comboGeo8->setCurrentIndex(opts.lastcomboMet097);
-    ui->comboGeo9->setCurrentIndex(opts.lastcomboMet108);
-    ui->comboGeo10->setCurrentIndex(opts.lastcomboMet120);
-    ui->comboGeo11->setCurrentIndex(opts.lastcomboMet134);
-
-    ui->chkInverseGeo1->setChecked(opts.lastinverseMet006);
-    ui->chkInverseGeo2->setChecked(opts.lastinverseMet008);
-    ui->chkInverseGeo3->setChecked(opts.lastinverseMet016);
-    ui->chkInverseGeo4->setChecked(opts.lastinverseMet039);
-    ui->chkInverseGeo5->setChecked(opts.lastinverseMet062);
-    ui->chkInverseGeo6->setChecked(opts.lastinverseMet073);
-    ui->chkInverseGeo7->setChecked(opts.lastinverseMet087);
-    ui->chkInverseGeo8->setChecked(opts.lastinverseMet097);
-    ui->chkInverseGeo9->setChecked(opts.lastinverseMet108);
-    ui->chkInverseGeo10->setChecked(opts.lastinverseMet120);
-    ui->chkInverseGeo11->setChecked(opts.lastinverseMet134);
-
 
     ui->lblGeo1->setText("0.635");
     ui->lblGeo2->setText("0.81");
@@ -298,6 +275,9 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblGeo11->setText("13.40");
     ui->lblGeo12->setText("");
     ui->lblGeo13->setText("");
+    ui->lblGeo14->setText("");
+    ui->lblGeo15->setText("");
+    ui->lblGeo16->setText("");
 
     ui->lblUpper->setVisible(false);
     ui->lblLower->setVisible(false);
@@ -310,6 +290,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     geoindex = 0;
 
     setToolboxButtons(true);
+    this->setComboGeo(geoindex);
+
 
     double valuerange1;
     double valuerange2;
@@ -1127,6 +1109,24 @@ FormToolbox::~FormToolbox()
     else if(ui->rbM16->isChecked())
         poi.strlColorBandM.replace(0, QString("%1").arg("16"));
 
+    // save "User defined"
+    poi.strlComboM1.replace(0, QString("%1").arg(ui->comboM1->currentIndex()));
+    poi.strlComboM2.replace(0, QString("%1").arg(ui->comboM2->currentIndex()));
+    poi.strlComboM3.replace(0, QString("%1").arg(ui->comboM3->currentIndex()));
+    poi.strlComboM4.replace(0, QString("%1").arg(ui->comboM4->currentIndex()));
+    poi.strlComboM5.replace(0, QString("%1").arg(ui->comboM5->currentIndex()));
+    poi.strlComboM6.replace(0, QString("%1").arg(ui->comboM6->currentIndex()));
+    poi.strlComboM7.replace(0, QString("%1").arg(ui->comboM7->currentIndex()));
+    poi.strlComboM8.replace(0, QString("%1").arg(ui->comboM8->currentIndex()));
+    poi.strlComboM9.replace(0, QString("%1").arg(ui->comboM9->currentIndex()));
+    poi.strlComboM10.replace(0, QString("%1").arg(ui->comboM10->currentIndex()));
+    poi.strlComboM11.replace(0, QString("%1").arg(ui->comboM11->currentIndex()));
+    poi.strlComboM12.replace(0, QString("%1").arg(ui->comboM12->currentIndex()));
+    poi.strlComboM13.replace(0, QString("%1").arg(ui->comboM13->currentIndex()));
+    poi.strlComboM14.replace(0, QString("%1").arg(ui->comboM14->currentIndex()));
+    poi.strlComboM15.replace(0, QString("%1").arg(ui->comboM15->currentIndex()));
+    poi.strlComboM16.replace(0, QString("%1").arg(ui->comboM16->currentIndex()));
+
 
     poi.strlInverseM1.replace(0, QString("%1").arg(ui->chkInverseM1->isChecked()));
     poi.strlInverseM2.replace(0, QString("%1").arg(ui->chkInverseM2->isChecked()));
@@ -1145,22 +1145,6 @@ FormToolbox::~FormToolbox()
     poi.strlInverseM15.replace(0, QString("%1").arg(ui->chkInverseM15->isChecked()));
     poi.strlInverseM16.replace(0, QString("%1").arg(ui->chkInverseM16->isChecked()));
 
-    poi.strlComboM1.replace(0, QString("%1").arg(ui->comboM1->currentIndex()));
-    poi.strlComboM2.replace(0, QString("%1").arg(ui->comboM2->currentIndex()));
-    poi.strlComboM3.replace(0, QString("%1").arg(ui->comboM3->currentIndex()));
-    poi.strlComboM4.replace(0, QString("%1").arg(ui->comboM4->currentIndex()));
-    poi.strlComboM5.replace(0, QString("%1").arg(ui->comboM5->currentIndex()));
-    poi.strlComboM6.replace(0, QString("%1").arg(ui->comboM6->currentIndex()));
-    poi.strlComboM7.replace(0, QString("%1").arg(ui->comboM7->currentIndex()));
-    poi.strlComboM8.replace(0, QString("%1").arg(ui->comboM8->currentIndex()));
-    poi.strlComboM9.replace(0, QString("%1").arg(ui->comboM9->currentIndex()));
-    poi.strlComboM10.replace(0, QString("%1").arg(ui->comboM10->currentIndex()));
-    poi.strlComboM11.replace(0, QString("%1").arg(ui->comboM11->currentIndex()));
-    poi.strlComboM12.replace(0, QString("%1").arg(ui->comboM12->currentIndex()));
-    poi.strlComboM13.replace(0, QString("%1").arg(ui->comboM13->currentIndex()));
-    poi.strlComboM14.replace(0, QString("%1").arg(ui->comboM14->currentIndex()));
-    poi.strlComboM15.replace(0, QString("%1").arg(ui->comboM15->currentIndex()));
-    poi.strlComboM16.replace(0, QString("%1").arg(ui->comboM16->currentIndex()));
 
 
     if(ui->rbColorOLCI->isChecked())
@@ -1431,6 +1415,7 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
     ui->tabWidget->setCurrentIndex(TAB_GEOSTATIONARY);
 
     this->setButtons(geoindex, false);
+    this->setComboGeo(geoindex);
 
     bool hrv = (opts.geosatellites.at(geoindex).spectrumhrv.length() > 0 ? true : false);
 
@@ -1865,6 +1850,46 @@ void FormToolbox::setButtons(int geoindex, bool state)
     ui->tabWidget->setCurrentIndex(TAB_GEOSTATIONARY);
     setToolboxButtonLabels(geoindex);
     setToolboxButtons(state);
+}
+
+void FormToolbox::setComboGeo(int geoindex)
+{
+
+    ui->comboGeo1->setCurrentIndex(poi.strlComboGeo1.at(geoindex).toInt());
+    ui->comboGeo2->setCurrentIndex(poi.strlComboGeo2.at(geoindex).toInt());
+    ui->comboGeo3->setCurrentIndex(poi.strlComboGeo3.at(geoindex).toInt());
+    ui->comboGeo4->setCurrentIndex(poi.strlComboGeo4.at(geoindex).toInt());
+    ui->comboGeo5->setCurrentIndex(poi.strlComboGeo5.at(geoindex).toInt());
+    ui->comboGeo6->setCurrentIndex(poi.strlComboGeo6.at(geoindex).toInt());
+    ui->comboGeo7->setCurrentIndex(poi.strlComboGeo7.at(geoindex).toInt());
+    ui->comboGeo8->setCurrentIndex(poi.strlComboGeo8.at(geoindex).toInt());
+    ui->comboGeo9->setCurrentIndex(poi.strlComboGeo9.at(geoindex).toInt());
+    ui->comboGeo10->setCurrentIndex(poi.strlComboGeo10.at(geoindex).toInt());
+    ui->comboGeo11->setCurrentIndex(poi.strlComboGeo11.at(geoindex).toInt());
+    ui->comboGeo12->setCurrentIndex(poi.strlComboGeo12.at(geoindex).toInt());
+    ui->comboGeo13->setCurrentIndex(poi.strlComboGeo13.at(geoindex).toInt());
+    ui->comboGeo14->setCurrentIndex(poi.strlComboGeo14.at(geoindex).toInt());
+    ui->comboGeo15->setCurrentIndex(poi.strlComboGeo15.at(geoindex).toInt());
+    ui->comboGeo16->setCurrentIndex(poi.strlComboGeo16.at(geoindex).toInt());
+
+
+    ui->chkInverseGeo1->setChecked(poi.strlInverseGeo1.at(geoindex).toInt());
+    ui->chkInverseGeo2->setChecked(poi.strlInverseGeo2.at(geoindex).toInt());
+    ui->chkInverseGeo3->setChecked(poi.strlInverseGeo3.at(geoindex).toInt());
+    ui->chkInverseGeo4->setChecked(poi.strlInverseGeo4.at(geoindex).toInt());
+    ui->chkInverseGeo5->setChecked(poi.strlInverseGeo5.at(geoindex).toInt());
+    ui->chkInverseGeo6->setChecked(poi.strlInverseGeo6.at(geoindex).toInt());
+    ui->chkInverseGeo7->setChecked(poi.strlInverseGeo7.at(geoindex).toInt());
+    ui->chkInverseGeo8->setChecked(poi.strlInverseGeo8.at(geoindex).toInt());
+    ui->chkInverseGeo9->setChecked(poi.strlInverseGeo9.at(geoindex).toInt());
+    ui->chkInverseGeo10->setChecked(poi.strlInverseGeo10.at(geoindex).toInt());
+    ui->chkInverseGeo11->setChecked(poi.strlInverseGeo11.at(geoindex).toInt());
+    ui->chkInverseGeo12->setChecked(poi.strlInverseGeo12.at(geoindex).toInt());
+    ui->chkInverseGeo13->setChecked(poi.strlInverseGeo13.at(geoindex).toInt());
+    ui->chkInverseGeo14->setChecked(poi.strlInverseGeo14.at(geoindex).toInt());
+    ui->chkInverseGeo15->setChecked(poi.strlInverseGeo15.at(geoindex).toInt());
+    ui->chkInverseGeo16->setChecked(poi.strlInverseGeo16.at(geoindex).toInt());
+
 }
 
 void FormToolbox::on_btnGeo1_clicked()
@@ -2526,8 +2551,6 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
-
-    qDebug() << "1";
 
     if (index == TAB_AVHRR) //AVHHR
     {
@@ -3986,6 +4009,7 @@ void FormToolbox::on_sbCentreBand_valueChanged(int value)
 
     float fval = value/20.0;
     opts.dnbsbvalue = value;
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
     ui->sbCentreBand->blockSignals(true);
     segs->seglviirsdnb->sliderCentreBandChanged(value);
@@ -3993,6 +4017,8 @@ void FormToolbox::on_sbCentreBand_valueChanged(int value)
     ui->lblCentreBand->setText(QString("%1").arg(fval1, 0, 'E', 2));
     ui->lblTitleCentreBand->setText(QString("Centre Band from %1 to %2 [W/cm² sr]").arg(fval1/pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2).arg(fval1*pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2));
     ui->sbCentreBand->blockSignals(false);
+    QApplication::restoreOverrideCursor();
+
 }
 
 
@@ -5284,3 +5310,84 @@ void FormToolbox::on_btnSaveProjectionAsPNG48bits_clicked()
             QApplication::restoreOverrideCursor();
     }
 }
+
+//void FormToolbox::on_comboGeo1_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo1.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo2_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo2.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo3_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo3.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo4_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo4.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo5_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo5.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo6_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo6.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo7_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo7.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo8_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo8.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo9_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo9.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo10_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo10.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo11_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo11.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo12_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo12.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo13_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo13.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo14_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo14.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo15_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo15.replace(this->geoindex, QString("%1").arg(index));
+//}
+
+//void FormToolbox::on_comboGeo16_currentIndexChanged(int index)
+//{
+//    poi.strlComboGeo16.replace(this->geoindex, QString("%1").arg(index));
+//}
+

@@ -159,7 +159,39 @@ public:
     QStringList strlInverseSLSTRF1;
     QStringList strlInverseSLSTRF2;
 
+    QStringList strlComboGeo1;
+    QStringList strlComboGeo2;
+    QStringList strlComboGeo3;
+    QStringList strlComboGeo4;
+    QStringList strlComboGeo5;
+    QStringList strlComboGeo6;
+    QStringList strlComboGeo7;
+    QStringList strlComboGeo8;
+    QStringList strlComboGeo9;
+    QStringList strlComboGeo10;
+    QStringList strlComboGeo11;
+    QStringList strlComboGeo12;
+    QStringList strlComboGeo13;
+    QStringList strlComboGeo14;
+    QStringList strlComboGeo15;
+    QStringList strlComboGeo16;
 
+    QStringList strlInverseGeo1;
+    QStringList strlInverseGeo2;
+    QStringList strlInverseGeo3;
+    QStringList strlInverseGeo4;
+    QStringList strlInverseGeo5;
+    QStringList strlInverseGeo6;
+    QStringList strlInverseGeo7;
+    QStringList strlInverseGeo8;
+    QStringList strlInverseGeo9;
+    QStringList strlInverseGeo10;
+    QStringList strlInverseGeo11;
+    QStringList strlInverseGeo12;
+    QStringList strlInverseGeo13;
+    QStringList strlInverseGeo14;
+    QStringList strlInverseGeo15;
+    QStringList strlInverseGeo16;
 
 }; 
 

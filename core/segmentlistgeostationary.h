@@ -48,6 +48,7 @@ public:
 
     void displayMinMax();
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
+    void CalculateMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, quint16 fillvalue);
     void CalculateMinMaxHimawari(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
     QString getKindofImage() { return kindofimage; }
     QString getImagePath() { return imagepath; }

@@ -339,6 +339,119 @@ void Poi::Initialize()
         strlInverseSLSTRF2 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRF2").value<QStringList>();
 
     }
+
+    strlComboGeo1 = POIsettings.value("/GeoConfig/strlComboGeo1").value<QStringList>();
+
+    // MET_10, MET_9, MET_8, GOMS2, FY2E, FY2G, GOES_13, GOES_15, GOES_16, H8
+    if(strlComboGeo1.count() != 10)
+    {
+        strlComboGeo1.clear();
+        strlComboGeo2.clear();
+        strlComboGeo3.clear();
+        strlComboGeo4.clear();
+        strlComboGeo5.clear();
+        strlComboGeo6.clear();
+        strlComboGeo7.clear();
+        strlComboGeo8.clear();
+        strlComboGeo9.clear();
+        strlComboGeo10.clear();
+        strlComboGeo11.clear();
+        strlComboGeo12.clear();
+        strlComboGeo13.clear();
+        strlComboGeo14.clear();
+        strlComboGeo15.clear();
+        strlComboGeo16.clear();
+
+        strlInverseGeo1.clear();
+        strlInverseGeo2.clear();
+        strlInverseGeo3.clear();
+        strlInverseGeo4.clear();
+        strlInverseGeo5.clear();
+        strlInverseGeo6.clear();
+        strlInverseGeo7.clear();
+        strlInverseGeo8.clear();
+        strlInverseGeo9.clear();
+        strlInverseGeo10.clear();
+        strlInverseGeo11.clear();
+        strlInverseGeo12.clear();
+        strlInverseGeo13.clear();
+        strlInverseGeo14.clear();
+        strlInverseGeo15.clear();
+        strlInverseGeo16.clear();
+
+        strlComboGeo1 << "0" << "3" << "3" << "3" << "3" << "3" << "3" << "3" << "0" << "3";
+        strlComboGeo2 << "3" << "2" << "2" << "2" << "2" << "2" << "2" << "2" << "3" << "2";
+        strlComboGeo3 << "2" << "1" << "1" << "1" << "1" << "1" << "1" << "1" << "2" << "1";
+        strlComboGeo4 << "1" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo5 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "1" << "0";
+        strlComboGeo6 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo7 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo8 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo9 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo10 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo11 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo12 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo13 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo14 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo15 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlComboGeo16 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+
+        strlInverseGeo1 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo2 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo3 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo4 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo5 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo6 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo7 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo8 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo9 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo10 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo11 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo12 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo13 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo14 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo15 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+        strlInverseGeo16 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
+
+    }
+    else
+    {
+
+        strlComboGeo2 = POIsettings.value("/GeoConfig/strlComboGeo2").value<QStringList>();
+        strlComboGeo3 = POIsettings.value("/GeoConfig/strlComboGeo3").value<QStringList>();
+        strlComboGeo4 = POIsettings.value("/GeoConfig/strlComboGeo4").value<QStringList>();
+        strlComboGeo5 = POIsettings.value("/GeoConfig/strlComboGeo5").value<QStringList>();
+        strlComboGeo6 = POIsettings.value("/GeoConfig/strlComboGeo6").value<QStringList>();
+        strlComboGeo7 = POIsettings.value("/GeoConfig/strlComboGeo7").value<QStringList>();
+        strlComboGeo8 = POIsettings.value("/GeoConfig/strlComboGeo8").value<QStringList>();
+        strlComboGeo9 = POIsettings.value("/GeoConfig/strlComboGeo9").value<QStringList>();
+        strlComboGeo10 = POIsettings.value("/GeoConfig/strlComboGeo10").value<QStringList>();
+        strlComboGeo11 = POIsettings.value("/GeoConfig/strlComboGeo11").value<QStringList>();
+        strlComboGeo12 = POIsettings.value("/GeoConfig/strlComboGeo12").value<QStringList>();
+        strlComboGeo13 = POIsettings.value("/GeoConfig/strlComboGeo13").value<QStringList>();
+        strlComboGeo14 = POIsettings.value("/GeoConfig/strlComboGeo14").value<QStringList>();
+        strlComboGeo15 = POIsettings.value("/GeoConfig/strlComboGeo15").value<QStringList>();
+        strlComboGeo16 = POIsettings.value("/GeoConfig/strlComboGeo16").value<QStringList>();
+
+        strlInverseGeo1 = POIsettings.value("/GeoConfig/strlInverseGeo1").value<QStringList>();
+        strlInverseGeo2 = POIsettings.value("/GeoConfig/strlInverseGeo2").value<QStringList>();
+        strlInverseGeo3 = POIsettings.value("/GeoConfig/strlInverseGeo3").value<QStringList>();
+        strlInverseGeo4 = POIsettings.value("/GeoConfig/strlInverseGeo4").value<QStringList>();
+        strlInverseGeo5 = POIsettings.value("/GeoConfig/strlInverseGeo5").value<QStringList>();
+        strlInverseGeo6 = POIsettings.value("/GeoConfig/strlInverseGeo6").value<QStringList>();
+        strlInverseGeo7 = POIsettings.value("/GeoConfig/strlInverseGeo7").value<QStringList>();
+        strlInverseGeo8 = POIsettings.value("/GeoConfig/strlInverseGeo8").value<QStringList>();
+        strlInverseGeo9 = POIsettings.value("/GeoConfig/strlInverseGeo9").value<QStringList>();
+        strlInverseGeo10 = POIsettings.value("/GeoConfig/strlInverseGeo10").value<QStringList>();
+        strlInverseGeo11 = POIsettings.value("/GeoConfig/strlInverseGeo11").value<QStringList>();
+        strlInverseGeo12 = POIsettings.value("/GeoConfig/strlInverseGeo12").value<QStringList>();
+        strlInverseGeo13 = POIsettings.value("/GeoConfig/strlInverseGeo13").value<QStringList>();
+        strlInverseGeo14 = POIsettings.value("/GeoConfig/strlInverseGeo14").value<QStringList>();
+        strlInverseGeo15 = POIsettings.value("/GeoConfig/strlInverseGeo15").value<QStringList>();
+        strlInverseGeo16 = POIsettings.value("/GeoConfig/strlInverseGeo16").value<QStringList>();
+
+    }
+
 }
 
 
@@ -491,5 +604,40 @@ void Poi::Save()
     POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRS9", strlInverseSLSTRS9);
     POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRF1", strlInverseSLSTRF1);
     POIsettings.setValue("/SLSTRConfig/strlInverseSLSTRF2", strlInverseSLSTRF2);
+
+    POIsettings.setValue("/GeoConfig/strlComboGeo1", strlComboGeo1);
+    POIsettings.setValue("/GeoConfig/strlComboGeo2", strlComboGeo2);
+    POIsettings.setValue("/GeoConfig/strlComboGeo3", strlComboGeo3);
+    POIsettings.setValue("/GeoConfig/strlComboGeo4", strlComboGeo4);
+    POIsettings.setValue("/GeoConfig/strlComboGeo5", strlComboGeo5);
+    POIsettings.setValue("/GeoConfig/strlComboGeo6", strlComboGeo6);
+    POIsettings.setValue("/GeoConfig/strlComboGeo7", strlComboGeo7);
+    POIsettings.setValue("/GeoConfig/strlComboGeo8", strlComboGeo8);
+    POIsettings.setValue("/GeoConfig/strlComboGeo9", strlComboGeo9);
+    POIsettings.setValue("/GeoConfig/strlComboGeo10", strlComboGeo10);
+    POIsettings.setValue("/GeoConfig/strlComboGeo11", strlComboGeo11);
+    POIsettings.setValue("/GeoConfig/strlComboGeo12", strlComboGeo12);
+    POIsettings.setValue("/GeoConfig/strlComboGeo13", strlComboGeo13);
+    POIsettings.setValue("/GeoConfig/strlComboGeo14", strlComboGeo14);
+    POIsettings.setValue("/GeoConfig/strlComboGeo15", strlComboGeo15);
+    POIsettings.setValue("/GeoConfig/strlComboGeo16", strlComboGeo16);
+
+    POIsettings.setValue("/GeoConfig/strlInverseGeo1", strlInverseGeo1);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo2", strlInverseGeo2);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo3", strlInverseGeo3);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo4", strlInverseGeo4);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo5", strlInverseGeo5);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo6", strlInverseGeo6);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo7", strlInverseGeo7);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo8", strlInverseGeo8);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo9", strlInverseGeo9);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo10", strlInverseGeo10);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo11", strlInverseGeo11);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo12", strlInverseGeo12);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo13", strlInverseGeo13);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo14", strlInverseGeo14);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo15", strlInverseGeo15);
+    POIsettings.setValue("/GeoConfig/strlInverseGeo16", strlInverseGeo16);
+
 }
 

@@ -397,12 +397,10 @@ void FormEphem::itemSelectedsegmentdirectory( QTreeWidgetItem *item)
         if ( (*it1)->checkState(0) == Qt::Checked )
         {
             opts.segmentdirectorylistinc << "1";
-            qDebug() << "1";
         }
         else
         {
             opts.segmentdirectorylistinc << "0";
-            qDebug() << "0";
         }
         ++it1;
     }

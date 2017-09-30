@@ -67,8 +67,9 @@ void LambertConformalConic::Initialize(double r_maj, double r_min, double stdlat
     {
         delete imageptrs->ptrimageProjection;
         imageptrs->ptrimageProjection = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
+        imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     }
-    imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
+
     imageptrs->ptrimageProjectionRed.reset(new quint16[imagewidth * imageheight]);
     imageptrs->ptrimageProjectionGreen.reset(new quint16[imagewidth * imageheight]);
     imageptrs->ptrimageProjectionBlue.reset(new quint16[imagewidth * imageheight]);
@@ -284,7 +285,6 @@ void LambertConformalConic::CreateMapFromGeostationary()
     int row, picrow;
     int hrvmap = 0;
 
-    //imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     qDebug() << QString("Start LambertConformalConic::CreateMapFromMeteosat");
 
     SegmentListGeostationary *sl;

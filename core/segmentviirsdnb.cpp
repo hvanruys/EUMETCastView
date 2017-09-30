@@ -986,6 +986,7 @@ void SegmentVIIRSDNB::ComposeSegmentImageWindow(float lowerlimit, float upperlim
 
     qDebug() << QString("lowerlimit = %1").arg(lowerlimit, 0, 'E', 2);
     qDebug() << QString("upperlimit = %1").arg(upperlimit, 0, 'E', 2);
+    qDebug() << QString("NbrOfLines = %1").arg(this->NbrOfLines);
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
@@ -1265,23 +1266,12 @@ void SegmentVIIRSDNB::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 
     int earthviews = earth_views_per_scanline;
 
-    int pixval[3];
-    bool valok[3];
-    bool color = bandlist.at(0);
-
-
     for (int pix = 0 ; pix < earthviews; pix+=2)
     {
-        pixval[0] = ptrbaVIIRSDNB[nbrLine * earth_views_per_scanline + pix];
-        valok[0] = pixval[0] < 65528 && pixval[0] > 0;
-
-        if( valok[0] )
-        {
-            sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, posx, posy, devwidth, devheight );
-            rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
-            fb_painter.setPen(rgb);
-            fb_painter.drawPoint( posx , posy );
-        }
+        sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, posx, posy, devwidth, devheight );
+        rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
+        fb_painter.setPen(rgb);
+        fb_painter.drawPoint( posx , posy );
     }
 
     fb_painter.end();
@@ -1293,7 +1283,6 @@ void SegmentVIIRSDNB::MapPixel( int lines, int views, double map_x, double map_y
 {
     int indexout;
     float pixval;
-    int r, g, b;
     QRgb rgbvalue = qRgb(0,0,0);
 
     float lowerlimit = pow(10, opts.dnbsbvalue/20.0)/pow(10, opts.dnbspbwindowsvalue);

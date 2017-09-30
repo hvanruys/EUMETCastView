@@ -699,7 +699,14 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
         }
         else if(geoindex == 8)
         {
-            strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
+            // GOES-16
+//            int yyyy = strdate.mid(0, 4).toInt();
+//            int day = strdate.mid(4, 3).toInt();
+//            QDate now(yyyy, 1, 1);
+//            QDate newnow = now.addDays(day - 1);
+
+//            strlist << strdate.mid(0,4) + "-" + QString("%1").arg(newnow.month()).rightJustified(2, '0') + "-" + QString("%1").arg(newnow.day()).rightJustified(2, '0') + "   " + strdate.mid(7,2) + ":" + strdate.mid(9, 2) << strspectrumlist <<
+            strlist << strdate.mid(0, 4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8, 2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
                    QString("%1").arg(cnt_C01) << QString("%1").arg(cnt_C02) << QString("%1").arg(cnt_C03) << QString("%1").arg(cnt_C04) <<
                    QString("%1").arg(cnt_C05) << QString("%1").arg(cnt_C06) << QString("%1").arg(cnt_C07) << QString("%1").arg(cnt_C08) <<
                    QString("%1").arg(cnt_C09) << QString("%1").arg(cnt_C10) << QString("%1").arg(cnt_C11) << QString("%1").arg(cnt_C12) <<
@@ -1218,13 +1225,25 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
         {
             qDebug() << QString("llVIS_IR at %1 = %2 spectrumvector = %3").arg(j).arg(llVIS_IR.at(j)).arg(spectrumvector.at(j));
         }
-        if(llVIS_IR.count() > 0)
+        if(llVIS_IR.count() == 0)
+        {
+            QApplication::restoreOverrideCursor();
+            emit enabletoolboxbuttons(true);
+            return;
+        }
+        else
             sl->ComposeImageHDFInThread(llVIS_IR, spectrumvector, inversevector);
     }
     else if(type == "HRV")
     {
         llHRV = this->getGeostationarySegments(geoindex, "HRV", sl->getImagePath(), spectrumvector, filepattern);
-        if(llHRV.count() > 0)
+        if(llHRV.count() == 0)
+        {
+            QApplication::restoreOverrideCursor();
+            emit enabletoolboxbuttons(true);
+            return;
+        }
+        else
             sl->ComposeImageHDFInThread(llHRV, spectrumvector, inversevector);
     }
 
@@ -1240,7 +1259,6 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
 
 
     QString filetiming;
-    QString filedate;
     QStringList llVIS_IR;
     QString filepattern;
 
@@ -1253,14 +1271,15 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     sl->LFAC = opts.geosatellites.at(geoindex).lfac;
 
     qDebug() << "====> tex = " << tex;
-
-    filetiming = tex.mid(0, 4) + tex.mid(8, 2) + tex.mid(5, 2);
-    filedate = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2);
+    //"2017-08-10   19:45"
+    QDate now(tex.mid(0, 4).toInt(), tex.mid(5, 2).toInt(), tex.mid(8, 2).toInt());
+    int DDD = now.dayOfYear();
+    filetiming = tex.mid(0, 4) + QString("%1").arg(DDD).rightJustified(3, '0') + tex.mid(13, 2) + tex.mid(16, 2);
 
     //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
     //01234567890123456789012345678901234567890123456789
     if(whichgeo == eGeoSatellite::GOES_16 && (type == "VIS_IR" || type == "VIS_IR Color"))
-        filepattern = QString("OR_ABI-L1b-RadF-M4???_G16_s") + filetiming + QString("*.nc");
+        filepattern = QString("OR_ABI-L1b-RadF-M????_G16_s") + filetiming + QString("*.nc");
     else
         return;
 
@@ -1270,11 +1289,14 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     {
         llVIS_IR = this->getGeostationarySegments(geoindex, "VIS_IR", sl->getImagePath(), spectrumvector, filepattern);
         qDebug() << QString("llVIS_IR count = %1").arg(llVIS_IR.count());
-        for (int j =  0; j < llVIS_IR.size(); ++j)
+        if(llVIS_IR.count() == 0)
         {
-            qDebug() << QString("llVIS_IR at %1 = %2 spectrumvector = %3").arg(j).arg(llVIS_IR.at(j)).arg(spectrumvector.at(j));
+            QApplication::restoreOverrideCursor();
+            emit enabletoolboxbuttons(true);
+            return;
         }
-        sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector);
+        else
+            sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector);
     }
 }
 

@@ -545,7 +545,7 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     {
         //qDebug() << QString("filesequence = %1 ; nlin * totalsegs - 1 - startLine[filesequence] - line = %2").arg(filesequence).arg(nlin * totalsegs - 1 - startLine[filesequence] - line);
 
-        if( m_GeoSatellite == eGeoSatellite::GOES_13 || m_GeoSatellite == eGeoSatellite::GOES_15)
+        if( m_GeoSatellite == eGeoSatellite::GOES_13 || m_GeoSatellite == eGeoSatellite::GOES_15 || m_GeoSatellite == eGeoSatellite::GOMS2)
             row_col = (QRgb*)im->scanLine(nlin * filesequence + line);
         else
             row_col = (QRgb*)im->scanLine( nlin * planned_end_segment - 1 - nlin * filesequence - line);
@@ -609,7 +609,7 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     {
         //qDebug() << QString("filesequence = %1 ; nlin * totalsegs - 1 - startLine[filesequence] - line = %2").arg(filesequence).arg(nlin * totalsegs - 1 - startLine[filesequence] - line);
 
-        if( m_GeoSatellite == eGeoSatellite::GOES_13 || m_GeoSatellite == eGeoSatellite::GOES_15 )
+        if( m_GeoSatellite == eGeoSatellite::GOES_13 || m_GeoSatellite == eGeoSatellite::GOES_15 || m_GeoSatellite == eGeoSatellite::GOMS2 )
             row_col = (QRgb*)im->scanLine(nlin * filesequence + line);
         else
             row_col = (QRgb*)im->scanLine( nlin * planned_end_segment - 1 - nlin * filesequence - line);
@@ -667,7 +667,7 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
                 r = quint8(valcontrast);
                 g = quint8(valcontrast);
                 b = quint8(valcontrast);
-                if(m_GeoSatellite == eGeoSatellite::GOES_13 || m_GeoSatellite == eGeoSatellite::GOES_15)
+                if(m_GeoSatellite == eGeoSatellite::GOES_13 || m_GeoSatellite == eGeoSatellite::GOES_15 || m_GeoSatellite == eGeoSatellite::GOMS2 )
                     row_col[pixelx] = qRgb(r,g,b);
                 else
                     row_col[npix - 1 - pixelx] = qRgb(r,g,b);
@@ -1580,11 +1580,30 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
     int  rh_dimids[NC_MAX_VAR_DIMS];
     int rh_natts;
     size_t xdim, ydim;
+    float scale_factor[3];
+    float add_offset[3];
+    int fillvalue[3];
+    float nominal_satellite_subpoint_lon;
 
+    quint16 stat_min[3];
+    quint16 stat_max[3];
 
-    for(int j = 0; j < filelist.size(); j++)
+    QString filespectrum[3];
+    QStringList filelistsorted;
+
+    for(int i = 0; i < spectrumvector.count(); i++)
     {
-        ncfile[j] = this->getImagePath() + "/" + filelist.at(j);
+        for(int j = 0; j < filelist.count(); j++)
+        {
+            if(filelist[j].mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length()) == spectrumvector.at(i))
+                filelistsorted.append(filelist[j]);
+        }
+    }
+
+
+    for(int j = 0; j < filelistsorted.size(); j++)
+    {
+        ncfile[j] = this->getImagePath() + "/" + filelistsorted.at(j);
         arrayncfile[j] = ncfile[j].toUtf8();
         pncfile[j] = arrayncfile[j].constData();
 
@@ -1616,29 +1635,45 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
         if (retval != NC_NOERR) qDebug() << "error reading xdim";
         retval = nc_inq_dimlen(ncfileid[j], rh_dimids[1], &ydim);
         if (retval != NC_NOERR) qDebug() << "error reading ydim";
+        retval = nc_get_att_float(ncfileid[j], varid, "scale_factor", &scale_factor[j]);
+        if (retval != NC_NOERR) qDebug() << "error reading scale_factor";
+        retval = nc_get_att_float(ncfileid[j], varid, "add_offset", &add_offset[j]);
+        if (retval != NC_NOERR) qDebug() << "error reading add_offset";
+        retval = nc_get_att_int(ncfileid[j], varid, "_FillValue", &fillvalue[j]);
+        if (retval != NC_NOERR) qDebug() << "error reading _FillValue";
 
+
+        qDebug() << QString("scale_factor = %1").arg(scale_factor[j]);
+        qDebug() << QString("add_offset = %1").arg(add_offset[j]);
+        qDebug() << QString("_FillValue = %1").arg(fillvalue[j]);
 
         if(j==0)
         {
             imageptrs->ptrRed[0] = new quint16[xdim * ydim];
             memset(imageptrs->ptrRed[0], 0, xdim * ydim * sizeof(quint16));
-
             retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrRed[0]);
-            if (retval != NC_NOERR) qDebug() << "error reading Rad values";
+            if (retval != NC_NOERR)
+                qDebug() << "error reading Rad values";
+            else
+                CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrRed[0], stat_min[0], stat_max[0], fillvalue[0]);
         } else if(j==1)
         {
             imageptrs->ptrGreen[0] = new quint16[xdim * ydim];
             memset(imageptrs->ptrGreen[0], 0, xdim * ydim * sizeof(quint16));
-
             retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrGreen[0]);
-            if (retval != NC_NOERR) qDebug() << "error reading Rad values";
+            if (retval != NC_NOERR)
+                qDebug() << "error reading Rad values";
+            else
+                CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrGreen[0], stat_min[1], stat_max[1], fillvalue[1]);
         } else if(j == 2)
         {
             imageptrs->ptrBlue[0] = new quint16[xdim * ydim];
             memset(imageptrs->ptrBlue[0], 0, xdim * ydim * sizeof(quint16));
-
             retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrBlue[0]);
-            if (retval != NC_NOERR) qDebug() << "error reading Rad values";
+            if (retval != NC_NOERR)
+                qDebug() << "error reading Rad values";
+            else
+                CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrBlue[0], stat_min[2], stat_max[2], fillvalue[2]);
         }
 
 
@@ -1652,6 +1687,39 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
         qDebug() << "min_radiance_value_of_valid_pixels = " << min_radiance_value_of_valid_pixels[j];
         qDebug() << "max_radiance_value_of_valid_pixels = " << max_radiance_value_of_valid_pixels[j];
         qDebug() << "mean_radiance_value_of_valid_pixels = " << mean_radiance_value_of_valid_pixels[j];
+
+
+        qDebug() << "stat_min = " << stat_min[j];
+        qDebug() << "stat_max = " << stat_max[j];
+
+        retval = nc_inq_varid(ncfileid[j], "nominal_satellite_subpoint_lon", &varid);
+        if (retval != NC_NOERR) qDebug() << "error reading nominal_satellite_subpoint_lon id";
+        retval = nc_get_var_float(ncfileid[j], varid, &nominal_satellite_subpoint_lon);
+        if (retval != NC_NOERR) qDebug() << "error reading nominal_satellite_subpoint_lon values";
+
+        qDebug() << "nominal_satellite_subpoint_lon = " << nominal_satellite_subpoint_lon;
+        this->geosatlon = nominal_satellite_subpoint_lon;
+
+        float scale_factor_x, add_offset_x;
+        float scale_factor_y, add_offset_y;
+
+        retval = nc_inq_varid(ncfileid[j], "x", &varid);
+        if (retval != NC_NOERR) qDebug() << "error reading x id";
+        retval = nc_get_att_float(ncfileid[j], varid, "scale_factor", &scale_factor_x);
+        if (retval != NC_NOERR) qDebug() << "error reading scale_factor x";
+        retval = nc_get_att_float(ncfileid[j], varid, "add_offset", &add_offset_x);
+        if (retval != NC_NOERR) qDebug() << "error reading add_offset x";
+
+        retval = nc_inq_varid(ncfileid[j], "y", &varid);
+        if (retval != NC_NOERR) qDebug() << "error reading y id";
+        retval = nc_get_att_float(ncfileid[j], varid, "scale_factor", &scale_factor_y);
+        if (retval != NC_NOERR) qDebug() << "error reading scale_factor y";
+        retval = nc_get_att_float(ncfileid[j], varid, "add_offset", &add_offset_y);
+        if (retval != NC_NOERR) qDebug() << "error reading add_offset y";
+
+        qDebug() << QString("scale_factor_x = %1, add_offset_x = %2").arg(scale_factor_x).arg(add_offset_x);
+        qDebug() << QString("scale_factor_y = %1, add_offset_y = %2").arg(scale_factor_y).arg(add_offset_y);
+
 
         retval = nc_close(ncfileid[j]);
         if (retval != NC_NOERR) qDebug() << "error closing file1";
@@ -1680,16 +1748,50 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
                 rc = *(imageptrs->ptrRed[0] + line * xdim + pixelx);
                 gc = *(imageptrs->ptrGreen[0] + line * xdim + pixelx);
                 bc = *(imageptrs->ptrBlue[0] + line * xdim + pixelx);
-                r = 255 * ((rc - min_radiance_value_of_valid_pixels[0]) / (max_radiance_value_of_valid_pixels[0] - min_radiance_value_of_valid_pixels[0]));
-                g = 255 * ((rc - min_radiance_value_of_valid_pixels[1]) / (max_radiance_value_of_valid_pixels[1] - min_radiance_value_of_valid_pixels[1]));
-                b = 255 * ((rc - min_radiance_value_of_valid_pixels[2]) / (max_radiance_value_of_valid_pixels[2] - min_radiance_value_of_valid_pixels[2]));
 
+//                r = (int)(255 * ((float)(rc - min_radiance_value_of_valid_pixels[0]) / (float)(max_radiance_value_of_valid_pixels[0] - min_radiance_value_of_valid_pixels[0])));
+//                g = (int)(255 * ((float)(gc - min_radiance_value_of_valid_pixels[1]) / (float)(max_radiance_value_of_valid_pixels[1] - min_radiance_value_of_valid_pixels[1])));
+//                b = (int)(255 * ((float)(bc - min_radiance_value_of_valid_pixels[2]) / (float)(max_radiance_value_of_valid_pixels[2] - min_radiance_value_of_valid_pixels[2])));
+
+                if( rc != fillvalue[0])
+                {
+                    r = (int)(255 * ((float)(rc - stat_min[0]) / (float)(stat_max[0] - stat_min[0])));
+                    r = r > 255 ? 255 : r;
+                    r = inversevector[0] ? 255 - r : r;
+                }
+                else
+                    r = 0;
+                if( gc != fillvalue[1])
+                {
+                    g = (int)(255 * ((float)(gc - stat_min[1]) / (float)(stat_max[1] - stat_min[1])));
+                    g = g > 255 ? 255 : g;
+                    g = inversevector[1] ? 255 - g : g;
+                }
+                else
+                    g = 0;
+                if( bc != fillvalue[2])
+                {
+                    b = (int)(255 * ((float)(bc - stat_min[2]) / (float)(stat_max[2] - stat_min[2])));
+                    b = b > 255 ? 255 : b;
+                    b = inversevector[2] ? 255 - b : b;
+                }
+                else
+                    b = 0;
 
             }
             else if(kindofimage == "VIS_IR" || kindofimage == "HRV")
             {
                 rc = *(imageptrs->ptrRed[0] + line * xdim + pixelx);
-                r = 255 * ((rc - min_radiance_value_of_valid_pixels[0]) / (max_radiance_value_of_valid_pixels[0] - min_radiance_value_of_valid_pixels[0]));
+                if( rc != fillvalue[0])
+                {
+                    //double drc = (double)((double)(rc - min_radiance_value_of_valid_pixels[0]) / (double)(max_radiance_value_of_valid_pixels[0] + 500 - min_radiance_value_of_valid_pixels[0]));
+                    float drc = (float)((float)(rc - stat_min[0]) / (double)(stat_max[0] - stat_min[0]));
+                    int red = (int)(255.0 * drc);
+                    r = red > 255 ? 255 : red;
+                    r = inversevector[0] ? 255 - r : r;
+                }
+                else
+                    r = 0;
                 g = r;
                 b = r;
 
@@ -1705,7 +1807,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
     }
 
     emit this->progressCounter(100);
-    //emit signalcomposefinished(kindofimage, channelindex, filesequence);
+    emit signalcomposefinished(kindofimage, 0, 1);
 }
 
 void SegmentListGeostationary::ComposeColorHRV()
@@ -2111,7 +2213,7 @@ bool SegmentListGeostationary::allSegmentsReceived()
                     return false;
             }
         }
-        else if(m_GeoSatellite == eGeoSatellite::FY2E || m_GeoSatellite == eGeoSatellite::FY2G)
+        else if(m_GeoSatellite == eGeoSatellite::FY2E || m_GeoSatellite == eGeoSatellite::FY2G || m_GeoSatellite == eGeoSatellite::GOES_16)
         {
             if (isPresentRed[0] && issegmentcomposedRed[0] == false)
                return false;
@@ -2174,6 +2276,31 @@ void SegmentListGeostationary::CalculateMinMax(int width, int height, quint16 *p
                     stat_max = val;
                 if(val < stat_min)
                     stat_min = val;
+            }
+        }
+    }
+
+}
+
+void SegmentListGeostationary::CalculateMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, quint16 fillvalue)
+{
+    stat_min = 65535;
+    stat_max = 0;
+
+
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++)
+        {
+            quint16 val = ptr[j * height + i];
+            if(val != fillvalue)
+            {
+                if(val > 0 && val < 65528)
+                {
+                    if(val >= stat_max)
+                        stat_max = val;
+                    if(val < stat_min)
+                        stat_min = val;
+                }
             }
         }
     }

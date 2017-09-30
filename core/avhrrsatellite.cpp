@@ -414,8 +414,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                         segmentlistmapgeo[i].insert( strdate, hashspectrum );
                     }
                 }
-//                qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr)
-//                         << " Total = " << opts.geosatellites.count();
+                //qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
              }
         }
 
@@ -453,6 +452,12 @@ void AVHRRSatellite::getFilenameParameters(int geosatindex, QString filename,  Q
                     strspectrum = spectrum;
                     filenbr = filename.mid(opts.geosatellites.at(geosatindex).indexfilenbr, opts.geosatellites.at(geosatindex).lengthfilenbr).toInt();
                     strdate = filename.mid(opts.geosatellites.at(geosatindex).indexdate, opts.geosatellites.at(geosatindex).lengthdate);
+
+                    if( strdate.length() == 11) //convert YYYYDDDHHmm to YYYYMMDDHHmm
+                    {
+                        QDate fdate = QDate(strdate.mid(0, 4).toInt(), 1, 1).addDays(strdate.mid(4, 3).toInt() - 1);
+                        strdate = fdate.toString("yyyyMMdd") + strdate.mid(7, 4);
+                    }
                     return;
                 }
             }
@@ -959,7 +964,10 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 15, 2).toInt(), fileinfo.fileName().mid( 17, 2).toInt(), fileinfo.fileName().mid( 19, 2).toInt());
             filedate.setTime(t);
             if(hoursbefore == 0)
-                fileok = true;
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
@@ -976,11 +984,12 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 24, 2).toInt(), fileinfo.fileName().mid( 26, 2).toInt(), fileinfo.fileName().mid( 28, 2).toInt());
             filedate.setTime(t);
             if(hoursbefore == 0)
-                fileok = true;
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
-//            if(fileok == true)
-//                qDebug() << fileinfo.fileName().mid( 12, 3) << " " << fileinfo.fileName().mid( 16, 8) << " " << fileinfo.fileName().mid( 24, 6);
 
         }
         else if ((fileinfo.fileName().mid( 16, 6) == "MetopA" || fileinfo.fileName().mid( 16, 3) == "M02" ||
@@ -992,7 +1001,10 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 11, 2).toInt(), fileinfo.fileName().mid( 13, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
-                fileok = true;
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
 
@@ -1005,7 +1017,10 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 11, 2).toInt(), fileinfo.fileName().mid( 13, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
-                fileok = true;
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
 
@@ -1020,7 +1035,10 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt());
             filedate.setTime(t);
             if(hoursbefore == 0)
-                fileok = true;
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
@@ -1032,7 +1050,10 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt(), fileinfo.fileName().mid( 26, 2).toInt());
             filedate.setTime(t);
             if(hoursbefore == 0)
-                fileok = true;
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
@@ -1098,7 +1119,12 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             filedate.setDate(d);
             QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
             filedate.setTime(t);
-            if(hoursbefore == 0 )
+            if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
         else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
@@ -1108,6 +1134,11 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
         else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
@@ -1117,17 +1148,27 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
         //0123456789012345678901234567890123456789012345678901234567890123456789012345
-        //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+        //OR_ABI-L1b-RadF-M3C04_G16_s20172541000360_e20172541011126_c20172541011147
         else if (fileinfo.fileName().mid( 0, 6) == "OR_ABI" && fileinfo.isFile())
         {
-            QDate d(fileinfo.fileName().mid( 27, 4).toInt(), fileinfo.fileName().mid( 33, 2).toInt(), fileinfo.fileName().mid( 31, 2).toInt());
+            QDate d = QDate(fileinfo.fileName().mid( 27, 4).toInt(), 1, 1).addDays(fileinfo.fileName().mid( 31, 3).toInt() - 1);
             filedate.setDate(d);
-            QTime t(fileinfo.fileName().mid( 35, 2).toInt(), fileinfo.fileName().mid( 37, 2).toInt(), 0);
+            QTime t(fileinfo.fileName().mid( 34, 2).toInt(), fileinfo.fileName().mid( 36, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
         //0123456789012345678901234567890123456789012345678901234567890
@@ -1139,6 +1180,11 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
         else if (fileinfo.fileName().mid( 0, 14) == "Z_SATE_C_BABJ_" && fileinfo.fileName().mid( 31, 8) == "FY2G_FDI" && fileinfo.isFile()) // Data Channel 12
@@ -1148,6 +1194,11 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 22, 2).toInt(), fileinfo.fileName().mid( 24, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
         //IMG_DK01B04_201510090000_001.bz2
@@ -1162,6 +1213,11 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
         //0123456789012345678901234567890123456789012345678901234567890123456789012345
@@ -1175,6 +1231,11 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
             filedate.setTime(t);
             if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
 

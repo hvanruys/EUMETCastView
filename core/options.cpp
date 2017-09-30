@@ -1004,7 +1004,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].indexfilenbr = 36;
     geosatellites[7].lengthfilenbr = 6;
     geosatellites[7].indexdate = 46;
-    geosatellites[7].lengthdate = 12;
+    geosatellites[7].lengthdate = 12; //YYYYMMDDHHmm
 
     geosatellites[7].spectrumhrv = "";
     geosatellites[7].spectrumvaluehrv = "";
@@ -1043,18 +1043,21 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].rss = false;
     geosatellites[8].searchstring = "OR_ABI";
     geosatellites[8].indexsearchstring = 0;
-    geosatellites[8].imagewidth = 10848;
-    geosatellites[8].imageheight = 10848;
+    geosatellites[8].imagewidth = 5424;
+    geosatellites[8].imageheight = 5424;
     geosatellites[8].imagewidthhrv0 = 0;
     geosatellites[8].imageheighthrv0 = 0;
     geosatellites[8].imagewidthhrv1 = 0;
     geosatellites[8].imageheighthrv1 = 0;
 
-    geosatellites[8].indexspectrum = 26;
-    geosatellites[8].indexfilenbr = 36;
-    geosatellites[8].lengthfilenbr = 6;
-    geosatellites[8].indexdate = 46;
-    geosatellites[8].lengthdate = 12;
+    //0123456789012345678901234567890123456789012345678901234567890123456789012
+    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+
+    geosatellites[8].indexspectrum = 18;
+    geosatellites[8].indexfilenbr = 0;
+    geosatellites[8].lengthfilenbr = 0;
+    geosatellites[8].indexdate = 27;
+    geosatellites[8].lengthdate = 11; //YYYYDDDHHmm
 
     geosatellites[8].spectrumhrv = "";
     geosatellites[8].spectrumvaluehrv = "";
@@ -1073,10 +1076,10 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].startsegmentnbrhrvtype1 = 0;
     geosatellites[8].prologfile = false;
     geosatellites[8].epilogfile = false;
-    geosatellites[8].coff = 5424;
-    geosatellites[8].loff = 5424;
-    geosatellites[8].cfac = 1474382050.*1.5;
-    geosatellites[8].lfac = 1474382050.*1.5;
+    geosatellites[8].coff = 2712;
+    geosatellites[8].loff = 2712;
+    geosatellites[8].cfac = 1170000000.;
+    geosatellites[8].lfac = 1170000000.;
     geosatellites[8].coffhrv = 0;
     geosatellites[8].loffhrv = 0;
     geosatellites[8].cfachrv = 0.;
