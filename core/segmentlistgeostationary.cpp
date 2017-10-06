@@ -225,7 +225,7 @@ void SegmentListGeostationary::ResetSegments()
     }
 }
 
-bool SegmentListGeostationary::getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence)
+void SegmentListGeostationary::getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence)
 {
 
     int index = opts.geosatellites.at(this->geoindex).indexspectrumhrv;
@@ -1647,8 +1647,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
         qDebug() << QString("add_offset = %1").arg(add_offset[j]);
         qDebug() << QString("_FillValue = %1").arg(fillvalue[j]);
 
+
         if(j==0)
         {
+            imageptrs->fillvalue[j] = fillvalue[j];
             imageptrs->ptrRed[0] = new quint16[xdim * ydim];
             memset(imageptrs->ptrRed[0], 0, xdim * ydim * sizeof(quint16));
             retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrRed[0]);
@@ -1656,8 +1658,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
                 qDebug() << "error reading Rad values";
             else
                 CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrRed[0], stat_min[0], stat_max[0], fillvalue[0]);
+            normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrRed[0], stat_min[0], stat_max[0], fillvalue[0]);
         } else if(j==1)
         {
+            imageptrs->fillvalue[j] = fillvalue[j];
             imageptrs->ptrGreen[0] = new quint16[xdim * ydim];
             memset(imageptrs->ptrGreen[0], 0, xdim * ydim * sizeof(quint16));
             retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrGreen[0]);
@@ -1665,8 +1669,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
                 qDebug() << "error reading Rad values";
             else
                 CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrGreen[0], stat_min[1], stat_max[1], fillvalue[1]);
+            normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrGreen[0], stat_min[1], stat_max[1], fillvalue[1]);
         } else if(j == 2)
         {
+            imageptrs->fillvalue[j] = fillvalue[j];
             imageptrs->ptrBlue[0] = new quint16[xdim * ydim];
             memset(imageptrs->ptrBlue[0], 0, xdim * ydim * sizeof(quint16));
             retval = nc_get_var_ushort(ncfileid[j], varid, imageptrs->ptrBlue[0]);
@@ -1674,6 +1680,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
                 qDebug() << "error reading Rad values";
             else
                 CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrBlue[0], stat_min[2], stat_max[2], fillvalue[2]);
+            normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrBlue[0], stat_min[2], stat_max[2], fillvalue[2]);
         }
 
 
@@ -2304,6 +2311,27 @@ void SegmentListGeostationary::CalculateMinMaxGOES16(int width, int height, quin
             }
         }
     }
+
+}
+
+void SegmentListGeostationary::normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, quint16 fillvalue)
+{
+
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++)
+        {
+            quint16 val = ptr[j * height + i];
+            if(val != fillvalue)
+            {
+                float valfloat = (float)((float)(val - stat_min)/(float)(stat_max - stat_min));
+                quint16 valint = (quint16)(valfloat*1023.0);
+                ptr[j * height + i] = valint;
+            }
+        }
+    }
+
+    stat_min = 0;
+    stat_max = 1023;
 
 }
 

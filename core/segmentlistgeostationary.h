@@ -50,6 +50,8 @@ public:
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
     void CalculateMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, quint16 fillvalue);
     void CalculateMinMaxHimawari(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
+    void normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, quint16 fillvalue);
+
     QString getKindofImage() { return kindofimage; }
     QString getImagePath() { return imagepath; }
     void setImagePath( QString ip) { imagepath = ip; }
@@ -110,7 +112,7 @@ public:
 private:
 
     void ComposeColorHRV();
-    bool getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
+    void getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
 
     quint16 maxvalueRed[10];
     quint16 minvalueRed[10];

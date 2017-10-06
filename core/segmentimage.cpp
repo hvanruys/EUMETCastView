@@ -44,6 +44,10 @@ SegmentImage::SegmentImage()
     {
         ptrHRV[i] = NULL;
     }
+    for( int i = 0; i < 3; i++)
+    {
+        fillvalue[i] = 0;
+    }
 
 }
 

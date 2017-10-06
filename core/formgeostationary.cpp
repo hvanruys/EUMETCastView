@@ -1120,7 +1120,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbr, opts.geosatellites.at(geoindex).lengthfilenbr).toInt()-1;
                 filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length());
                 filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdate, opts.geosatellites.at(geoindex).lengthdate);
-                filedate.resize(12, '0');
+                filedate.leftJustified(12, '0');
 
                 sl->InsertPresent( spectrumvector, filespectrum, filesequence);
 
@@ -1139,7 +1139,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbrhrv, opts.geosatellites.at(geoindex).lengthfilenbrhrv).toInt()-1;
                 filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrumhrv, opts.geosatellites.at(geoindex).spectrumhrv.length());
                 filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdatehrv, opts.geosatellites.at(geoindex).lengthdatehrv);
-                filedate.resize(12, '0');
+                filedate.leftJustified(12, '0');
 
                 sl->InsertPresent( spectrumvector, filespectrum, filesequence);
 
@@ -1283,7 +1283,7 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     else
         return;
 
-    sl->InsertPresent( spectrumvector, "", 0);
+    //sl->InsertPresent( spectrumvector, "", 0);
 
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {

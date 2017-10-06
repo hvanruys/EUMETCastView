@@ -114,6 +114,8 @@ public:
     double SigmadistGAC[409];
     double fractionGAC[409];
 
+    int fillvalue[3];  //used for GOES_16
+
 
 private:
     void ClipHistogram (unsigned long* pulHistogram, unsigned int
