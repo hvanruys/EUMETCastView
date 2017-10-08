@@ -8,7 +8,7 @@ The Open Source program **EUMETCastView** allows you to view
 - AVHRR images from NOAA-19, Metop-A and Metop-B.
 - VIIRS images from SUOMI-NPP.
 - OLCI EFR/ERR and SLSTR from Sentinel-3A
-- and HRIT/LRIT images from Meteosat-10, Meteosat-9, Meteosat-7, FengYun 2E/2G, GOES-16, GOES-16 and Himawari-8.
+- and HRIT/LRIT images from Meteosat-10, Meteosat-9, Meteosat-8, Electro L2, FengYun 2E/2G, GOES-15, GOES-16 and Himawari-8.
 
 More details are found on http://hvanruys.github.io
 
