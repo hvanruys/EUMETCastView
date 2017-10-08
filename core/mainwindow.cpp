@@ -733,10 +733,10 @@ void MainWindow::loadLayout()
     if (ok)
         ok = restoreState(layout_data);
 
-    if (!ok) {
-        QString msg = tr("Error reading %1")
-                        .arg(fileName);
-        QMessageBox::warning(this, tr("Error"), msg);
-        return;
-    }
+//    if (!ok) {
+//        QString msg = tr("Error reading %1")
+//                        .arg(fileName);
+//        QMessageBox::warning(this, tr("Error"), msg);
+//        return;
+//    }
 }

@@ -2864,11 +2864,6 @@ void FormImage::setupGeoOverlay(int geoindex)
                     {
                         if(opts.geosatellites.at(geoindex).shortname == "GOES_16")
                         {
-                        //earth_to_fgf_(const int  *sat, const double *lon_degrees, const double *lat_degrees, const double *scale_x, const double *offset_x,
-                        //                   const double *scale_y, const double *offset_y, const double *sub_lon_degrees, double *fgf_x, double *fgf_y)
-
-//                            lon_deg = sub_lon;
-//                            lat_deg = 0.0;
                             pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
                             if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
                             {

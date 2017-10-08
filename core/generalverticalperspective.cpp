@@ -280,9 +280,9 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
     {
         for (int i = 0; i < imageptrs->ptrimageProjection->width(); i++)
         {
-            if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9)
+            if (this->map_inverse(i, j, lon_rad, lat_rad))
             {
-                if (this->map_inverse(i, j, lon_rad, lat_rad))
+                if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9)
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                     {
@@ -352,37 +352,30 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
 
                     }
                 }
-            }
-            else
-            {
-                if(false) //sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+                else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16)
                 {
-                    if (this->map_inverse(i, j, lon_rad, lat_rad))
+                    lon_deg = lon_rad * 180.0 / PI;
+                    lat_deg = lat_rad * 180.0 / PI;
+
+                    pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
+                    if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
                     {
-                        lon_deg = lon_rad * 180.0 / PI;
-                        lat_deg = lat_rad * 180.0 / PI;
+                        col = (int)fgf_x;
+                        row = (int)fgf_y;
+                        ret = 0;
+                    }
+                    else
+                        ret = 1;
 
-                        pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
-                        if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
+                    if(ret == 0)
+                    {
+                        picrow = row;
+                        if(picrow < imageptrs->ptrimageGeostationary->height())
                         {
-                            col = (int)fgf_x;
-                            row = (int)fgf_y;
-                            ret = 0;
-                        }
-                        else
-                            ret = 1;
-
-//                        if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
-                        if(ret == 0)
-                        {
-                            picrow = row;
-                            if(picrow < imageptrs->ptrimageGeostationary->height())
-                            {
-                                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
-                                rgbval = scanl[col];
-                                fb_painter.setPen(rgbval);
-                                fb_painter.drawPoint(i,j);
-                            }
+                            scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
+                            rgbval = scanl[col];
+                            fb_painter.setPen(rgbval);
+                            fb_painter.drawPoint(i,j);
                         }
                     }
                 }

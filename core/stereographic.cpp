@@ -128,6 +128,18 @@ void StereoGraphic::CreateMapFromGeostationary()
         return;
 
     double sub_lon = sl->geosatlon;
+    int geoindex = sl->getGeoSatelliteIndex();
+
+
+    double scale_x = 0.000056;
+    double scale_y = -0.000056;
+    double offset_x = -0.151844;
+    double offset_y = 0.151844;
+    int sat = 1;
+    double lat_deg;
+    double lon_deg;
+    int ret;
+    double fgf_x, fgf_y;
 
     if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
         hrvmap = 1;
@@ -239,6 +251,33 @@ void StereoGraphic::CreateMapFromGeostationary()
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+                else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+                {
+                    lon_deg = lon_rad * 180.0 / PI;
+                    lat_deg = lat_rad * 180.0 / PI;
+
+                    pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
+                    if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
+                    {
+                        col = (int)fgf_x;
+                        row = (int)fgf_y;
+                        ret = 0;
+                    }
+                    else
+                        ret = 1;
+
+                    if(ret == 0)
+                    {
+                        picrow = row;
+                        if(picrow < imageptrs->ptrimageGeostationary->height())
+                        {
+                            scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
+                            rgbval = scanl[col];
+                            fb_painter.setPen(rgbval);
+                            fb_painter.drawPoint(i,j);
                         }
                     }
                 }

@@ -285,6 +285,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
     int row, picrow;
     int hrvmap = 0;
 
+
     qDebug() << QString("Start LambertConformalConic::CreateMapFromMeteosat");
 
     SegmentListGeostationary *sl;
@@ -299,6 +300,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
     qDebug() << QString("LFAC = %1 LFAC_HRV = %2 LFAC_NON_HRV = %3").arg(sl->LFAC).arg(LFAC_HRV).arg(LFAC_NONHRV);
 
     sub_lon = sl->geosatlon;
+    int geoindex = sl->getGeoSatelliteIndex();
 
     if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
         hrvmap = 1;
@@ -336,6 +338,15 @@ void LambertConformalConic::CreateMapFromGeostationary()
     qDebug() << QString("UWCA = %1").arg(UWCA);
     qDebug() << QString("UNLA = %1").arg(UNLA);
 
+    double scale_x = 0.000056;
+    double scale_y = -0.000056;
+    double offset_x = -0.151844;
+    double offset_y = 0.151844;
+    int sat = 1;
+    double lat_deg;
+    double lon_deg;
+    int ret;
+    double fgf_x, fgf_y;
 
 
     for (int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
@@ -347,7 +358,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
                 if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
-                    //if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, COFF_HRV, LOFF_HRV, CFAC_HRV, LFAC_HRV, &col, &row) == 0)
+                        //if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, COFF_HRV, LOFF_HRV, CFAC_HRV, LFAC_HRV, &col, &row) == 0)
                     {
                         picrow = row;
                         if( hrvmap == 0)
@@ -417,6 +428,33 @@ void LambertConformalConic::CreateMapFromGeostationary()
                         }
                     }
                 }
+                else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+                {
+                    lon_deg = lon_rad * 180.0 / PI;
+                    lat_deg = lat_rad * 180.0 / PI;
+
+                    pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
+                    if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
+                    {
+                        col = (int)fgf_x;
+                        row = (int)fgf_y;
+                        ret = 0;
+                    }
+                    else
+                        ret = 1;
+
+                    if(ret == 0)
+                    {
+                        picrow = row;
+                        if(picrow < imageptrs->ptrimageGeostationary->height())
+                        {
+                            scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
+                            rgbval = scanl[col];
+                            fb_painter.setPen(rgbval);
+                            fb_painter.drawPoint(i,j);
+                        }
+                    }
+                }
                 else
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
@@ -430,8 +468,8 @@ void LambertConformalConic::CreateMapFromGeostationary()
                             fb_painter.drawPoint(i,j);
                         }
                     }
-                }
 
+                }
             }
         }
     }

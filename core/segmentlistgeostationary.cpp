@@ -1657,8 +1657,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
             if (retval != NC_NOERR)
                 qDebug() << "error reading Rad values";
             else
+            {
                 CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrRed[0], stat_min[0], stat_max[0], fillvalue[0]);
-            normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrRed[0], stat_min[0], stat_max[0], fillvalue[0]);
+                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrRed[0], stat_min[0], stat_max[0], fillvalue[0]);
+            }
         } else if(j==1)
         {
             imageptrs->fillvalue[j] = fillvalue[j];
@@ -1668,8 +1670,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
             if (retval != NC_NOERR)
                 qDebug() << "error reading Rad values";
             else
+            {
                 CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrGreen[0], stat_min[1], stat_max[1], fillvalue[1]);
-            normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrGreen[0], stat_min[1], stat_max[1], fillvalue[1]);
+                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrGreen[0], stat_min[1], stat_max[1], fillvalue[1]);
+            }
         } else if(j == 2)
         {
             imageptrs->fillvalue[j] = fillvalue[j];
@@ -1679,8 +1683,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
             if (retval != NC_NOERR)
                 qDebug() << "error reading Rad values";
             else
+            {
                 CalculateMinMaxGOES16(xdim, ydim, imageptrs->ptrBlue[0], stat_min[2], stat_max[2], fillvalue[2]);
-            normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrBlue[0], stat_min[2], stat_max[2], fillvalue[2]);
+                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrBlue[0], stat_min[2], stat_max[2], fillvalue[2]);
+            }
         }
 
 
@@ -1756,49 +1762,15 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
                 gc = *(imageptrs->ptrGreen[0] + line * xdim + pixelx);
                 bc = *(imageptrs->ptrBlue[0] + line * xdim + pixelx);
 
-//                r = (int)(255 * ((float)(rc - min_radiance_value_of_valid_pixels[0]) / (float)(max_radiance_value_of_valid_pixels[0] - min_radiance_value_of_valid_pixels[0])));
-//                g = (int)(255 * ((float)(gc - min_radiance_value_of_valid_pixels[1]) / (float)(max_radiance_value_of_valid_pixels[1] - min_radiance_value_of_valid_pixels[1])));
-//                b = (int)(255 * ((float)(bc - min_radiance_value_of_valid_pixels[2]) / (float)(max_radiance_value_of_valid_pixels[2] - min_radiance_value_of_valid_pixels[2])));
-
-                if( rc != fillvalue[0])
-                {
-                    r = (int)(255 * ((float)(rc - stat_min[0]) / (float)(stat_max[0] - stat_min[0])));
-                    r = r > 255 ? 255 : r;
-                    r = inversevector[0] ? 255 - r : r;
-                }
-                else
-                    r = 0;
-                if( gc != fillvalue[1])
-                {
-                    g = (int)(255 * ((float)(gc - stat_min[1]) / (float)(stat_max[1] - stat_min[1])));
-                    g = g > 255 ? 255 : g;
-                    g = inversevector[1] ? 255 - g : g;
-                }
-                else
-                    g = 0;
-                if( bc != fillvalue[2])
-                {
-                    b = (int)(255 * ((float)(bc - stat_min[2]) / (float)(stat_max[2] - stat_min[2])));
-                    b = b > 255 ? 255 : b;
-                    b = inversevector[2] ? 255 - b : b;
-                }
-                else
-                    b = 0;
+                if( rc == fillvalue[0]) r = 0; else r = rc;
+                if( gc == fillvalue[1]) g = 0; else g = gc;
+                if( bc == fillvalue[2]) b = 0; else b = bc;
 
             }
-            else if(kindofimage == "VIS_IR" || kindofimage == "HRV")
+            else if(kindofimage == "VIS_IR")
             {
                 rc = *(imageptrs->ptrRed[0] + line * xdim + pixelx);
-                if( rc != fillvalue[0])
-                {
-                    //double drc = (double)((double)(rc - min_radiance_value_of_valid_pixels[0]) / (double)(max_radiance_value_of_valid_pixels[0] + 500 - min_radiance_value_of_valid_pixels[0]));
-                    float drc = (float)((float)(rc - stat_min[0]) / (double)(stat_max[0] - stat_min[0]));
-                    int red = (int)(255.0 * drc);
-                    r = red > 255 ? 255 : red;
-                    r = inversevector[0] ? 255 - r : r;
-                }
-                else
-                    r = 0;
+                if( rc == fillvalue[0]) r = 0; else r = rc;
                 g = r;
                 b = r;
 
@@ -2301,20 +2273,18 @@ void SegmentListGeostationary::CalculateMinMaxGOES16(int width, int height, quin
             quint16 val = ptr[j * height + i];
             if(val != fillvalue)
             {
-                if(val > 0 && val < 65528)
-                {
-                    if(val >= stat_max)
-                        stat_max = val;
-                    if(val < stat_min)
-                        stat_min = val;
-                }
+                if(val >= stat_max)
+                    stat_max = val;
+                if(val < stat_min)
+                    stat_min = val;
             }
         }
     }
+    qDebug() << QString("CalculateMinMaxGOES16 stat_min = %1 stat_max = %2").arg(stat_min).arg(stat_max);
 
 }
 
-void SegmentListGeostationary::normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, quint16 fillvalue)
+void SegmentListGeostationary::normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, int &fillvalue)
 {
 
     for (int j = 0; j < height; j++) {
@@ -2324,14 +2294,22 @@ void SegmentListGeostationary::normalizeMinMaxGOES16(int width, int height, quin
             if(val != fillvalue)
             {
                 float valfloat = (float)((float)(val - stat_min)/(float)(stat_max - stat_min));
-                quint16 valint = (quint16)(valfloat*1023.0);
+                quint16 valint = (quint16)(valfloat*255.0);
+                valint = valint > 255 ? 255 : valint;
+
                 ptr[j * height + i] = valint;
+//                if(j == 3100)
+//                    ptr[j * height + i] = 0;
+//                if(i == 5230)
+//                    ptr[j * height + i] = 0;
+
             }
         }
     }
 
     stat_min = 0;
-    stat_max = 1023;
+    stat_max = 255;
+//    fillvalue = 4096;
 
 }
 
