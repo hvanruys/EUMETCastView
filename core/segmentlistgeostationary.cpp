@@ -1762,15 +1762,17 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
                 gc = *(imageptrs->ptrGreen[0] + line * xdim + pixelx);
                 bc = *(imageptrs->ptrBlue[0] + line * xdim + pixelx);
 
-                if( rc == fillvalue[0]) r = 0; else r = rc;
-                if( gc == fillvalue[1]) g = 0; else g = gc;
-                if( bc == fillvalue[2]) b = 0; else b = bc;
+                r = quint16(inversevector[0] ? 255 - rc : rc);
+
+                if( rc == fillvalue[0]) r = 0; else r = quint16(inversevector[0] ? 255 - rc : rc);
+                if( gc == fillvalue[1]) g = 0; else g = quint16(inversevector[1] ? 255 - gc : gc);
+                if( bc == fillvalue[2]) b = 0; else b = quint16(inversevector[2] ? 255 - bc : bc);
 
             }
             else if(kindofimage == "VIS_IR")
             {
                 rc = *(imageptrs->ptrRed[0] + line * xdim + pixelx);
-                if( rc == fillvalue[0]) r = 0; else r = rc;
+                if( rc == fillvalue[0]) r = 0; else r = quint16(inversevector[0] ? 255 - rc : rc);
                 g = r;
                 b = r;
 
