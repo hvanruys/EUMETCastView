@@ -44,9 +44,14 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     forminfrascales = p_forminfrascales;
     segs = seglist;
     filenamecreated = "";
+    geoindex = 0;
 
+    blockSignalscomboGeo(true);
     setupChannelCombo();
+    blockSignalscomboGeo(false);
+
     setChannelComboBoxes();
+
     currentAVHRRimage = IMAGE_AVHRR_COL;
     currentProjectionType = PROJ_NONE;
 
@@ -219,10 +224,26 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->pbProgress->setMinimum(0);
     ui->pbProgress->setMaximum(100);
 
+    qDebug() << QString("FormToolbox::constructor(int geoindex = %1) Before  poi.strlComboGeo1.at(geoindex) = %2 ").arg(geoindex).arg(poi.strlComboGeo1.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo2.at(geoindex) = %1 ").arg(poi.strlComboGeo2.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo3.at(geoindex) = %1 ").arg(poi.strlComboGeo3.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo4.at(geoindex) = %1 ").arg(poi.strlComboGeo4.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo5.at(geoindex) = %1 ").arg(poi.strlComboGeo5.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo6.at(geoindex) = %1 ").arg(poi.strlComboGeo6.at(geoindex));
+
+
     setPOIsettings();
     setMConfigsettings();
     setOLCIefrConfigsettings();
     setSLSTRConfigsettings();
+
+    qDebug() << QString("FormToolbox::setComboGeo(int geoindex = %1) After  poi.strlComboGeo1.at(geoindex) = %2 ").arg(geoindex).arg(poi.strlComboGeo1.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo2.at(geoindex) = %1 ").arg(poi.strlComboGeo2.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo3.at(geoindex) = %1 ").arg(poi.strlComboGeo3.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo4.at(geoindex) = %1 ").arg(poi.strlComboGeo4.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo5.at(geoindex) = %1 ").arg(poi.strlComboGeo5.at(geoindex));
+    qDebug() << QString("poi.strlComboGeo6.at(geoindex) = %1 ").arg(poi.strlComboGeo6.at(geoindex));
+
 
 
 
@@ -286,8 +307,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     ui->chkShowLambert->setChecked(opts.mapextentlamberton);
     ui->chkShowPerspective->setChecked(opts.mapextentperspectiveon);
-
-    geoindex = 0;
 
     setToolboxButtons(true);
     this->setComboGeo(geoindex);
@@ -364,6 +383,27 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     setAllWhatsThis();
 
     qDebug() << "constructor formtoolbox width = " << this->width();
+
+}
+
+void FormToolbox::blockSignalscomboGeo(bool state)
+{
+    ui->comboGeo1->blockSignals(state);
+    ui->comboGeo2->blockSignals(state);
+    ui->comboGeo3->blockSignals(state);
+    ui->comboGeo4->blockSignals(state);
+    ui->comboGeo5->blockSignals(state);
+    ui->comboGeo6->blockSignals(state);
+    ui->comboGeo7->blockSignals(state);
+    ui->comboGeo8->blockSignals(state);
+    ui->comboGeo9->blockSignals(state);
+    ui->comboGeo10->blockSignals(state);
+    ui->comboGeo11->blockSignals(state);
+    ui->comboGeo12->blockSignals(state);
+    ui->comboGeo13->blockSignals(state);
+    ui->comboGeo14->blockSignals(state);
+    ui->comboGeo15->blockSignals(state);
+    ui->comboGeo16->blockSignals(state);
 
 }
 
@@ -509,78 +549,82 @@ void FormToolbox::setupChannelCombo()
 {
     qDebug() << "FormToolbox::setupChannelCombo()";
 
-    ui->comboCh1->addItem(tr("-"));ui->comboCh1->addItem(tr("R"));ui->comboCh1->addItem(tr("G"));ui->comboCh1->addItem(tr("B"));
-    ui->comboCh2->addItem(tr("-"));ui->comboCh2->addItem(tr("R"));ui->comboCh2->addItem(tr("G"));ui->comboCh2->addItem(tr("B"));
-    ui->comboCh3->addItem(tr("-"));ui->comboCh3->addItem(tr("R"));ui->comboCh3->addItem(tr("G"));ui->comboCh3->addItem(tr("B"));
-    ui->comboCh4->addItem(tr("-"));ui->comboCh4->addItem(tr("R"));ui->comboCh4->addItem(tr("G"));ui->comboCh4->addItem(tr("B"));
-    ui->comboCh5->addItem(tr("-"));ui->comboCh5->addItem(tr("R"));ui->comboCh5->addItem(tr("G"));ui->comboCh5->addItem(tr("B"));
-    ui->comboGeo1->addItem(tr("-"));ui->comboGeo1->addItem(tr("R"));ui->comboGeo1->addItem(tr("G"));ui->comboGeo1->addItem(tr("B"));
-    ui->comboGeo2->addItem(tr("-"));ui->comboGeo2->addItem(tr("R"));ui->comboGeo2->addItem(tr("G"));ui->comboGeo2->addItem(tr("B"));
-    ui->comboGeo3->addItem(tr("-"));ui->comboGeo3->addItem(tr("R"));ui->comboGeo3->addItem(tr("G"));ui->comboGeo3->addItem(tr("B"));
-    ui->comboGeo4->addItem(tr("-"));ui->comboGeo4->addItem(tr("R"));ui->comboGeo4->addItem(tr("G"));ui->comboGeo4->addItem(tr("B"));
-    ui->comboGeo5->addItem(tr("-"));ui->comboGeo5->addItem(tr("R"));ui->comboGeo5->addItem(tr("G"));ui->comboGeo5->addItem(tr("B"));
-    ui->comboGeo6->addItem(tr("-"));ui->comboGeo6->addItem(tr("R"));ui->comboGeo6->addItem(tr("G"));ui->comboGeo6->addItem(tr("B"));
-    ui->comboGeo7->addItem(tr("-"));ui->comboGeo7->addItem(tr("R"));ui->comboGeo7->addItem(tr("G"));ui->comboGeo7->addItem(tr("B"));
-    ui->comboGeo8->addItem(tr("-"));ui->comboGeo8->addItem(tr("R"));ui->comboGeo8->addItem(tr("G"));ui->comboGeo8->addItem(tr("B"));
-    ui->comboGeo9->addItem(tr("-"));ui->comboGeo9->addItem(tr("R"));ui->comboGeo9->addItem(tr("G"));ui->comboGeo9->addItem(tr("B"));
-    ui->comboGeo10->addItem(tr("-"));ui->comboGeo10->addItem(tr("R"));ui->comboGeo10->addItem(tr("G"));ui->comboGeo10->addItem(tr("B"));
-    ui->comboGeo11->addItem(tr("-"));ui->comboGeo11->addItem(tr("R"));ui->comboGeo11->addItem(tr("G"));ui->comboGeo11->addItem(tr("B"));
-    ui->comboGeo12->addItem(tr("-"));ui->comboGeo12->addItem(tr("R"));ui->comboGeo12->addItem(tr("G"));ui->comboGeo12->addItem(tr("B"));
-    ui->comboGeo13->addItem(tr("-"));ui->comboGeo13->addItem(tr("R"));ui->comboGeo13->addItem(tr("G"));ui->comboGeo13->addItem(tr("B"));
-    ui->comboGeo14->addItem(tr("-"));ui->comboGeo14->addItem(tr("R"));ui->comboGeo14->addItem(tr("G"));ui->comboGeo14->addItem(tr("B"));
-    ui->comboGeo15->addItem(tr("-"));ui->comboGeo15->addItem(tr("R"));ui->comboGeo15->addItem(tr("G"));ui->comboGeo15->addItem(tr("B"));
-    ui->comboGeo16->addItem(tr("-"));ui->comboGeo16->addItem(tr("R"));ui->comboGeo16->addItem(tr("G"));ui->comboGeo16->addItem(tr("B"));
+    QStringList coloritems;
+    coloritems << "-" << "R" << "G" << "B";
 
-    ui->comboM1->addItem(tr("-"));ui->comboM1->addItem(tr("R"));ui->comboM1->addItem(tr("G"));ui->comboM1->addItem(tr("B"));
-    ui->comboM2->addItem(tr("-"));ui->comboM2->addItem(tr("R"));ui->comboM2->addItem(tr("G"));ui->comboM2->addItem(tr("B"));
-    ui->comboM3->addItem(tr("-"));ui->comboM3->addItem(tr("R"));ui->comboM3->addItem(tr("G"));ui->comboM3->addItem(tr("B"));
-    ui->comboM4->addItem(tr("-"));ui->comboM4->addItem(tr("R"));ui->comboM4->addItem(tr("G"));ui->comboM4->addItem(tr("B"));
-    ui->comboM5->addItem(tr("-"));ui->comboM5->addItem(tr("R"));ui->comboM5->addItem(tr("G"));ui->comboM5->addItem(tr("B"));
-    ui->comboM6->addItem(tr("-"));ui->comboM6->addItem(tr("R"));ui->comboM6->addItem(tr("G"));ui->comboM6->addItem(tr("B"));
-    ui->comboM7->addItem(tr("-"));ui->comboM7->addItem(tr("R"));ui->comboM7->addItem(tr("G"));ui->comboM7->addItem(tr("B"));
-    ui->comboM8->addItem(tr("-"));ui->comboM8->addItem(tr("R"));ui->comboM8->addItem(tr("G"));ui->comboM8->addItem(tr("B"));
-    ui->comboM9->addItem(tr("-"));ui->comboM9->addItem(tr("R"));ui->comboM9->addItem(tr("G"));ui->comboM9->addItem(tr("B"));
-    ui->comboM10->addItem(tr("-"));ui->comboM10->addItem(tr("R"));ui->comboM10->addItem(tr("G"));ui->comboM10->addItem(tr("B"));
-    ui->comboM11->addItem(tr("-"));ui->comboM11->addItem(tr("R"));ui->comboM11->addItem(tr("G"));ui->comboM11->addItem(tr("B"));
-    ui->comboM12->addItem(tr("-"));ui->comboM12->addItem(tr("R"));ui->comboM12->addItem(tr("G"));ui->comboM12->addItem(tr("B"));
-    ui->comboM13->addItem(tr("-"));ui->comboM13->addItem(tr("R"));ui->comboM13->addItem(tr("G"));ui->comboM13->addItem(tr("B"));
-    ui->comboM14->addItem(tr("-"));ui->comboM14->addItem(tr("R"));ui->comboM14->addItem(tr("G"));ui->comboM14->addItem(tr("B"));
-    ui->comboM15->addItem(tr("-"));ui->comboM15->addItem(tr("R"));ui->comboM15->addItem(tr("G"));ui->comboM15->addItem(tr("B"));
-    ui->comboM16->addItem(tr("-"));ui->comboM16->addItem(tr("R"));ui->comboM16->addItem(tr("G"));ui->comboM16->addItem(tr("B"));
+    ui->comboCh1->addItems(coloritems);
+    ui->comboCh2->addItems(coloritems);
+    ui->comboCh3->addItems(coloritems);
+    ui->comboCh4->addItems(coloritems);
+    ui->comboCh5->addItems(coloritems);
 
-    ui->cmbOLCI01->addItem(tr("-"));ui->cmbOLCI01->addItem(tr("R"));ui->cmbOLCI01->addItem(tr("G"));ui->cmbOLCI01->addItem(tr("B"));
-    ui->cmbOLCI02->addItem(tr("-"));ui->cmbOLCI02->addItem(tr("R"));ui->cmbOLCI02->addItem(tr("G"));ui->cmbOLCI02->addItem(tr("B"));
-    ui->cmbOLCI03->addItem(tr("-"));ui->cmbOLCI03->addItem(tr("R"));ui->cmbOLCI03->addItem(tr("G"));ui->cmbOLCI03->addItem(tr("B"));
-    ui->cmbOLCI04->addItem(tr("-"));ui->cmbOLCI04->addItem(tr("R"));ui->cmbOLCI04->addItem(tr("G"));ui->cmbOLCI04->addItem(tr("B"));
-    ui->cmbOLCI05->addItem(tr("-"));ui->cmbOLCI05->addItem(tr("R"));ui->cmbOLCI05->addItem(tr("G"));ui->cmbOLCI05->addItem(tr("B"));
-    ui->cmbOLCI06->addItem(tr("-"));ui->cmbOLCI06->addItem(tr("R"));ui->cmbOLCI06->addItem(tr("G"));ui->cmbOLCI06->addItem(tr("B"));
-    ui->cmbOLCI07->addItem(tr("-"));ui->cmbOLCI07->addItem(tr("R"));ui->cmbOLCI07->addItem(tr("G"));ui->cmbOLCI07->addItem(tr("B"));
-    ui->cmbOLCI08->addItem(tr("-"));ui->cmbOLCI08->addItem(tr("R"));ui->cmbOLCI08->addItem(tr("G"));ui->cmbOLCI08->addItem(tr("B"));
-    ui->cmbOLCI09->addItem(tr("-"));ui->cmbOLCI09->addItem(tr("R"));ui->cmbOLCI09->addItem(tr("G"));ui->cmbOLCI09->addItem(tr("B"));
-    ui->cmbOLCI10->addItem(tr("-"));ui->cmbOLCI10->addItem(tr("R"));ui->cmbOLCI10->addItem(tr("G"));ui->cmbOLCI10->addItem(tr("B"));
-    ui->cmbOLCI11->addItem(tr("-"));ui->cmbOLCI11->addItem(tr("R"));ui->cmbOLCI11->addItem(tr("G"));ui->cmbOLCI11->addItem(tr("B"));
-    ui->cmbOLCI12->addItem(tr("-"));ui->cmbOLCI12->addItem(tr("R"));ui->cmbOLCI12->addItem(tr("G"));ui->cmbOLCI12->addItem(tr("B"));
-    ui->cmbOLCI13->addItem(tr("-"));ui->cmbOLCI13->addItem(tr("R"));ui->cmbOLCI13->addItem(tr("G"));ui->cmbOLCI13->addItem(tr("B"));
-    ui->cmbOLCI14->addItem(tr("-"));ui->cmbOLCI14->addItem(tr("R"));ui->cmbOLCI14->addItem(tr("G"));ui->cmbOLCI14->addItem(tr("B"));
-    ui->cmbOLCI15->addItem(tr("-"));ui->cmbOLCI15->addItem(tr("R"));ui->cmbOLCI15->addItem(tr("G"));ui->cmbOLCI15->addItem(tr("B"));
-    ui->cmbOLCI16->addItem(tr("-"));ui->cmbOLCI16->addItem(tr("R"));ui->cmbOLCI16->addItem(tr("G"));ui->cmbOLCI16->addItem(tr("B"));
-    ui->cmbOLCI17->addItem(tr("-"));ui->cmbOLCI17->addItem(tr("R"));ui->cmbOLCI17->addItem(tr("G"));ui->cmbOLCI17->addItem(tr("B"));
-    ui->cmbOLCI18->addItem(tr("-"));ui->cmbOLCI18->addItem(tr("R"));ui->cmbOLCI18->addItem(tr("G"));ui->cmbOLCI18->addItem(tr("B"));
-    ui->cmbOLCI19->addItem(tr("-"));ui->cmbOLCI19->addItem(tr("R"));ui->cmbOLCI19->addItem(tr("G"));ui->cmbOLCI19->addItem(tr("B"));
-    ui->cmbOLCI20->addItem(tr("-"));ui->cmbOLCI20->addItem(tr("R"));ui->cmbOLCI20->addItem(tr("G"));ui->cmbOLCI20->addItem(tr("B"));
-    ui->cmbOLCI21->addItem(tr("-"));ui->cmbOLCI21->addItem(tr("R"));ui->cmbOLCI21->addItem(tr("G"));ui->cmbOLCI21->addItem(tr("B"));
+    ui->comboGeo1->addItems(coloritems);
+    ui->comboGeo2->addItems(coloritems);
+    ui->comboGeo3->addItems(coloritems);
+    ui->comboGeo4->addItems(coloritems);
+    ui->comboGeo5->addItems(coloritems);
+    ui->comboGeo6->addItems(coloritems);
+    ui->comboGeo7->addItems(coloritems);
+    ui->comboGeo8->addItems(coloritems);
+    ui->comboGeo9->addItems(coloritems);
+    ui->comboGeo10->addItems(coloritems);
+    ui->comboGeo11->addItems(coloritems);
+    ui->comboGeo12->addItems(coloritems);
+    ui->comboGeo13->addItems(coloritems);
+    ui->comboGeo14->addItems(coloritems);
+    ui->comboGeo15->addItems(coloritems);
+    ui->comboGeo16->addItems(coloritems);
 
-    ui->cmbS1->addItem(tr("-"));ui->cmbS1->addItem(tr("R"));ui->cmbS1->addItem(tr("G"));ui->cmbS1->addItem(tr("B"));
-    ui->cmbS2->addItem(tr("-"));ui->cmbS2->addItem(tr("R"));ui->cmbS2->addItem(tr("G"));ui->cmbS2->addItem(tr("B"));
-    ui->cmbS3->addItem(tr("-"));ui->cmbS3->addItem(tr("R"));ui->cmbS3->addItem(tr("G"));ui->cmbS3->addItem(tr("B"));
-    ui->cmbS4->addItem(tr("-"));ui->cmbS4->addItem(tr("R"));ui->cmbS4->addItem(tr("G"));ui->cmbS4->addItem(tr("B"));
-    ui->cmbS5->addItem(tr("-"));ui->cmbS5->addItem(tr("R"));ui->cmbS5->addItem(tr("G"));ui->cmbS5->addItem(tr("B"));
-    ui->cmbS6->addItem(tr("-"));ui->cmbS6->addItem(tr("R"));ui->cmbS6->addItem(tr("G"));ui->cmbS6->addItem(tr("B"));
-    ui->cmbS7->addItem(tr("-"));ui->cmbS7->addItem(tr("R"));ui->cmbS7->addItem(tr("G"));ui->cmbS7->addItem(tr("B"));
-    ui->cmbS8->addItem(tr("-"));ui->cmbS8->addItem(tr("R"));ui->cmbS8->addItem(tr("G"));ui->cmbS8->addItem(tr("B"));
-    ui->cmbS9->addItem(tr("-"));ui->cmbS9->addItem(tr("R"));ui->cmbS9->addItem(tr("G"));ui->cmbS9->addItem(tr("B"));
-    ui->cmbF1->addItem(tr("-"));ui->cmbF1->addItem(tr("R"));ui->cmbF1->addItem(tr("G"));ui->cmbF1->addItem(tr("B"));
-    ui->cmbF2->addItem(tr("-"));ui->cmbF2->addItem(tr("R"));ui->cmbF2->addItem(tr("G"));ui->cmbF2->addItem(tr("B"));
+    ui->comboM1->addItems(coloritems);
+    ui->comboM2->addItems(coloritems);
+    ui->comboM3->addItems(coloritems);
+    ui->comboM4->addItems(coloritems);
+    ui->comboM5->addItems(coloritems);
+    ui->comboM6->addItems(coloritems);
+    ui->comboM7->addItems(coloritems);
+    ui->comboM8->addItems(coloritems);
+    ui->comboM9->addItems(coloritems);
+    ui->comboM10->addItems(coloritems);
+    ui->comboM11->addItems(coloritems);
+    ui->comboM12->addItems(coloritems);
+    ui->comboM13->addItems(coloritems);
+    ui->comboM14->addItems(coloritems);
+    ui->comboM15->addItems(coloritems);
+    ui->comboM16->addItems(coloritems);
+
+    ui->cmbOLCI01->addItems(coloritems);
+    ui->cmbOLCI02->addItems(coloritems);
+    ui->cmbOLCI03->addItems(coloritems);
+    ui->cmbOLCI04->addItems(coloritems);
+    ui->cmbOLCI05->addItems(coloritems);
+    ui->cmbOLCI06->addItems(coloritems);
+    ui->cmbOLCI07->addItems(coloritems);
+    ui->cmbOLCI08->addItems(coloritems);
+    ui->cmbOLCI09->addItems(coloritems);
+    ui->cmbOLCI10->addItems(coloritems);
+    ui->cmbOLCI11->addItems(coloritems);
+    ui->cmbOLCI12->addItems(coloritems);
+    ui->cmbOLCI13->addItems(coloritems);
+    ui->cmbOLCI14->addItems(coloritems);
+    ui->cmbOLCI15->addItems(coloritems);
+    ui->cmbOLCI16->addItems(coloritems);
+    ui->cmbOLCI17->addItems(coloritems);
+    ui->cmbOLCI18->addItems(coloritems);
+    ui->cmbOLCI19->addItems(coloritems);
+    ui->cmbOLCI20->addItems(coloritems);
+    ui->cmbOLCI21->addItems(coloritems);
+
+    ui->cmbS1->addItems(coloritems);
+    ui->cmbS2->addItems(coloritems);
+    ui->cmbS3->addItems(coloritems);
+    ui->cmbS4->addItems(coloritems);
+    ui->cmbS5->addItems(coloritems);
+    ui->cmbS6->addItems(coloritems);
+    ui->cmbS7->addItems(coloritems);
+    ui->cmbS8->addItems(coloritems);
+    ui->cmbS9->addItems(coloritems);
+    ui->cmbF1->addItems(coloritems);
+    ui->cmbF2->addItems(coloritems);
 
 
 }
@@ -1012,29 +1056,29 @@ FormToolbox::~FormToolbox()
         opts.lastinputprojection = 5;
 
 
-    opts.lastcomboMet006 = ui->comboGeo1->currentIndex();
-    opts.lastcomboMet008 = ui->comboGeo2->currentIndex();
-    opts.lastcomboMet016 = ui->comboGeo3->currentIndex();
-    opts.lastcomboMet039 = ui->comboGeo4->currentIndex();
-    opts.lastcomboMet062 = ui->comboGeo5->currentIndex();
-    opts.lastcomboMet073 = ui->comboGeo6->currentIndex();
-    opts.lastcomboMet087 = ui->comboGeo7->currentIndex();
-    opts.lastcomboMet097 = ui->comboGeo8->currentIndex();
-    opts.lastcomboMet108 = ui->comboGeo9->currentIndex();
-    opts.lastcomboMet120 = ui->comboGeo10->currentIndex();
-    opts.lastcomboMet134 = ui->comboGeo11->currentIndex();
+//    opts.lastcomboMet006 = ui->comboGeo1->currentIndex();
+//    opts.lastcomboMet008 = ui->comboGeo2->currentIndex();
+//    opts.lastcomboMet016 = ui->comboGeo3->currentIndex();
+//    opts.lastcomboMet039 = ui->comboGeo4->currentIndex();
+//    opts.lastcomboMet062 = ui->comboGeo5->currentIndex();
+//    opts.lastcomboMet073 = ui->comboGeo6->currentIndex();
+//    opts.lastcomboMet087 = ui->comboGeo7->currentIndex();
+//    opts.lastcomboMet097 = ui->comboGeo8->currentIndex();
+//    opts.lastcomboMet108 = ui->comboGeo9->currentIndex();
+//    opts.lastcomboMet120 = ui->comboGeo10->currentIndex();
+//    opts.lastcomboMet134 = ui->comboGeo11->currentIndex();
 
-    opts.lastinverseMet006 = ui->chkInverseGeo1->isChecked();
-    opts.lastinverseMet008 = ui->chkInverseGeo2->isChecked();
-    opts.lastinverseMet016 = ui->chkInverseGeo3->isChecked();
-    opts.lastinverseMet039 = ui->chkInverseGeo4->isChecked();
-    opts.lastinverseMet062 = ui->chkInverseGeo5->isChecked();
-    opts.lastinverseMet073 = ui->chkInverseGeo6->isChecked();
-    opts.lastinverseMet087 = ui->chkInverseGeo7->isChecked();
-    opts.lastinverseMet097 = ui->chkInverseGeo8->isChecked();
-    opts.lastinverseMet108 = ui->chkInverseGeo9->isChecked();
-    opts.lastinverseMet120 = ui->chkInverseGeo10->isChecked();
-    opts.lastinverseMet134 = ui->chkInverseGeo11->isChecked();
+//    opts.lastinverseMet006 = ui->chkInverseGeo1->isChecked();
+//    opts.lastinverseMet008 = ui->chkInverseGeo2->isChecked();
+//    opts.lastinverseMet016 = ui->chkInverseGeo3->isChecked();
+//    opts.lastinverseMet039 = ui->chkInverseGeo4->isChecked();
+//    opts.lastinverseMet062 = ui->chkInverseGeo5->isChecked();
+//    opts.lastinverseMet073 = ui->chkInverseGeo6->isChecked();
+//    opts.lastinverseMet087 = ui->chkInverseGeo7->isChecked();
+//    opts.lastinverseMet097 = ui->chkInverseGeo8->isChecked();
+//    opts.lastinverseMet108 = ui->chkInverseGeo9->isChecked();
+//    opts.lastinverseMet120 = ui->chkInverseGeo10->isChecked();
+//    opts.lastinverseMet134 = ui->chkInverseGeo11->isChecked();
 
 
     opts.currenttabwidget = ui->tabWidget->currentIndex();
@@ -1858,6 +1902,7 @@ void FormToolbox::setComboGeo(int geoindex)
     ui->comboGeo1->setCurrentIndex(poi.strlComboGeo1.at(geoindex).toInt());
     ui->comboGeo2->setCurrentIndex(poi.strlComboGeo2.at(geoindex).toInt());
     ui->comboGeo3->setCurrentIndex(poi.strlComboGeo3.at(geoindex).toInt());
+
     ui->comboGeo4->setCurrentIndex(poi.strlComboGeo4.at(geoindex).toInt());
     ui->comboGeo5->setCurrentIndex(poi.strlComboGeo5.at(geoindex).toInt());
     ui->comboGeo6->setCurrentIndex(poi.strlComboGeo6.at(geoindex).toInt());
@@ -5311,83 +5356,83 @@ void FormToolbox::on_btnSaveProjectionAsPNG48bits_clicked()
     }
 }
 
-//void FormToolbox::on_comboGeo1_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo1.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo1_currentIndexChanged(int index)
+{
+    poi.strlComboGeo1.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo2_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo2.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo2_currentIndexChanged(int index)
+{
+    poi.strlComboGeo2.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo3_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo3.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo3_currentIndexChanged(int index)
+{
+    poi.strlComboGeo3.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo4_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo4.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo4_currentIndexChanged(int index)
+{
+    poi.strlComboGeo4.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo5_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo5.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo5_currentIndexChanged(int index)
+{
+    poi.strlComboGeo5.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo6_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo6.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo6_currentIndexChanged(int index)
+{
+    poi.strlComboGeo6.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo7_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo7.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo7_currentIndexChanged(int index)
+{
+    poi.strlComboGeo7.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo8_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo8.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo8_currentIndexChanged(int index)
+{
+    poi.strlComboGeo8.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo9_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo9.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo9_currentIndexChanged(int index)
+{
+    poi.strlComboGeo9.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo10_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo10.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo10_currentIndexChanged(int index)
+{
+    poi.strlComboGeo10.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo11_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo11.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo11_currentIndexChanged(int index)
+{
+    poi.strlComboGeo11.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo12_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo12.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo12_currentIndexChanged(int index)
+{
+    poi.strlComboGeo12.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo13_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo13.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo13_currentIndexChanged(int index)
+{
+    poi.strlComboGeo13.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo14_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo14.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo14_currentIndexChanged(int index)
+{
+    poi.strlComboGeo14.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo15_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo15.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo15_currentIndexChanged(int index)
+{
+    poi.strlComboGeo15.replace(this->geoindex, QString("%1").arg(index));
+}
 
-//void FormToolbox::on_comboGeo16_currentIndexChanged(int index)
-//{
-//    poi.strlComboGeo16.replace(this->geoindex, QString("%1").arg(index));
-//}
+void FormToolbox::on_comboGeo16_currentIndexChanged(int index)
+{
+    poi.strlComboGeo16.replace(this->geoindex, QString("%1").arg(index));
+}
 

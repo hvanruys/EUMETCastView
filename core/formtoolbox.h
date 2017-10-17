@@ -95,6 +95,8 @@ private:
     void setLogValue(int deg, double rad);
     void fitCurve();
     void setAllWhatsThis();
+    void blockSignalscomboGeo(bool state);
+
 
 
     AVHRRSatellite *segs;
@@ -257,22 +259,22 @@ private slots:
     void on_btnUpdateSLSTRImage_clicked();
     void on_btnSaveProjectionAsPNG48bits_clicked();
 
-//    void on_comboGeo1_currentIndexChanged(int index);
-//    void on_comboGeo2_currentIndexChanged(int index);
-//    void on_comboGeo3_currentIndexChanged(int index);
-//    void on_comboGeo4_currentIndexChanged(int index);
-//    void on_comboGeo5_currentIndexChanged(int index);
-//    void on_comboGeo6_currentIndexChanged(int index);
-//    void on_comboGeo7_currentIndexChanged(int index);
-//    void on_comboGeo8_currentIndexChanged(int index);
-//    void on_comboGeo9_currentIndexChanged(int index);
-//    void on_comboGeo10_currentIndexChanged(int index);
-//    void on_comboGeo11_currentIndexChanged(int index);
-//    void on_comboGeo12_currentIndexChanged(int index);
-//    void on_comboGeo13_currentIndexChanged(int index);
-//    void on_comboGeo14_currentIndexChanged(int index);
-//    void on_comboGeo15_currentIndexChanged(int index);
-//    void on_comboGeo16_currentIndexChanged(int index);
+    void on_comboGeo1_currentIndexChanged(int index);
+    void on_comboGeo2_currentIndexChanged(int index);
+    void on_comboGeo3_currentIndexChanged(int index);
+    void on_comboGeo4_currentIndexChanged(int index);
+    void on_comboGeo5_currentIndexChanged(int index);
+    void on_comboGeo6_currentIndexChanged(int index);
+    void on_comboGeo7_currentIndexChanged(int index);
+    void on_comboGeo8_currentIndexChanged(int index);
+    void on_comboGeo9_currentIndexChanged(int index);
+    void on_comboGeo10_currentIndexChanged(int index);
+    void on_comboGeo11_currentIndexChanged(int index);
+    void on_comboGeo12_currentIndexChanged(int index);
+    void on_comboGeo13_currentIndexChanged(int index);
+    void on_comboGeo14_currentIndexChanged(int index);
+    void on_comboGeo15_currentIndexChanged(int index);
+    void on_comboGeo16_currentIndexChanged(int index);
 
 };
 
