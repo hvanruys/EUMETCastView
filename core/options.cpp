@@ -643,6 +643,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].fullname = "Meteosat-10";
     geosatellites[0].shortname = "MET_10";
     geosatellites[0].longitude = 0.0;
+    geosatellites[0].longitudelimit1 = -45.0;
+    geosatellites[0].longitudelimit2 = 20.0;
     geosatellites[0].protocol = "XRIT";
     geosatellites[0].rss = false;
     geosatellites[0].searchstring = "H-000-MSG3__-MSG3________";
@@ -683,6 +685,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[1].fullname = "Meteosat-9";
     geosatellites[1].shortname = "MET_9";
     geosatellites[1].longitude = 9.5;
+    geosatellites[1].longitudelimit1 = 0.0;
+    geosatellites[1].longitudelimit2 = 0.0;
     geosatellites[1].protocol = "XRIT";
     geosatellites[1].rss = true;
     geosatellites[1].searchstring = "H-000-MSG2__-MSG2_RSS____";
@@ -724,6 +728,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[2].fullname = "Meteosat-8";
     geosatellites[2].shortname = "MET_8";
     geosatellites[2].longitude = 41.5;
+    geosatellites[2].longitudelimit1 = 20.0;
+    geosatellites[2].longitudelimit2 = 92.0;
     geosatellites[2].protocol = "XRIT";
     geosatellites[2].rss = false;
     geosatellites[2].searchstring = "H-000-MSG1__-MSG1_IODC___";
@@ -780,6 +786,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[3].fullname = "Electro L2";
     geosatellites[3].shortname = "GOMS2";
     geosatellites[3].longitude = 76.1;
+    geosatellites[3].longitudelimit1 = 0.0;
+    geosatellites[3].longitudelimit2 = 0.0;
     geosatellites[3].protocol = "XRIT";
     geosatellites[3].rss = false;
     geosatellites[3].searchstring = "H-000-GOMS2_-GOMS2_4_____";
@@ -833,6 +841,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[4].fullname = "FengYun 2E";
     geosatellites[4].shortname = "FY2E";
     geosatellites[4].longitude = 86.5;
+    geosatellites[4].longitudelimit1 = 0.0;
+    geosatellites[4].longitudelimit2 = 0.0;
     geosatellites[4].protocol = "HDF";
     geosatellites[4].rss = false;
     geosatellites[4].searchstring = "FY2E_FDI";
@@ -885,6 +895,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[5].fullname = "FengYun 2G";
     geosatellites[5].shortname = "FY2G";
     geosatellites[5].longitude = 104.5;
+    geosatellites[5].longitudelimit1 = 0.0;
+    geosatellites[5].longitudelimit2 = 0.0;
     geosatellites[5].protocol = "HDF";
     geosatellites[5].rss = false;
     geosatellites[5].searchstring = "FY2G_FDI";
@@ -935,6 +947,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[6].fullname = "GOES 13";
     geosatellites[6].shortname = "GOES_13";
     geosatellites[6].longitude = -74.9;
+    geosatellites[6].longitudelimit1 = 0.0;
+    geosatellites[6].longitudelimit2 = 0.0;
     geosatellites[6].protocol = "XRIT";
     geosatellites[6].rss = false;
     geosatellites[6].searchstring = "L-000-MSG3__-GOES13______";
@@ -988,6 +1002,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].fullname = "GOES 15";
     geosatellites[7].shortname = "GOES_15";
     geosatellites[7].longitude = -135.2;
+    geosatellites[7].longitudelimit1 = 0.0;
+    geosatellites[7].longitudelimit2 = 0.0;
     geosatellites[7].protocol = "XRIT";
     geosatellites[7].rss = false;
     geosatellites[7].searchstring = "L-000-MSG3__-GOES15______";
@@ -1039,6 +1055,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].fullname = "GOES 16";
     geosatellites[8].shortname = "GOES_16";
     geosatellites[8].longitude = -89.5;
+    geosatellites[8].longitudelimit1 = -154.4;
+    geosatellites[8].longitudelimit2 = -45.0;
     geosatellites[8].protocol = "netCDF";
     geosatellites[8].rss = false;
     geosatellites[8].searchstring = "OR_ABI";
@@ -1094,6 +1112,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[9].fullname = "Himawari 8";
     geosatellites[9].shortname = "H8";
     geosatellites[9].longitude = 140.7;
+    geosatellites[9].longitudelimit1 = 92.0;
+    geosatellites[9].longitudelimit2 = 205.6;
     geosatellites[9].protocol = "XRIT";
     geosatellites[9].rss = false;
     geosatellites[9].searchstring = "IMG_DK01";

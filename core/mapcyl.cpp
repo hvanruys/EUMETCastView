@@ -129,11 +129,11 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
         }
     }
 
-    if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false &&
-            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false &&
-            opts.buttonOLCIefr == false && opts.buttonOLCIerr == false && opts.buttonSLSTR == false &&
-            opts.buttonMetopAhrpt == false && opts.buttonMetopBhrpt == false && opts.buttonNoaa19hrpt == false && opts.buttonM01hrpt == false &&
-            opts.buttonM02hrpt == false)
+//    if (opts.buttonMetop == false && opts.buttonNoaa == false && opts.buttonGAC == false &&
+//            opts.buttonHRP == false && opts.buttonVIIRSM == false && opts.buttonVIIRSDNB == false &&
+//            opts.buttonOLCIefr == false && opts.buttonOLCIerr == false && opts.buttonSLSTR == false &&
+//            opts.buttonMetopAhrpt == false && opts.buttonMetopBhrpt == false && opts.buttonNoaa19hrpt == false && opts.buttonM01hrpt == false &&
+//            opts.buttonM02hrpt == false)
         showSunPosition(&painter);
 
     if (down)

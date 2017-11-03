@@ -518,15 +518,33 @@ void DialogPreferences::dialogaccept()
     qDebug() << "in accept";
     opts.backgroundimage2D = ui->edtBackImage2D->text();
 
-    if( opts.backgroundimage3D != ui->edtBackImage3D->text())
+    if(ui->chkGray->isChecked() == false)
     {
-        opts.texture_changed = true;
-        opts.backgroundimage3D = ui->edtBackImage3D->text();
-        QImage qim(opts.backgroundimage3D);
-        delete imageptrs->pmOriginal;
-        delete imageptrs->pmOut;
-        imageptrs->pmOriginal = new QPixmap(QPixmap::fromImage(qim));
-        imageptrs->pmOut = new QPixmap(QPixmap::fromImage(qim));
+        if( opts.backgroundimage3D != ui->edtBackImage3D->text() || opts.graytextureOn != ui->chkGray->isChecked() )
+        {
+            opts.texture_changed = true;
+            opts.backgroundimage3D = ui->edtBackImage3D->text();
+            QImage qim(opts.backgroundimage3D);
+            delete imageptrs->pmOriginal;
+            delete imageptrs->pmOut;
+            imageptrs->pmOriginal = new QPixmap(QPixmap::fromImage(qim));
+            imageptrs->pmOut = new QPixmap(QPixmap::fromImage(qim));
+        }
+    }
+    else
+    {
+        if(opts.graytextureOn != ui->chkGray->isChecked())
+        {
+            opts.texture_changed = true;
+            QImage qim(opts.backgroundimage3D);
+            delete imageptrs->pmOriginal;
+            delete imageptrs->pmOut;
+            imageptrs->pmOriginal = new QPixmap(qim.width(), qim.height());
+            imageptrs->pmOut = new QPixmap(qim.width(), qim.height());
+            imageptrs->pmOriginal->fill(Qt::gray);
+            imageptrs->pmOut->fill(Qt::gray);
+
+        }
     }
 
     opts.gshhsglobe1 = ui->edtGshhsGlobe1->text();

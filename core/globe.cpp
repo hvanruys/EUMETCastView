@@ -45,8 +45,19 @@ Globe::Globe(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *seglist ):
 
     QImage qim(opts.backgroundimage3D);
 
-    imageptrs->pmOriginal = new QPixmap(QPixmap::fromImage(qim));
-    imageptrs->pmOut = new QPixmap(QPixmap::fromImage(qim));
+    if(opts.graytextureOn)
+    {
+        imageptrs->pmOriginal = new QPixmap(qim.width(), qim.height());
+        imageptrs->pmOut = new QPixmap(qim.width(), qim.height());
+        imageptrs->pmOriginal->fill(Qt::gray);
+        imageptrs->pmOut->fill(Qt::gray);
+    }
+    else
+    {
+        imageptrs->pmOriginal = new QPixmap(QPixmap::fromImage(qim));
+        imageptrs->pmOut = new QPixmap(QPixmap::fromImage(qim));
+    }
+
     connect(&watcher, SIGNAL(finished()), this, SLOT(slotRender3DGeoFinished()));
 
 }
@@ -1423,10 +1434,13 @@ void Globe::Render3DGeoSegment(int geoindex)
 
     g_mutex.lock();
 
-    for (int i = 0; i < imageptrs->ptrimageGeostationary->height(); i++)
+
+    for (int i = 0; i < imageptrs->ptrimageGeostationary->height(); i=i+1)
         Render3DGeoSegmentLine( i, geoindex);
 
     g_mutex.unlock();
+
+    qDebug() << "Globe::Render3DGeoSegment(SegmentListMeteosat::eGeoSatellite sat)";
 
     QApplication::restoreOverrideCursor();
     opts.texture_changed = true;
@@ -1457,11 +1471,23 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
 
         if(pixconv.pixcoord2geocoord(segs->seglgeo[geoindex]->geosatlon, pix, heightinimage, segs->seglgeo[geoindex]->COFF, segs->seglgeo[geoindex]->LOFF, segs->seglgeo[geoindex]->CFAC, segs->seglgeo[geoindex]->LFAC, &lat_deg, &lon_deg) == 0)
         {
-            sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-            fb_painter.setPen(rgbval);
-            fb_painter.drawPoint(x, y);
+//            if(segs->seglgeo[geoindex]->getGeoSatellite() == eGeoSatellite::MET_8 || segs->seglgeo[geoindex]->getGeoSatellite() == eGeoSatellite::H8 || segs->seglgeo[geoindex]->getGeoSatellite() == eGeoSatellite::GOES_16)
+            if(opts.geosatellites[geoindex].longitudelimit1 != 0.0 && opts.geosatellites[geoindex].longitudelimit2 != 0.0)
+            {
+                if(lon_deg > opts.geosatellites[geoindex].longitudelimit1 && lon_deg < opts.geosatellites[geoindex].longitudelimit2)
+                {
+                    sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                    fb_painter.setPen(rgbval);
+                    fb_painter.drawPoint(x, y);
+                }
+            }
+            else
+            {
+                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                fb_painter.setPen(rgbval);
+                fb_painter.drawPoint(x, y);
+            }
         }
-
     }
 
     fb_painter.end();

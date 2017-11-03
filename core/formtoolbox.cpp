@@ -3821,6 +3821,11 @@ bool FormToolbox::comboColGeoOK()
     cnt += ui->comboGeo9->currentIndex();
     cnt += ui->comboGeo10->currentIndex();
     cnt += ui->comboGeo11->currentIndex();
+    cnt += ui->comboGeo12->currentIndex();
+    cnt += ui->comboGeo13->currentIndex();
+    cnt += ui->comboGeo14->currentIndex();
+    cnt += ui->comboGeo15->currentIndex();
+    cnt += ui->comboGeo16->currentIndex();
 
     if(cnt == 6)
         return true;

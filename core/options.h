@@ -30,6 +30,8 @@ struct GeoSatellites
     QString fullname;
     QString shortname;
     double longitude;
+    double longitudelimit1;
+    double longitudelimit2;
     QString protocol;
     bool rss;
     QString searchstring;
