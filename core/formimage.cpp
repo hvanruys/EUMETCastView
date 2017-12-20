@@ -1269,14 +1269,11 @@ void FormImage::displayGeoImageInfo()
         displayGeoImageInformation("Feng Yun 2G");
     } else if(segs->seglgeo[6]->bActiveSegmentList == true)
     {
-        displayGeoImageInformation("GOES 13");
+        displayGeoImageInformation("GOES 15");
     } else if(segs->seglgeo[7]->bActiveSegmentList == true)
     {
-        displayGeoImageInformation("GOES 15");
-    } else if(segs->seglgeo[8]->bActiveSegmentList == true)
-    {
         displayGeoImageInformation("GOES 16");
-    } else if(segs->seglgeo[9]->bActiveSegmentList == true)
+    } else if(segs->seglgeo[8]->bActiveSegmentList == true)
     {
         displayGeoImageInformation("Himawari-8");
     }
@@ -1832,7 +1829,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         npix = 3712*3*464;
         npixHRV = 5568*5*464;
     }
-    else if(sl->getGeoSatellite() == eGeoSatellite::GOES_13 || sl->getGeoSatellite() == eGeoSatellite::GOES_15)
+    else if(sl->getGeoSatellite() == eGeoSatellite::GOES_15)
     {
         npix = 2816*7*464;
         npixHRV = 0;
@@ -1990,7 +1987,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 memcpy(pixelsRed + i * 464 * 2784, imageptrs->ptrRed[i], 464 * 2784 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::GOES_13 || sl->getGeoSatellite() == eGeoSatellite::GOES_15))
+    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::GOES_15))
     {
         pixelsRed = new quint16[npix];
         for( int i = 0; i < 7 ; i++)
@@ -2085,7 +2082,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
             imageptrs->CLAHE(pixelsRed, 3712, 3*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
-        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_13 || sl->getGeoSatellite() == eGeoSatellite::GOES_15)
+        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_15)
             imageptrs->CLAHE(pixelsRed, 2816, 464*7, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::GOMS2)
         {
@@ -2252,7 +2249,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_13 || sl->getGeoSatellite() == eGeoSatellite::GOES_15)
+        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_15)
         {
             for(int i = 0 ; i < 7; i++)
             {

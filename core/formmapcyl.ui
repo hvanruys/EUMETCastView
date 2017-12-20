@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1099</width>
-    <height>899</height>
+    <height>907</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
      <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabEumetcast">
         <attribute name="title">
@@ -268,7 +268,7 @@
          <item>
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>SLSTR</string>
+            <string>SLSTR (only via Scihub/CODA)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -668,7 +668,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0,0">
+             <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0,0,0">
               <item>
                <spacer name="horizontalSpacer_5">
                 <property name="orientation">
@@ -683,10 +683,23 @@
                </spacer>
               </item>
               <item>
+               <widget class="QPushButton" name="btnDownloadQuicklook">
+                <property name="minimumSize">
+                 <size>
+                  <width>130</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Download Quicklooks</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="btnDownloadProduct">
                 <property name="minimumSize">
                  <size>
-                  <width>200</width>
+                  <width>130</width>
                   <height>30</height>
                  </size>
                 </property>
@@ -697,7 +710,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Start Download Products</string>
+                 <string>Download Products</string>
                 </property>
                </widget>
               </item>

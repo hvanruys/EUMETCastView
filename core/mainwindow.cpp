@@ -23,10 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
-    //restoreGeometry( opts.mainwindowgeometry);
-    //restoreState( opts.windowstate );
-
     setupStatusBar();
 
     satlist = new SatelliteList();

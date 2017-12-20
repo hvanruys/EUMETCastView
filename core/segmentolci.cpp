@@ -554,7 +554,6 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
                     active_pixels[k]++;
                 }
-
             }
         }
     }

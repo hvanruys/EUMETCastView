@@ -774,10 +774,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString( "Nbr of items in segmentlist GOMS2      = %1").arg(segmentlistmapgeo[3].size());
     qDebug() << QString( "Nbr of items in segmentlist FY2E       = %1").arg(segmentlistmapgeo[4].size());
     qDebug() << QString( "Nbr of items in segmentlist FY2G       = %1").arg(segmentlistmapgeo[5].size());
-    qDebug() << QString( "Nbr of items in segmentlist GOES-13    = %1").arg(segmentlistmapgeo[6].size());
-    qDebug() << QString( "Nbr of items in segmentlist GOES-15    = %1").arg(segmentlistmapgeo[7].size());
-    qDebug() << QString( "Nbr of items in segmentlist GOES-16    = %1").arg(segmentlistmapgeo[8].size());
-    qDebug() << QString( "Nbr of items in segmentlist Himawari-8 = %1").arg(segmentlistmapgeo[9].size());
+    qDebug() << QString( "Nbr of items in segmentlist GOES-15    = %1").arg(segmentlistmapgeo[6].size());
+    qDebug() << QString( "Nbr of items in segmentlist GOES-16    = %1").arg(segmentlistmapgeo[7].size());
+    qDebug() << QString( "Nbr of items in segmentlist Himawari-8 = %1").arg(segmentlistmapgeo[8].size());
 
     QString strtot = QString("Total segments = %1").arg(slmetop->count()+slnoaa->count()+slgac->count()+slhrp->count()+slviirsm->count()
                                                         +slolciefr->count()+slolcierr->count()+slslstr->count() +
@@ -786,8 +785,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                                                         segmentlistmapgeo[4].size() + segmentlistmapgeo[5].size() +
                                                         segmentlistmapgeo[6].size() +
                                                         segmentlistmapgeo[7].size() +
-                                                        segmentlistmapgeo[8].size() +
-                                                        segmentlistmapgeo[9].size());
+                                                        segmentlistmapgeo[8].size());
     emit signalResetProgressbar(1, strtot);
     emit signalShowSegmentCount();
 }

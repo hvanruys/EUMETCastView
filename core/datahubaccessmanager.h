@@ -20,7 +20,7 @@ public:
     DatahubAccessManager();
     void DownloadXML(int nbrofpages, eDatahub hub);
     void DownloadXML(QDate selectdate, eDatahub hub);
-    void DownloadProduct(QList<ProductList> prodlist, int index, eDatahub hub, int whichdownload);
+    void DownloadProduct(QList<ProductList> prodlist, int index, eDatahub hub, int whichdownload, bool quicklook);
     void CancelDownload();
     int getWhichDownload() { return whichdownload; }
     int getDownloadIndex() { return downloadindex; }
@@ -55,11 +55,12 @@ private:
     eDatahub hub;
     int whichdownload;
     int downloadindex;
+    bool quicklook;
 
 
 signals:
     void productProgress(qint64 bytesReceived, qint64 bytesTotal, int whichdownload);
-    void productFinished(int whichdownload, int downloadindex);
+    void productFinished(int whichdownload, int downloadindex, bool quicklook);
     void XMLFinished(QString selectdate);
     void XMLProgress(int pages);
 };

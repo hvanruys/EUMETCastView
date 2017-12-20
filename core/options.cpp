@@ -82,9 +82,6 @@ void Options::Initialize()
     }
 
 
-    geostationarylistlon = settings.value( "/satellite/geostationarylistlon" ).value<QStringList>();
-    geostationarylistname = settings.value( "/satellite/geostationarylistname" ).value<QStringList>();
-
     segmentdirectorylist = settings.value( "/satellite/segmentdirectories" ).value<QStringList>();
     segmentdirectorylistinc = settings.value( "/satellite/segmentdirectoriesinc" ).value<QStringList>();
     realminutesshown=settings.value("/satellite/minutesshown", 10).toInt();
@@ -161,9 +158,6 @@ void Options::Initialize()
     graytextureOn = settings.value("/window/graytextureon", false ).toBool();
     ephemsplittersizes = settings.value("/ephemwindow/splitterSizes").toByteArray(); // .value<QByteArray>();
 
-    //mainwindowgeometry = settings.value("/window/mainwindowgeometry").value<QByteArray>();
-    //windowstate = settings.value("/window/windowstate").value<QByteArray>();
-
     zoomfactoravhrr = settings.value("/window/zoomfactoravhrr", 100).toInt();
     if( zoomfactoravhrr < 5 || zoomfactoravhrr > 500 )
         zoomfactoravhrr = 100;
@@ -231,30 +225,6 @@ void Options::Initialize()
     dnbsbvalue = settings.value("/dnb/dnbsbvalue", -209 ).toInt();
     dnbspbwindowsvalue = settings.value("/dnb/dnbspbwindowsvalue", 3 ).toInt();
 
-//    lastcomboMet006 = settings.value("/window/comboMet006", 0 ).toInt();;
-//    lastcomboMet008 = settings.value("/window/comboMet008", 0 ).toInt();
-//    lastcomboMet016 = settings.value("/window/comboMet016", 0 ).toInt();
-//    lastcomboMet039 = settings.value("/window/comboMet039", 0 ).toInt();
-//    lastcomboMet062 = settings.value("/window/comboMet062", 0 ).toInt();
-//    lastcomboMet073 = settings.value("/window/comboMet073", 0 ).toInt();
-//    lastcomboMet087 = settings.value("/window/comboMet087", 0 ).toInt();
-//    lastcomboMet097 = settings.value("/window/comboMet097", 0 ).toInt();
-//    lastcomboMet108 = settings.value("/window/comboMet108", 0 ).toInt();
-//    lastcomboMet120 = settings.value("/window/comboMet120", 0 ).toInt();
-//    lastcomboMet134 = settings.value("/window/comboMet134", 0 ).toInt();
-
-
-//    lastinverseMet006 = settings.value("/window/inverseMet006", false ).toBool();;
-//    lastinverseMet008 = settings.value("/window/inverseMet008", false ).toBool();
-//    lastinverseMet016 = settings.value("/window/inverseMet016", false ).toBool();
-//    lastinverseMet039 = settings.value("/window/inverseMet039", false ).toBool();
-//    lastinverseMet062 = settings.value("/window/inverseMet062", false ).toBool();
-//    lastinverseMet073 = settings.value("/window/inverseMet073", false ).toBool();
-//    lastinverseMet087 = settings.value("/window/inverseMet087", false ).toBool();
-//    lastinverseMet097 = settings.value("/window/inverseMet097", false ).toBool();
-//    lastinverseMet108 = settings.value("/window/inverseMet108", false ).toBool();
-//    lastinverseMet120 = settings.value("/window/inverseMet120", false ).toBool();
-//    lastinverseMet134 = settings.value("/window/inverseMet134", false ).toBool();
 
     colormapMagma = settings.value("/projection/colormapmagma", false ).toBool();
     colormapInferno = settings.value("/projection/colormapinferno", false ).toBool();
@@ -283,49 +253,6 @@ void Options::Initialize()
 
     CreateGeoSatelliteIni();
 
-//    QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
-//    int size = settingsgeo.beginReadArray("geos");
-//    for (int i = 0; i < size; ++i) {
-//        settingsgeo.setArrayIndex(i);
-//        GeoSatellites sats;
-//        sats.fullname = settingsgeo.value("fullname", "").toString();
-//        sats.shortname = settingsgeo.value("shortname", "").toString();
-//        sats.longitude = settingsgeo.value("longitude", 0.0).toDouble();
-//        sats.protocol = settingsgeo.value("protocol", "").toString();
-//        sats.rss = settingsgeo.value("rss", false).toBool();
-//        sats.searchstring = settingsgeo.value("searchstring", "").toString();
-//        sats.indexsearchstring = settingsgeo.value("indexsearchstring", 0).toInt();
-//        sats.filepattern = settingsgeo.value("filepattern", "").toString();
-//        sats.imagewidth = settingsgeo.value("imagewidth", 0).toInt();
-//        sats.imageheight = settingsgeo.value("imageheight", 0).toInt();
-
-//        sats.spectrumlist = settingsgeo.value("spectrumlist").value<QStringList>();
-//        sats.spectrumvalueslist = settingsgeo.value("spectrumvalueslist").value<QStringList>();
-//        sats.indexspectrum = settingsgeo.value("indexspectrum").toInt();
-//        sats.indexfilenbr = settingsgeo.value("indexfilenbr").toInt();
-//        sats.lengthfilenbr = settingsgeo.value("lengthfilenbr").toInt();
-//        sats.indexdate = settingsgeo.value("indexdate").toInt();
-//        sats.lengthdate = settingsgeo.value("lengthdate").toInt();
-//        sats.spectrumhrv = settingsgeo.value("spectrumhrv", "").toString();
-//        sats.spectrumvaluehrv = settingsgeo.value("spectrumvaluehrv", "").toString();
-//        sats.indexspectrumhrv = settingsgeo.value("indexspectrumhrv", 0).toInt();
-//        sats.indexfilenbrhrv = settingsgeo.value("indexfilenbrhrv", 0).toInt();
-//        sats.lengthfilenbrhrv = settingsgeo.value("lengthfilenbrhrv", 0).toInt();
-//        sats.indexdatehrv = settingsgeo.value("indexdatehrv", 0).toInt();
-//        sats.lengthdatehrv = settingsgeo.value("lengthdatehrv", 0).toInt();
-
-//        sats.color = settingsgeo.value("color", false).toBool();
-//        sats.maxsegments = settingsgeo.value("maxsegments", 0).toInt();
-//        sats.maxsegmentshrv = settingsgeo.value("maxsegmentshrv", 0).toInt();
-//        sats.startsegmentnbrtype0 = settingsgeo.value("startsegmenttype0", 0).toInt();
-//        sats.startsegmentnbrhrvtype0 = settingsgeo.value("startsegmenthrvtype0", 0).toInt();
-//        sats.startsegmentnbrtype1 = settingsgeo.value("startsegmenttype1", 0).toInt();
-//        sats.startsegmentnbrhrvtype1 = settingsgeo.value("startsegmenthrvtype1", 0).toInt();
-//        sats.prologfile = settingsgeo.value("prologfile", false).toBool();
-//        sats.epilogfile = settingsgeo.value("epilogfile", false0).toBool();
-//        geosatellites.append(sats);
-//    }
-//    settingsgeo.endArray();
 }
 
 void Options::checkStringListValues()
@@ -351,15 +278,6 @@ void Options::checkStringListValues()
                           "-20.91" << "55.759" << "23.59" << "69.65" << "21.33" << "25.74" << "-75.166667" << "37.815";
     }
 
-
-
-    //if(geostationarylistname.count() == 0)
-    {
-        geostationarylistname.clear();
-        geostationarylistlon.clear();
-        geostationarylistname << "Meteosat-10" << "Meteosat-9" << "Meteosat-8" << "GOMS2" << "FY2E" << "FY2G" << "GOES13" << "GOES15" << "GOES-16" << "Himawari-8";
-        geostationarylistlon << "0.0" << "9.5" << "41.5" << "76.1" << "86.5" << "104.5" << "-74.9" << "-135.2" << "-89.5" << "140.7";
-    }
 
     if(tlesources.count() == 0)
     {
@@ -523,9 +441,6 @@ void Options::Save()
 
     settings.setValue("/ephemwindow/splitterSizes", ephemsplittersizes );
 
-    //settings.setValue("/window/mainwindowgeometry", mainwindowgeometry );
-    //settings.setValue("/window/windowstate", windowstate );
-
     settings.setValue("/window/zoomfactoravhrr", zoomfactoravhrr );
     settings.setValue("/window/zoomfactormeteosat", zoomfactormeteosat );
     settings.setValue("/window/zoomfactorprojection", zoomfactorprojection );
@@ -578,33 +493,6 @@ void Options::Save()
     settings.setValue("/parameters/yawcorrection", yawcorrection);
     settings.setValue("/parameters/clahecliplimit", clahecliplimit);
 
-    settings.setValue( "/satellite/geostationarylistlon", geostationarylistlon );
-    settings.setValue( "/satellite/geostationarylistname", geostationarylistname );
-
-//    settings.setValue( "/window/comboMet006", lastcomboMet006);
-//    settings.setValue( "/window/comboMet008", lastcomboMet008);
-//    settings.setValue( "/window/comboMet016", lastcomboMet016);
-//    settings.setValue( "/window/comboMet039", lastcomboMet039);
-//    settings.setValue( "/window/comboMet062", lastcomboMet062);
-//    settings.setValue( "/window/comboMet073", lastcomboMet073);
-//    settings.setValue( "/window/comboMet087", lastcomboMet087);
-//    settings.setValue( "/window/comboMet097", lastcomboMet097);
-//    settings.setValue( "/window/comboMet108", lastcomboMet108);
-//    settings.setValue( "/window/comboMet120", lastcomboMet120);
-//    settings.setValue( "/window/comboMet134", lastcomboMet134);
-
-//    settings.setValue( "/window/inverseMet006", lastinverseMet006);
-//    settings.setValue( "/window/inverseMet008", lastinverseMet008);
-//    settings.setValue( "/window/inverseMet016", lastinverseMet016);
-//    settings.setValue( "/window/inverseMet039", lastinverseMet039);
-//    settings.setValue( "/window/inverseMet062", lastinverseMet062);
-//    settings.setValue( "/window/inverseMet073", lastinverseMet073);
-//    settings.setValue( "/window/inverseMet087", lastinverseMet087);
-//    settings.setValue( "/window/inverseMet097", lastinverseMet097);
-//    settings.setValue( "/window/inverseMet108", lastinverseMet108);
-//    settings.setValue( "/window/inverseMet120", lastinverseMet120);
-//    settings.setValue( "/window/inverseMet134", lastinverseMet134);
-
     settings.setValue( "/window/lastinputprojection", lastinputprojection );
     settings.setValue( "/window/viirsband", lastVIIRSband);
 
@@ -635,7 +523,7 @@ void Options::CreateGeoSatelliteIni()
     QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
 
     GeoSatellites sat;
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 9; i++)
         geosatellites.append(sat);
 
 
@@ -944,17 +832,16 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[5].spectrumvalueslist << "VIS 0.7" << "IR 3.7" << "IR 6.9" << "IR 10.8" << "IR 12.0";
 
     // Data Channel 3 & 4
-    geosatellites[6].fullname = "GOES 13";
-    geosatellites[6].shortname = "GOES_13";
-    geosatellites[6].longitude = -74.9;
+    geosatellites[6].fullname = "GOES 15";
+    geosatellites[6].shortname = "GOES_15";
+    geosatellites[6].longitude = -135.2;
     geosatellites[6].longitudelimit1 = 0.0;
     geosatellites[6].longitudelimit2 = 0.0;
     geosatellites[6].protocol = "XRIT";
     geosatellites[6].rss = false;
-    geosatellites[6].searchstring = "L-000-MSG3__-GOES13______";
+    geosatellites[6].searchstring = "L-000-MSG3__-GOES15______";
     geosatellites[6].indexsearchstring = 0;
-    geosatellites[6].filepattern = "L-???-??????-GOES13*%1-C_";
-
+    geosatellites[6].filepattern = "L-???-??????-GOES15*%1-C_";
     geosatellites[6].imagewidth = 2816;
     geosatellites[6].imageheight = 3248;
     geosatellites[6].imagewidthhrv0 = 0;
@@ -966,7 +853,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[6].indexfilenbr = 36;
     geosatellites[6].lengthfilenbr = 6;
     geosatellites[6].indexdate = 46;
-    geosatellites[6].lengthdate = 12;
+    geosatellites[6].lengthdate = 12; //YYYYMMDDHHmm
 
     geosatellites[6].spectrumhrv = "";
     geosatellites[6].spectrumvaluehrv = "";
@@ -998,29 +885,30 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[6].spectrumlist << "00_7" << "03_9" << "06_6" << "10_7";
     geosatellites[6].spectrumvalueslist << "VIS 0.7" << "IR 3.9" << "IR 6.6" << "IR 10.7";
 
-    // Data Channel 3 & 4
-    geosatellites[7].fullname = "GOES 15";
-    geosatellites[7].shortname = "GOES_15";
-    geosatellites[7].longitude = -135.2;
-    geosatellites[7].longitudelimit1 = 0.0;
-    geosatellites[7].longitudelimit2 = 0.0;
-    geosatellites[7].protocol = "XRIT";
+    geosatellites[7].fullname = "GOES 16";
+    geosatellites[7].shortname = "GOES_16";
+    geosatellites[7].longitude = -75.0;
+    geosatellites[7].longitudelimit1 = -154.4;
+    geosatellites[7].longitudelimit2 = -45.0;
+    geosatellites[7].protocol = "netCDF";
     geosatellites[7].rss = false;
-    geosatellites[7].searchstring = "L-000-MSG3__-GOES15______";
+    geosatellites[7].searchstring = "OR_ABI";
     geosatellites[7].indexsearchstring = 0;
-    geosatellites[7].filepattern = "L-???-??????-GOES15*%1-C_";
-    geosatellites[7].imagewidth = 2816;
-    geosatellites[7].imageheight = 3248;
+    geosatellites[7].imagewidth = 5424;
+    geosatellites[7].imageheight = 5424;
     geosatellites[7].imagewidthhrv0 = 0;
     geosatellites[7].imageheighthrv0 = 0;
     geosatellites[7].imagewidthhrv1 = 0;
     geosatellites[7].imageheighthrv1 = 0;
 
-    geosatellites[7].indexspectrum = 26;
-    geosatellites[7].indexfilenbr = 36;
-    geosatellites[7].lengthfilenbr = 6;
-    geosatellites[7].indexdate = 46;
-    geosatellites[7].lengthdate = 12; //YYYYMMDDHHmm
+    //0123456789012345678901234567890123456789012345678901234567890123456789012
+    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+
+    geosatellites[7].indexspectrum = 18;
+    geosatellites[7].indexfilenbr = 0;
+    geosatellites[7].lengthfilenbr = 0;
+    geosatellites[7].indexdate = 27;
+    geosatellites[7].lengthdate = 11; //YYYYDDDHHmm
 
     geosatellites[7].spectrumhrv = "";
     geosatellites[7].spectrumvaluehrv = "";
@@ -1030,52 +918,52 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].indexdatehrv = 0;
     geosatellites[7].lengthdatehrv = 0;
 
-    geosatellites[7].color = false;
-    geosatellites[7].maxsegments = 7;
+    geosatellites[7].color = true;
+    geosatellites[7].maxsegments = 1;
     geosatellites[7].maxsegmentshrv = 0;
     geosatellites[7].startsegmentnbrtype0 = 0;
     geosatellites[7].startsegmentnbrhrvtype0 = 0;
     geosatellites[7].startsegmentnbrtype1 = 0;
     geosatellites[7].startsegmentnbrhrvtype1 = 0;
-    geosatellites[7].prologfile = true;
+    geosatellites[7].prologfile = false;
     geosatellites[7].epilogfile = false;
-    geosatellites[7].coff = 1408;
-    geosatellites[7].loff = 1408;
-    geosatellites[7].cfac = 585352820.;
-    geosatellites[7].lfac = 585352820.;
+    geosatellites[7].coff = 2712;
+    geosatellites[7].loff = 2712;
+    geosatellites[7].cfac = 1170000000.;
+    geosatellites[7].lfac = 1170000000.;
     geosatellites[7].coffhrv = 0;
     geosatellites[7].loffhrv = 0;
     geosatellites[7].cfachrv = 0.;
     geosatellites[7].lfachrv = 0.;
 
 
-    geosatellites[7].spectrumlist << "00_7" << "03_9" << "06_6" << "10_7";
-    geosatellites[7].spectrumvalueslist << "VIS 0.7" << "IR 3.9" << "IR 6.6" << "IR 10.7";
+    geosatellites[7].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
+    geosatellites[7].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
+                                        << "12.3" << "13.3";
 
-    geosatellites[8].fullname = "GOES 16";
-    geosatellites[8].shortname = "GOES_16";
-    geosatellites[8].longitude = -89.5;
-    geosatellites[8].longitudelimit1 = -154.4;
-    geosatellites[8].longitudelimit2 = -45.0;
-    geosatellites[8].protocol = "netCDF";
+    //E1B-TPG-1
+    geosatellites[8].fullname = "Himawari 8";
+    geosatellites[8].shortname = "H8";
+    geosatellites[8].longitude = 140.7;
+    geosatellites[8].longitudelimit1 = 92.0;
+    geosatellites[8].longitudelimit2 = 205.6;
+    geosatellites[8].protocol = "XRIT";
     geosatellites[8].rss = false;
-    geosatellites[8].searchstring = "OR_ABI";
+    geosatellites[8].searchstring = "IMG_DK01";
     geosatellites[8].indexsearchstring = 0;
-    geosatellites[8].imagewidth = 5424;
-    geosatellites[8].imageheight = 5424;
+    geosatellites[8].filepattern = "IMG_DK01???_%1*";
+    geosatellites[8].imagewidth = 5500;
+    geosatellites[8].imageheight = 5500;
     geosatellites[8].imagewidthhrv0 = 0;
     geosatellites[8].imageheighthrv0 = 0;
     geosatellites[8].imagewidthhrv1 = 0;
     geosatellites[8].imageheighthrv1 = 0;
 
-    //0123456789012345678901234567890123456789012345678901234567890123456789012
-    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
-
-    geosatellites[8].indexspectrum = 18;
-    geosatellites[8].indexfilenbr = 0;
-    geosatellites[8].lengthfilenbr = 0;
-    geosatellites[8].indexdate = 27;
-    geosatellites[8].lengthdate = 11; //YYYYDDDHHmm
+    geosatellites[8].indexspectrum = 8;
+    geosatellites[8].indexfilenbr = 25;
+    geosatellites[8].lengthfilenbr = 3;
+    geosatellites[8].indexdate = 12;
+    geosatellites[8].lengthdate = 11;
 
     geosatellites[8].spectrumhrv = "";
     geosatellites[8].spectrumvaluehrv = "";
@@ -1086,7 +974,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].lengthdatehrv = 0;
 
     geosatellites[8].color = true;
-    geosatellites[8].maxsegments = 1;
+    geosatellites[8].maxsegments = 10;
     geosatellites[8].maxsegmentshrv = 0;
     geosatellites[8].startsegmentnbrtype0 = 0;
     geosatellites[8].startsegmentnbrhrvtype0 = 0;
@@ -1094,73 +982,18 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].startsegmentnbrhrvtype1 = 0;
     geosatellites[8].prologfile = false;
     geosatellites[8].epilogfile = false;
-    geosatellites[8].coff = 2712;
-    geosatellites[8].loff = 2712;
-    geosatellites[8].cfac = 1170000000.;
-    geosatellites[8].lfac = 1170000000.;
+    geosatellites[8].coff = 2750;
+    geosatellites[8].loff = 2750;
+    geosatellites[8].cfac = 1172050000.;
+    geosatellites[8].lfac = 1172050000.;
     geosatellites[8].coffhrv = 0;
     geosatellites[8].loffhrv = 0;
     geosatellites[8].cfachrv = 0.;
     geosatellites[8].lfachrv = 0.;
 
 
-    geosatellites[8].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
-    geosatellites[8].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
-                                        << "12.3" << "13.3";
-
-    //E1B-TPG-1
-    geosatellites[9].fullname = "Himawari 8";
-    geosatellites[9].shortname = "H8";
-    geosatellites[9].longitude = 140.7;
-    geosatellites[9].longitudelimit1 = 92.0;
-    geosatellites[9].longitudelimit2 = 205.6;
-    geosatellites[9].protocol = "XRIT";
-    geosatellites[9].rss = false;
-    geosatellites[9].searchstring = "IMG_DK01";
-    geosatellites[9].indexsearchstring = 0;
-    geosatellites[9].filepattern = "IMG_DK01???_%1*";
-    geosatellites[9].imagewidth = 5500;
-    geosatellites[9].imageheight = 5500;
-    geosatellites[9].imagewidthhrv0 = 0;
-    geosatellites[9].imageheighthrv0 = 0;
-    geosatellites[9].imagewidthhrv1 = 0;
-    geosatellites[9].imageheighthrv1 = 0;
-
-    geosatellites[9].indexspectrum = 8;
-    geosatellites[9].indexfilenbr = 25;
-    geosatellites[9].lengthfilenbr = 3;
-    geosatellites[9].indexdate = 12;
-    geosatellites[9].lengthdate = 11;
-
-    geosatellites[9].spectrumhrv = "";
-    geosatellites[9].spectrumvaluehrv = "";
-    geosatellites[9].indexspectrumhrv = 0;
-    geosatellites[9].indexfilenbrhrv = 0;
-    geosatellites[9].lengthfilenbrhrv = 0;
-    geosatellites[9].indexdatehrv = 0;
-    geosatellites[9].lengthdatehrv = 0;
-
-    geosatellites[9].color = true;
-    geosatellites[9].maxsegments = 10;
-    geosatellites[9].maxsegmentshrv = 0;
-    geosatellites[9].startsegmentnbrtype0 = 0;
-    geosatellites[9].startsegmentnbrhrvtype0 = 0;
-    geosatellites[9].startsegmentnbrtype1 = 0;
-    geosatellites[9].startsegmentnbrhrvtype1 = 0;
-    geosatellites[9].prologfile = false;
-    geosatellites[9].epilogfile = false;
-    geosatellites[9].coff = 2750;
-    geosatellites[9].loff = 2750;
-    geosatellites[9].cfac = 1172050000.;
-    geosatellites[9].lfac = 1172050000.;
-    geosatellites[9].coffhrv = 0;
-    geosatellites[9].loffhrv = 0;
-    geosatellites[9].cfachrv = 0.;
-    geosatellites[9].lfachrv = 0.;
-
-
-    geosatellites[9].spectrumlist << "VIS" << "B04" << "B05" << "B06" << "IR4" << "IR3" << "B09" << "B10" << "B11" << "B12" << "IR1" << "B14" << "IR2" << "B16";
-    geosatellites[9].spectrumvalueslist << "0.64" << "0.86" << "1.6" << "2.3" << "3.9" << "6.2" << "6.9" << "7.3" << "8.6" << "9.6" << "10.4" << "11.2" << "12.4" << "13.3";
+    geosatellites[8].spectrumlist << "VIS" << "B04" << "B05" << "B06" << "IR4" << "IR3" << "B09" << "B10" << "B11" << "B12" << "IR1" << "B14" << "IR2" << "B16";
+    geosatellites[8].spectrumvalueslist << "0.64" << "0.86" << "1.6" << "2.3" << "3.9" << "6.2" << "6.9" << "7.3" << "8.6" << "9.6" << "10.4" << "11.2" << "12.4" << "13.3";
 
     settingsgeo.beginWriteArray("geos");
     for (int i = 0; i < this->geosatellites.size(); ++i) {

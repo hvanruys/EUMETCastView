@@ -148,9 +148,6 @@ public:
     QStringList stationlistlon;
     QStringList stationlistlat;
 
-    QStringList geostationarylistlon;
-    QStringList geostationarylistname;
-
     QString segmenttype;
     QString backgroundimage2D;
     QString backgroundimage3D;
@@ -243,36 +240,9 @@ public:
 
     QByteArray ephemsplittersizes;
 
-    //QByteArray mainwindowgeometry;
-    //QByteArray windowstate;
-
     QString localdirremote;
     QString dirremote;
 	double obslat, obslon, obsalt;
-
-//    int lastcomboMet006;
-//    int lastcomboMet008;
-//    int lastcomboMet016;
-//    int lastcomboMet039;
-//    int lastcomboMet062;
-//    int lastcomboMet073;
-//    int lastcomboMet087;
-//    int lastcomboMet097;
-//    int lastcomboMet108;
-//    int lastcomboMet120;
-//    int lastcomboMet134;
-
-//    bool lastinverseMet006;
-//    bool lastinverseMet008;
-//    bool lastinverseMet016;
-//    bool lastinverseMet039;
-//    bool lastinverseMet062;
-//    bool lastinverseMet073;
-//    bool lastinverseMet087;
-//    bool lastinverseMet097;
-//    bool lastinverseMet108;
-//    bool lastinverseMet120;
-//    bool lastinverseMet134;
 
     int lastinputprojection;
     int lastVIIRSband;

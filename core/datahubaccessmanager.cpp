@@ -100,6 +100,7 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
     //QUrl url = QUrl("https://scihub.copernicus.eu/s3/odata/v1/Products");
     //QUrl url = QUrl("https://coda.eumetsat.int/odata/v1/Products?$select=Id&$filter=substringof(%2720170131T185414%27,Name)");
     //https://scihub.copernicus.eu/s3/odata/v1/Products?$filter=substringof(%27S3A_OL_1_EFR____20170131T%27,Name)&$skip=400&$top=100
+    //https://coda.eumetsat.int/odata/v1/Products('6b0ab72a-858f-41a0-862d-549dfdd15b59')/Products('Quicklook')/$value
 
     QDomElement root = docout.createElement("Segments");
     docout.appendChild(root);
@@ -281,8 +282,10 @@ bool DatahubAccessManager::appendToOutDocument()
         QDomNodeList namelist = propertyelement.elementsByTagName("d:Name");
         //qDebug() << "nbr of name " << namelist.count();
         QDomElement nameelement = namelist.at(0).toElement();
+
         QDomNodeList idlist = propertyelement.elementsByTagName("d:Id");
         QDomElement idelement = idlist.at(0).toElement();
+
         QDomNodeList contentlist = propertyelement.elementsByTagName("d:ContentLength");
         QDomElement contentelement = contentlist.at(0).toElement();
         //qDebug() << i << " " << nameelement.text() << " " << idelement.text() << " " << contentelement.text();
@@ -362,22 +365,32 @@ QString DatahubAccessManager::extractFootprint(QString footprint)
         return("");
 }
 
-void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int index, eDatahub hub, int whichdownload)
+void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int index, eDatahub hub, int whichdownload, bool quicklook)
 {
 
     isAborted = false;
     isProductBusy = true;
     this->whichdownload = whichdownload;
     this->downloadindex = index;
+    this->quicklook = quicklook;
 
     this->filename = prodlist.at(index).productname;
     QString strurl;
 
     if(hub == HUBESA)
-        strurl = QString("https://scihub.copernicus.eu/s3/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
+    {
+        if(quicklook)
+            strurl = QString("https://scihub.copernicus.eu/s3/odata/v1/Products('%1')/Products('Quicklook')/$value").arg(prodlist.at(index).uuid);
+        else
+            strurl = QString("https://scihub.copernicus.eu/s3/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
+    }
     else
-        strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
-
+    {
+        if(quicklook)
+            strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/Products('Quicklook')/$value").arg(prodlist.at(index).uuid);
+        else
+            strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
+    }
     qDebug() << strurl;
 
     QUrl url(strurl);
@@ -437,9 +450,16 @@ void DatahubAccessManager::slotFinishedProduct()
 
         QString dirpath;
         if(opts.productdirectory.isEmpty())
-            dirpath = QCoreApplication::applicationDirPath() + "/" + filename + ".zip";
+            dirpath = QCoreApplication::applicationDirPath() + "/" + filename + (quicklook ? ".jpg" : ".zip");
         else
-            dirpath = opts.productdirectory + "/" + filename + ".zip";
+            dirpath = opts.productdirectory + "/" + filename + (quicklook ? ".jpg" : ".zip");
+
+        if(quicklook)
+        {
+            QImage img = QImage::fromData(*m_pBuffer,"JPG");
+            img.save(opts.productdirectory + "/" + "myimage.jpg");
+        }
+
         QFile file(dirpath);
 
         if(file.open(QIODevice::WriteOnly))
@@ -456,7 +476,7 @@ void DatahubAccessManager::slotFinishedProduct()
 
     m_pBuffer->clear();
     isProductBusy = false;
-    emit productFinished(whichdownload, downloadindex);
+    emit productFinished(whichdownload, downloadindex, quicklook);
 
 }
 

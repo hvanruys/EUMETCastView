@@ -791,6 +791,8 @@ void FormMapCyl::RemoveAllSelected()
 
     mapcyl->update();
     showSegmentCount();
+    ui->twSelectedProducts->clearContents();
+    ui->twSelectedProducts->setRowCount(0);
 
 }
 
@@ -940,6 +942,15 @@ void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
     formtoolbox->setTabWidgetVIIRSIndex(0);
     toggleButton(eSegmentType::SEG_VIIRSM);
     segs->RemoveAllSelectedAVHRR();
+    segs->RemoveAllSelectedOLCIefr();
+    segs->RemoveAllSelectedOLCIerr();
+    segs->RemoveAllSelectedSLSTR();
+    segs->RemoveAllSelectedDatahubOLCIefr();
+    segs->RemoveAllSelectedDatahubOLCIerr();
+    segs->RemoveAllSelectedDatahubSLSTR();
+
+
+
     mapcyl->update();
     this->showSegmentCount();
     this->setScrollBarMaximum();
@@ -952,6 +963,14 @@ void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
     formtoolbox->setTabWidgetVIIRSIndex(1);
     toggleButton(eSegmentType::SEG_VIIRSDNB);
     segs->RemoveAllSelectedAVHRR();
+    segs->RemoveAllSelectedOLCIefr();
+    segs->RemoveAllSelectedOLCIerr();
+    segs->RemoveAllSelectedSLSTR();
+    segs->RemoveAllSelectedDatahubOLCIefr();
+    segs->RemoveAllSelectedDatahubOLCIerr();
+    segs->RemoveAllSelectedDatahubSLSTR();
+
+
     mapcyl->update();
     this->showSegmentCount();
     this->setScrollBarMaximum();
@@ -964,8 +983,8 @@ void FormMapCyl::on_btnOLCIefr_clicked()
     formtoolbox->setTabWidgetSentinelIndex(0);
     toggleButton(eSegmentType::SEG_OLCIEFR);
     this->RemoveAllSelected();
-    mapcyl->update();
-    this->showSegmentCount();
+//    mapcyl->update();
+//    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -977,8 +996,8 @@ void FormMapCyl::on_btnOLCIerr_clicked()
     formtoolbox->setTabWidgetSentinelIndex(0);
     toggleButton(eSegmentType::SEG_OLCIERR);
     this->RemoveAllSelected();
-    mapcyl->update();
-    this->showSegmentCount();
+//    mapcyl->update();
+//    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -990,8 +1009,8 @@ void FormMapCyl::on_btnSLSTR_clicked()
     formtoolbox->setTabWidgetSentinelIndex(1);
     toggleButton(eSegmentType::SEG_SLSTR);
     this->RemoveAllSelected();
-    mapcyl->update();
-    this->showSegmentCount();
+//    mapcyl->update();
+//    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -1056,11 +1075,21 @@ void FormMapCyl::on_btnDownloadProduct_clicked()
     if(todownloadlist.count() ==  0)
         return;
 
-    SearchForFreeManager();
+    SearchForFreeManager(false);
 
 }
 
-void FormMapCyl::SearchForFreeManager()
+void FormMapCyl::on_btnDownloadQuicklook_clicked()
+{
+
+    if(todownloadlist.count() ==  0)
+        return;
+
+    SearchForFreeManager(true);
+
+}
+
+void FormMapCyl::SearchForFreeManager(bool quicklook)
 {
     eDatahub hub;
     if(opts.provideresaoreumetsat)
@@ -1080,7 +1109,7 @@ void FormMapCyl::SearchForFreeManager()
                 QObject::connect(&hubmanagerprod1, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
                 QObject::connect(&hubmanagerprod1, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
                 todownloadlist[i].status = "busy";
-                hubmanagerprod1.DownloadProduct(todownloadlist, i, hub, 0 );
+                hubmanagerprod1.DownloadProduct(todownloadlist, i, hub, 0, quicklook);
                 showSelectedSegmentToDownloadList();
             }
             else if(!hubmanagerprod2.isProductDownloadBusy())
@@ -1090,7 +1119,7 @@ void FormMapCyl::SearchForFreeManager()
                 QObject::connect(&hubmanagerprod2, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
                 QObject::connect(&hubmanagerprod2, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
                 todownloadlist[i].status = "busy";
-                hubmanagerprod2.DownloadProduct(todownloadlist, i, hub, 1 );
+                hubmanagerprod2.DownloadProduct(todownloadlist, i, hub, 1, quicklook );
                 showSelectedSegmentToDownloadList();
             }
         }
@@ -1101,6 +1130,7 @@ void FormMapCyl::SearchForFreeManager()
         if(todownloadlist.at(i).status == "busy")
         {
             ui->btnDownloadProduct->setEnabled(false);
+            ui->btnDownloadQuicklook->setEnabled(false);
             break;
         }
     }
@@ -1121,7 +1151,7 @@ void FormMapCyl::productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
     }
 }
 
-void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex)
+void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, bool quicklook)
 {
     if(whichdownload == 0)
     {
@@ -1133,7 +1163,6 @@ void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex)
     else
     {
         qDebug() << "FormMapCyl::productFileDownloaded whichdownload = 1";
-
         QObject::disconnect(&hubmanagerprod2, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
         QObject::disconnect(&hubmanagerprod2, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
         ui->pbProduct2->setValue(0);
@@ -1150,10 +1179,11 @@ void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex)
     if((!hubmanagerprod1.isProductDownloadBusy()) && (!hubmanagerprod2.isProductDownloadBusy()))
     {
         ui->btnDownloadProduct->setEnabled(true);
+        ui->btnDownloadQuicklook->setEnabled(true);
         ui->btnCancelDownloadProduct->setEnabled(true);
     }
 
-    SearchForFreeManager();
+    SearchForFreeManager(quicklook);
 
 }
 

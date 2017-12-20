@@ -46,7 +46,7 @@ private:
     QList<ProductList> todownloadlist;
 
     void RemoveAllSelected();
-    void SearchForFreeManager();
+    void SearchForFreeManager(bool quicklook);
     void SetAllButtonsToFalse();
     void showSelectedSegmentToDownloadList();
 
@@ -59,7 +59,7 @@ private slots:
     void slotShowSegmentCount();
     void createSelectedSegmentToDownloadList();
 
-    void productFileDownloaded(int whichdownload, int downloadindex);
+    void productFileDownloaded(int whichdownload, int downloadindex, bool quicklook);
     void productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal, int whichdownload);
 
     void on_btnRemoveSelected_clicked();
@@ -108,6 +108,7 @@ private slots:
     void on_btnSLSTRDatahub_clicked();
 
     void on_btnDownloadProduct_clicked();
+    void on_btnDownloadQuicklook_clicked();
 
     void on_btnCancelDownloadProduct_clicked();
 

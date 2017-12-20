@@ -64,6 +64,19 @@ enum eProjectionType
     PROJ_SLSTR
 };
 
+enum class eGeoSatellite {
+    MET_10 = 0,
+    MET_9 = 1,
+    MET_8 = 2,
+    GOMS2 = 3,
+    FY2E = 4,
+    FY2G = 5,
+    GOES_15 = 6,
+    GOES_16 = 7,
+    H8 = 8,
+    NOGEO = 10
+};
+
 // structures
 struct floatVector {
         float x, y, z;

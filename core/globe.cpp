@@ -1471,7 +1471,6 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
 
         if(pixconv.pixcoord2geocoord(segs->seglgeo[geoindex]->geosatlon, pix, heightinimage, segs->seglgeo[geoindex]->COFF, segs->seglgeo[geoindex]->LOFF, segs->seglgeo[geoindex]->CFAC, segs->seglgeo[geoindex]->LFAC, &lat_deg, &lon_deg) == 0)
         {
-//            if(segs->seglgeo[geoindex]->getGeoSatellite() == eGeoSatellite::MET_8 || segs->seglgeo[geoindex]->getGeoSatellite() == eGeoSatellite::H8 || segs->seglgeo[geoindex]->getGeoSatellite() == eGeoSatellite::GOES_16)
             if(opts.geosatellites[geoindex].longitudelimit1 != 0.0 && opts.geosatellites[geoindex].longitudelimit2 != 0.0)
             {
                 if(lon_deg > opts.geosatellites[geoindex].longitudelimit1 && lon_deg < opts.geosatellites[geoindex].longitudelimit2)
@@ -1572,9 +1571,9 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
                 rainbow.append(qBlue(rgbval));
             }
         }
-        else if(geo == eGeoSatellite::GOES_13 || geo == eGeoSatellite::GOES_15)
+        else if(geo == eGeoSatellite::GOES_15)
         {
-            if(pixconv.pixcoord2geocoord((geo == eGeoSatellite::GOES_13 ? segs->seglgeo[6]->geosatlon : segs->seglgeo[7]->geosatlon), pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
+            if(pixconv.pixcoord2geocoord(segs->seglgeo[(int)eGeoSatellite::GOES_15]->geosatlon, pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));

@@ -1529,6 +1529,7 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
                 ui->btnGeo16->setEnabled(true);
     }
 
+    qDebug() << "FormToolbox::geostationarysegmentsChosen einde " << tex;
 
 }
 
@@ -1899,6 +1900,8 @@ void FormToolbox::setButtons(int geoindex, bool state)
 void FormToolbox::setComboGeo(int geoindex)
 {
 
+    qDebug() << "FormToolbox::setComboGeo(int geoindex) geoindex = " << geoindex;
+
     ui->comboGeo1->setCurrentIndex(poi.strlComboGeo1.at(geoindex).toInt());
     ui->comboGeo2->setCurrentIndex(poi.strlComboGeo2.at(geoindex).toInt());
     ui->comboGeo3->setCurrentIndex(poi.strlComboGeo3.at(geoindex).toInt());
@@ -2106,17 +2109,17 @@ void FormToolbox::on_btnGeoColor_clicked()
     // QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateHimawari() or slotUpdateGeosat()
 
     ui->pbProgress->reset();
-    if(geoindex == 0 || geoindex == 2)
+    if(geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
         ui->pbProgress->setMaximum(24);
-    else if(geoindex == 1)
+    else if(geoindex == (int)eGeoSatellite::MET_9)
         ui->pbProgress->setMaximum(9);
-    else if(geoindex == 3)
+    else if(geoindex == (int)eGeoSatellite::GOMS2)
         ui->pbProgress->setMaximum(18);
-    else if(geoindex == 4 || geoindex == 5 )
+    else if(geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G )
         ui->pbProgress->setMaximum(100);
-    else if(geoindex == 9)
+    else if(geoindex == (int)eGeoSatellite::H8)
         ui->pbProgress->setMaximum(30);
-    else if(geoindex == 8)
+    else if(geoindex == (int)eGeoSatellite::GOES_16)
         ui->pbProgress->setMaximum(100);
 
     onButtonColorHRV("VIS_IR Color");
@@ -2219,16 +2222,8 @@ void FormToolbox::onButtonColorHRV(QString type)
     segs->seglgeo[1]->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglgeo[2]->areatype = ui->cmbHRVtype->currentIndex();
 
-    segs->seglgeo[0]->setKindofImage(type);
-    segs->seglgeo[1]->setKindofImage(type);
-    segs->seglgeo[2]->setKindofImage(type);
-    segs->seglgeo[3]->setKindofImage(type);
-    segs->seglgeo[4]->setKindofImage(type);
-    segs->seglgeo[5]->setKindofImage(type);
-    segs->seglgeo[6]->setKindofImage(type);
-    segs->seglgeo[7]->setKindofImage(type);
-    segs->seglgeo[8]->setKindofImage(type);
-    segs->seglgeo[9]->setKindofImage(type);
+    for(int i = 0; i < segs->seglgeo.count(); i++)
+        segs->seglgeo[i]->setKindofImage(type);
 
     formimage->setKindOfImage(type);
 
@@ -2238,7 +2233,7 @@ void FormToolbox::onButtonColorHRV(QString type)
 
     setToolboxButtons(false);
 
-    if(geoindex == 0 || geoindex == 1 || geoindex == 2)
+    if(geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
@@ -2296,7 +2291,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo11->currentIndex()-1] = ui->chkInverseGeo11->isChecked();
         }
     }
-    else if (geoindex == 4 || geoindex == 5)
+    else if (geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
@@ -2324,7 +2319,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo5->currentIndex()-1] = ui->chkInverseGeo5->isChecked();
         }
     }
-    else if (geoindex == 3)
+    else if (geoindex == (int)eGeoSatellite::GOMS2)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
@@ -2357,7 +2352,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo6->currentIndex()-1] = ui->chkInverseGeo6->isChecked();
         }
     }
-    else if(geoindex == 9 )
+    else if(geoindex == (int)eGeoSatellite::H8 )
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
@@ -2420,7 +2415,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo12->currentIndex()-1] = ui->chkInverseGeo12->isChecked();
         }
     }
-    else if(geoindex == 8 )
+    else if(geoindex == (int)eGeoSatellite::GOES_16 )
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
