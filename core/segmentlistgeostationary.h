@@ -14,16 +14,16 @@ class SegmentListGeostationary : public QObject
 public:
 
     explicit SegmentListGeostationary(QObject *parent = 0, int geoindex = 0);
-    bool ComposeImageXRIT(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    bool ComposeImageXRIT(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     //bool ComposeImageHDFSerial(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
     bool ComposeImageHDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector);
-    bool ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    bool ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
 
     void displayMinMax();
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
     void CalculateMinMaxGOES16(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue);
     void CalculateMinMaxHimawari(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
-    void normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, int &fillvalue);
+    void normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, int &fillvalue, int maxvalue);
 
     QString getKindofImage() { return kindofimage; }
     QString getImagePath() { return imagepath; }
@@ -35,7 +35,7 @@ public:
 
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
-    void ComposeSegmentImagenetCDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
+    void ComposeSegmentImagenetCDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod );
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2); //, quint16 x3, quint16 y3, quint16 x4, quint16 y4);
     quint16 ContrastStretch(quint16 val);
     void InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence);
@@ -81,6 +81,7 @@ public:
     double geosatlon;
     QString geosatname;
     QString str_GeoSatellite;
+    int histogrammethod;
 
 private:
 

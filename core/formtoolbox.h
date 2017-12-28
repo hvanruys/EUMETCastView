@@ -122,7 +122,7 @@ public slots:
     void slotDisplayDNBGraph();
 
 signals:
-    void getmeteosatchannel(QString, QVector<QString>, QVector<bool>);
+    void getgeosatchannel(QString, QVector<QString>, QVector<bool>, int);
     void overlaycorrection(int,int);
     void switchstackedwidget(int);
 

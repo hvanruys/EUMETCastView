@@ -44,6 +44,12 @@ SegmentImage::SegmentImage()
     {
         ptrHRV[i] = NULL;
     }
+
+    for( int i = 0; i < 3; i++)
+    {
+        ptrDQF[i] = NULL;
+    }
+
     for( int i = 0; i < 3; i++)
     {
         fillvalue[i] = 0;
@@ -211,6 +217,15 @@ void SegmentImage::ResetPtrImage()
         {
             delete ptrHRV[i];
             ptrHRV[i] = NULL;
+        }
+    }
+
+    for( int i = 0; i < 3; i++)
+    {
+        if (ptrDQF[i] != NULL)
+        {
+            delete ptrDQF[i];
+            ptrDQF[i] = NULL;
         }
     }
 }

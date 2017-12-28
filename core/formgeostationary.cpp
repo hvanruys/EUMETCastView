@@ -756,7 +756,7 @@ FormGeostationary::~FormGeostationary()
     delete ui;
 }
 
-void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector)
+void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
     // segs->seglgeo[0]->areatype == 1 ==> full
     // segs->seglgeo[0]->areatype == 0 ==> europe
@@ -769,7 +769,7 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
 
     QString tex;
 
-    qDebug() << "FormGeostationary::CreateGeoImage(eGeoSatellite whichgeo, QString type, QVector<QString> spectrumvector, QVector<bool> inversevector)";
+    qDebug() << "FormGeostationary::CreateGeoImage(eGeoSatellite, QString, QVector<QString>, QVector<bool>, int)";
 
     SegmentListGeostationary *sl;
 
@@ -835,9 +835,9 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
     if(opts.geosatellites.at(sl->getGeoSatelliteIndex()).protocol == "HDF" )
         CreateGeoImageHDF(sl, type, tex, spectrumvector, inversevector);
     else if(opts.geosatellites.at(sl->getGeoSatelliteIndex()).protocol == "netCDF")
-        CreateGeoImagenetCDF(sl, type, tex, spectrumvector, inversevector);
+        CreateGeoImagenetCDF(sl, type, tex, spectrumvector, inversevector, histogrammethod);
     else
-        CreateGeoImageXRIT(sl, type, tex, spectrumvector, inversevector);
+        CreateGeoImageXRIT(sl, type, tex, spectrumvector, inversevector, histogrammethod);
 
 }
 
@@ -858,7 +858,7 @@ SegmentListGeostationary *FormGeostationary::setActiveSegmentList(int geoindex)
     return sl;
 }
 
-void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector)
+void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
 
     QString filetiming;
@@ -1072,7 +1072,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
                 sl->InsertPresent( spectrumvector, filespectrum, filesequence);
 
-                sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector);
+                sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
 
                 qDebug() << QString("CreateGeoImageXRIT VIS_IR || VIS_IR Color || HRV Color ----> %1 filesequence = %2").arg(fileinfo.filePath()).arg(filesequence);
             }
@@ -1092,9 +1092,9 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 sl->InsertPresent( spectrumvector, filespectrum, filesequence);
 
                 if(sl->areatype == 1)
-                    sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector);
+                    sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
                 else if(filesequence >= opts.geosatellites.at(geoindex).startsegmentnbrhrvtype0)
-                    sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector);
+                    sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
 
                 qDebug() << QString("CreateGeoImageXRIT HRV || HRV Color ----> %1").arg(fileinfo.filePath());
             }
@@ -1197,7 +1197,7 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
 
 }
 
-void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector)
+void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
 
     QString filetiming;
@@ -1241,7 +1241,7 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
             return;
         }
         else
-            sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector);
+            sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod);
     }
 }
 

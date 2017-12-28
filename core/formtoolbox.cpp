@@ -372,6 +372,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->cmbHistogram->setCurrentIndex(CMB_HISTO_NONE_95);
     ui->cmbHistogramSLSTR->addItems(lsthistogram);
     ui->cmbHistogramSLSTR->setCurrentIndex(CMB_HISTO_NONE_95);
+    ui->cmbHistogramGeo->addItems(lsthistogram);
+    ui->cmbHistogramGeo->setCurrentIndex(CMB_HISTO_NONE_95);
 
     lsthistogram.clear();
     lsthistogram << "None 95%" << "None 100%" << "Equalize" << "Equalize Projection";
@@ -2079,7 +2081,7 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
     //formimage->adjustPicSize(true);
     emit switchstackedwidget(3);
 
-    emit getmeteosatchannel("VIS_IR", spectrumvector, inversevector);
+    emit getgeosatchannel("VIS_IR", spectrumvector, inversevector, ui->cmbHistogramGeo->currentIndex());
 }
 
 void FormToolbox::on_btnGeoColor_clicked()
@@ -2500,7 +2502,7 @@ void FormToolbox::onButtonColorHRV(QString type)
     }
 
     emit switchstackedwidget(3);
-    emit getmeteosatchannel(type, spectrumvector, inversevector);
+    emit getgeosatchannel(type, spectrumvector, inversevector, ui->cmbHistogramGeo->currentIndex());
 }
 
 void FormToolbox::on_btnTextureMet_clicked()

@@ -1949,6 +1949,12 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 *(pixelsGreen + i) = 0;
             if(*(pixelsBlue+i) == imageptrs->fillvalue[2] )
                 *(pixelsBlue + i) = 0;
+            if(imageptrs->ptrDQF[0][i] == 2)
+            {
+                *(pixelsRed+i) = 1023;
+                *(pixelsGreen+i) = 1023;
+                *(pixelsBlue+i) = 1023;
+            }
         }
 
     }
@@ -2010,8 +2016,9 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         {
             if(*(pixelsRed+i) == imageptrs->fillvalue[0] )
                 *(pixelsRed + i) = 0;
+            if(imageptrs->ptrDQF[0][i] == 2)
+                *(pixelsRed+i) = 1023;
         }
-
     }
     else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == eGeoSatellite::H8)
     {

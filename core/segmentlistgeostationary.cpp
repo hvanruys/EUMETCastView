@@ -95,9 +95,9 @@ void doComposeGeostationaryHDFInThread(SegmentListGeostationary *sm, QStringList
     sm->ComposeSegmentImageHDFInThread(filelist, spectrumvector, inversevector);
 }
 
-void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm, QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector)
+void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm, QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
-    sm->ComposeSegmentImagenetCDFInThread(strlist, spectrumvector, inversevector);
+    sm->ComposeSegmentImagenetCDFInThread(strlist, spectrumvector, inversevector, histogrammethod);
 }
 
 
@@ -254,7 +254,7 @@ void SegmentListGeostationary::getFilenameParameters(QFileInfo fileinfo, QString
 
 }
 
-bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector)
+bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
     /* qDebug() << QString("ideal threadcount = %1  max threadcount = %2 active threadcount = %3").
                 arg(QThread::idealThreadCount()).
@@ -262,7 +262,7 @@ bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QStr
                 arg(QThreadPool::globalInstance()->activeThreadCount());
 
     */
-
+    this->histogrammethod = histogrammethod;
     int filesequence = fileinfo.fileName().mid(36, 6).toInt()-1;
     QString filespectrum = fileinfo.fileName().mid(26, 6);
     QString filedate = fileinfo.fileName().mid(46, 12);
@@ -343,13 +343,13 @@ bool SegmentListGeostationary::ComposeImageHDFInThread(QStringList strlist, QVec
     return true;
 }
 
-bool SegmentListGeostationary::ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector)
+bool SegmentListGeostationary::ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
 
     qDebug() << QString("SegmentListGeostationary::ComposeImagenetCDFInThread spectrumvector = %2 %3 %4").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    QtConcurrent::run(doComposeGeostationarynetCDFInThread, this, strlist, spectrumvector, inversevector);
+    QtConcurrent::run(doComposeGeostationarynetCDFInThread, this, strlist, spectrumvector, inversevector, histogrammethod);
     return true;
 }
 
@@ -435,7 +435,7 @@ void SegmentListGeostationary::InsertPresent( QVector<QString> spectrumvector, Q
 
 
 
-void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector )
+void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
 
     QRgb *row_col;
@@ -1559,7 +1559,7 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
 
 }
 
-void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector )
+void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector , int histogrammethod)
 {
 
     QString ncfile[3];
@@ -1660,7 +1660,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
             {
                 CalculateMinMaxGOES16(j, xdim, ydim, imageptrs->ptrRed[0], fillvalue[0]);
                 CalculateLUTGeo(j);
-                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrRed[0], stat_min[0], stat_max[0], fillvalue[0]);
+                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrRed[0], stat_min[0], stat_max[0], fillvalue[0], 1023);
             }
         } else if(j==1)
         {
@@ -1674,7 +1674,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
             {
                 CalculateMinMaxGOES16(j, xdim, ydim, imageptrs->ptrGreen[0], fillvalue[1]);
                 CalculateLUTGeo(j);
-                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrGreen[0], stat_min[1], stat_max[1], fillvalue[1]);
+                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrGreen[0], stat_min[1], stat_max[1], fillvalue[1], 1023);
             }
         } else if(j == 2)
         {
@@ -1688,9 +1688,48 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
             {
                 CalculateMinMaxGOES16(j, xdim, ydim, imageptrs->ptrBlue[0], fillvalue[2]);
                 CalculateLUTGeo(j);
-                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrBlue[0], stat_min[2], stat_max[2], fillvalue[2]);
+                normalizeMinMaxGOES16(xdim, ydim, imageptrs->ptrBlue[0], stat_min[2], stat_max[2], fillvalue[2], 1023);
             }
         }
+
+        long cnt_dqf0, cnt_dqf1, cnt_dqf2, cnt_dqf3;
+        cnt_dqf0 = 0;
+        cnt_dqf1 = 0;
+        cnt_dqf2 = 0;
+        cnt_dqf3 = 0;
+
+
+        retval = nc_inq_varid(ncfileid[j], "DQF", &varid);
+        if (retval != NC_NOERR) qDebug() << "error reading DQF id";
+
+        imageptrs->ptrDQF[j] = new qint8[xdim * ydim];
+        memset(imageptrs->ptrDQF[j], 0, xdim * ydim * sizeof(qint8));
+        retval = nc_get_var(ncfileid[j], varid, imageptrs->ptrDQF[0]);
+        if (retval != NC_NOERR)
+            qDebug() << "error reading DQF values";
+        else
+        {
+            qDebug() << "No errors reading DQF values";
+            for(int i = 0; i < xdim * ydim; i++)
+            {
+                if( imageptrs->ptrDQF[j][i] == 0)
+                    cnt_dqf0++;
+                else if( imageptrs->ptrDQF[j][i] == 1)
+                    cnt_dqf1++;
+                else if( imageptrs->ptrDQF[j][i] == 2)
+                    cnt_dqf2++;
+                else if( imageptrs->ptrDQF[j][i] == 3)
+                    cnt_dqf3++;
+
+            }
+            qDebug() << QString("# DQF 0 = %1").arg(cnt_dqf0);
+            qDebug() << QString("# DQF 1 = %1").arg(cnt_dqf1);
+            qDebug() << QString("# DQF 2 = %1").arg(cnt_dqf2);
+            qDebug() << QString("# DQF 3 = %1").arg(cnt_dqf3);
+
+
+        }
+
 
 
         qDebug() << "type is = " << rh_type;
@@ -1744,9 +1783,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
     }
 
     quint16 rc, gc, bc;
+    quint16 indexoutrc, indexoutgc, indexoutbc;
     int r,g, b;
     QRgb *row_col;
-
+    qint8 dqfvalue[3];
 
     imageptrs->InitializeImageGeostationary(xdim, ydim);
     im = imageptrs->ptrimageGeostationary;
@@ -1762,23 +1802,100 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
         {
             if(kindofimage == "VIS_IR Color")
             {
+
                 rc = *(imageptrs->ptrRed[0] + line * xdim + pixelx);
                 gc = *(imageptrs->ptrGreen[0] + line * xdim + pixelx);
                 bc = *(imageptrs->ptrBlue[0] + line * xdim + pixelx);
 
-                r = quint16(inversevector[0] ? 255 - rc : rc);
+                dqfvalue[0] = *(imageptrs->ptrDQF[0] + line * xdim + pixelx);
+                dqfvalue[1] = *(imageptrs->ptrDQF[1] + line * xdim + pixelx);
+                dqfvalue[2] = *(imageptrs->ptrDQF[2] + line * xdim + pixelx);
 
-                if( rc == fillvalue[0]) r = 0; else r = quint16(inversevector[0] ? 255 - rc : rc);
-                if( gc == fillvalue[1]) g = 0; else g = quint16(inversevector[1] ? 255 - gc : gc);
-                if( bc == fillvalue[2]) b = 0; else b = quint16(inversevector[2] ? 255 - bc : bc);
+                if(histogrammethod == CMB_HISTO_NONE_95)
+                {
+                    if(rc != fillvalue[0])
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(rc - imageptrs->minRadianceIndex[0] ) / (float)(imageptrs->maxRadianceIndex[0] - imageptrs->minRadianceIndex[0])), 0), 1023);
+                    if(gc != fillvalue[1])
+                        indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(gc - imageptrs->minRadianceIndex[1] ) / (float)(imageptrs->maxRadianceIndex[1] - imageptrs->minRadianceIndex[1])), 0), 1023);
+                    if(bc != fillvalue[2])
+                        indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(bc - imageptrs->minRadianceIndex[2] ) / (float)(imageptrs->maxRadianceIndex[2] - imageptrs->minRadianceIndex[2])), 0), 1023);
+                }
+                else if(histogrammethod == CMB_HISTO_NONE_100)
+                {
+                    if(rc != fillvalue[0])
+                        indexoutrc = rc;
+                    if(gc != fillvalue[1])
+                        indexoutgc = gc;
+                    if(bc != fillvalue[2])
+                        indexoutbc = bc;
+                }
+                else if(histogrammethod == CMB_HISTO_EQUALIZE)
+                {
+                    if( rc != fillvalue[0]) indexoutrc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[0][rc]), 0), 1023);
+                    if( gc != fillvalue[1]) indexoutgc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[1][gc]), 0), 1023);
+                    if( bc != fillvalue[2]) indexoutbc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[2][bc]), 0), 1023);
+                }
+
+                if( (rc == fillvalue[0] && dqfvalue[0] == -1) || (gc == fillvalue[1] && dqfvalue[1] == -1) || (bc == fillvalue[2] && dqfvalue[2] == -1))
+                {
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                }
+                else if( (rc == fillvalue[0] && dqfvalue[0] == 2) || (gc == fillvalue[1] && dqfvalue[1] == 2) || (bc == fillvalue[2] && dqfvalue[2] == 2))
+                {
+                    r = 255;
+                    g = 255;
+                    b = 255;
+
+                }
+                else
+                {
+                    r = quint16(inversevector[0] ? (1023 - indexoutrc)/4 : indexoutrc/4);
+                    g = quint16(inversevector[1] ? (1023 - indexoutgc)/4 : indexoutgc/4);
+                    b = quint16(inversevector[2] ? (1023 - indexoutbc)/4 : indexoutbc/4);
+                }
 
             }
             else if(kindofimage == "VIS_IR")
             {
                 rc = *(imageptrs->ptrRed[0] + line * xdim + pixelx);
-                if( rc == fillvalue[0]) r = 0; else r = quint16(inversevector[0] ? 255 - rc : rc);
-                g = r;
-                b = r;
+                dqfvalue[0] = *(imageptrs->ptrDQF[0] + line * xdim + pixelx);
+
+                if(histogrammethod == CMB_HISTO_NONE_95)
+                {
+                    if(rc != fillvalue[0])
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(rc - imageptrs->minRadianceIndex[0] ) / (float)(imageptrs->maxRadianceIndex[0] - imageptrs->minRadianceIndex[0])), 0), 1023);
+                }
+                else if(histogrammethod == CMB_HISTO_NONE_100)
+                {
+                    if(rc != fillvalue[0])
+                        indexoutrc = rc;
+                }
+                else if(histogrammethod == CMB_HISTO_EQUALIZE)
+                {
+                    if( rc != fillvalue[0]) indexoutrc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[0][rc]), 0), 1023);
+                }
+
+                if( rc == fillvalue[0] && dqfvalue[0] == -1)
+                {
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                }
+                else if( rc == fillvalue[0] && dqfvalue[0] == 2 )
+                {
+                    r = 255;
+                    g = 255;
+                    b = 255;
+
+                }
+                else
+                {
+                    r = quint16(inversevector[0] ? (1023 - indexoutrc)/4 : indexoutrc/4);
+                    g = r;
+                    b = r;
+                }
 
             }
             row_col[pixelx] = qRgb(r,g,b);
@@ -1790,6 +1907,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread(QStringList fil
             emit this->progressCounter(progcounter);
         }
     }
+
 
     emit this->progressCounter(100);
     emit signalcomposefinished(kindofimage, 0, 1);
@@ -2378,31 +2496,26 @@ void SegmentListGeostationary::CalculateMinMaxGOES16(int colorindex, int width, 
 
 }
 
-void SegmentListGeostationary::normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, int &fillvalue)
+void SegmentListGeostationary::normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, int &fillvalue, int maxvalue)
 {
+
+
+    quint16 pixval, pixvalnorm;
 
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++)
         {
-            quint16 val = ptr[j * height + i];
-            if(val != fillvalue)
+            pixval = ptr[j * height + i];
+            if(pixval != fillvalue)
             {
-                float valfloat = (float)((float)(val - stat_min)/(float)(stat_max - stat_min));
-                quint16 valint = (quint16)(valfloat*255.0);
-                valint = valint > 255 ? 255 : valint;
-
-                ptr[j * height + i] = valint;
-//                if(j == 3100)
-//                    ptr[j * height + i] = 0;
-//                if(i == 5230)
-//                    ptr[j * height + i] = 0;
-
+                pixvalnorm = (quint16)qMin(qMax(qRound((float)maxvalue * (float)(pixval - stat_min ) / (float)(stat_max - stat_min)), 0), maxvalue);
+                ptr[j * height + i] = pixvalnorm;
             }
         }
     }
 
     stat_min = 0;
-    stat_max = 255;
+    stat_max = maxvalue;
 //    fillvalue = 4096;
 
 }

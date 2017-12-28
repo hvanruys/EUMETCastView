@@ -108,6 +108,7 @@ public:
     quint16 *ptrBlue[10];
 
     quint16 *ptrHRV[24];
+    qint8 *ptrDQF[3];
     void CalcSatAngles();
     double Sigmadist[2048];
     double fraction[2048];

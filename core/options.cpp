@@ -531,7 +531,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].fullname = "Meteosat-10";
     geosatellites[0].shortname = "MET_10";
     geosatellites[0].longitude = 0.0;
-    geosatellites[0].longitudelimit1 = -45.0;
+    geosatellites[0].longitudelimit1 = -30.0;
     geosatellites[0].longitudelimit2 = 20.0;
     geosatellites[0].protocol = "XRIT";
     geosatellites[0].rss = false;
@@ -889,7 +889,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].shortname = "GOES_16";
     geosatellites[7].longitude = -75.0;
     geosatellites[7].longitudelimit1 = -154.4;
-    geosatellites[7].longitudelimit2 = -45.0;
+    geosatellites[7].longitudelimit2 = -30.0;
     geosatellites[7].protocol = "netCDF";
     geosatellites[7].rss = false;
     geosatellites[7].searchstring = "OR_ABI";
@@ -946,7 +946,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].shortname = "H8";
     geosatellites[8].longitude = 140.7;
     geosatellites[8].longitudelimit1 = 92.0;
-    geosatellites[8].longitudelimit2 = 205.6;
+    geosatellites[8].longitudelimit2 = 250.0;
     geosatellites[8].protocol = "XRIT";
     geosatellites[8].rss = false;
     geosatellites[8].searchstring = "IMG_DK01";
