@@ -412,8 +412,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br><br><b>Geostationary satellites :</b>"
     "<br>XRIT from Meteosat-10, Meteosat-9, Meteosat-8"
     "<br>Electro L2, FengYun 2E, FengYun 2G"
-    "<br>GOES-13, GOES-16"
-    "<br>and Himawari-8"
+    "<br>GOES-15, GOES-16 and Himawari-8"
     "<ul>"
     "<li>Made by Hugo Van Ruyskensvelde.</li>"
     "</HTML>";
