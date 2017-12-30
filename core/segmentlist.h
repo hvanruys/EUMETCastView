@@ -63,6 +63,8 @@ public:
     int GetEartViewsPerScanline() { return this->earth_views_per_scanline; }
     bool TestForSegmentGL(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
     bool TestForSegmentGLextended(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
+    void setHistogramMethod(int histo);
+
 
 protected:
     void BilinearInterpolation(Segment *segm, bool combine);
@@ -109,6 +111,8 @@ protected:
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> inverselist;
+
+    int histogrammethod;
 
 
 signals:

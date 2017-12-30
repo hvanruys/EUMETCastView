@@ -276,6 +276,8 @@ private slots:
     void on_comboGeo15_currentIndexChanged(int index);
     void on_comboGeo16_currentIndexChanged(int index);
 
+    void on_cmbHistogramAVHRR_activated(int index);
+    void on_cmbHistogramGeo_activated(int index);
 };
 
 

@@ -65,7 +65,7 @@ public:
                                     double earth_loc_lon_last, double earth_loc_altitude, int segmentheight);
     // void RenderSegmentInTexture(int channel, int nbrTotalLine);
 
-    void NormalizeSegment(bool channel_3_select);
+    void NormalizeSegment();
 
     void setBandandColor(QList<bool> band, QList<int> color, QList<bool> invert);
     bool composeColorImage();
@@ -86,6 +86,7 @@ public:
     quint16 getProjectionValueBlue(int line, int pixelx);
     int DecompressSegmentToTemp();
     int copy_data(struct archive *ar, struct archive *aw);
+    void setHistogrammethod(int histogrammethod) { this->histogrammethod = histogrammethod; }
 
 
     bool segmentok;   // check if segment is read
@@ -215,6 +216,8 @@ protected:
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> invertlist;
+
+    int histogrammethod;
 
 
 

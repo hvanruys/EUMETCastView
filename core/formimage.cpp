@@ -397,10 +397,10 @@ void FormImage::displayImage(eImageType channel)
 
 void FormImage::slotMakeImage()
 {
-    this->ComposeImage();
+    this->MakeImage();
 }
 
-void FormImage::ComposeImage()
+void FormImage::MakeImage()
 {
 
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
@@ -3389,12 +3389,12 @@ void FormImage::OverlayOLCI(QPainter *paint)
             QPolygon copycoastline = segm->coastline.translated(0, heightinsegment);
             paint->drawPoints(copycoastline);
 
-            if(opts.gridonolciimage)
-            {
-                paint->setPen(QColor(opts.projectionoverlaylonlatcolor));
-                QPolygon copylatlonline = segm->latlonline.translated(0, heightinsegment);
-                paint->drawPoints(copylatlonline);
-            }
+//            if(opts.gridonolciimage)
+//            {
+//                paint->setPen(QColor(opts.projectionoverlaylonlatcolor));
+//                QPolygon copylatlonline = segm->latlonline.translated(0, heightinsegment);
+//                paint->drawPoints(copylatlonline);
+//            }
 
             heightinsegment += segm->GetNbrOfLines();
             ++segsel;
@@ -3558,17 +3558,6 @@ void FormImage::slotRepaintProjectionImage()
 {
     changeinfraprojection = true;
     this->displayImage(this->channelshown);
-}
-
-void FormImage::setHistogramMethod(int histogrammethod, bool normalized)
-{
-    segs->seglolciefr->setHistogramMethod(histogrammethod, normalized);
-    segs->seglolcierr->setHistogramMethod(histogrammethod, normalized);
-}
-
-void FormImage::setHistogramMethodSLSTR(int histogrammethod)
-{
-    segs->seglslstr->setHistogramMethod(histogrammethod);
 }
 
 bool FormImage::SaveAsPNG48bits(bool mapto65535)

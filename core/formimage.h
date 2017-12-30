@@ -22,14 +22,12 @@ class FormImage : public QWidget
 public:
     explicit FormImage(QWidget *parent = 0, SatelliteList *satlist=0, AVHRRSatellite *seglist=0);
     QLabel *returnimageLabelptr();
-    void ComposeImage();
+    void MakeImage();
     bool ShowVIIRSMImage();
     bool ShowVIIRSDNBImage();
     bool ShowOLCIefrImage(int histogrammethod, bool normalized);
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
     bool ShowSLSTRImage(int histogrammethod);
-    void setHistogramMethod(int histogrammethod, bool normalized);
-    void setHistogramMethodSLSTR(int histogrammethod);
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);

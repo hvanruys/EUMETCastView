@@ -14,10 +14,7 @@ SegmentListMetop::SegmentListMetop(QObject *parent) :
     seglisttype = eSegmentType::SEG_METOP;
 
     qDebug() << QString("in constructor SegmentListMetop");
-
-
 }
-
 
 bool  SegmentListMetop::GetGeoLocation(double lon_rad, double lat_rad, int *x, int *y)
 {

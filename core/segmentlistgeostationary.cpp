@@ -571,39 +571,7 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
         }
     }
 
-
-//    quint16 stat_min;
-//    quint16 stat_max;
-
-//    if(m_GeoSatellite == MET_7 || m_GeoSatellite == MTSAT)
-//    {
-//        if(kindofimage == "VIS_IR")
-//            CalculateMinMax(2288, 2288, imageptrs->ptrRed[0], stat_min, stat_max);
-//        else if(kindofimage == "VIS_IR Color")
-//        {
-//            if(channelindex == 0)
-//                CalculateMinMax(2288, 2288, imageptrs->ptrRed[0], stat_min, stat_max);
-//            else if(channelindex == 1)
-//                CalculateMinMax(2288, 2288, imageptrs->ptrGreen[0], stat_min, stat_max);
-//            else if(channelindex == 2)
-//                CalculateMinMax(2288, 2288, imageptrs->ptrBlue[0], stat_min, stat_max);
-
-//        } else if(kindofimage == "HRV")
-//        {
-//            CalculateMinMax(9152, 9152, imageptrs->ptrRed[0], stat_min, stat_max);
-//        }
-
-//        qDebug() << QString("stat min = %1 stat max = %2").arg(stat_min).arg(stat_max);
-//        this->SetupContrastStretch( stat_min, 0, stat_max+1, 255, stat_max+1, 255, stat_max+1, 255);
-//    }
-//    else
-
-
-
     this->SetupContrastStretch( 0, 0, 1023, 255);
-
-
-
 
     for(int line = 0; line < nlin; line++)
     {
@@ -2204,6 +2172,10 @@ bool SegmentListGeostationary::allSegmentsReceived()
     qDebug() << QString("SegmentListGeostationary::allSegmentsReceived()");
 
     int pbCounter = 0;
+    int pbCounterRed = 0;
+    int pbCounterGreen = 0;
+    int pbCounterBlue = 0;
+
 
     if (this->getKindofImage() == "VIS_IR Color")
     {
@@ -2216,11 +2188,20 @@ bool SegmentListGeostationary::allSegmentsReceived()
             for(int i = (m_GeoSatellite == eGeoSatellite::MET_9 ? 5 : 0) ; i < 8; i++)
             {
                 if (isPresentRed[i] && issegmentcomposedRed[i] == true)
+                {
                     pbCounter++;
+                    pbCounterRed++;
+                }
                 if (isPresentGreen[i] && issegmentcomposedGreen[i] == true)
+                {
                     pbCounter++;
+                    pbCounterGreen++;
+                }
                 if (isPresentBlue[i] && issegmentcomposedBlue[i] == true)
+                {
                     pbCounter++;
+                    pbCounterBlue++;
+                }
             }
         }
         else if(m_GeoSatellite == eGeoSatellite::GOMS2)
@@ -2326,6 +2307,14 @@ bool SegmentListGeostationary::allSegmentsReceived()
 
     qDebug() << QString("SegmentListGeostationary::allSegmentsReceived() pbCounter = %1").arg(pbCounter);
 
+    if(pbCounterRed == 8)
+        qDebug() << QString("pbCounterRed =  8");
+    if(pbCounterGreen == 8)
+        qDebug() << QString("pbCounterGreen =  8");
+    if(pbCounterBlue == 8)
+        qDebug() << QString("pbCounterBlue =  8");
+
+
     emit progressCounter(pbCounter);
 
     if (this->getKindofImage() == "VIS_IR Color")
@@ -2426,7 +2415,6 @@ bool SegmentListGeostationary::allSegmentsReceived()
     {
         if(m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_9 || m_GeoSatellite == eGeoSatellite::MET_8)
         {
-
             for(int i = 19; i < 24; i++)
             {
                 if (isPresentHRV[i] && issegmentcomposedHRV[i] == false)

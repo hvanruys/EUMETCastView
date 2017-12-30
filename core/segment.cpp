@@ -65,6 +65,7 @@ Segment::Segment(QObject *parent) :
 
     segmentselected = false;
     segmentshow = false;
+    histogrammethod = 0;
 }
 
 
@@ -649,7 +650,7 @@ int Segment::ReadNbrOfLines()
     return 0;
 }
 
-void Segment::NormalizeSegment(bool channel_3_select)
+void Segment::NormalizeSegment()
 {
     for(int k = 0; k < 5; k++)
     {
@@ -667,13 +668,6 @@ void Segment::NormalizeSegment(bool channel_3_select)
             {
                 int pixel = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
                 int pixcalc = (pixel - list_stat_min_ch[k]) * 1023 / (list_stat_max_ch[k] - list_stat_min_ch[k]);
-//                if(k==3)
-//                {
-//                    if(channel_3_select == true)
-//                        int pixcalc = (pixel - list_stat_3_1_min_ch) * 1023 / (list_stat_3_1_max_ch - list_stat_3_1_min_ch);
-//                    else
-//                        int pixcalc = (pixel - list_stat_3_0_min_ch) * 1023 / (list_stat_3_0_max_ch - list_stat_3_0_min_ch);
-//                }
                 pixcalc = pixcalc > 1023 ? 1023 : pixcalc;
                 pixcalc = pixcalc < 0 ? 0 : pixcalc;
                 this->ptrbaChannel[k][line * earth_views_per_scanline + pixelx] = pixcalc;
@@ -704,107 +698,11 @@ void Segment::NormalizeSegment(bool channel_3_select)
         {
             sum_ch[k] += segment_stats_ch[k][i];
             lut_ch[k][i] = (quint16)(sum_ch[k] * scale);
-            if (lut_ch[k][i] >= 1024)
+            if (lut_ch[k][i] > 1023)
                 lut_ch[k][i] = 1023;
         }
     }
 }
-
-
-/*      glPushMatrix();
-        //glTranslatef( qpos.x(), qpos.y(), qpos.z());
-        LonLat2PointRad( geofirst.m_Lat, geofirst.m_Lon, &pos, 1.0f );
-        glTranslatef( pos.x, pos.y, pos.z );
-        gluSphere(pObj, 0.005f, 6, 6);
-        glPopMatrix();
-
-        glPushMatrix();
-        LonLat2PointRad( geolast.m_Lat, geolast.m_Lon, &pos, 1.0f );
-        glTranslatef( pos.x, pos.y, pos.z );
-        gluSphere(pObj, 0.005f, 6, 6);
-        glPopMatrix();
-*/
-
-
-    //                             vec1
-    //    vecend1 ------------------------------------ vecend3
-    //      |                       |                   |
-    //      |                       |                   |
-    //      |                       |                   |
-    //      |                       |                   |
-    //      |                       |                   |
-    //      |                       |                   |
-    //      |                       |                   |
-    //    vecend2 ------------------------------------ vecend4
-    //                             vec2
-
-//void Segment::RenderSegmentContour(QPainter *painter)
-//{
-//    QFont myFont("Arial", 8, QFont::Bold, false);
-
-/*    if (this->IsSelected())
-        painter->setPen(Qt::red);
-    else
-        painter->setPen(Qt::green);
-
-    painter->drawLine((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y(), (int)winvec2.x(), (painter->device())->height() - (int)winvec2.y() );
-    painter->drawLine((int)winvecend1.x(), (painter->device())->height() - (int)winvecend1.y(), (int)winvecend2.x(), (painter->device())->height() - (int)winvecend2.y() );
-    painter->drawLine((int)winvecend3.x(), (painter->device())->height() - (int)winvecend3.y(), (int)winvecend4.x(), (painter->device())->height() - (int)winvecend4.y() );
-
-    painter->drawLine((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y(), (int)winvecend1.x(), (painter->device())->height() - (int)winvecend1.y() );
-    painter->drawLine((int)winvec2.x(), (painter->device())->height() - (int)winvec2.y(), (int)winvecend2.x(), (painter->device())->height() - (int)winvecend2.y() );
-    painter->drawLine((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y(), (int)winvecend3.x(), (painter->device())->height() - (int)winvecend3.y() );
-    painter->drawLine((int)winvec2.x(), (painter->device())->height() - (int)winvec2.y(), (int)winvecend4.x(), (painter->device())->height() - (int)winvecend4.y() );
-*/
-/*    painter->setPen(Qt::yellow);
-    painter->setFont(myFont);
-    painter->drawText((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y(), QString("%1").arg(this->fileInfo.baseName().mid(12, 3)));
-    QString hours = this->fileInfo.baseName().mid(24, 2);
-    QString min = this->fileInfo.baseName().mid(26, 2);
-    QString sec = this->fileInfo.baseName().mid(28, 2);
-    painter->drawText((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y() + 10, QString("%1:%2:%3").arg(hours).arg(min).arg(sec));
-*/
-//    hours = this->fileInfo.baseName().mid(40, 2);
-//    min = this->fileInfo.baseName().mid(42, 2);
-//    sec = this->fileInfo.baseName().mid(44, 2);
-//    painter->drawText((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y() + 20, QString("%1:%2:%3").arg(hours).arg(min).arg(sec));
-//}
-
-
-//void Segment::RenderSegmentContourline(float lat_first, float lon_first, float lat_last, float lon_last)
-//{
-//    QVector3D pos;
-
-//    double sinlatdiff = sin((lat_first-lat_last)/2);
-//    double sinlondiff = sin((lon_first-lon_last)/2);
-
-//    double sinpsi = sqrt(sinlatdiff * sinlatdiff + cos(lat_first)*cos(lat_last)*sinlondiff * sinlondiff);
-//    double delta = 2*asin(sinpsi);
-
-//    int nDelta = 10;
-//    double deltax = delta / nDelta;
-//    double lonpos, latpos, dlon, tc;
-
-//    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PI);
-
-
-//    glBegin(GL_LINE_STRIP);
-//    for (int pix = 0 ; pix < nDelta + 1; pix++)
-//    {
-
-//        latpos = asin(sin(lat_first)*cos(deltax * pix)+cos(lat_first)*sin(deltax * pix)*cos(tc));
-//        dlon=atan2(sin(tc)*sin(deltax * pix)*cos(lat_first),cos(deltax * pix)-sin(lat_first)*sin(latpos));
-//        lonpos=fmod( lon_first-dlon + PI,2*PI )-PI;
-
-//        LonLat2PointRad(latpos, lonpos, &pos, 1.001f);
-//        //glVertex3fv((float*)&pos);
-
-//    }
-
-//    glEnd();
-
-//    //qDebug() << QString("lon_first = %1 ; lat_first = %2 ; posx = %3 ; posy = %4").arg(lon_first).arg(lat_first).arg(posx).arg(posy);
-//}
 
 void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine )
 {
@@ -990,20 +888,6 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
     //qDebug() << QString("lon_first = %1 ; lat_first = %2 ; posx = %3 ; posy = %4").arg(lon_first).arg(lat_first).arg(posx).arg(posy);
 }
 
-/*
-void Segment::RenderSegmentInTexture(int channel, int nbrTotalLine)
-{
-    int k = nbrTotalLine - NbrOfLines;
-
-    qDebug() << QString("Segment::RenderSegmentInTexture k = %1").arg(k);
-
-    for( int nbrLine = 0; nbrLine < NbrOfLines; nbrLine+=1, k+=1)
-    {
-        RenderSegmentlineInTexture( channel, nbrLine , k );
-    }
-}
-*/
-
 void Segment::ComposeSegmentImage()
 {
 
@@ -1012,6 +896,7 @@ void Segment::ComposeSegmentImage()
     quint16 pixel[5];
     quint16 R_value, G_value, B_value;
     bool ok;
+    quint16 indexout[3];
 
     // see FormImage::displayImage(eImageType channel) for the mutex
     // also in SegmentOLCI::ComposeSegmentImage , SegmentVIIRSM::ComposeSegmentImage and SegmentVIIRSDNB::ComposeSegmentImageWindow
@@ -1063,7 +948,14 @@ void Segment::ComposeSegmentImage()
             {
 
                 pixel[k] = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
-                R_value = imageptrs->lut_ch[k][pixel[k]]/4;
+                if(histogrammethod == CMB_HISTO_NONE_95) // 95%
+                    indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 1023);
+                else if(histogrammethod == CMB_HISTO_NONE_100)
+                    indexout[k] = pixel[k];
+                else if(histogrammethod == CMB_HISTO_EQUALIZE)
+                    indexout[k] = imageptrs->lut_ch[k][pixel[k]];
+
+                R_value = indexout[k]/4;
                 if (inverse.at(k) == "1")
                 {
                     row_ch[k][pixelx] = qRgb(255 - R_value, 255 - R_value, 255 - R_value);
@@ -1074,39 +966,30 @@ void Segment::ComposeSegmentImage()
                 }
             }
 
-            //int B = (int)(imageptrs->lut_ch[0][pixel[0]]/4);
-            //int G = (int)(imageptrs->lut_ch[1][pixel[1]]/4);
-            //int R = (int)(imageptrs->lut_ch[2][pixel[2]]/4);
-
-            for( int i = 0; i < 5; i++ )
+            for( int k = 0; k < 5; k++ )
             {
-                switch (channellist.at(i).toInt(&ok))
+                switch (channellist.at(k).toInt(&ok))
                 {
                 case 0:
                     break;
                 case 1:
-                    if (inverse.at(i) == "1")
-                        R_value = 255 - (pixel[i]/4);
+                    if (inverse.at(k) == "1")
+                        R_value = 255 - (indexout[k]/4);
                     else
-                    {
-                        //if(i==2)
-                        //    R_value = imageptrs->lut_ch[1][pixel[i]]/4;
-                        //else
-                            R_value = imageptrs->lut_ch[i][pixel[i]]/4;
-                    }
+                        R_value = indexout[k]/4;
                      break;
                 case 2:
-                    if (inverse.at(i) == "1")
-                        G_value = 255 - (pixel[i]/4);
+                    if (inverse.at(k) == "1")
+                        G_value = 255 - (indexout[k]/4);
                     else
-                        G_value = imageptrs->lut_ch[i][pixel[i]]/4;
-                     break;
+                        G_value = indexout[k]/4;
+                    break;
                 case 3:
-                    if (inverse.at(i) == "1")
-                        B_value = 255 - (pixel[i]/4);
+                    if (inverse.at(k) == "1")
+                        B_value = 255 - (indexout[k]/4);
                     else
-                        B_value = imageptrs->lut_ch[i][pixel[i]]/4;
-                     break;
+                        B_value = indexout[k]/4;
+                    break;
                 }
             }
 

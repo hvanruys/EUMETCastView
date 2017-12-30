@@ -98,8 +98,8 @@ public:
     long active_pixels;
     long active_pixels_proj;
 
-    int minRadianceIndex[3];
-    int maxRadianceIndex[3];
+    int minRadianceIndex[5];
+    int maxRadianceIndex[5];
     int minRadianceIndexNormalized[3];
     int maxRadianceIndexNormalized[3];
 

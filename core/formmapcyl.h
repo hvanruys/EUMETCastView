@@ -27,7 +27,6 @@ public:
     explicit FormMapCyl(QWidget *parent = 0, MapFieldCyl *p_mapcyl = 0, Globe *p_globe = 0, FormToolbox *p_formtoolbox = 0, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
 
     void setCylOrGlobe(int ind);
-    bool ComposeImage();
 
 private:
     Ui::FormMapCyl *ui;

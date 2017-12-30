@@ -374,13 +374,14 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->cmbHistogramSLSTR->setCurrentIndex(CMB_HISTO_NONE_95);
     ui->cmbHistogramGeo->addItems(lsthistogram);
     ui->cmbHistogramGeo->setCurrentIndex(CMB_HISTO_NONE_95);
+    ui->cmbHistogramAVHRR->addItems(lsthistogram);
+    ui->cmbHistogramAVHRR->setCurrentIndex(CMB_HISTO_NONE_95);
 
     lsthistogram.clear();
     lsthistogram << "None 95%" << "None 100%" << "Equalize" << "Equalize Projection";
     ui->cmbHistogramProj->addItems(lsthistogram);
     ui->cmbHistogramProj->setCurrentIndex(CMB_HISTO_NONE_95);
 
-    ui->rdbGridOnOLCIimage->setChecked(opts.gridonolciimage);
     ui->rbNadir->setChecked(true);
     setAllWhatsThis();
 
@@ -5116,12 +5117,16 @@ void FormToolbox::fitCurve()
 
 void FormToolbox::on_rdbOLCINormalized_toggled(bool checked)
 {
-    formimage->setHistogramMethod(ui->cmbHistogram->currentIndex(), checked);
+    segs->seglolciefr->setHistogramMethod(ui->cmbHistogram->currentIndex(), checked);
+    segs->seglolcierr->setHistogramMethod(ui->cmbHistogram->currentIndex(), checked);
+
 }
 
 void FormToolbox::on_cmbHistogram_activated(int index)
 {
-    formimage->setHistogramMethod(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+    segs->seglolciefr->setHistogramMethod(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+    segs->seglolcierr->setHistogramMethod(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+
 
     if(opts.buttonOLCIefr)
     {
@@ -5152,9 +5157,26 @@ void FormToolbox::on_cmbHistogram_activated(int index)
 
 }
 
+
+void FormToolbox::on_cmbHistogramAVHRR_activated(int index)
+{
+    //metopcount + noaacount + hrpcount + gaccount + metopAhrptcount + metopBhrptcount + noaa19hrptcount + M01hrptcount + M02hrptcount
+    segs->seglmetop->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+    segs->seglgac->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+    segs->seglhrp->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+    segs->seglnoaa->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+    segs->seglmetopAhrpt->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+    segs->seglmetopBhrpt->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+    segs->seglnoaa19hrpt->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+    segs->seglM01hrpt->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+    segs->seglM02hrpt->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
+
+    formimage->MakeImage();
+}
+
 void FormToolbox::on_cmbHistogramSLSTR_activated(int index)
 {
-    formimage->setHistogramMethodSLSTR(ui->cmbHistogramSLSTR->currentIndex());
+    segs->seglslstr->setHistogramMethod(ui->cmbHistogramSLSTR->currentIndex());
 
     if(opts.buttonSLSTR)
     {
@@ -5438,3 +5460,8 @@ void FormToolbox::on_comboGeo16_currentIndexChanged(int index)
     poi.strlComboGeo16.replace(this->geoindex, QString("%1").arg(index));
 }
 
+
+void FormToolbox::on_cmbHistogramGeo_activated(int index)
+{
+
+}

@@ -35,6 +35,7 @@ SegmentList::SegmentList(QObject *parent) :
     }
 
     TotalSegmentsInDirectory = 0;
+    histogrammethod = 0;
 }
 
 int SegmentList::NbrOfSegments()
@@ -611,6 +612,7 @@ bool SegmentList::ComposeImage()
     {
         Segment *segm = (Segment *)(*segsel);
         qDebug() << QString("SegmentList::ComposeImage NbrOfLines = %1 startline = %2").arg(segm->NbrOfLines).arg(startlinenbr);
+        segm->setHistogrammethod(this->histogrammethod);
         segm->setStartLineNbr(startlinenbr);
         segm->initializeMemory();
         startlinenbr += segm->NbrOfLines;
@@ -673,7 +675,6 @@ void SegmentList::readfinished()
 
         for( int k = 0; k < 5; k++)
         {
-
             if (segm->stat_min_ch[k] < stat_min_ch[k] )
                 stat_min_ch[k] = segm->stat_min_ch[k];
             if (segm->stat_max_ch[k] > stat_max_ch[k] )
@@ -682,11 +683,16 @@ void SegmentList::readfinished()
                 stat_min_norm_ch[k] = segm->stat_min_norm_ch[k];
             if (segm->stat_max_norm_ch[k] > stat_max_norm_ch[k] )
                 stat_max_norm_ch[k] = segm->stat_max_norm_ch[k];
-
-
         }
         ++segsel;
     }
+
+    qDebug() << "readfinished";
+    qDebug() << QString("compose stat_min_ch1 = %1  stat_max_ch1 = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
+    qDebug() << QString("compose stat_min_ch2 = %1  stat_max_ch2 = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
+    qDebug() << QString("compose stat_min_ch3 = %1  stat_max_ch3 = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
+    qDebug() << QString("compose stat_min_ch4 = %1  stat_max_ch4 = %2").arg(stat_min_ch[3]).arg(stat_max_ch[3]);
+    qDebug() << QString("compose stat_min_ch5 = %1  stat_max_ch5 = %2").arg(stat_min_ch[4]).arg(stat_max_ch[4]);
 
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
@@ -697,15 +703,8 @@ void SegmentList::readfinished()
         {
             segm->list_stat_min_ch[k] = stat_min_ch[k];
             segm->list_stat_max_ch[k] = stat_max_ch[k];
-//            if(k==3)
-//            {
-//                segm->list_stat_3_0_min_ch = stat_3_0_min_ch;
-//                segm->list_stat_3_0_max_ch = stat_3_0_max_ch;
-//                segm->list_stat_3_1_min_ch = stat_3_1_min_ch;
-//                segm->list_stat_3_0_max_ch = stat_3_1_max_ch;
-//            }
         }
-        segm->NormalizeSegment(channel_3_select);
+        segm->NormalizeSegment();
         ++segsel;
     }
 
@@ -733,12 +732,39 @@ void SegmentList::readfinished()
         ++segsel;
     }
 
+    bool okmin[5], okmax[5];
+
+    for(int k = 0; k < 5; k++)
+    {
+        okmin[k] = false;
+        okmax[k] = false;
+    }
+
+    // min/maxRadianceIndex = index of 95% ( 2.5% of 1024 = 25, 97.5% of 1024 = 997 )
+
     for( int i = 0; i < 1024; i++)
     {
         for(int k = 0; k < 5; k++)
         {
             imageptrs->lut_ch[k][i] /= segsselected.count();
+            if(imageptrs->lut_ch[k][i] > 25 && okmin[k] == false)
+            {
+                okmin[k] = true;
+                imageptrs->minRadianceIndex[k] = i;
+            }
+            if(imageptrs->lut_ch[k][i] > 997 && okmax[k] == false)
+            {
+                okmax[k] = true;
+                imageptrs->maxRadianceIndex[k] = i;
+            }
+
         }
+    }
+
+
+    for(int k = 0; k < 5; k++)
+    {
+        qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4").arg(k).arg(imageptrs->minRadianceIndex[k]).arg(k).arg(imageptrs->maxRadianceIndex[k]);
     }
 
     ComposeImage1();
@@ -780,6 +806,19 @@ void SegmentList::ComposeImage1()
 
 }
 
+void SegmentList::setHistogramMethod(int histo)
+{
+    this->histogrammethod = histo;
+
+//    QList<Segment*>::iterator segit = segsselected.begin();
+
+//    while ( segit != segsselected.end() )
+//    {
+//        (*segit)->setHistogrammethod(this->histogrammethod);
+//        ++segit;
+//    }
+
+}
 
 void SegmentList::composefinished()
 {
@@ -798,13 +837,6 @@ void SegmentList::composefinished()
     emit progressCounter(100);
 
     QApplication::restoreOverrideCursor();
-
-/*
-    qDebug() << QString("lon[0,0] = %1 lat[0,0] = %2").arg(segsselected.at(0)->earthloc_lon[0]).arg(segsselected.at(0)->earthloc_lat[0]);
-    qDebug() << QString("lon[0,102] = %1 lat[0,102] = %2").arg(segsselected.at(0)->earthloc_lon[0 + 102]).arg(segsselected.at(0)->earthloc_lat[0 + 102]);
-    qDebug() << QString("lon[1079,0] = %1 lat[1079,0] = %2").arg(segsselected.at(0)->earthloc_lon[1079*103 + 0]).arg(segsselected.at(0)->earthloc_lat[1079*103 + 0]);
-    qDebug() << QString("lon[1079,102] = %1 lat[1079,102] = %2").arg(segsselected.at(0)->earthloc_lon[1079*103 + 102]).arg(segsselected.at(0)->earthloc_lat[1079*103 + 102]);
-*/
 
     emit segmentlistfinished(true);
 

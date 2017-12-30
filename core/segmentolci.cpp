@@ -204,7 +204,9 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     retval = nc_close(ncgeofileid);
     if (retval != NC_NOERR) qDebug() << "error closing geofile";
 
-    QFuture<void> future = QtConcurrent::run(doCalcOverlayLatLon, this, columnslength, rowslength);
+    //QFuture<void> future = QtConcurrent::run(doCalcOverlayLatLon, this, columnslength, rowslength);
+    //CalcOverlayLatLon(columnslength, rowslength);
+
 
     QString tiegeofile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/tie_geometries.nc" : fileInfo.baseName() + ".SEN3/tie_geometries.nc";
     QByteArray arraytiegeo = tiegeofile.toUtf8();
@@ -580,6 +582,8 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
 void SegmentOLCI::CalcOverlayLatLon(int columnslength, int rowslength)
 {
+    qDebug() << "Start SegmentOLCI::CalcOverlayLatLon";
+
     for(int i = 0; i < columnslength-1; i++)
     {
         for(int j = 0; j < rowslength-1; j++)
@@ -614,6 +618,7 @@ void SegmentOLCI::CalcOverlayLatLon(int columnslength, int rowslength)
             }
         }
     }
+    qDebug() << "End SegmentOLCI::CalcOverlayLatLon";
 
 
 }
@@ -1577,5 +1582,5 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
 
 SegmentOLCI::~SegmentOLCI()
 {
-
+    qDebug() << "Destructor SegmentOLCI " << this->fileInfo.baseName();
 }
