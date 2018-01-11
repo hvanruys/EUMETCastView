@@ -18,7 +18,7 @@ extern bool ptrimagebusy;
 
 
 
-void doComposeVIIRSMImageInThread(SegmentListVIIRSM *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
+void SegmentListVIIRSM::doComposeVIIRSMImageInThread(SegmentListVIIRSM *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
 {
     t->ComposeVIIRSImageInThread(bandlist, colorlist, invertlist);
 }
@@ -46,12 +46,12 @@ bool SegmentListVIIRSM::ComposeVIIRSImage(QList<bool> bandlist, QList<int> color
     ptrimagebusy = true;
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    watcherviirs = new QFutureWatcher<void>(this);
-    connect(watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
+
+    connect(&watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
 
     QFuture<void> future;
     future = QtConcurrent::run(doComposeVIIRSMImageInThread, this, bandlist, colorlist, invertlist);
-    watcherviirs->setFuture(future);
+    watcherviirs.setFuture(future);
 
     return true;
 
@@ -446,7 +446,6 @@ void SegmentListVIIRSM::finishedviirs()
     emit progressCounter(100);
     opts.texture_changed = true;
     ptrimagebusy = false;
-    delete watcherviirs;
     QApplication::restoreOverrideCursor();
 
     emit segmentlistfinished(true);

@@ -6,7 +6,6 @@
 #else
 #include <hdf5/serial/hdf5.h>
 #endif
-
 #include <QDebug>
 
 extern Options opts;

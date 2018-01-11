@@ -1,8 +1,6 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QMatrix4x4>
 
-//#include "segmentmetop.h"
-//#include "segmentimage.h"
 #include "segmentlist.h"
 #include "avhrrsatellite.h"
 #include "options.h"
@@ -12,14 +10,9 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 extern bool ptrimagebusy;
 
-void SegmentList::doReadSegmentInMemory(Segment *t)
+void SegmentList::doComposeAVHRRImageInThread(SegmentList *list)
 {
-    t->ReadSegmentInMemory();
-}
-
-void SegmentList::doComposeSegmentImage(Segment *t)
-{
-    t->ComposeSegmentImage();
+    list->ComposeAVHRRImageInThread();
 }
 
 SegmentList::SegmentList(QObject *parent) :
@@ -250,7 +243,7 @@ int SegmentList::GetNbrOfVisibleSegments()
 
 bool SegmentList::TestForSegment(double *deg_lon, double *deg_lat, bool leftbuttondown, bool showallsegments)
 {
-    double lon, lat, difflon, difflat;
+    double lon = 0, lat = 0, difflon, difflat;
     bool ret = false;
     QString filn;
 
@@ -289,7 +282,6 @@ bool SegmentList::TestForSegment(double *deg_lon, double *deg_lat, bool leftbutt
 
     qDebug() << QString("ret = %1 filename = %2 deg_lon = %3 deg_lat = %4").arg(ret).arg(filn).arg(*deg_lon).arg(*deg_lat);
     qDebug() << QString("lon = %1 lat = %2 %3").arg( lon, 10 ).arg( lat, 10 ).arg( ret );
-    //return QString("%1").arg( segnbr );
     return ret;
 }
 
@@ -554,7 +546,25 @@ void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4
     }
 }
 
-bool SegmentList::ComposeImage()
+bool SegmentList::ComposeAVHRRImage()
+{
+    qDebug() << QString("SegmentList::ComposeAVHRRImage");
+
+    ptrimagebusy = true;
+
+    QApplication::setOverrideCursor(( Qt::WaitCursor));
+
+    connect(&watcheravhrr, SIGNAL(finished()), this, SLOT(finishedavhrr()));
+
+    QFuture<void> future;
+    future = QtConcurrent::run(doComposeAVHRRImageInThread, this);
+    watcheravhrr.setFuture(future);
+
+    return true;
+
+}
+
+bool SegmentList::ComposeAVHRRImageInThread()
 {
     QApplication::setOverrideCursor( Qt::WaitCursor );  //restore in finished()
 
@@ -619,24 +629,19 @@ bool SegmentList::ComposeImage()
         ++segsel;
     }
 
-    emit progressCounter(10);
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        (*segm).ReadSegmentInMemory();
+        ++segsel;
+    }
 
-    watcherread = new QFutureWatcher<void>(this);
-    connect(watcherread, SIGNAL(progressValueChanged(int)), SLOT(progressvaluechanged(int)));
-    connect(watcherread, SIGNAL(finished()), SLOT(readfinished()));
-
-    watcherread->setFuture(QtConcurrent::map( segsselected.begin(), segsselected.end(), &SegmentList::doReadSegmentInMemory));
-
-    return true;
-}
-
-void SegmentList::readfinished()
-{
 
     int count3a = 0;
     int count3b = 0;
 
-    QList<Segment*>::iterator segsel = segsselected.begin();
+    segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         Segment *segm = (Segment *)(*segsel);
@@ -767,79 +772,51 @@ void SegmentList::readfinished()
         qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4").arg(k).arg(imageptrs->minRadianceIndex[k]).arg(k).arg(imageptrs->maxRadianceIndex[k]);
     }
 
-    ComposeImage1();
-}
-
-void SegmentList::progressvaluechanged(int segmentnbr)
-{
-    int totalcount = segsselected.count();
-    this->progressresultready += 100 / totalcount * 2;
-
-    qDebug() << QString("progressvaluechanged %1").arg(segmentnbr);
-    emit progressCounter(this->progressresultready);
-
-}
-
-void SegmentList::resultcomposeisready(int segmentnbr)
-{
-    int totalcount = segsselected.count();
-    this->progressresultready += 100 / totalcount * 2;
-
-    qDebug() << QString("result ready %1  %2 NbrOfLines = %3").arg(segmentnbr).arg(segsselected.at(segmentnbr)->fileInfo.absoluteFilePath()).
-                arg(segsselected.at(segmentnbr)->NbrOfLines);
-    emit progressCounter(this->progressresultready);
-    if(opts.imageontextureOnAVHRR)
-        opts.texture_changed = true;
-
-}
-
-void SegmentList::ComposeImage1()
-{
-    qDebug() << "SegmentList::ComposeImage1()";
     ptrimagebusy = true;
 
-    watchercompose = new QFutureWatcher<void>(this);
-    connect(watchercompose, SIGNAL(resultReadyAt(int)), SLOT(resultcomposeisready(int)));
-    connect(watchercompose, SIGNAL(finished()), SLOT(composefinished()));
-    watchercompose->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentList::doComposeSegmentImage));
-    qDebug() << "na SegmentList::ComposeImage1()";
 
-}
-
-void SegmentList::setHistogramMethod(int histo)
-{
-    this->histogrammethod = histo;
-
-//    QList<Segment*>::iterator segit = segsselected.begin();
-
-//    while ( segit != segsselected.end() )
-//    {
-//        (*segit)->setHistogrammethod(this->histogrammethod);
-//        ++segit;
-//    }
-
-}
-
-void SegmentList::composefinished()
-{
+    segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentImage();
+         ++segit;
+    }
 
     opts.texture_changed = true;
     ptrimagebusy = false;
 
-    qDebug() << "composefinished";
-    qDebug() << QString("compose stat_min_ch1 = %1  stat_max_ch1 = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
-    qDebug() << QString("compose stat_min_ch2 = %1  stat_max_ch2 = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
-    qDebug() << QString("compose stat_min_ch3 = %1  stat_max_ch3 = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
-    qDebug() << QString("compose stat_min_ch4 = %1  stat_max_ch4 = %2").arg(stat_min_ch[3]).arg(stat_max_ch[3]);
-    qDebug() << QString("compose stat_min_ch5 = %1  stat_max_ch5 = %2").arg(stat_min_ch[4]).arg(stat_max_ch[4]);
 
+    if(opts.imageontextureOnAVHRR)
+    {
+        QList<Segment*>::iterator segit = segsselected.begin();
+        while ( segit != segsselected.end() )
+        {
+            (*segit)->RenderSegmentInTexture();
+            opts.texture_changed = true;
+            ++segit;
+        }
+    }
+
+    opts.texture_changed = true;
+    ptrimagebusy = false;
 
     emit progressCounter(100);
-
     QApplication::restoreOverrideCursor();
-
     emit segmentlistfinished(true);
 
+    return true;
+
+}
+
+void SegmentList::finishedavhrr()
+{
+    qDebug() << "SegmentList::finishedavhrr()";
+}
+
+
+void SegmentList::setHistogramMethod(int histo)
+{
+    this->histogrammethod = histo;
 }
 
 void SegmentList::RenderSegments(QPainter *painter, QColor col, bool renderall)
@@ -917,31 +894,6 @@ void SegmentList::ComposeSGProjection(int inputchannel)
 
 }
 
-
-//void SegmentList::composeprojectionfinished()
-//{
-
-//    qDebug() << "composeprojectionfinished";
-
-//    QRgb val;
-//    QRgb *row;
-
-//    if(opts.smoothprojectionimage)
-//        imageptrs->SmoothProjectionImage();
-
-//    QApplication::restoreOverrideCursor();
-
-//    emit segmentprojectionfinished();
-//}
-
-void SegmentList::composeprojectionreadyat(int segmentnbr)
-{
-
-    qDebug() << QString("composeprojectionreadyat %1").arg(segmentnbr);
-
-    emit segmentprojectionfinished(false);
-
-}
 
 void SegmentList::ClearSegments()
 {
@@ -1049,7 +1001,7 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
 
     int earthviews = this->NbrOfEartviewsPerScanline();
 
-    qDebug() << "===> start SegmentList::BilinearInterpolation(Segment *segm) for " << segm->segment_type;
+    qDebug() << QString("===> start SegmentList::BilinearInterpolation(Segment *segm) for %1").arg(segm->segment_type);
 
     for (int line = 0; line < segm->NbrOfLines-1; line++)
     {
@@ -1069,8 +1021,8 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
 
             if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
                     && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528)
-                    // && x11 > -50 && x12 > -50 && x21 > -50 && x22 > -50
-                    // && y11 > -50 && y12 > -50 && y21 > -50 && y22 > -50 )
+                // && x11 > -50 && x12 > -50 && x21 > -50 && x22 > -50
+                // && y11 > -50 && y12 > -50 && y21 > -50 && y22 > -50 )
             {
                 minx = Min(x11, x12, x21, x22);
                 miny = Min(y11, y12, y21, y22);
@@ -1081,7 +1033,7 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
                 anchorY = miny;
                 dimx = maxx + 1 - minx;
                 dimy = maxy + 1 - miny;
-                if( (dimx == 1 && dimy == 1) || (dimx > 50 && dimy > 50))
+                if( (dimx == 1 && dimy == 1) || (dimx > 50 && dimy > 50) || (dimx <= 0 || dimy <= 0))
                 {
                     counter++;
                 }
@@ -1102,72 +1054,86 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
                     yc21 = y21 - miny;
                     yc22 = y22 - miny;
 
+                    try
+                    {
+                        try
+                        {
+                            canvas = new QRgb[dimx * dimy];
+                        } catch(exception& e)
+                        {
+                            qDebug() << "BilineairInterpolation " << QString::fromUtf8(e.what()) << " dimx = " << dimx << " dimy = " << dimy << '\n';
+                            throw;
+                        }
 
-                    canvas = new QRgb[dimx * dimy];
-                    for(int i = 0 ; i < dimx * dimy ; i++)
-                        canvas[i] = qRgba(0,0,0,0);
+                        for(int i = 0 ; i < dimx * dimy ; i++)
+                            canvas[i] = qRgba(0,0,0,0);
 
-                    canvas[yc11 * dimx + xc11] = rgb11;
-                    canvas[yc12 * dimx + xc12] = rgb12;
-                    canvas[yc21 * dimx + xc21] = rgb21;
-                    canvas[yc22 * dimx + xc22] = rgb22;
+                        canvas[yc11 * dimx + xc11] = rgb11;
+                        canvas[yc12 * dimx + xc12] = rgb12;
+                        canvas[yc21 * dimx + xc21] = rgb21;
+                        canvas[yc22 * dimx + xc22] = rgb22;
 
-//                    if(line == 1 && pixelx == 1)
-//                    {
-//                        qDebug() << QString("rgb11 = %1 rgb12 = %2 rgb21 = %3 rgb22 = %4").arg(qRed(rgb11)).arg(qRed(rgb12)).arg(qRed(rgb21)).arg(qRed(rgb22));
-//                        for ( int i = 0; i < dimy; i++ )
-//                        {
-//                            for ( int j = 0; j < dimx; j++ )
-//                            {
-//                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
-//                            }
-//                            std::cout << std::endl;
-//                        }
-//                        std::cout << "before ....................................... line " << line << " pixelx = " << pixelx << std::endl;
-//                    }
+                        //                    if(line == 1 && pixelx == 1)
+                        //                    {
+                        //                        qDebug() << QString("rgb11 = %1 rgb12 = %2 rgb21 = %3 rgb22 = %4").arg(qRed(rgb11)).arg(qRed(rgb12)).arg(qRed(rgb21)).arg(qRed(rgb22));
+                        //                        for ( int i = 0; i < dimy; i++ )
+                        //                        {
+                        //                            for ( int j = 0; j < dimx; j++ )
+                        //                            {
+                        //                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
+                        //                            }
+                        //                            std::cout << std::endl;
+                        //                        }
+                        //                        std::cout << "before ....................................... line " << line << " pixelx = " << pixelx << std::endl;
+                        //                    }
 
-//                    std::flush(cout);
+                        //                    std::flush(cout);
 
-                    bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
-                    bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
-                    bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
-                    bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
+                        bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
+                        bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
+                        bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
+                        bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
 
-//                    if(line == 1 && pixelx == 1)
-//                    {
-//                        for ( int i = 0; i < dimy; i++ )
-//                        {
-//                            for ( int j = 0; j < dimx; j++ )
-//                            {
-//                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
-//                            }
-//                            std::cout << std::endl;
-//                        }
-//                        std::cout << "after -------------------------------------- line " << line << " pixelx = " << pixelx << std::endl;
-//                    }
+                        //                    if(line == 1 && pixelx == 1)
+                        //                    {
+                        //                        for ( int i = 0; i < dimy; i++ )
+                        //                        {
+                        //                            for ( int j = 0; j < dimx; j++ )
+                        //                            {
+                        //                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
+                        //                            }
+                        //                            std::cout << std::endl;
+                        //                        }
+                        //                        std::cout << "after -------------------------------------- line " << line << " pixelx = " << pixelx << std::endl;
+                        //                    }
 
-                    MapInterpolation(canvas, dimx, dimy);
-                    MapCanvas(canvas, anchorX, anchorY, dimx, dimy, combine);
+                        MapInterpolation(canvas, dimx, dimy);
+                        MapCanvas(canvas, anchorX, anchorY, dimx, dimy, combine);
 
-//                    if(line == 1 && pixelx == 1)
-//                    {
-//                        for ( int i = 0; i < dimy; i++ )
-//                        {
-//                            for ( int j = 0; j < dimx; j++ )
-//                            {
-//                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
-//                            }
-//                            std::cout << std::endl;
-//                        }
-//                        std::cout << "================================= line " << line << " pixelx = " << pixelx << std::endl;
-//                    }
+                        //                    if(line == 1 && pixelx == 1)
+                        //                    {
+                        //                        for ( int i = 0; i < dimy; i++ )
+                        //                        {
+                        //                            for ( int j = 0; j < dimx; j++ )
+                        //                            {
+                        //                                std::cout << std::setw(3) << qRed(canvas[i * dimx + j]) << " ";
+                        //                            }
+                        //                            std::cout << std::endl;
+                        //                        }
+                        //                        std::cout << "================================= line " << line << " pixelx = " << pixelx << std::endl;
+                        //                    }
 
-                    delete [] canvas;
-                    counterb++;
+                        delete [] canvas;
+                        counterb++;
+                    }
+                    catch (...) {
+                        qDebug() << "Exception occured";
+                    }
                 }
             }
         }
     }
+
 
     qDebug() << QString("====> end SegmentList::BilinearInterpolation(Segment *segm) counter = %1 countern = %2").arg(counter).arg(counterb);
 
@@ -1223,7 +1189,7 @@ void SegmentList::BilinearInterpolation12bits(Segment *segm)
 
     int earthviews = this->NbrOfEartviewsPerScanline();
 
-    qDebug() << "===> start SegmentList::BilinearInterpolation12bits(Segment *segm) for " << segm->segment_type;
+    qDebug() << QString("===> start SegmentList::BilinearInterpolation12bits(Segment *segm) for %1").arg(segm->segment_type);
 
     for (int line = 0; line < segm->NbrOfLines-1; line++)
     {
@@ -1255,7 +1221,7 @@ void SegmentList::BilinearInterpolation12bits(Segment *segm)
                 anchorY = miny;
                 dimx = maxx + 1 - minx;
                 dimy = maxy + 1 - miny;
-                if( (dimx == 1 && dimy == 1) || (dimx > 50 && dimy > 50))
+                if( (dimx == 1 && dimy == 1) || (dimx > 50 && dimy > 50) || (dimx <= 0 || dimy <= 0) )
                 {
                     counter++;
                 }
@@ -1383,6 +1349,8 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext,
 
     QRgb *canvas;
 
+    qDebug() << QString("====> start SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext)");
+
     int earthviews = this->NbrOfEartviewsPerScanline();
 
     for (int pixelx = 0; pixelx < earthviews-1; pixelx++)
@@ -1415,7 +1383,7 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext,
             anchorY = miny;
             dimx = maxx + 1 - minx;
             dimy = maxy + 1 - miny;
-            if( dimx == 1 && dimy == 1 )
+            if( dimx == 1 && dimy == 1 || (dimx > 50 && dimy > 50) || (dimx <= 0 || dimy <= 0) )
             {
                 counter++;
             }
@@ -1435,32 +1403,46 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext,
                 yc21 = y21 - miny;
                 yc22 = y22 - miny;
 
-                canvas = new QRgb[dimx * dimy];
-                for(int i = 0 ; i < dimx * dimy ; i++)
-                    canvas[i] = qRgba(0,0,0,0);
+                try
+                {
+                    try
+                    {
+                        canvas = new QRgb[dimx * dimy];
+                    } catch(exception& e)
+                    {
+                        qDebug() << "BilineairBetweenSegments " << QString::fromUtf8(e.what()) << " dimx = " << dimx << " dimy = " << dimy << '\n';
+                        throw;
+                    }
 
-                canvas[yc11 * dimx + xc11] = rgb11;
-                canvas[yc12 * dimx + xc12] = rgb12;
-                canvas[yc21 * dimx + xc21] = rgb21;
-                canvas[yc22 * dimx + xc22] = rgb22;
+                    for(int i = 0 ; i < dimx * dimy ; i++)
+                        canvas[i] = qRgba(0,0,0,0);
+
+                    canvas[yc11 * dimx + xc11] = rgb11;
+                    canvas[yc12 * dimx + xc12] = rgb12;
+                    canvas[yc21 * dimx + xc21] = rgb21;
+                    canvas[yc22 * dimx + xc22] = rgb22;
 
 
-                bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
-                bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
-                bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
-                bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
+                    bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
+                    bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
+                    bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
+                    bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
 
-                MapInterpolation(canvas, dimx, dimy);
-                MapCanvas(canvas, anchorX, anchorY, dimx, dimy, combine);
+                    MapInterpolation(canvas, dimx, dimy);
+                    MapCanvas(canvas, anchorX, anchorY, dimx, dimy, combine);
 
-                delete [] canvas;
-                counterb++;
+                    delete [] canvas;
+                    counterb++;
+                }
+                catch(...) {
+                    qDebug() << "BilinearBetweenSegments Exception occured";
+                }
             }
         }
     }
 
 
-    qDebug() << QString("====> end SegmentList::BilinearInbetween(Segment *segmfirst, Segment *segmnext) counter = %1 counterb = %2").arg(counter).arg(counterb);
+    qDebug() << QString("====> end SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext) counter = %1 counterb = %2").arg(counter).arg(counterb);
 
 }
 
@@ -1544,7 +1526,7 @@ void SegmentList::BilinearBetweenSegments12bits(Segment *segmfirst, Segment *seg
             anchorY = miny;
             dimx = maxx + 1 - minx;
             dimy = maxy + 1 - miny;
-            if( dimx == 1 && dimy == 1 )
+            if( dimx == 1 && dimy == 1 || (dimx > 50 && dimy > 50) || (dimx <= 0 || dimy <= 0) )
             {
                 counter++;
             }

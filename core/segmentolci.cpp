@@ -10,10 +10,10 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 extern QMutex g_mutex;
 
-void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
-{
-    t->CalcOverlayLatLon(collength, rowlength);
-}
+//void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
+//{
+//    t->CalcOverlayLatLon(collength, rowlength);
+//}
 
 
 SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *satl, QObject *parent) :
@@ -580,6 +580,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
 }
 
+/*
 void SegmentOLCI::CalcOverlayLatLon(int columnslength, int rowslength)
 {
     qDebug() << "Start SegmentOLCI::CalcOverlayLatLon";
@@ -622,6 +623,7 @@ void SegmentOLCI::CalcOverlayLatLon(int columnslength, int rowslength)
 
 
 }
+*/
 
 // There is no difference between a linear interpolation and the Lagrange interpolation
 float SegmentOLCI::getSolarZenith(int *tieSZA, int navpoint, int intpoint, int nbrLine) //navpoint = [0, 76] intpoint = [0, 63] nbrLine = [0, this->NbrOfLines]

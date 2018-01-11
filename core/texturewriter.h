@@ -1,10 +1,6 @@
 #ifndef TEXTUREWRITER_H
 #define TEXTUREWRITER_H
 
-#define OPENGL32
-//#define OPENGL40
-//#define OPENGL43
-
 #ifdef OPENGL32
 #include <QOpenGLFunctions_3_2_Core>
 #endif
@@ -14,8 +10,6 @@
 #ifdef OPENGL43
 #include <QOpenGLFunctions_4_3_Core>
 #endif
-
-
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>

@@ -269,7 +269,7 @@ bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QStr
 
     getFilenameParameters(fileinfo, filespectrum, filedate, filesequence);
 
-    qDebug() << QString("SegmentListGeostationary::ComposeImageXRIT filePath = %1").arg(fileinfo.filePath());
+    qDebug() << QString("SegmentListGeostationary::ComposeImageXRIT filePath = %1 filespectrum = %2").arg(fileinfo.filePath()).arg(filespectrum);
 
     if( filespectrum  == "HRV")
     {

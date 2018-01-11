@@ -1425,6 +1425,7 @@ void AVHRRSatellite::RemoveFromList(QList<Segment*> *sl)
         ++segit;
     }
 
+
 }
 
 void AVHRRSatellite::RemoveAllSelectedVIIRSM()

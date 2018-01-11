@@ -39,7 +39,6 @@ public:
     virtual Segment *ReadDatasetsInMemory();
     virtual void ComposeSegmentImage();
 
-    virtual void RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine ); //not pure virtual : exception Metop ,GAC and VIIRS
 
     virtual void initializeMemory();
     virtual void resetMemory();
@@ -63,7 +62,9 @@ public:
     //void RenderSegmentContourline(float lat_first, float lon_first, float lat_last, float lon_last);
     void RenderSegmentlineInTextureRad(int channel, double earth_loc_lat_first,double earth_loc_lon_first, double earth_loc_lat_last,
                                     double earth_loc_lon_last, double earth_loc_altitude, int segmentheight);
-    // void RenderSegmentInTexture(int channel, int nbrTotalLine);
+    void RenderSegmentInTexture();
+    virtual void RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine ); //not pure virtual : exception Metop ,GAC and VIIRS
+
 
     void NormalizeSegment();
 
@@ -180,6 +181,7 @@ protected:
     void CalculateDetailCornerPoints();
     void initializeProjectionCoord();
     void setupVector(double statevec, QSgp4Date sensing);
+
 
 
     quint32 cnt_mphr;

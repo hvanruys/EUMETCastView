@@ -10,6 +10,7 @@
 #include <hdf5/serial/hdf5.h>
 #endif
 
+
 class SegmentVIIRSM : public Segment
 {
     Q_OBJECT

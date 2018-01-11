@@ -6,6 +6,7 @@
 
 #include "FreeImage.h"
 
+
 extern Options opts;
 extern Poi poi;
 extern SegmentImage *imageptrs;
@@ -1643,10 +1644,10 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->btnCLAHEavhhr->setEnabled(state);
     ui->btnCLAHEGeostationary->setEnabled(state);
     ui->btnExpandImage->setEnabled(state);
-    ui->btnOverlayMeteosat->setEnabled(state);
-    ui->btnOverlayProjectionGVP->setEnabled(state);
-    ui->btnOverlayProjectionLCC->setEnabled(state);
-    ui->btnOverlayProjectionSG->setEnabled(state);
+    ui->btnOverlayMeteosat->setEnabled(true);
+    ui->btnOverlayProjectionGVP->setEnabled(true);
+    ui->btnOverlayProjectionLCC->setEnabled(true);
+    ui->btnOverlayProjectionSG->setEnabled(true);
     ui->btnRotate180->setEnabled(state);
 
     ui->btnUpdateVIIRSImage->setEnabled(state);

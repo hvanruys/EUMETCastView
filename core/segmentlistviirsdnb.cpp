@@ -15,7 +15,7 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 extern bool ptrimagebusy;
 
-void doComposeVIIRSDNBImageInThread(SegmentListVIIRSDNB *t)
+void SegmentListVIIRSDNB::doComposeVIIRSDNBImageInThread(SegmentListVIIRSDNB *t)
 {
     t->ComposeVIIRSImageInThread();
 }
@@ -41,12 +41,11 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImage(QList<bool> bandlist, QList<int> col
     ptrimagebusy = true;
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    watcherviirs = new QFutureWatcher<void>(this);
-    connect(watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
+    connect(&watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
 
     QFuture<void> future;
     future = QtConcurrent::run(doComposeVIIRSDNBImageInThread, this);
-    watcherviirs->setFuture(future);
+    watcherviirs.setFuture(future);
 
     return true;
 
@@ -365,7 +364,6 @@ void SegmentListVIIRSDNB::finishedviirs()
     ptrimagebusy = false;
 
     QApplication::restoreOverrideCursor();
-    delete watcherviirs;
 
     emit segmentprojectionfinished(true);
 }

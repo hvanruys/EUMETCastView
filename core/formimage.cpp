@@ -473,7 +473,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_METOP);
-                segs->seglmetop->ComposeImage();
+                segs->seglmetop->ComposeAVHRRImage();
             }
             else if (noaacount > 0 && opts.buttonNoaa)
             {
@@ -481,7 +481,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_NOAA);
-                segs->seglnoaa->ComposeImage();
+                segs->seglnoaa->ComposeAVHRRImage();
             }
             else if (hrpcount > 0 && opts.buttonHRP)
             {
@@ -489,7 +489,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_HRP);
-                segs->seglhrp->ComposeImage();
+                segs->seglhrp->ComposeAVHRRImage();
             }
             else if (gaccount > 0 && opts.buttonGAC)
             {
@@ -497,7 +497,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_GAC);
-                segs->seglgac->ComposeImage();
+                segs->seglgac->ComposeAVHRRImage();
             }
             else if (metopAhrptcount > 0 && opts.buttonMetopAhrpt)
             {
@@ -505,7 +505,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_HRPT_METOPA);
-                segs->seglmetopAhrpt->ComposeImage();
+                segs->seglmetopAhrpt->ComposeAVHRRImage();
             }
             else if (metopBhrptcount > 0 && opts.buttonMetopBhrpt)
             {
@@ -513,7 +513,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_HRPT_METOPB);
-                segs->seglmetopBhrpt->ComposeImage();
+                segs->seglmetopBhrpt->ComposeAVHRRImage();
             }
             else if (noaa19hrptcount > 0 && opts.buttonNoaa19hrpt)
             {
@@ -521,7 +521,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_HRPT_NOAA19);
-                segs->seglnoaa19hrpt->ComposeImage();
+                segs->seglnoaa19hrpt->ComposeAVHRRImage();
             }
             else if (M01hrptcount > 0 && opts.buttonM01hrpt)
             {
@@ -529,7 +529,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_HRPT_M01);
-                segs->seglM01hrpt->ComposeImage();
+                segs->seglM01hrpt->ComposeAVHRRImage();
             }
             else if (M02hrptcount > 0 && opts.buttonM02hrpt)
             {
@@ -537,7 +537,7 @@ void FormImage::MakeImage()
 
                 this->kindofimage = "AVHRR Color";
                 this->setSegmentType(SEG_HRPT_M02);
-                segs->seglM02hrpt->ComposeImage();
+                segs->seglM02hrpt->ComposeAVHRRImage();
             }
 
         }

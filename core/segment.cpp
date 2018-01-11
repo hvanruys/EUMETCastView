@@ -667,15 +667,15 @@ void Segment::NormalizeSegment()
             for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
             {
                 int pixel = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
-                int pixcalc = (pixel - list_stat_min_ch[k]) * 1023 / (list_stat_max_ch[k] - list_stat_min_ch[k]);
-                pixcalc = pixcalc > 1023 ? 1023 : pixcalc;
-                pixcalc = pixcalc < 0 ? 0 : pixcalc;
-                this->ptrbaChannel[k][line * earth_views_per_scanline + pixelx] = pixcalc;
-                segment_stats_ch[k][pixcalc]++;
+                quint16 pixval1024 =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel - list_stat_min_ch[k] ) / (float)(list_stat_max_ch[k] - list_stat_min_ch[k])), 0), 1023);
+
+                this->ptrbaChannel[k][line * earth_views_per_scanline + pixelx] = pixval1024;
+                segment_stats_ch[k][pixval1024]++;
 
             }
         }
     }
+
 
     //int ret1 = imageptrs->CLAHE(this->ptrbaChannel[0], 2048, this->NbrOfLines, 0, 1023, 16, 10, 256, 2);
     //int ret2 = imageptrs->CLAHE(this->ptrbaChannel[1], 2048, this->NbrOfLines, 0, 1023, 16, 10, 256, 2);
@@ -704,6 +704,30 @@ void Segment::NormalizeSegment()
     }
 }
 
+void Segment::RenderSegmentInTexture()
+{
+
+    if(opts.imageontextureOnAVHRR)
+    {
+        for (int line = 0; line < this->NbrOfLines; line++)
+        {
+            if(opts.imageontextureOnAVHRR)
+            {
+                try
+                {
+                    this->RenderSegmentlineInTexture( opts.channelontexture, line, this->startLineNbr + line );
+                }
+                catch(...)
+                {
+                    qDebug() << "Catch error in RenderSegmentlineInTexture";
+                }
+                opts.texture_changed = true;
+            }
+        }
+    }
+
+}
+
 void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine )
 {
     // nbrLine = nbr of line in segment
@@ -715,7 +739,6 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
     QGeodetic qgeo = qeci.ToGeo();
 
     double julian_sensing_time = julian_sensing_start + (double)(nbrLine) / ( 6.0 * 60.0 * 60.0 * 24.0);
-    //qDebug() << QString("julian sensing time = %1").arg(julian_sensing_time);
     QSgp4Date juldate1(julian_sensing_time, true);
 
 
@@ -843,7 +866,7 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
     int posx, posy;
     int posx1, posy1, posx2, posy2;
 
-    QMutexLocker locker(&g_mutex);
+    //QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 
@@ -857,7 +880,6 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
 
     for (int pix = 0 ; pix < earthviews; pix+=(channel == 10 ? 2 : 1))
     {
-
         sindeltax = sin(deltax * pix);
         dx = r * cos(deltax * pix) - sqrt( XKMPER * XKMPER - r * r * sindeltax * sindeltax );
         psix1 = psi + asin( dx * sindeltax / XKMPER );
@@ -880,7 +902,6 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
         rgb2.setRgb(qRed(row_col[earthviews-pix]), qGreen(row_col[earthviews-pix]), qBlue(row_col[earthviews-pix]));
         fb_painter.setPen(rgb2);
         fb_painter.drawPoint( posx2 , posy2 );
-
     }
 
     fb_painter.end();
@@ -891,17 +912,20 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
 void Segment::ComposeSegmentImage()
 {
 
+//    qDebug() << QString("start ComposeSegmentImage startLineNbr = %1").arg(this->startLineNbr);
+//    return;
+
     QRgb *row_ch[5];
     QRgb *row_col;
     quint16 pixel[5];
     quint16 R_value, G_value, B_value;
     bool ok;
-    quint16 indexout[3];
+    quint16 indexout[5];
 
     // see FormImage::displayImage(eImageType channel) for the mutex
     // also in SegmentOLCI::ComposeSegmentImage , SegmentVIIRSM::ComposeSegmentImage and SegmentVIIRSDNB::ComposeSegmentImageWindow
 
-    qDebug() << QString("start ComposeSegmentImage startLineNbr = %1 nbr of lines = %2").arg(this->startLineNbr).arg(this->NbrOfLines);
+    qDebug() << QString("start ComposeSegmentImage startLineNbr = %1 nbr of lines = %2 histogrammethod = %3").arg(this->startLineNbr).arg(this->NbrOfLines).arg(histogrammethod);
     int startheight = this->startLineNbr;
 
     QStringList channellist;
@@ -932,6 +956,11 @@ void Segment::ComposeSegmentImage()
 
     int half_earth_views = earth_views_per_scanline / 2;
 
+    for( int k = 0; k < 5; k++)
+    {
+        qDebug() << QString("imageptrs->minRadianceIndex[%1] = %2 imageptrs->maxRadianceIndex[%3] = %4").arg(k).arg(imageptrs->minRadianceIndex[k]).arg(k).arg(imageptrs->maxRadianceIndex[k]);
+    }
+
     for (int line = 0; line < this->NbrOfLines; line++)
     {
         row_ch[0] = (QRgb*)imageptrs->ptrimagecomp_ch[0]->scanLine(startheight + line);
@@ -948,12 +977,15 @@ void Segment::ComposeSegmentImage()
             {
 
                 pixel[k] = *(this->ptrbaChannel[k].data() + line * earth_views_per_scanline + pixelx);
-                if(histogrammethod == CMB_HISTO_NONE_95) // 95%
+
+                if(histogrammethod == (int)CMB_HISTO_NONE_95) // 95%
                     indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 1023);
-                else if(histogrammethod == CMB_HISTO_NONE_100)
+                else if(histogrammethod == (int)CMB_HISTO_NONE_100)
                     indexout[k] = pixel[k];
-                else if(histogrammethod == CMB_HISTO_EQUALIZE)
+                else if(histogrammethod == (int)CMB_HISTO_EQUALIZE)
                     indexout[k] = imageptrs->lut_ch[k][pixel[k]];
+                else
+                    indexout[k] = pixel[k];
 
                 R_value = indexout[k]/4;
                 if (inverse.at(k) == "1")
@@ -964,6 +996,7 @@ void Segment::ComposeSegmentImage()
                 {
                     row_ch[k][pixelx] = qRgb(R_value, R_value, R_value);
                 }
+
             }
 
             for( int k = 0; k < 5; k++ )
@@ -1009,13 +1042,14 @@ void Segment::ComposeSegmentImage()
             {
                 row_col[pixelx] = qRgb(R_value, G_value, B_value);
             }
+
         }
 
-        if(opts.imageontextureOnAVHRR)
-        {
-            this->RenderSegmentlineInTexture( opts.channelontexture, line, startheight + line );
-            opts.texture_changed = true;
-        }
+//        if(opts.imageontextureOnAVHRR)
+//        {
+//            this->RenderSegmentlineInTexture( opts.channelontexture, line, startheight + line );
+//            opts.texture_changed = true;
+//        }
     }
 
     qDebug() << QString("--> na ComposeSegmentImage startLineNbr = %1 nbr of lines = %2 segshow = %3").arg(this->startLineNbr).arg(this->NbrOfLines).arg(this->segmentshow);
@@ -1025,55 +1059,11 @@ void Segment::ComposeSegmentImage()
 qint32 Segment::getProjectionX(int line, int pixelx)
 {
     return projectionCoordX[line * earth_views_per_scanline + pixelx];
-
-//    switch(segtype)
-//    {
-//    case eSegmentType::SEG_METOP:
-//    case eSegmentType::SEG_NOAA:
-//    case eSegmentType::SEG_HRP:
-//        return projectionCoordX[line * 2048 + pixelx];
-//        break;
-//    case eSegmentType::SEG_GAC:
-//        return projectionCoordX[line * 409 + pixelx];
-//        break;
-//    case eSegmentType::SEG_VIIRSM:
-//        return projectionCoordX[line * 3200 + pixelx];
-//        break;
-//    case eSegmentType::SEG_VIIRSDNB:
-//        return projectionCoordX[line * 4064 + pixelx];
-//        break;
-//    case eSegmentType::SEG_OLCIEFR:
-//    case eSegmentType::SEG_OLCIERR:
-//        return projectionCoordX[line * earth_views_per_scanline + pixelx];
-//        break;
-//    }
 }
 
 qint32 Segment::getProjectionY(int line, int pixelx)
 {
     return projectionCoordY[line * earth_views_per_scanline + pixelx];
-
-//    switch(segtype)
-//    {
-//    case eSegmentType::SEG_METOP:
-//    case eSegmentType::SEG_NOAA:
-//    case eSegmentType::SEG_HRP:
-//        return projectionCoordY[line * 2048 + pixelx];
-//        break;
-//    case eSegmentType::SEG_GAC:
-//        return projectionCoordY[line * 409 + pixelx];
-//        break;
-//    case eSegmentType::SEG_VIIRSM:
-//        return projectionCoordY[line * 3200 + pixelx];
-//        break;
-//    case eSegmentType::SEG_VIIRSDNB:
-//        return projectionCoordY[line * 4064 + pixelx];
-//        break;
-//    case eSegmentType::SEG_OLCIEFR:
-//    case eSegmentType::SEG_OLCIERR:
-//        return projectionCoordY[line * earth_views_per_scanline + pixelx];
-//        break;
-//    }
 }
 
 QRgb Segment::getProjectionValue(int line, int pixelx)

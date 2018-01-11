@@ -12,7 +12,6 @@ class SegmentListVIIRSM  : public SegmentList
 
 public:
     SegmentListVIIRSM(SatelliteList *satl = 0, QObject *parent = 0);
-    bool ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
 
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
@@ -28,6 +27,8 @@ public:
     void ComposeLCCProjection(int inputchannel);
     void ComposeSGProjection(int inputchannel);
 
+    static void doComposeVIIRSMImageInThread(SegmentListVIIRSM *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+
 private:
     void CalculateLUT();
     void CalculateProjectionLUT();
@@ -40,6 +41,9 @@ private:
     void MapInterpolationFloat(float *canvas, int *canvas1, quint16 dimx, quint16 dimy);
     void MapCanvasFloat(float *canvas, int *canvas1, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy);
     void initBrightnessTemp();
+
+    bool ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
+
 
     SatelliteList *satlist;
     int lut[256];
@@ -56,7 +60,7 @@ private:
 
 protected:
 
-    QFutureWatcher<void> *watcherviirs;
+    QFutureWatcher<void> watcherviirs;
 
 
 

@@ -160,10 +160,9 @@ Segment *SegmentHRP::ReadSegmentInMemory()
     int n=0;
     int i,j,c,p;
 
-    qDebug() << "ReadSegmentInMemory()";
+    qDebug() << "ReadSegmentInMemory() HRP";
     quint64 nextrecordlength = 0;
     quint32 nextres = 0;
-    quint16 num1=0, num2=0, num3=0, num4=0;
     quint16 val, val1, val2;
     quint16 valline[5][2048];
 
@@ -174,6 +173,8 @@ Segment *SegmentHRP::ReadSegmentInMemory()
         qDebug() << QString("file %1 not found ! ").arg(this->fileInfo.absoluteFilePath());
         return this;
     }
+    else
+        qDebug() << QString("file %1 is open ! ").arg(this->fileInfo.absoluteFilePath());
 
     if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
     {

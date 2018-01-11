@@ -20,7 +20,7 @@ public:
     void sliderCentreBandChanged(int val);
     void spbWindowValueChanged(int spbwindowval, int slcentreband);
     float getMoonIllumination() { return moonillumination; }
-
+    static void doComposeVIIRSDNBImageInThread(SegmentListVIIRSDNB *t);
     QScopedArrayPointer<long> graphvalues;
     QVector<double> xDNBcurve;
     QVector<double> yDNBcurve;
@@ -39,7 +39,7 @@ private:
     float moonillumination;
 
 protected:
-    QFutureWatcher<void> *watcherviirs;
+    QFutureWatcher<void> watcherviirs;
 
 protected slots:
     void finishedviirs();

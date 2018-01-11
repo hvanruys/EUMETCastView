@@ -1,11 +1,6 @@
 #ifndef GLOBE_H
 #define GLOBE_H
 
-
-#define OPENGL32
-//#define OPENGL40
-//#define OPENGL43
-
 #include <QApplication>
 #include <QOpenGLWidget>
 #include <QOpenGLTexture>

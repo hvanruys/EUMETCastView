@@ -8,13 +8,13 @@
 #include <hdf5/serial/hdf5.h>
 #endif
 
+
 extern Options opts;
 extern Poi poi;
 extern SegmentImage *imageptrs;
 extern QFile loggingFile;
 
 class SegmentListGeostationary;
-
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -300,7 +300,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 MainWindow::~MainWindow()
 {
 
-    delete ui;
+//    delete ui;
     delete timer;
 
     delete formtoolbox;
@@ -370,13 +370,15 @@ MainWindow::~MainWindow()
     }
 
     qDebug() << "================closing MainWindow================";
-    loggingFile.close();
 
-    qDebug() << QThread::currentThreadId();
+    qDebug() << "currentThreadId() = " << QThread::currentThreadId();
 
     QList<QThread*> mainwindowthreadslist = this->findChildren <QThread*> ();
     for(int i = 0; i < mainwindowthreadslist.count(); i++)
         qDebug() << mainwindowthreadslist.at(i)->currentThread()->currentThreadId();
+
+
+    loggingFile.close();
 
 
 }

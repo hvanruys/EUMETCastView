@@ -43,8 +43,8 @@ public:
     void ShowSegment(int value);
     void ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview);
 
-    bool ComposeImage();
-    void ComposeImage1();
+    bool ComposeAVHRRImage();
+
     bool TestForSegment(double *deg_lon, double *deg_lat, bool leftbuttondown, bool showallsegments);
     void RenderSegments(QPainter *painter, QColor col, bool renderall);
     int NbrOfEartviewsPerScanline();
@@ -55,9 +55,7 @@ public:
     void SmoothProjectionImageBicubic();
     void Compose48bitProjectionPNG(QString fileName, bool mapto65535);
 
-
-    static void doReadSegmentInMemory(Segment *t);
-    static void doComposeSegmentImage(Segment *t);
+    static void doComposeAVHRRImageInThread(SegmentList *list);
     //static void doComposeGVProjection(Segment *t);
     int GetTotalNbrOfLines() { return this->totalnbroflines; }
     int GetEartViewsPerScanline() { return this->earth_views_per_scanline; }
@@ -86,6 +84,8 @@ protected:
     qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
     qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
 
+    bool ComposeAVHRRImageInThread();
+
     int nbrofvisiblesegments;
     int indexfirstvisible;
     int indexlastvisible;
@@ -99,10 +99,10 @@ protected:
     long TotalSegmentsInDirectory;
     long stat_max_ch[5];
     long stat_min_ch[5];
-    long stat_max_norm_ch[3];
-    long stat_min_norm_ch[3];
-    long stat_max_proj_ch[3];
-    long stat_min_proj_ch[3];
+    long stat_max_norm_ch[5];
+    long stat_min_norm_ch[5];
+    long stat_max_proj_ch[5];
+    long stat_min_proj_ch[5];
 
     int progressresultready; // for progresscounter
     int projectioninputchannel;
@@ -125,18 +125,11 @@ public slots:
 protected:
     QList<Segment *> segmentlist;
     QList<Segment *> segsselected;
-    QFutureWatcher<void> *watcherread;
-    QFutureWatcher<void> *watchercompose;
-    //QFutureWatcher<void> *watchercomposeprojection;
+    QFutureWatcher<void> watcheravhrr;
     float scale;
 
 protected slots:
-    void readfinished();
-    void composefinished();
-    void progressvaluechanged(int segmentnbr);
-    void resultcomposeisready(int segmentnbr);
-//    void composeprojectionfinished();
-    void composeprojectionreadyat(int segmentnbr);
+    void finishedavhrr();
 
 
 };
