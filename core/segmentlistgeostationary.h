@@ -17,7 +17,7 @@ public:
     bool ComposeImageXRIT(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     //bool ComposeImageHDFSerial(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
     bool ComposeImageHDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector);
-    bool ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
+    bool ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
 
     void displayMinMax();
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
@@ -35,7 +35,7 @@ public:
 
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
-    void ComposeSegmentImagenetCDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod );
+    void ComposeSegmentImagenetCDFInThread(); //QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod );
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2); //, quint16 x3, quint16 y3, quint16 x4, quint16 y4);
     quint16 ContrastStretch(quint16 val);
     void InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence);
@@ -48,6 +48,12 @@ public:
     void setGeoSatellite(eGeoSatellite ws) { m_GeoSatellite = ws; }
     void setGeoSatellite(int geoindex, QString strgeo);
     void CalculateLUTGeo(int colorindex);
+
+    static void doComposeGeostationaryXRIT(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    static void doComposeGeostationaryXRITHimawari(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    static void doComposeGeostationaryHDFInThread(SegmentListGeostationary *sm, QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector);
+    static void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm); //, QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
+    void setThreadParameters(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
 
     bool issegmentcomposedRed[10];
     bool issegmentcomposedGreen[10];
@@ -81,19 +87,11 @@ public:
     double geosatlon;
     QString geosatname;
     QString str_GeoSatellite;
-    int histogrammethod;
 
 private:
 
     void ComposeColorHRV();
     void getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
-
-//    quint16 maxvalueRed[10];
-//    quint16 minvalueRed[10];
-//    quint16 maxvalueGreen[10];
-//    quint16 minvalueGreen[10];
-//    quint16 maxvalueBlue[10];
-//    quint16 minvalueBlue[10];
 
     quint16 stat_min[3];
     quint16 stat_max[3];
@@ -110,6 +108,12 @@ private:
     int geoindex;
     int number_of_columns;
     int number_of_lines;
+
+    QStringList segmentfilelist;
+    QVector<QString> spectrumvector;
+    QVector<bool> inversevector;
+    int histogrammethod;
+    bool pseudocolor;
 
 
 signals:

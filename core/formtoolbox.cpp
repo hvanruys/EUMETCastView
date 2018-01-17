@@ -2058,7 +2058,7 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
     //formimage->adjustPicSize(true);
     emit switchstackedwidget(3);
 
-    emit getgeosatchannel("VIS_IR", spectrumvector, inversevector, ui->cmbHistogramGeo->currentIndex());
+    emit getgeosatchannel("VIS_IR", spectrumvector, inversevector, ui->cmbHistogramGeo->currentIndex(), ui->rdbPseudoColor->isChecked());
 }
 
 void FormToolbox::on_btnGeoColor_clicked()
@@ -2479,7 +2479,7 @@ void FormToolbox::onButtonColorHRV(QString type)
     }
 
     emit switchstackedwidget(3);
-    emit getgeosatchannel(type, spectrumvector, inversevector, ui->cmbHistogramGeo->currentIndex());
+    emit getgeosatchannel(type, spectrumvector, inversevector, ui->cmbHistogramGeo->currentIndex(), ui->rdbPseudoColor->isChecked());
 }
 
 void FormToolbox::on_btnTextureMet_clicked()

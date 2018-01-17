@@ -756,7 +756,7 @@ FormGeostationary::~FormGeostationary()
     delete ui;
 }
 
-void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
+void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor)
 {
     // segs->seglgeo[0]->areatype == 1 ==> full
     // segs->seglgeo[0]->areatype == 0 ==> europe
@@ -835,7 +835,7 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
     if(opts.geosatellites.at(sl->getGeoSatelliteIndex()).protocol == "HDF" )
         CreateGeoImageHDF(sl, type, tex, spectrumvector, inversevector);
     else if(opts.geosatellites.at(sl->getGeoSatelliteIndex()).protocol == "netCDF")
-        CreateGeoImagenetCDF(sl, type, tex, spectrumvector, inversevector, histogrammethod);
+        CreateGeoImagenetCDF(sl, type, tex, spectrumvector, inversevector, histogrammethod, pseudocolor);
     else
         CreateGeoImageXRIT(sl, type, tex, spectrumvector, inversevector, histogrammethod);
 
@@ -1175,7 +1175,7 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
 
 }
 
-void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
+void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor)
 {
 
     QString filetiming;
@@ -1219,7 +1219,8 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
             return;
         }
         else
-            sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod);
+            sl->setThreadParameters(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+            sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
     }
 }
 

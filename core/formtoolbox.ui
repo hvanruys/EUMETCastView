@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -4941,6 +4941,13 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="rdbPseudoColor">
+         <property name="text">
+          <string>Calculate pseudo True Color for GOES-16</string>
+         </property>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_41">
