@@ -1143,28 +1143,6 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
         filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
 
 
-//    if(type == "VIS_IR" || type == "VIS_IR Color" || type == "HRV Color")
-//    {
-//        for (int j =  0; j < llVIS_IR.size(); ++j)
-//        {
-//            QFile file(sl->getImagePath() + "/" + llVIS_IR.at(j));
-//            QFileInfo fileinfo(file);
-//            //IMG_DK01B04_201510090000_001.bz2
-//            //0123456789012345678901234567890
-//            filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbr, opts.geosatellites.at(geoindex).lengthfilenbr).toInt()-1;
-//            filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length());
-//            filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdate, opts.geosatellites.at(geoindex).lengthdate);
-//            filedate.resize(12, '0');
-
-//            sl->InsertPresent( spectrumvector, filespectrum, filesequence);
-
-//            sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector);
-
-//            qDebug() << QString("CreateGeoImageXRIT VIS_IR || VIS_IR Color || HRV Color ----> %1 filesequence = %2").arg(fileinfo.filePath()).arg(filesequence);
-//        }
-//    }
-
-
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {
         llVIS_IR = this->getGeostationarySegments(geoindex, "VIS_IR", sl->getImagePath(), spectrumvector, filepattern);

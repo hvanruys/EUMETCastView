@@ -262,9 +262,9 @@ void MainWindow::createDockWidget()
     scrollArea->setWidgetResizable(true);
     dockwidget->setWidget(scrollArea);
 
-    dockwidget->resize(800, dockwidget->height());
+    //dockwidget->resize(1000, dockwidget->height());
 
-    //dockwidget->setMinimumWidth(480);
+    dockwidget->setMinimumWidth(480);
     //dockwidget->close();
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
 }
@@ -446,9 +446,9 @@ void MainWindow::on_actionWhatsthis_triggered()
 void MainWindow::on_actionFitWindow_triggered()
 {
     formimage->adjustPicSize(false);
-       //qDebug() << QString("mainwindow x = %1 y = %2").arg(this->width()).arg(this->height());
-       //qDebug() << QString("formtoolbox x = %1 y = %2").arg(formtoolbox->width()).arg(formtoolbox->height());
-       //qDebug() << QString("=======> totaal x = %1 y = %2").arg(this->width() - formtoolbox->width()).arg(this->height());
+    qDebug() << QString("mainwindow x = %1 y = %2").arg(this->width()).arg(this->height());
+    qDebug() << QString("formtoolbox x = %1 y = %2").arg(formtoolbox->width()).arg(formtoolbox->height());
+    qDebug() << QString("=======> totaal x = %1 y = %2").arg(this->width() - formtoolbox->width()).arg(this->height());
 }
 
 void MainWindow::on_actionFitWindowWidth_triggered()

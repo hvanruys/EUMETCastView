@@ -261,8 +261,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->rbtnAColor->setChecked(true);
     opts.channelontexture = 6; // color channel
 
-    ui->teAVHRR->setReadOnly(true);
-    ui->teAVHRR->append(formimage->txtInfo);
+//    ui->teAVHRR->setReadOnly(true);
+//    ui->teAVHRR->append(formimage->txtInfo);
 
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
@@ -476,36 +476,11 @@ void FormToolbox::setSLSTRConfigsettings()
     ui->comboSLSTRConfig->blockSignals(false);
 }
 
-void FormToolbox::writeInfoToAVHRR(QString info)
+void FormToolbox::writeInfoToTextEdit(QString info)
 {
-    ui->teAVHRR->clear();
-    ui->teAVHRR->append(info);
+    ui->te->clear();
+    ui->te->append(info);
 }
-
-void FormToolbox::writeInfoToVIIRSM(QString info)
-{
-    ui->teVIIRSM->clear();
-    ui->teVIIRSM->append(info);
-}
-
-void FormToolbox::writeInfoToVIIRSDNB(QString info)
-{
-    ui->teVIIRSDNB->clear();
-    ui->teVIIRSDNB->append(info);
-}
-
-void FormToolbox::writeInfoToGeo(QString info)
-{
-    ui->teGeo->clear();
-    ui->teGeo->append(info);
-}
-
-void FormToolbox::writeInfoToSentinel(QString info)
-{
-    ui->teSentinel->clear();
-    ui->teSentinel->append(info);
-}
-
 
 bool FormToolbox::eventFilter(QObject *target, QEvent *event)
 {

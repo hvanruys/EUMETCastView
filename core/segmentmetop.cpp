@@ -463,7 +463,6 @@ void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record, int heightinsegment
     // nbr_navigation_points = 51
     // 25 + (40 x {0 ... 50})
 
-    double dsolar;
     for(int i = 0; i < num_navigation_points; i++)
     {
         num1 = 0xFF & mdr_record->at(20536 + i*8);
@@ -972,7 +971,7 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
     /*    from pt 5 --> pt 2045
         = 5 + 20 * 102 total of 103 pts
@@ -1028,7 +1027,7 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
     }
 
 
-    g_mutex.unlock();
+    //g_mutex.unlock();
 
 }
 
@@ -1196,7 +1195,7 @@ void SegmentMetop::RenderSegmentlineInSG(int channel, int nbrLine, int heightint
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
 
     if(num_navigation_points == 103)
@@ -1232,7 +1231,7 @@ void SegmentMetop::RenderSegmentlineInSG(int channel, int nbrLine, int heightint
         }
     }
 
-    g_mutex.unlock();
+    //g_mutex.unlock();
 
 }
 
@@ -1275,7 +1274,7 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
     double dtot;
     int pointx;
@@ -1336,7 +1335,7 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
         }
     }
 
-    g_mutex.unlock();
+    //g_mutex.unlock();
 
 }
 
@@ -1398,7 +1397,7 @@ void SegmentMetop::RenderSegmentlineInGVPRad(int channel, double lat_first, doub
     double map_x, map_y;
 
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
     for (int pix = 0 ; pix < (earth_views_per_scanline/2); pix+=1)
     {
@@ -1439,7 +1438,7 @@ void SegmentMetop::RenderSegmentlineInGVPRad(int channel, double lat_first, doub
 
     }
 
-    g_mutex.unlock();
+    //g_mutex.unlock();
 
     //qDebug() << QString("lonpos1 = %1 ; latpos1 = %2 ; map_x = %3 ; map_y = %4").arg(lonpos1).arg(latpos1).arg(map_x).arg(map_y);
 

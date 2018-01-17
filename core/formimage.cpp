@@ -1182,7 +1182,7 @@ void FormImage::displayAVHRRImageInfo()
                       "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimagecomp_col->width()).arg(imageptrs->ptrimagecomp_col->height());
 
 
-    formtoolbox->writeInfoToAVHRR(txtInfo);
+    formtoolbox->writeInfoToTextEdit(txtInfo);
 
 }
 
@@ -1224,7 +1224,7 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
                           "Nbr of segments = %2<br>"
                           "Image width = %3 height = %4<br>"
                           "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirsM->width()).arg(imageptrs->ptrimageViirsM->height());
-        formtoolbox->writeInfoToVIIRSM(txtInfo);
+        formtoolbox->writeInfoToTextEdit(txtInfo);
 
     } else
     if(type == SEG_VIIRSDNB)
@@ -1239,7 +1239,7 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
                           "Moon illumination = %5 %</p>"
                           "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirsDNB->width())
                 .arg(imageptrs->ptrimageViirsDNB->height()).arg(moonillum, 4, 'f', 2);
-        formtoolbox->writeInfoToVIIRSDNB(txtInfo);
+        formtoolbox->writeInfoToTextEdit(txtInfo);
 
     }
 
@@ -1292,7 +1292,7 @@ void FormImage::displayGeoImageInformation(QString satname)
                       "</body></html>").arg(satname).arg(imageptrs->ptrimageGeostationary->width()).arg(imageptrs->ptrimageGeostationary->height());
 
 
-    formtoolbox->writeInfoToGeo(txtInfo);
+    formtoolbox->writeInfoToTextEdit(txtInfo);
 }
 
 void FormImage::displaySentinelImageInfo(eSegmentType type)
@@ -1337,7 +1337,7 @@ void FormImage::displaySentinelImageInfo(eSegmentType type)
                           "Image width = %3 height = %4<br>"
                           "Nbr of saturated pixels = %5<br>"
                           "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageOLCI->width()).arg(imageptrs->ptrimageOLCI->height()).arg(nbrofsaturatedpixels);
-        formtoolbox->writeInfoToSentinel(txtInfo);
+        formtoolbox->writeInfoToTextEdit(txtInfo);
     }
     else if(type == SEG_SLSTR)
     {
@@ -1349,7 +1349,7 @@ void FormImage::displaySentinelImageInfo(eSegmentType type)
                           "Nbr of segments = %2<br>"
                           "Image width = %3 height = %4<br>"
                           "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageSLSTR->width()).arg(imageptrs->ptrimageSLSTR->height());
-        formtoolbox->writeInfoToSentinel(txtInfo);
+        formtoolbox->writeInfoToTextEdit(txtInfo);
     }
 
 }

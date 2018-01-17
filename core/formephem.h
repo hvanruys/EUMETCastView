@@ -76,6 +76,8 @@ private slots:
 
     void on_btnDownloadFromDatahub_clicked();
 
+    void on_chkSelectAllDir_toggled(bool checked);
+
 public slots:
     void showSegmentsAdded();
 

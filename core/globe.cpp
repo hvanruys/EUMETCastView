@@ -1432,12 +1432,12 @@ void Globe::Render3DGeoSegment(int geoindex)
 
     qDebug() << "Globe::Render3DGeoSegment(SegmentListMeteosat::eGeoSatellite sat)";
 
-    g_mutex.lock();
+//    g_mutex.lock();
 
     for (int i = 0; i < imageptrs->ptrimageGeostationary->height(); i=i+1)
         Render3DGeoSegmentLine( i, geoindex);
 
-    g_mutex.unlock();
+//    g_mutex.unlock();
 
     qDebug() << "Globe::Render3DGeoSegment(SegmentListMeteosat::eGeoSatellite sat)";
 

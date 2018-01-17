@@ -774,7 +774,7 @@ void SegmentGAC::RenderSegmentlineInSG( int channel, int nbrLine, int heightinto
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
     /*    from pt 5 --> pt 405
         = 5 + 8 * 50 total of 51 pts
@@ -827,7 +827,7 @@ void SegmentGAC::RenderSegmentlineInSG( int channel, int nbrLine, int heightinto
         }
     }
 
-    g_mutex.unlock();
+    //g_mutex.unlock();
 
 }
 
@@ -854,7 +854,7 @@ void SegmentGAC::RenderSegmentlineInGVP( int channel, int nbrLine, int heightint
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
     /*    from pt 5 --> pt 405
         = 5 + 8 * 50 total of 51 pts
@@ -907,7 +907,7 @@ void SegmentGAC::RenderSegmentlineInGVP( int channel, int nbrLine, int heightint
         }
     }
 
-    g_mutex.unlock();
+    //g_mutex.unlock();
 
 }
 
@@ -934,7 +934,7 @@ void SegmentGAC::RenderSegmentlineInLCC( int channel, int nbrLine, int heightint
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
     /*    from pt 5 --> pt 405
         = 5 + 8 * 50 total of 51 pts
@@ -987,7 +987,7 @@ void SegmentGAC::RenderSegmentlineInLCC( int channel, int nbrLine, int heightint
         }
     }
 
-    g_mutex.unlock();
+    //g_mutex.unlock();
 
 }
 
@@ -1042,7 +1042,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
 
     double map_x, map_y;
 
-    g_mutex.lock();
+    //g_mutex.lock();
 
     QRgb rgbvalue1 = qRgb(0,0,0);
     QRgb rgbvalue2 = qRgb(0,0,0);
@@ -1134,6 +1134,6 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
     }
 
 
-    g_mutex.unlock();
+    //g_mutex.unlock();
 }
 

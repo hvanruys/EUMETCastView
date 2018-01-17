@@ -1360,7 +1360,7 @@ void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
     QColor rgb;
     int posx, posy;
 
-    QMutexLocker locker(&g_mutex);
+    //QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 

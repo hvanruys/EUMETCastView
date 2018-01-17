@@ -835,7 +835,7 @@ void AVHRRSatellite::ReadXMLfiles()
     QFile xmlfile(QCoreApplication::applicationDirPath() +  "/Segments.xml");
     if(!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "Failed to open file";
+        qDebug() << "Failed to open /Segments.xml";
         return;
     }
     else

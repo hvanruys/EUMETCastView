@@ -257,11 +257,6 @@ void FormEphem::NewSegmentOverviewItem()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsHRP(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGAC(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetopAhrpt(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetopBhrpt(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa19hrpt(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsM01hrpt(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsM02hrpt(), 0  );
 
 
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSM(), 0  );
@@ -270,14 +265,21 @@ void FormEphem::NewSegmentOverviewItem()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIerr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsSLSTR(), 0  );
 
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubOLCIefr(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubOLCIerr(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubSLSTR(), 0  );
-
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
         newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsGeo(i), 0  );
     }
+
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubOLCIefr(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubOLCIerr(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsDatahubSLSTR(), 0  );
+
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetopAhrpt(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetopBhrpt(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsNoaa19hrpt(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsM01hrpt(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsM02hrpt(), 0  );
+
 }
 
 void FormEphem::showSegmentsAdded()
@@ -401,6 +403,32 @@ void FormEphem::itemSelectedsegmentdirectory( QTreeWidgetItem *item)
         else
         {
             opts.segmentdirectorylistinc << "0";
+        }
+        ++it1;
+    }
+
+    opts.Save();
+}
+
+void FormEphem::on_chkSelectAllDir_toggled(bool checked)
+{
+    qDebug() << "FormEphem::on_chkSelectAllDir_toggled checked = " << checked;
+
+    QTreeWidgetItemIterator it1( ui->segmentdirectorywidget );
+
+    opts.segmentdirectorylistinc.clear();
+
+    while (*it1)
+    {
+        if ( checked )
+        {
+            opts.segmentdirectorylistinc << "1";
+            (*it1)->setCheckState(0, Qt::Checked);
+        }
+        else
+        {
+            opts.segmentdirectorylistinc << "0";
+            (*it1)->setCheckState(0, Qt::Unchecked);
         }
         ++it1;
     }
@@ -964,3 +992,6 @@ void FormEphem::on_btnDownloadFromDatahub_clicked()
     segs->setXMLDate(ui->calendar->selectedDate());
     segs->LoadXMLfromDatahub();
 }
+
+
+

@@ -42,11 +42,7 @@ public:
     void setTabWidgetIndex(int index);
     void setTabWidgetVIIRSIndex(int index);
     void setTabWidgetSentinelIndex(int index);
-    void writeInfoToAVHRR(QString info);
-    void writeInfoToVIIRSM(QString info);
-    void writeInfoToVIIRSDNB(QString info);
-    void writeInfoToGeo(QString info);
-    void writeInfoToSentinel(QString info);
+    void writeInfoToTextEdit(QString info);
     void createFilenamestring(QString sat, QString d, QVector<QString> spectrum);
     QString returnFilenamestring() { return filenamecreated; }
     bool comboColVIIRSOK();
