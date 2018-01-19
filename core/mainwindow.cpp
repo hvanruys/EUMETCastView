@@ -264,7 +264,7 @@ void MainWindow::createDockWidget()
 
     //dockwidget->resize(1000, dockwidget->height());
 
-    dockwidget->setMinimumWidth(480);
+    //dockwidget->setw ->setMinimumWidth(480);
     //dockwidget->close();
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
 }
