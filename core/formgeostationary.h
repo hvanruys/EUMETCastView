@@ -5,8 +5,8 @@
 #include <QTreeWidget>
 #include "satellite.h"
 #include "avhrrsatellite.h"
-#include "xrit/fileaccess.h"
-#include "xrit/dataaccess.h"
+#include "msgfileaccess.h"
+#include "msgdataaccess.h"
 #include "formtoolbox.h"
 #include "formimage.h"
 

@@ -83,7 +83,9 @@ SOURCES += main.cpp \
     segmentlistslstr.cpp \
     datahubaccessmanager.cpp \
     segmentdatahub.cpp \
-    segmentlistdatahub.cpp
+    segmentlistdatahub.cpp \
+    msgdataaccess.cpp \
+    msgfileaccess.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -154,7 +156,9 @@ HEADERS  += mainwindow.h \
     datahubaccessmanager.h \
     segmentdatahub.h \
     segmentlistdatahub.h \
-    productlist.h
+    productlist.h \
+    msgdataaccess.h \
+    msgfileaccess.h
 
 #QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
 unix:QMAKE_CXXFLAGS += -Wno-trigraphs

@@ -866,8 +866,8 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     QString filedate;
     QStringList llVIS_IR;
     QStringList llHRV;
-    xrit::FileAccess faVIS_IR;
-    xrit::FileAccess faHRV;
+    MsgFileAccess faVIS_IR;
+    MsgFileAccess faHRV;
     QString filepattern;
     int filesequence;
     QString filespectrum;
@@ -892,7 +892,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             return;
         }
         if(sl->getGeoSatellite() != eGeoSatellite::H8)
-            faVIS_IR.parse((sl->getImagePath() + "/" + llVIS_IR.at(0)).toStdString());
+            faVIS_IR.parse(sl->getImagePath() + "/" + llVIS_IR.at(0));
     }
     else if(type == "HRV Color")
     {
@@ -907,8 +907,8 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
         }
         if(sl->getGeoSatellite() != eGeoSatellite::H8)
         {
-            faVIS_IR.parse((sl->getImagePath() + "/" + llVIS_IR.at(0)).toStdString());
-            faHRV.parse((sl->getImagePath() + "/" + llHRV.at(0)).toStdString());
+            faVIS_IR.parse(sl->getImagePath() + "/" + llVIS_IR.at(0));
+            faHRV.parse(sl->getImagePath() + "/" + llHRV.at(0));
         }
     }
     else if(type == "HRV")
@@ -922,7 +922,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             return;
         }
         if(sl->getGeoSatellite() != eGeoSatellite::H8)
-            faHRV.parse((sl->getImagePath() + "/" + llHRV.at(0)).toStdString());
+            faHRV.parse(sl->getImagePath() + "/" + llHRV.at(0));
     }
 
 
@@ -938,13 +938,13 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
 #endif
 
-        xrit::DataAccess da;
+        MsgDataAccess da;
 
         MSG_data pro;
         MSG_data epi;
         //MSG_header header;
-        xrit::FileAccess fa;
-        string epiloguefile;
+        MsgFileAccess fa;
+        QString epiloguefile;
         MSG_header EPI_head;
 
         if(sl->getGeoSatellite() != eGeoSatellite::H8)
@@ -957,15 +957,15 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 // Read prologue
                 MSG_header PRO_head;
 
-                string prologuefile = fa.prologueFile();
+                QString prologuefile = fa.prologueFile();
 
-                qDebug() << QString("Reading prologue file = %1").arg(QString::fromStdString(prologuefile));
+                qDebug() << QString("Reading prologue file = %1").arg(prologuefile);
 
                 if (prologuefile.length() > 0)
                 {
                     try
                     {
-                        da.read_file((fa.directory + "/" + prologuefile), PRO_head, pro);
+                        da.read_file(fa.directory + "/" + prologuefile, PRO_head, pro);
                         //                    float cal1;
                         //                    cal1 = *pro.prologue->radiometric_proc.get_calibration(5, 500);
                         //                    qDebug() << QString("calibration float = %1").arg(cal1);
@@ -990,7 +990,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
                 epiloguefile = fa.epilogueFile();
 
-                qDebug() << QString("Reading epilogue file = %1").arg(QString::fromStdString(epiloguefile));
+                qDebug() << QString("Reading epilogue file = %1").arg(epiloguefile);
 
                 try
                 {
