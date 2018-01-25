@@ -1,49 +1,78 @@
-#include "msgdataaccess.h"
-#include "msgfileaccess.h"
+/*
+ * xrit/dataaccess - Higher level data access for xRIT files
+ *
+ * Copyright (C) 2007--2010  ARPA-SIM <urpsim@smr.arpa.emr.it>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Author: Enrico Zini <enrico@enricozini.org>
+ */
+
+#include <xrit/dataaccess.h>
+#include <xrit/fileaccess.h>
 #include <MSG_HRIT.h>
 #include <stdexcept>
 
 using namespace std;
 
+//namespace msat {
+namespace xrit {
 
-MsgDataAccess::MsgDataAccess() : npixperseg(0)
+DataAccess::DataAccess() : npixperseg(0)
 {
 }
 
-MsgDataAccess::~MsgDataAccess()
+DataAccess::~DataAccess()
 {
+        // Delete the segment cache
+        //if (m_segment) delete m_segment;
+        for (std::deque<scache>::iterator i = segcache.begin();
+                        i != segcache.end(); ++i)
+                delete i->segment;
 }
 
-void MsgDataAccess::read_file(const QString file, MSG_header& head) const
+void DataAccess::read_file(const std::string& file, MSG_header& head) const
 {
-
-        std::ifstream hrit(file.toStdString().c_str(), (std::ios::binary | std::ios::in));
-        if (hrit.fail()) throw std::runtime_error(file.toStdString() + ": cannot open");
+        // ProgressTask p("Reading segment " + segnames[idx]);
+        std::ifstream hrit(file.c_str(), (std::ios::binary | std::ios::in));
+        if (hrit.fail()) throw std::runtime_error(file + ": cannot open");
         head.read_from(hrit);
         hrit.close();
 }
 
-
-void MsgDataAccess::read_file(const QString file, MSG_header& head, MSG_data& data) const
+void DataAccess::read_file(const std::string& file, MSG_header& head, MSG_data& data) const
 {
-        std::ifstream hrit(file.toStdString().c_str(), (std::ios::binary | std::ios::in));
+        // ProgressTask p("Reading segment " + segnames[idx]);
+        std::ifstream hrit(file.c_str(), (std::ios::binary | std::ios::in));
         if (hrit.fail())
-                throw std::runtime_error(file.toStdString() + ": cannot open");
+                throw std::runtime_error(file + ": cannot open");
         head.read_from(hrit);
         if (head.segment_id && head.segment_id->data_field_format == MSG_NO_FORMAT)
-                throw std::runtime_error(file.toStdString() + ": product dumped in binary format");
+                throw std::runtime_error(file + ": product dumped in binary format");
         data.read_from(hrit, head);
         hrit.close();
 }
 
-void MsgDataAccess::scanSegment(const MSG_header& header)
+void DataAccess::scanSegment(const MSG_header& header)
 {
         // Decoding information
         int totalsegs = header.segment_id->planned_end_segment_sequence_number;
         seglines = header.image_structure->number_of_lines;
 #if 0
-        cerr << "NCOL " << header.image_structure->number_of_columns << endl;
-        cerr << "NLIN " << header.image_structure->number_of_lines << endl;
+        cerr << "NCOL " << header.image_structure->number_of_columns << endl; 
+        cerr << "NLIN " << header.image_structure->number_of_lines << endl; 
 #endif
         columns = header.image_structure->number_of_columns;
         lines = seglines * totalsegs;
@@ -55,8 +84,7 @@ void MsgDataAccess::scanSegment(const MSG_header& header)
         swapY = header.image_navigation->line_scaling_factor < 0;
 }
 
-/*
-void MsgDataAccess::scan(MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header)
+void DataAccess::scan(const FileAccess& fa, MSG_data& pro, MSG_data& epi, MSG_header& header)
 {
         // Read prologue
         MSG_header PRO_head;
@@ -69,12 +97,12 @@ void MsgDataAccess::scan(MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_hea
         read_file(fa.epilogueFile(), EPI_head, epi);
 
         // Sort the segment names by their index
-        QStringList segfiles = fa.segmentFiles();
+        vector<string> segfiles = fa.segmentFiles();
         for (vector<string>::const_iterator i = segfiles.begin();
                         i != segfiles.end(); ++i)
         {
                 //p.activity("Scanning segment " + *i);
-                read_file(QString(*i), header);
+                read_file(*i, header);
                 if (header.segment_id->data_field_format == MSG_NO_FORMAT)
                         throw std::runtime_error(*i + ": product dumped in binary format");
 
@@ -102,16 +130,17 @@ void MsgDataAccess::scan(MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_hea
                 UpperWestColumnActual = cov.UpperWestColumnActual;
                 UpperNorthLineActual = cov.UpperNorthLineActual;
         } else {
-
-                //WestColumnActual = 1856 - header.image_navigation->column_offset + 1;
-                //SouthLineActual = 1856 - header.image_navigation->line_offset + 1;
-
+                /*
+                 * TODO: what is this for?
+                WestColumnActual = 1856 - header.image_navigation->column_offset + 1;
+                SouthLineActual = 1856 - header.image_navigation->line_offset + 1;
+                */
                 WestColumnActual = 1;
                 SouthLineActual = 1;
         }
 }
 
-MSG_data* MsgDataAccess::segment(size_t idx) const
+MSG_data* DataAccess::segment(size_t idx) const
 {
         // Check to see if the segment we need is the current one
         if (segcache.empty() || segcache.begin()->segno != idx)
@@ -156,7 +185,7 @@ MSG_data* MsgDataAccess::segment(size_t idx) const
         return segcache.begin()->segment;
 }
 
-size_t MsgDataAccess::line_start(size_t line) const
+size_t DataAccess::line_start(size_t line) const
 {
         if (!hrv) return WestColumnActual - 1;
         if (line >= UpperNorthLineActual) return 0;
@@ -171,7 +200,7 @@ size_t MsgDataAccess::line_start(size_t line) const
         return 0;
 }
 
-void MsgDataAccess::line_read(size_t line, MSG_SAMPLE* buf) const
+void DataAccess::line_read(size_t line, MSG_SAMPLE* buf) const
 {
         size_t segnum;
         size_t segline;
@@ -203,4 +232,6 @@ void MsgDataAccess::line_read(size_t line, MSG_SAMPLE* buf) const
         } else
                 memcpy(buf, d->image->data + segline * columns, columns * sizeof(MSG_SAMPLE));
 }
-*/
+
+}
+//}

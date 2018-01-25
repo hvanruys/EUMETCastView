@@ -1,32 +1,55 @@
-#ifndef MSGDATAACCESS_H
-#define MSGDATAACCESS_H
+#ifndef MSAT_XRIT_DATAACCESS_H
+#define MSAT_XRIT_DATAACCESS_H
 
-#include "msgdataaccess.h"
+/*
+ * xrit/dataaccess - Higher level data access for xRIT files
+ *
+ * Copyright (C) 2007--2010  ARPA-SIM <urpsim@smr.arpa.emr.it>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Author: Enrico Zini <enrico@enricozini.org>
+ */
+
 #include <string>
 #include <vector>
 #include <deque>
 #include <MSG_data_image.h>
-#include <QStringList>
-#include <QFile>
 
 struct MSG_header;
 struct MSG_data;
-class MsgFileAccess;
+
+//namespace msat {
+namespace xrit {
+
+struct FileAccess;
 
 /**
  * Higher level data access for xRIT files
  */
-class MsgDataAccess
+class DataAccess
 {
 protected:
         void scanSegment(const MSG_header& header);
 
 public:
         /// Number of pixels in every segment
-        int npixperseg;
+        size_t npixperseg;
 
         /// Number of lines in every segment
-        int seglines;
+        size_t seglines;
 
         /// True if the image needs to be swapped horizontally
         bool swapX;
@@ -38,55 +61,54 @@ public:
         bool hrv;
 
         /// Pathnames of the segment files, indexed with their index
-        QStringList segnames;
+        std::vector<std::string> segnames;
 
         struct scache
         {
                 MSG_data* segment;
-                int segno;
+                size_t segno;
         };
         /// Segment cache
         mutable std::deque<scache> segcache;
 
         /// Length of a scanline
-        int columns;
+        size_t columns;
 
         /// Number of scanlines
-        int lines;
+        size_t lines;
 
         /// HRV reference grid (meaningless if not HRV)
-        int LowerEastColumnActual;
-        int LowerSouthLineActual;
-        int LowerWestColumnActual;
-        int LowerNorthLineActual;
-        int UpperEastColumnActual;
-        int UpperSouthLineActual;
-        int UpperWestColumnActual;
-        int UpperNorthLineActual;
+        size_t LowerEastColumnActual;
+        size_t LowerSouthLineActual;
+        size_t LowerWestColumnActual;
+        size_t LowerNorthLineActual;
+        size_t UpperEastColumnActual;
+        size_t UpperSouthLineActual;
+        size_t UpperWestColumnActual;
+        size_t UpperNorthLineActual;
 
         /// non-HRV reference grid (meaningless if HRV)
-        int SouthLineActual;
-        int WestColumnActual;
+        size_t SouthLineActual;
+        size_t WestColumnActual;
 
-        MsgDataAccess();
-        ~MsgDataAccess();
+        DataAccess();
+        ~DataAccess();
 
         /**
          * Scan the given segments, filling in all the various DataAccess
          * fields.
          */
-        // ********
-        //void scan(MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header);
+        void scan(const FileAccess& fa, MSG_data& pro, MSG_data& epi, MSG_header& header);
 
         /**
          * Read a xRIT file (prologue, epilogue or segment)
          */
-        void read_file(const QString file, MSG_header& head, MSG_data& data) const;
+        void read_file(const std::string& file, MSG_header& head, MSG_data& data) const;
 
         /**
          * Read only the xRIT header of a file
          */
-        void read_file(const QString file, MSG_header& head) const;
+        void read_file(const std::string& file, MSG_header& head) const;
 
         /**
          * Return the X offset at which the given line starts.
@@ -98,8 +120,7 @@ public:
          * to be shifted right to geographically align it in the virtual
          * fullsize image.
          */
-        //*******************
-        //int line_start(int line) const;
+        size_t line_start(size_t line) const;
 
         /**
          * Read a scanline
@@ -109,19 +130,17 @@ public:
          *
          * \a buf must be at least 'columns' elements
          */
-        //***********************
-        //void line_read(int line, MSG_SAMPLE* buf) const;
+        void line_read(size_t line, MSG_SAMPLE* buf) const;
 
         /**
          * Return the MSG_data corresponding to the segment with the given index.
          *
          * The pointer could be invalidated by another call to segment()
          */
-        //*******************************
-        //MSG_data* segment(int idx) const;
+        MSG_data* segment(size_t idx) const;
 };
 
-
+}
+//}
 
 #endif
-

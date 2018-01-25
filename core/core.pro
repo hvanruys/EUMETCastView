@@ -39,8 +39,6 @@ SOURCES += main.cpp \
     solar.cpp \
     formephem.cpp \
     downloadmanager.cpp \
-    msgdataaccess.cpp \
-    msgfileaccess.cpp \
     formtoolbox.cpp \
     formimage.cpp \
     imagescrollarea.cpp \
@@ -109,8 +107,6 @@ HEADERS  += mainwindow.h \
     pixgeoconversion.h \
     formephem.h \
     downloadmanager.h \
-    msgdataaccess.h \
-    msgfileaccess.h \
     formtoolbox.h \
     formimage.h \
     imagescrollarea.h \

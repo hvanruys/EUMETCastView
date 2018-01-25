@@ -3,6 +3,7 @@
 #include <MSG_HRIT.h>
 #include "pixgeoconversion.h"
 
+
 #include <QByteArray>
 
 extern SegmentImage *imageptrs;
@@ -865,8 +866,8 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     QString filedate;
     QStringList llVIS_IR;
     QStringList llHRV;
-    MsgFileAccess faVIS_IR;
-    MsgFileAccess faHRV;
+    xrit::FileAccess faVIS_IR;
+    xrit::FileAccess faHRV;
     QString filepattern;
     int filesequence;
     QString filespectrum;
@@ -890,7 +891,8 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             QApplication::restoreOverrideCursor();
             return;
         }
-        faVIS_IR.parse(sl->getImagePath() + "/" + llVIS_IR.at(0));
+        if(sl->getGeoSatellite() != eGeoSatellite::H8)
+            faVIS_IR.parse((sl->getImagePath() + "/" + llVIS_IR.at(0)).toStdString());
     }
     else if(type == "HRV Color")
     {
@@ -903,8 +905,11 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             QApplication::restoreOverrideCursor();
             return;
         }
-        faVIS_IR.parse(sl->getImagePath() + "/" + llVIS_IR.at(0));
-        faHRV.parse(sl->getImagePath() + "/" + llHRV.at(0));
+        if(sl->getGeoSatellite() != eGeoSatellite::H8)
+        {
+            faVIS_IR.parse((sl->getImagePath() + "/" + llVIS_IR.at(0)).toStdString());
+            faHRV.parse((sl->getImagePath() + "/" + llHRV.at(0)).toStdString());
+        }
     }
     else if(type == "HRV")
     {
@@ -916,7 +921,8 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             QApplication::restoreOverrideCursor();
             return;
         }
-        faHRV.parse(sl->getImagePath() + "/" + llHRV.at(0));
+        if(sl->getGeoSatellite() != eGeoSatellite::H8)
+            faHRV.parse((sl->getImagePath() + "/" + llHRV.at(0)).toStdString());
     }
 
 
@@ -932,101 +938,103 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
 #endif
 
-        MsgDataAccess da;
+        xrit::DataAccess da;
 
         MSG_data pro;
         MSG_data epi;
-        MSG_header header;
-        MsgFileAccess fa;
-        QString epiloguefile;
+        //MSG_header header;
+        xrit::FileAccess fa;
+        string epiloguefile;
         MSG_header EPI_head;
 
-
-        if(opts.geosatellites.at(geoindex).prologfile)
+        if(sl->getGeoSatellite() != eGeoSatellite::H8)
         {
-
-            fa = (type == "VIS_IR" || type == "VIS_IR Color" ? faVIS_IR : faHRV);
-
-            // Read prologue
-            MSG_header PRO_head;
-
-            QString prologuefile = fa.prologueFile();
-
-            qDebug() << QString("Reading prologue file = %1").arg(prologuefile);
-
-            if (prologuefile.length() > 0)
+            if(opts.geosatellites.at(geoindex).prologfile)
             {
+
+                fa = (type == "VIS_IR" || type == "VIS_IR Color" ? faVIS_IR : faHRV);
+
+                // Read prologue
+                MSG_header PRO_head;
+
+                string prologuefile = fa.prologueFile();
+
+                qDebug() << QString("Reading prologue file = %1").arg(QString::fromStdString(prologuefile));
+
+                if (prologuefile.length() > 0)
+                {
+                    try
+                    {
+                        da.read_file((fa.directory + "/" + prologuefile), PRO_head, pro);
+                        //                    float cal1;
+                        //                    cal1 = *pro.prologue->radiometric_proc.get_calibration(5, 500);
+                        //                    qDebug() << QString("calibration float = %1").arg(cal1);
+
+                        //pro.read_from();
+                        MSG_data_SatelliteStatus& satstatus = pro.prologue->sat_status;
+                        double spin = satstatus.SpinRateatRCStart;
+
+                    }
+                    catch( std::runtime_error &run )
+                    {
+                        qDebug() << QString("Error : runtime error in reading prologue file : %1").arg(run.what());
+                    }
+                }
+
+
+            }
+
+            if(opts.geosatellites.at(geoindex).epilogfile)
+            {
+                // Read epilogue
+
+                epiloguefile = fa.epilogueFile();
+
+                qDebug() << QString("Reading epilogue file = %1").arg(QString::fromStdString(epiloguefile));
+
                 try
                 {
-                    da.read_file(fa.directory + "/" + prologuefile, PRO_head, pro);
-//                    float cal1;
-//                    cal1 = *pro.prologue->radiometric_proc.get_calibration(5, 500);
-//                    qDebug() << QString("calibration float = %1").arg(cal1);
+                    da.read_file(fa.directory + "/" + epiloguefile, EPI_head, epi);
+                    if (type == "HRV" || type == "HRV Color")
+                    {
+                        MSG_ActualL15CoverageHRV& cov = epi.epilogue->product_stats.ActualL15CoverageHRV;
+                        sl->LowerEastColumnActual = cov.LowerEastColumnActual;
+                        sl->LowerNorthLineActual = cov.LowerNorthLineActual;
+                        sl->LowerWestColumnActual = cov.LowerWestColumnActual;
+                        sl->LowerSouthLineActual = cov.LowerSouthLineActual;
+                        sl->UpperEastColumnActual = cov.UpperEastColumnActual;
+                        sl->UpperSouthLineActual = cov.UpperSouthLineActual;
+                        sl->UpperWestColumnActual = cov.UpperWestColumnActual;
+                        sl->UpperNorthLineActual = cov.UpperNorthLineActual;
 
-                    //pro.read_from();
-                    MSG_data_SatelliteStatus& satstatus = pro.prologue->sat_status;
-                    double spin = satstatus.SpinRateatRCStart;
-
+                        qDebug() << QString("sl->LowerEastColumnActual = %1").arg(sl->LowerEastColumnActual);
+                        qDebug() << QString("sl->LowerNorthLineActual = %1").arg(sl->LowerNorthLineActual);
+                        qDebug() << QString("sl->LowerWestColumnActual = %1").arg(sl->LowerWestColumnActual);
+                        qDebug() << QString("sl->LowerSouthLineActual = %1").arg(sl->LowerSouthLineActual);
+                        qDebug() << QString("sl->UpperEastColumnActual = %1").arg(sl->UpperEastColumnActual);
+                        qDebug() << QString("sl->UpperSouthLineActual = %1").arg(sl->UpperSouthLineActual);
+                        qDebug() << QString("sl->UpperWestColumnActual = %1").arg(sl->UpperWestColumnActual);
+                        qDebug() << QString("sl->UpperNorthLineActual = %1").arg(sl->UpperNorthLineActual);
+                    }
+                    else
+                    {
+                        sl->WestColumnActual = 1;
+                        sl->SouthLineActual = 1;
+                    }
                 }
                 catch( std::runtime_error &run )
                 {
-                    qDebug() << QString("Error : runtime error in reading prologue file : %1").arg(run.what());
+                    qDebug() << QString("Error : runtime error in reading epilogue file : %1").arg(run.what());
+                    sl->LowerEastColumnActual = 0;
+                    sl->LowerNorthLineActual = 0;
+                    sl->LowerWestColumnActual = 0;
+                    sl->LowerSouthLineActual = 0;
+                    sl->UpperEastColumnActual = 0;
+                    sl->UpperSouthLineActual = 0;
+                    sl->UpperWestColumnActual = 0;
+                    sl->UpperNorthLineActual = 0;
+
                 }
-            }
-
-
-        }
-
-        if(opts.geosatellites.at(geoindex).epilogfile)
-        {
-            // Read epilogue
-
-            epiloguefile = fa.epilogueFile();
-
-            qDebug() << QString("Reading epilogue file = %1").arg(epiloguefile);
-
-            try
-            {
-                da.read_file(fa.directory + "/" + epiloguefile, EPI_head, epi);
-                if (type == "HRV" || type == "HRV Color")
-                {
-                    MSG_ActualL15CoverageHRV& cov = epi.epilogue->product_stats.ActualL15CoverageHRV;
-                    sl->LowerEastColumnActual = cov.LowerEastColumnActual;
-                    sl->LowerNorthLineActual = cov.LowerNorthLineActual;
-                    sl->LowerWestColumnActual = cov.LowerWestColumnActual;
-                    sl->LowerSouthLineActual = cov.LowerSouthLineActual;
-                    sl->UpperEastColumnActual = cov.UpperEastColumnActual;
-                    sl->UpperSouthLineActual = cov.UpperSouthLineActual;
-                    sl->UpperWestColumnActual = cov.UpperWestColumnActual;
-                    sl->UpperNorthLineActual = cov.UpperNorthLineActual;
-
-                    qDebug() << QString("sl->LowerEastColumnActual = %1").arg(sl->LowerEastColumnActual);
-                    qDebug() << QString("sl->LowerNorthLineActual = %1").arg(sl->LowerNorthLineActual);
-                    qDebug() << QString("sl->LowerWestColumnActual = %1").arg(sl->LowerWestColumnActual);
-                    qDebug() << QString("sl->LowerSouthLineActual = %1").arg(sl->LowerSouthLineActual);
-                    qDebug() << QString("sl->UpperEastColumnActual = %1").arg(sl->UpperEastColumnActual);
-                    qDebug() << QString("sl->UpperSouthLineActual = %1").arg(sl->UpperSouthLineActual);
-                    qDebug() << QString("sl->UpperWestColumnActual = %1").arg(sl->UpperWestColumnActual);
-                    qDebug() << QString("sl->UpperNorthLineActual = %1").arg(sl->UpperNorthLineActual);
-                }
-                else
-                {
-                    sl->WestColumnActual = 1;
-                    sl->SouthLineActual = 1;
-                }
-            }
-            catch( std::runtime_error &run )
-            {
-                qDebug() << QString("Error : runtime error in reading epilogue file : %1").arg(run.what());
-                sl->LowerEastColumnActual = 0;
-                sl->LowerNorthLineActual = 0;
-                sl->LowerWestColumnActual = 0;
-                sl->LowerSouthLineActual = 0;
-                sl->UpperEastColumnActual = 0;
-                sl->UpperSouthLineActual = 0;
-                sl->UpperWestColumnActual = 0;
-                sl->UpperNorthLineActual = 0;
-
             }
         }
 

@@ -475,10 +475,10 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     QString filedate;
     this->getFilenameParameters(fileinfo, filespectrum, filedate, filesequence);
 
-    QByteArray ba = filepath.toLatin1();
-    const char *c_segname = ba.data();
+    //QByteArray ba = filepath.toLatin1();
+    //const char *c_segname = ba.data();
 
-    std::ifstream hrit(c_segname, (std::ios::binary | std::ios::in) );
+    std::ifstream hrit(filepath.toStdString(), (std::ios::binary | std::ios::in) );
     if (hrit.fail())
     {
         std::cerr << "Cannot open input hrit file "
@@ -737,10 +737,10 @@ void SegmentListGeostationary::ComposeSegmentImageXRITHimawari( QString filepath
 
     fileout.close();
 
-    QByteArray ba = basename.toLatin1();
-    const char *c_segname = ba.data();
+    //QByteArray ba = basename.toLatin1();
+    //const char *c_segname = ba.data();
 
-    std::ifstream hrit(c_segname, (std::ios::binary | std::ios::in) );
+    std::ifstream hrit(basename.toStdString(), (std::ios::binary | std::ios::in) );
     if (hrit.fail())
     {
         std::cerr << "Cannot open input Himawari file "
