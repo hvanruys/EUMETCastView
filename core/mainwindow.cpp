@@ -287,22 +287,16 @@ void MainWindow::timerDone(void)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    qDebug() << "in MainWindow::closeEvent(QCloseEvent *event)";
+
     //opts.mainwindowgeometry = saveGeometry();
     //opts.windowstate = saveState(0);
     forminfrascales->close();
-
     saveLayout();
 
-    QMainWindow::closeEvent(event);
 
-}
 
-MainWindow::~MainWindow()
-{
-
-//    delete ui;
     delete timer;
-
     delete formtoolbox;
     delete formephem;
     delete formglobecyl;
@@ -369,7 +363,7 @@ MainWindow::~MainWindow()
         }
     }
 
-    qDebug() << "================closing MainWindow================";
+
 
     qDebug() << "currentThreadId() = " << QThread::currentThreadId();
 
@@ -377,10 +371,13 @@ MainWindow::~MainWindow()
     for(int i = 0; i < mainwindowthreadslist.count(); i++)
         qDebug() << mainwindowthreadslist.at(i)->currentThread()->currentThreadId();
 
+    QMainWindow::closeEvent(event);
 
-    loggingFile.close();
+}
 
-
+MainWindow::~MainWindow()
+{
+    qDebug() << "================closing MainWindow================";
 }
 
 void MainWindow::on_actionPreferences_triggered()

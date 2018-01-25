@@ -75,7 +75,8 @@ public:
          * Scan the given segments, filling in all the various DataAccess
          * fields.
          */
-        //void scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header);
+        // ********
+        //void scan(MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header);
 
         /**
          * Read a xRIT file (prologue, epilogue or segment)
@@ -97,6 +98,7 @@ public:
          * to be shifted right to geographically align it in the virtual
          * fullsize image.
          */
+        //*******************
         //int line_start(int line) const;
 
         /**
@@ -107,6 +109,7 @@ public:
          *
          * \a buf must be at least 'columns' elements
          */
+        //***********************
         //void line_read(int line, MSG_SAMPLE* buf) const;
 
         /**
@@ -114,6 +117,7 @@ public:
          *
          * The pointer could be invalidated by another call to segment()
          */
+        //*******************************
         //MSG_data* segment(int idx) const;
 };
 

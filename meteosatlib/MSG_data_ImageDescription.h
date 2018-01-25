@@ -40,6 +40,14 @@ typedef enum {
 std::string MSG_projection_type(t_enum_MSG_projection_type type);
 
 typedef enum {
+  MSG_PLANNED_CHAN_PROCESSING_UNDEFINED     = 0,
+  MSG_PLANNED_CHAN_PROCESSING_SPECTRAL      = 1,
+  MSG_PLANNED_CHAN_PROCESSING_EFFECTIVE     = 2,
+} t_enum_MSG_planned_chan_processing;
+
+std::string MSG_planned_chan_processing(t_enum_MSG_planned_chan_processing type);
+
+typedef enum {
   MSG_ORIGIN_CORNER_NW = 0,
   MSG_ORIGIN_CORNER_SW = 1,
   MSG_ORIGIN_CORNER_SE = 2,
@@ -116,7 +124,7 @@ class MSG_Level1_5ImageProduction {
                                       MSG_Level1_5ImageProduction &p );
     t_enum_MSG_direction_line   ImageProcDirection;
     t_enum_MSG_direction_column PixelGenDirection;
-    bool                        PlannedChanProcessing[12];
+    t_enum_MSG_planned_chan_processing   PlannedChanProcessing[12];
 };
 
 class MSG_data_ImageDescription {

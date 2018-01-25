@@ -462,6 +462,7 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     header = new MSG_header();
     msgdat = new MSG_data();
 
+
     QFile file(filepath);
     QFileInfo fileinfo(file);
 
@@ -552,7 +553,6 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
         //qDebug() << QString("filesequence = %1 ; nlin * totalsegs - 1 - startLine[filesequence] - line = %2").arg(filesequence).arg(nlin * totalsegs - 1 - startLine[filesequence] - line);
 
         for (int pixelx = 0 ; pixelx < npix; pixelx++)
-//        for (int pixelx = npix - 1 ; pixelx >= 0; pixelx--)
         {
             c = *(pixels + line * npix + pixelx);
 

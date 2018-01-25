@@ -4923,7 +4923,7 @@
             <enum>Qt::RightToLeft</enum>
            </property>
            <property name="text">
-            <string>Col</string>
+            <string>HRV Color</string>
            </property>
           </widget>
          </item>

@@ -82,7 +82,7 @@ void Globe::initializeGL()
     geometries->initSphereGeometry(1.0f, 128, 64);
 
     gshhsdata->initializegshhsData(&programgshhs);
-    skybox = new SkyBox(&programskybox);
+    //skybox = new SkyBox(&programskybox);
     //soc = new Soc(&programdraw);
     satgl = new SatGL(&programsatgl, sats, segs);
     segmentgl = new SegmentGL(&programdraw, sats, segs);
@@ -563,8 +563,8 @@ void Globe::paintGL()
 
     QMatrix4x4 rotmatrix;
     rotmatrix.rotate(quat);
-
-    skybox->render(projection, rotmatrix);
+//*************************************************
+//    skybox->render(projection, rotmatrix);
 
     QVector3D sunPosition;
 

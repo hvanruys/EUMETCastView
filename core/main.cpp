@@ -82,12 +82,12 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         abort();
     }
 
-//    if(doLogging)
+    if(doLogging)
     {
         out << strout;
         out.flush();
     }
-//    else
+    else
         fprintf(stderr, strout.toStdString().c_str());
 
 
@@ -100,9 +100,6 @@ int main(int argc, char *argv[])
 {
     doLogging = false;
     ptrimagebusy = false;
-    loggingFile.setFileName("logging.txt");
-    if (!loggingFile.open(QIODevice::WriteOnly | QIODevice::Text))
-        return 0;
 
     QByteArray val("1");
     qputenv("HDF5_DISABLE_VERSION_CHECK", val);
@@ -123,6 +120,13 @@ int main(int argc, char *argv[])
     if (QCoreApplication::arguments().contains(QStringLiteral("--logging")) ||
         QCoreApplication::arguments().contains(QStringLiteral("-l")) )
         doLogging = true;
+
+    if(doLogging)
+    {
+        loggingFile.setFileName("logging.txt");
+        if (!loggingFile.open(QIODevice::WriteOnly | QIODevice::Text))
+            return 0;
+    }
 
     opts.Initialize();
     poi.Initialize();

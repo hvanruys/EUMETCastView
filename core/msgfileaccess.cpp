@@ -139,7 +139,7 @@ void MsgFileAccess::parse(const QString filename)
 }
 
 
-QString MsgFileAccess::prologueFile()
+const QString MsgFileAccess::prologueFile()
 {
   //"H-000-MSG3__-MSG3________-_________-PRO______-201311050930-__"
   //"L-000-MTP___-MET7________-00_7_057E-PRO______-201404010900-__"

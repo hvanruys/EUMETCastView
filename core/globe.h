@@ -5,19 +5,19 @@
 #include <QOpenGLWidget>
 #include <QOpenGLTexture>
 #include <QOpenGLShaderProgram>
-
+#include <QOpenGLFunctions>
 // Minimum OpenGL version = 3.2
 // for glGenVertexArrays glBindVertexArray
 
-#ifdef OPENGL32
-#include <QOpenGLFunctions_3_2_Core>
-#endif
-#ifdef OPENGL40
-#include <QOpenGLFunctions_4_0_Core>
-#endif
-#ifdef OPENGL43
-#include <QOpenGLFunctions_4_3_Core>
-#endif
+//#ifdef OPENGL32
+//#include <QOpenGLFunctions_3_0>
+//#endif
+//#ifdef OPENGL40
+//#include <QOpenGLFunctions_4_0_Core>
+//#endif
+//#ifdef OPENGL43
+//#include <QOpenGLFunctions_4_3_Core>
+//#endif
 
 #include "trackball.h"
 #include "globals.h"
@@ -32,15 +32,16 @@
 #include "projextentsgl.h"
 #include "texturewriter.h"
 
-#ifdef OPENGL32
-class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_2_Core
-#endif
-#ifdef OPENGL40
-class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
-#endif
-#ifdef OPENGL43
-class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
-#endif
+//#ifdef OPENGL32
+//class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_0
+//#endif
+//#ifdef OPENGL40
+//class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
+//#endif
+//#ifdef OPENGL43
+//class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
+//#endif
+class Globe  : public QOpenGLWidget, protected QOpenGLFunctions
 {
 
     Q_OBJECT
@@ -148,7 +149,7 @@ private:
 
     GeometryEngine *geometries;
     GeometryEngine *sun;
-    SkyBox *skybox;
+    //SkyBox *skybox;
     //Soc *soc;
     SatGL *satgl;
     SegmentGL *segmentgl;

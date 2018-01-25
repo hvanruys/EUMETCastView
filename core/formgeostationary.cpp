@@ -959,6 +959,14 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 try
                 {
                     da.read_file(fa.directory + "/" + prologuefile, PRO_head, pro);
+//                    float cal1;
+//                    cal1 = *pro.prologue->radiometric_proc.get_calibration(5, 500);
+//                    qDebug() << QString("calibration float = %1").arg(cal1);
+
+                    //pro.read_from();
+                    MSG_data_SatelliteStatus& satstatus = pro.prologue->sat_status;
+                    double spin = satstatus.SpinRateatRCStart;
+
                 }
                 catch( std::runtime_error &run )
                 {

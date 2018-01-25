@@ -26,7 +26,7 @@ public:
 
     //void ensureComplete() const;
 
-    QString prologueFile();
+    const QString prologueFile();
     QString epilogueFile();
     QStringList segmentFiles();
     QStringList globit(QString filepath, QString filepattern);

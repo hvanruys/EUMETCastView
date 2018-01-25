@@ -43,6 +43,27 @@ std::string MSG_projection_type(t_enum_MSG_projection_type type)
   return v;
 }
 
+std::string MSG_planned_chan_processing(t_enum_MSG_planned_chan_processing type)
+{
+  std::string v;
+  switch (type)
+  {
+    case MSG_PLANNED_CHAN_PROCESSING_UNDEFINED:
+      v = "Planned channel processing undefined";
+      break;
+    case MSG_PLANNED_CHAN_PROCESSING_SPECTRAL:
+      v = "Planned channel processing in spectral radiance";
+      break;
+    case MSG_PLANNED_CHAN_PROCESSING_EFFECTIVE:
+      v = "Planned channel processing in effective radiance";
+    break;
+    default:
+      v = "Unknown";
+      break;
+  }
+  return v;
+}
+
 std::string MSG_grid_origin(t_enum_MSG_grid_origin org)
 {
   std::string v;
@@ -187,7 +208,8 @@ size_t MSG_Level1_5ImageProduction::read_from( unsigned const char_1 *buff )
   ImageProcDirection = (t_enum_MSG_direction_line) *(buff);
   PixelGenDirection = (t_enum_MSG_direction_column) *(buff+1);
   for (int i = 0; i < 12; i ++)
-    PlannedChanProcessing[i] = *(buff+2+i) ? true : false;
+    PlannedChanProcessing[i] = (t_enum_MSG_planned_chan_processing) *(buff+2+i);
+
   return 14;
 }
 
@@ -200,7 +222,7 @@ std::ostream& operator<< ( std::ostream& os, MSG_Level1_5ImageProduction &p )
   for (int i = 0; i < 12; i ++)
   {
     os << "Channel " << std::setw(2) << std::setfill('0') << i+1
-       << " is plan. : " << p.PlannedChanProcessing[i] << std::endl;
+       << " is plan. : " << MSG_planned_chan_processing(p.PlannedChanProcessing[i]) << std::endl;
   }
   return os;
 }

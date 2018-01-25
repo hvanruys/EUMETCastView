@@ -14,7 +14,7 @@ MsgDataAccess::~MsgDataAccess()
 {
 }
 
-void MsgDataAccess::read_file(QString file, MSG_header& head) const
+void MsgDataAccess::read_file(const QString file, MSG_header& head) const
 {
 
         std::ifstream hrit(file.toStdString().c_str(), (std::ios::binary | std::ios::in));
@@ -35,7 +35,7 @@ void MsgDataAccess::read_file(const QString file, MSG_header& head, MSG_data& da
         data.read_from(hrit, head);
         hrit.close();
 }
-/*
+
 void MsgDataAccess::scanSegment(const MSG_header& header)
 {
         // Decoding information
@@ -55,7 +55,8 @@ void MsgDataAccess::scanSegment(const MSG_header& header)
         swapY = header.image_navigation->line_scaling_factor < 0;
 }
 
-void MsgDataAccess::scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header)
+/*
+void MsgDataAccess::scan(MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header)
 {
         // Read prologue
         MSG_header PRO_head;
@@ -68,7 +69,7 @@ void MsgDataAccess::scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, M
         read_file(fa.epilogueFile(), EPI_head, epi);
 
         // Sort the segment names by their index
-        vector<string> segfiles = fa.segmentFiles();
+        QStringList segfiles = fa.segmentFiles();
         for (vector<string>::const_iterator i = segfiles.begin();
                         i != segfiles.end(); ++i)
         {
@@ -202,5 +203,4 @@ void MsgDataAccess::line_read(size_t line, MSG_SAMPLE* buf) const
         } else
                 memcpy(buf, d->image->data + segline * columns, columns * sizeof(MSG_SAMPLE));
 }
-
 */

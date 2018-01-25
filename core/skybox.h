@@ -2,10 +2,35 @@
 #define SKYBOX_H
 // Minimum OpenGL version = 3.2
 // for glGenVertexArrays glBindVertexArray
-#include <QOpenGLFunctions_3_2_Core>
+#include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 
-class SkyBox : protected  QOpenGLFunctions_3_2_Core
+//#ifdef OPENGL21
+//#include <QOpenGLFunctions_2_1>
+//#endif
+//#ifdef OPENGL32
+//#include <QOpenGLFunctions_3_2_Core>
+//#endif
+//#ifdef OPENGL40
+//#include <QOpenGLFunctions_4_0_Core>
+//#endif
+//#ifdef OPENGL43
+//#include <QOpenGLFunctions_4_3_Core>
+//#endif
+
+//#ifdef OPENGL21
+//class SkyBox  : protected QOpenGLFunctions_2_1_CoreBackend
+//#endif
+//#ifdef OPENGL32
+//class SkyBox  : protected QOpenGLFunctions_3_2_Core
+//#endif
+//#ifdef OPENGL40
+//class SkyBox  : protected QOpenGLFunctions_4_0_Core
+//#endif
+//#ifdef OPENGL43
+//class SkyBox  : protected QOpenGLFunctions_4_3_Core
+//#endif
+class SkyBox  : protected QOpenGLFunctions
 {
 
 public:
