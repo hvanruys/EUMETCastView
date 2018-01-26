@@ -39,9 +39,7 @@ SOURCES += \
     MSG_data_SGS_header.cpp \
     MSG_data_image.cpp \
     MSG_quality.cpp \
-    MSG_HRIT.cpp \
-    xrit/dataaccess.cpp \
-    xrit/fileaccess.cpp
+    MSG_HRIT.cpp
     
 
 HEADERS += \
@@ -85,9 +83,7 @@ HEADERS += \
     MSG_HRIT.h \
     Compress.h \
     MSG_projection.h \
-    MSG_quality.h \
-    xrit/dataaccess.h \
-    xrit/fileaccess.h
+    MSG_quality.h
 
 
 CONFIG(release, debug|release) {
