@@ -315,7 +315,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
     int UWCA = 0;
     int UNLA = 0;
 
-    if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
+    if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
     {
         LECA = 11136 - sl->LowerEastColumnActual;
         LSLA = 11136 - sl->LowerSouthLineActual;
@@ -355,7 +355,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
         {
             if (this->map_inverse(i, j, lon_rad, lat_rad))
             {
-                if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
+                if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                         //if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, COFF_HRV, LOFF_HRV, CFAC_HRV, LFAC_HRV, &col, &row) == 0)

@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
-        connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString, int, int)), formimage, SLOT(slotcomposefinished(QString, int, int)));
+        connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString)), formimage, SLOT(slotcomposefinished(QString)));
 
 
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);

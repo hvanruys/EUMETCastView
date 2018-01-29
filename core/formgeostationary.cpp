@@ -623,7 +623,7 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
         //strnbrlist = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12").arg(cnt_hrv).arg(cnt_ir016).arg(cnt_ir039).arg(cnt_ir087).arg(cnt_ir097).arg(cnt_ir108).
         //        arg(cnt_ir120).arg(cnt_ir134).arg(cnt_vis006).arg(cnt_vis008).arg(cnt_wv062).arg(cnt_wv073);
 
-        if(geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
+        if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
         {
             strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
                    QString("%1").arg(cnt_hrv) << QString("%1").arg(cnt_vis006) << QString("%1").arg(cnt_vis008) <<  QString("%1").arg(cnt_ir016) << QString("%1").arg(cnt_ir039) <<
@@ -670,7 +670,7 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
         }
 
         newitem = new QTreeWidgetItem( widget, strlist, 0  );
-        if(geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
+        if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
         {
             if (cnt_hrv == 24 && cnt_ir016 == 8 && cnt_ir039 == 8 && cnt_ir087 == 8 && cnt_ir097 == 8 && cnt_ir108 == 8 && cnt_ir120 == 8 && cnt_ir134 == 8 && cnt_vis006 == 8
                 && cnt_vis008 == 8 && cnt_wv062 == 8 && cnt_wv073 == 8)
@@ -940,12 +940,13 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
         MsgDataAccess da;
 
-        MSG_data pro;
-        MSG_data epi;
-        //MSG_header header;
+        MSG_data prodata;
+        MSG_data epidata;
         MsgFileAccess fa;
+        QString prologuefile;
         QString epiloguefile;
         MSG_header EPI_head;
+        MSG_header PRO_head;
 
         if(sl->getGeoSatellite() != eGeoSatellite::H8)
         {
@@ -955,9 +956,8 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 fa = (type == "VIS_IR" || type == "VIS_IR Color" ? faVIS_IR : faHRV);
 
                 // Read prologue
-                MSG_header PRO_head;
 
-                QString prologuefile = fa.prologueFile();
+                prologuefile = fa.prologueFile();
 
                 qDebug() << QString("Reading prologue file = %1").arg(prologuefile);
 
@@ -965,15 +965,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 {
                     try
                     {
-                        da.read_file(fa.directory + "/" + prologuefile, PRO_head, pro);
-                        //                    float cal1;
-                        //                    cal1 = *pro.prologue->radiometric_proc.get_calibration(5, 500);
-                        //                    qDebug() << QString("calibration float = %1").arg(cal1);
-
-                        //pro.read_from();
-                        MSG_data_SatelliteStatus& satstatus = pro.prologue->sat_status;
-                        double spin = satstatus.SpinRateatRCStart;
-
+                        da.read_file(fa.directory + "/" + prologuefile, PRO_head, prodata);
                     }
                     catch( std::runtime_error &run )
                     {
@@ -994,10 +986,10 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
                 try
                 {
-                    da.read_file(fa.directory + "/" + epiloguefile, EPI_head, epi);
+                    da.read_file(fa.directory + "/" + epiloguefile, EPI_head, epidata);
                     if (type == "HRV" || type == "HRV Color")
                     {
-                        MSG_ActualL15CoverageHRV& cov = epi.epilogue->product_stats.ActualL15CoverageHRV;
+                        MSG_ActualL15CoverageHRV& cov = epidata.epilogue->product_stats.ActualL15CoverageHRV;
                         sl->LowerEastColumnActual = cov.LowerEastColumnActual;
                         sl->LowerNorthLineActual = cov.LowerNorthLineActual;
                         sl->LowerWestColumnActual = cov.LowerWestColumnActual;
@@ -1115,7 +1107,6 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 qDebug() << QString("CreateGeoImageXRIT HRV || HRV Color ----> %1").arg(fileinfo.filePath());
             }
         }
-
 }
 
 void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector)

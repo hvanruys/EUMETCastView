@@ -35,7 +35,7 @@ void MsgDataAccess::read_file(const QString file, MSG_header& head, MSG_data& da
         data.read_from(hrit, head);
         hrit.close();
 }
-/*
+
 void MsgDataAccess::scanSegment(const MSG_header& header)
 {
         // Decoding information
@@ -55,6 +55,7 @@ void MsgDataAccess::scanSegment(const MSG_header& header)
         swapY = header.image_navigation->line_scaling_factor < 0;
 }
 
+/*
 void MsgDataAccess::scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header)
 {
         // Read prologue

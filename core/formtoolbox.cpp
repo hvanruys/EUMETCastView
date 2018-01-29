@@ -1453,8 +1453,6 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
             ui->cmbHRVtype->setEnabled(true);
     }
 
-
-
     for(int i = 0; i < opts.geosatellites.at(geoindex).spectrumlist.count(); i++)
     {
         if(i == 0)
@@ -2084,19 +2082,19 @@ void FormToolbox::on_btnGeoColor_clicked()
         return;
     }
 
-    // QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateHimawari() or slotUpdateGeosat()
+    QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
 
     ui->pbProgress->reset();
-    if(geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
-        ui->pbProgress->setMaximum(24);
+    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
+        ui->pbProgress->setMaximum(8+8+8);
     else if(geoindex == (int)eGeoSatellite::MET_9)
-        ui->pbProgress->setMaximum(9);
+        ui->pbProgress->setMaximum(3+3+3);
     else if(geoindex == (int)eGeoSatellite::GOMS2)
-        ui->pbProgress->setMaximum(18);
+        ui->pbProgress->setMaximum(6+6+6);
     else if(geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G )
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::H8)
-        ui->pbProgress->setMaximum(30);
+        ui->pbProgress->setMaximum(10+10+10);
     else if(geoindex == (int)eGeoSatellite::GOES_16)
         ui->pbProgress->setMaximum(100);
 
@@ -2135,7 +2133,7 @@ void FormToolbox::on_btnHRV_clicked()
 
     ui->pbProgress->reset();
 
-    if(geoindex == 0 || geoindex == 2)
+    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
     {
         if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
             ui->pbProgress->setMaximum(5);
@@ -2147,7 +2145,7 @@ void FormToolbox::on_btnHRV_clicked()
             ui->pbProgress->setMaximum(8+8+8+24);
     }
 
-    if(geoindex == 1)
+    if(geoindex == (int)eGeoSatellite::MET_9)
     {
         if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
             ui->pbProgress->setMaximum(5);
@@ -2159,7 +2157,7 @@ void FormToolbox::on_btnHRV_clicked()
             ui->pbProgress->setMaximum(0);
     }
 
-    if(geoindex == 3)
+    if(geoindex == (int)eGeoSatellite::GOMS2)
     {
         if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
             ui->pbProgress->setMaximum(6);
@@ -2171,12 +2169,12 @@ void FormToolbox::on_btnHRV_clicked()
             ui->pbProgress->setMaximum(0);
     }
 
-    if(geoindex == 4 || geoindex == 5)
+    if(geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
     {
         ui->pbProgress->setMaximum(100);
     }
 
-    if(geoindex == 0 || geoindex == 1 || geoindex == 2)
+    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
     {
 
         if (ui->chkColorHRV->isChecked())
@@ -2186,7 +2184,7 @@ void FormToolbox::on_btnHRV_clicked()
         else
             onButtonColorHRV("HRV");
     }
-    if (geoindex == 4 || geoindex == 5)
+    if (geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
     {
         onButtonColorHRV("HRV");
     }
@@ -2199,6 +2197,7 @@ void FormToolbox::onButtonColorHRV(QString type)
     segs->seglgeo[0]->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglgeo[1]->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglgeo[2]->areatype = ui->cmbHRVtype->currentIndex();
+    segs->seglgeo[3]->areatype = ui->cmbHRVtype->currentIndex();
 
     for(int i = 0; i < segs->seglgeo.count(); i++)
         segs->seglgeo[i]->setKindofImage(type);
@@ -2211,7 +2210,7 @@ void FormToolbox::onButtonColorHRV(QString type)
 
     setToolboxButtons(false);
 
-    if(geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
+    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {

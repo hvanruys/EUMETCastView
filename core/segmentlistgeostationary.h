@@ -21,7 +21,7 @@ public:
 
     void displayMinMax();
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
-    void CalculateMinMaxGOES16(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue);
+    void CalculateMinMax(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue);
     void CalculateMinMaxHimawari(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
     void normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, int &fillvalue, int maxvalue);
 
@@ -48,6 +48,7 @@ public:
     void setGeoSatellite(eGeoSatellite ws) { m_GeoSatellite = ws; }
     void setGeoSatellite(int geoindex, QString strgeo);
     void CalculateLUTGeo(int colorindex);
+    void CalculateLUTGeo(int colorindex, quint16 *ptr, quint16 fillvalue);
 
     static void doComposeGeostationaryXRIT(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     static void doComposeGeostationaryXRITHimawari(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector);
@@ -90,7 +91,9 @@ public:
 
 private:
 
-    void ComposeColorHRV();
+    void ComposeHRV();
+    void ComposeVISIR();
+    void ComposeVISIRHimawari();
     void getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
 
     quint16 stat_min[3];
@@ -119,7 +122,7 @@ private:
 signals:
 
     void progressCounter(int val);
-    void signalcomposefinished(QString kindofimage, int channelindex, int filesequence);
+    void signalcomposefinished(QString kindofimage);
     
 public slots:
 

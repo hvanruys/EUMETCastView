@@ -1531,7 +1531,7 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
         rgbval = scanl[pix];
 
 
-        if(geo == eGeoSatellite::MET_10)
+        if(geo == eGeoSatellite::MET_10 || geo == eGeoSatellite::MET_11)
         {
             if(pixconv.pixcoord2geocoord(segs->seglgeo[0]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {

@@ -65,15 +65,16 @@ enum eProjectionType
 };
 
 enum class eGeoSatellite {
-    MET_10 = 0,
-    MET_9 = 1,
-    MET_8 = 2,
-    GOMS2 = 3,
-    FY2E = 4,
-    FY2G = 5,
-    GOES_15 = 6,
-    GOES_16 = 7,
-    H8 = 8,
+    MET_11 = 0,
+    MET_10 = 1,
+    MET_9 = 2,
+    MET_8 = 3,
+    GOMS2 = 4,
+    FY2E = 5,
+    FY2G = 6,
+    GOES_15 = 7,
+    GOES_16 = 8,
+    H8 = 9,
     NOGEO = 10
 };
 

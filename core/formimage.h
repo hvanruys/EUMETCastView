@@ -173,7 +173,7 @@ public slots:
     void setPixmapToLabel(bool settoolboxbuttons);
     void setPixmapToLabelDNB(bool settoolboxbuttons);
     void slotUpdateGeosat();
-    void slotcomposefinished(QString kindofimage, int channelindex, int filesequence);
+    void slotcomposefinished(QString kindofimage);
     void slotRefreshOverlay();
     void slotRepaintProjectionImage();
 

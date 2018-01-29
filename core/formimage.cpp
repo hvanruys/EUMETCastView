@@ -1248,36 +1248,13 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
 
 void FormImage::displayGeoImageInfo()
 {
-
-    if(segs->seglgeo[0]->bActiveSegmentList == true)
+    for(int i = 0; i < opts.geosatellites.length(); i++)
     {
-        displayGeoImageInformation("Meteosat 10");
-    } else if(segs->seglgeo[1]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("Meteosat 9");
-    } else if(segs->seglgeo[2]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("Meteosat 8");
-    } else if(segs->seglgeo[3]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("GOMS2");
-    } else if(segs->seglgeo[4]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("Feng Yun 2E");
-    } else if(segs->seglgeo[5]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("Feng Yun 2G");
-    } else if(segs->seglgeo[6]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("GOES 15");
-    } else if(segs->seglgeo[7]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("GOES 16");
-    } else if(segs->seglgeo[8]->bActiveSegmentList == true)
-    {
-        displayGeoImageInformation("Himawari-8");
+        if(segs->seglgeo[i]->bActiveSegmentList == true)
+        {
+            displayGeoImageInformation(opts.geosatellites[i].fullname);
+        }
     }
-
 
 }
 
@@ -1496,61 +1473,41 @@ void FormImage::slotUpdateGeosat()
 
 }
 
-void FormImage::slotcomposefinished(QString kindofimage, int channelindex, int filesequence)
+void FormImage::slotcomposefinished(QString kindofimage)
 {
-    qDebug() << QString("start FormImage::slotcomposefinisged kindofimage = %1, channelindex = %2, filesequence = %3)").arg(kindofimage).arg(channelindex).arg(filesequence);
-
     imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
-    //this->adjustImage();
     refreshoverlay = true;
 
     SegmentListGeostationary *sl = NULL;
     sl = segs->getActiveSegmentList();
 
-    if(channelindex == 0)
-        sl->issegmentcomposedRed[filesequence] = true;
-    else if(channelindex == 1)
-        sl->issegmentcomposedGreen[filesequence] = true;
-    else if(channelindex == 2)
-        sl->issegmentcomposedBlue[filesequence] = true;
 
-    if(kindofimage == "HRV")
-        sl->issegmentcomposedHRV[filesequence] = true;
+//    if(sl->getGeoSatellite() == eGeoSatellite::H8)
+//    {
+//        EnhanceDarkSpace(sl->getGeoSatelliteIndex());
+//        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+//        refreshoverlay = true;
+//    }
 
-    if(sl->allSegmentsReceived())
+    if(opts.imageontextureOnMet)
     {
-
-        //refreshoverlay = true;
-
-        if(sl->getGeoSatellite() == eGeoSatellite::H8)
+        if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
         {
-            EnhanceDarkSpace(sl->getGeoSatelliteIndex());
-            imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
-            refreshoverlay = true;
-        }
-
-        if(opts.imageontextureOnMet)
-        {
-            if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
-            {
-                qDebug() << "all HRV received !!!!!!!!!!!!!!";
-                emit allsegmentsreceivedbuttons(true);
-            }
-            else
-            {
-                qDebug() << "all VIS_IR received !!!!!!!!!!!!!!";
-                emit render3dgeo(sl->getGeoSatelliteIndex());
-            }
+            qDebug() << "all HRV received !!!!!!!!!!!!!!";
+            emit allsegmentsreceivedbuttons(true);
         }
         else
-            emit allsegmentsreceivedbuttons(true);
-        QApplication::restoreOverrideCursor();
-
+        {
+            qDebug() << "all VIS_IR received !!!!!!!!!!!!!!";
+            emit render3dgeo(sl->getGeoSatelliteIndex());
+        }
     }
+    else
+        emit allsegmentsreceivedbuttons(true);
 
+    QApplication::restoreOverrideCursor();
     qDebug() << "end FormImage::slotcomposefinished()";
     this->update();
-
 
 }
 
@@ -1816,7 +1773,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     size_t npix;
     size_t npixHRV;
-    if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
+    if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
     {
         npix = 3712*3712;
         if (sl->areatype == 1)
@@ -1864,7 +1821,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     qDebug() << QString("recalculateCLAHE() ; kind of image = %1").arg(sl->getKindofImage());
 
-    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
+    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         pixelsRed = new quint16[npix];
         pixelsGreen = new quint16[npix];
@@ -1958,7 +1915,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         }
 
     }
-    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
+    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         pixelsHRV = new quint16[npixHRV];
         for( int i = 0, k = 0; i < (sl->bisRSS ? 5 : ( sl->areatype == 1 ? 24 : 5)); i++)
@@ -1975,7 +1932,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         pixelsHRV = new quint16[npixHRV];
         memcpy(pixelsHRV, imageptrs->ptrHRV[0], 9152 * 9152 * sizeof(quint16));
     }
-    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
+    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         pixelsRed = new quint16[npix];
         for( int i = (sl->bisRSS ? 5 : 0); i < 8 ; i++)
@@ -2033,7 +1990,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     int ret = 0;
 
 
-    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
+    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         imageptrs->CLAHE(pixelsRed, 3712, (sl->bisRSS ? 3*464 : 3712), 0, 1023, 16, 16, 256, opts.clahecliplimit);
         imageptrs->CLAHE(pixelsGreen, 3712, (sl->bisRSS ? 3*464 : 3712), 0, 1023, 16, 16, 256, opts.clahecliplimit);
@@ -2060,7 +2017,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         ret = imageptrs->CLAHE(pixelsBlue, 5424, 5424, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         qDebug() << QString("pixelsBlue ret = %1").arg(ret);
     }
-    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8))
+    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8))
     {
         if(sl->bisRSS)
         {
@@ -2085,7 +2042,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     }
     else if(sl->getKindofImage() == "VIS_IR")
     {
-        if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
+        if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
             imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
             imageptrs->CLAHE(pixelsRed, 3712, 3*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
@@ -2105,7 +2062,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     qDebug() << "---> After CLAHE";
 
-    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
+    if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 ))
     {
         for(int i = 0; i < (sl->bisRSS ? 3 : 8); i++)
         {
@@ -2198,7 +2155,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     }
     else if(sl->getKindofImage() == "HRV")
     {
-        if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
+        if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
         {
             for(int i = 0; i < (sl->bisRSS ? 5 : (sl->areatype == 1 ? 24 : 5)); i++)
             {
@@ -2236,7 +2193,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     }
     else if(sl->getKindofImage() == "VIS_IR")
     {
-        if(sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 )
+        if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8 )
         {
             for(int i = 0 ; i < (sl->bisRSS ? 3 : 8); i++)
             {
