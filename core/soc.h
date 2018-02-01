@@ -7,7 +7,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLTexture>
 
-class Soc   // : protected QOpenGLFunctions
+class Soc  // : protected QOpenGLFunctions
 {
 public:
     Soc(QOpenGLShaderProgram *prog);

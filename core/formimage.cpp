@@ -1482,12 +1482,12 @@ void FormImage::slotcomposefinished(QString kindofimage)
     sl = segs->getActiveSegmentList();
 
 
-//    if(sl->getGeoSatellite() == eGeoSatellite::H8)
-//    {
-//        EnhanceDarkSpace(sl->getGeoSatelliteIndex());
-//        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
-//        refreshoverlay = true;
-//    }
+    if(sl->getGeoSatellite() == eGeoSatellite::H8)
+    {
+        EnhanceDarkSpace(sl->getGeoSatelliteIndex());
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+        refreshoverlay = true;
+    }
 
     if(opts.imageontextureOnMet)
     {

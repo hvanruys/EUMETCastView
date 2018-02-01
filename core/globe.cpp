@@ -82,8 +82,8 @@ void Globe::initializeGL()
     geometries->initSphereGeometry(1.0f, 128, 64);
 
     gshhsdata->initializegshhsData(&programgshhs);
-    //skybox = new SkyBox(&programskybox);
-    //soc = new Soc(&programdraw);
+    skybox = new SkyBox(&programskybox);
+    soc = new Soc(&programdraw);
     satgl = new SatGL(&programsatgl, sats, segs);
     segmentgl = new SegmentGL(&programdraw, sats, segs);
     octa = new Octahedron(&programdraw);
@@ -564,7 +564,7 @@ void Globe::paintGL()
     QMatrix4x4 rotmatrix;
     rotmatrix.rotate(quat);
 //*************************************************
-//    skybox->render(projection, rotmatrix);
+    skybox->render(projection, rotmatrix);
 
     QVector3D sunPosition;
 
@@ -680,7 +680,7 @@ void Globe::paintGL()
     if(bBorders)
         gshhsdata->render(projection, modelview, bBorders);
 
-    //soc->render(projection, modelview);
+    soc->render(projection, modelview);
 
     if(opts.stationnameOn)
         renderStations(projection, modelview, QColor(255, 255, 0));

@@ -2128,7 +2128,8 @@ bool FormToolbox::checkSegmentDateTime()
 void FormToolbox::on_btnHRV_clicked()
 {
 
-    checkSegmentDateTime();
+    if(!checkSegmentDateTime())
+        return;
     QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
 
     ui->pbProgress->reset();

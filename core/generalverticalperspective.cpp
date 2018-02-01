@@ -319,7 +319,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                                 }
 
                             }
-                            else if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10)
+                            else if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
                             {
                                 if( row < (sl->areatype == 0 ? 5*464 : 11136))
                                 {

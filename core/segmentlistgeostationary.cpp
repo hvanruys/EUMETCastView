@@ -463,7 +463,6 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     MSG_header *header;
     MSG_data *msgdat;
 
-    qDebug() << QString("-------> SegmentListGeostationary::ComposeSegmentImage() %1").arg(filepath);
 
     header = new MSG_header();
     msgdat = new MSG_data();
@@ -476,6 +475,9 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     QString filespectrum;
     QString filedate;
     this->getFilenameParameters(fileinfo, filespectrum, filedate, filesequence);
+
+    qDebug() << QString("-------> SegmentListGeostationary::ComposeSegmentImageXRIT() filespectrum = %1 filedate = %2 filesequence = %3")
+                .arg(filespectrum).arg(filedate).arg(filesequence);
 
     //QByteArray ba = filepath.toLatin1();
     //const char *c_segname = ba.data();
@@ -1936,11 +1938,10 @@ void SegmentListGeostationary::CalculateLUTGeo(int colorindex, quint16 *ptr, qui
         for (int pixelx = 0; pixelx < opts.geosatellites[geoindex].imagewidth; pixelx++)
         {
             pixel = ptr[line * number_of_columns + pixelx];
-            if(pixel < fillvalue)
+            if(pixel != fillvalue)
             {
                 quint16 indexout = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel - this->stat_min[colorindex])/(float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 1023);
-                if(indexout > 0)
-                    stats_ch[colorindex][indexout]++;
+                stats_ch[colorindex][indexout]++;
             }
         }
     }
@@ -2043,14 +2044,14 @@ void SegmentListGeostationary::ComposeVISIR()
 
     }
 
-    CalculateMinMax(0, width, height, pixelsRed, 65535);
-    CalculateLUTGeo(0, pixelsRed, 65535);
+    CalculateMinMax(0, width, height, pixelsRed, 0);
+    CalculateLUTGeo(0, pixelsRed, 0);
     if(kindofimage == "VIS_IR Color")
     {
-        CalculateMinMax(1, width, height, pixelsGreen, 65535);
-        CalculateLUTGeo(1, pixelsGreen, 65535);
-        CalculateMinMax(2, width, height, pixelsBlue, 65535);
-        CalculateLUTGeo(2, pixelsBlue, 65535);
+        CalculateMinMax(1, width, height, pixelsGreen, 0);
+        CalculateLUTGeo(1, pixelsGreen, 0);
+        CalculateMinMax(2, width, height, pixelsBlue, 0);
+        CalculateLUTGeo(2, pixelsBlue, 0);
     }
 
     for (int line = (bisRSS ? 3 : opts.geosatellites[geoindex].maxsegments)*464 - 1; line >= 0; line--)
@@ -2278,7 +2279,9 @@ void SegmentListGeostationary::ComposeHRV()
     quint8 valcontrast;
 
 
-    size_t npix = opts.geosatellites[geoindex].imagewidth*opts.geosatellites[geoindex].imageheight;
+    int width = opts.geosatellites[geoindex].imagewidth;
+    int height = opts.geosatellites[geoindex].imageheight;
+    size_t npix = 3712*3712;
     size_t npixHRV = 0;
 
     if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_8)
@@ -2308,9 +2311,11 @@ void SegmentListGeostationary::ComposeHRV()
     }
 
 
-    for( int i = 0, k = 0; i < (m_GeoSatellite == eGeoSatellite::MET_9 ? 5 : ( this->areatype == 1 ? 24 : 5)); i++)
+    for( int i = 0, k = 0; i < (m_GeoSatellite == eGeoSatellite::MET_9 ? 5 : (this->areatype == 1 ? 24 : 5)); i++)
     {
         k = (m_GeoSatellite == eGeoSatellite::MET_9 ? 19 + i : (this->areatype == 1 ? i : 19 + i));
+        qDebug() << QString("pixelsHRV i = %1 and k = %2 isPresentHRV[k] = %3").arg(i).arg(k).arg(isPresentHRV[k]);
+
         if(isPresentHRV[k])
             memcpy(pixelsHRV + i * 464 * 5568, imageptrs->ptrHRV[k], 464 * 5568 * sizeof(quint16));
     }
@@ -2334,6 +2339,27 @@ void SegmentListGeostationary::ComposeHRV()
         }
     }
 
+//    if(kindofimage == "HRV Color")
+//    {
+//        QImage testimage(3712, 3*464, QImage::Format_ARGB32);
+//        for(int y = 3*464-1; y >= 0; y--)
+//        {
+//            row_col = (QRgb*)testimage.scanLine(3*464-1-y);
+
+//            for(int x = 3712-1; x >= 0; x--)
+//            {
+//                cred = *(pixelsRed + y*3712 + x);
+//                cgreen = *(pixelsGreen + y*3712 + x);
+//                cblue = *(pixelsBlue + y*3712 + x);
+//                row_col[3712-1-x] = qRgb(ContrastStretch(cred), ContrastStretch(cgreen), ContrastStretch(cblue));
+//            }
+//        }
+
+//        testimage.save("testimage.png");
+//    }
+
+
+
 
     //imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, 15);
     //imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 1023, 16, 16, 256, 15);
@@ -2356,18 +2382,19 @@ void SegmentListGeostationary::ComposeHRV()
         for (int pixelx = 5568 - 1 ; pixelx >= 0; pixelx--)
         {
             c = *(pixelsHRV + line * 5568 + pixelx);
+            //c = 255;
 
             if(kindofimage == "HRV Color")
             {
                 if(m_GeoSatellite == eGeoSatellite::MET_9)
                 {
+
                     cred = *(pixelsRed + (19*464 + line)/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
                     cgreen = *(pixelsGreen + (19*464 + line)/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
                     cblue = *(pixelsBlue + (19*464 + line)/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
                     clum = (cred+cgreen+cblue)/3;
                     if( clum == 0)
                         clum = 1;
-
 
                 }
                 else
@@ -2795,6 +2822,7 @@ void SegmentListGeostationary::CalculateMinMax(int width, int height, quint16 *p
 
 void SegmentListGeostationary::CalculateMinMax(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue)
 {
+    long cnt = 0;
     this->stat_min[colorindex] = 65535;
     this->stat_max[colorindex] = 0;
 
@@ -2807,7 +2835,7 @@ void SegmentListGeostationary::CalculateMinMax(int colorindex, int width, int he
         for (int i = 0; i < width; i++)
         {
             quint16 val = ptr[j * width + i];
-            if(val > 0 && val < fillvalue)
+            if(val != fillvalue)
             {
                 if(val >= this->stat_max[colorindex])
                     this->stat_max[colorindex] = val;
@@ -2815,10 +2843,13 @@ void SegmentListGeostationary::CalculateMinMax(int colorindex, int width, int he
                     this->stat_min[colorindex] = val;
                 this->active_pixels[colorindex]++;
             }
+            else
+                 cnt++;
         }
     }
 
-    qDebug() << QString("CalculateMinMax color = %1 stat_min = %2 stat_max = %3 active pixels = %4").arg(colorindex).arg(stat_min[colorindex]).arg(stat_max[colorindex]).arg(this->active_pixels[colorindex]);
+    qDebug() << QString("CalculateMinMax color = %1 stat_min = %2 stat_max = %3 active pixels = %4 pixels with fillvalue = %5")
+                .arg(colorindex).arg(stat_min[colorindex]).arg(stat_max[colorindex]).arg(this->active_pixels[colorindex]).arg(cnt);
 
 }
 

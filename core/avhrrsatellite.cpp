@@ -70,6 +70,7 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     countviirsdnb = 0;
     countolciefr = 0;
     countolcierr = 0;
+    countslstr = 0;
     countmetopAhrpt = 0;
     countmetopBhrpt = 0;
     countnoaa19hrpt = 0;
@@ -1267,7 +1268,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
 
     thefilepath.replace( opts.dirremote.toLatin1(), opts.localdirremote.toLatin1()); // "/media/sdc1/", "/home/hugo/Vol2T/");
-    qDebug() << "AddSegmentsToListFromUdp : " + QString(thefilepath);
+    // qDebug() << "AddSegmentsToListFromUdp : " + QString(thefilepath) + " count = " << opts.segmentdirectorylist.count();
 
 
     if (opts.segmentdirectorylist.count() > 0)
@@ -1279,6 +1280,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
         {
             if (*itc == "1")  //include checked
             {
+                //qDebug() << "*its = " << *its << " AddSegmentsToListFromUdp : " + QString(thefilepath);
                 if (QString(thefilepath).contains(QString(*its)))
                 {
                     QFileInfo fileinfo(thefilepath);
@@ -1650,7 +1652,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsMetop()
 {
 
     QStringList strlist;
-    strlist << seglmetop->GetDirectoryName() << QString("Metop") << QString("%1").arg(this->countmetop);
+    strlist << seglmetop->GetDirectoryName() << QString("Metop") << QString("%1").arg(seglmetop->NbrOfSegments());
 
     return strlist;
 
@@ -1660,7 +1662,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsNoaa()
 {
 
     QStringList strlist;
-    strlist << seglnoaa->GetDirectoryName() << QString("Noaa") << QString("%1").arg(countnoaa);
+    strlist << seglnoaa->GetDirectoryName() << QString("Noaa") << QString("%1").arg(seglnoaa->NbrOfSegments());
 
     return strlist;
 
@@ -1670,7 +1672,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsHRP()
 {
 
     QStringList strlist;
-    strlist << seglhrp->GetDirectoryName() << QString("HRP") << QString("%1").arg(counthrp);
+    strlist << seglhrp->GetDirectoryName() << QString("HRP") << QString("%1").arg(seglhrp->NbrOfSegments());
 
     return strlist;
 
@@ -1679,7 +1681,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsHRP()
 QStringList AVHRRSatellite::GetOverviewSegmentsGAC()
 {
     QStringList strlist;
-    strlist << seglgac->GetDirectoryName() << QString("GAC") <<  QString("%1").arg(countgac);
+    strlist << seglgac->GetDirectoryName() << QString("GAC") <<  QString("%1").arg(seglgac->NbrOfSegments());
 
     return strlist;
 }
@@ -1728,7 +1730,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSM()
 {
 
     QStringList strlist;
-    strlist << seglviirsm->GetDirectoryName() << QString("VIIRSM") <<  QString("%1").arg(countviirsm);
+    strlist << seglviirsm->GetDirectoryName() << QString("VIIRSM") <<  QString("%1").arg(seglviirsm->NbrOfSegments());
 
     return strlist;
 
@@ -1738,7 +1740,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSDNB()
 {
 
     QStringList strlist;
-    strlist << seglviirsdnb->GetDirectoryName() << QString("VIIRSDNB") <<  QString("%1").arg(countviirsdnb);
+    strlist << seglviirsdnb->GetDirectoryName() << QString("VIIRSDNB") <<  QString("%1").arg(seglviirsdnb->NbrOfSegments());
 
     return strlist;
 
@@ -1748,7 +1750,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsOLCIefr()
 {
 
     QStringList strlist;
-    strlist << seglolciefr->GetDirectoryName() << QString("OLCI EFR") <<  QString("%1").arg(countolciefr);
+    strlist << seglolciefr->GetDirectoryName() << QString("OLCI EFR") <<  QString("%1").arg(seglolciefr->NbrOfSegments());
 
     return strlist;
 
@@ -1758,7 +1760,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsOLCIerr()
 {
 
     QStringList strlist;
-    strlist << seglolcierr->GetDirectoryName() << QString("OLCI ERR") <<  QString("%1").arg(countolcierr);
+    strlist << seglolcierr->GetDirectoryName() << QString("OLCI ERR") <<  QString("%1").arg(seglolcierr->NbrOfSegments());
 
     return strlist;
 
