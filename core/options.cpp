@@ -707,8 +707,8 @@ void Options::CreateGeoSatelliteIni()
         geosatellites[i].lfac = 781648343.;
         geosatellites[i].coffhrv = 5566;
         geosatellites[i].loffhrv = 5566;
-        geosatellites[i].cfachrv = 2344945030.;
-        geosatellites[i].lfachrv = 2344945030.;
+        geosatellites[i].cfachrv = 2344944937; //2344945030.;
+        geosatellites[i].lfachrv = 2344944937; //2344945030.;
     }
 
     //E1B-TPG-1
