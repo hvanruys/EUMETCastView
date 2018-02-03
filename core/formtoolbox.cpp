@@ -2130,6 +2130,25 @@ void FormToolbox::on_btnHRV_clicked()
 
     if(!checkSegmentDateTime())
         return;
+
+    if(!comboColGeoOK())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Need color choices for 3 different bands in the Geostationary tab.");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
+        return;
+    }
+
     QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
 
     ui->pbProgress->reset();
@@ -2194,6 +2213,7 @@ void FormToolbox::on_btnHRV_clicked()
 
 void FormToolbox::onButtonColorHRV(QString type)
 {
+
 
     segs->seglgeo[0]->areatype = ui->cmbHRVtype->currentIndex();
     segs->seglgeo[1]->areatype = ui->cmbHRVtype->currentIndex();
