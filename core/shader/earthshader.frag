@@ -1,10 +1,11 @@
-#version 430 core
+#version 330
 
 in vec3 Position;
 in vec3 Normal;
 in vec2 TexCoord;
 
-layout(binding=0) uniform sampler2D TexEarth;
+//layout(binding=0) uniform sampler2D TexEarth;
+ uniform sampler2D TexEarth;
 
 struct LightInfo {
   vec4 Position;  // Light position in eye coords.
@@ -21,7 +22,8 @@ struct MaterialInfo {
 uniform MaterialInfo Material;
 uniform bool phong;
 
-layout( location = 0 ) out vec4 FragColor;
+//layout( location = 0 ) out vec4 FragColor;
+out vec4 FragColor;
 
 void phongModel( vec3 pos, vec3 norm, out vec3 ambAndDiff, out vec3 spec )
 {

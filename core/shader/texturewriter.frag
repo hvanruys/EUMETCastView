@@ -1,8 +1,9 @@
-#version 420 core
+#version 330
 
 in float texCoord;
 out vec4 color;
-layout (binding = 0) uniform sampler1D tex;
+//layout (binding = 0) uniform sampler1D tex;
+uniform sampler1D tex;
 
 void main()
 {

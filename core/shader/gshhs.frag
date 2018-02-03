@@ -1,4 +1,4 @@
-#version 430 core
+#version 330
 
 in vec3 Normal;
 in float angle;

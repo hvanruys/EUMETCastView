@@ -1,7 +1,10 @@
-#version 420 core
+#version 330
 
-layout(location=0) in vec2 VertexPosition;
-layout(location=1) in float VertexTexCoord;
+//layout(location=0) in vec2 VertexPosition;
+//layout(location=1) in float VertexTexCoord;
+
+in vec2 VertexPosition;
+in float VertexTexCoord;
 
 out float texCoord;
 

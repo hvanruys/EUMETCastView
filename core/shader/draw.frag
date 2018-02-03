@@ -1,4 +1,4 @@
-#version 430 core
+#version 330
 
 in vec3 Normal;
 uniform vec4 outcolor;
