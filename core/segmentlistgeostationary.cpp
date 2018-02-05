@@ -108,15 +108,6 @@ SegmentListGeostationary::SegmentListGeostationary(QObject *parent, int geoindex
     qDebug() << QString("in constructor SegmentListGeostationary");
 
     this->geoindex = geoindex;
-//    for (int i = 0; i < 10; i++)
-//    {
-//        maxvalueRed[i] = 0;
-//        minvalueRed[i] = 0;
-//        maxvalueGreen[i] = 0;
-//        minvalueGreen[i] = 0;
-//        maxvalueBlue[i] = 0;
-//        minvalueBlue[i] = 0;
-//    }
 
     for(int i = 0; i < 3; i++)
     {
@@ -137,6 +128,16 @@ SegmentListGeostationary::SegmentListGeostationary(QObject *parent, int geoindex
     this->bActiveSegmentList = false;
     this->bisRSS = false;
     this->SetupContrastStretch( 0, 0, 1023, 255);
+    this->time = NULL;		/* image of Julian Day Number */
+    this->lat = NULL;  		/* image of latitude */
+    this->lon = NULL;  		/* image of longitude */
+    this->sza = NULL;  		/* image of solar zenith angle (degrees: 0.0 -- 180.0) */
+    this->saa = NULL;  		/* image of solar azimuth angle  (degrees: 0.0 -- 360.0) */
+    this->vza = NULL;       /* image of viewing zenith angle (degrees: 0.0 -- 180.0) */
+    this->vaa = NULL;       /* image of viewing azimuth angle  (degrees: 0.0 -- 360.0) */
+    this->data = NULL;      /* array of pointers to images of length n_bands */
+    this->data2 = NULL;      /* array of image data of length n_bands * n_lines * n_columns */
+
 
 
 }

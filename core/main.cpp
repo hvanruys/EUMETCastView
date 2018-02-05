@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.3.0"
+#define APPVERSION "1.3.1"
 using namespace std;
 
 QMutex g_mutex;

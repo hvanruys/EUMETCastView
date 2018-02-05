@@ -5258,14 +5258,6 @@ void FormToolbox::on_btnSaveAsPNG48bits_clicked()
 
 }
 
-
-void FormToolbox::on_rdbGridOnOLCIimage_toggled(bool checked)
-{
-    opts.gridonolciimage = checked;
-    formimage->toggleOverlayGridOnOLCI();
-}
-
-
 void FormToolbox::on_btnSaveProjectionAsPNG48bits_clicked()
 {
 

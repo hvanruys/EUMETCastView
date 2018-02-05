@@ -251,7 +251,6 @@ private slots:
     void on_cmbHistogramSLSTR_activated(int index);
     void on_btnSaveAsPNG48bits_clicked();
     void on_btnOverlayOLCI_clicked();
-    void on_rdbGridOnOLCIimage_toggled(bool checked);
     void on_btnUpdateSLSTRImage_clicked();
     void on_btnSaveProjectionAsPNG48bits_clicked();
 
