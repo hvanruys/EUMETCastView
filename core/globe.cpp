@@ -17,8 +17,6 @@ extern gshhsData *gshhsdata;
 
 #include <QMutex>
 
-extern QMutex g_mutex;
-
 void Render3DColorTexture(Globe *gl, int geoindex)
 {
       gl->Render3DGeoSegment( geoindex );

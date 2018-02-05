@@ -9,8 +9,6 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 #include <QMutex>
 
-extern QMutex g_mutex;
-
 SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, QObject *parent) :
     Segment(parent)
 {
@@ -1262,9 +1260,6 @@ void SegmentVIIRSM::RecalculateProjection()
 */
 
 
-   // g_mutex.unlock();
-
-
 
 //void SegmentVIIRS::ComposeProjectionConcurrent()
 //{
@@ -1288,7 +1283,6 @@ void SegmentVIIRSM::RecalculateProjection()
 //    //testlookupLonLat(55.888, 73.900, col, row);
 //    //return;
 
-//    g_mutex.lock();
 
 //    for (int j = 0; j < imageptrs->ptrimageProjection->height(); j++)
 //    {
@@ -1359,8 +1353,6 @@ void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 
     QColor rgb;
     int posx, posy;
-
-    //QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 

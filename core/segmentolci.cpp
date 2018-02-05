@@ -8,7 +8,6 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
-extern QMutex g_mutex;
 
 //void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
 //{
@@ -992,8 +991,6 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
 
     QColor rgb;
     int posx, posy;
-
-    //QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 

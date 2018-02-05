@@ -23,8 +23,6 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 #include <QMutex>
 
-extern QMutex g_mutex;
-
 SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *parent) :
     Segment(parent)
 {
@@ -971,7 +969,6 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    //g_mutex.lock();
 
     /*    from pt 5 --> pt 2045
         = 5 + 20 * 102 total of 103 pts
@@ -1025,9 +1022,6 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
             }
         }
     }
-
-
-    //g_mutex.unlock();
 
 }
 
@@ -1195,8 +1189,6 @@ void SegmentMetop::RenderSegmentlineInSG(int channel, int nbrLine, int heightint
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    //g_mutex.lock();
-
 
     if(num_navigation_points == 103)
     {
@@ -1230,8 +1222,6 @@ void SegmentMetop::RenderSegmentlineInSG(int channel, int nbrLine, int heightint
             }
         }
     }
-
-    //g_mutex.unlock();
 
 }
 
@@ -1274,7 +1264,6 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
     else if (channel == 5)
         row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
 
-    //g_mutex.lock();
 
     double dtot;
     int pointx;
@@ -1335,7 +1324,6 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
         }
     }
 
-    //g_mutex.unlock();
 
 }
 

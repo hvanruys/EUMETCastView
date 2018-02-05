@@ -62,7 +62,6 @@ quint32 _ntohl(quint32 x) {
     }
 }
 
-extern QMutex g_mutex;
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern gshhsData *gshhsdata;
@@ -128,6 +127,7 @@ SegmentListGeostationary::SegmentListGeostationary(QObject *parent, int geoindex
     this->bActiveSegmentList = false;
     this->bisRSS = false;
     this->SetupContrastStretch( 0, 0, 1023, 255);
+
     this->time = NULL;		/* image of Julian Day Number */
     this->lat = NULL;  		/* image of latitude */
     this->lon = NULL;  		/* image of longitude */
@@ -704,9 +704,6 @@ void SegmentListGeostationary::ComposeSegmentImageXRITHimawari( QString filepath
     im = imageptrs->ptrimageGeostationary;
 
     quint16 c;
-    QRgb pix;
-    int r,g, b;
-    quint16 valcontrast;
 
     if(channelindex == 0)
     {
@@ -723,8 +720,6 @@ void SegmentListGeostationary::ComposeSegmentImageXRITHimawari( QString filepath
         imageptrs->ptrBlue[filesequence] = new quint16[number_of_lines * number_of_columns];
         memset(imageptrs->ptrBlue[filesequence], 0, number_of_lines * number_of_columns *sizeof(quint16));
     }
-
-
 
     quint16 maxpic = 0;
     quint16 minpic = 65535;
@@ -749,84 +744,13 @@ void SegmentListGeostationary::ComposeSegmentImageXRITHimawari( QString filepath
     }
 
 
-            if(channelindex == 0)
-                this->issegmentcomposedRed[filesequence] = true;
-            else if(channelindex == 1)
-                this->issegmentcomposedGreen[filesequence] = true;
-            else if(channelindex == 2)
-                this->issegmentcomposedBlue[filesequence] = true;
+    if(channelindex == 0)
+        this->issegmentcomposedRed[filesequence] = true;
+    else if(channelindex == 1)
+        this->issegmentcomposedGreen[filesequence] = true;
+    else if(channelindex == 2)
+        this->issegmentcomposedBlue[filesequence] = true;
 
-
-//    g_mutex.lock();
-
-
-////    if(kindofimage == "VIS_IR")
-////        CalculateMinMaxHimawari(5500, 550, imageptrs->ptrRed[filesequence], minvalueRed[filesequence], maxvalueRed[filesequence]);
-////    else if(kindofimage == "VIS_IR Color")
-////    {
-////        if(channelindex == 0)
-////            CalculateMinMaxHimawari(5500, 550, imageptrs->ptrRed[filesequence], minvalueRed[filesequence], maxvalueRed[filesequence]);
-////        else if(channelindex == 1)
-////            CalculateMinMaxHimawari(5500, 550, imageptrs->ptrGreen[filesequence], minvalueGreen[filesequence], maxvalueGreen[filesequence]);
-////        else if(channelindex == 2)
-////            CalculateMinMaxHimawari(5500, 550, imageptrs->ptrBlue[filesequence], minvalueBlue[filesequence], maxvalueBlue[filesequence]);
-
-////    }
-
-
-
-//    for(int line = 0; line < nlin; line++)
-//    {
-//        row_col = (QRgb*)im->scanLine(nlin * filesequence + line);
-
-//        for (int pixelx = 0 ; pixelx < npix; pixelx++)
-//        {
-//            c = *(pixels + line * npix + pixelx);
-//            valcontrast = ContrastStretch(c);
-//            valcontrast = (valcontrast > 255 ? 255 : valcontrast);
-
-//            if(kindofimage == "VIS_IR Color")
-//            {
-//                pix = row_col[pixelx];
-
-//                if(channelindex == 2)
-//                {
-//                    if(inversevector[2])
-//                        valcontrast = 255 - valcontrast;
-//                    r = qRed(pix);
-//                    g = qGreen(pix);
-//                    b = quint8(valcontrast);
-//                }
-//                else if(channelindex == 1)
-//                {
-//                    if(inversevector[1])
-//                        valcontrast = 255 - valcontrast;
-//                    r = qRed(pix);
-//                    g = quint8(valcontrast);
-//                    b = qBlue(pix);
-//                }
-//                else if(channelindex == 0)
-//                {
-//                    if(inversevector[0])
-//                        valcontrast = 255 - valcontrast;
-//                    r = quint8(valcontrast);
-//                    g = qGreen(pix);
-//                    b = qBlue(pix);
-//                }
-//                row_col[pixelx] = qRgb(r,g,b);
-//            }
-//            else if( kindofimage == "VIS_IR")
-//            {
-//                if(inversevector[0])
-//                    valcontrast = 255 - valcontrast;
-
-//                r = quint8(valcontrast);
-//                g = quint8(valcontrast);
-//                b = quint8(valcontrast);
-//                row_col[pixelx] = qRgb(r,g,b);
-//            }
-//        }
-//    }
 
 
     if(allSegmentsReceived())
@@ -834,12 +758,6 @@ void SegmentListGeostationary::ComposeSegmentImageXRITHimawari( QString filepath
         ComposeVISIRHimawari();
         emit signalcomposefinished(kindofimage);
     }
-
-
-
-
-    g_mutex.unlock();
-
 
     delete header;
     delete msgdat;
@@ -1334,9 +1252,6 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
         qDebug() << QString("0 stat min = %1 stat max = %2").arg(stat_min[0]).arg(stat_max[0]);
     }
 
-
-    //g_mutex.lock();
-
     int nlin = 0, npix = 0;
     int deltaprogress, deltaprogresscounter = 30;
 
@@ -1447,9 +1362,6 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
     this->issegmentcomposedRed[0] = true;
 
     emit this->progressCounter(100);
-
-
-    //g_mutex.unlock();
 
     for(int j = 0; j < filelist.size(); j++)
     {

@@ -7,7 +7,6 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
-extern QMutex g_mutex;
 
 
 SegmentSLSTR::SegmentSLSTR(QFileInfo fileinfo, SatelliteList *satl, QObject *parent) :
@@ -776,8 +775,6 @@ void SegmentSLSTR::RenderSegmentlineInTextureSLSTR( int nbrLine, QRgb *row )
 
     QColor rgb;
     int posx, posy;
-
-    //QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 

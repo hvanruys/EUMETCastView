@@ -11,7 +11,6 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 
 #include <QMutex>
-extern QMutex g_mutex;
 
 Segment::Segment(QObject *parent) :
     QObject(parent)

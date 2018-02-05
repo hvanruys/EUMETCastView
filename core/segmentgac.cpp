@@ -17,7 +17,6 @@
 
 #include <QMutex>
 
-extern QMutex g_mutex;
 extern Options opts;
 extern SegmentImage *imageptrs;
 

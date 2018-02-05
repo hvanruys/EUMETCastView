@@ -12,7 +12,6 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 #include <QMutex>
 
-extern QMutex g_mutex;
 
 SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, SatelliteList *satl, QObject *parent) :
     Segment(parent)
@@ -1252,8 +1251,6 @@ void SegmentVIIRSDNB::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 
     QColor rgb;
     int posx, posy;
-
-    //QMutexLocker locker(&g_mutex);
 
     QPainter fb_painter(imageptrs->pmOut);
 
