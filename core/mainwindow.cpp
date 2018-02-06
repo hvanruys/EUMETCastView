@@ -147,6 +147,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( ui->stackedWidget, SIGNAL(currentChanged(int)),formglobecyl, SLOT(updatesatmap(int)) );
     connect( formephem,SIGNAL(signalDirectoriesRead()), formgeostationary, SLOT(PopulateTree()) );
     connect( seglist,SIGNAL(signalAddedSegmentlist()), formephem, SLOT(showSegmentsAdded()));
+    connect( seglist,SIGNAL(signalAddedSegmentlist()), formglobecyl, SLOT(slotShowSegmentCount()));
 
     connect( formephem,SIGNAL(signalDirectoriesRead()), formglobecyl, SLOT(setScrollBarMaximum()));
     connect( formglobecyl, SIGNAL(signalMakeImage()), formimage, SLOT(slotMakeImage()));

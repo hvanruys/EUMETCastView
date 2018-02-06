@@ -965,12 +965,15 @@ void FormEphem:: showprogress(QString str)
 
 void FormEphem::processPendingDatagrams()
 {
+    Satellite sat;
+    bool weatherok = sats->GetSatellite(29499, &sat);
+    bool resourceok = sats->GetSatellite(41335, &sat);
     while (udpSocket->hasPendingDatagrams())
     {
         QByteArray datagram;
         datagram.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(datagram.data(), datagram.size());
-        if (opts.udpmessages)
+        if (opts.udpmessages && weatherok && resourceok)
            emit signalDatagram(datagram.data());
     }
 }

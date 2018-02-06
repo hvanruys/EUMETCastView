@@ -158,7 +158,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>7</number>
+        <number>5</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -1344,7 +1344,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Enable UDP messages from EumetcastWatcher</string>
+          <string>Enable UDP messages from EumetcastWatcher (the TLE's must be in place)</string>
          </property>
         </widget>
        </widget>

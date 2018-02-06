@@ -1256,6 +1256,8 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
     SegmentGAC *seggac;
     SegmentVIIRSM *segviirsm;
     SegmentVIIRSDNB *segviirsdnb;
+    SegmentOLCI *segolciefr;
+    SegmentOLCI *segolcierr;
 
 
     QList<Segment*> *slmetop = seglmetop->GetSegmentlistptr();
@@ -1268,7 +1270,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
 
     thefilepath.replace( opts.dirremote.toLatin1(), opts.localdirremote.toLatin1()); // "/media/sdc1/", "/home/hugo/Vol2T/");
-    // qDebug() << "AddSegmentsToListFromUdp : " + QString(thefilepath) + " count = " << opts.segmentdirectorylist.count();
+    //qDebug() << "AddSegmentsToListFromUdp : " + QString(thefilepath) + " count = " << opts.segmentdirectorylist.count();
 
 
     if (opts.segmentdirectorylist.count() > 0)
@@ -1287,62 +1289,128 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     if ( fileinfo.fileName().mid( 0, 8) == "AVHR_xxx" && fileinfo.fileName().mid( 67, 4) == ".bz2")
                     {
 
-                        qDebug() << "fileinfo filename  = " << fileinfo.fileName();
+                        qDebug() << "from UDP segment Metop added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
                         segmetop = new SegmentMetop(&file,satlist);
-                        segmetop->segmentshow = true;
-                        slmetop->append(segmetop);
-                        emit signalAddedSegmentlist();
+                        if(segmetop->segmentok)
+                        {
+                            segmetop->segmentshow = true;
+                            countmetop++;
+                            slmetop->append(segmetop);
+                            emit signalAddedSegmentlist();
+                        }
+                        else
+                            delete segmetop;
 
                     }
                     if (fileinfo.fileName().mid( 0, 6) == "avhrr_" && fileinfo.fileName().mid( 22, 6) == "noaa19")
                     {
-                        qDebug() << "fileinfo filename  = " << fileinfo.fileName();
+                        qDebug() << "from UDP segment Noaa19 added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
                         segnoaa = new SegmentNoaa(&file,satlist);
-                        segnoaa->segmentshow = true;
-                        slnoaa->append(segnoaa);
-                        emit signalAddedSegmentlist();
+                        if(segnoaa->segmentok)
+                        {
+                            segnoaa->segmentshow = true;
+                            countnoaa++;
+                            slnoaa->append(segnoaa);
+                            emit signalAddedSegmentlist();
+                        }
+                        else
+                            delete segnoaa;
 
                     }
                     if (fileinfo.fileName().mid( 0, 8) == "AVHR_HRP" && fileinfo.fileName().mid( 67, 4) == ".bz2")
                     {
-                        qDebug() << "fileinfo filename  = " << fileinfo.fileName();
+                        qDebug() << "from UDP segment HRP added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
                         seghrp = new SegmentHRP(&file,satlist);
-                        seghrp->segmentshow = true;
-                        slhrp->append(seghrp);
-                        emit signalAddedSegmentlist();
+                        if(seghrp->segmentok)
+                        {
+                            seghrp->segmentshow = true;
+                            counthrp++;
+                            slhrp->append(seghrp);
+                            emit signalAddedSegmentlist();
+                        }
+                        else
+                            delete seghrp;
 
                     }
                     if (fileinfo.fileName().mid( 0, 8) == "AVHR_GAC")
                     {
-                        qDebug() << "fileinfo filename  = " << fileinfo.fileName();
+                        qDebug() << "from UDP segment GAC added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
                         seggac = new SegmentGAC(&file,satlist);
-                        seggac->segmentshow = true;
-                        slgac->append(seggac);
-                        emit signalAddedSegmentlist();
+                        if(seggac->segmentok)
+                        {
+                            seggac->segmentshow = true;
+                            countgac++;
+                            slgac->append(seggac);
+                            emit signalAddedSegmentlist();
+                        }
+                        else
+                            delete seggac;
 
                     }
                     if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp")
                     {
-                        qDebug() << "fileinfo filename  = " << fileinfo.fileName();
+                        qDebug() << "from UDP segment NPP M added filename filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
                         segviirsm = new SegmentVIIRSM(&file,satlist);
-                        segviirsm->segmentshow = true;
-                        slviirsm->append(segviirsm);
-                        emit signalAddedSegmentlist();
+                        if(segviirsm->segmentok)
+                        {
+                            segviirsm->segmentshow = true;
+                            countviirsm++;
+                            slviirsm->append(segviirsm);
+                            emit signalAddedSegmentlist();
+                        }
+                        else
+                            delete segviirsm;
 
                     }
                     if (fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp")
                     {
-                        qDebug() << "fileinfo filename  = " << fileinfo.fileName();
+                        qDebug() << "from UDP segment NPP DNB added filename filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
                         segviirsdnb = new SegmentVIIRSDNB(&file,satlist);
-                        segviirsdnb->segmentshow = true;
-                        slviirsdnb->append(segviirsdnb);
-                        emit signalAddedSegmentlist();
+                        if(segviirsdnb->segmentok)
+                        {
+                            segviirsdnb->segmentshow = true;
+                            countviirsdnb++;
+                            slviirsdnb->append(segviirsdnb);
+                            emit signalAddedSegmentlist();
+                        }
+                        else
+                            delete segviirsdnb;
+
+                    }
+                    if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR")
+                    {
+                        qDebug() << "from UDP segment S3A EFR added filename filename  = " << fileinfo.fileName();
+                        segolciefr = new SegmentOLCI(SEG_OLCIEFR, fileinfo, satlist);
+                        if(segolciefr->segmentok == true)
+                        {
+                            segolciefr->segmentshow = true;
+                            countolciefr++;
+                            slolciefr->append(segolciefr);
+                            emit signalAddedSegmentlist();
+                        }
+                        else
+                            delete segolciefr;
+
+                    }
+                    if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR")
+                    {
+                        qDebug() << "from UDP segment S3A ERR added filename filename  = " << fileinfo.fileName();
+                        segolcierr = new SegmentOLCI(SEG_OLCIERR, fileinfo, satlist);
+                        if(segolcierr->segmentok == true)
+                        {
+                            segolcierr->segmentshow = true;
+                            countolcierr++;
+                            slolcierr->append(segolcierr);
+                            emit signalAddedSegmentlist();
+                        }
+                        else
+                            delete segolcierr;
 
                     }
                     if (fileinfo.fileName().mid( 0, 9) == "H-000-MSG" && fileinfo.fileName().mid( 13, 3) == "MSG")
