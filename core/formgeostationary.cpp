@@ -638,8 +638,8 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
         else if(geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
         {
             strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
-                   QString("%1").arg(cnt_IR1) << QString("%1").arg(cnt_IR2) << QString("%1").arg(cnt_IR3) << QString("%1").arg(cnt_IR4)
-                    << QString("%1").arg(cnt_VIS) << QString("%1").arg(cnt_VIS1KM);
+                   QString("%1").arg(cnt_VIS1KM) << QString("%1").arg(cnt_VIS) << QString("%1").arg(cnt_IR4) << QString("%1").arg(cnt_IR3) << QString("%1").arg(cnt_IR1) << QString("%1").arg(cnt_IR2);
+
         }
         else if(geoindex == (int)eGeoSatellite::GOES_15)
         {
