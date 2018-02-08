@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
     setupStatusBar();
 
     satlist = new SatelliteList();
@@ -189,7 +190,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qDebug() << QString("HDF5 library %1.%2.%3").arg(majnum).arg(minnum).arg(relnum);
 
-    loadLayout();
+    restoreGeometry(opts.mainwindowgeometry);
+    restoreState(opts.mainwindowstate);
 
     seglist->ReadXMLfiles();
 
@@ -197,8 +199,6 @@ MainWindow::MainWindow(QWidget *parent) :
                 arg(QThread::idealThreadCount()).
                 arg(QThreadPool::globalInstance()->maxThreadCount()).
                 arg(QThreadPool::globalInstance()->activeThreadCount());
-
-
 
     qDebug() << "currentthreadid = " << QThread::currentThreadId();
     QList<QThread*> mainwindowthreadslist = this->findChildren <QThread*> ();
@@ -268,6 +268,7 @@ void MainWindow::createDockWidget()
     //dockwidget->setw ->setMinimumWidth(480);
     //dockwidget->close();
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
+    formtoolbox->resize(200, formtoolbox->height());
 }
 
 void MainWindow::timerDone(void)
@@ -290,12 +291,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     qDebug() << "in MainWindow::closeEvent(QCloseEvent *event)";
 
-    //opts.mainwindowgeometry = saveGeometry();
-    //opts.windowstate = saveState(0);
+    opts.mainwindowgeometry = saveGeometry();
+    opts.mainwindowstate = saveState(0);
     forminfrascales->close();
-    saveLayout();
-
-
 
     delete timer;
     delete formtoolbox;
@@ -671,67 +669,4 @@ void MainWindow::updateWindowTitle()
         this->setWindowTitle(windowTitleFormat);
 }
 
-void MainWindow::saveLayout()
-{
-    QString fileName = "Layout.bin";
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly)) {
-        QString msg = tr("Failed to open %1\n%2")
-                        .arg(fileName)
-                        .arg(file.errorString());
-        QMessageBox::warning(this, tr("Error"), msg);
-        return;
-    }
 
-    QByteArray geo_data = saveGeometry();
-    QByteArray layout_data = saveState();
-
-    bool ok = file.putChar((uchar)geo_data.size());
-    if (ok)
-        ok = file.write(geo_data) == geo_data.size();
-    if (ok)
-        ok = file.write(layout_data) == layout_data.size();
-
-    if (!ok) {
-        QString msg = tr("Error writing to %1\n%2")
-                        .arg(fileName)
-                        .arg(file.errorString());
-        QMessageBox::warning(this, tr("Error"), msg);
-        return;
-    }
-}
-
-void MainWindow::loadLayout()
-{
-    QString fileName = "Layout.bin";
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly))
-        return;
-
-
-    uchar geo_size;
-    QByteArray geo_data;
-    QByteArray layout_data;
-
-    bool ok = file.getChar((char*)&geo_size);
-    if (ok) {
-        geo_data = file.read(geo_size);
-        ok = geo_data.size() == geo_size;
-    }
-    if (ok) {
-        layout_data = file.readAll();
-        ok = layout_data.size() > 0;
-    }
-
-    if (ok)
-        ok = restoreGeometry(geo_data);
-    if (ok)
-        ok = restoreState(layout_data);
-
-//    if (!ok) {
-//        QString msg = tr("Error reading %1")
-//                        .arg(fileName);
-//        QMessageBox::warning(this, tr("Error"), msg);
-//        return;
-//    }
-}

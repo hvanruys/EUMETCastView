@@ -1126,29 +1126,47 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
     int r,g, b;
 
     QImage *im;
-    QStringList outfilename;
+    QStringList strlistout;
+    QString inFileName;
+    QString outFileName;
 
     im = imageptrs->ptrimageGeostationary;
 
+
     for(int j = 0; j < filelist.size(); j++)
     {
-        QFile inFile(this->getImagePath() + "/" + filelist.at(j));
-        inFile.open(QIODevice::ReadOnly);
-        QByteArray compressed = inFile.readAll();
+        QString teststring = filelist.at(j).mid(filelist.at(j).length()-3);
+        inFileName = this->getImagePath() + "/" + filelist.at(j);
+        outFileName = filelist.at(j);
 
-        QByteArray decompressed;
-        outfilename.append(filelist.at(j).mid(0, filelist.at(j).length()-3));
-
-        QFile outfile(filelist.at(j).mid(0, filelist.at(j).length()-3));
-        if(QCompressor::gzipDecompress(compressed, decompressed))
+        if(teststring == ".gz" || teststring == ".GZ") // compressed HDF
         {
-            outfile.open(QIODevice::WriteOnly);
-            QDataStream out(&outfile);
-            out.writeRawData(decompressed.constData(), decompressed.length());
-            qDebug() << "writing decompressed file " << outfilename.at(j);
+
+            QFile inFile(inFileName);
+            inFile.open(QIODevice::ReadOnly);
+            QByteArray compressed = inFile.readAll();
+
+            QByteArray decompressed;
+            strlistout.append(filelist.at(j).mid(0, filelist.at(j).length()-3));
+            QFile outFile(filelist.at(j).mid(0, filelist.at(j).length()-3));
+
+            if(QCompressor::gzipDecompress(compressed, decompressed))
+            {
+                outFile.open(QIODevice::WriteOnly);
+                QDataStream out(&outFile);
+                out.writeRawData(decompressed.constData(), decompressed.length());
+                qDebug() << "writing decompressed file " << strlistout.at(j);
+            }
+            else
+                qDebug() << "-----> gzipDecompress failed !";
         }
-        else
-            qDebug() << "-----> gzipDecompress failed !";
+        else  // already decompressed HDF
+        {
+            strlistout.append(filelist.at(j));
+
+            QFile::copy(inFileName, outFileName);
+        }
+
 
     }
 
@@ -1188,8 +1206,8 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
     for(int j = 0; j < filelist.size(); j++)
     {
 
-        if( (h5_file_id[j] = H5Fopen(outfilename.at(j).toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
-            qDebug() << "File " << outfilename.at(j) << " not open !!";
+        if( (h5_file_id[j] = H5Fopen(strlistout.at(j).toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
+            qDebug() << "File " << strlistout.at(j) << " not open !!";
 
 
         if( (nomfileinfo_id[j] = H5Dopen2(h5_file_id[j], "/NomFileInfo", H5P_DEFAULT)) < 0)

@@ -51,8 +51,6 @@ private:
     void setupStatusBar();
     void createDockWidget();
     void closeEvent(QCloseEvent *event);
-    void loadLayout();
-    void saveLayout();
 
     Ui::MainWindow *ui;
 

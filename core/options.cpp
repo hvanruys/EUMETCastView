@@ -156,7 +156,6 @@ void Options::Initialize()
     gshhsglobe2On = settings.value("/window/gshhsglobe2on", true ).toBool();
     gshhsglobe3On = settings.value("/window/gshhsglobe3on", false ).toBool();
     graytextureOn = settings.value("/window/graytextureon", false ).toBool();
-    ephemsplittersizes = settings.value("/ephemwindow/splitterSizes").toByteArray(); // .value<QByteArray>();
 
     zoomfactoravhrr = settings.value("/window/zoomfactoravhrr", 100).toInt();
     if( zoomfactoravhrr < 5 || zoomfactoravhrr > 500 )
@@ -250,6 +249,11 @@ void Options::Initialize()
     downloadxmlolcierr = settings.value("/datahub/downloadxmlolcierr", false).toBool();
     downloadxmlslstr = settings.value("/datahub/downloadxmlslstr", true).toBool();
     xmllogging = false;
+
+    ephemsplittersizes = settings.value("/ephemwindow/splitterSizes").toByteArray();
+
+    mainwindowgeometry = settings.value("/window/mainwindowgeometry").toByteArray();
+    mainwindowstate = settings.value("/window/mainwindowstate").toByteArray();
 
     CreateGeoSatelliteIni();
 
@@ -439,8 +443,6 @@ void Options::Save()
     settings.setValue("/window/udpmessages", udpmessages );
 
 
-    settings.setValue("/ephemwindow/splitterSizes", ephemsplittersizes );
-
     settings.setValue("/window/zoomfactoravhrr", zoomfactoravhrr );
     settings.setValue("/window/zoomfactormeteosat", zoomfactormeteosat );
     settings.setValue("/window/zoomfactorprojection", zoomfactorprojection );
@@ -515,6 +517,11 @@ void Options::Save()
     settings.setValue("/datahub/downloadxmlolciefr", downloadxmlolciefr);
     settings.setValue("/datahub/downloadxmlolcierr", downloadxmlolcierr);
     settings.setValue("/datahub/downloadxmlslstr", downloadxmlslstr);
+
+    settings.setValue("/ephemwindow/splitterSizes", ephemsplittersizes );
+    settings.setValue("/window/mainwindowgeometry", mainwindowgeometry);
+    settings.setValue("/window/mainwindowstate", mainwindowstate);
+
 }
 
 void Options::CreateGeoSatelliteIni()

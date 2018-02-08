@@ -1114,9 +1114,12 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
 
     QString filetiming;
     QString filedate;
+    QStringList llVIS_IRgz;
+    QStringList llHRVgz;
     QStringList llVIS_IR;
     QStringList llHRV;
     QString filepattern;
+    QString filepatterngz;
 
     eGeoSatellite whichgeo = sl->getGeoSatellite();
     int geoindex = sl->getGeoSatelliteIndex();
@@ -1141,43 +1144,66 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
 
 
     if(whichgeo == eGeoSatellite::FY2E && (type == "VIS_IR" || type == "VIS_IR Color"))
-        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_???") + QString("_001_NOM.HDF.gz");
+    {
+        filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_???") + QString("_001_NOM.HDF.gz");
+        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_???") + QString("_001_NOM.HDF");
+    }
     else if(whichgeo == eGeoSatellite::FY2G && (type == "VIS_IR" || type == "VIS_IR Color"))
-        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_???") + QString("_001_NOM.HDF.gz");
+    {
+        filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_???") + QString("_001_NOM.HDF.gz");
+        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_???") + QString("_001_NOM.HDF");
+    }
     else if(whichgeo == eGeoSatellite::FY2E && type == "HRV")
-        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
+    {
+        filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
+        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_VIS1KM") + QString("_001_NOM.HDF");
+    }
     else if(whichgeo == eGeoSatellite::FY2G && type == "HRV")
-        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
-
+    {
+        filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
+        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_VIS1KM") + QString("_001_NOM.HDF");
+    }
 
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {
-        llVIS_IR = this->getGeostationarySegments(geoindex, "VIS_IR", sl->getImagePath(), spectrumvector, filepattern);
-        qDebug() << QString("llVIS_IR count = %1").arg(llVIS_IR.count());
-        for (int j =  0; j < llVIS_IR.size(); ++j)
+        llVIS_IRgz = this->getGeostationarySegments(geoindex, "VIS_IR", sl->getImagePath(), spectrumvector, filepatterngz);
+        qDebug() << QString("llVIS_IR count = %1").arg(llVIS_IRgz.count());
+        for (int j =  0; j < llVIS_IRgz.size(); ++j)
         {
-            qDebug() << QString("llVIS_IR at %1 = %2 spectrumvector = %3").arg(j).arg(llVIS_IR.at(j)).arg(spectrumvector.at(j));
+            qDebug() << QString("llVIS_IR at %1 = %2 spectrumvector = %3").arg(j).arg(llVIS_IRgz.at(j)).arg(spectrumvector.at(j));
         }
-        if(llVIS_IR.count() == 0)
+        if(llVIS_IRgz.count() == 0)
         {
-            QApplication::restoreOverrideCursor();
-            emit enabletoolboxbuttons(true);
-            return;
+            llVIS_IR = this->getGeostationarySegments(geoindex, "VIS_IR", sl->getImagePath(), spectrumvector, filepattern);
+            if(llVIS_IR.count() == 0)
+            {
+                QApplication::restoreOverrideCursor();
+                emit enabletoolboxbuttons(true);
+                return;
+            }
+            else
+                sl->ComposeImageHDFInThread(llVIS_IR, spectrumvector, inversevector);
         }
         else
-            sl->ComposeImageHDFInThread(llVIS_IR, spectrumvector, inversevector);
+            sl->ComposeImageHDFInThread(llVIS_IRgz, spectrumvector, inversevector);
     }
     else if(type == "HRV")
     {
-        llHRV = this->getGeostationarySegments(geoindex, "HRV", sl->getImagePath(), spectrumvector, filepattern);
-        if(llHRV.count() == 0)
+        llHRVgz = this->getGeostationarySegments(geoindex, "HRV", sl->getImagePath(), spectrumvector, filepatterngz);
+        if(llHRVgz.count() == 0)
         {
-            QApplication::restoreOverrideCursor();
-            emit enabletoolboxbuttons(true);
-            return;
+            llHRV = this->getGeostationarySegments(geoindex, "HRV", sl->getImagePath(), spectrumvector, filepattern);
+            if(llHRV.count() == 0)
+            {
+                QApplication::restoreOverrideCursor();
+                emit enabletoolboxbuttons(true);
+                return;
+            }
+            else
+                sl->ComposeImageHDFInThread(llHRV, spectrumvector, inversevector);
         }
         else
-            sl->ComposeImageHDFInThread(llHRV, spectrumvector, inversevector);
+            sl->ComposeImageHDFInThread(llHRVgz, spectrumvector, inversevector);
     }
 
 }
