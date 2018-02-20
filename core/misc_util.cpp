@@ -18,7 +18,7 @@
  ******************************************************************************/
 int snu_is_little_endian()
 {
-     ushort x = 1;
+     unsigned short x = 1;
 
      return ((char *) &x)[0];
 }
@@ -39,9 +39,9 @@ double snu_rint(double x)
 /*******************************************************************************
  * Fill an array with a constant value.
  ******************************************************************************/
-void snu_init_array_uc(unsigned char *a, uint n, unsigned char x)
+void snu_init_array_uc(unsigned char *a, unsigned int n, unsigned char x)
 {
-     uint i;
+     unsigned int i;
 
      for (i = 0; i < n; ++i)
           a[i] = x;
@@ -49,9 +49,9 @@ void snu_init_array_uc(unsigned char *a, uint n, unsigned char x)
 
 
 
-void snu_init_array_us(unsigned short *a, uint n, unsigned short x)
+void snu_init_array_us(unsigned short *a, unsigned int n, unsigned short x)
 {
-     uint i;
+     unsigned int i;
 
      for (i = 0; i < n; ++i)
           a[i] = x;
@@ -59,9 +59,9 @@ void snu_init_array_us(unsigned short *a, uint n, unsigned short x)
 
 
 
-void snu_init_array_f(float *a, uint n, float x)
+void snu_init_array_f(float *a, unsigned int n, float x)
 {
-     uint i;
+     unsigned int i;
 
      for (i = 0; i < n; ++i)
           a[i] = x;
@@ -69,9 +69,9 @@ void snu_init_array_f(float *a, uint n, float x)
 
 
 
-void snu_init_array_d(double *a, uint n, double x)
+void snu_init_array_d(double *a, unsigned int n, double x)
 {
-     uint i;
+     unsigned int i;
 
      for (i = 0; i < n; ++i)
           a[i] = x;

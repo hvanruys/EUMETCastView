@@ -87,8 +87,8 @@ struct nav_scaling_factors {
 /*******************************************************************************
  *
  ******************************************************************************/
-extern const ushort satellite_ids[];
-extern const ushort n_satellites;
+extern const unsigned short satellite_ids[];
+extern const unsigned short n_satellites;
 extern const double channel_center_wavelength[];
 extern const std::string channel_spectrum[SEVIRI_N_BANDS];
 extern const double band_solar_irradiance[][SEVIRI_N_BANDS];

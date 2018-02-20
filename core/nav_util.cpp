@@ -28,7 +28,7 @@
  *
  * Ref: PDF_CGMS_LRIT_HRIT_2_6, Section 4.4
  ******************************************************************************/
-int snu_line_column_to_lat_lon(uint line, uint column, float *lat, float *lon,
+int snu_line_column_to_lat_lon(unsigned int line, unsigned int column, float *lat, float *lon,
           double lon0, const struct nav_scaling_factors *nav)
 {
      double x;
@@ -98,7 +98,7 @@ int snu_line_column_to_lat_lon(uint line, uint column, float *lat, float *lon,
  *
  * Ref: PDF_CGMS_LRIT_HRIT_2_6, Section 4.4
  ******************************************************************************/
-int snu_lat_lon_to_line_column(float lat, float lon, uint *line, uint *column,
+int snu_lat_lon_to_line_column(float lat, float lon, unsigned int *line, unsigned int *column,
           double lon0, const struct nav_scaling_factors *nav)
 {
      double x;

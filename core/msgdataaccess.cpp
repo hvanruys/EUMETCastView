@@ -245,7 +245,8 @@ void MsgDataAccess::line_read(size_t line, MSG_SAMPLE* buf) const
         MSG_data* d = segment(segnum);
         if (d == 0)
         {
-                bzero(buf, columns * sizeof(MSG_SAMPLE));
+                //bzero(buf, columns * sizeof(MSG_SAMPLE));
+                memset(buf, '0', columns * sizeof(MSG_SAMPLE));
                 return;
         }
 

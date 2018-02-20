@@ -11,11 +11,11 @@
 
 
 /* MSG-1, MSG-2, MSG-3, MSG-4 */
-const ushort n_satellites = 4;
+const unsigned short n_satellites = 4;
 
 /* Located in the Native MSG level 1.5 header.  Used to find the index to the
    satellite dependent constants below. */
-const ushort satellite_ids[] = {321, 322, 323, 324};
+const unsigned short satellite_ids[] = {321, 322, 323, 324};
 
 
 /* Ref: PDF_TEN_05105_MSG_IMG_DATA, Table 1  */

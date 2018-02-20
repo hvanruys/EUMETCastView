@@ -1651,7 +1651,7 @@ void FormGeostationary::CreateRGBrecipeImage(int recipe)
     quint16 columns = header.image_structure->number_of_columns;
 
     qDebug() << "Start calculations";
-    uint i_image;
+    unsigned int i_image;
 
 
     for(int i = 0; i < uniquebandlist.length(); i++)
