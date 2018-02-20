@@ -1050,6 +1050,8 @@ void Options::CreateGeoSatelliteIni()
         settingsgeo.setValue("fullname", geosatellites.at(i).fullname);
         settingsgeo.setValue("shortname", geosatellites.at(i).shortname);
         settingsgeo.setValue("longitude", geosatellites.at(i).longitude);
+        settingsgeo.setValue("longitudelimit1", geosatellites.at(i).longitudelimit1);
+        settingsgeo.setValue("longitudelimit2", geosatellites.at(i).longitudelimit2);
         settingsgeo.setValue("protocol", geosatellites.at(i).protocol);
         settingsgeo.setValue("rss", geosatellites.at(i).rss);
         settingsgeo.setValue("searchstring", geosatellites.at(i).searchstring);
@@ -1057,6 +1059,10 @@ void Options::CreateGeoSatelliteIni()
         settingsgeo.setValue("filepattern", geosatellites.at(i).filepattern);
         settingsgeo.setValue("imagewidth", geosatellites.at(i).imagewidth);
         settingsgeo.setValue("imageheight", geosatellites.at(i).imageheight);
+        settingsgeo.setValue("imagewidthhrv0", geosatellites.at(i).imagewidthhrv0);
+        settingsgeo.setValue("imageheighthrv0", geosatellites.at(i).imageheighthrv0);
+        settingsgeo.setValue("imagewidthhrv1", geosatellites.at(i).imagewidthhrv1);
+        settingsgeo.setValue("imageheighthrv1", geosatellites.at(i).imageheighthrv1);
         settingsgeo.setValue("spectrumlist", geosatellites.at(i).spectrumlist);
         settingsgeo.setValue("spectrumvalueslist", geosatellites.at(i).spectrumvalueslist);
         settingsgeo.setValue("indexspectrum", geosatellites.at(i).indexspectrum);
@@ -1079,6 +1085,18 @@ void Options::CreateGeoSatelliteIni()
         settingsgeo.setValue("startsegmenthrvtype0", geosatellites.at(i).startsegmentnbrhrvtype0);
         settingsgeo.setValue("startsegmenttype1", geosatellites.at(i).startsegmentnbrtype1);
         settingsgeo.setValue("startsegmenthrvtype1", geosatellites.at(i).startsegmentnbrhrvtype1);
+
+        settingsgeo.setValue("prologfile", geosatellites.at(i).prologfile);
+        settingsgeo.setValue("epilogfile", geosatellites.at(i).epilogfile);
+        settingsgeo.setValue("coff", geosatellites.at(i).coff);
+        settingsgeo.setValue("loff", geosatellites.at(i).loff);
+        settingsgeo.setValue("cfac", geosatellites.at(i).cfac);
+        settingsgeo.setValue("lfac", geosatellites.at(i).lfac);
+        settingsgeo.setValue("coffhrv", geosatellites.at(i).coffhrv);
+        settingsgeo.setValue("loffhrv", geosatellites.at(i).loffhrv);
+        settingsgeo.setValue("cfachrv", geosatellites.at(i).cfachrv);
+        settingsgeo.setValue("lfachrv", geosatellites.at(i).lfachrv);
+
     }
     settingsgeo.endArray();
 }

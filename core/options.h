@@ -66,12 +66,12 @@ struct GeoSatellites
     int startsegmentnbrhrvtype1;
     bool prologfile;
     bool epilogfile;
-    long coff;
-    long loff;
+    qlonglong coff;
+    qlonglong loff;
     double cfac;
     double lfac;
-    long coffhrv;
-    long loffhrv;
+    qlonglong coffhrv;
+    qlonglong loffhrv;
     double cfachrv;
     double lfachrv;
 

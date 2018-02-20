@@ -30,6 +30,7 @@ public:
     void SetFormImage(FormImage *p_formimage) { formimage = p_formimage; }
     void SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item, int column );
     SegmentListGeostationary *setActiveSegmentList(int geoindex);
+    SegmentListGeostationary *getActiveSegmentList();
     int getTabWidgetGeoIndex();
     ~FormGeostationary();
 

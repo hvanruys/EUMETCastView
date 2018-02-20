@@ -871,6 +871,20 @@ SegmentListGeostationary *FormGeostationary::setActiveSegmentList(int geoindex)
     return sl;
 }
 
+SegmentListGeostationary *FormGeostationary::getActiveSegmentList()
+{
+    SegmentListGeostationary *sl = NULL;
+    for(int i = 0; i < opts.geosatellites.count(); i++)
+    {
+        if(segs->seglgeo[i]->bActiveSegmentList == true)
+        {
+            sl = segs->seglgeo.at(i);
+            break;
+        }
+    }
+    return sl;
+}
+
 void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
 
@@ -1395,6 +1409,9 @@ void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item,
 
     qDebug() << opts.geosatellites.at(geoindex).shortname + " " + (*item).text(0);
 
+    imageptrs->ptrimageGeostationary->fill(Qt::black);
+    formimage->setupGeoOverlay(geoindex);
+
     //012345678901234567
     //2017-07-04   08:00
     QString strdate = (*item).text(0).mid(0, 4) + (*item).text(0).mid(5, 2) + (*item).text(0).mid(8, 2) + (*item).text(0).mid(13, 2) + (*item).text(0).mid(16, 2);
@@ -1415,7 +1432,9 @@ void FormGeostationary::ontreeWidgetitemClicked(QTreeWidgetItem *item, int colum
 
 void FormGeostationary::on_tabGeostationary_tabBarClicked(int index)
 {
-    formimage->setupGeoOverlay(index);
+//    int activeindex = this->getActiveSegmentList()->getGeoSatelliteIndex();
+//    formimage->setupGeoOverlay(index);
+
     emit setbuttonlabels(index, false);
 }
 

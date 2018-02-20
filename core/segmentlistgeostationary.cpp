@@ -1181,8 +1181,8 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
     }
     else if(kindofimage == "HRV")
     {
-        imageptrs->ptrRed[0] = new quint16[9152 * 9152];
-        memset(imageptrs->ptrRed[0], 0, 9152 * 9152 * sizeof(quint16));
+        imageptrs->ptrHRV[0] = new quint16[9152 * 9152];
+        memset(imageptrs->ptrHRV[0], 0, 9152 * 9152 * sizeof(quint16));
         DatasetName.append("/NOMChannelVIS1KM");
     }
 
@@ -1230,7 +1230,7 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
     } else if(kindofimage == "HRV")
     {
         if((h5_status[0] = H5Dread (nomchannel_id[0], H5T_NATIVE_INT16_g, H5S_ALL, H5S_ALL,
-                                 H5P_DEFAULT, imageptrs->ptrRed[0])) < 0)
+                                 H5P_DEFAULT, imageptrs->ptrHRV[0])) < 0)
             qDebug() << "Unable to read NOMChannelVIS1KM dataset";
     }
 
@@ -1255,7 +1255,7 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
 
     } else if(kindofimage == "HRV")
     {
-        CalculateMinMax(9152, 9152, imageptrs->ptrRed[0], stat_min[0], stat_max[0]);
+        CalculateMinMax(9152, 9152, imageptrs->ptrHRV[0], stat_min[0], stat_max[0]);
         qDebug() << QString("0 stat min = %1 stat max = %2").arg(stat_min[0]).arg(stat_max[0]);
     }
 
@@ -1319,9 +1319,22 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
                 }
 
             }
-            else if(kindofimage == "VIS_IR" || kindofimage == "HRV")
+            else if(kindofimage == "VIS_IR")
             {
                 rc = *(imageptrs->ptrRed[0] + line * npix + pixelx);
+
+                if( rc >= 65528 || rc == 0 )
+                    valcontrastred = 0;
+                else
+                {
+                    this->SetupContrastStretch( stat_min[0], 0, stat_max[0], 255);
+                    valcontrastred = ContrastStretch(rc);
+                }
+
+            }
+            else if(kindofimage == "HRV")
+            {
+                rc = *(imageptrs->ptrHRV[0] + line * npix + pixelx);
 
                 if( rc >= 65528 || rc == 0 )
                     valcontrastred = 0;
