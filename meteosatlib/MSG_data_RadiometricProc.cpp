@@ -625,26 +625,26 @@ float *MSG_data_RadiometricProc::get_calibration(int channel, int bpp)
 
 void MSG_data_RadiometricProc::get_slope_offset(int channel, double& slope, double& offset, bool& scalesToInt)
 {
-  if (channel > 3 && channel < 12)
-  {
-    const double cold_A[8]   = { 0.9959,  0.9963,  0.9991,  0.9996,
-                              //    4        5        6        7
-                                 0.9999,  0.9983,  0.9988,  0.9981 };
-                              //    8        9       10       11
-    const double cold_B[8] = { 3.471,   2.2219,  0.485,   0.181, 
-                              //    4        5        6        7
-                               0.060,   0.627,   0.397,   0.576  };
-                              //    8        9       10       11
-    slope = 1/cold_A[channel - 4];
-    offset = -cold_B[channel - 4];
-    scalesToInt = false;
-  }
-  else
-  {
+//  if (channel > 3 && channel < 12)
+//  {
+//    const double cold_A[8]   = { 0.9959,  0.9963,  0.9991,  0.9996,
+//                              //    4        5        6        7
+//                                 0.9999,  0.9983,  0.9988,  0.9981 };
+//                              //    8        9       10       11
+//    const double cold_B[8] = { 3.471,   2.2219,  0.485,   0.181,
+//                              //    4        5        6        7
+//                               0.060,   0.627,   0.397,   0.576  };
+//                              //    8        9       10       11
+//    slope = 1/cold_A[channel - 4];
+//    offset = -cold_B[channel - 4];
+//    scalesToInt = false;
+//  }
+//  else
+//  {
     slope = ImageCalibration[channel-1].Cal_Slope;
     offset = ImageCalibration[channel-1].Cal_Offset;
     scalesToInt = true;
-  }
+//  }
 }
 
 double jday(int yr, int month, int day)

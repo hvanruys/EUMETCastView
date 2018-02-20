@@ -118,15 +118,6 @@ private:
     int histogrammethod;
     bool pseudocolor;
 
-    double *time;		/* image of Julian Day Number */
-    float *lat;		/* image of latitude */
-    float *lon;		/* image of longitude */
-    float *sza;		/* image of solar zenith angle (degrees: 0.0 -- 180.0) */
-    float *saa;		/* image of solar azimuth angle  (degrees: 0.0 -- 360.0) */
-    float *vza;		/* image of viewing zenith angle (degrees: 0.0 -- 180.0) */
-    float *vaa;		/* image of viewing azimuth angle  (degrees: 0.0 -- 360.0) */
-    float **data;		/* array of pointers to images of length n_bands */
-    float  *data2;		/* array of image data of length n_bands * n_lines * n_columns */
 
 
 

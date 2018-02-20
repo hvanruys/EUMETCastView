@@ -2,9 +2,18 @@
 #include "ui_formgeostationary.h"
 #include <MSG_HRIT.h>
 #include "pixgeoconversion.h"
-
+#include "qsgp4date.h"
 
 #include <QByteArray>
+#include "msgfileaccess.h"
+#include "msgdataaccess.h"
+#include "internal.h"
+#include "nav_util.h"
+#include "qsgp4date.h"
+
+#define REDCHANNEL 0
+#define GREENCHANNEL 1
+#define BLUECHANNEL 2
 
 extern SegmentImage *imageptrs;
 extern Options opts;
@@ -757,7 +766,7 @@ FormGeostationary::~FormGeostationary()
     delete ui;
 }
 
-void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor)
+void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor)
 {
     // segs->seglgeo[0]->areatype == 1 ==> full
     // segs->seglgeo[0]->areatype == 0 ==> europe
@@ -770,7 +779,6 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
 
     QString tex;
 
-    qDebug() << "FormGeostationary::CreateGeoImage(eGeoSatellite, QString, QVector<QString>, QVector<bool>, int)";
 
     SegmentListGeostationary *sl;
 
@@ -782,15 +790,19 @@ void FormGeostationary::CreateGeoImage(QString type, QVector<QString> spectrumve
             sl = setActiveSegmentList(i);
             QTreeWidgetItem *it = treewidgetselected.at(0);
             tex = it->text(0);
-            formtoolbox->createFilenamestring(opts.geosatellites.at(i).shortname, tex, spectrumvector);
             break;
         }
     }
 
-
+//    int geoindex = formtoolbox->getGeoIndex();
     int geoindex = sl->getGeoSatelliteIndex();
 
+    formtoolbox->createFilenamestring(opts.geosatellites.at(geoindex).shortname, tex, spectrumvector);
+
+    sl = setActiveSegmentList(geoindex);
     sl->ResetSegments();
+
+    qDebug() << "FormGeostationary::slotCreateGeoImage(eGeoSatellite, QString, QVector<QString>, QVector<bool>, int) geoindex  " << geoindex;
 
     imageptrs->ResetPtrImage();
 
@@ -945,8 +957,8 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
         MsgFileAccess fa;
         QString prologuefile;
         QString epiloguefile;
-        MSG_header EPI_head;
-        MSG_header PRO_head;
+        MSG_header epiheader;
+        MSG_header proheader;
 
         if(sl->getGeoSatellite() != eGeoSatellite::H8)
         {
@@ -965,7 +977,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 {
                     try
                     {
-                        da.read_file(fa.directory + "/" + prologuefile, PRO_head, prodata);
+                        da.read_file(prologuefile, proheader, prodata);
                     }
                     catch( std::runtime_error &run )
                     {
@@ -986,7 +998,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
                 try
                 {
-                    da.read_file(fa.directory + "/" + epiloguefile, EPI_head, epidata);
+                    da.read_file(epiloguefile, epiheader, epidata);
                     if (type == "HRV" || type == "HRV Color")
                     {
                         MSG_ActualL15CoverageHRV& cov = epidata.epilogue->product_stats.ActualL15CoverageHRV;
@@ -1013,6 +1025,100 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                         sl->WestColumnActual = 1;
                         sl->SouthLineActual = 1;
                     }
+
+//                    qDebug()<< epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
+//                    double JD_start = epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_jtime();
+//                    double JD_end = epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_jtime();
+
+//                    double jtime = (JD_start + JD_end) / 2.;
+
+//                    struct tm cdate;
+//                    Calendar_Date(jtime, &cdate);
+//                    double day_of_year = jtime - (QSgp4Date::DateToJD(cdate.tm_year, 1, 0, true) - .5);
+
+//                    qDebug() << "day_of_year = " << day_of_year;
+
+//                    double JD_start2;
+//                    double JD_end2;
+
+//                    /*-------------------------------------------------------------------------
+//                     * Compute the satellite position vector in Cartesian coordinates (km).
+//                     *-----------------------------------------------------------------------*/
+//                    int i;
+//                    for (i = 0; i < 100; ++i) {
+//                         JD_start2 = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].StartTime.get_jtime();
+//                         JD_end2   = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].EndTime.get_jtime();
+//                         if (jtime >= JD_start2 && jtime <= JD_end2)
+//                              break;
+//                    }
+
+//                    if (i == 100) {
+//                         fprintf(stderr, "ERROR: Image time is out of range of supplied orbit "
+//                                 "polynomials\n");
+//                         return;
+//                    }
+
+//                    double t, X, Y, Z;
+//                    t = (jtime - (JD_start2 + JD_end2) / 2.) / ((JD_end2   - JD_start2) / 2.);
+
+//                    X = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X[0] +
+//                        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X[1] * t;
+//                    Y = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y[0] +
+//                        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y[1] * t;
+//                    Z = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z[0] +
+//                        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z[1] * t;
+
+//                    qDebug() << "i = " << i;
+//                    qDebug() << "X = " << X;
+//                    qDebug() << "Y = " << Y;
+//                    qDebug() << "Z = " << Z;
+
+//                    /*-------------------------------------------------------------------------
+//                     * Compute latitude and longitude and solar and sensor zenith and azimuth
+//                     * angles.
+//                     *-----------------------------------------------------------------------*/
+
+//                    double lon0 = prodata.prologue->image_description.ProjectionDescription.LongitudeOfSSP;
+//                    qDebug() << "longitude SSP = " << lon0;
+
+//                     for (i = 0; i < d->image.n_lines; ++i) {
+//                         ii = d->image.i_line + i;
+
+//                         jtime2 = jtime_start + (double) ii / (double) (IMAGE_SIZE_VIR_LINES - 1) *
+//                                  (jtime_end - jtime_start);
+
+//                         for (j = 0; j < d->image.n_columns; ++j) {
+//                              i_image = i * d->image.n_columns + j;
+
+//                              snu_line_column_to_lat_lon(ii + 1 + nav_off, d->image.i_column + j + 1,
+//                                                         &d2->lat[i_image], &d2->lon[i_image],
+//                                                         lon0, &nav_scaling_factors_vir);
+
+//                              if (d2->lat[i_image] != FILL_VALUE_F && d2->lon[i_image] != FILL_VALUE_F) {
+//                                   d2->time[i_image] = jtime2;
+
+//                                   snu_solar_params2(jtime2, d2->lat[i_image] * D2R,
+//                                                     d2->lon[i_image] * D2R, &mu0, &theta0,
+//                                                     &phi0, NULL);
+//                                   d2->sza[i_image] = theta0 * R2D;
+//                                   d2->saa[i_image] = phi0   * R2D;
+
+//                                   d2->saa[i_image] = d2->saa[i_image] + 180.;
+//                                   if (d2->saa[i_image] > 360.)
+//                                        d2->saa[i_image] = d2->saa[i_image] - 360.;
+
+//                                   snu_vza_and_vaa(d2->lat[i_image], d2->lon[i_image], 0.,
+//                                                   X, Y, Z, &d2->vza[i_image], &d2->vaa[i_image]);
+
+//                                   d2->vaa[i_image] = d2->vaa[i_image] + 180.;
+//                                   if (d2->vaa[i_image] > 360.)
+//                                        d2->vaa[i_image] = d2->vaa[i_image] - 360.;
+//                              }
+//                         }
+//                    }
+
+
+
                 }
                 catch( std::runtime_error &run )
                 {
@@ -1050,6 +1156,15 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 //                qDebug() << QString("Error : runtime error in reading first segmentfile : %1").arg(run.what());
 //            }
 //        }
+
+
+
+        qDebug() << "ForwardScanStart = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
+        //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanStart;
+        qDebug() << "ForwardScanEnd = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_timestring().c_str();
+        //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd;
+
+        //epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_unixtime().get_timestruct()
 
         if(type == "HRV" || type == "HRV Color")
         {
@@ -1289,8 +1404,6 @@ void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item,
     for(int i = 0; i < item->columnCount(); i++)
         tex << (*item).text(i);
     emit geostationarysegmentschosen(geoindex, tex);
-    qDebug() << "FormGeostationary::SelectGeoWidgetItem einde";
-
 }
 
 void FormGeostationary::ontreeWidgetitemClicked(QTreeWidgetItem *item, int column)
@@ -1309,5 +1422,621 @@ void FormGeostationary::on_tabGeostationary_tabBarClicked(int index)
 int FormGeostationary::getTabWidgetGeoIndex()
 {
     return ui->tabGeostationary->currentIndex();
+}
+
+void FormGeostationary::slotCreateRGBrecipe(int recipe)
+{
+    qDebug() << "CreateRGBrecipe = " << recipe;
+    CreateRGBrecipeImage(recipe);
+}
+
+void FormGeostationary::CreateRGBrecipeImage(int recipe)
+{
+
+    QString tex;
+    QStringList redbandlist = imageptrs->rgbrecipes[recipe].Colorvector.at(0).channels;
+    QStringList greenbandlist = imageptrs->rgbrecipes[recipe].Colorvector.at(1).channels;
+    QStringList bluebandlist = imageptrs->rgbrecipes[recipe].Colorvector.at(2).channels;
+    QStringList uniquebandlist;
+    QList<seviri_units> uniqueunitlist;
+    seviri_units redunits = imageptrs->rgbrecipes[recipe].Colorvector.at(0).units;
+    seviri_units greenunits = imageptrs->rgbrecipes[recipe].Colorvector.at(1).units;
+    seviri_units blueunits = imageptrs->rgbrecipes[recipe].Colorvector.at(2).units;
+    QList<int> uniquechannelnbrlist;
+
+    for(int i = 0; i < redbandlist.length(); i++)
+    {
+        if(!uniquebandlist.contains(redbandlist.at(i)))
+        {
+            uniquebandlist.append(redbandlist.at(i));
+            uniqueunitlist.append(redunits);
+            uniquechannelnbrlist.append(imageptrs->rgbrecipes[recipe].Colorvector.at(0).spectral_channel_nbr.at(i));
+        }
+    }
+    for(int i = 0; i < greenbandlist.length(); i++)
+    {
+        if(!uniquebandlist.contains(greenbandlist.at(i)))
+        {
+            uniquebandlist.append(greenbandlist.at(i));
+            uniqueunitlist.append(greenunits);
+            uniquechannelnbrlist.append(imageptrs->rgbrecipes[recipe].Colorvector.at(1).spectral_channel_nbr.at(i));
+        }
+    }
+    for(int i = 0; i < bluebandlist.length(); i++)
+    {
+        if(!uniquebandlist.contains(bluebandlist.at(i)))
+        {
+            uniquebandlist.append(bluebandlist.at(i));
+            uniqueunitlist.append(blueunits);
+            uniquechannelnbrlist.append(imageptrs->rgbrecipes[recipe].Colorvector.at(2).spectral_channel_nbr.at(i));
+        }
+    }
+
+    QString recipename = imageptrs->rgbrecipes[recipe].Name;
+    qDebug() << "recipename = " << recipename;
+    qDebug() << "uniquebandlist contains = " << uniquebandlist.count();
+    for(int i = 0; i < uniquebandlist.length(); i++)
+    {
+        qDebug() << "channels at " << uniquechannelnbrlist.at(i) << " = " << uniquebandlist.at(i);
+    }
+
+    SegmentListGeostationary *sl;
+
+    for(int i = 0; i < opts.geosatellites.count(); i++)
+    {
+        QList<QTreeWidgetItem *> treewidgetselected = geotreewidgetlist.at(i)->selectedItems();
+        if(treewidgetselected.count() > 0)
+        {
+            sl = setActiveSegmentList(i);
+            QTreeWidgetItem *it = treewidgetselected.at(0);
+            tex = it->text(0);
+            break;
+        }
+    }
+
+    qDebug() << "tex = " << tex << " imagepath = " << sl->getImagePath();
+    //tex =  "2018-02-13   14:45"
+
+    int geoindex = sl->getGeoSatelliteIndex();
+    sl = setActiveSegmentList(geoindex);
+    sl->ResetSegments();
+    imageptrs->ResetPtrImage();
+
+    QString directory = sl->getImagePath();
+    QString productid1 = opts.geosatellites.at(geoindex).searchstring.mid(6, 4);
+    QString productid2 = "IR_016";
+    QString timing = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2) + tex.mid(13, 2) + tex.mid(16, 2);
+
+    qDebug() << "directory = " << directory;
+    qDebug() << "productid1 = " << productid1;
+    qDebug() << "productid2 = " << productid2;
+    qDebug() << "timing = " << timing;
+
+    int totalpixels = 3712 * 3712;
+
+    double *time = new double[totalpixels];
+    float *lat = new float[totalpixels];
+    float *lon = new float[totalpixels];
+    float *sza = new float[totalpixels];
+//    float *saa = new float[totalpixels];
+//    float *vza = new float[totalpixels];
+//    float *vaa = new float[totalpixels];
+
+    QList<float*> result;
+    result.append(new float[totalpixels]);
+    result.append(new float[totalpixels]);
+    result.append(new float[totalpixels]);
+    float resultmax[3];
+    float resultmin[3];
+
+    for(int i = 0; i < 3; i++)
+    {
+        resultmin[i] = std::numeric_limits<float>::max();
+        resultmax[i] = std::numeric_limits<float>::min();
+    }
+
+    snu_init_array_d(time, totalpixels, FILL_VALUE_F);
+    snu_init_array_f(lat,  totalpixels, FILL_VALUE_F);
+    snu_init_array_f(lon,  totalpixels, FILL_VALUE_F);
+    snu_init_array_f(sza,  totalpixels, FILL_VALUE_F);
+//    snu_init_array_f(saa,  totalpixels, FILL_VALUE_F);
+//    snu_init_array_f(vza,  totalpixels, FILL_VALUE_F);
+//    snu_init_array_f(vaa,  totalpixels, FILL_VALUE_F);
+    snu_init_array_f(result[0],   totalpixels, FILL_VALUE_F);
+    snu_init_array_f(result[1], totalpixels, FILL_VALUE_F);
+    snu_init_array_f(result[2],  totalpixels, FILL_VALUE_F);
+
+//    snu_init_array_f(d2->data2, d->image.n_bands * length, d2->fill_value);
+
+    typedef struct {
+        int spectral_channel_nbr;
+        QString spectrum;
+        float min;
+        float max;
+        float *data;
+        seviri_units units;
+    } bandstorage;
+
+    QList<bandstorage> bands;
+
+    for(int i = 0; i < uniquebandlist.length(); i++)
+    {
+        bandstorage newband;
+        newband.spectral_channel_nbr = uniquechannelnbrlist.at(i);
+        newband.data = new float[totalpixels];
+        snu_init_array_f(newband.data,  totalpixels, FILL_VALUE_F);
+        newband.min = 0; newband.max = 0;
+        newband.spectrum = uniquebandlist.at(i);
+        newband.units = uniqueunitlist.at(i);
+        bands.append(newband);
+    }
+
+    qDebug() << "number of bands = " << bands.length();
+
+
+    MsgFileAccess fa(directory, "H", productid1, productid2, timing);
+    MsgDataAccess da;
+    MSG_data prodata;
+    MSG_data epidata;
+    MSG_header header;
+
+
+    da.scan(fa, prodata, epidata, header);
+
+    //cout << header;
+
+    qDebug()<< epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
+    double jtime_start = epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_jtime();
+    double jtime_end = epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_jtime();
+
+    double jtime2;
+    double jtime = (jtime_start + jtime_end) / 2.;
+
+    struct tm cdate;
+    Calendar_Date(jtime, &cdate);
+    double day_of_year = jtime - QSgp4Date::DateToJD(cdate.tm_year, 1, 0, true);
+
+    qDebug() << "day_of_year = " << day_of_year;
+
+    double jtime_start2;
+    double jtime_end2;
+
+    /*-------------------------------------------------------------------------
+     * Compute the satellite position vector in Cartesian coordinates (km).
+     *-----------------------------------------------------------------------*/
+    int i;
+    for (i = 0; i < 100; ++i) {
+         jtime_start2 = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].StartTime.get_jtime();
+         jtime_end2   = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].EndTime.get_jtime();
+         if (jtime >= jtime_start2 && jtime <= jtime_end2)
+              break;
+    }
+
+    if (i == 100) {
+         fprintf(stderr, "ERROR: Image time is out of range of supplied orbit "
+                 "polynomials\n");
+         return;
+    }
+
+    double t, X, Y, Z;
+    t = (jtime - (jtime_start2 + jtime_end2) / 2.) / ((jtime_end2   - jtime_start2) / 2.);
+
+    X = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X[0] +
+        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X[1] * t;
+    Y = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y[0] +
+        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y[1] * t;
+    Z = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z[0] +
+        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z[1] * t;
+
+    qDebug() << "i = " << i;
+    qDebug() << "X = " << X;
+    qDebug() << "Y = " << Y;
+    qDebug() << "Z = " << Z;
+
+    /*-------------------------------------------------------------------------
+     * Compute latitude and longitude and solar and sensor zenith and azimuth
+     * angles.
+     *-----------------------------------------------------------------------*/
+
+    double lon0 = prodata.prologue->image_description.ProjectionDescription.LongitudeOfSSP;
+    qDebug() << "longitude SSP = " << lon0;
+
+    double mu0;
+    double theta0;
+    double phi0;
+
+    long countF = 0;
+
+    quint16 seglines = header.image_structure->number_of_lines;
+    quint16 columns = header.image_structure->number_of_columns;
+
+    qDebug() << "Start calculations";
+    uint i_image;
+
+
+    for(int i = 0; i < uniquebandlist.length(); i++)
+    {
+        MsgFileAccess fac(fa, uniquebandlist.at(i));
+        da.scan(fac, header);
+        bands[i].spectral_channel_nbr = header.segment_id->spectral_channel_id;
+        MSG_SAMPLE compmin = 0xffff, compmax = 0;
+        for (size_t j = 0; j < da.segnames.size(); ++j)
+        {
+            cout << "Segment " << j << ": ";
+            MSG_data* d = da.segment(j);
+            MSG_SAMPLE min = 0xffff, max = 0;
+            if (!d)
+            {
+                cout << "missing.\n";
+                continue;
+            } else {
+                for (size_t k = 0; k < da.npixperseg; ++k)
+                {
+                    if (d->image->data[k] < min) min = d->image->data[k];
+                    if (d->image->data[k] > max) max = d->image->data[k];
+                    bands[i].data[j*da.npixperseg + k] = d->image->data[k];
+                }
+                cout << "min " << min << " max " << max << endl;
+            }
+            if (min < compmin) compmin = min;
+            if (max > compmax) compmax = max;
+        }
+        cout << "compmin = " << compmin << " compmax = " << compmax << endl;
+        bands[i].min = (float)compmin;
+        bands[i].max = (float)compmax;
+    }
+
+
+    for (int i = 0; i < 3712; ++i)
+    {
+        jtime2 = jtime_start + (double) i / (double) (3712 - 1) * (jtime_end - jtime_start);
+        for (int j = 0; j < 3712; ++j)
+        {
+            i_image = i * 3712 + j;
+
+            snu_line_column_to_lat_lon(i, j, &lat[i_image], &lon[i_image], lon0, &nav_scaling_factors_vir);
+
+            if (lat[i_image] != FILL_VALUE_F && lon[i_image] != FILL_VALUE_F)
+            {
+                time[i_image] = jtime2;
+
+                snu_solar_params2(jtime2, lat[i_image] * D2R, lon[i_image] * D2R, &mu0, &theta0, &phi0, NULL);
+                sza[i_image] = theta0 * R2D;
+//                saa[i_image] = phi0   * R2D;
+
+//                saa[i_image] = saa[i_image] + 180.;
+//                if (saa[i_image] > 360.)
+//                    saa[i_image] = saa[i_image] - 360.;
+
+//                snu_vza_and_vaa(lat[i_image], lon[i_image], 0., X, Y, Z, &vza[i_image], &vaa[i_image]);
+
+//                vaa[i_image] = vaa[i_image] + 180.;
+//                if (vaa[i_image] > 360.)
+//                    vaa[i_image] = vaa[i_image] - 360.;
+            }
+            else
+            {
+                countF++;
+                for(int k = 0; k < bands.length(); k++)
+                    bands[k].data[i_image] = FILL_VALUE_F;
+            }
+        }
+    }
+    qDebug() << "End calculations countF = " << countF;
+
+
+    for(int i = 0; i < bands.length(); i++)
+    {
+        qDebug() << "spectral channel = " << bands[i].spectral_channel_nbr;
+        qDebug() << "spectrum = " << bands[i].spectrum;
+        qDebug() << "min = " << bands[i].min << " max = " << bands[i].max;
+        qDebug() << "units = " << (int)bands[i].units;
+    }
+
+    /*-------------------------------------------------------------------------
+     * Compute radiance for the bands requested.
+     *
+     * Ref: PDF_TEN_05105_MSG_IMG_DATA, Page 26
+     *-----------------------------------------------------------------------*/
+
+    double slope, offset;
+    bool toint;
+
+
+    for(int i = 0; i < bands.length(); i++)
+    {
+        if(bands[i].units == SEVIRI_UNIT_RAD) // mW*pow(m,-2)*pow(sr,-1)*pow(pow(cm,-1)), -1)
+        {
+            prodata.prologue->radiometric_proc.get_slope_offset(bands[i].spectral_channel_nbr, slope, offset, toint);
+            bands[i].min = std::numeric_limits<float>::max();
+            bands[i].max = std::numeric_limits<float>::min();
+            for (int j = 0; j < 3712; ++j)
+            {
+                for (int k = 0; k < 3712; ++k)
+                {
+                    i_image = j * 3712 + k;
+
+                    if (bands[i].data[i_image] != FILL_VALUE_US && bands[i].data[i_image] > 0)
+                    {
+                        bands[i].data[i_image] = bands[i].data[i_image] * slope + offset;
+                        if(bands[i].data[i_image] < bands[i].min) bands[i].min = bands[i].data[i_image];
+                        if(bands[i].data[i_image] > bands[i].max) bands[i].max = bands[i].data[i_image];
+                    }
+                }
+            }
+        }
+    }
+
+    /*-------------------------------------------------------------------------
+     * Compute reflectance or bidirectional reflectance factor (BRF) for the
+     * bands requested.
+     *
+     * Ref: PDF_MSG_SEVIRI_RAD2REFL, Page 8
+     *-----------------------------------------------------------------------*/
+    double dd = 1. / sqrt(snu_solar_distance_factor2(day_of_year));
+
+    double a = PI * dd * dd;
+
+    int satid =  (int)header.segment_id->spacecraft_id - 321 ;
+
+    for (int i = 0; i < bands.length(); ++i)
+    {
+        if (bands[i].units == SEVIRI_UNIT_REF || bands[i].units == SEVIRI_UNIT_BRF)
+        {
+            prodata.prologue->radiometric_proc.get_slope_offset(bands[i].spectral_channel_nbr, slope, offset, toint);
+            bands[i].min = std::numeric_limits<float>::max();
+            bands[i].max = std::numeric_limits<float>::min();
+
+            double b = a / band_solar_irradiance[satid][bands[i].spectral_channel_nbr - 1];
+
+            for (int j = 0; j < 3712; ++j)
+            {
+                for (int k = 0; k < 3712; ++k)
+                {
+                    i_image = j * 3712 + k;
+
+                    if (bands[i].units == SEVIRI_UNIT_BRF && bands[i].data[i_image] != FILL_VALUE_US && bands[i].data[i_image] > 0 &&
+                            sza[i_image] >= 0. && sza[i_image] < 80.)
+                    {
+                        double R = bands[i].data[i_image] * slope + offset;
+
+                        bands[i].data[i_image] = b * R;
+
+                        if (bands[i].units == SEVIRI_UNIT_BRF)
+                            bands[i].data[i_image] /= cos(sza[i_image] * D2R);
+
+                        if(bands[i].data[i_image] < bands[i].min) bands[i].min = bands[i].data[i_image];
+                        if(bands[i].data[i_image] > bands[i].max) bands[i].max = bands[i].data[i_image];
+                    }
+                    else if (bands[i].units == SEVIRI_UNIT_REF && bands[i].data[i_image] != FILL_VALUE_US && bands[i].data[i_image] > 0)
+                    {
+                        double R = bands[i].data[i_image] * slope + offset;
+
+                        bands[i].data[i_image] = b * R;
+
+                        if(bands[i].data[i_image] < bands[i].min) bands[i].min = bands[i].data[i_image];
+                        if(bands[i].data[i_image] > bands[i].max) bands[i].max = bands[i].data[i_image];
+                    }
+                }
+            }
+        }
+    }
+
+    const double c1 = 1.19104e-5;
+    const double c2 = 1.43877;
+
+    /*-------------------------------------------------------------------------
+     * Compute brightness temperature for the bands requested.
+     *
+     * Ref: PDF_TEN_05105_MSG_IMG_DATA, Page 26
+     * Ref: The Conversion from Effective Radiances
+     *      to Equivalent Brightness Temperatures (EUM/MET/TEN/11/0569)
+     *-----------------------------------------------------------------------*/
+    for (int i = 0; i < bands.length(); ++i)
+    {
+         if (bands[i].units == SEVIRI_UNIT_BT)
+         {
+             prodata.prologue->radiometric_proc.get_slope_offset(bands[i].spectral_channel_nbr, slope, offset, toint);
+             bands[i].min = std::numeric_limits<float>::max();
+             bands[i].max = std::numeric_limits<float>::min();
+
+             qDebug() << bands[i].spectral_channel_nbr << " " << bands[i].spectrum << " slope = " << slope << " offset = " << offset;
+/*
+              nu = 1.e4 / channel_center_wavelength[d->image.band_ids[i] - 1];
+*/
+              double nu = bt_nu_c[satid][bands[i].spectral_channel_nbr - 1];
+              double nu3 = nu * nu * nu;
+
+              double a = bt_A[satid][bands[i].spectral_channel_nbr - 1];
+              double b = bt_B[satid][bands[i].spectral_channel_nbr - 1];
+
+              for (int j = 0; j < 3712; ++j)
+              {
+                   for (int k = 0; k < 3712; ++k)
+                   {
+                        i_image = j * 3712 + k;
+
+                        if (bands[i].data[i_image] != FILL_VALUE_F && bands[i].data[i_image] > 0)
+                        {
+                             double L = bands[i].data[i_image] * slope + offset;
+                             bands[i].data[i_image] =  (c2 * nu / log(1. + nu3 * c1 / L) - b) / a;
+                             if(bands[i].data[i_image] < bands[i].min) bands[i].min = bands[i].data[i_image];
+                             if(bands[i].data[i_image] > bands[i].max) bands[i].max = bands[i].data[i_image];
+                        }
+                   }
+              }
+         }
+    }
+
+    QRgb *row_col;
+    float red, green, blue;
+
+//    for (int line = 0; line < 3712; line++)
+//    {
+//        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(3711 - line);
+//        for (int pixelx = 0; pixelx < 3712; pixelx++)
+//        {
+//            i_image = line * 3712 + pixelx;
+//            if(bands[0].data[i_image] != FILL_VALUE_F )
+//            {
+//                red = 255.0 * pow((bands[0].data[i_image] - bands[0].min) / (bands[0].max - bands[0].min), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(0).gamma);
+//                green = 255.0 * pow((bands[1].data[i_image] - bands[1].min) / (bands[1].max - bands[1].min), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(1).gamma);
+//                blue = 255.0 * pow((bands[2].data[i_image] - bands[2].min) / (bands[2].max - bands[2].min), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(2).gamma);
+//            }
+//            else
+//            {
+//                red = 0.0;
+//                green = 0.0;
+//                blue = 0.0;
+//            }
+//            row_col[3711 - pixelx] = qRgb((int)red, (int)green, (int)blue);
+//        }
+//    }
+
+    countF = 0;
+    for(int colorindex = 0; colorindex < 3; colorindex++)
+    {
+        for(int i = 0; i < imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).channels.length(); i++)
+        {
+            for(int j = 0; j < bands.length(); j++)
+            {
+                if(bands[j].spectral_channel_nbr == imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).spectral_channel_nbr.at(i))
+                {
+                    qDebug() << colorindex << " " << imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).channels.at(i) << " " <<
+                                imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).spectral_channel_nbr.at(i) << " " <<
+                                imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).subtract.at(i);
+                    for (int line = 0; line < 3712; line++)
+                    {
+                        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(3711 - line);
+                        for (int pixelx = 0; pixelx < 3712; pixelx++)
+                        {
+                            i_image = line * 3712 + pixelx;
+                            if(bands[j].data[i_image] != FILL_VALUE_F )
+                            {
+                                if(imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).subtract.at(i))
+                                {
+                                    if(result[colorindex][i_image] == FILL_VALUE_F)
+                                        result[colorindex][i_image] = - bands[j].data[i_image];
+                                    else
+                                        result[colorindex][i_image] -= bands[j].data[i_image];
+                                }
+                                else
+                                {
+                                    if(result[colorindex][i_image] == FILL_VALUE_F)
+                                        result[colorindex][i_image] = bands[j].data[i_image];
+                                    else
+                                        result[colorindex][i_image] += bands[j].data[i_image];
+                                }
+                               if(imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "K")
+                                {
+                                    if(result[colorindex][i_image] > imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangeto )
+                                        result[colorindex][i_image] = imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangeto;
+                                    if(result[colorindex][i_image] < imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom )
+                                        result[colorindex][i_image] = imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom;
+                                }
+                               if(result[colorindex][i_image] < resultmin[colorindex]) resultmin[colorindex] = result[colorindex][i_image];
+                               if(result[colorindex][i_image] > resultmax[colorindex]) resultmax[colorindex] = result[colorindex][i_image];
+
+                             }
+                            else
+                            {
+                                countF++;
+                                result[colorindex][i_image] = FILL_VALUE_F;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    qDebug() << "countF = " << countF;
+
+    for(int colorindex = 0; colorindex < 3; colorindex++ )
+        qDebug() << QString("%1 resultmin = %2 resultmax = %3").arg(colorindex).arg(resultmin[colorindex]).arg(resultmax[colorindex]);
+
+    for (int line = 0; line < 3712; line++)
+    {
+        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(3711 - line);
+        for (int pixelx = 0; pixelx < 3712; pixelx++)
+        {
+            i_image = line * 3712 + pixelx;
+
+            if(result[0][i_image] != FILL_VALUE_F) //  && result[1][i_image] != FILL_VALUE_F && result[2][i_image] != FILL_VALUE_F )
+            {
+                red   = 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(0).gamma);
+                green = 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(1).gamma);
+                blue  = 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(2).gamma);
+            }
+            else
+            {
+                red = 0.0;
+                green = 0.0;
+                blue = 0.0;
+            }
+            row_col[3711 - pixelx] = qRgb((int)red, (int)green, (int)blue);
+        }
+    }
+
+
+
+
+    int i_pixel = 1856 * 3712 + 1856;
+
+    qDebug() << QString("time = %1").arg(time[1856 * 3712 + 1856], 16, 'f', 5);
+    qDebug() << QString("lat = %1").arg(lat[1856 * 3712 + 1856], 16, 'f', 5);
+    qDebug() << QString("lon = %1").arg(lon[1856 * 3712 + 1856], 16, 'f', 5);
+    qDebug() << QString("sza = %1").arg(sza[1856 * 3712 + 1856], 16, 'f', 5);
+//    qDebug() << QString("saa = %1").arg(saa[1856 * 3712 + 1856], 16, 'f', 5);
+//    qDebug() << QString("vza = %1").arg(vza[1856 * 3712 + 1856], 16, 'f', 5);
+//    qDebug() << QString("vaa = %1").arg(vaa[1856 * 3712 + 1856], 16, 'f', 5);
+
+//    printf("Julian Day Number:            % .8e\n", time[i_pixel]);
+//    printf("latitude:                     % .8e\n", lat [i_pixel]);
+//    printf("longitude:                    % .8e\n", lon [i_pixel]);
+//    printf("solar zenith angle:           % .8e\n", sza [i_pixel]);
+//    printf("solar azimuth angle:          % .8e\n", saa [i_pixel]);
+//    printf("viewing zenith angle:         % .8e\n", vza [i_pixel]);
+//    printf("viewing azimuth angle:        % .8e\n", vaa [i_pixel]);
+
+    qDebug() << "min float = " << std::numeric_limits<float>::min();
+    qDebug() << "max float = " << std::numeric_limits<float>::max();
+
+//    qDebug() << QString("bands[0] = %1  [1856][1856] =  %2 units = %3 min = %4 max = %5")
+//                .arg(bands[0].spectrum).arg(bands[0].data[1856 * 3712 + 1856], 9, 'f', 3).arg((int)bands[0].units).arg(bands[0].min).arg(bands[0].max);
+//    qDebug() << QString("bands[1] = %1  [1856][1856] =  %2 units = %3 min = %4 max = %5")
+//                .arg(bands[1].spectrum).arg(bands[1].data[1856 * 3712 + 1856], 9, 'f', 3).arg((int)bands[1].units).arg(bands[1].min).arg(bands[1].max);
+//    qDebug() << QString("bands[2] = %1  [1856][1856] =  %2 units = %3 min = %4 max = %5")
+//                .arg(bands[2].spectrum).arg(bands[2].data[1856 * 3712 + 1856], 9, 'f', 3).arg((int)bands[2].units).arg(bands[2].min).arg(bands[2].max);
+
+    qDebug() << "CreateRGBrecipeImage(int recipe) Finished !!";
+
+//    cout << "Columns: " << da.columns << endl;
+//    cout << "Lines: " << da.lines << endl;
+//    cout << "Segments: " << da.segnames.size() << endl;
+//    cout << "Pixels per segment: " << da.npixperseg << endl;
+//    cout << "Scanlines per segment: " << da.seglines << endl;
+//    cout << "East is: " << (da.swapX ? "left" : "right") << endl;
+//    cout << "North is: " << (da.swapY ? "down" : "up") << endl;
+//    cout << "HRV: " << (da.hrv ? "yes" : "no") << endl;
+
+
+    for(int i = 0; i < uniquebandlist.length(); i++)
+    {
+        delete [] bands[i].data;
+    }
+
+    delete [] time;
+    delete [] lat;
+    delete [] lon;
+    delete [] sza;
+//    delete [] saa;
+//    delete [] vza;
+//    delete [] vaa;
+    delete [] result[0];
+    delete [] result[1];
+    delete [] result[2];
+
+
 }
 

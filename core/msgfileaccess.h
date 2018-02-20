@@ -9,6 +9,7 @@ public:
     MsgFileAccess() : directory(".") {}
     MsgFileAccess(const QString filename);
     MsgFileAccess(const MsgFileAccess fa, const QString chan);
+    MsgFileAccess(const QString directory, const QString resolution, const QString productid1, const QString productid2, const QString timing);
 
     QString directory;
     QString resolution;
@@ -23,13 +24,13 @@ public:
 
     /// Initialize as a different channel of an existing FileAccess
     void parse(const MsgFileAccess fa, const QString chan);
-
+    void parse(const QString directory, const QString resolution, const QString productid1, const QString productid2, const QString timing);
     //void ensureComplete() const;
 
-    QString prologueFile();
-    QString epilogueFile();
-    QStringList segmentFiles();
-    QStringList globit(QString filepath, QString filepattern);
+    QString prologueFile() const;
+    QString epilogueFile() const;
+    QStringList segmentFiles() const;
+    QStringList globit(QString filepath, QString filepattern) const;
 
 
 

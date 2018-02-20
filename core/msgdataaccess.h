@@ -2,12 +2,14 @@
 #define MSGDATAACCESS_H
 
 #include "msgdataaccess.h"
-#include <string>
-#include <vector>
+//#include <string>
+//#include <vector>
 #include <deque>
 #include <MSG_data_image.h>
 #include <QStringList>
 #include <QFile>
+#include <QVector>
+#include <QString>
 
 struct MSG_header;
 struct MSG_data;
@@ -38,7 +40,7 @@ public:
         bool hrv;
 
         /// Pathnames of the segment files, indexed with their index
-        QStringList segnames;
+        QVector<QString> segnames;
 
         struct scache
         {
@@ -75,7 +77,9 @@ public:
          * Scan the given segments, filling in all the various DataAccess
          * fields.
          */
-        //void scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header);
+        bool scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header);
+        bool scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi);
+        bool scan(const MsgFileAccess fa, MSG_header& header);
 
         /**
          * Read a xRIT file (prologue, epilogue or segment)
@@ -97,7 +101,7 @@ public:
          * to be shifted right to geographically align it in the virtual
          * fullsize image.
          */
-        //int line_start(int line) const;
+        size_t line_start(size_t line) const;
 
         /**
          * Read a scanline
@@ -107,14 +111,14 @@ public:
          *
          * \a buf must be at least 'columns' elements
          */
-        //void line_read(int line, MSG_SAMPLE* buf) const;
+        void line_read(size_t line, MSG_SAMPLE* buf) const;
 
         /**
          * Return the MSG_data corresponding to the segment with the given index.
          *
          * The pointer could be invalidated by another call to segment()
          */
-        //MSG_data* segment(int idx) const;
+        MSG_data* segment(size_t idx) const;
 };
 
 

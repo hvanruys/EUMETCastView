@@ -3307,14 +3307,15 @@ void FormImage::OverlayOLCI(QPainter *paint)
         if(segs->seglolcierr->GetSegmentlistptr()->count() == 0)
             return;
     }
-    else if(opts.buttonSLSTR)
-            return;
+    else
+        return;
     qDebug() << "FormImage::OverlayOLCI(QPainter *paint) 2";
 
     if(opts.buttonOLCIefr)
         sl = segs->seglolciefr;
     else if(opts.buttonOLCIerr)
         sl = segs->seglolcierr;
+    else return;
 
     long nbrpt = 0;
 
@@ -3358,6 +3359,7 @@ void FormImage::OverlayOLCI(QPainter *paint)
         }
     }
 
+    qDebug() << "end FormImage::OverlayOLCI(QPainter *paint)";
 
 }
 

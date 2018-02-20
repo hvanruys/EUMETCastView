@@ -541,7 +541,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].longitudelimit2 = 20.0;
     geosatellites[0].protocol = "XRIT";
     geosatellites[0].rss = false;
-    geosatellites[0].searchstring = "H-000-MSG4__-MSG4_PAR____";
+    geosatellites[0].searchstring = "H-000-MSG4__-MSG4";
     geosatellites[0].indexsearchstring = 0;
     geosatellites[0].filepattern = "H-000-MSG4??-?????????___-?????????-0?????___-%1-C_";
     geosatellites[0].imagewidth = 3712;
@@ -583,7 +583,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[1].longitudelimit2 = 20.0;
     geosatellites[1].protocol = "XRIT";
     geosatellites[1].rss = false;
-    geosatellites[1].searchstring = "H-000-MSG3__-MSG3________";
+    geosatellites[1].searchstring = "H-000-MSG3__-MSG3";
     geosatellites[1].indexsearchstring = 0;
     geosatellites[1].filepattern = "H-000-MSG3??-?????????___-?????????-0?????___-%1-C_";
     geosatellites[1].imagewidth = 3712;
@@ -625,7 +625,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[2].longitudelimit2 = 0.0;
     geosatellites[2].protocol = "XRIT";
     geosatellites[2].rss = true;
-    geosatellites[2].searchstring = "H-000-MSG2__-MSG2_RSS____";
+    geosatellites[2].searchstring = "H-000-MSG2__-MSG2";
     geosatellites[2].indexsearchstring = 0;
     geosatellites[2].filepattern = "H-000-MSG2??-?????????___-?????????-0?????___-%1-C_";
     geosatellites[2].imagewidth = 3712;
@@ -668,7 +668,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[3].longitudelimit2 = 92.0;
     geosatellites[3].protocol = "XRIT";
     geosatellites[3].rss = false;
-    geosatellites[3].searchstring = "H-000-MSG1__-MSG1_IODC___";
+    geosatellites[3].searchstring = "H-000-MSG1__-MSG1";
     geosatellites[3].indexsearchstring = 0;
     geosatellites[3].filepattern = "H-000-MSG1??-?????????___-?????????-0?????___-%1-C_";
     geosatellites[3].imagewidth = 3712;

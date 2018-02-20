@@ -28,6 +28,34 @@
 #include <cmath>
 #include <cstdio>
 #include <string>
+long INT(double value)
+{
+  if (value >= 0)
+    return static_cast<long>(value);
+  else
+    return static_cast<long>(value - 1);
+}
+
+
+double DateToJD(long Year, long Month, double Day, bool bGregorianCalendar)
+{
+  long Y = Year;
+  long M = Month;
+  if (M < 3)
+  {
+    Y = Y - 1;
+    M = M + 12;
+  }
+
+  long B = 0;
+  if (bGregorianCalendar)
+  {
+    long A = INT(Y / 100.0);
+    B = 2 - A + INT(A / 4.0);
+  }
+
+  return INT(365.25 * (Y + 4716)) + INT(30.6001 * (M + 1)) + Day + B - 1524.5;
+}
 
 MSG_time_cds_short::MSG_time_cds_short( )
 {
@@ -93,6 +121,18 @@ time_t MSG_time_cds_short::get_unixtime( )
 struct tm *MSG_time_cds_short::get_timestruct( )
 {
   return gmtime(&unixtime);
+}
+
+double MSG_time_cds_short::get_jtime()
+{
+     double jtime_epoch = (double) DateToJD(1958, 1, 1, true);
+     return jtime_epoch + day_from_epoch + msec_in_day / 1.e3 / 60. / 60. / 24.;
+}
+
+double MSG_time_cds_short::get_jtime_1958_1_1()
+{
+     double jtime_epoch = (double) DateToJD(1958, 1, 1, true);
+     return jtime_epoch;
 }
 
 std::string MSG_time_cds_short::get_timestring( )

@@ -128,15 +128,6 @@ SegmentListGeostationary::SegmentListGeostationary(QObject *parent, int geoindex
     this->bisRSS = false;
     this->SetupContrastStretch( 0, 0, 1023, 255);
 
-    this->time = NULL;		/* image of Julian Day Number */
-    this->lat = NULL;  		/* image of latitude */
-    this->lon = NULL;  		/* image of longitude */
-    this->sza = NULL;  		/* image of solar zenith angle (degrees: 0.0 -- 180.0) */
-    this->saa = NULL;  		/* image of solar azimuth angle  (degrees: 0.0 -- 360.0) */
-    this->vza = NULL;       /* image of viewing zenith angle (degrees: 0.0 -- 180.0) */
-    this->vaa = NULL;       /* image of viewing azimuth angle  (degrees: 0.0 -- 360.0) */
-    this->data = NULL;      /* array of pointers to images of length n_bands */
-    this->data2 = NULL;      /* array of image data of length n_bands * n_lines * n_columns */
 
 
 
@@ -464,10 +455,8 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     MSG_header *header;
     MSG_data *msgdat;
 
-
     header = new MSG_header();
     msgdat = new MSG_data();
-
 
     QFile file(filepath);
     QFileInfo fileinfo(file);

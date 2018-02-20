@@ -93,6 +93,8 @@ class MSG_time_cds_short {
     std::string get_timestring( );
     std::string get_timestring( ) const;
     char_1 *get_timechar( );
+    double get_jtime();
+    double get_jtime_1958_1_1();
 
     //Overloaded << operator
     friend std::ostream& operator<< ( std::ostream& os,

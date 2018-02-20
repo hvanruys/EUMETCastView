@@ -2,6 +2,7 @@
 #include "msgfileaccess.h"
 #include <MSG_HRIT.h>
 #include <stdexcept>
+#include <QDebug>
 
 using namespace std;
 
@@ -12,6 +13,10 @@ MsgDataAccess::MsgDataAccess() : npixperseg(0)
 
 MsgDataAccess::~MsgDataAccess()
 {
+    qDebug() << "MsgDataAccess::~MsgDataAccess() segcach count = " << segcache.size();
+    for (std::deque<scache>::iterator i = segcache.begin();
+                    i != segcache.end(); ++i)
+            delete i->segment;
 }
 
 void MsgDataAccess::read_file(QString file, MSG_header& head) const
@@ -55,28 +60,30 @@ void MsgDataAccess::scanSegment(const MSG_header& header)
         swapY = header.image_navigation->line_scaling_factor < 0;
 }
 
-/*
-void MsgDataAccess::scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header)
+
+bool MsgDataAccess::scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, MSG_header& header)
 {
         // Read prologue
         MSG_header PRO_head;
-        //p.activity("Reading prologue " + opts.prologueFile());
+        qDebug() << "Reading prologue";
         read_file(fa.prologueFile(), PRO_head, pro);
 
         // Read epilogue
         MSG_header EPI_head;
-        //p.activity("Reading epilogue " + opts.epilogueFile());
+        qDebug() << "Reading epilogue";
         read_file(fa.epilogueFile(), EPI_head, epi);
 
         // Sort the segment names by their index
-        vector<string> segfiles = fa.segmentFiles();
-        for (vector<string>::const_iterator i = segfiles.begin();
-                        i != segfiles.end(); ++i)
+        QStringList segfiles = fa.segmentFiles();
+        for (QStringList::const_iterator i = segfiles.begin(); i != segfiles.end(); ++i)
         {
-                //p.activity("Scanning segment " + *i);
+                qDebug() << "Scanning segment " + *i;
                 read_file(QString(*i), header);
                 if (header.segment_id->data_field_format == MSG_NO_FORMAT)
-                        throw std::runtime_error(*i + ": product dumped in binary format");
+                {
+                        qDebug() << *i + ": product dumped in binary format";
+                        return false;
+                }
 
                 int idx = header.segment_id->sequence_number-1;
                 if (idx < 0) continue;
@@ -109,6 +116,52 @@ void MsgDataAccess::scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi, M
                 WestColumnActual = 1;
                 SouthLineActual = 1;
         }
+
+        return true;
+}
+
+bool MsgDataAccess::scan(const MsgFileAccess fa, MSG_data& pro, MSG_data& epi)
+{
+        // Read prologue
+        MSG_header PRO_head;
+        qDebug() << "Reading prologue";
+        read_file(fa.prologueFile(), PRO_head, pro);
+
+        // Read epilogue
+        MSG_header EPI_head;
+        qDebug() << "Reading epilogue";
+        read_file(fa.epilogueFile(), EPI_head, epi);
+
+        return true;
+}
+
+bool MsgDataAccess::scan(const MsgFileAccess fa, MSG_header& header)
+{
+        // Sort the segment names by their index
+        QStringList segfiles = fa.segmentFiles();
+        for (QStringList::const_iterator i = segfiles.begin(); i != segfiles.end(); ++i)
+        {
+                qDebug() << "Scanning segment " + *i;
+                read_file(QString(*i), header);
+                if (header.segment_id->data_field_format == MSG_NO_FORMAT)
+                {
+                        qDebug() << *i + ": product dumped in binary format";
+                        return false;
+                }
+
+                int idx = header.segment_id->sequence_number-1;
+                if (idx < 0) continue;
+                if ((size_t)idx >= segnames.size())
+                        segnames.resize(idx + 1);
+                segnames[idx] = *i;
+        }
+
+        if (segnames.empty()) throw std::runtime_error("no segments found");
+
+        // Read common info just once from a random segment
+        scanSegment(header);
+
+        return true;
 }
 
 MSG_data* MsgDataAccess::segment(size_t idx) const
@@ -127,7 +180,7 @@ MSG_data* MsgDataAccess::segment(size_t idx) const
 
                         // Do not load missing segments
                         if (idx >= segnames.size()) return 0;
-                        if (segnames[idx].empty()) return 0;
+                        if (segnames[idx].isEmpty()) return 0;
 
                         // Remove the last recently used if the cache is full
                         if (segcache.size() == 2)
@@ -142,7 +195,7 @@ MSG_data* MsgDataAccess::segment(size_t idx) const
                         scache new_scache;
                         new_scache.segment = new MSG_data;
                         new_scache.segno = idx;
-                        read_file(segnames[idx].c_str(), header, *new_scache.segment);
+                        read_file(segnames[idx], header, *new_scache.segment);
 
                         // Put it in the front
                         segcache.push_front(new_scache);
@@ -204,4 +257,3 @@ void MsgDataAccess::line_read(size_t line, MSG_SAMPLE* buf) const
                 memcpy(buf, d->image->data + segline * columns, columns * sizeof(MSG_SAMPLE));
 }
 
-*/

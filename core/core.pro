@@ -15,6 +15,7 @@ DEFINES += LIBARCHIVE_STATIC
 DEFINES += HDF5_DISABLE_VERSION_CHECK=1
 DEFINES += OPENGL30
 
+
 SOURCES += main.cpp \
     mainwindow.cpp \
     options.cpp \
@@ -85,7 +86,10 @@ SOURCES += main.cpp \
     segmentdatahub.cpp \
     segmentlistdatahub.cpp \
     msgdataaccess.cpp \
-    msgfileaccess.cpp
+    msgfileaccess.cpp \
+    internal.cpp \
+    misc_util.cpp \
+    nav_util.cpp
 
 HEADERS  += mainwindow.h \
     options.h \
@@ -158,11 +162,10 @@ HEADERS  += mainwindow.h \
     segmentlistdatahub.h \
     productlist.h \
     msgdataaccess.h \
-    msgfileaccess.h
-
-#QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
-unix:QMAKE_CXXFLAGS += -Wno-trigraphs
-#win32:QMAKE_LFLAGS += /NODEFAULTLIB:MSVCRT
+    msgfileaccess.h \
+    nav_util.h \
+    internal.h \
+    misc_util.h
 
 FORMS    += mainwindow.ui \
     dialogpreferences.ui \
@@ -175,20 +178,37 @@ RESOURCES += \
     EUMETCastView.qrc \
     shaders.qrc
 
-unix:INCLUDEPATH += /home/hugo/TAR_LIBS/libarchive-master/libarchive /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
+#QMAKE_CXXFLAGS += -std=c++0x -Wno-trigraphs
+unix:QMAKE_CXXFLAGS += -Wno-trigraphs
+unix:QMAKE_LFLAGS += -no-pie
+#win32:QMAKE_LFLAGS += /NODEFAULTLIB:MSVCRT
+
+#/home/hugo/TAR_LIBS/libarchive-master/libarchive
+unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
 win32:INCLUDEPATH += "C:/msys64/mingw64/include" ../bz2 ../meteosatlib ../QSgp4
 #else:win32:INCLUDEPATH += "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/libarchive" \
 #                ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4 \
 #                "C:/Program Files/netCDF 4.4.1/include" "C:/Program Files/HDF_Group/HDF5/1.8.16/include"
 
 
+
+CONFIG(release, debug|release) {
+#This is a release build
 unix:LIBS += -lpthread -lz -lfreeimage
 unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive
 unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
-        #-L/usr/local/hdf5/lib -lhdf5
 win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDISE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
 win32:LIBS += -L"C:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
-
+}
+else
+{
+#This is a debug build
+unix:LIBS += -lpthread -lz -lfreeimage
+unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive
+unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
+win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDISE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
+win32:LIBS += -L"C:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
+}
 
 #CONFIG(release, debug|release) {
 #This is a release build

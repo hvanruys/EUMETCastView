@@ -415,7 +415,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                         segmentlistmapgeo[i].insert( strdate, hashspectrum );
                     }
                 }
-                qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
+                //qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
              }
         }
 
@@ -1303,7 +1303,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                             delete segmetop;
 
                     }
-                    if (fileinfo.fileName().mid( 0, 6) == "avhrr_" && fileinfo.fileName().mid( 22, 6) == "noaa19")
+                    else if (fileinfo.fileName().mid( 0, 6) == "avhrr_" && fileinfo.fileName().mid( 22, 6) == "noaa19")
                     {
                         qDebug() << "from UDP segment Noaa19 added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
@@ -1319,7 +1319,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                             delete segnoaa;
 
                     }
-                    if (fileinfo.fileName().mid( 0, 8) == "AVHR_HRP" && fileinfo.fileName().mid( 67, 4) == ".bz2")
+                    else if (fileinfo.fileName().mid( 0, 8) == "AVHR_HRP" && fileinfo.fileName().mid( 67, 4) == ".bz2")
                     {
                         qDebug() << "from UDP segment HRP added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
@@ -1335,7 +1335,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                             delete seghrp;
 
                     }
-                    if (fileinfo.fileName().mid( 0, 8) == "AVHR_GAC")
+                    else if (fileinfo.fileName().mid( 0, 8) == "AVHR_GAC")
                     {
                         qDebug() << "from UDP segment GAC added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
@@ -1351,7 +1351,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                             delete seggac;
 
                     }
-                    if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp")
+                    else if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp")
                     {
                         qDebug() << "from UDP segment NPP M added filename filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
@@ -1367,7 +1367,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                             delete segviirsm;
 
                     }
-                    if (fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp")
+                    else if (fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp")
                     {
                         qDebug() << "from UDP segment NPP DNB added filename filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
@@ -1383,7 +1383,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                             delete segviirsdnb;
 
                     }
-                    if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR")
+                    else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR")
                     {
                         qDebug() << "from UDP segment S3A EFR added filename filename  = " << fileinfo.fileName();
                         segolciefr = new SegmentOLCI(SEG_OLCIEFR, fileinfo, satlist);
@@ -1398,7 +1398,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                             delete segolciefr;
 
                     }
-                    if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR")
+                    else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR")
                     {
                         qDebug() << "from UDP segment S3A ERR added filename filename  = " << fileinfo.fileName();
                         segolcierr = new SegmentOLCI(SEG_OLCIERR, fileinfo, satlist);
@@ -1413,13 +1413,15 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                             delete segolcierr;
 
                     }
-                    if (fileinfo.fileName().mid( 0, 9) == "H-000-MSG" && fileinfo.fileName().mid( 13, 3) == "MSG")
+                    else if (fileinfo.fileName().mid( 0, 9) == "H-000-MSG" && fileinfo.fileName().mid( 13, 3) == "MSG")
                     {
                         QFile file(thefilepath);
 
                         int filesequence = fileinfo.fileName().mid(36, 6).toInt()-1;
                         QString strspectrum = fileinfo.fileName().mid(26, 6);
                         QString strdate = fileinfo.fileName().mid(46, 12);
+                        qDebug() << "from UDP segment MSG  filename  = " << fileinfo.fileName();
+
 
                         //Q_ASSERT( filesequence > 7);
                     }

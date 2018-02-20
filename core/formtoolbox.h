@@ -27,6 +27,7 @@ public:
     int getTabWidgetVIIRSIndex();
     int getTabWidgetSentinelIndex();
     int getGeoIndex() { return geoindex; }
+    void setGeoIndex(int geo) { this->geoindex = geo; }
 
     QList<bool> getVIIRSMBandList();
     QList<int> getVIIRSMColorList();
@@ -121,6 +122,7 @@ signals:
     void getgeosatchannel(QString, QVector<QString>, QVector<bool>, int, bool);
     void overlaycorrection(int,int);
     void switchstackedwidget(int);
+    void getrgbrecipe(int recipe);
 
 private slots:
     void on_btnCol_clicked();
@@ -273,6 +275,7 @@ private slots:
 
     void on_cmbHistogramAVHRR_activated(int index);
     void on_cmbHistogramGeo_activated(int index);
+    void on_btnRecipes_clicked();
 };
 
 

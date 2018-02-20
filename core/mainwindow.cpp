@@ -168,8 +168,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formgeostationary, SIGNAL(geostationarysegmentschosen(int, QStringList)), formtoolbox, SLOT(geostationarysegmentsChosen(int, QStringList)));
     connect( formgeostationary, SIGNAL(setbuttonlabels(int, bool)), formtoolbox, SLOT(setButtons(int, bool)));
 
-    connect( formtoolbox, SIGNAL(getgeosatchannel(QString, QVector<QString>, QVector<bool>, int, bool)), formgeostationary, SLOT(CreateGeoImage(QString, QVector<QString>, QVector<bool>, int, bool)));
+    connect( formtoolbox, SIGNAL(getgeosatchannel(QString, QVector<QString>, QVector<bool>, int, bool)), formgeostationary, SLOT(slotCreateGeoImage(QString, QVector<QString>, QVector<bool>, int, bool)));
     connect( formtoolbox, SIGNAL(switchstackedwidget(int)), this, SLOT(slotSwitchStackedWindow(int)));
+    connect( formtoolbox, SIGNAL(getrgbrecipe(int)), formgeostationary, SLOT(slotCreateRGBrecipe(int)));
 
     connect( formgeostationary, SIGNAL(enabletoolboxbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 

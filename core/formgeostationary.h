@@ -39,7 +39,7 @@ private:
     void CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     void CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
-
+    void CreateRGBrecipeImage(int recipe);
     Ui::FormGeostationary *ui;
     AVHRRSatellite *segs;
     SatelliteList *sats;
@@ -50,8 +50,8 @@ private:
 
 public slots:
     void PopulateTree();
-    void CreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
-
+    void slotCreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
+    void slotCreateRGBrecipe(int recipe);
 
 private slots:
     void ontreeWidgetitemClicked(QTreeWidgetItem *item, int column);

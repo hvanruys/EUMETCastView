@@ -50,6 +50,11 @@ MsgFileAccess::MsgFileAccess(const MsgFileAccess fa, const QString chan)
     parse(fa, chan);
 }
 
+MsgFileAccess::MsgFileAccess(const QString directory, const QString resolution, const QString productid1, const QString productid2, const QString timing)
+{
+    parse(directory, resolution, productid1, productid2, timing);
+}
+
 void MsgFileAccess::parse(const MsgFileAccess fa, const QString chan)
 {
     directory = fa.directory;
@@ -57,6 +62,15 @@ void MsgFileAccess::parse(const MsgFileAccess fa, const QString chan)
     productid1 = fa.productid1;
     productid2 = chan;
     timing = fa.timing;
+}
+
+void MsgFileAccess::parse(const QString directory, const QString resolution, const QString productid1, const QString productid2, const QString timing)
+{
+    this->directory = directory;
+    this->resolution = resolution;
+    this->productid1 = productid1;
+    this->productid2 = productid2;
+    this->timing = timing;
 }
 
 void MsgFileAccess::parse(const QString filename)
@@ -138,82 +152,74 @@ void MsgFileAccess::parse(const QString filename)
     }
 }
 
-
-QString MsgFileAccess::prologueFile()
+QString MsgFileAccess::prologueFile() const
 {
-  //"H-000-MSG3__-MSG3________-_________-PRO______-201311050930-__"
-  //"L-000-MTP___-MET7________-00_7_057E-PRO______-201404010900-__"
-    QString filename;
+    //"H-000-MSG3__-MSG3________-_________-PRO______-201311050930-__"
+     //H-000-MSG3__-MSG3________-_________-PRO______-201802131500-__
+    //"L-000-MTP___-MET7________-00_7_057E-PRO______-201404010900-__"
 
-    if(productid1 == "MET7")
-    {
-        filename = resolution
-                + "-" "000" "-" + satname.leftJustified(6, '_') + "-" // Split to avoid warnings on trigraphs
-                + productid1.leftJustified(12, '_') + "-" + productid2.leftJustified(9, '_') + "-"
-                     + "PRO______-"
-                     + timing
-                     + "-__";
-    }
-    else
-    {
-        filename = resolution
-                + "-" "000" "-" + satname.leftJustified(6, '_') + "-" // Split to avoid warnings on trigraphs
-                + productid1.leftJustified(12, '_') + "-" + "_________" + "-"
-                     + "PRO______-"
-                     + timing
-                     + "-__";
+    QString filepattern = resolution
+            + "-" "000" "-" + "??????" + "-" // Split to avoid warnings on trigraphs
+            + productid1.leftJustified(12, '?') + "-" + "_________" + "-"
+            + "PRO______-"
+            + timing
+            + "-__";
 
-    }
 
-  qDebug() << QString("de prologuefile = %1").arg(this->directory + "/" + filename);
-  qDebug() << QString("de productid1 = %1").arg(productid1);
-  qDebug() << QString("de productid2 = %1").arg(productid2);
-  qDebug() << QString("de satname = %1").arg(satname);
-  QFile prologue(this->directory + "/" + filename);
-  if(prologue.exists())
-      return filename;
-  else
-      return "";
+    QStringList prolist = globit(directory, filepattern);
+    if (prolist.count() > 1)
+        return "";
 
-}
-
-QString MsgFileAccess::epilogueFile()
-{
-    //H-000-MSG2__-MSG2_RSS____-_________-EPI______-201311080745-__
-    //H-000-MSG3__-MSG3________-_________-PRO______-201311050930-__"
-
-    QString filename = resolution
-                  + "-" "000" "-" + satname.leftJustified(6, '_') + "-" // Split to avoid warnings on trigraphs
-                  + productid1.leftJustified(12, '_') + "-_________-"
-                       + "EPI______-"
-                       + timing
-                       + "-__";
-
-    QFile prologue(this->directory + "/" + filename);
+    QFile prologue(prolist.at(0));
     if(prologue.exists())
-        return filename;
+        return (prolist.at(0));
     else
         return "";
 
 }
 
-QStringList MsgFileAccess::segmentFiles()
+QString MsgFileAccess::epilogueFile() const
 {
+    //H-000-MSG2__-MSG2_RSS____-_________-EPI______-201311080745-__
+    //H-000-MSG3__-MSG3________-_________-PRO______-201311050930-__"
+    //H-000-MSG4__-MSG4_PAR____-IR_087___-000008___-201802131445-C_
 
-  QString filename = resolution
+    QString filepattern = resolution
+            + "-" "000" "-" + "??????" + "-" // Split to avoid warnings on trigraphs
+            + productid1.leftJustified(12, '?') + "-" + "_________" + "-"
+            + "EPI______-"
+            + timing
+            + "-__";
+
+
+    QStringList epilist = globit(directory, filepattern);
+    if (epilist.count() > 1)
+        return "";
+
+    QFile epilogue(epilist.at(0));
+    if(epilogue.exists())
+        return (epilist.at(0));
+    else
+        return "";
+}
+
+QStringList MsgFileAccess::segmentFiles() const
+{
+  QString filenames = resolution
            + "-???" "-??????" "-"	// Split to avoid warnings on trigraphs
-           + productid1.leftJustified(12, '_') + "-"
+           + productid1.leftJustified(12, '?') + "-"
           + productid2.leftJustified(9, '_') + "-"
            + "0?????___" + "-"
            + timing + "-" + "C_";
 
 
-  QStringList msgfiles = this->globit(this->directory, filename);
+  QStringList msgfiles = this->globit(directory, filenames);
   return msgfiles;
 }
 
-QStringList MsgFileAccess::globit(QString filepath, QString filepattern)
+QStringList MsgFileAccess::globit(QString filepath, QString filepattern) const
 {
+
 
     QDir meteosatdir(filepath);
     meteosatdir.setFilter(QDir::Files | QDir::NoSymLinks);
@@ -224,16 +230,14 @@ QStringList MsgFileAccess::globit(QString filepath, QString filepattern)
     QStringList strlistout;
     QStringList ret;
 
-    qDebug() << QString("strlist = %1 strlist out = %2").arg(strlist.count()).arg(strlistout.count());
     QStringList::Iterator itc = strlist.begin();
 
     while( itc != strlist.end() )
     {
         if(meteosatdir.match(filepattern, *itc))
-            strlistout.append(*itc);
+            strlistout.append(filepath + "/" + *itc);
         itc++;
     }
-    qDebug() << QString("strlist = %1 strlist out = %2").arg(strlist.count()).arg(strlistout.count());
 
     return strlistout;
 

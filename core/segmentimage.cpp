@@ -54,7 +54,270 @@ SegmentImage::SegmentImage()
     {
         fillvalue[i] = 0;
     }
+    SetupRGBrecipes();
+}
 
+void SegmentImage::SetupRGBrecipes()
+{
+    //***********
+    //Airmass RGB
+    //***********
+    RGBRecipe airmass;
+    airmass.Name = "Airmass RGB";
+    RGBRecipeColor Red;
+    RGBRecipeColor Green;
+    RGBRecipeColor Blue;
+
+    Red.channels.append("WV_062");
+    Red.channels.append("WV_073");
+    Red.spectral_channel_nbr.append(GetSpectralChannelNbr("WV_062"));
+    Red.spectral_channel_nbr.append(GetSpectralChannelNbr("WV_073"));
+    Red.subtract.append(false);
+    Red.subtract.append(true);
+    Red.inverse.append(false);
+    Red.inverse.append(false);
+    Red.reflective.append(false);
+    Red.reflective.append(false);
+    Red.rangefrom = -25.0;
+    Red.rangeto = 0.0;
+    Red.dimension = "K";
+    Red.gamma = 1.0;
+    Red.units = SEVIRI_UNIT_BT;
+    airmass.Colorvector.append(Red);
+
+    Green.channels.append("IR_097");
+    Green.channels.append("IR_108");
+    Green.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_097"));
+    Green.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
+    Green.subtract.append(false);
+    Green.subtract.append(true);
+    Green.inverse.append(false);
+    Green.inverse.append(false);
+    Green.reflective.append(false);
+    Green.reflective.append(false);
+    Green.rangefrom = -40.0;
+    Green.rangeto = 5.0;
+    Green.dimension = "K";
+    Green.gamma = 1.0;
+    Green.units = SEVIRI_UNIT_BT;
+    airmass.Colorvector.append(Green);
+
+    Blue.channels.append("WV_062");
+    Blue.spectral_channel_nbr.append(GetSpectralChannelNbr("WV_062"));
+    Blue.subtract.append(false);
+    Blue.inverse.append(true);
+    Blue.reflective.append(false);
+    Blue.rangefrom = 243.0;
+    Blue.rangeto = 208.0;
+    Blue.dimension = "K";
+    Blue.gamma = 1.0;
+    Blue.units = SEVIRI_UNIT_BT;
+    airmass.Colorvector.append(Blue);
+
+    rgbrecipes.append(airmass);
+
+    //*********
+    // Dust RGB
+    //*********
+    RGBRecipe dust;
+    dust.Name = "Dust RGB";
+    RGBRecipeColor Red2;
+    RGBRecipeColor Green2;
+    RGBRecipeColor Blue2;
+
+    Red2.channels.append("IR_120");
+    Red2.channels.append("IR_108");
+    Red2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_120"));
+    Red2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
+    Red2.subtract.append(false);
+    Red2.subtract.append(true);
+    Red2.inverse.append(false);
+    Red2.inverse.append(false);
+    Red2.reflective.append(false);
+    Red2.reflective.append(false);
+    Red2.rangefrom = -4.0;
+    Red2.rangeto = +2.0;
+    Red2.dimension = "K";
+    Red2.gamma = 1.0;
+    Red2.units = SEVIRI_UNIT_BT;
+    dust.Colorvector.append(Red2);
+
+    Green2.channels.clear();
+    Green2.channels.append("IR_108");
+    Green2.channels.append("IR_087");
+    Green2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
+    Green2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_087"));
+    Green2.subtract.append(false);
+    Green2.subtract.append(true);
+    Green2.inverse.append(false);
+    Green2.inverse.append(false);
+    Green2.reflective.append(false);
+    Green2.reflective.append(false);
+    Green2.rangefrom = 0.0;
+    Green2.rangeto = 15.0;
+    Green2.dimension = "K";
+    Green2.gamma = 5.0; //2.5;
+    Green2.units = SEVIRI_UNIT_BT;
+    dust.Colorvector.append(Green2);
+
+    Blue2.channels.clear();
+    Blue2.channels.append("IR_108");
+    Blue2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
+    Blue2.subtract.append(false);
+    Blue2.inverse.append(false);
+    Blue2.reflective.append(false);
+    Blue2.rangefrom = 261.0;
+    Blue2.rangeto = 289.0;
+    Blue2.dimension = "K";
+    Blue2.gamma = 1.0;
+    Blue2.units = SEVIRI_UNIT_BT;
+    dust.Colorvector.append(Blue2);
+
+    rgbrecipes.append(dust);
+
+    //******************
+    //Natual Colours RGB
+    //******************
+    RGBRecipe natural;
+    natural.Name = "Natural Colours RGB";
+    RGBRecipeColor Red3;
+    RGBRecipeColor Green3;
+    RGBRecipeColor Blue3;
+
+    Red3.channels.append("IR_016");
+    Red3.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_016"));
+    Red3.subtract.append(false);
+    Red3.inverse.append(false);
+    Red3.reflective.append(false);
+    Red3.rangefrom = 0.0;
+    Red3.rangeto = 100.0;
+    Red3.dimension = "%";
+    Red3.gamma = 1.0;
+    Red3.units = SEVIRI_UNIT_REF;
+    natural.Colorvector.append(Red3);
+
+    Green3.channels.clear();
+    Green3.channels.append("VIS008");
+    Green3.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS008"));
+    Green3.subtract.append(false);
+    Green3.inverse.append(false);
+    Green3.reflective.append(false);
+    Green3.rangefrom = 0.0;
+    Green3.rangeto = 100.0;
+    Green3.dimension = "%";
+    Green3.gamma = 1.0;
+    Green3.units = SEVIRI_UNIT_REF;
+    natural.Colorvector.append(Green3);
+
+    Blue3.channels.clear();
+    Blue3.channels.append("VIS006");
+    Blue3.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS006"));
+    Blue3.subtract.append(false);
+    Blue3.inverse.append(false);
+    Blue3.reflective.append(false);
+    Blue3.rangefrom = 0.0;
+    Blue3.rangeto = 100.0;
+    Blue3.dimension = "%";
+    Blue3.gamma = 1.0;
+    Blue3.units = SEVIRI_UNIT_REF;
+    natural.Colorvector.append(Blue3);
+
+    rgbrecipes.append(natural);
+
+
+    //******************
+    //Test
+    //******************
+    RGBRecipe test;
+    test.Name = "Test RGB";
+    RGBRecipeColor Red4;
+    RGBRecipeColor Green4;
+    RGBRecipeColor Blue4;
+
+    Red4.channels.append("IR_087");
+    Red4.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_087"));
+    Red4.subtract.append(false);
+    Red4.inverse.append(false);
+    Red4.reflective.append(false);
+    Red4.rangefrom = 0.0;
+    Red4.rangeto = 400.0;
+    Red4.dimension = "K";
+    Red4.gamma = 1.0;
+    Red4.units = SEVIRI_UNIT_BT;
+    test.Colorvector.append(Red4);
+
+    Green4.channels.clear();
+    Green4.channels.append("IR_087");
+    Green4.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_087"));
+    Green4.subtract.append(false);
+    Green4.inverse.append(false);
+    Green4.reflective.append(false);
+    Green4.rangefrom = 0.0;
+    Green4.rangeto = 400.0;
+    Green4.dimension = "K";
+    Green4.gamma = 1.0;
+    Green4.units = SEVIRI_UNIT_BT;
+    test.Colorvector.append(Green4);
+
+    Blue4.channels.clear();
+    Blue4.channels.append("IR_087");
+    Blue4.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_087"));
+    Blue4.subtract.append(false);
+    Blue4.inverse.append(false);
+    Blue4.reflective.append(false);
+    Blue4.rangefrom = 0.0;
+    Blue4.rangeto = 400.0;
+    Blue4.dimension = "K";
+    Blue4.gamma = 1.0;
+    Blue4.units = SEVIRI_UNIT_BT;
+    test.Colorvector.append(Blue4);
+
+    rgbrecipes.append(test);
+
+    int recipe = 0;
+    for(int colorindex = 0; colorindex < 3; colorindex++)
+    {
+        for(int i = 0; i < rgbrecipes[recipe].Colorvector.at(colorindex).channels.length(); i++)
+        {
+            qDebug() << colorindex << " " << rgbrecipes[recipe].Colorvector.at(colorindex).channels.at(i) << " " <<
+                                rgbrecipes[recipe].Colorvector.at(colorindex).spectral_channel_nbr.at(i) << " " <<
+                                rgbrecipes[recipe].Colorvector.at(colorindex).subtract.at(i);
+        }
+    }
+
+
+}
+
+int SegmentImage::GetSpectralChannelNbr(QString channel)
+{
+    //channel.remove(QChar('_'), Qt::CaseInsensitive);
+
+    if(channel == "VIS006")
+        return 1;
+    else if(channel == "VIS008")
+        return 2;
+    else if(channel == "IR_016")
+        return 3;
+    else if(channel == "IR_039")
+        return 4;
+    else if(channel == "WV_062")
+        return 5;
+    else if(channel == "WV_073")
+        return 6;
+    else if(channel == "IR_087")
+        return 7;
+    else if(channel == "IR_097")
+        return 8;
+    else if(channel == "IR_108")
+        return 9;
+    else if(channel == "IR_120")
+        return 10;
+    else if(channel == "IR_134")
+        return 11;
+    else if(channel == "HRV")
+        return 12;
+    else
+        return 0;
 }
 
 void SegmentImage::CalcSatAngles()

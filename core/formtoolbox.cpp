@@ -385,7 +385,10 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->rbNadir->setChecked(true);
     setAllWhatsThis();
 
-    qDebug() << "constructor formtoolbox width = " << this->width();
+    for(int i = 0; i < imageptrs->rgbrecipes.count(); i++ )
+    {
+        QListWidgetItem* item = new QListWidgetItem(imageptrs->rgbrecipes.at(i).Name, ui->lstRGB);
+    }
 
 }
 
@@ -1431,6 +1434,7 @@ void FormToolbox::on_btnOverlayProjectionSG_clicked()
 void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
 {
     qDebug() << "FormToolbox::geostationarysegmentsChosen " << tex;
+
     this->geoindex = geoindex;
     rowchosen = tex;
     ui->lblMeteosatChosen->setText(tex.at(0) + " " + opts.geosatellites.at(geoindex).fullname );
@@ -2099,6 +2103,38 @@ void FormToolbox::on_btnGeoColor_clicked()
         ui->pbProgress->setMaximum(100);
 
     onButtonColorHRV("VIS_IR Color");
+
+}
+
+void FormToolbox::on_btnRecipes_clicked()
+{
+    if(!checkSegmentDateTime())
+        return;
+
+    if(ui->lstRGB->currentRow() == -1)
+        return;
+
+    if(!(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8))
+        return;
+
+    QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
+
+    ui->pbProgress->reset();
+    ui->pbProgress->setMaximum(opts.geosatellites.at(geoindex).maxsegments);
+
+    segs->seglgeo[geoindex]->areatype = 0;
+    segs->seglgeo[geoindex]->setKindofImage("VIS_IR");
+    formimage->setKindOfImage("VIS_IR");
+
+
+    formimage->displayImage(IMAGE_GEOSTATIONARY);
+    formimage->adjustPicSize(true);
+    setToolboxButtons(false);
+
+    emit getrgbrecipe(ui->lstRGB->currentRow());
+
+    QApplication::restoreOverrideCursor(); // restore in FormImage::slotUpdateGeosat()
+
 
 }
 
@@ -5452,3 +5488,5 @@ void FormToolbox::on_cmbHistogramGeo_activated(int index)
 {
 
 }
+
+

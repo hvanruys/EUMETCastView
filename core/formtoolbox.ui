@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -3699,7 +3699,7 @@
       <attribute name="title">
        <string>Geostationary</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_25">
        <item>
         <widget class="QLabel" name="label_4">
          <property name="frameShape">
@@ -5135,6 +5135,46 @@
           </spacer>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame_3">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_16">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QListWidget" name="lstRGB"/>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_103">
+              <item>
+               <widget class="QLabel" name="label_63">
+                <property name="text">
+                 <string>Meteosat/Seviri recipes</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnRecipes">
+                <property name="text">
+                 <string>Make RGB recipe</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <spacer name="verticalSpacer_2">

@@ -12,6 +12,35 @@
 #include "lambertconformalconic.h"
 #include "stereographic.h"
 
+enum seviri_units {
+     SEVIRI_UNIT_CNT,
+     SEVIRI_UNIT_RAD,
+     SEVIRI_UNIT_REF,
+     SEVIRI_UNIT_BRF,
+     SEVIRI_UNIT_BT,
+
+     N_SEVIRI_UNITS
+};
+
+struct RGBRecipeColor {
+    QStringList channels;
+    QList<int> spectral_channel_nbr; // 1 - 12
+    QList<bool> subtract;
+    QList<bool> inverse;
+    QList<bool> reflective;
+    seviri_units units;
+    float rangefrom;
+    float rangeto;
+    QString dimension;
+    float gamma;
+
+};
+
+struct RGBRecipe {
+  QString Name;
+  QVector<RGBRecipeColor> Colorvector;
+};
+
 enum MapReturn
 {
     MAPOK = 0,
@@ -46,6 +75,9 @@ public:
     bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
     void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
     void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine);
+    void SetupRGBrecipes();
+    int GetSpectralChannelNbr(QString channel);
+
 
     QImage *ptrimagecomp_ch[5];
     QImage *ptrimagecomp_col;
@@ -116,6 +148,20 @@ public:
     double fractionGAC[409];
 
     int fillvalue[3];  //used for GOES_16
+
+
+
+    QScopedArrayPointer<double> time;		/* image of Julian Day Number */
+    QScopedArrayPointer<float> lat;		/* image of latitude */
+    QScopedArrayPointer<float> lon;		/* image of longitude */
+    QScopedArrayPointer<float> sza;		/* image of solar zenith angle (degrees: 0.0 -- 180.0) */
+    QScopedArrayPointer<float> saa;		/* image of solar azimuth angle  (degrees: 0.0 -- 360.0) */
+    QScopedArrayPointer<float> vza;		/* image of viewing zenith angle (degrees: 0.0 -- 180.0) */
+    QScopedArrayPointer<float> vaa;		/* image of viewing azimuth angle  (degrees: 0.0 -- 360.0) */
+    QScopedArrayPointer<float> *data;		/* array of pointers to images of length n_bands */
+    QScopedArrayPointer<float> data2;		/* array of image data of length n_bands * n_lines * n_columns */
+
+    QList<RGBRecipe> rgbrecipes;
 
 
 private:
