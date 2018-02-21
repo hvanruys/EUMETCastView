@@ -757,8 +757,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[4].startsegmentnbrhrvtype0 = 0;
     geosatellites[4].startsegmentnbrtype1 = 0;
     geosatellites[4].startsegmentnbrhrvtype1 = 0;
-    geosatellites[4].prologfile = true;
-    geosatellites[4].epilogfile = true;
+    geosatellites[4].prologfile = false;
+    geosatellites[4].epilogfile = false;
     geosatellites[4].coff = 1392;
     geosatellites[4].loff = 1392;
     geosatellites[4].cfac = 586236263.;
@@ -887,9 +887,10 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].longitudelimit2 = 0.0;
     geosatellites[7].protocol = "XRIT";
     geosatellites[7].rss = false;
-    geosatellites[7].searchstring = "L-000-MSG3__-GOES15______";
+//                                  "L-000-MSG4__-GOES15______-03_9_135W-000001___-201802210900-C_"
+    geosatellites[7].searchstring = "L-000-MSG4__-GOES15";
     geosatellites[7].indexsearchstring = 0;
-    geosatellites[7].filepattern = "L-???-??????-GOES15*%1-C_";
+    geosatellites[7].filepattern =  "L-???-??????-GOES15*%1-C_";
     geosatellites[7].imagewidth = 2816;
     geosatellites[7].imageheight = 3248;
     geosatellites[7].imagewidthhrv0 = 0;

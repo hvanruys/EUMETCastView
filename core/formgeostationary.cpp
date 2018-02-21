@@ -1173,11 +1173,14 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
 
 
-        qDebug() << "ForwardScanStart = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
-        //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanStart;
-        qDebug() << "ForwardScanEnd = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_timestring().c_str();
-        //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd;
 
+        if(sl->getGeoSatellite() == eGeoSatellite::MET_11)
+        {
+            qDebug() << "ForwardScanStart = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
+            //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanStart;
+            qDebug() << "ForwardScanEnd = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_timestring().c_str();
+            //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd;
+        }
         //epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_unixtime().get_timestruct()
 
         if(type == "HRV" || type == "HRV Color")

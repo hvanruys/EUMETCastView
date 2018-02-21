@@ -380,9 +380,9 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         //Sequence number is set only for dissemination of the segment files.
 
 
-
         for(int i = 0; i < opts.geosatellites.count(); i++)
         {
+            qDebug() << fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length() ) << "???" << opts.geosatellites.at(i).searchstring;
             if (fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == opts.geosatellites.at(i).searchstring && fileInfo.isFile())
             {
                 //int filenbr = fileInfo.fileName().mid(opts.geosatellites.at(i).indexfilenbrstring, opts.geosatellites.at(i).lengthfilenbrstring).toInt();
@@ -415,7 +415,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                         segmentlistmapgeo[i].insert( strdate, hashspectrum );
                     }
                 }
-                //qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
+//                qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
              }
         }
 
@@ -1127,21 +1127,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
-        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES13" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
-        {
-            QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
-            filedate.setDate(d);
-            QTime t(fileinfo.fileName().mid( 54, 2).toInt(), fileinfo.fileName().mid( 56, 2).toInt(), 0);
-            filedate.setTime(t);
-            if(hoursbefore == 0)
-            {
-                if(d == seldate)
-                    fileok = true;
-            }
-            else if(t.hour() >= 24 - hoursbefore)
-                fileok = true;
-        }
-        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG3__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
+        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG4__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
         {
             QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
             filedate.setDate(d);

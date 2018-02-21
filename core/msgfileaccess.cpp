@@ -157,10 +157,10 @@ QString MsgFileAccess::prologueFile() const
     //"H-000-MSG3__-MSG3________-_________-PRO______-201311050930-__"
      //H-000-MSG3__-MSG3________-_________-PRO______-201802131500-__
     //"L-000-MTP___-MET7________-00_7_057E-PRO______-201404010900-__"
-
+    //"L-000-MSG4__-GOES15______-03_9_135W-PRO______-201802210900-__"
     QString filepattern = resolution
             + "-" "000" "-" + "??????" + "-" // Split to avoid warnings on trigraphs
-            + productid1.leftJustified(12, '?') + "-" + "_________" + "-"
+            + productid1.leftJustified(12, '?') + "-" + "?????????" + "-"
             + "PRO______-"
             + timing
             + "-__";
