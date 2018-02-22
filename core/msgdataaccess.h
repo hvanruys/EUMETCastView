@@ -2,8 +2,6 @@
 #define MSGDATAACCESS_H
 
 #include "msgdataaccess.h"
-//#include <string>
-//#include <vector>
 #include <deque>
 #include <MSG_data_image.h>
 #include <QStringList>

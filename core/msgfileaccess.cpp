@@ -25,7 +25,6 @@ static QString deunderscore(const QString str)
     return str.mid(0, pos + 1);
 }
 
-// dir/res:prodid1:prodid2:time
 bool isValid(const QString filename)
 {
     if (filename.size() < 3) return false;

@@ -31,9 +31,6 @@ public:
     QString epilogueFile() const;
     QStringList segmentFiles() const;
     QStringList globit(QString filepath, QString filepattern) const;
-
-
-
 };
 
 #endif
