@@ -409,7 +409,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br>VIIRS images from SUOMI NPP (M-Band and Day/Night Band)"
     "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A"
     "<br><br><b>Geostationary satellites :</b>"
-    "<br>XRIT from Meteosat-10, Meteosat-9, Meteosat-8"
+    "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-9"
     "<br>Electro L2, FengYun 2E, FengYun 2G"
     "<br>GOES-15, GOES-16 and Himawari-8"
     "<ul>"
