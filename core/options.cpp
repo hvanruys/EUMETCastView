@@ -3,8 +3,7 @@
 
 #include <qsettings.h>
 #include <QDebug>
-
-
+#include <QFile>
 
 Options::Options() 
 {
@@ -255,9 +254,10 @@ void Options::Initialize()
     mainwindowgeometry = settings.value("/window/mainwindowgeometry").toByteArray();
     mainwindowstate = settings.value("/window/mainwindowstate").toByteArray();
 
-    CreateGeoSatelliteIni();
+    InitializeGeo();
 
 }
+
 
 void Options::checkStringListValues()
 {
@@ -522,6 +522,145 @@ void Options::Save()
     settings.setValue("/window/mainwindowgeometry", mainwindowgeometry);
     settings.setValue("/window/mainwindowstate", mainwindowstate);
 
+    SaveGeoIni();
+}
+
+void Options::InitializeGeo()
+{
+    qDebug() << "Options::InitializeGeo()";
+
+    QFile file("GeoSatellites.ini");
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        CreateGeoSatelliteIni();
+        return;
+    }
+
+    file.close();
+
+    QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
+//    obslon = settings.value("/observer/longitude", 0.0 ).toDouble();
+    int size = settingsgeo.beginReadArray("geos");
+    for (int i = 0; i < size; ++i)
+    {
+        settingsgeo.setArrayIndex(i);
+        GeoSatellites geo;
+        geo.fullname = settingsgeo.value("fullname").toString();
+        geo.shortname = settingsgeo.value("shortname").toString();
+        geo.longitude = settingsgeo.value("longitude").toDouble();
+        geo.longitudelimit1 = settingsgeo.value("longitudelimit1").toDouble();
+        geo.longitudelimit2 = settingsgeo.value("longitudelimit2").toDouble();
+        geo.protocol = settingsgeo.value("protocol").toString();
+        geo.rss = settingsgeo.value("rss").toBool();
+        geo.searchstring = settingsgeo.value("searchstring").toString();
+        geo.indexsearchstring = settingsgeo.value("indexsearchstring").toInt();
+        geo.filepattern = settingsgeo.value("filepattern").toString();
+        geo.imagewidth = settingsgeo.value("imagewidth").toInt();
+        geo.imageheight = settingsgeo.value("imageheight").toInt();
+        geo.imagewidthhrv0 = settingsgeo.value("imagewidthhrv0").toInt();
+        geo.imageheighthrv0 = settingsgeo.value("imageheighthrv0").toInt();
+        geo.imagewidthhrv1 = settingsgeo.value("imagewidthhrv1").toInt();
+        geo.imageheighthrv1 = settingsgeo.value("imageheighthrv1").toInt();
+        geo.spectrumlist = settingsgeo.value("spectrumlist").toStringList();
+        geo.spectrumvalueslist = settingsgeo.value("spectrumvalueslist").toStringList();
+        geo.indexspectrum = settingsgeo.value("indexspectrum").toInt();
+        geo.indexfilenbr = settingsgeo.value("indexfilenbr").toInt();
+        geo.lengthfilenbr = settingsgeo.value("lengthfilenbr").toInt();
+        geo.indexdate = settingsgeo.value("indexdate").toInt();
+        geo.lengthdate = settingsgeo.value("lengthdate").toInt();
+        geo.spectrumhrv = settingsgeo.value("spectrumhrv").toString();
+        geo.spectrumvaluehrv = settingsgeo.value("spectrumvaluehrv").toString();
+        geo.indexspectrumhrv = settingsgeo.value("indexspectrumhrv").toInt();
+        geo.indexfilenbrhrv = settingsgeo.value("indexfilenbrhrv").toInt();
+        geo.lengthfilenbrhrv = settingsgeo.value("lengthfilenbrhrv").toInt();
+        geo.indexdatehrv = settingsgeo.value("indexdatehrv").toInt();
+        geo.lengthdatehrv = settingsgeo.value("lengthdatehrv").toInt();
+
+        geo.color = settingsgeo.value("color").toBool();
+        geo.maxsegments = settingsgeo.value("maxsegments").toInt();
+        geo.maxsegmentshrv = settingsgeo.value("maxsegmentshrv").toInt();
+        geo.startsegmentnbrtype0 = settingsgeo.value("startsegmenttype0").toInt();
+        geo.startsegmentnbrhrvtype0 = settingsgeo.value("startsegmenthrvtype0").toInt();
+        geo.startsegmentnbrtype1 = settingsgeo.value("startsegmenttype1").toInt();
+        geo.startsegmentnbrhrvtype1 = settingsgeo.value("startsegmenthrvtype1").toInt();
+
+        geo.prologfile = settingsgeo.value("prologfile").toBool();
+        geo.epilogfile = settingsgeo.value("epilogfile").toBool();
+        geo.coff = settingsgeo.value("coff").toLongLong();
+        geo.loff = settingsgeo.value("loff").toLongLong();
+        geo.cfac = settingsgeo.value("cfac").toDouble();
+        geo.lfac = settingsgeo.value("lfac").toDouble();
+        geo.coffhrv = settingsgeo.value("coffhrv").toLongLong();
+        geo.loffhrv = settingsgeo.value("loffhrv").toLongLong();
+        geo.cfachrv = settingsgeo.value("cfachrv").toDouble();
+        geo.lfachrv = settingsgeo.value("lfachrv").toDouble();
+
+        geosatellites.append(geo);
+    }
+    settingsgeo.endArray();
+
+}
+
+void Options::SaveGeoIni()
+{
+    qDebug() << "Options::SaveGeoIni()";
+    QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
+
+    settingsgeo.beginWriteArray("geos");
+    for (int i = 0; i < this->geosatellites.size(); ++i) {
+        settingsgeo.setArrayIndex(i);
+        settingsgeo.setValue("fullname", geosatellites.at(i).fullname);
+        settingsgeo.setValue("shortname", geosatellites.at(i).shortname);
+        settingsgeo.setValue("longitude", geosatellites.at(i).longitude);
+        settingsgeo.setValue("longitudelimit1", geosatellites.at(i).longitudelimit1);
+        settingsgeo.setValue("longitudelimit2", geosatellites.at(i).longitudelimit2);
+        settingsgeo.setValue("protocol", geosatellites.at(i).protocol);
+        settingsgeo.setValue("rss", geosatellites.at(i).rss);
+        settingsgeo.setValue("searchstring", geosatellites.at(i).searchstring);
+        settingsgeo.setValue("indexsearchstring", geosatellites.at(i).indexsearchstring);
+        settingsgeo.setValue("filepattern", geosatellites.at(i).filepattern);
+        settingsgeo.setValue("imagewidth", geosatellites.at(i).imagewidth);
+        settingsgeo.setValue("imageheight", geosatellites.at(i).imageheight);
+        settingsgeo.setValue("imagewidthhrv0", geosatellites.at(i).imagewidthhrv0);
+        settingsgeo.setValue("imageheighthrv0", geosatellites.at(i).imageheighthrv0);
+        settingsgeo.setValue("imagewidthhrv1", geosatellites.at(i).imagewidthhrv1);
+        settingsgeo.setValue("imageheighthrv1", geosatellites.at(i).imageheighthrv1);
+        settingsgeo.setValue("spectrumlist", geosatellites.at(i).spectrumlist);
+        settingsgeo.setValue("spectrumvalueslist", geosatellites.at(i).spectrumvalueslist);
+        settingsgeo.setValue("indexspectrum", geosatellites.at(i).indexspectrum);
+        settingsgeo.setValue("indexfilenbr", geosatellites.at(i).indexfilenbr);
+        settingsgeo.setValue("lengthfilenbr", geosatellites.at(i).lengthfilenbr);
+        settingsgeo.setValue("indexdate", geosatellites.at(i).indexdate);
+        settingsgeo.setValue("lengthdate", geosatellites.at(i).lengthdate);
+        settingsgeo.setValue("spectrumhrv", geosatellites.at(i).spectrumhrv);
+        settingsgeo.setValue("spectrumvaluehrv", geosatellites.at(i).spectrumvaluehrv);
+        settingsgeo.setValue("indexspectrumhrv", geosatellites.at(i).indexspectrumhrv);
+        settingsgeo.setValue("indexfilenbrhrv", geosatellites.at(i).indexfilenbrhrv);
+        settingsgeo.setValue("lengthfilenbrhrv", geosatellites.at(i).lengthfilenbrhrv);
+        settingsgeo.setValue("indexdatehrv", geosatellites.at(i).indexdatehrv);
+        settingsgeo.setValue("lengthdatehrv", geosatellites.at(i).lengthdatehrv);
+
+        settingsgeo.setValue("color", geosatellites.at(i).color);
+        settingsgeo.setValue("maxsegments", geosatellites.at(i).maxsegments);
+        settingsgeo.setValue("maxsegmentshrv", geosatellites.at(i).maxsegmentshrv);
+        settingsgeo.setValue("startsegmenttype0", geosatellites.at(i).startsegmentnbrtype0);
+        settingsgeo.setValue("startsegmenthrvtype0", geosatellites.at(i).startsegmentnbrhrvtype0);
+        settingsgeo.setValue("startsegmenttype1", geosatellites.at(i).startsegmentnbrtype1);
+        settingsgeo.setValue("startsegmenthrvtype1", geosatellites.at(i).startsegmentnbrhrvtype1);
+
+        settingsgeo.setValue("prologfile", geosatellites.at(i).prologfile);
+        settingsgeo.setValue("epilogfile", geosatellites.at(i).epilogfile);
+        settingsgeo.setValue("coff", geosatellites.at(i).coff);
+        settingsgeo.setValue("loff", geosatellites.at(i).loff);
+        settingsgeo.setValue("cfac", geosatellites.at(i).cfac);
+        settingsgeo.setValue("lfac", geosatellites.at(i).lfac);
+        settingsgeo.setValue("coffhrv", geosatellites.at(i).coffhrv);
+        settingsgeo.setValue("loffhrv", geosatellites.at(i).loffhrv);
+        settingsgeo.setValue("cfachrv", geosatellites.at(i).cfachrv);
+        settingsgeo.setValue("lfachrv", geosatellites.at(i).lfachrv);
+
+    }
+    settingsgeo.endArray();
 }
 
 void Options::CreateGeoSatelliteIni()
@@ -726,7 +865,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[4].longitudelimit2 = 0.0;
     geosatellites[4].protocol = "XRIT";
     geosatellites[4].rss = false;
-    geosatellites[4].searchstring = "H-000-GOMS2_-GOMS2_4_____";
+    geosatellites[4].searchstring = "H-000-GOMS2_-GOMS2_4";
     geosatellites[4].indexsearchstring = 0;
     geosatellites[4].filepattern = "H-???-??????-?????????___-?????????-0?????___-%1-C_";
     geosatellites[4].imagewidth = 2784;
@@ -767,8 +906,6 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[4].loffhrv = 0;
     geosatellites[4].cfachrv = 0.;
     geosatellites[4].lfachrv = 0.;
-
-
 
     geosatellites[4].spectrumlist << "00_9_0" << "03_8_0" << "08_0_0" << "09_7_0" << "10_7_0" << "11_9_0";
     geosatellites[4].spectrumvalueslist << "VIS 0.9" << "IR 3.8" << "IR 8.0" << "IR 9.7" << "IR 10.7" << "IR 11.9";

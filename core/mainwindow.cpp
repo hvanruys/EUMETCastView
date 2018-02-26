@@ -208,44 +208,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 }
 
-//void MainWindow::LoadXMLfromDatahub()
-//{
-
-//    QObject::connect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::XMLfileDownloaded);
-//    eDatahub hub;
-//    if(opts.provideresaoreumetsat)
-//        hub = HUBESA;
-//    else
-//        hub = HUBEUMETSAT;
-//    hubmanager.DownloadXML(opts.nbrofpagestodownload, hub);
-//}
-
-//void MainWindow::OLCIfileDownloaded(QString instrumentshortname)
-//{
-//    qDebug() << "XML file " << instrumentshortname << " created";
-//    QObject::disconnect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::OLCIfileDownloaded);
-//    QObject::connect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::SLSTRfileDownloaded);
-//    eDatahub hub;
-//    if(opts.provideresaoreumetsat)
-//        hub = HUBESA;
-//    else
-//        hub = HUBEUMETSAT;
-//    hubmanager.DownloadXML("SLSTR", opts.nbrofpagestodownload, hub);
-//}
-
-//void MainWindow::SLSTRfileDownloaded(QString instrumentshortname)
-//{
-//    qDebug() << "XML file " << instrumentshortname << " created";
-//    QObject::disconnect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::SLSTRfileDownloaded);
-//}
-
-//void MainWindow::XMLfileDownloaded()
-//{
-//    qDebug() << "XML file created";
-//    QObject::disconnect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &MainWindow::XMLfileDownloaded);
-
-//}
-
 void MainWindow::slotSwitchStackedWindow(int ind)
 {
     qDebug() << QString("MainWindow::slotSwitchStackedWindow ind = %1").arg(ind);
@@ -563,16 +525,6 @@ void MainWindow::on_actionShowToolbox_triggered()
         dockwidget->hide();
 
 }
-
-//void MainWindow::on_actionCreatePNG_triggered()
-//{
-
-//    DialogSaveImage *fd = new DialogSaveImage();
-//    fd->addCheckBoxIn();
-//    fd->show();
-//    connect(fd, SIGNAL(fileSelected(QString)), fd, SLOT(slotFile(QString)));
-//}
-
 
 void MainWindow::on_actionCreatePNG_triggered()
 {

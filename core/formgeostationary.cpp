@@ -202,7 +202,6 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
     widget = geotreewidgetlist.at(geoindex);
 
     QStringList strlist;
-    //QString strnbrlist;
     QString strspectrumlist;
     QList<QTreeWidgetItem *> items;
 
@@ -211,102 +210,22 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
     QString strspectrum;
     QString filenbr;
     QColor col;
-    int cnt_hrv = 0;
-    int cnt_ir016 = 0;
-    int cnt_ir039 = 0;
-    int cnt_ir087 = 0;
-    int cnt_ir097 = 0;
-    int cnt_ir108 = 0;
-    int cnt_ir120 = 0;
-    int cnt_ir134 = 0;
-    int cnt_vis006 = 0;
-    int cnt_vis008 = 0;
-    int cnt_wv062 = 0;
-    int cnt_wv073 = 0;
-    int cnt_IR1 = 0;
-    int cnt_IR2 = 0;
-    int cnt_IR3 = 0;
-    int cnt_IR4 = 0;
-    int cnt_VIS = 0;
-    int cnt_VIS1KM = 0;
-    int cnt_B04 = 0;
-    int cnt_B05 = 0;
-    int cnt_B06 = 0;
-    int cnt_B09 = 0;
-    int cnt_B10 = 0;
-    int cnt_B11 = 0;
-    int cnt_B12 = 0;
-    int cnt_B14 = 0;
-    int cnt_B16 = 0;
 
-    int cnt_C01 = 0;
-    int cnt_C02 = 0;
-    int cnt_C03 = 0;
-    int cnt_C04 = 0;
-    int cnt_C05 = 0;
-    int cnt_C06 = 0;
-    int cnt_C07 = 0;
-    int cnt_C08 = 0;
-    int cnt_C09 = 0;
-    int cnt_C10 = 0;
-    int cnt_C11 = 0;
-    int cnt_C12 = 0;
-    int cnt_C13 = 0;
-    int cnt_C14 = 0;
-    int cnt_C15 = 0;
-    int cnt_C16 = 0;
+    int nbr_spectrum = opts.geosatellites.at(geoindex).spectrumlist.count();
+    if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
+        nbr_spectrum++;
+
+    QVector<int> cnt_spectrum(nbr_spectrum);
+
 
     widget->clear();
 
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > >::const_iterator citdate = map.constBegin();
 
-     while (citdate != map.constEnd())
+    while (citdate != map.constEnd())
     {
-        cnt_hrv = 0;
-        cnt_ir016 = 0;
-        cnt_ir039 = 0;
-        cnt_ir087 = 0;
-        cnt_ir097 = 0;
-        cnt_ir108 = 0;
-        cnt_ir120 = 0;
-        cnt_ir134 = 0;
-        cnt_vis006 = 0;
-        cnt_vis008 = 0;
-        cnt_wv062 = 0;
-        cnt_wv073 = 0;
-        cnt_IR1 = 0;
-        cnt_IR2 = 0;
-        cnt_IR3 = 0;
-        cnt_IR4 = 0;
-        cnt_VIS = 0;
-        cnt_VIS1KM = 0;
-        cnt_B04 = 0;
-        cnt_B05 = 0;
-        cnt_B06 = 0;
-        cnt_B09 = 0;
-        cnt_B10 = 0;
-        cnt_B11 = 0;
-        cnt_B12 = 0;
-        cnt_B14 = 0;
-        cnt_B16 = 0;
-
-        cnt_C01 = 0;
-        cnt_C02 = 0;
-        cnt_C03 = 0;
-        cnt_C04 = 0;
-        cnt_C05 = 0;
-        cnt_C06 = 0;
-        cnt_C07 = 0;
-        cnt_C08 = 0;
-        cnt_C09 = 0;
-        cnt_C10 = 0;
-        cnt_C11 = 0;
-        cnt_C12 = 0;
-        cnt_C13 = 0;
-        cnt_C14 = 0;
-        cnt_C15 = 0;
-        cnt_C16 = 0;
-
+         for(int i = 0; i < nbr_spectrum; i++)
+             cnt_spectrum[i] = 0;
 
 
         strlist.clear();
@@ -318,157 +237,6 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
         while (citspectrum != mapspectrum.constEnd())
         {
             strspectrum = citspectrum.key();
-            //MET-10, MET-9
-            if (strspectrum == "HRV")
-                strspectrumlist += "H";
-            else if (strspectrum == "IR_016")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR_039")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR_087")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR_097")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR_108")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR_120")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR_134")
-                strspectrumlist += "I";
-            else if (strspectrum == "VIS006")
-                strspectrumlist += "V";
-            else if (strspectrum == "VIS008")
-                strspectrumlist += "V";
-            else if (strspectrum == "WV_062")
-                strspectrumlist += "W";
-            else if (strspectrum == "WV_073")
-                strspectrumlist += "W";
-            //MET-7
-            else if (strspectrum == "00_7_0")
-                strspectrumlist += "V";
-            else if (strspectrum == "06_4_0")
-                strspectrumlist += "I";
-            else if (strspectrum == "11_5_0")
-                strspectrumlist += "W";
-            // Electro
-            else if (strspectrum == "00_9_0")
-                strspectrumlist += "V";
-            else if (strspectrum == "03_8_0")
-                strspectrumlist += "I";
-            else if (strspectrum == "08_0_0")
-                strspectrumlist += "I";
-            else if (strspectrum == "09_7_0")
-                strspectrumlist += "I";
-            else if (strspectrum == "10_7_0")
-                strspectrumlist += "I";
-            else if (strspectrum == "11_9_0")
-                strspectrumlist += "I";
-            // GOES13
-            else if (strspectrum == "00_7_0")
-                strspectrumlist += "V";
-            else if (strspectrum == "03_9_0")
-                strspectrumlist += "I";
-            else if (strspectrum == "06_6_0")
-                strspectrumlist += "I";
-            else if (strspectrum == "10_7_0")
-                strspectrumlist += "I";
-            // GOES15
-            else if (strspectrum == "00_7_1")
-                strspectrumlist += "V";
-            else if (strspectrum == "03_9_1")
-                strspectrumlist += "I";
-            else if (strspectrum == "06_6_1")
-                strspectrumlist += "I";
-            else if (strspectrum == "10_7_1")
-                strspectrumlist += "I";
-            // MTSAT
-            else if (strspectrum == "00_7_1")
-                strspectrumlist += "V";
-            else if (strspectrum == "03_8_1")
-                strspectrumlist += "I";
-            else if (strspectrum == "06_8_1")
-                strspectrumlist += "I";
-            else if (strspectrum == "10_8_1")
-                strspectrumlist += "I";
-            else if (strspectrum == "12_0_1")
-                strspectrumlist += "I";
-            // FengYun
-            else if (strspectrum == "IR1")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR2")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR3")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR4")
-                strspectrumlist += "I";
-            else if (strspectrum == "VIS")
-                strspectrumlist += "V";
-            else if (strspectrum == "VIS1KM")
-                strspectrumlist += "V";
-            // Himawari-8
-            else if (strspectrum == "IR1")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR2")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR3")
-                strspectrumlist += "I";
-            else if (strspectrum == "IR4")
-                strspectrumlist += "I";
-            else if (strspectrum == "B04")
-                strspectrumlist += "B";
-            else if (strspectrum == "B05")
-                strspectrumlist += "B";
-            else if (strspectrum == "B06")
-                strspectrumlist += "B";
-            else if (strspectrum == "B09")
-                strspectrumlist += "B";
-            else if (strspectrum == "B10")
-                strspectrumlist += "B";
-            else if (strspectrum == "B11")
-                strspectrumlist += "B";
-            else if (strspectrum == "B12")
-                strspectrumlist += "B";
-            else if (strspectrum == "B14")
-                strspectrumlist += "B";
-            else if (strspectrum == "B16")
-                strspectrumlist += "B";
-            else if (strspectrum == "VIS")
-                strspectrumlist += "V";
-            //GOES-16
-            else if (strspectrum == "C01")
-                strspectrumlist += "V";
-            else if (strspectrum == "C02")
-                strspectrumlist += "V";
-            else if (strspectrum == "C03")
-                strspectrumlist += "I";
-            else if (strspectrum == "C04")
-                strspectrumlist += "I";
-            else if (strspectrum == "C05")
-                strspectrumlist += "I";
-            else if (strspectrum == "C06")
-                strspectrumlist += "I";
-            else if (strspectrum == "C07")
-                strspectrumlist += "I";
-            else if (strspectrum == "C08")
-                strspectrumlist += "I";
-            else if (strspectrum == "C09")
-                strspectrumlist += "I";
-            else if (strspectrum == "C10")
-                strspectrumlist += "I";
-            else if (strspectrum == "C11")
-                strspectrumlist += "I";
-            else if (strspectrum == "C12")
-                strspectrumlist += "I";
-            else if (strspectrum == "C13")
-                strspectrumlist += "I";
-            else if (strspectrum == "C14")
-                strspectrumlist += "I";
-            else if (strspectrum == "C15")
-                strspectrumlist += "I";
-            else if (strspectrum == "C16")
-                strspectrumlist += "I";
-
-
 
             QMap< int, QFileInfo > mapfile;
             mapfile = mapspectrum.value(strspectrum);
@@ -480,286 +248,88 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
                 filenbr = citfile.key();
                 //strnbrlist.append(filenbr);
                 // MET-10, MET-9, MET-8
-                if (strspectrum == "HRV")
-                    cnt_hrv++;
-                else if (strspectrum == "IR_016")
-                    cnt_ir016++;
-                else if (strspectrum == "IR_039")
-                    cnt_ir039++;
-                else if (strspectrum == "IR_087")
-                    cnt_ir087++;
-                else if (strspectrum == "IR_097")
-                    cnt_ir097++;
-                else if (strspectrum == "IR_108")
-                    cnt_ir108++;
-                else if (strspectrum == "IR_120")
-                    cnt_ir120++;
-                else if (strspectrum == "IR_134")
-                    cnt_ir134++;
-                else if (strspectrum == "VIS006")
-                    cnt_vis006++;
-                else if (strspectrum == "VIS008")
-                    cnt_vis008++;
-                else if (strspectrum == "WV_062")
-                    cnt_wv062++;
-                else if (strspectrum == "WV_073")
-                    cnt_wv073++;
-                //MET-7
-                else if (strspectrum == "00_7_0")
-                    cnt_vis008++;
-                else if (strspectrum == "06_4_0")
-                    cnt_wv062++;
-                else if (strspectrum == "11_5_0")
-                    cnt_ir108++;
-                // GOES13
-                else if (strspectrum == "00_7")
-                    cnt_vis008++;
-                else if (strspectrum == "03_9")
-                    cnt_ir039++;
-                else if (strspectrum == "06_6")
-                    cnt_ir087++;
-                else if (strspectrum == "10_7")
-                    cnt_ir108++;
-                // GOES15
-                else if (strspectrum == "00_7")
-                    cnt_vis008++;
-                else if (strspectrum == "03_9")
-                    cnt_ir039++;
-                else if (strspectrum == "06_6")
-                    cnt_ir087++;
-                else if (strspectrum == "10_7")
-                    cnt_ir108++;
-                // GOES16
-                else if (strspectrum == "C01")
-                    cnt_C01++;
-                else if (strspectrum == "C02")
-                    cnt_C02++;
-                else if (strspectrum == "C03")
-                    cnt_C03++;
-                else if (strspectrum == "C04")
-                    cnt_C04++;
-                else if (strspectrum == "C05")
-                    cnt_C05++;
-                else if (strspectrum == "C06")
-                    cnt_C06++;
-                else if (strspectrum == "C07")
-                    cnt_C07++;
-                else if (strspectrum == "C08")
-                    cnt_C08++;
-                else if (strspectrum == "C09")
-                    cnt_C09++;
-                else if (strspectrum == "C10")
-                    cnt_C10++;
-                else if (strspectrum == "C11")
-                    cnt_C11++;
-                else if (strspectrum == "C12")
-                    cnt_C12++;
-                else if (strspectrum == "C13")
-                    cnt_C13++;
-                else if (strspectrum == "C14")
-                    cnt_C14++;
-                else if (strspectrum == "C15")
-                    cnt_C15++;
-                else if (strspectrum == "C16")
-                    cnt_C16++;
-                // GOMS2
-                else if (strspectrum == "00_9_0")
-                    cnt_vis008++;
-                else if (strspectrum == "03_8_0")
-                    cnt_ir039++;
-                else if (strspectrum == "08_0_0")
-                    cnt_ir087++;
-                else if (strspectrum == "09_7_0")
-                    cnt_ir097++;
-                else if (strspectrum == "10_7_0")
-                    cnt_ir108++;
-                else if (strspectrum == "11_9_0")
-                    cnt_ir120++;
 
-                // FengYun
-                else if (strspectrum == "IR1")
-                    cnt_IR1++;
-                else if (strspectrum == "IR2")
-                    cnt_IR2++;
-                else if (strspectrum == "IR3")
-                    cnt_IR3++;
-                else if (strspectrum == "IR4")
-                    cnt_IR4++;
-                else if (strspectrum == "VIS")
-                    cnt_VIS++;
-                else if (strspectrum == "VIS1KM")
-                    cnt_VIS1KM++;
-                // Himawari
-                else if (strspectrum == "IR1")
-                    cnt_IR1++;
-                else if (strspectrum == "IR2")
-                    cnt_IR2++;
-                else if (strspectrum == "IR3")
-                    cnt_IR3++;
-                else if (strspectrum == "IR4")
-                    cnt_IR4++;
-                else if (strspectrum == "B04")
-                    cnt_B04++;
-                else if (strspectrum == "B05")
-                    cnt_B05++;
-                else if (strspectrum == "B06")
-                    cnt_B06++;
-                else if (strspectrum == "B09")
-                    cnt_B09++;
-                else if (strspectrum == "B10")
-                    cnt_B10++;
-                else if (strspectrum == "B11")
-                    cnt_B11++;
-                else if (strspectrum == "B12")
-                    cnt_B12++;
-                else if (strspectrum == "B14")
-                    cnt_B14++;
-                else if (strspectrum == "B16")
-                    cnt_B16++;
-                else if (strspectrum == "VIS")
-                    cnt_VIS++;
-
-
-
+                if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
+                {
+                    if(strspectrum == opts.geosatellites.at(geoindex).spectrumhrv)
+                        cnt_spectrum[0]++;
+                    for(int i = 1; i < nbr_spectrum ; i++)
+                    {
+                         if(strspectrum == opts.geosatellites.at(geoindex).spectrumlist.at(i-1))
+                            cnt_spectrum[i]++;
+                    }
+                }
+                else
+                {
+                    for(int i = 0; i < nbr_spectrum; i++)
+                    {
+                        if(strspectrum == opts.geosatellites.at(geoindex).spectrumlist.at(i))
+                            cnt_spectrum[i]++;
+                    }
+                }
 
                 ++citfile;
             }
-            ++citspectrum;
 
+
+            ++citspectrum;
         }
 
         strlist.clear();
-        //strnbrlist = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12").arg(cnt_hrv).arg(cnt_ir016).arg(cnt_ir039).arg(cnt_ir087).arg(cnt_ir097).arg(cnt_ir108).
-        //        arg(cnt_ir120).arg(cnt_ir134).arg(cnt_vis006).arg(cnt_vis008).arg(cnt_wv062).arg(cnt_wv073);
 
-        if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
+        strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist;
+        for(int i = 0; i < nbr_spectrum; i++)
         {
-            strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
-                   QString("%1").arg(cnt_hrv) << QString("%1").arg(cnt_vis006) << QString("%1").arg(cnt_vis008) <<  QString("%1").arg(cnt_ir016) << QString("%1").arg(cnt_ir039) <<
-                   QString("%1").arg(cnt_wv062) << QString("%1").arg(cnt_wv073) << QString("%1").arg(cnt_ir087) << QString("%1").arg(cnt_ir097) <<
-                   QString("%1").arg(cnt_ir108) << QString("%1").arg(cnt_ir120) << QString("%1").arg(cnt_ir134);
-        }
-        else if(geoindex == (int)eGeoSatellite::GOMS2)
-        {
-            strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
-                   QString("%1").arg(cnt_vis008) << QString("%1").arg(cnt_ir039) << QString("%1").arg(cnt_ir087) << QString("%1").arg(cnt_ir097) << QString("%1").arg(cnt_ir108) << QString("%1").arg(cnt_ir120);
-        }
-        else if(geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
-        {
-            strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
-                   QString("%1").arg(cnt_VIS1KM) << QString("%1").arg(cnt_VIS) << QString("%1").arg(cnt_IR4) << QString("%1").arg(cnt_IR3) << QString("%1").arg(cnt_IR1) << QString("%1").arg(cnt_IR2);
-
-        }
-        else if(geoindex == (int)eGeoSatellite::GOES_15)
-        {
-            strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
-                   QString("%1").arg(cnt_vis008) << QString("%1").arg(cnt_ir039) << QString("%1").arg(cnt_ir087) << QString("%1").arg(cnt_ir108);
-        }
-        else if(geoindex == (int)eGeoSatellite::GOES_16)
-        {
-            // GOES-16
-//            int yyyy = strdate.mid(0, 4).toInt();
-//            int day = strdate.mid(4, 3).toInt();
-//            QDate now(yyyy, 1, 1);
-//            QDate newnow = now.addDays(day - 1);
-
-//            strlist << strdate.mid(0,4) + "-" + QString("%1").arg(newnow.month()).rightJustified(2, '0') + "-" + QString("%1").arg(newnow.day()).rightJustified(2, '0') + "   " + strdate.mid(7,2) + ":" + strdate.mid(9, 2) << strspectrumlist <<
-            strlist << strdate.mid(0, 4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8, 2) + ":" + strdate.mid(10, 2) << strspectrumlist <<
-                   QString("%1").arg(cnt_C01) << QString("%1").arg(cnt_C02) << QString("%1").arg(cnt_C03) << QString("%1").arg(cnt_C04) <<
-                   QString("%1").arg(cnt_C05) << QString("%1").arg(cnt_C06) << QString("%1").arg(cnt_C07) << QString("%1").arg(cnt_C08) <<
-                   QString("%1").arg(cnt_C09) << QString("%1").arg(cnt_C10) << QString("%1").arg(cnt_C11) << QString("%1").arg(cnt_C12) <<
-                   QString("%1").arg(cnt_C13) << QString("%1").arg(cnt_C14) << QString("%1").arg(cnt_C15) << QString("%1").arg(cnt_C16);
-        }
-        else if(geoindex == (int)eGeoSatellite::H8)
-        {
-            strlist << strdate.mid(0,4) + "-" + strdate.mid(4, 2) + "-" + strdate.mid(6, 2) + "   " + strdate.mid(8,2) + ":" + strdate.mid(10, 1) + "0" << strspectrumlist <<
-                   QString("%1").arg(cnt_IR1) << QString("%1").arg(cnt_IR2) << QString("%1").arg(cnt_IR3) << QString("%1").arg(cnt_IR4)
-                       << QString("%1").arg(cnt_B04) << QString("%1").arg(cnt_B05) << QString("%1").arg(cnt_B06) << QString("%1").arg(cnt_B09) << QString("%1").arg(cnt_B10) << QString("%1").arg(cnt_B11)
-                       << QString("%1").arg(cnt_B12) << QString("%1").arg(cnt_B14) << QString("%1").arg(cnt_B16) << QString("%1").arg(cnt_VIS);
+            strlist << QString("%1").arg(cnt_spectrum.at(i));
         }
 
         newitem = new QTreeWidgetItem( widget, strlist, 0  );
-        if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
+
+        bool spectrumok = true;
+
+        if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
         {
-            if (cnt_hrv == 24 && cnt_ir016 == 8 && cnt_ir039 == 8 && cnt_ir087 == 8 && cnt_ir097 == 8 && cnt_ir108 == 8 && cnt_ir120 == 8 && cnt_ir134 == 8 && cnt_vis006 == 8
-                && cnt_vis008 == 8 && cnt_wv062 == 8 && cnt_wv073 == 8)
-                col.setRgb(174, 225, 184);
+            if(cnt_spectrum[0] != opts.geosatellites.at(geoindex).maxsegmentshrv)
+            {
+                spectrumok = false;
+            }
             else
-                col.setRgb(225, 171, 196);
+            {
+                for(int i = 1; i < nbr_spectrum ; i++)
+                {
+                    if(cnt_spectrum[i] != opts.geosatellites.at(geoindex).maxsegments)
+                    {
+                        spectrumok = false;
+                        break;
+                    }
+                }
+            }
         }
-        else if(geoindex == (int)eGeoSatellite::MET_9)
+        else
         {
-            if (cnt_hrv == 9 && cnt_ir016 == 3 && cnt_ir039 == 3 && cnt_ir087 == 3 && cnt_ir097 == 3 && cnt_ir108 == 3 && cnt_ir120 == 3 && cnt_ir134 == 3 && cnt_vis006 == 3
-                && cnt_vis008 == 3 && cnt_wv062 == 3 && cnt_wv073 == 3)
-                col.setRgb(174, 225, 184);
-            else
-                col.setRgb(225, 171, 196);
+            for(int i = 0; i < nbr_spectrum ; i++)
+            {
+                if(cnt_spectrum[i] != opts.geosatellites.at(geoindex).maxsegments)
+                {
+                    spectrumok = false;
+                    break;
+                }
+            }
         }
-        else if (geoindex == (int)eGeoSatellite::GOMS2)
-        {
-            if (cnt_vis008 == 6 && cnt_ir039 == 6 && cnt_ir087 == 6 && cnt_ir097 == 6 && cnt_ir108 == 6 && cnt_ir120 == 6 )
-                col.setRgb(174, 225, 184);
-            else
-                col.setRgb(225, 171, 196);
-        }
-        else if (geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
-        {
-            if (cnt_IR1 == 1 && cnt_IR2 == 1 && cnt_IR3 == 1 && cnt_IR4 == 1 && cnt_VIS == 1 && cnt_VIS1KM == 1)
-                col.setRgb(174, 225, 184);
-            else
-                col.setRgb(225, 171, 196);
-        }
-        else if (geoindex == (int)eGeoSatellite::GOES_15)
-        {
-            if (cnt_vis008 == 7 && cnt_ir039 == 7 && cnt_ir087 == 7 && cnt_ir108 == 7 )
-                col.setRgb(174, 225, 184);
-            else
-                col.setRgb(225, 171, 196);
-        }
-        else if (geoindex == (int)eGeoSatellite::GOES_16)
-        {
-            if (cnt_C02 == 1 && cnt_C03 == 1 && cnt_C04 == 1 && cnt_C05 == 1 && cnt_C06 == 1 && cnt_C07 == 1 &&
-                cnt_C08 == 1 && cnt_C09 == 1 && cnt_C10 == 1 && cnt_C11 == 1 && cnt_C12 == 1 && cnt_C13 == 1 && cnt_C14 == 1 &&
-                cnt_C15 == 1 && cnt_C16 == 1 )
-                col.setRgb(174, 225, 184);
-            else
-                col.setRgb(225, 171, 196);
-        }
-        else if (geoindex == (int)eGeoSatellite::H8)
-        {
-            if (cnt_IR1 == 10 && cnt_IR2 == 10 && cnt_IR3 == 10 && cnt_IR4 == 10 && cnt_VIS == 10
-                    && cnt_B04 == 10 && cnt_B05 == 10 && cnt_B06 == 10 && cnt_B09 == 10 && cnt_B10 == 10 && cnt_B11 == 10 && cnt_B12 == 10 && cnt_B14 == 10 && cnt_B16 == 10)
-                col.setRgb(174, 225, 184);
-            else
-                col.setRgb(225, 171, 196);
-        }
+        if(spectrumok)
+            col.setRgb(174, 225, 184);
+        else
+            col.setRgb(225, 171, 196);
 
 
-        newitem->setBackgroundColor( 0, col );
-        newitem->setBackgroundColor( 1, col );
-        newitem->setBackgroundColor( 2, col );
-        newitem->setBackgroundColor( 3, col );
-        newitem->setBackgroundColor( 4, col );
-        newitem->setBackgroundColor( 5, col );
-        newitem->setBackgroundColor( 6, col );
-        newitem->setBackgroundColor( 7, col );
-        newitem->setBackgroundColor( 8, col );
-        newitem->setBackgroundColor( 9, col );
-        newitem->setBackgroundColor( 10, col );
-        newitem->setBackgroundColor( 11, col );
-        newitem->setBackgroundColor( 12, col );
-        newitem->setBackgroundColor( 13, col );
-        newitem->setBackgroundColor( 14, col );
-        newitem->setBackgroundColor( 15, col );
-        newitem->setBackgroundColor( 16, col );
-        newitem->setBackgroundColor( 17, col );
+        for(int i = 0; i < 18; i++)
+            newitem->setBackgroundColor( i, col );
 
         ++citdate;
     }
 
 
 }
-
 
 FormGeostationary::~FormGeostationary()
 {
@@ -1039,100 +609,6 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                         sl->WestColumnActual = 1;
                         sl->SouthLineActual = 1;
                     }
-
-//                    qDebug()<< epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
-//                    double JD_start = epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_jtime();
-//                    double JD_end = epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_jtime();
-
-//                    double jtime = (JD_start + JD_end) / 2.;
-
-//                    struct tm cdate;
-//                    Calendar_Date(jtime, &cdate);
-//                    double day_of_year = jtime - (QSgp4Date::DateToJD(cdate.tm_year, 1, 0, true) - .5);
-
-//                    qDebug() << "day_of_year = " << day_of_year;
-
-//                    double JD_start2;
-//                    double JD_end2;
-
-//                    /*-------------------------------------------------------------------------
-//                     * Compute the satellite position vector in Cartesian coordinates (km).
-//                     *-----------------------------------------------------------------------*/
-//                    int i;
-//                    for (i = 0; i < 100; ++i) {
-//                         JD_start2 = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].StartTime.get_jtime();
-//                         JD_end2   = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].EndTime.get_jtime();
-//                         if (jtime >= JD_start2 && jtime <= JD_end2)
-//                              break;
-//                    }
-
-//                    if (i == 100) {
-//                         fprintf(stderr, "ERROR: Image time is out of range of supplied orbit "
-//                                 "polynomials\n");
-//                         return;
-//                    }
-
-//                    double t, X, Y, Z;
-//                    t = (jtime - (JD_start2 + JD_end2) / 2.) / ((JD_end2   - JD_start2) / 2.);
-
-//                    X = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X[0] +
-//                        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X[1] * t;
-//                    Y = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y[0] +
-//                        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y[1] * t;
-//                    Z = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z[0] +
-//                        prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z[1] * t;
-
-//                    qDebug() << "i = " << i;
-//                    qDebug() << "X = " << X;
-//                    qDebug() << "Y = " << Y;
-//                    qDebug() << "Z = " << Z;
-
-//                    /*-------------------------------------------------------------------------
-//                     * Compute latitude and longitude and solar and sensor zenith and azimuth
-//                     * angles.
-//                     *-----------------------------------------------------------------------*/
-
-//                    double lon0 = prodata.prologue->image_description.ProjectionDescription.LongitudeOfSSP;
-//                    qDebug() << "longitude SSP = " << lon0;
-
-//                     for (i = 0; i < d->image.n_lines; ++i) {
-//                         ii = d->image.i_line + i;
-
-//                         jtime2 = jtime_start + (double) ii / (double) (IMAGE_SIZE_VIR_LINES - 1) *
-//                                  (jtime_end - jtime_start);
-
-//                         for (j = 0; j < d->image.n_columns; ++j) {
-//                              i_image = i * d->image.n_columns + j;
-
-//                              snu_line_column_to_lat_lon(ii + 1 + nav_off, d->image.i_column + j + 1,
-//                                                         &d2->lat[i_image], &d2->lon[i_image],
-//                                                         lon0, &nav_scaling_factors_vir);
-
-//                              if (d2->lat[i_image] != FILL_VALUE_F && d2->lon[i_image] != FILL_VALUE_F) {
-//                                   d2->time[i_image] = jtime2;
-
-//                                   snu_solar_params2(jtime2, d2->lat[i_image] * D2R,
-//                                                     d2->lon[i_image] * D2R, &mu0, &theta0,
-//                                                     &phi0, NULL);
-//                                   d2->sza[i_image] = theta0 * R2D;
-//                                   d2->saa[i_image] = phi0   * R2D;
-
-//                                   d2->saa[i_image] = d2->saa[i_image] + 180.;
-//                                   if (d2->saa[i_image] > 360.)
-//                                        d2->saa[i_image] = d2->saa[i_image] - 360.;
-
-//                                   snu_vza_and_vaa(d2->lat[i_image], d2->lon[i_image], 0.,
-//                                                   X, Y, Z, &d2->vza[i_image], &d2->vaa[i_image]);
-
-//                                   d2->vaa[i_image] = d2->vaa[i_image] + 180.;
-//                                   if (d2->vaa[i_image] > 360.)
-//                                        d2->vaa[i_image] = d2->vaa[i_image] - 360.;
-//                              }
-//                         }
-//                    }
-
-
-
                 }
                 catch( std::runtime_error &run )
                 {
@@ -1149,30 +625,6 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 }
             }
         }
-
-//        if(whichgeo == eGeoSatellite::GOMS2)
-//        {
-//            try
-//            {
-//                //            da.read_file(fa.directory + "/" + fa.segmentFiles().at(0),header);
-//                da.read_file(fa.directory + "/" + (type == "VIS_IR" || type == "VIS_IR Color" ? llVIS_IR.at(0) : llHRV.at(0)),header);
-//                lCFAC = (long)header.image_navigation->CFAC*180.0/PI;
-//                lLFAC = (long)header.image_navigation->LFAC*180.0/PI;
-//                sl->CFAC = abs(lCFAC);
-//                sl->COFF = abs(header.image_navigation->COFF);
-//                sl->LFAC = abs(lLFAC);
-//                sl->LOFF = abs(header.image_navigation->LOFF);
-//                qDebug() << QString("CFAC = %1 COFF = %2 LFAC = %3 LOFF = %4").arg(sl->CFAC, 0, 'f').arg(sl->COFF).arg(sl->LFAC, 0, 'f').arg(sl->LOFF);
-
-//            }
-//            catch( std::runtime_error &run )
-//            {
-//                qDebug() << QString("Error : runtime error in reading first segmentfile : %1").arg(run.what());
-//            }
-//        }
-
-
-
 
         if(sl->getGeoSatellite() == eGeoSatellite::MET_11)
         {

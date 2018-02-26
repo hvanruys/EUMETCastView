@@ -111,6 +111,7 @@ private slots:
 
     void on_btnSearchProductDirectory_clicked();
 
+
 private:
     Ui::DialogPreferences *ui;
     QAbstractTableModel *myStationModel;

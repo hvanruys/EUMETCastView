@@ -18,9 +18,9 @@ HEADERS += \
 CONFIG(release, debug|release) {
     #This is a release build
     unix:TARGET = $$_PRO_FILE_PWD_/../libs/linux_gplusplus/release/bz2
-    win32:TARGET = ../../../libs/win64_MSVC2012/release/bz2
+    win32:TARGET = ../../../libs/win64_mingw64/release/bz2
 } else {
     #This is a debug build
     unix:TARGET = $$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug/bz2
-    win32:TARGET = ../../../libs/win64_MSVC2012/debug/bz2
+    win32:TARGET = ../../../libs/win64_mingw64/debug/bz2
 }

@@ -83,8 +83,10 @@ class Options
 public:
 	Options();
 	void Initialize();
+    void InitializeGeo();
     void checkStringListValues();
 	void Save();
+    void SaveGeoIni();
     void CreateGeoSatelliteIni();
 
 /* Calendar date and time (UTC) */

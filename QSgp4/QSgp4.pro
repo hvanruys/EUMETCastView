@@ -35,11 +35,11 @@ HEADERS += qsgp4.h \
 CONFIG(release, debug|release) {
     #This is a release build
     unix:TARGET = $$_PRO_FILE_PWD_/../libs/linux_gplusplus/release/qsgp4
-    else:win32:TARGET = ../../../libs/win64_MSVC2012/release/qsgp4
+    else:win32:TARGET = ../../../libs/win64_mingw64/release/qsgp4
 } else {
     #This is a debug build
     unix:TARGET = $$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug/qsgp4
-    else:win32:TARGET = ../../../libs/win64_MSVC2012/debug/qsgp4
+    else:win32:TARGET = ../../../libs/win64_mingw64/debug/qsgp4
 }
 
 

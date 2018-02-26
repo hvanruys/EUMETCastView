@@ -382,7 +382,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
         for(int i = 0; i < opts.geosatellites.count(); i++)
         {
-            qDebug() << fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length() ) << "???" << opts.geosatellites.at(i).searchstring;
+            //qDebug() << fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length() ) << "???" << opts.geosatellites.at(i).searchstring;
             if (fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == opts.geosatellites.at(i).searchstring && fileInfo.isFile())
             {
                 //int filenbr = fileInfo.fileName().mid(opts.geosatellites.at(i).indexfilenbrstring, opts.geosatellites.at(i).lengthfilenbrstring).toInt();
@@ -415,7 +415,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                         segmentlistmapgeo[i].insert( strdate, hashspectrum );
                     }
                 }
-//                qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
+                //qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
              }
         }
 
@@ -458,6 +458,11 @@ void AVHRRSatellite::getFilenameParameters(int geosatindex, QString filename,  Q
                     {
                         QDate fdate = QDate(strdate.mid(0, 4).toInt(), 1, 1).addDays(strdate.mid(4, 3).toInt() - 1);
                         strdate = fdate.toString("yyyyMMdd") + strdate.mid(7, 4);
+                    }
+                    if(strdate.length() < 12)
+                    {
+                        QString temp = strdate.leftJustified(12, '0');
+                        strdate = temp;
                     }
                     return;
                 }
@@ -769,25 +774,15 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString("Count segmentlistdatahubolcierr = %1").arg(sldatahubolcierr->count());
     qDebug() << QString("Count segmentlistdatahubslstr = %1").arg(sldatahubslstr->count());
 
-    qDebug() << QString( "Nbr of items in segmentlist MET-11     = %1").arg(segmentlistmapgeo[0].size());
-    qDebug() << QString( "Nbr of items in segmentlist MET-10     = %1").arg(segmentlistmapgeo[1].size());
-    qDebug() << QString( "Nbr of items in segmentlist MET-9      = %1").arg(segmentlistmapgeo[2].size());
-    qDebug() << QString( "Nbr of items in segmentlist MET-8      = %1").arg(segmentlistmapgeo[3].size());
-    qDebug() << QString( "Nbr of items in segmentlist GOMS2      = %1").arg(segmentlistmapgeo[4].size());
-    qDebug() << QString( "Nbr of items in segmentlist FY2E       = %1").arg(segmentlistmapgeo[5].size());
-    qDebug() << QString( "Nbr of items in segmentlist FY2G       = %1").arg(segmentlistmapgeo[6].size());
-    qDebug() << QString( "Nbr of items in segmentlist GOES-15    = %1").arg(segmentlistmapgeo[7].size());
-    qDebug() << QString( "Nbr of items in segmentlist GOES-16    = %1").arg(segmentlistmapgeo[8].size());
-    qDebug() << QString( "Nbr of items in segmentlist Himawari-8 = %1").arg(segmentlistmapgeo[9].size());
+    for(int i = 0; i < opts.geosatellites.length(); i++)
+        qDebug() << QString( "Nbr of items in segmentlist %1 = %2").arg(opts.geosatellites.at(i).shortname).arg(segmentlistmapgeo[0].size());
+
+    int totgeosegments = 0;
+    for(int i = 0; i < opts.geosatellites.length(); i++)
+        totgeosegments += segmentlistmapgeo.at(i).size();
 
     QString strtot = QString("Total segments = %1").arg(slmetop->count()+slnoaa->count()+slgac->count()+slhrp->count()+slviirsm->count()
-                                                        +slolciefr->count()+slolcierr->count()+slslstr->count() +
-                                                        segmentlistmapgeo[0].size()+segmentlistmapgeo[1].size() +
-                                                        segmentlistmapgeo[2].size() + segmentlistmapgeo[3].size() +
-                                                        segmentlistmapgeo[4].size() + segmentlistmapgeo[5].size() +
-                                                        segmentlistmapgeo[6].size() +
-                                                        segmentlistmapgeo[7].size() +
-                                                        segmentlistmapgeo[8].size());
+                                                        +slolciefr->count()+slolcierr->count()+slslstr->count() + totgeosegments);
     emit signalResetProgressbar(1, strtot);
     emit signalShowSegmentCount();
 }

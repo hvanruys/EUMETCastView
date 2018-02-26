@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>882</width>
-    <height>779</height>
+    <width>909</width>
+    <height>743</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -158,7 +158,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>5</number>
+        <number>7</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -1691,7 +1691,21 @@
           <widget class="QTableView" name="tbvGeoConfig"/>
          </item>
          <item>
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>Deleting the file 'GeoSatellites.ini' will recreate the file at startup with default values.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_26">
+           <item>
+            <widget class="QLabel" name="label_22">
+             <property name="text">
+              <string>When adding or deleting geosatellites restart the program</string>
+             </property>
+            </widget>
+           </item>
            <item>
             <spacer name="horizontalSpacer_21">
              <property name="orientation">

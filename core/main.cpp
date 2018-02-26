@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.3.4"
+#define APPVERSION "1.3.5"
 
 using namespace std;
 
@@ -59,8 +59,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         out << strout;
         out.flush();
     }
-    else
-        fprintf(stderr, strout.toStdString().c_str());
+
+    fprintf(stderr, strout.toStdString().c_str());
 
 #else
   // debug mode code
@@ -88,8 +88,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         out << strout;
         out.flush();
     }
-    else
-        fprintf(stderr, strout.toStdString().c_str());
+
+    fprintf(stderr, strout.toStdString().c_str());
 
 
 #endif
@@ -99,7 +99,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
-    doLogging = false;
+    doLogging = true;
     ptrimagebusy = false;
 
     QByteArray val("1");
