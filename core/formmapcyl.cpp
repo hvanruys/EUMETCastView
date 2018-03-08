@@ -258,6 +258,30 @@ void FormMapCyl::slotSetMapCylButtons(bool stat)
     ui->btnAllSegments->setEnabled(stat);
     ui->btnRemoveSelected->setEnabled(stat);
     ui->btnMakeImage->setEnabled(stat);
+
+    ui->btnMetop->setEnabled(stat);
+    ui->btnHRP->setEnabled(stat);
+    ui->btnGAC->setEnabled(stat);
+    ui->btnNoaa->setEnabled(stat);
+    ui->btnVIIRSM->setEnabled(stat);
+    ui->btnVIIRSDNB->setEnabled(stat);
+    ui->btnOLCIefr->setEnabled(stat);
+    ui->btnOLCIerr->setEnabled(stat);
+    ui->btnSLSTR->setEnabled(stat);
+
+    ui->btnMetopAhrpt->setEnabled(stat);
+    ui->btnMetopBhrpt->setEnabled(stat);
+    ui->btnNoaa19hrpt->setEnabled(stat);
+    ui->btnM01hrpt->setEnabled(stat);
+    ui->btnM02hrpt->setEnabled(stat);
+
+    ui->btnDownloadFromDatahub->setEnabled(stat);
+    ui->btnOLCIefrDatahub->setEnabled(stat);
+    ui->btnOLCIerrDatahub->setEnabled(stat);
+    ui->btnSLSTRDatahub->setEnabled(stat);
+    ui->btnDownloadQuicklook->setEnabled(stat);
+    ui->btnDownloadProduct->setEnabled(stat);
+    ui->btnCancelDownloadProduct->setEnabled(stat);
 }
 
 // Key handler

@@ -177,9 +177,11 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
         break;
     case IMAGE_GEOSTATIONARY:
+        displayGeoImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
         break;
     case IMAGE_PROJECTION:
+        formtoolbox->writeInfoToTextEdit("");
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
         break;
     case IMAGE_VIIRSM:
@@ -261,7 +263,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                displayAVHRRImageInfo();
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
+            }
             break;
         case IMAGE_AVHRR_CH2:
             if(imageptrs->ptrimagecomp_ch[1]->byteCount() == 0)
@@ -270,7 +275,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                displayAVHRRImageInfo();
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
+            }
             break;
         case IMAGE_AVHRR_CH3:
             if(imageptrs->ptrimagecomp_ch[2]->byteCount() == 0)
@@ -279,7 +287,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                displayAVHRRImageInfo();
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
+            }
             break;
         case IMAGE_AVHRR_CH4:
             if(imageptrs->ptrimagecomp_ch[3]->byteCount() == 0)
@@ -288,7 +299,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                displayAVHRRImageInfo();
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
+            }
             break;
         case IMAGE_AVHRR_CH5:
             if(imageptrs->ptrimagecomp_ch[4]->byteCount() == 0)
@@ -297,7 +311,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                displayAVHRRImageInfo();
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
+            }
             break;
         case IMAGE_AVHRR_COL:
             if(imageptrs->ptrimagecomp_col->byteCount() == 0)
@@ -306,7 +323,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                displayAVHRRImageInfo();
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_col)));
+            }
             break;
         case IMAGE_AVHRR_EXPAND:
             if(imageptrs->ptrexpand_col->byteCount() == 0)
@@ -315,7 +335,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                displayAVHRRImageInfo();
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrexpand_col)));
+            }
             break;
         case IMAGE_GEOSTATIONARY:
             if(imageptrs->ptrimageGeostationary->byteCount() == 0)
@@ -324,7 +347,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                displayGeoImageInfo();
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+            }
             break;
         case IMAGE_PROJECTION:
             if(imageptrs->ptrimageProjection->byteCount() == 0)
@@ -333,7 +359,10 @@ void FormImage::displayImage(eImageType channel)
                 imageLabel->setPixmap(pm);
             }
             else
+            {
+                //formtoolbox->writeInfoToTextEdit("Projection image");
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
+            }
             break;
         case IMAGE_VIIRSM:
             if(imageptrs->ptrimageViirsM->byteCount() == 0)
@@ -1176,7 +1205,7 @@ void FormImage::displayAVHRRImageInfo()
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"
                       "<body>"
-                      "<h3 style='color:blue'>Image Information</h3>"
+                      "<h4 style='color:blue'>Image Information</h4>"
                       "<p>Segment type = %1<br>"
                       "Nbr of segments = %2<br>"
                       "Image width = %3 height = %4<br>"
@@ -1220,7 +1249,7 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
                           "<body>"
-                          "<h3 style='color:blue'>Image Information</h3>"
+                          "<h4 style='color:blue'>Image Information</h4>"
                           "<p>Segment type = %1<br>"
                           "Nbr of segments = %2<br>"
                           "Image width = %3 height = %4<br>"
@@ -1233,7 +1262,7 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
                           "<body>"
-                          "<h3 style='color:blue'>Image Information</h3>"
+                          "<h4 style='color:blue'>Image Information</h4>"
                           "<p>Segment type = %1<br>"
                           "Nbr of segments = %2<br>"
                           "Image width = %3 height = %4<br>"
@@ -1261,13 +1290,20 @@ void FormImage::displayGeoImageInfo()
 
 void FormImage::displayGeoImageInformation(QString satname)
 {
+    SegmentListGeostationary *slgeo = NULL;
+
+    slgeo = segs->getActiveSegmentList();
+
+    QString type = slgeo->getKindofImage();
+
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"
                       "<body>"
-                      "<h2 style='color:blue'>Image Information</h1>"
-                      "<h3>Segment type = %1</h3>"
-                      "<h3>Image width = %3 height = %4</h3>"
-                      "</body></html>").arg(satname).arg(imageptrs->ptrimageGeostationary->width()).arg(imageptrs->ptrimageGeostationary->height());
+                      "<h4 style='color:blue'>Image Information</h4>"
+                      "<p>Satellite = %1<br>"
+                      "Image type = %2<br>"
+                      "Image width = %3 height = %4</p>"
+                      "</body></html>").arg(satname).arg(type).arg(imageptrs->ptrimageGeostationary->width()).arg(imageptrs->ptrimageGeostationary->height());
 
 
     formtoolbox->writeInfoToTextEdit(txtInfo);
@@ -1309,7 +1345,7 @@ void FormImage::displaySentinelImageInfo(eSegmentType type)
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
                           "<body>"
-                          "<h3 style='color:blue'>Image Information</h3>"
+                          "<h4 style='color:blue'>Image Information</h4>"
                           "<p>Segment type = %1<br>"
                           "Nbr of segments = %2<br>"
                           "Image width = %3 height = %4<br>"
@@ -1322,7 +1358,7 @@ void FormImage::displaySentinelImageInfo(eSegmentType type)
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
                           "<body>"
-                          "<h3 style='color:blue'>Image Information</h3>"
+                          "<h4 style='color:blue'>Image Information</h4>"
                           "<p>Segment type = %1<br>"
                           "Nbr of segments = %2<br>"
                           "Image width = %3 height = %4<br>"

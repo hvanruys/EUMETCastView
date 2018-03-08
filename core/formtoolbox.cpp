@@ -260,9 +260,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->rbtnAColor->setChecked(true);
     opts.channelontexture = 6; // color channel
 
-//    ui->teAVHRR->setReadOnly(true);
-//    ui->teAVHRR->append(formimage->txtInfo);
-
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
 
@@ -2623,6 +2620,8 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     ui->btnGVPFalseColor->setChecked(false);
     ui->btnSGFalseColor->setChecked(false);
     ui->btnLCCFalseColor->setChecked(false);
+
+    this->writeInfoToTextEdit(" ");
 
     if (index == TAB_AVHRR) //AVHHR
     {
@@ -5486,5 +5485,4 @@ void FormToolbox::on_cmbHistogramGeo_activated(int index)
 {
 
 }
-
 

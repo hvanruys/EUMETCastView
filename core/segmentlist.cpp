@@ -617,6 +617,8 @@ bool SegmentList::ComposeAVHRRImageInThread()
     }
 //#endif
 
+    emit progressCounter(10);
+
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
@@ -655,6 +657,8 @@ bool SegmentList::ComposeAVHRRImageInThread()
 
         ++segsel;
     }
+
+    emit progressCounter(20);
 
     qDebug() << QString("SegmentList::readfinished() count3a = %1 count3b = %2").arg(count3a).arg(count3b);
 
@@ -713,6 +717,8 @@ bool SegmentList::ComposeAVHRRImageInThread()
         ++segsel;
     }
 
+    emit progressCounter(30);
+
     for( int i = 0; i < 1024; i++)
     {
         for(int k = 0; k < 5; k++)
@@ -736,6 +742,8 @@ bool SegmentList::ComposeAVHRRImageInThread()
         }
         ++segsel;
     }
+
+    emit progressCounter(40);
 
     bool okmin[5], okmax[5];
 
@@ -765,7 +773,7 @@ bool SegmentList::ComposeAVHRRImageInThread()
 
         }
     }
-
+    emit progressCounter(50);
 
     for(int k = 0; k < 5; k++)
     {
