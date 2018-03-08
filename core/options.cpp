@@ -579,10 +579,14 @@ void Options::InitializeGeo()
         geo.color = settingsgeo.value("color").toBool();
         geo.maxsegments = settingsgeo.value("maxsegments").toInt();
         geo.maxsegmentshrv = settingsgeo.value("maxsegmentshrv").toInt();
+        geo.segmentlength = settingsgeo.value("segmentlength").toInt();
+        geo.segmentlengthhrv = settingsgeo.value("segmentlengthhrv").toInt();
         geo.startsegmentnbrtype0 = settingsgeo.value("startsegmenttype0").toInt();
         geo.startsegmentnbrhrvtype0 = settingsgeo.value("startsegmenthrvtype0").toInt();
         geo.startsegmentnbrtype1 = settingsgeo.value("startsegmenttype1").toInt();
         geo.startsegmentnbrhrvtype1 = settingsgeo.value("startsegmenthrvtype1").toInt();
+        geo.clahecontextregionx = settingsgeo.value("clahecontextregionx").toInt();
+        geo.clahecontextregiony = settingsgeo.value("clahecontextregiony").toInt();
 
         geo.prologfile = settingsgeo.value("prologfile").toBool();
         geo.epilogfile = settingsgeo.value("epilogfile").toBool();
@@ -643,10 +647,14 @@ void Options::SaveGeoIni()
         settingsgeo.setValue("color", geosatellites.at(i).color);
         settingsgeo.setValue("maxsegments", geosatellites.at(i).maxsegments);
         settingsgeo.setValue("maxsegmentshrv", geosatellites.at(i).maxsegmentshrv);
+        settingsgeo.setValue("segmentlength", geosatellites.at(i).segmentlength);
+        settingsgeo.setValue("segmentlengthhrv", geosatellites.at(i).segmentlengthhrv);
         settingsgeo.setValue("startsegmenttype0", geosatellites.at(i).startsegmentnbrtype0);
         settingsgeo.setValue("startsegmenthrvtype0", geosatellites.at(i).startsegmentnbrhrvtype0);
         settingsgeo.setValue("startsegmenttype1", geosatellites.at(i).startsegmentnbrtype1);
         settingsgeo.setValue("startsegmenthrvtype1", geosatellites.at(i).startsegmentnbrhrvtype1);
+        settingsgeo.setValue("clahecontextregionx", geosatellites.at(i).clahecontextregionx);
+        settingsgeo.setValue("clahecontextregiony", geosatellites.at(i).clahecontextregiony);
 
         settingsgeo.setValue("prologfile", geosatellites.at(i).prologfile);
         settingsgeo.setValue("epilogfile", geosatellites.at(i).epilogfile);
@@ -672,7 +680,7 @@ void Options::CreateGeoSatelliteIni()
     for(int i = 0; i < 10; i++)
         geosatellites.append(sat);
 
-    //Data Channel 15
+    //Data Channel 2
     geosatellites[0].fullname = "Meteosat-11";
     geosatellites[0].shortname = "MET_11";
     geosatellites[0].longitude = 0.0;
@@ -706,6 +714,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].color = true;
     geosatellites[0].maxsegments = 8;
     geosatellites[0].maxsegmentshrv = 24;
+    geosatellites[0].segmentlength = 464;
+    geosatellites[0].segmentlengthhrv = 464;
     geosatellites[0].startsegmentnbrtype0 = 5;
     geosatellites[0].startsegmentnbrhrvtype0 = 19;
     geosatellites[0].startsegmentnbrtype1 = 1;
@@ -714,19 +724,19 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].epilogfile = true;
 
 
-    //Data Channel 2
+    //Data Channel 15
     geosatellites[1].fullname = "Meteosat-10";
     geosatellites[1].shortname = "MET_10";
-    geosatellites[1].longitude = 0.0;
+    geosatellites[1].longitude = 9.5;
     geosatellites[1].longitudelimit1 = -30.0;
     geosatellites[1].longitudelimit2 = 20.0;
     geosatellites[1].protocol = "XRIT";
-    geosatellites[1].rss = false;
+    geosatellites[1].rss = true;
     geosatellites[1].searchstring = "H-000-MSG3__-MSG3";
     geosatellites[1].indexsearchstring = 0;
-    geosatellites[1].filepattern = "H-000-MSG3??-?????????___-?????????-0?????___-%1-C_";
+    geosatellites[1].filepattern = "H-000-MSG3??-????????????-?????????-0?????___-%1-C_";
     geosatellites[1].imagewidth = 3712;
-    geosatellites[1].imageheight = 3712;
+    geosatellites[1].imageheight = 1392;
     geosatellites[1].imagewidthhrv0 = 5568;
     geosatellites[1].imageheighthrv0 = 2320;
     geosatellites[1].imagewidthhrv1 = 5568;
@@ -746,8 +756,10 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[1].lengthdatehrv = 12;
 
     geosatellites[1].color = true;
-    geosatellites[1].maxsegments = 8;
-    geosatellites[1].maxsegmentshrv = 24;
+    geosatellites[1].maxsegments = 3;
+    geosatellites[1].maxsegmentshrv = 9;
+    geosatellites[1].segmentlength = 464;
+    geosatellites[1].segmentlengthhrv = 464;
     geosatellites[1].startsegmentnbrtype0 = 5;
     geosatellites[1].startsegmentnbrhrvtype0 = 19;
     geosatellites[1].startsegmentnbrtype1 = 1;
@@ -789,9 +801,11 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[2].lengthdatehrv = 12;
 
     geosatellites[2].color = true;
-    geosatellites[2].maxsegments = 8;
-    geosatellites[2].maxsegmentshrv = 24;
-    geosatellites[2].startsegmentnbrtype0 = 6;
+    geosatellites[2].maxsegments = 3;
+    geosatellites[2].maxsegmentshrv = 9;
+    geosatellites[2].segmentlength = 464;
+    geosatellites[2].segmentlengthhrv = 464;
+    geosatellites[2].startsegmentnbrtype0 = 5;
     geosatellites[2].startsegmentnbrhrvtype0 = 19;
     geosatellites[2].startsegmentnbrtype1 = 0;
     geosatellites[2].startsegmentnbrhrvtype1 = 0;
@@ -834,6 +848,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[3].color = true;
     geosatellites[3].maxsegments = 8;
     geosatellites[3].maxsegmentshrv = 24;
+    geosatellites[3].segmentlength = 464;
+    geosatellites[3].segmentlengthhrv = 464;
     geosatellites[3].startsegmentnbrtype0 = 5;
     geosatellites[3].startsegmentnbrhrvtype0 = 19;
     geosatellites[3].startsegmentnbrtype1 = 1;
@@ -855,6 +871,8 @@ void Options::CreateGeoSatelliteIni()
         geosatellites[i].loffhrv = 5566;
         geosatellites[i].cfachrv = 2344944937; //2344945030.;
         geosatellites[i].lfachrv = 2344944937; //2344945030.;
+        geosatellites[i].clahecontextregionx = 16;
+        geosatellites[i].clahecontextregiony = 16;
     }
 
     //E1B-TPG-1
@@ -892,10 +910,15 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[4].color = false;
     geosatellites[4].maxsegments = 6;
     geosatellites[4].maxsegmentshrv = 0;
-    geosatellites[4].startsegmentnbrtype0 = 0;
-    geosatellites[4].startsegmentnbrhrvtype0 = 0;
-    geosatellites[4].startsegmentnbrtype1 = 0;
-    geosatellites[4].startsegmentnbrhrvtype1 = 0;
+    geosatellites[4].segmentlength = 464;
+    geosatellites[4].segmentlengthhrv = 0;
+    geosatellites[4].startsegmentnbrtype0 = 1;
+    geosatellites[4].startsegmentnbrhrvtype0 = 1;
+    geosatellites[4].startsegmentnbrtype1 = 1;
+    geosatellites[4].startsegmentnbrhrvtype1 = 1;
+    geosatellites[4].clahecontextregionx = 16;
+    geosatellites[4].clahecontextregiony = 16;
+
     geosatellites[4].prologfile = false;
     geosatellites[4].epilogfile = false;
     geosatellites[4].coff = 1392;
@@ -944,10 +967,15 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[5].color = false;
     geosatellites[5].maxsegments = 1;
     geosatellites[5].maxsegmentshrv = 1;
-    geosatellites[5].startsegmentnbrtype0 = 0;
-    geosatellites[5].startsegmentnbrhrvtype0 = 0;
-    geosatellites[5].startsegmentnbrtype1 = 0;
-    geosatellites[5].startsegmentnbrhrvtype1 = 0;
+    geosatellites[5].segmentlength = 2288;
+    geosatellites[5].segmentlengthhrv = 9152;
+    geosatellites[5].startsegmentnbrtype0 = 1;
+    geosatellites[5].startsegmentnbrhrvtype0 = 1;
+    geosatellites[5].startsegmentnbrtype1 = 1;
+    geosatellites[5].startsegmentnbrhrvtype1 = 1;
+    geosatellites[5].clahecontextregionx = 16;
+    geosatellites[5].clahecontextregiony = 16;
+
     geosatellites[5].prologfile = false;
     geosatellites[5].epilogfile = false;
     geosatellites[5].coff = 1144;
@@ -998,10 +1026,15 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[6].color = false;
     geosatellites[6].maxsegments = 1;
     geosatellites[6].maxsegmentshrv = 1;
-    geosatellites[6].startsegmentnbrtype0 = 0;
-    geosatellites[6].startsegmentnbrhrvtype0 = 0;
-    geosatellites[6].startsegmentnbrtype1 = 0;
-    geosatellites[6].startsegmentnbrhrvtype1 = 0;
+    geosatellites[6].segmentlength = 2288;
+    geosatellites[6].segmentlengthhrv = 9152;
+    geosatellites[6].startsegmentnbrtype0 = 1;
+    geosatellites[6].startsegmentnbrhrvtype0 = 1;
+    geosatellites[6].startsegmentnbrtype1 = 1;
+    geosatellites[6].startsegmentnbrhrvtype1 = 1;
+    geosatellites[6].clahecontextregionx = 16;
+    geosatellites[6].clahecontextregiony = 16;
+
     geosatellites[6].prologfile = false;
     geosatellites[6].epilogfile = false;
     geosatellites[6].coff = 1144;
@@ -1024,7 +1057,6 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].longitudelimit2 = 0.0;
     geosatellites[7].protocol = "XRIT";
     geosatellites[7].rss = false;
-//                                  "L-000-MSG4__-GOES15______-03_9_135W-000001___-201802210900-C_"
     geosatellites[7].searchstring = "L-000-MSG4__-GOES15";
     geosatellites[7].indexsearchstring = 0;
     geosatellites[7].filepattern =  "L-???-??????-GOES15*%1-C_";
@@ -1052,10 +1084,15 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].color = false;
     geosatellites[7].maxsegments = 7;
     geosatellites[7].maxsegmentshrv = 0;
-    geosatellites[7].startsegmentnbrtype0 = 0;
-    geosatellites[7].startsegmentnbrhrvtype0 = 0;
-    geosatellites[7].startsegmentnbrtype1 = 0;
-    geosatellites[7].startsegmentnbrhrvtype1 = 0;
+    geosatellites[7].segmentlength = 464;
+    geosatellites[7].segmentlengthhrv = 0;
+    geosatellites[7].startsegmentnbrtype0 = 1;
+    geosatellites[7].startsegmentnbrhrvtype0 = 1;
+    geosatellites[7].startsegmentnbrtype1 = 1;
+    geosatellites[7].startsegmentnbrhrvtype1 = 1;
+    geosatellites[7].clahecontextregionx = 16;
+    geosatellites[7].clahecontextregiony = 16;
+
     geosatellites[7].prologfile = true;
     geosatellites[7].epilogfile = false;
     geosatellites[7].coff = 1408;
@@ -1108,10 +1145,15 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].color = true;
     geosatellites[8].maxsegments = 1;
     geosatellites[8].maxsegmentshrv = 0;
-    geosatellites[8].startsegmentnbrtype0 = 0;
-    geosatellites[8].startsegmentnbrhrvtype0 = 0;
-    geosatellites[8].startsegmentnbrtype1 = 0;
-    geosatellites[8].startsegmentnbrhrvtype1 = 0;
+    geosatellites[8].segmentlength = 5424;
+    geosatellites[8].segmentlengthhrv = 0;
+    geosatellites[8].startsegmentnbrtype0 = 1;
+    geosatellites[8].startsegmentnbrhrvtype0 = 1;
+    geosatellites[8].startsegmentnbrtype1 = 1;
+    geosatellites[8].startsegmentnbrhrvtype1 = 1;
+    geosatellites[8].clahecontextregionx = 16;
+    geosatellites[8].clahecontextregiony = 16;
+
     geosatellites[8].prologfile = false;
     geosatellites[8].epilogfile = false;
     geosatellites[8].coff = 2712;
@@ -1163,10 +1205,15 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[9].color = true;
     geosatellites[9].maxsegments = 10;
     geosatellites[9].maxsegmentshrv = 0;
-    geosatellites[9].startsegmentnbrtype0 = 0;
-    geosatellites[9].startsegmentnbrhrvtype0 = 0;
-    geosatellites[9].startsegmentnbrtype1 = 0;
-    geosatellites[9].startsegmentnbrhrvtype1 = 0;
+    geosatellites[9].segmentlength = 550;
+    geosatellites[9].segmentlengthhrv = 0;
+    geosatellites[9].startsegmentnbrtype0 = 1;
+    geosatellites[9].startsegmentnbrhrvtype0 = 1;
+    geosatellites[9].startsegmentnbrtype1 = 1;
+    geosatellites[9].startsegmentnbrhrvtype1 = 1;
+    geosatellites[9].clahecontextregionx = 10;
+    geosatellites[9].clahecontextregiony = 10;
+
     geosatellites[9].prologfile = false;
     geosatellites[9].epilogfile = false;
     geosatellites[9].coff = 2750;

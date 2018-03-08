@@ -118,6 +118,7 @@ public slots:
       void showSegmentCount();
       void changeScrollBar(int);
       void slotShowXMLProgress(QString, int pages, bool downloadinprogress);
+      void slotSetMapCylButtons(bool stat);
 
 signals:
     void signalSegmentChanged(QString);

@@ -1509,8 +1509,6 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
                 ui->btnGeo16->setEnabled(true);
     }
 
-    qDebug() << "FormToolbox::geostationarysegmentsChosen einde " << tex;
-
 }
 
 void FormToolbox::on_btnCLAHEGeostationary_clicked()
@@ -2089,9 +2087,9 @@ void FormToolbox::on_btnGeoColor_clicked()
     QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
 
     ui->pbProgress->reset();
-    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
+    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_8)
         ui->pbProgress->setMaximum(8+8+8);
-    else if(geoindex == (int)eGeoSatellite::MET_9)
+    else if(geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_10)
         ui->pbProgress->setMaximum(3+3+3);
     else if(geoindex == (int)eGeoSatellite::GOMS2)
         ui->pbProgress->setMaximum(6+6+6);

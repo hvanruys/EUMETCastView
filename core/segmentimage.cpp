@@ -459,17 +459,17 @@ void SegmentImage::ResetPtrImage()
     {
         if (ptrRed[i] != NULL)
         {
-            delete ptrRed[i];
+            delete [] ptrRed[i];
             ptrRed[i] = NULL;
         }
         if (ptrGreen[i] != NULL)
         {
-            delete ptrGreen[i];
+            delete [] ptrGreen[i];
             ptrGreen[i] = NULL;
         }
         if (ptrBlue[i] != NULL)
         {
-            delete ptrBlue[i];
+            delete [] ptrBlue[i];
             ptrBlue[i] = NULL;
         }
     }
@@ -478,7 +478,7 @@ void SegmentImage::ResetPtrImage()
     {
         if (ptrHRV[i] != NULL)
         {
-            delete ptrHRV[i];
+            delete [] ptrHRV[i];
             ptrHRV[i] = NULL;
         }
     }
@@ -487,7 +487,7 @@ void SegmentImage::ResetPtrImage()
     {
         if (ptrDQF[i] != NULL)
         {
-            delete ptrDQF[i];
+            delete [] ptrDQF[i];
             ptrDQF[i] = NULL;
         }
     }

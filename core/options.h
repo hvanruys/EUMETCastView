@@ -60,10 +60,14 @@ struct GeoSatellites
     bool color;
     int maxsegments;
     int maxsegmentshrv;
+    int segmentlength;
+    int segmentlengthhrv;
     int startsegmentnbrtype0;
     int startsegmentnbrhrvtype0;
     int startsegmentnbrtype1;
     int startsegmentnbrhrvtype1;
+    int clahecontextregionx;
+    int clahecontextregiony;
     bool prologfile;
     bool epilogfile;
     qlonglong coff;

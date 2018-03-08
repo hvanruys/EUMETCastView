@@ -286,6 +286,8 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                     {
+                        row+=5;
+                        col+=3;
                         picrow = row;
                         if( hrvmap == 0)
                         {

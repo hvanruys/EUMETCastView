@@ -249,6 +249,17 @@ void FormMapCyl::SetAllButtonsToFalse()
 
 }
 
+void FormMapCyl::slotSetMapCylButtons(bool stat)
+{
+    ui->btnSaveTexture->setEnabled(stat);
+    ui->btnClearTexture->setEnabled(stat);
+    ui->btnRealTime->setEnabled(stat);
+    ui->btnPhong->setEnabled(stat);
+    ui->btnAllSegments->setEnabled(stat);
+    ui->btnRemoveSelected->setEnabled(stat);
+    ui->btnMakeImage->setEnabled(stat);
+}
+
 // Key handler
 void FormMapCyl::keyPressEvent(QKeyEvent *event)
 {
@@ -827,6 +838,7 @@ void FormMapCyl::on_btnMakeImage_clicked()
         return;
     }
 
+    this->slotSetMapCylButtons(false);
     emit signalMakeImage();
 }
 

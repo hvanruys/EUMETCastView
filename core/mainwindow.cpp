@@ -161,6 +161,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formimage, SIGNAL(render3dgeo(int)), globe, SLOT(Render3DGeo(int)));
     connect( formimage, SIGNAL(allsegmentsreceivedbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
+    connect( formimage, SIGNAL(setmapcylbuttons(bool)), formglobecyl, SLOT(slotSetMapCylButtons(bool)));
     connect( formimage->imageLabel, SIGNAL(coordinateChanged(QString)), this, SLOT(updateStatusBarCoordinate(QString)));
 
     connect( globe, SIGNAL(renderingglobefinished(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));

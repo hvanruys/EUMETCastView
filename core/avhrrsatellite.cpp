@@ -595,10 +595,13 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
     if (opts.segmentdirectorylist.count() > 0)
     {
-        QStringList::Iterator its = opts.segmentdirectorylist.begin();
-        QStringList::Iterator itc = opts.segmentdirectorylistinc.begin(); //segmentdirectory checked
+        QStringList seglist = opts.segmentdirectorylist;
+        QStringList seglistinc = opts.segmentdirectorylistinc;
 
-        while( its != opts.segmentdirectorylist.end() )
+        QStringList::Iterator its = seglist.begin();
+        QStringList::Iterator itc = seglistinc.begin(); //segmentdirectory checked
+
+        while( its != seglist.end() ) // opts.segmentdirectorylist.end() )
         {
             qDebug() << "Start " << *its;
             if (*itc == "1")  //include checked

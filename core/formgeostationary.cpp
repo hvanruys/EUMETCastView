@@ -242,12 +242,9 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
             mapfile = mapspectrum.value(strspectrum);
 
             QMap< int, QFileInfo >::const_iterator citfile = mapfile.constBegin();
-            //strnbrlist.clear();
             while (citfile != mapfile.constEnd())
             {
                 filenbr = citfile.key();
-                //strnbrlist.append(filenbr);
-                // MET-10, MET-9, MET-8
 
                 if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
                 {
@@ -543,6 +540,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
         QString epiloguefile;
         MSG_header epiheader;
         MSG_header proheader;
+        MSG_header header;
 
         if(sl->getGeoSatellite() != eGeoSatellite::H8)
         {
@@ -626,12 +624,27 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             }
         }
 
+
         if(sl->getGeoSatellite() == eGeoSatellite::MET_11)
         {
             qDebug() << "ForwardScanStart = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
             //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanStart;
             qDebug() << "ForwardScanEnd = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_timestring().c_str();
             //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd;
+
+            da.scan(fa, header);
+
+            qDebug() << "COFF = " << header.image_navigation->COFF;
+            qDebug() << "LOFF = " << header.image_navigation->LOFF;
+            qDebug() << "CFAC = " << header.image_navigation->CFAC;
+            qDebug() << "LFAC = " << header.image_navigation->LFAC;
+
+            qDebug() << QString("column scaling factor = %1").arg(header.image_navigation->column_scaling_factor); //, 16, 'f', 2);
+            qDebug() << QString("line scaling factor = %1").arg(header.image_navigation->line_scaling_factor); //, 16, 'f', 2);
+            qDebug() << QString("column offset = %1").arg(header.image_navigation->column_offset); //, 16, 'f', 2);
+            qDebug() << QString("line offset = %1").arg(header.image_navigation->line_offset); //, 16, 'f', 2);
+
+
         }
         //epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_unixtime().get_timestruct()
 
@@ -1057,7 +1070,23 @@ void FormGeostationary::CreateRGBrecipeImage(int recipe)
 
     da.scan(fa, prodata, epidata, header);
 
-    //cout << header;
+    long navloff = header.image_navigation->LOFF;
+    long navcoff = header.image_navigation->COFF;
+    long navlfac = header.image_navigation->LFAC;
+    long navcfac = header.image_navigation->CFAC;
+
+    qDebug() << QString("image navigation LOFF = %1").arg(navloff); //, 16, 'f', 2);
+    qDebug() << QString("image navigation COFF = %1").arg(navcoff); //, 16, 'f', 2);
+    qDebug() << QString("image navigation LFAC = %1").arg(navlfac); //, 16, 'f', 2);
+    qDebug() << QString("image navigation CFAC = %1").arg(navcfac); //, 16, 'f', 2);
+
+    qDebug() << QString("column scaling factor = %1").arg(header.image_navigation->column_scaling_factor); //, 16, 'f', 2);
+    qDebug() << QString("line scaling factor = %1").arg(header.image_navigation->line_scaling_factor); //, 16, 'f', 2);
+    qDebug() << QString("column offset = %1").arg(header.image_navigation->column_offset); //, 16, 'f', 2);
+    qDebug() << QString("line offset = %1").arg(header.image_navigation->line_offset); //, 16, 'f', 2);
+
+
+    //cout << epidata;
 
     qDebug()<< epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
     double jtime_start = epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_jtime();

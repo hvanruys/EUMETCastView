@@ -30,6 +30,7 @@ public:
     bool ShowSLSTRImage(int histogrammethod);
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void recalculateCLAHE1(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEOLCI(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CLAHEprojection();
@@ -166,6 +167,7 @@ signals:
     void wheelZoom(int);
     void render3dgeo(int geoindex);
     void allsegmentsreceivedbuttons(bool);
+    void setmapcylbuttons(bool stat);
 
 public slots:
     void slotMakeImage();
