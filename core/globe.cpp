@@ -261,6 +261,10 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->seglviirsm->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonVIIRSDNB)
             isselected = segs->seglviirsdnb->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonVIIRSMNOAA20)
+            isselected = segs->seglviirsmnoaa20->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonVIIRSDNBNOAA20)
+            isselected = segs->seglviirsdnbnoaa20->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonOLCIefr)
             isselected = segs->seglolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonOLCIerr)
@@ -632,6 +636,16 @@ void Globe::paintGL()
             segs->seglviirsdnb->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglviirsdnb->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         } else
+        if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
+        {
+            segs->seglviirsmnoaa20->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglviirsmnoaa20->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        } else
+        if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
+        {
+            segs->seglviirsdnbnoaa20->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglviirsdnbnoaa20->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        } else
         if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
         {
             segs->seglolciefr->GetFirstLastVisible(&first_julian, &last_julian);
@@ -724,6 +738,10 @@ void Globe::paintGL()
             segs->seglviirsm->ShowWinvec(&painter, distance, modelview );
         if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
             segs->seglviirsdnb->ShowWinvec(&painter, distance, modelview );
+        if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
+            segs->seglviirsmnoaa20->ShowWinvec(&painter, distance, modelview );
+        if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
+            segs->seglviirsdnbnoaa20->ShowWinvec(&painter, distance, modelview );
         if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
             segs->seglolciefr->ShowWinvec(&painter, distance, modelview );
         if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
@@ -812,6 +830,26 @@ void Globe::paintGL()
         if(segmentnameselected.mid(0,10) == "SVDNBC_npp")
             painter.drawText(10, this->height() - 20, "SUOMI NPP DNB " + segdate);
     }
+    else if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(10, 4)).arg(segmentnameselected.mid(14, 2)).arg(segmentnameselected.mid(16, 2))
+                .arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2));
+
+        if(segmentnameselected.mid(0,8) == "SVMC_j01")
+            painter.drawText(10, this->height() - 20, "NOAA-20 M Band " + segdate);
+    }
+    //SVDNBC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
+    //012345678901234567890123456789012345678901234567890123456789
+    else if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(12, 4)).arg(segmentnameselected.mid(16, 2)).arg(segmentnameselected.mid(18, 2))
+                .arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2));
+
+        if(segmentnameselected.mid(0,10) == "SVDNBC_j01")
+            painter.drawText(10, this->height() - 20, "SUOMI NPP DNB " + segdate);
+    }
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
     //0         1         2         3         4         5         6         7         8         9         10
     //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
@@ -870,6 +908,14 @@ void Globe::paintGL()
     else if (bSegmentNames && opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSDNB, segs->seglviirsdnb->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSMNOAA20, segs->seglviirsmnoaa20->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSDNBNOAA20, segs->seglviirsdnbnoaa20->GetSegmentlistptr());
     }
     else if (bSegmentNames && opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
     {
@@ -1179,6 +1225,14 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                     renderout = QString("M %1:%2").arg((*segit)->fileInfo.fileName().mid(20, 2)).arg((*segit)->fileInfo.fileName().mid(22, 2));
                 }
                 else if(seg == eSegmentType::SEG_VIIRSDNB)
+                {
+                    renderout = QString("DNB %1:%2").arg((*segit)->fileInfo.fileName().mid(22, 2)).arg((*segit)->fileInfo.fileName().mid(24, 2));
+                }
+                else if(seg == eSegmentType::SEG_VIIRSMNOAA20)
+                {
+                    renderout = QString("M %1:%2").arg((*segit)->fileInfo.fileName().mid(20, 2)).arg((*segit)->fileInfo.fileName().mid(22, 2));
+                }
+                else if(seg == eSegmentType::SEG_VIIRSDNBNOAA20)
                 {
                     renderout = QString("DNB %1:%2").arg((*segit)->fileInfo.fileName().mid(22, 2)).arg((*segit)->fileInfo.fileName().mid(24, 2));
                 }

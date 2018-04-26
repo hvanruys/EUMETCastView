@@ -32,8 +32,10 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     seglnoaa = new SegmentListNoaa(satlist);
     seglhrp = new SegmentListHRP();
     seglgac = new SegmentListGAC();
-    seglviirsm = new SegmentListVIIRSM();
-    seglviirsdnb = new SegmentListVIIRSDNB();
+    seglviirsm = new SegmentListVIIRSM(satlist, eSegmentType::SEG_VIIRSM);
+    seglviirsdnb = new SegmentListVIIRSDNB(satlist, eSegmentType::SEG_VIIRSDNB);
+    seglviirsmnoaa20 = new SegmentListVIIRSM(satlist, eSegmentType::SEG_VIIRSMNOAA20);
+    seglviirsdnbnoaa20 = new SegmentListVIIRSDNB(satlist, eSegmentType::SEG_VIIRSDNBNOAA20);
     seglolciefr = new SegmentListOLCI(SEG_OLCIEFR);
     seglolcierr = new SegmentListOLCI(SEG_OLCIERR);
     seglslstr = new SegmentListSLSTR();
@@ -68,6 +70,8 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     countgac = 0;
     countviirsm = 0;
     countviirsdnb = 0;
+    countviirsmnoaa20 = 0;
+    countviirsdnbnoaa20 = 0;
     countolciefr = 0;
     countolcierr = 0;
     countslstr = 0;
@@ -98,6 +102,12 @@ void AVHRRSatellite::emitProgressCounter(int counter)
  */
 void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 {
+
+    QFile file("out.txt");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+            return;
+    QTextStream out(&file);
+
     QFileInfo fileInfo;
     QDir segmentdir;
 
@@ -107,9 +117,12 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     SegmentGAC *seggac;
     SegmentVIIRSM *segviirsm;
     SegmentVIIRSDNB *segviirsdnb;
+    SegmentVIIRSM *segviirsmnoaa20;
+    SegmentVIIRSDNB *segviirsdnbnoaa20;
     SegmentOLCI *segolciefr;
     SegmentOLCI *segolcierr;
     SegmentSLSTR *segslstr;
+
     SegmentHRPT *segmetopAhrpt;
     SegmentHRPT *segmetopBhrpt;
     SegmentHRPT *segnoaa19hrpt;
@@ -123,6 +136,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     QList<Segment*> *slgac = seglgac->GetSegmentlistptr();
     QList<Segment*> *slviirsm = seglviirsm->GetSegmentlistptr();
     QList<Segment*> *slviirsdnb = seglviirsdnb->GetSegmentlistptr();
+    QList<Segment*> *slviirsmnoaa20 = seglviirsmnoaa20->GetSegmentlistptr();
+    QList<Segment*> *slviirsdnbnoaa20 = seglviirsdnbnoaa20->GetSegmentlistptr();
     QList<Segment*> *slolciefr = seglolciefr->GetSegmentlistptr();
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
     QList<Segment*> *slslstr = seglslstr->GetSegmentlistptr();
@@ -271,7 +286,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             seglviirsm->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            segviirsm = new SegmentVIIRSM(&file, satlist);
+            segviirsm = new SegmentVIIRSM(&file, satlist, eSegmentType::SEG_VIIRSM);
             if(segviirsm->segmentok == true)
             {
                 slviirsm->append(segviirsm);
@@ -285,7 +300,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901
             seglviirsdnb->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            segviirsdnb = new SegmentVIIRSDNB(&file, satlist);
+            segviirsdnb = new SegmentVIIRSDNB(&file, satlist, eSegmentType::SEG_VIIRSDNB);
             if(segviirsdnb->segmentok == true)
             {
                 slviirsdnb->append(segviirsdnb);
@@ -293,6 +308,30 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segviirsdnb;
+        } else if (fileInfo.fileName().mid( 0, 8) == "SVMC_j01" && fileInfo.isFile()) // NOAA-20
+        {
+            seglviirsmnoaa20->SetDirectoryName(fileInfo.absolutePath());
+            QFile file( fileInfo.absoluteFilePath());
+            segviirsmnoaa20 = new SegmentVIIRSM(&file, satlist, eSegmentType::SEG_VIIRSMNOAA20);
+            if(segviirsmnoaa20->segmentok == true)
+            {
+                slviirsmnoaa20->append(segviirsmnoaa20);
+                countviirsmnoaa20++;
+            }
+            else
+                delete segviirsmnoaa20;
+        } else if (fileInfo.fileName().mid( 0, 10) == "SVDNBC_j01" && fileInfo.isFile()) // NOAA-20
+        {
+            seglviirsdnbnoaa20->SetDirectoryName(fileInfo.absolutePath());
+            QFile file( fileInfo.absoluteFilePath());
+            segviirsdnbnoaa20 = new SegmentVIIRSDNB(&file, satlist, eSegmentType::SEG_VIIRSDNBNOAA20);
+            if(segviirsdnbnoaa20->segmentok == true)
+            {
+                slviirsdnbnoaa20->append(segviirsdnbnoaa20);
+                countviirsdnbnoaa20++;
+            }
+            else
+                delete segviirsdnbnoaa20;
         } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR") // && fileInfo.fileName().mid( 100, 3) == "tar") // S3A EFR
         {
             //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
@@ -415,7 +454,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                         segmentlistmapgeo[i].insert( strdate, hashspectrum );
                     }
                 }
-                //qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.fileName() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
+                //qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
+                out << fileInfo.absoluteFilePath() << "\n";
              }
         }
 
@@ -517,6 +557,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QList<Segment*> *slmetop = seglmetop->GetSegmentlistptr();
     QList<Segment*> *slviirsm = seglviirsm->GetSegmentlistptr();
     QList<Segment*> *slviirsdnb = seglviirsdnb->GetSegmentlistptr();
+    QList<Segment*> *slviirsmnoaa20 = seglviirsmnoaa20->GetSegmentlistptr();
+    QList<Segment*> *slviirsdnbnoaa20 = seglviirsdnbnoaa20->GetSegmentlistptr();
     QList<Segment*> *slolciefr = seglolciefr->GetSegmentlistptr();
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
     QList<Segment*> *slslstr = seglslstr->GetSegmentlistptr();
@@ -539,6 +581,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     seglmetop->ClearSegments();
     seglviirsm->ClearSegments();
     seglviirsdnb->ClearSegments();
+    seglviirsmnoaa20->ClearSegments();
+    seglviirsdnbnoaa20->ClearSegments();
     seglolciefr->ClearSegments();
     seglolcierr->ClearSegments();
     seglslstr->ClearSegments();
@@ -564,7 +608,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     this->countnoaa = 0;
     this->countviirsm = 0;
     this->countviirsdnb = 0;
-    this->countviirsmdnb = 0;
+    this->countviirsmnoaa20 = 0;
+    this->countviirsdnbnoaa20 = 0;
     this->countolciefr = 0;
     this->countolcierr = 0;
     this->countslstr = 0;
@@ -673,7 +718,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         {
                             QApplication::restoreOverrideCursor();
                             QMessageBox msgBox;
-                            msgBox.setText("Need the Suomi TLE's.");
+                            msgBox.setText("Need the Suomi NPP TLE's.");
                             msgBox.exec();
 
                             return;
@@ -734,6 +779,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
 
                     fileinfolist = map.values();
+//                    for(int i = 0; i < fileinfolist.count(); i++)
+//                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
                     emit signalResetProgressbar(fileinfolist.size(), (*its));
 
@@ -763,6 +810,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString("Count segmentlistgac = %1").arg(slgac->count());
     qDebug() << QString("Count segmentlistviirsm = %1").arg(slviirsm->count());
     qDebug() << QString("Count segmentlistviirsdnb = %1").arg(slviirsdnb->count());
+    qDebug() << QString("Count segmentlistviirsmnoa20 = %1").arg(slviirsmnoaa20->count());
+    qDebug() << QString("Count segmentlistviirsdnbnoaa20 = %1").arg(slviirsdnbnoaa20->count());
     qDebug() << QString("Count segmentlistolciefr = %1").arg(slolciefr->count());
     qDebug() << QString("Count segmentlistolcierr = %1").arg(slolcierr->count());
     qDebug() << QString("Count segmentlistslstr = %1").arg(slslstr->count());
@@ -1025,7 +1074,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
         //SVDNBC_npp_d20151019_t0013359_e0015001_b20595_c20151019002104000944_eum_ops.h5
-        else if (fileinfo.fileName().mid( 0, 8) == "SVMC_npp" && fileinfo.isFile())
+        else if ((fileinfo.fileName().mid( 0, 8) == "SVMC_npp" || fileinfo.fileName().mid( 0, 8) == "SVMC_j01") && fileinfo.isFile())
         {
             *nppTle = true;
             QDate d(fileinfo.fileName().mid( 10, 4).toInt(), fileinfo.fileName().mid( 14, 2).toInt(), fileinfo.fileName().mid( 16, 2).toInt());
@@ -1040,7 +1089,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
-        else if (fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp" && fileinfo.isFile())
+        else if ((fileinfo.fileName().mid( 0, 10) == "SVDNBC_npp" || fileinfo.fileName().mid( 0, 10) == "SVDNBC_j01") && fileinfo.isFile())
         {
             *nppTle = true;
             QDate d(fileinfo.fileName().mid( 12, 4).toInt(), fileinfo.fileName().mid( 16, 2).toInt(), fileinfo.fileName().mid( 18, 2).toInt());
@@ -1501,7 +1550,25 @@ void AVHRRSatellite::RemoveAllSelectedVIIRSDNB()
     QList<Segment*> *slviirs = seglviirsdnb->GetSegmentlistptr();
     RemoveFromList(slviirs);
     seglviirsdnb->GetSegsSelectedptr()->clear();
- }
+}
+
+void AVHRRSatellite::RemoveAllSelectedVIIRSMNOAA20()
+{
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedVIIRSMNOAA20()";
+
+    QList<Segment*> *slviirs = seglviirsmnoaa20->GetSegmentlistptr();
+    RemoveFromList(slviirs);
+    seglviirsmnoaa20->GetSegsSelectedptr()->clear();
+}
+
+void AVHRRSatellite::RemoveAllSelectedVIIRSDNBNOAA20()
+{
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedVIIRSDNBNOAA20()";
+
+    QList<Segment*> *slviirs = seglviirsdnbnoaa20->GetSegmentlistptr();
+    RemoveFromList(slviirs);
+    seglviirsdnbnoaa20->GetSegsSelectedptr()->clear();
+}
 
 void AVHRRSatellite::RemoveAllSelectedOLCIefr()
 {
@@ -1660,7 +1727,7 @@ bool AVHRRSatellite::SelectedAVHRRSegments()
 bool AVHRRSatellite::SelectedVIIRSMSegments()
 {
     qDebug() << "AVHRRSatellite::SelectedVIIRSSegments()";
-    if(seglviirsm->NbrOfSegmentsSelected() == 0)
+    if(seglviirsm->NbrOfSegmentsSelected() == 0 && seglviirsmnoaa20->NbrOfSegmentsSelected() == 0)
         return false;
     else
         return true;
@@ -1669,7 +1736,7 @@ bool AVHRRSatellite::SelectedVIIRSMSegments()
 bool AVHRRSatellite::SelectedVIIRSDNBSegments()
 {
     qDebug() << "AVHRRSatellite::SelectedVIIRSDNBSegments()";
-    if(seglviirsdnb->NbrOfSegmentsSelected() == 0)
+    if(seglviirsdnb->NbrOfSegmentsSelected() == 0 && seglviirsdnbnoaa20->NbrOfSegmentsSelected() == 0)
         return false;
     else
         return true;
@@ -1795,6 +1862,26 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSDNB()
 
     QStringList strlist;
     strlist << seglviirsdnb->GetDirectoryName() << QString("VIIRSDNB") <<  QString("%1").arg(seglviirsdnb->NbrOfSegments());
+
+    return strlist;
+
+}
+
+QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSMNOAA20()
+{
+
+    QStringList strlist;
+    strlist << seglviirsmnoaa20->GetDirectoryName() << QString("NOAA-20 M") <<  QString("%1").arg(seglviirsmnoaa20->NbrOfSegments());
+
+    return strlist;
+
+}
+
+QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSDNBNOAA20()
+{
+
+    QStringList strlist;
+    strlist << seglviirsdnbnoaa20->GetDirectoryName() << QString("NOAA-20 DNB") <<  QString("%1").arg(seglviirsdnbnoaa20->NbrOfSegments());
 
     return strlist;
 

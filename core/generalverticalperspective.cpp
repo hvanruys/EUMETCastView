@@ -147,11 +147,13 @@ void GeneralVerticalPerspective::CreateMapFromAVHRR(int inputchannel, eSegmentTy
 void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool combine)
 {
     if (type == SEG_VIIRSM)
-    {
         segs->seglviirsm->ComposeGVProjection(0);
-    }
     else if( type == SEG_VIIRSDNB)
         segs->seglviirsdnb->ComposeGVProjection(0);
+    else if( type == SEG_VIIRSMNOAA20)
+        segs->seglviirsmnoaa20->ComposeGVProjection(0);
+    else if( type == SEG_VIIRSDNBNOAA20)
+        segs->seglviirsdnbnoaa20->ComposeGVProjection(0);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
@@ -164,6 +166,13 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool comb
         }
         else if( type == SEG_VIIRSDNB)
             segs->seglviirsdnb->SmoothVIIRSImage(combine);
+        else if (type == SEG_VIIRSMNOAA20)
+        {
+            segs->seglviirsmnoaa20->SmoothVIIRSImage(combine);
+            segs->seglviirsmnoaa20->SmoothProjectionBrightnessTemp();
+        }
+        else if( type == SEG_VIIRSDNBNOAA20)
+            segs->seglviirsdnbnoaa20->SmoothVIIRSImage(combine);
     }
 
 }
@@ -301,7 +310,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                         }
                         else
                         {
-                            if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
+                            if(sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_10)
                             {
                                 if( row < 5*464)
                                 {
@@ -321,7 +330,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                                 }
 
                             }
-                            else if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
+                            else if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
                             {
                                 if( row < (sl->areatype == 0 ? 5*464 : 11136))
                                 {

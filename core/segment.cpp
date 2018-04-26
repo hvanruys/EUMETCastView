@@ -137,7 +137,7 @@ void Segment::CalculateCornerPoints()
     double delta1;
     double delta2;
 
-    if(segtype == SEG_VIIRSM || segtype == SEG_VIIRSDNB)
+    if(segtype == SEG_VIIRSM || segtype == SEG_VIIRSDNB || segtype == SEG_VIIRSMNOAA20 || segtype == SEG_VIIRSDNBNOAA20)
     {
         delta1 = 56.28 * PI / 180.0;  // (in rad) for VIIRS
         delta2 = delta1;
@@ -1328,3 +1328,63 @@ int Segment::copy_data(struct archive *ar, struct archive *aw)
         }
     }
 }
+
+
+
+
+float Segment::Minf(const float v11, const float v12, const float v21, const float v22)
+{
+    float Minimum = v11;
+
+    if( Minimum > v12 )
+            Minimum = v12;
+    if( Minimum > v21 )
+            Minimum = v21;
+    if( Minimum > v22 )
+            Minimum = v22;
+
+    return Minimum;
+}
+
+float Segment::Maxf(const float v11, const float v12, const float v21, const float v22)
+{
+    int Maximum = v11;
+
+    if( Maximum < v12 )
+            Maximum = v12;
+    if( Maximum < v21 )
+            Maximum = v21;
+    if( Maximum < v22 )
+            Maximum = v22;
+
+    return Maximum;
+}
+
+qint32 Segment::Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
+{
+    qint32 Minimum = v11;
+
+    if( Minimum > v12 )
+            Minimum = v12;
+    if( Minimum > v21 )
+            Minimum = v21;
+    if( Minimum > v22 )
+            Minimum = v22;
+
+    return Minimum;
+}
+
+qint32 Segment::Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22)
+{
+    int Maximum = v11;
+
+    if( Maximum < v12 )
+            Maximum = v12;
+    if( Maximum < v21 )
+            Maximum = v21;
+    if( Maximum < v22 )
+            Maximum = v22;
+
+    return Maximum;
+}
+

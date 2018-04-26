@@ -24,6 +24,8 @@ void Options::Initialize()
     buttonHRP=settings.value("/window/buttonhrp", false ).toBool();
     buttonVIIRSM=settings.value("/window/buttonviirs", false ).toBool();
     buttonVIIRSDNB=settings.value("/window/buttonviirsdnb", false ).toBool();
+    buttonVIIRSMNOAA20=settings.value("/window/buttonviirsmnoaa20", false ).toBool();
+    buttonVIIRSDNBNOAA20=settings.value("/window/buttonviirsdnbnoaa20", false ).toBool();
     buttonOLCIefr=settings.value("/window/buttonolciefr", false ).toBool();
     buttonOLCIerr=settings.value("/window/buttonolcierr", false ).toBool();
     buttonSLSTR=settings.value("/window/buttonslstr", false ).toBool();
@@ -343,6 +345,8 @@ void Options::Save()
     settings.setValue( "/window/buttonhrp", buttonHRP );
     settings.setValue( "/window/buttonviirs", buttonVIIRSM );
     settings.setValue( "/window/buttonviirsdnb", buttonVIIRSDNB );
+    settings.setValue( "/window/buttonviirsmnoaa20", buttonVIIRSMNOAA20 );
+    settings.setValue( "/window/buttonviirsdnbnoaa20", buttonVIIRSDNBNOAA20 );
     settings.setValue( "/window/buttonolciefr", buttonOLCIefr );
     settings.setValue( "/window/buttonolcierr", buttonOLCIerr );
     settings.setValue( "/window/buttonslstr", buttonSLSTR );
@@ -778,7 +782,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[2].rss = true;
     geosatellites[2].searchstring = "H-000-MSG2__-MSG2";
     geosatellites[2].indexsearchstring = 0;
-    geosatellites[2].filepattern = "H-000-MSG2??-?????????___-?????????-0?????___-%1-C_";
+    geosatellites[2].filepattern = "H-000-MSG2??-????????????-?????????-0?????___-%1-C_";
     geosatellites[2].imagewidth = 3712;
     geosatellites[2].imageheight = 1392;
     geosatellites[2].imagewidthhrv0 = 5568;

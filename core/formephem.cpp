@@ -219,6 +219,10 @@ void FormEphem::setSegmentsShownValue()
         segs->seglviirsm->SetNbrOfVisibleSegments(ui->segmentsslider->value());
     else if (opts.buttonVIIRSDNB)
         segs->seglviirsdnb->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonVIIRSMNOAA20)
+        segs->seglviirsmnoaa20->SetNbrOfVisibleSegments(ui->segmentsslider->value());
+    else if (opts.buttonVIIRSDNBNOAA20)
+        segs->seglviirsdnbnoaa20->SetNbrOfVisibleSegments(ui->segmentsslider->value());
     else if (opts.buttonOLCIefr)
         segs->seglolciefr->SetNbrOfVisibleSegments(ui->segmentsslider->value());
     else if (opts.buttonOLCIerr)
@@ -261,6 +265,8 @@ void FormEphem::NewSegmentOverviewItem()
 
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSM(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSDNB(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSMNOAA20(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSDNBNOAA20(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIefr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIerr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsSLSTR(), 0  );
@@ -670,6 +676,8 @@ void FormEphem::showSelectedSegmentList(void)
 
     QList<Segment*> *slviirsm = segs->seglviirsm->GetSegmentlistptr();
     QList<Segment*> *slviirsdnb = segs->seglviirsdnb->GetSegmentlistptr();
+    QList<Segment*> *slviirsmnoaa20 = segs->seglviirsmnoaa20->GetSegmentlistptr();
+    QList<Segment*> *slviirsdnbnoaa20 = segs->seglviirsdnbnoaa20->GetSegmentlistptr();
     QList<Segment*> *slolciefr = segs->seglolciefr->GetSegmentlistptr();
     QList<Segment*> *slolcierr = segs->seglolcierr->GetSegmentlistptr();
     QList<Segment*> *slslstr = segs->seglslstr->GetSegmentlistptr();
@@ -859,6 +867,42 @@ void FormEphem::showSelectedSegmentList(void)
     {
         QList<Segment*>::iterator segitviirsdnb = slviirsdnb->begin();
         while ( segitviirsdnb != slviirsdnb->end() )
+        {
+            if((*segitviirsdnb)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segitviirsdnb)->fileInfo.fileName() << QString("%1").arg((*segitviirsdnb)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segitviirsdnb)->fileInfo.absolutePath());
+            }
+            ++segitviirsdnb;
+        }
+
+    }
+    else
+    if (opts.buttonVIIRSMNOAA20)
+    {
+        QList<Segment*>::iterator segitviirsm = slviirsmnoaa20->begin();
+        while ( segitviirsm != slviirsmnoaa20->end() )
+        {
+            if((*segitviirsm)->IsSelected())
+            {
+                QStringList nl;
+                nl << (*segitviirsm)->fileInfo.fileName() << QString("%1").arg((*segitviirsm)->GetNbrOfLines());
+
+                items.append(new QTreeWidgetItem( (QTreeWidget*)0 , nl));
+                ui->selectedsegmentwidget->setHeaderLabel((*segitviirsm)->fileInfo.absolutePath());
+            }
+            ++segitviirsm;
+        }
+
+    }
+    else
+    if (opts.buttonVIIRSDNBNOAA20)
+    {
+        QList<Segment*>::iterator segitviirsdnb = slviirsdnbnoaa20->begin();
+        while ( segitviirsdnb != slviirsdnbnoaa20->end() )
         {
             if((*segitviirsdnb)->IsSelected())
             {

@@ -9,7 +9,7 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 #include <QMutex>
 
-SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, eSegmentType type, QObject *parent) :
     Segment(parent)
 {
     bool ok;
@@ -17,8 +17,17 @@ SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, QObject *p
     satlist = satl;
 
     fileInfo.setFile(*filesegment);
-    segment_type = "VIIRSM";
-    segtype = eSegmentType::SEG_VIIRSM;
+    switch (type) {
+    case eSegmentType::SEG_VIIRSM:
+        segment_type = "VIIRSM";
+        break;
+    case eSegmentType::SEG_VIIRSMNOAA20:
+        segment_type = "VIIRSMNOAA20";
+        break;
+    default:
+        break;
+    }
+    segtype = type;
 
     //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
 
@@ -49,17 +58,27 @@ SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, QObject *p
     this->earth_views_per_scanline = 3200;
     this->NbrOfLines = 768;
 
-    Satellite nss_2;
-    ok = satlist->GetSatellite(37849, &nss_2);
-    line1 = nss_2.line1;
-    line2 = nss_2.line2;
+    Satellite viirssat;
+    if(type == eSegmentType::SEG_VIIRSM)
+    {
+        viirssat.sat_name = "NPP";
+        ok = satlist->GetSatellite(37849, &viirssat);
+    }
+    else if(type == eSegmentType::SEG_VIIRSMNOAA20)
+    {
+        viirssat.sat_name = "NOAA-20";
+        ok = satlist->GetSatellite(43013, &viirssat);
+    }
+
+    line1 = viirssat.line1;
+    line2 = viirssat.line2;
 
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
     double epoch = line1.mid(18,14).toDouble(&ok);
     julian_state_vector = Julian_Date_of_Epoch(epoch);
 
-    qtle.reset(new QTle(nss_2.sat_name, line1, line2, QTle::wgs72));
+    qtle.reset(new QTle(viirssat.sat_name, line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));
 
 
@@ -115,6 +134,11 @@ void SegmentVIIRSM::initializeMemory()
     }
 }
 
+//Segment *SegmentVIIRSM::ReadSegmentInMemory()
+//{
+//    this->ReadVIIRSSegmentInMemory("MOD");
+//}
+
 Segment *SegmentVIIRSM::ReadSegmentInMemory()
 {
 
@@ -136,31 +160,39 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
     }
 
     qDebug() << QString("file %1  tempfileexist = %2").arg(basename).arg(tempfileexist);
+    qDebug() << QString("absolute filepath = %1  filename = %2").arg(this->fileInfo.absoluteFilePath()).arg(this->fileInfo.fileName());
+    qDebug() << QString("complete suffix = %1").arg(this->fileInfo.completeSuffix());
 
-    QFile fileout(basename);
-    fileout.open(QIODevice::WriteOnly);
-    QDataStream streamout(&fileout);
-
-
-    if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
+    if(this->fileInfo.completeSuffix() == "h5.bz2")
     {
-        qDebug() << "error in BZ2_bzopen";
-    }
+        QFile fileout(basename);
+        fileout.open(QIODevice::WriteOnly);
+        QDataStream streamout(&fileout);
 
-    bzerror = BZ_OK;
-    while ( bzerror == BZ_OK )
-    {
-        nBuf = BZ2_bzRead ( &bzerror, b, buf, 32768 );
-        if ( bzerror == BZ_OK || bzerror == BZ_STREAM_END)
+
+        if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
         {
-            streamout.writeRawData(buf, nBuf);
+            qDebug() << "error in BZ2_bzopen";
         }
+
+        bzerror = BZ_OK;
+        while ( bzerror == BZ_OK )
+        {
+            nBuf = BZ2_bzRead ( &bzerror, b, buf, 32768 );
+            if ( bzerror == BZ_OK || bzerror == BZ_STREAM_END)
+            {
+                streamout.writeRawData(buf, nBuf);
+            }
+        }
+
+        BZ2_bzclose ( b );
+
+        fileout.close();
     }
-
-    BZ2_bzclose ( b );
-
-    fileout.close();
-
+    else if(this->fileInfo.completeSuffix() == "h5")
+    {
+        QFile::copy(this->fileInfo.absoluteFilePath(), basename);
+    }
 
     if( (h5_file_id = H5Fopen(basename.toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
         qDebug() << "File " << basename << " not open !!";
@@ -173,7 +205,7 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
     int i, j;
 
     for( j = 0; j < 16; j++)
-        s[j] = (float)((j + 0.5)/16.0);
+        s16[j] = (float)((j + 0.5)/16.0);
 
 
     for(int itrack = 0; itrack < 48; itrack++)
@@ -228,15 +260,15 @@ Segment *SegmentVIIRSM::ReadSegmentInMemory()
 
     }
 
-    this->cornerpointfirst1 = QGeodetic(geolatitude[0]*PI/180.0, geolongitude[0]*PI/180.0, 0 );
-    this->cornerpointlast1 = QGeodetic(geolatitude[3199]*PI/180.0, geolongitude[3199]*PI/180.0, 0 );
-    this->cornerpointfirst2 = QGeodetic(geolatitude[760*earth_views_per_scanline]*PI/180.0, geolongitude[760*earth_views_per_scanline]*PI/180.0, 0 );
-    this->cornerpointlast2 = QGeodetic(geolatitude[760*earth_views_per_scanline + 3199]*PI/180.0, geolongitude[760*earth_views_per_scanline + 3199]*PI/180.0, 0 );
-    this->cornerpointcenter1 = QGeodetic(geolatitude[1600]*PI/180.0, geolongitude[1600]*PI/180.0, 0);
-    this->cornerpointcenter2 = QGeodetic(geolatitude[760*earth_views_per_scanline + 1600]*PI/180.0, geolongitude[760*earth_views_per_scanline + 1600]*PI/180.0, 0);
+//    this->cornerpointfirst1 = QGeodetic(geolatitude[0]*PI/180.0, geolongitude[0]*PI/180.0, 0 );
+//    this->cornerpointlast1 = QGeodetic(geolatitude[3199]*PI/180.0, geolongitude[3199]*PI/180.0, 0 );
+//    this->cornerpointfirst2 = QGeodetic(geolatitude[767*earth_views_per_scanline]*PI/180.0, geolongitude[767*earth_views_per_scanline]*PI/180.0, 0 );
+//    this->cornerpointlast2 = QGeodetic(geolatitude[767*earth_views_per_scanline + 3199]*PI/180.0, geolongitude[767*earth_views_per_scanline + 3199]*PI/180.0, 0 );
+//    this->cornerpointcenter1 = QGeodetic(geolatitude[1600]*PI/180.0, geolongitude[1600]*PI/180.0, 0);
+//    this->cornerpointcenter2 = QGeodetic(geolatitude[767*earth_views_per_scanline + 1600]*PI/180.0, geolongitude[767*earth_views_per_scanline + 1600]*PI/180.0, 0);
 
     qDebug() << "first1 = (" << geolatitude[0] << "," << geolongitude[0] << ") last1 = (" << geolatitude[3199] << "," << geolongitude[3199] << ")";
-    qDebug() << "first2 = (" << geolatitude[750*earth_views_per_scanline] << "," << geolongitude[750*earth_views_per_scanline] << ") last2 = (" << geolatitude[750*earth_views_per_scanline + 3199] << "," << geolongitude[750*earth_views_per_scanline + 3199] << ")";
+    qDebug() << "first2 = (" << geolatitude[767*earth_views_per_scanline] << "," << geolongitude[767*earth_views_per_scanline] << ") last2 = (" << geolatitude[767*earth_views_per_scanline + 3199] << "," << geolongitude[767*earth_views_per_scanline + 3199] << ")";
 
     h5_status = H5Fclose (h5_file_id);
 
@@ -649,8 +681,8 @@ QString SegmentVIIRSM::getDatasetNameFromColor(int colorindex)
 
 void SegmentVIIRSM::GetAlpha( float &ascan, float &atrack, int rels, int relt, int iscan)
 {
-    ascan = s[rels] + s[rels] * (1 - s[rels]) * expanscoef[iscan] + s[relt] * (1 - s[relt]) * aligncoef[iscan];
-    atrack = s[relt];
+    ascan = s16[rels] + s16[rels] * (1 - s16[rels]) * expanscoef[iscan] + s16[relt] * (1 - s16[relt]) * aligncoef[iscan];
+    atrack = s16[relt];
 }
 
 void SegmentVIIRSM::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48 ; 0 <= iscan < 200
@@ -714,13 +746,13 @@ void SegmentVIIRSM::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48
 
 
     if (Maxf(abs(lat_A), abs(lat_B), abs(lat_C), abs(lat_D)) > 60.0 || (themax - themin) > 90.0)
-        interpolateViaVector(itrack, iscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+        interpolateLonLatViaVector(itrack, iscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
     else
-        interpolateViaLonLat(itrack, iscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
+        interpolateLonLatDirect(itrack, iscan, lon_A, lon_B, lon_C, lon_D, lat_A, lat_B, lat_C, lat_D);
 
 }
 
-void SegmentVIIRSM::interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+void SegmentVIIRSM::interpolateLonLatDirect(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
 {
 
     float ascan, atrack;
@@ -760,7 +792,7 @@ void SegmentVIIRSM::interpolateViaLonLat(int itrack, int iscan, float lon_A, flo
 
 }
 
-void SegmentVIIRSM::interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
+void SegmentVIIRSM::interpolateLonLatViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D)
 {
     float ascan, atrack;
     float lon, lat;

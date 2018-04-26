@@ -379,6 +379,7 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
     if (spectrumvector.at(0) == "" &&  spectrumvector.at(1) == "" && spectrumvector.at(1) == "")
         return;
 
+    sl->setSpectrumVector(spectrumvector);
 
     if (type == "HRV" || type == "HRV Color")
     {

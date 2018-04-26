@@ -16,6 +16,12 @@
 #include "qsgp4.h"
 #include "qeci.h"
 
+#ifdef _WIN32
+#include <hdf5.h>
+#else
+#include <hdf5/serial/hdf5.h>
+#endif
+
 enum eProjections {
     LCC = 0,
     GVP,
@@ -175,12 +181,28 @@ public:
     QVector<QVector2D> winvectorlast;
     QVector<QVector3D> vecvector;
 
+    float MoonIllumFraction;
+
+    QScopedArrayPointer<float> geolatitude;
+    QScopedArrayPointer<float> geolongitude;
+    QScopedArrayPointer<float> lunar_zenith;
+    QScopedArrayPointer<float> solar_zenith;
+    QScopedArrayPointer<float> lunar_azimuth;
+    QScopedArrayPointer<float> solar_azimuth;
+
+
 protected:
 
     void CalculateCornerPoints();
     void CalculateDetailCornerPoints();
     void initializeProjectionCoord();
     void setupVector(double statevec, QSgp4Date sensing);
+
+
+    float Minf(const float v11, const float v12, const float v21, const float v22);
+    float Maxf(const float v11, const float v12, const float v21, const float v22);
+    qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
+    qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
 
 
 

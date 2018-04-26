@@ -231,6 +231,10 @@ void LambertConformalConic::CreateMapFromVIIRS(eSegmentType type, bool combine)
         segs->seglviirsm->ComposeLCCProjection(0);
     else if( type == SEG_VIIRSDNB)
         segs->seglviirsdnb->ComposeLCCProjection(0);
+    else if (type == SEG_VIIRSMNOAA20)
+        segs->seglviirsmnoaa20->ComposeLCCProjection(0);
+    else if( type == SEG_VIIRSDNBNOAA20)
+        segs->seglviirsdnbnoaa20->ComposeLCCProjection(0);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
@@ -243,6 +247,13 @@ void LambertConformalConic::CreateMapFromVIIRS(eSegmentType type, bool combine)
         }
         else if( type == SEG_VIIRSDNB)
             segs->seglviirsdnb->SmoothVIIRSImage(combine);
+        else if (type == SEG_VIIRSMNOAA20)
+        {
+            segs->seglviirsmnoaa20->SmoothVIIRSImage(combine);
+            segs->seglviirsmnoaa20->SmoothProjectionBrightnessTemp();
+        }
+        else if( type == SEG_VIIRSDNB)
+            segs->seglviirsdnbnoaa20->SmoothVIIRSImage(combine);
     }
 
 }
@@ -375,7 +386,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
                         }
                         else
                         {
-                            if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
+                            if(sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_10)
                             {
                                 if( picrow >= 0 && picrow < 5*464)
                                 {

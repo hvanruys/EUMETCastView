@@ -116,6 +116,10 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         sl = segs->seglviirsm;
     else if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
         sl = segs->seglviirsdnb;
+    else if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
+        sl = segs->seglviirsmnoaa20;
+    else if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
+        sl = segs->seglviirsdnbnoaa20;
     else if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
         sl = segs->seglolciefr;
     else if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)

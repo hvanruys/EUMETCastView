@@ -24,14 +24,13 @@ void SegmentListVIIRSM::doComposeVIIRSMImageInThread(SegmentListVIIRSM *t, QList
 }
 
 
-SegmentListVIIRSM::SegmentListVIIRSM(SatelliteList *satl, QObject *parent)
+SegmentListVIIRSM::SegmentListVIIRSM(SatelliteList *satl, eSegmentType type, QObject *parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListVIIRSM");
 
     satlist = satl;
-    seglisttype = eSegmentType::SEG_VIIRSM;
-
+    seglisttype = type;
     earthviews = 3200;
 }
 

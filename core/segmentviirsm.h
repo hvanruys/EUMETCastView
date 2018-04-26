@@ -16,7 +16,7 @@ class SegmentVIIRSM : public Segment
     Q_OBJECT
 
 public:
-    explicit SegmentVIIRSM(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentVIIRSM(QFile *filesegment = 0, SatelliteList *satl = 0, eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
     ~SegmentVIIRSM();
 
     void initializeMemory();
@@ -42,7 +42,6 @@ public:
     float getRadiance(int lines, int views);
     float getRadiance(int radiance);
 
-
     int stat_max_projection[3];
     int stat_min_projection[3];
     long active_pixels_projection;
@@ -63,8 +62,8 @@ private:
     qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
     qint32 Max(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
 
-    void interpolateViaLonLat(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
-    void interpolateViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
+    void interpolateLonLatDirect(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
+    void interpolateLonLatViaVector(int itrack, int iscan, float lon_A, float lon_B, float lon_C, float lon_D, float lat_A, float lat_B, float lat_C, float lat_D);
 
 
     void ReadVIIRSM_SDR_All(hid_t h5_file_id);
@@ -74,18 +73,12 @@ private:
     QScopedArrayPointer<float> tiepoints_lon;
     QScopedArrayPointer<float> aligncoef;
     QScopedArrayPointer<float> expanscoef;
-    float s[16];
-
-    QScopedArrayPointer<float> geolatitude;
-    QScopedArrayPointer<float> geolongitude;
-
-
+    float s16[16];
 
     float latMax;
     float lonMax;
     float latMin;
     float lonMin;
-
 
     int threshold[3];
     float radianceoffsethigh[3];

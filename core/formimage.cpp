@@ -81,6 +81,8 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 
     viirsmcount = 0;
     viirsdnbcount = 0;
+    viirsmcountnoaa20 = 0;
+    viirsdnbcountnoaa20 = 0;
     olciefrcount = 0;
     olcierrcount = 0;
     slstrcount = 0;
@@ -185,11 +187,11 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageProjection)));
         break;
     case IMAGE_VIIRSM:
-        displayVIIRSImageInfo(SEG_VIIRSM);
+        displayVIIRSImageInfo(segmenttype);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
         break;
     case IMAGE_VIIRSDNB:
-        displayVIIRSImageInfo(SEG_VIIRSDNB);
+        displayVIIRSImageInfo(segmenttype);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
         break;
     case IMAGE_OLCI:
@@ -373,7 +375,10 @@ void FormImage::displayImage(eImageType channel)
             else
             {
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
-                displayVIIRSImageInfo(SEG_VIIRSM);
+                if(segmenttype == eSegmentType::SEG_VIIRSM)
+                    displayVIIRSImageInfo(SEG_VIIRSM);
+                else if(segmenttype == eSegmentType::SEG_VIIRSMNOAA20)
+                    displayVIIRSImageInfo(SEG_VIIRSMNOAA20);
             }
             break;
         case IMAGE_VIIRSDNB:
@@ -385,7 +390,10 @@ void FormImage::displayImage(eImageType channel)
             else
             {
                 imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
-                displayVIIRSImageInfo(SEG_VIIRSDNB);
+                if(segmenttype == eSegmentType::SEG_VIIRSDNB)
+                    displayVIIRSImageInfo(SEG_VIIRSDNB);
+                else if(segmenttype == eSegmentType::SEG_VIIRSDNBNOAA20)
+                    displayVIIRSImageInfo(SEG_VIIRSDNBNOAA20);
             }
             break;
         case IMAGE_OLCI:
@@ -456,6 +464,14 @@ void FormImage::MakeImage()
     {
         viirsdnbcount = segs->seglviirsdnb->NbrOfSegmentsSelected();
     }
+    else if(opts.buttonVIIRSMNOAA20)
+    {
+        viirsmcountnoaa20 = segs->seglviirsmnoaa20->NbrOfSegmentsSelected();
+    }
+    else if(opts.buttonVIIRSDNBNOAA20)
+    {
+        viirsdnbcountnoaa20 = segs->seglviirsdnbnoaa20->NbrOfSegmentsSelected();
+    }
     else if(opts.buttonOLCIefr)
     {
         olciefrcount = segs->seglolciefr->NbrOfSegmentsSelected();
@@ -488,6 +504,8 @@ void FormImage::MakeImage()
 
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsm segments selected = %1").arg(viirsmcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnb segments selected = %1").arg(viirsdnbcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of viirsmnoaa20 segments selected = %1").arg(viirsmcountnoaa20);
+    qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnbnoaa20 segments selected = %1").arg(viirsdnbcountnoaa20);
     qDebug() << QString("in FormImage::ComposeImage nbr of olciefr segments selected = %1").arg(olciefrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of olcierr segments selected = %1").arg(olcierrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of slstr segments selected = %1").arg(slstrcount);
@@ -625,6 +643,57 @@ void FormImage::MakeImage()
         //          in Workerthread
         segs->seglviirsdnb->ComposeVIIRSImage(bandlist, colorlist, invertlist);
     }
+    else if(viirsmcountnoaa20 > 0 && opts.buttonVIIRSMNOAA20)
+    {
+        if(!formtoolbox->comboColVIIRSOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the VIIRS tab.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        formtoolbox->setToolboxButtons(false);
+
+        this->displayImage(IMAGE_VIIRSM);
+        this->kindofimage = "VIIRSM";
+        this->setSegmentType(SEG_VIIRSMNOAA20);
+        bandlist = formtoolbox->getVIIRSMBandList();
+        colorlist = formtoolbox->getVIIRSMColorList();
+        invertlist = formtoolbox->getVIIRSMInvertList();
+        //          in Workerthread
+        segs->seglviirsmnoaa20->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+        //          in main thread
+        //            segs->seglviirsm->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
+    }
+    else if(viirsdnbcountnoaa20 > 0 && opts.buttonVIIRSDNBNOAA20)
+    {
+        formtoolbox->setToolboxButtons(false);
+        segs->seglviirsdnbnoaa20->graphvalues.reset(new long[150 * 180]);
+        for(int i = 0; i < 150 * 180; i++)
+            segs->seglviirsdnbnoaa20->graphvalues[i] = 0;
+
+
+        this->displayImage(IMAGE_VIIRSDNB);
+        this->kindofimage = "VIIRSDNB";
+        this->setSegmentType(SEG_VIIRSDNBNOAA20);
+
+        bandlist = formtoolbox->getVIIRSMBandList();
+        colorlist = formtoolbox->getVIIRSMColorList();
+        invertlist = formtoolbox->getVIIRSMInvertList();
+        //          in Workerthread
+        segs->seglviirsdnbnoaa20->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+    }
     else if(olciefrcount > 0 && opts.buttonOLCIefr)
     {
         if(!formtoolbox->comboColOLCIOK())
@@ -736,7 +805,10 @@ bool FormImage::ShowVIIRSMImage()
 {
     bool ret = false;
 
-    viirsmcount = segs->seglviirsm->NbrOfSegmentsSelected();
+    if(opts.buttonVIIRSM)
+        viirsmcount = segs->seglviirsm->NbrOfSegmentsSelected();
+    else if(opts.buttonVIIRSMNOAA20)
+        viirsmcount = segs->seglviirsmnoaa20->NbrOfSegmentsSelected();
 
     QList<bool> bandlist;
     QList<int> colorlist;
@@ -758,7 +830,10 @@ bool FormImage::ShowVIIRSMImage()
         colorlist = formtoolbox->getVIIRSMColorList();
         invertlist = formtoolbox->getVIIRSMInvertList();
 
-        segs->seglviirsm->ShowImageSerial(bandlist, colorlist, invertlist);
+        if(opts.buttonVIIRSM)
+            segs->seglviirsm->ShowImageSerial(bandlist, colorlist, invertlist);
+        else if(opts.buttonVIIRSMNOAA20)
+            segs->seglviirsmnoaa20->ShowImageSerial(bandlist, colorlist, invertlist);
     }
     else
         ret = false;
@@ -1238,13 +1313,24 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
         moonillum = segs->seglviirsdnb->getMoonIllumination();
 
         break;
+    case SEG_VIIRSMNOAA20:
+        segtype = "VIIRSMNOAA20";
+        nbrselected = segs->seglviirsmnoaa20->NbrOfSegmentsSelected();
+
+        break;
+    case SEG_VIIRSDNBNOAA20:
+        segtype = "VIIRSDNBNOAA20";
+        nbrselected = segs->seglviirsdnbnoaa20->NbrOfSegmentsSelected();
+        moonillum = segs->seglviirsdnbnoaa20->getMoonIllumination();
+
+        break;
     default:
         segtype = "NA";
         break;
     }
 
 
-    if(type == SEG_VIIRSM)
+    if(type == SEG_VIIRSM || type == SEG_VIIRSMNOAA20)
     {
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
@@ -1257,7 +1343,7 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
         formtoolbox->writeInfoToTextEdit(txtInfo);
 
     } else
-    if(type == SEG_VIIRSDNB)
+    if(type == SEG_VIIRSDNB || type == SEG_VIIRSDNBNOAA20)
     {
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
@@ -1295,15 +1381,17 @@ void FormImage::displayGeoImageInformation(QString satname)
     slgeo = segs->getActiveSegmentList();
 
     QString type = slgeo->getKindofImage();
+    QVector<QString> spectrumvector = slgeo->getSpectrumVector();
+    QString spectrum = ( type == "VIS_IR" ? spectrumvector.at(0) : "");
 
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"
                       "<body>"
                       "<h4 style='color:blue'>Image Information</h4>"
                       "<p>Satellite = %1<br>"
-                      "Image type = %2<br>"
-                      "Image width = %3 height = %4</p>"
-                      "</body></html>").arg(satname).arg(type).arg(imageptrs->ptrimageGeostationary->width()).arg(imageptrs->ptrimageGeostationary->height());
+                      "Image type = %2 %3<br>"
+                      "Image width = %4 height = %5</p>"
+                      "</body></html>").arg(satname).arg(type).arg(spectrum).arg(imageptrs->ptrimageGeostationary->width()).arg(imageptrs->ptrimageGeostationary->height());
 
 
     formtoolbox->writeInfoToTextEdit(txtInfo);
@@ -2050,10 +2138,8 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
     }
     else if(sl->getKindofImage() == "VIS_IR")
     {
-        if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
-            imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, opts.clahecliplimit);
-        else if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
-            imageptrs->CLAHE(pixelsRed, 3712, 3*464, 0, 1023, 16, 16, 256, opts.clahecliplimit);
+        if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
+            imageptrs->CLAHE(pixelsRed, 3712, (sl->bisRSS ? 3*464 : 3712), 0, 1023, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::GOES_15)
             imageptrs->CLAHE(pixelsRed, 2816, 464*7, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::GOMS2)

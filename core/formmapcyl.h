@@ -82,12 +82,13 @@ private slots:
     void on_btnRealTime_clicked();
 
     void on_btnVIIRSM_clicked();
+    void on_btnVIIRSDNB_clicked();
+    void on_btnVIIRSMNOAA20_clicked();
+    void on_btnVIIRSDNBNOAA20_clicked();
 
     void on_btnAllSegments_clicked();
 
     void on_btnPhong_clicked();
-
-    void on_btnVIIRSDNB_clicked();
 
     void on_btnOLCIefr_clicked();
 

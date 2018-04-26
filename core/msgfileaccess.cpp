@@ -1,5 +1,4 @@
 #include "msgfileaccess.h"
-#include "options.h"
 #include <QString>
 #include <QStringList>
 #include <QDir>
@@ -7,9 +6,6 @@
 #include <stdexcept>
 
 using namespace std;
-
-extern Options opts;
-
 
 #define PATH_SEPARATOR "/"
 // For windows use #define PATH_SEPARATOR "\\"
@@ -166,7 +162,7 @@ QString MsgFileAccess::prologueFile() const
 
 
     QStringList prolist = globit(directory, filepattern);
-    if (prolist.count() > 1)
+    if (prolist.count() != 1)
         return "";
 
     QFile prologue(prolist.at(0));
@@ -192,7 +188,7 @@ QString MsgFileAccess::epilogueFile() const
 
 
     QStringList epilist = globit(directory, filepattern);
-    if (epilist.count() > 1)
+    if (epilist.count() != 1)
         return "";
 
     QFile epilogue(epilist.at(0));

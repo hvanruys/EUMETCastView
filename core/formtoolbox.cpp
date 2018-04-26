@@ -2836,7 +2836,7 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     }
     else if(ui->rdbVIIRSMin->isChecked())
     {
-        if(!opts.buttonVIIRSM || !segs->SelectedVIIRSMSegments())
+        if(!(opts.buttonVIIRSM || opts.buttonVIIRSMNOAA20) || !segs->SelectedVIIRSMSegments())
         {
                 QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
                 return;
@@ -2845,7 +2845,7 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
     {
-        if(!opts.buttonVIIRSDNB || !segs->SelectedVIIRSDNBSegments())
+        if(!(opts.buttonVIIRSDNB || opts.buttonVIIRSDNBNOAA20) || !segs->SelectedVIIRSDNBSegments())
         {
                 QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
                 return;
@@ -2912,14 +2912,20 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         currentProjectionType = PROJ_VIIRSM;
 
         ui->btnGVPFalseColor->setChecked(false);
-        imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        if(opts.buttonVIIRSM)
+            imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        else if(opts.buttonVIIRSMNOAA20)
+            imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSMNOAA20, false);
         initializeScales();
 
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
     {
         currentProjectionType = PROJ_VIIRSDNB;
-        imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+        if(opts.buttonVIIRSDNB)
+            imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+        else if(opts.buttonVIIRSDNBNOAA20)
+            imageptrs->gvp->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNBNOAA20, ui->rdbCombine->isChecked());
     }
     else if(ui->rdbOLCIefrin->isChecked())
     {
@@ -3027,25 +3033,19 @@ void FormToolbox::on_btnCreateLambert_clicked()
     }
     else if(ui->rdbVIIRSMin->isChecked())
     {
-        if(opts.buttonVIIRSM)
+        if(!(opts.buttonVIIRSM || opts.buttonVIIRSMNOAA20) || !segs->SelectedVIIRSMSegments())
         {
-            if(!segs->SelectedVIIRSMSegments())
-            {
                 QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
                 return;
-            }
         }
 
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
     {
-        if(opts.buttonVIIRSDNB)
+        if(!(opts.buttonVIIRSDNB || opts.buttonVIIRSDNBNOAA20) || !segs->SelectedVIIRSDNBSegments())
         {
-            if(!segs->SelectedVIIRSDNBSegments())
-            {
                 QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
                 return;
-            }
         }
 
     }
@@ -3117,13 +3117,20 @@ void FormToolbox::on_btnCreateLambert_clicked()
 
         ui->btnLCCFalseColor->setChecked(false);
         currentProjectionType = PROJ_VIIRSM;
-        imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        if(opts.buttonVIIRSM)
+            imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        else if(opts.buttonVIIRSMNOAA20)
+            imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSMNOAA20, false);
+
         initializeScales();
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
     {
         currentProjectionType = PROJ_VIIRSDNB;
-        imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+        if(opts.buttonVIIRSDNB)
+            imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+        else if(opts.buttonVIIRSDNBNOAA20)
+            imageptrs->lcc->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNBNOAA20, ui->rdbCombine->isChecked());
     }
     else if(ui->rdbMeteosatin->isChecked())
     {
@@ -3241,13 +3248,19 @@ void FormToolbox::on_btnCreateStereo_clicked()
         ui->btnSGFalseColor->setChecked(false);
 
         currentProjectionType = PROJ_VIIRSM;
-        imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        if(opts.buttonVIIRSM)
+            imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        else if(opts.buttonVIIRSMNOAA20)
+            imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSMNOAA20, false);
         initializeScales();
     }
     else if(ui->rdbVIIRSDNBin->isChecked())
     {
         currentProjectionType = PROJ_VIIRSDNB;
-        imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+        if(opts.buttonVIIRSDNB)
+            imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, ui->rdbCombine->isChecked());
+        else if(opts.buttonVIIRSDNBNOAA20)
+            imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNBNOAA20, ui->rdbCombine->isChecked());
     }
     else if(ui->rdbMeteosatin->isChecked())
     {
@@ -3862,7 +3875,7 @@ bool FormToolbox::comboColGeoOK()
 void FormToolbox::on_btnUpdateVIIRSImage_clicked()
 {
 
-    if(segs->seglviirsm->NbrOfSegmentsSelected() > 0)
+    if(segs->seglviirsm->NbrOfSegmentsSelected() > 0 || segs->seglviirsmnoaa20->NbrOfSegmentsSelected() > 0)
     {
         if(!comboColVIIRSOK())
         {
@@ -4088,7 +4101,11 @@ void FormToolbox::on_sbCentreBand_valueChanged(int value)
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     ui->sbCentreBand->blockSignals(true);
-    segs->seglviirsdnb->sliderCentreBandChanged(value);
+    if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSDNB)
+        segs->seglviirsdnb->sliderCentreBandChanged(value);
+    else if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSDNBNOAA20)
+        segs->seglviirsdnbnoaa20->sliderCentreBandChanged(value);
+
     float fval1 = pow(10, fval);
     ui->lblCentreBand->setText(QString("%1").arg(fval1, 0, 'E', 2));
     ui->lblTitleCentreBand->setText(QString("Centre Band from %1 to %2 [W/cm² sr]").arg(fval1/pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2).arg(fval1*pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2));
@@ -5015,13 +5032,17 @@ void FormToolbox::slotDisplayDNBGraph()
     qDebug() << QString("FormToolbox::slotDisplayDNBGraph() valuerange = %1").arg(valueRangeDNBGraph);
 
     long valmax = 0;
+    long val = 0;
 
     for(int j = 0; j < 150; j++)
     {
         for(int xzenith = 0; xzenith < 180; xzenith++)
         {
             int index = j * 180 + xzenith;
-            long val = segs->seglviirsdnb->graphvalues.operator [](index);
+            if(opts.buttonVIIRSDNB)
+                val = segs->seglviirsdnb->graphvalues.operator [](index);
+            else if(opts.buttonVIIRSDNBNOAA20)
+                val = segs->seglviirsdnbnoaa20->graphvalues.operator [](index);
             if(val > valmax)
                 valmax = val;
         }
@@ -5042,7 +5063,10 @@ void FormToolbox::slotDisplayDNBGraph()
         for(int xzenith = 0; xzenith < 180; xzenith++)
         {
             int index = j * 180 + xzenith;
-            long val = segs->seglviirsdnb->graphvalues.operator [](index);
+            if(opts.buttonVIIRSDNB)
+                val = segs->seglviirsdnb->graphvalues.operator [](index);
+            else if(opts.buttonVIIRSDNBNOAA20)
+                val = segs->seglviirsdnbnoaa20->graphvalues.operator [](index);
             if(val > 0)
                 colorMap->data()->setCell(xzenith, j, val);
         }
@@ -5129,7 +5153,10 @@ void FormToolbox::fitCurve()
 //    }
     // create graph and assign data to it:
     ui->graph->addGraph();
-    ui->graph->graph(0)->setData(segs->seglviirsdnb->xDNBcurve, segs->seglviirsdnb->yDNBcurve);
+    if(opts.buttonVIIRSDNB)
+        ui->graph->graph(0)->setData(segs->seglviirsdnb->xDNBcurve, segs->seglviirsdnb->yDNBcurve);
+    else if(opts.buttonVIIRSDNBNOAA20)
+        ui->graph->graph(0)->setData(segs->seglviirsdnbnoaa20->xDNBcurve, segs->seglviirsdnbnoaa20->yDNBcurve);
 
     ui->graph->graph(0)->setLineStyle(QCPGraph::lsLine );
 

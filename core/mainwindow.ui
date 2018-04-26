@@ -47,6 +47,7 @@
    <addaction name="actionExit"/>
    <addaction name="actionCreatePNG"/>
    <addaction name="actionPreferences"/>
+   <addaction name="actionXml"/>
    <addaction name="actionAbout"/>
    <addaction name="separator"/>
    <addaction name="actionZoomout"/>
@@ -269,6 +270,15 @@
    </property>
    <property name="text">
     <string>Whats this ?</string>
+   </property>
+  </action>
+  <action name="actionXml">
+   <property name="icon">
+    <iconset resource="EUMETCastView.qrc">
+     <normaloff>:/icons/icons/oxygen/tools-wizard.png</normaloff>:/icons/icons/oxygen/tools-wizard.png</iconset>
+   </property>
+   <property name="text">
+    <string>Xml</string>
    </property>
   </action>
  </widget>

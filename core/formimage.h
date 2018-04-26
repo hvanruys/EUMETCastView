@@ -89,6 +89,8 @@ public:
 
     int viirsmcount;
     int viirsdnbcount;
+    int viirsmcountnoaa20;
+    int viirsdnbcountnoaa20;
     int olciefrcount;
     int olcierrcount;
     int slstrcount;

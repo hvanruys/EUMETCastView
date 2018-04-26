@@ -21,13 +21,13 @@ void SegmentListVIIRSDNB::doComposeVIIRSDNBImageInThread(SegmentListVIIRSDNB *t)
 }
 
 
-SegmentListVIIRSDNB::SegmentListVIIRSDNB(SatelliteList *satl, QObject *parent)
+SegmentListVIIRSDNB::SegmentListVIIRSDNB(SatelliteList *satl, eSegmentType type, QObject *parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListVIIRSDNB");
 
     satlist = satl;
-    seglisttype = eSegmentType::SEG_VIIRSDNB;
+    seglisttype = type;
 
     earthviews = 4064;
     moonillumination = 0.0;
@@ -141,10 +141,10 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
     int count = 0;
     float totillum = 0;
 
-    for(int i = 0; i < xDNBcurve.length(); i ++)
-    {
-        qDebug() << QString("x = %1   y = %2").arg(xDNBcurve.at(i)).arg(yDNBcurve.at(i));
-    }
+//    for(int i = 0; i < xDNBcurve.length(); i ++)
+//    {
+//        qDebug() << QString("x = %1   y = %2").arg(xDNBcurve.at(i)).arg(yDNBcurve.at(i));
+//    }
 
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )

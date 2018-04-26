@@ -119,7 +119,7 @@ void StereoGraphic::CreateMapFromGeostationary()
     int row, picrow;
     int hrvmap = 0;
 
-    qDebug() << QString("Start StereoGraphic::CreateMapFromMeteosat");
+    qDebug() << QString("Start StereoGraphic::CreateMapFromGeostationary");
 
     SegmentListGeostationary *sl;
 
@@ -156,15 +156,15 @@ void StereoGraphic::CreateMapFromGeostationary()
 
     if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
     {
-        int LECA = 11136 - sl->LowerEastColumnActual;
-        int LSLA = 11136 - sl->LowerSouthLineActual;
-        int LWCA = 11136 - sl->LowerWestColumnActual;
-        int LNLA = 11136 - sl->LowerNorthLineActual;
+        LECA = 11136 - sl->LowerEastColumnActual;
+        LSLA = 11136 - sl->LowerSouthLineActual;
+        LWCA = 11136 - sl->LowerWestColumnActual;
+        LNLA = 11136 - sl->LowerNorthLineActual;
 
-        int UECA = 11136 - sl->UpperEastColumnActual;
-        int USLA = 11136 - sl->UpperSouthLineActual;
-        int UWCA = 11136 - sl->UpperWestColumnActual;
-        int UNLA = 11136 - sl->UpperNorthLineActual;
+        UECA = 11136 - sl->UpperEastColumnActual;
+        USLA = 11136 - sl->UpperSouthLineActual;
+        UWCA = 11136 - sl->UpperWestColumnActual;
+        UNLA = 11136 - sl->UpperNorthLineActual;
     }
 
     qDebug() << QString("sl->areatype = %1   hrvmap = %2").arg(sl->areatype).arg(hrvmap);
@@ -205,7 +205,7 @@ void StereoGraphic::CreateMapFromGeostationary()
                         }
                         else
                         {
-                            if(sl->getGeoSatellite() == eGeoSatellite::MET_9)
+                            if(sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_10)
                             {
                                 if( picrow >= 0 && picrow < 5*464)
                                 {
@@ -362,6 +362,11 @@ void StereoGraphic::CreateMapFromVIIRS(eSegmentType type, bool combine)
         segs->seglviirsm->ComposeSGProjection(0);
     else if( type == SEG_VIIRSDNB)
         segs->seglviirsdnb->ComposeSGProjection(0);
+    else if (type == SEG_VIIRSMNOAA20)
+        segs->seglviirsmnoaa20->ComposeSGProjection(0);
+    else if( type == SEG_VIIRSDNBNOAA20)
+        segs->seglviirsdnbnoaa20->ComposeSGProjection(0);
+
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
@@ -371,6 +376,10 @@ void StereoGraphic::CreateMapFromVIIRS(eSegmentType type, bool combine)
             segs->seglviirsm->SmoothVIIRSImage(combine);
         else if( type == SEG_VIIRSDNB)
             segs->seglviirsdnb->SmoothVIIRSImage(combine);
+        else if (type == SEG_VIIRSMNOAA20)
+            segs->seglviirsmnoaa20->SmoothVIIRSImage(combine);
+        else if( type == SEG_VIIRSDNBNOAA20)
+            segs->seglviirsdnbnoaa20->SmoothVIIRSImage(combine);
     }
 
 }

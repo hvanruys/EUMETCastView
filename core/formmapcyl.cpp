@@ -39,6 +39,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 
     ui->btnVIIRSM->setCheckable(true);
     ui->btnVIIRSDNB->setCheckable(true);
+    ui->btnVIIRSMNOAA20->setCheckable(true);
+    ui->btnVIIRSDNBNOAA20->setCheckable(true);
     ui->btnOLCIefr->setCheckable(true);
     ui->btnOLCIerr->setCheckable(true);
     ui->btnSLSTR->setCheckable(true);
@@ -102,6 +104,20 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     {
         SetAllButtonsToFalse();
         opts.buttonVIIRSDNB = true;
+        formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+        formtoolbox->setTabWidgetVIIRSIndex(1);
+    }
+    else if (opts.buttonVIIRSMNOAA20)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonVIIRSMNOAA20 = true;
+        formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+        formtoolbox->setTabWidgetVIIRSIndex(0);
+    }
+    else if (opts.buttonVIIRSDNBNOAA20)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonVIIRSDNBNOAA20 = true;
         formtoolbox->setTabWidgetIndex(TAB_VIIRS);
         formtoolbox->setTabWidgetVIIRSIndex(1);
     }
@@ -191,6 +207,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
     ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
+    ui->btnVIIRSMNOAA20->setChecked(opts.buttonVIIRSMNOAA20);
+    ui->btnVIIRSDNBNOAA20->setChecked(opts.buttonVIIRSDNBNOAA20);
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
     ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
     ui->btnSLSTR->setChecked(opts.buttonSLSTR);
@@ -239,6 +257,8 @@ void FormMapCyl::SetAllButtonsToFalse()
 
     opts.buttonVIIRSM = false;
     opts.buttonVIIRSDNB = false;
+    opts.buttonVIIRSMNOAA20 = false;
+    opts.buttonVIIRSDNBNOAA20 = false;
     opts.buttonOLCIefr = false;
     opts.buttonOLCIerr = false;
     opts.buttonSLSTR = false;
@@ -265,6 +285,8 @@ void FormMapCyl::slotSetMapCylButtons(bool stat)
     ui->btnNoaa->setEnabled(stat);
     ui->btnVIIRSM->setEnabled(stat);
     ui->btnVIIRSDNB->setEnabled(stat);
+    ui->btnVIIRSMNOAA20->setEnabled(stat);
+    ui->btnVIIRSDNBNOAA20->setEnabled(stat);
     ui->btnOLCIefr->setEnabled(stat);
     ui->btnOLCIerr->setEnabled(stat);
     ui->btnSLSTR->setEnabled(stat);
@@ -319,6 +341,8 @@ void FormMapCyl::showSegmentCount()
     int cntselgac = segs->seglgac->NbrOfSegmentsSelected();
     int cntselviirsm = segs->seglviirsm->NbrOfSegmentsSelected();
     int cntselviirsdnb = segs->seglviirsdnb->NbrOfSegmentsSelected();
+    int cntselviirsmnoaa20 = segs->seglviirsmnoaa20->NbrOfSegmentsSelected();
+    int cntselviirsdnbnoaa20 = segs->seglviirsdnbnoaa20->NbrOfSegmentsSelected();
     int cntselolciefr = segs->seglolciefr->NbrOfSegmentsSelected();
     int cntselolcierr = segs->seglolcierr->NbrOfSegmentsSelected();
     int cntselslstr = segs->seglslstr->NbrOfSegmentsSelected();
@@ -339,6 +363,8 @@ void FormMapCyl::showSegmentCount()
     int cntgac = segs->seglgac->NbrOfSegments();
     int cntviirsm = segs->seglviirsm->NbrOfSegments();
     int cntviirsdnb = segs->seglviirsdnb->NbrOfSegments();
+    int cntviirsmnoaa20 = segs->seglviirsmnoaa20->NbrOfSegments();
+    int cntviirsdnbnoaa20 = segs->seglviirsdnbnoaa20->NbrOfSegments();
     int cntolciefr = segs->seglolciefr->NbrOfSegments();
     int cntolcierr = segs->seglolcierr->NbrOfSegments();
     int cntslstr = segs->seglslstr->NbrOfSegments();
@@ -352,9 +378,9 @@ void FormMapCyl::showSegmentCount()
     int cntM02hrpt = segs->seglM02hrpt->NbrOfSegments();
     int cntM01hrpt = segs->seglM01hrpt->NbrOfSegments();
 
-    long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb + cntolciefr + cntolcierr + cntslstr +
+    long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb + cntviirsmnoaa20 + cntviirsdnbnoaa20 + cntolciefr + cntolcierr + cntslstr +
             cntmetopAhrpt + cntmetopBhrpt + cntnoaa19hrpt + cntM01hrpt + cntM02hrpt + cntdatahubolciefr + cntdatahubolcierr + cntdatahubslstr;
-    long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb + cntselolciefr + cntselolcierr + cntselslstr +
+    long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb  + cntselviirsmnoaa20 + cntselviirsdnbnoaa20 + cntselolciefr + cntselolcierr + cntselslstr +
             cntselmetopAhrpt + cntselmetopBhrpt + cntselnoaa19hrpt + cntselM01hrpt + cntselM02hrpt + cntseldatahubolciefr + cntseldatahubolcierr + cntseldatahubslstr;
 
     if ( totsegsel  > 0)
@@ -366,13 +392,15 @@ void FormMapCyl::showSegmentCount()
         ui->btnRemoveSelected->setText(" No selected segments ");
     }
 
-    ui->btnMetop->setText((QString(" Metop # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
-    ui->btnNoaa->setText((QString(" Noaa # %1/%2 ").arg(cntselnoaa).arg(cntnoaa)));
-    ui->btnGAC->setText((QString(" GAC # %1/%2 ").arg(cntselgac).arg(cntgac)));
-    ui->btnHRP->setText((QString(" HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
+    ui->btnMetop->setText((QString(" Metop A/B # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
+    ui->btnNoaa->setText((QString(" NOAA-19 # %1/%2 ").arg(cntselnoaa).arg(cntnoaa)));
+    ui->btnGAC->setText((QString(" NOAA-19 GAC # %1/%2 ").arg(cntselgac).arg(cntgac)));
+    ui->btnHRP->setText((QString(" Metop A/B HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
 
-    ui->btnVIIRSM->setText((QString(" VIIRS M # %1/%2 ").arg(cntselviirsm).arg(cntviirsm)));
-    ui->btnVIIRSDNB->setText((QString(" VIIRS DNB # %1/%2 ").arg(cntselviirsdnb).arg(cntviirsdnb)));
+    ui->btnVIIRSM->setText((QString(" NPP VIIRS M # %1/%2 ").arg(cntselviirsm).arg(cntviirsm)));
+    ui->btnVIIRSDNB->setText((QString(" NPP VIIRS DNB # %1/%2 ").arg(cntselviirsdnb).arg(cntviirsdnb)));
+    ui->btnVIIRSMNOAA20->setText((QString(" NOAA-20 VIIRS M # %1/%2 ").arg(cntselviirsmnoaa20).arg(cntviirsmnoaa20)));
+    ui->btnVIIRSDNBNOAA20->setText((QString(" NOAA-20 VIIRS DNB # %1/%2 ").arg(cntselviirsdnbnoaa20).arg(cntviirsdnbnoaa20)));
 
     ui->btnOLCIefr->setText((QString(" OLCI EFR # %1/%2 ").arg(cntselolciefr).arg(cntolciefr)));
     ui->btnOLCIerr->setText((QString(" OLCI ERR # %1/%2 ").arg(cntselolcierr).arg(cntolcierr)));
@@ -455,6 +483,14 @@ void FormMapCyl::updatesatmap(int index)
         {
             segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
         } else
+        if (opts.buttonVIIRSMNOAA20)
+        {
+            segs->seglviirsmnoaa20->ShowSegment(ui->verticalScrollBar->value());
+        } else
+        if (opts.buttonVIIRSDNBNOAA20)
+        {
+            segs->seglviirsdnbnoaa20->ShowSegment(ui->verticalScrollBar->value());
+        } else
         if (opts.buttonOLCIefr)
         {
             segs->seglolciefr->ShowSegment(ui->verticalScrollBar->value());
@@ -515,6 +551,8 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
     opts.buttonHRP = segtype == eSegmentType::SEG_HRP ? true : false;
     opts.buttonVIIRSM = segtype == eSegmentType::SEG_VIIRSM ? true : false;
     opts.buttonVIIRSDNB = segtype == eSegmentType::SEG_VIIRSDNB ? true : false;
+    opts.buttonVIIRSMNOAA20 = segtype == eSegmentType::SEG_VIIRSMNOAA20 ? true : false;
+    opts.buttonVIIRSDNBNOAA20 = segtype == eSegmentType::SEG_VIIRSDNBNOAA20 ? true : false;
     opts.buttonOLCIefr = segtype == eSegmentType::SEG_OLCIEFR ? true : false;
     opts.buttonOLCIerr = segtype == eSegmentType::SEG_OLCIERR ? true : false;
     opts.buttonSLSTR = segtype == eSegmentType::SEG_SLSTR ? true : false;
@@ -541,6 +579,8 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
 
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
     ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
+    ui->btnVIIRSMNOAA20->setChecked(opts.buttonVIIRSMNOAA20);
+    ui->btnVIIRSDNBNOAA20->setChecked(opts.buttonVIIRSDNBNOAA20);
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
     ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
     ui->btnSLSTR->setChecked(opts.buttonSLSTR);
@@ -617,6 +657,16 @@ void FormMapCyl::setScrollBarMaximum()
     {
         ui->verticalScrollBar->setMaximum(segs->seglviirsdnb->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum VIIRSDNB = %1").arg(segs->seglviirsdnb->NbrOfSegments());
+    }
+    else if (opts.buttonVIIRSMNOAA20)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglviirsmnoaa20->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum VIIRSM NOAA-20 = %1").arg(segs->seglviirsmnoaa20->NbrOfSegments());
+    }
+    else if (opts.buttonVIIRSDNBNOAA20)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglviirsdnbnoaa20->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum VIIRSDNB NOAA-20 = %1").arg(segs->seglviirsdnbnoaa20->NbrOfSegments());
     }
     else if (opts.buttonOLCIefr)
     {
@@ -741,7 +791,7 @@ void FormMapCyl::showSegmentList(int value)
         segs->seglviirsm->GetFirstLastVisible(&first, &last);
         nbrseg = segs->seglviirsm->NbrOfSegments();
 
-        outp = QString("VIIRSM From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+        outp = QString("NPP VIIRSM From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
     else if(opts.buttonVIIRSDNB)
     {
@@ -749,7 +799,23 @@ void FormMapCyl::showSegmentList(int value)
         segs->seglviirsdnb->GetFirstLastVisible(&first, &last);
         nbrseg = segs->seglviirsdnb->NbrOfSegments();
 
-        outp = QString("VIIRSDNB From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+        outp = QString("NPP VIIRSDNB From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    else if(opts.buttonVIIRSMNOAA20)
+    {
+        segs->seglviirsmnoaa20->ShowSegment(value);
+        segs->seglviirsmnoaa20->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglviirsmnoaa20->NbrOfSegments();
+
+        outp = QString("NOAA-20 VIIRSM From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    else if(opts.buttonVIIRSDNBNOAA20)
+    {
+        segs->seglviirsdnbnoaa20->ShowSegment(value);
+        segs->seglviirsdnbnoaa20->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglviirsdnbnoaa20->NbrOfSegments();
+
+        outp = QString("NOAA-20 VIIRSDNB From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
     else if(opts.buttonOLCIefr)
     {
@@ -814,6 +880,8 @@ void FormMapCyl::RemoveAllSelected()
     segs->RemoveAllSelectedAVHRR();
     segs->RemoveAllSelectedVIIRSM();
     segs->RemoveAllSelectedVIIRSDNB();
+    segs->RemoveAllSelectedVIIRSMNOAA20();
+    segs->RemoveAllSelectedVIIRSDNBNOAA20();
     segs->RemoveAllSelectedOLCIefr();
     segs->RemoveAllSelectedOLCIerr();
     segs->RemoveAllSelectedSLSTR();
@@ -984,7 +1052,9 @@ void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
     segs->RemoveAllSelectedDatahubOLCIefr();
     segs->RemoveAllSelectedDatahubOLCIerr();
     segs->RemoveAllSelectedDatahubSLSTR();
-
+    segs->RemoveAllSelectedVIIRSDNB();
+    segs->RemoveAllSelectedVIIRSMNOAA20();
+    segs->RemoveAllSelectedVIIRSDNBNOAA20();
 
 
     mapcyl->update();
@@ -1005,7 +1075,56 @@ void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
     segs->RemoveAllSelectedDatahubOLCIefr();
     segs->RemoveAllSelectedDatahubOLCIerr();
     segs->RemoveAllSelectedDatahubSLSTR();
+    segs->RemoveAllSelectedVIIRSM();
+    segs->RemoveAllSelectedVIIRSMNOAA20();
+    segs->RemoveAllSelectedVIIRSDNBNOAA20();
 
+
+
+    mapcyl->update();
+    this->showSegmentCount();
+    this->setScrollBarMaximum();
+    return;
+}
+
+void FormMapCyl::on_btnVIIRSMNOAA20_clicked() // M-Bands
+{
+
+    formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+    formtoolbox->setTabWidgetVIIRSIndex(0);
+    toggleButton(eSegmentType::SEG_VIIRSMNOAA20);
+    segs->RemoveAllSelectedAVHRR();
+    segs->RemoveAllSelectedOLCIefr();
+    segs->RemoveAllSelectedOLCIerr();
+    segs->RemoveAllSelectedSLSTR();
+    segs->RemoveAllSelectedDatahubOLCIefr();
+    segs->RemoveAllSelectedDatahubOLCIerr();
+    segs->RemoveAllSelectedDatahubSLSTR();
+    segs->RemoveAllSelectedVIIRSM();
+    segs->RemoveAllSelectedVIIRSDNB();
+    segs->RemoveAllSelectedVIIRSDNBNOAA20();
+
+    mapcyl->update();
+    this->showSegmentCount();
+    this->setScrollBarMaximum();
+    return;
+}
+
+void FormMapCyl::on_btnVIIRSDNBNOAA20_clicked() // DNB Bands
+{
+    formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+    formtoolbox->setTabWidgetVIIRSIndex(1);
+    toggleButton(eSegmentType::SEG_VIIRSDNBNOAA20);
+    segs->RemoveAllSelectedAVHRR();
+    segs->RemoveAllSelectedOLCIefr();
+    segs->RemoveAllSelectedOLCIerr();
+    segs->RemoveAllSelectedSLSTR();
+    segs->RemoveAllSelectedDatahubOLCIefr();
+    segs->RemoveAllSelectedDatahubOLCIerr();
+    segs->RemoveAllSelectedDatahubSLSTR();
+    segs->RemoveAllSelectedVIIRSM();
+    segs->RemoveAllSelectedVIIRSDNB();
+    segs->RemoveAllSelectedVIIRSMNOAA20();
 
     mapcyl->update();
     this->showSegmentCount();

@@ -111,6 +111,8 @@ public:
     bool buttonHRP;
     bool buttonVIIRSM;
     bool buttonVIIRSDNB;
+    bool buttonVIIRSMNOAA20;
+    bool buttonVIIRSDNBNOAA20;
     bool buttonOLCIefr;
     bool buttonOLCIerr;
     bool buttonSLSTR;

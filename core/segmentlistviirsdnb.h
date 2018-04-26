@@ -12,7 +12,7 @@ class SegmentListVIIRSDNB  : public SegmentList
         Q_OBJECT
 
 public:
-    SegmentListVIIRSDNB(SatelliteList *satl = 0, QObject *parent = 0);
+    SegmentListVIIRSDNB(SatelliteList *satl = 0, eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
     bool ComposeVIIRSImageInThread();
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     void ShowImageSerial();

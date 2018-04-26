@@ -27,6 +27,8 @@ public:
 
     QString getKindofImage() { return kindofimage; }
     QString getImagePath() { return imagepath; }
+    QVector<QString> getSpectrumVector() { return this->spectrumvector; }
+    void setSpectrumVector(QVector<QString> spec) { this->spectrumvector = spec; }
     void setImagePath( QString ip) { imagepath = ip; }
     void setKindofImage( QString ip) { kindofimage = ip; }
 

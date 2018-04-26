@@ -66,6 +66,8 @@ public:
     void RemoveAllSelectedAVHRR();
     void RemoveAllSelectedVIIRSM();
     void RemoveAllSelectedVIIRSDNB();
+    void RemoveAllSelectedVIIRSMNOAA20();
+    void RemoveAllSelectedVIIRSDNBNOAA20();
     void RemoveAllSelectedOLCIefr();
     void RemoveAllSelectedOLCIerr();
     void RemoveAllSelectedSLSTR();
@@ -89,6 +91,8 @@ public:
 
     QStringList GetOverviewSegmentsVIIRSM();
     QStringList GetOverviewSegmentsVIIRSDNB();
+    QStringList GetOverviewSegmentsVIIRSMNOAA20();
+    QStringList GetOverviewSegmentsVIIRSDNBNOAA20();
     QStringList GetOverviewSegmentsOLCIefr();
     QStringList GetOverviewSegmentsOLCIerr();
     QStringList GetOverviewSegmentsSLSTR();
@@ -128,6 +132,8 @@ public:
     SegmentListDatahub *segldatahubolciefr;
     SegmentListDatahub *segldatahubolcierr;
     SegmentListDatahub *segldatahubslstr;
+    SegmentListVIIRSM *seglviirsmnoaa20;
+    SegmentListVIIRSDNB *seglviirsdnbnoaa20;
 
     QList<SegmentListGeostationary *> seglgeo;
     QList<QMap<QString, QMap<QString, QMap< int, QFileInfo > > > > segmentlistmapgeo;
@@ -150,7 +156,8 @@ private:
     long countgac;
     long countviirsm;
     long countviirsdnb;
-    long countviirsmdnb;
+    long countviirsmnoaa20;
+    long countviirsdnbnoaa20;
     long countolciefr;
     long countolcierr;
     long countslstr;

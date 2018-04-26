@@ -165,7 +165,8 @@ HEADERS  += mainwindow.h \
     msgfileaccess.h \
     nav_util.h \
     internal.h \
-    misc_util.h
+    misc_util.h \
+    gshhs.h
 
 FORMS    += mainwindow.ui \
     dialogpreferences.ui \

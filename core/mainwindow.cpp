@@ -23,12 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
     setupStatusBar();
 
     satlist = new SatelliteList();
     seglist = new AVHRRSatellite(this, satlist);
-
 
     formephem = new FormEphem(this, satlist, seglist);
     ui->stackedWidget->addWidget(formephem); // index 0
@@ -50,11 +48,8 @@ MainWindow::MainWindow(QWidget *parent) :
     formgeostationary->SetFormImage(formimage);
     connect(formimage, SIGNAL(moveImage(QPoint, QPoint)), this, SLOT(moveImage(QPoint, QPoint)));
 
-
-
     for(int i = 0; i < opts.geosatellites.count(); i++)
         connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString)), formimage, SLOT(slotcomposefinished(QString)));
-
 
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
     imageptrs->lcc = new LambertConformalConic(this, seglist);
@@ -76,6 +71,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(seglist->seglviirsm, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglviirsdnb, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglviirsmnoaa20, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglviirsdnbnoaa20, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglolciefr, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglolcierr, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmetop, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
@@ -89,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglM02hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
 
     connect(seglist->seglviirsdnb, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
+    connect(seglist->seglviirsdnbnoaa20, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
 
 
     formglobecyl = new FormMapCyl( this, mapcyl, globe, formtoolbox, satlist, seglist);
@@ -121,7 +119,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglM02hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
     connect(seglist->seglviirsm, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabelDNB(bool)));
+    connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsmnoaa20, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsdnbnoaa20, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglslstr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -368,11 +368,11 @@ void MainWindow::on_actionAbout_triggered()
     "<center><b>Version " + QApplication::applicationVersion() + "</b></center>"
     "<p>supports the following satellites</p>"
     "<br><b>Polar satellites :</b>"
-    "<br>AVHHR images from Metop-A, Metop-B and the NOAA satellites"
-    "<br>VIIRS images from SUOMI NPP (M-Band and Day/Night Band)"
+    "<br>AVHHR images from Metop-A, Metop-B and NOAA-19"
+    "<br>VIIRS images from SUOMI NPP and NOAA-20 (M-Band and Day/Night Band)"
     "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A"
     "<br><br><b>Geostationary satellites :</b>"
-    "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-9"
+    "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-8"
     "<br>Electro L2, FengYun 2E, FengYun 2G"
     "<br>GOES-15, GOES-16 and Himawari-8"
     "<ul>"
@@ -548,38 +548,42 @@ void MainWindow::on_actionCreatePNG_triggered()
         return;
     else
     {
-            QApplication::setOverrideCursor(Qt::WaitCursor);
-            if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
-                    fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
-                fileName.append(".jpg");
-            pm = formimage->returnimageLabelptr()->pixmap();
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
+                fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
+            fileName.append(".jpg");
+        pm = formimage->returnimageLabelptr()->pixmap();
 
-            if(!forminfrascales->isHidden())
-            {
-                QImage imresult(pm->width(), pm->height() + 80, QImage::Format_RGB32);
+        if(!forminfrascales->isHidden())
+        {
+            QImage imresult(pm->width(), pm->height() + 80, QImage::Format_RGB32);
 
-                QImage im = pm->toImage();
-                QPainter painter(&imresult);
+            QImage im = pm->toImage();
+            QPainter painter(&imresult);
 
-                QImage scales = forminfrascales->getScalesImage(im.width());
-                //QImage scales(im.width(), 80, im.format());
-                //scales.fill(Qt::blue);
+            QImage scales = forminfrascales->getScalesImage(im.width());
+            //QImage scales(im.width(), 80, im.format());
+            //scales.fill(Qt::blue);
 
-                painter.drawImage(0, 0, im);
-                painter.drawImage(0, imresult.height()-80, scales);
+            painter.drawImage(0, 0, im);
+            painter.drawImage(0, imresult.height()-80, scales);
 
-                painter.end();
-                imresult.save(fileName);
-            }
-            else
-            {
-                pm->save(fileName);
-            }
-            QApplication::restoreOverrideCursor();
+            painter.end();
+            imresult.save(fileName);
+        }
+        else
+        {
+            pm->save(fileName);
+        }
+        QApplication::restoreOverrideCursor();
 
     }
 }
 
+void MainWindow::on_actionXml_triggered()
+{
+
+}
 
 void MainWindow::moveImage(QPoint d, QPoint e)
 {
@@ -622,5 +626,7 @@ void MainWindow::updateWindowTitle()
         windowTitleFormat.replace("zoomLevel", QString("%1%").arg(formimage->getZoomValue()));
         this->setWindowTitle(windowTitleFormat);
 }
+
+
 
 
