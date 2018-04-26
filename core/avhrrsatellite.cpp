@@ -282,7 +282,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 else
                     delete segM02hrpt;
             }
-        } else if (fileInfo.fileName().mid( 0, 8) == "SVMC_npp" && fileInfo.fileName().mid( 77, 3) == "bz2" && fileInfo.isFile()) // NPP-2
+        } else if (fileInfo.fileName().mid( 0, 8) == "SVMC_npp" && fileInfo.isFile()) //fileInfo.fileName().mid( 77, 3) == "bz2") // NPP-2
         {
             seglviirsm->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
@@ -294,7 +294,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segviirsm;
-        } else if (fileInfo.fileName().mid( 0, 10) == "SVDNBC_npp" && fileInfo.fileName().mid( 79, 3) == "bz2" && fileInfo.isFile()) // NPP-2
+        } else if (fileInfo.fileName().mid( 0, 10) == "SVDNBC_npp"  && fileInfo.isFile()) //&& fileInfo.fileName().mid( 79, 3) == "bz2") // NPP-2
         {
             //SVDNBC_npp_d20150810_t0033443_e0035085_b19602_c20150824113128000166_eum_ops.h5.bz2
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901
