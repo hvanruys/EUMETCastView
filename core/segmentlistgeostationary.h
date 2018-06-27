@@ -6,6 +6,26 @@
 #include <QFileInfo>
 #include <QVector2D>
 #include "globals.h"
+#include "msgfileaccess.h"
+#include "msgdataaccess.h"
+#include "segmentimage.h"
+
+typedef struct {
+    int listindex;
+    int spectral_channel_nbr;
+    QString directory;
+    QString productid1;
+    QString productid2;
+    QString timing;
+    double day_of_year;
+    float min;
+    float max;
+    float *data;
+    int units;
+    double slope;
+    double offset;
+} bandstorage;
+
 
 class SegmentListGeostationary : public QObject
 {
@@ -37,12 +57,12 @@ public:
 
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
-    void ComposeSegmentImagenetCDFInThread(); //QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod );
-    void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2); //, quint16 x3, quint16 y3, quint16 x4, quint16 y4);
+    void ComposeSegmentImagenetCDFInThread();
+    void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2);
     quint16 ContrastStretch(quint16 val);
     void InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence);
     bool allHRVColorSegmentsReceived();
-    bool allSegmentsReceived();
+    bool allVIS_IRSegmentsReceived();
     bool bActiveSegmentList;
     bool bisRSS;
     eGeoSatellite getGeoSatellite();
@@ -52,11 +72,17 @@ public:
     void CalculateLUTGeo(int colorindex);
     void CalculateLUTGeo(int colorindex, quint16 *ptr, quint16 fillvalue);
 
+    void ComposeGeoRGBRecipe(int recipe, QString tex);
+    void ComposeGeoRGBRecipeInThread(int recipe);
     static void doComposeGeostationaryXRIT(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     static void doComposeGeostationaryXRITHimawari(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     static void doComposeGeostationaryHDFInThread(SegmentListGeostationary *sm, QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector);
-    static void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm); //, QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
+    static void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm);
+    static void doComposeGeoRGBRecipe(SegmentListGeostationary *sm, int recipe);
+    void CalculateGeoRadiances(bandstorage &bs);
     void setThreadParameters(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
+    void ComposeDayMicrophysicsRGB(bandstorage &bs, double julian_day);
+    void ComposeSnowRGB(bandstorage &bs, double julian_day);
 
     bool issegmentcomposedRed[10];
     bool issegmentcomposedGreen[10];
@@ -97,6 +123,9 @@ private:
     void ComposeVISIR();
     void ComposeVISIRHimawari();
     void getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
+    void Printbands();
+    void PrintResults();
+    void PrintResults(float *ptr, QString title);
 
     quint16 stat_min[3];
     quint16 stat_max[3];
@@ -120,6 +149,17 @@ private:
     int histogrammethod;
     bool pseudocolor;
 
+    QList<bandstorage> bands;
+    float* result[3];
+    double *time;
+    float *lat;
+    float *lon;
+
+    float *sza;		/* image of solar zenith angle (degrees: 0.0 -- 180.0) */
+    float *saa;		/* image of solar azimuth angle  (degrees: 0.0 -- 360.0) */
+    float *vza;		/* image of viewing zenith angle (degrees: 0.0 -- 180.0) */
+    float *vaa;		/* image of viewing azimuth angle  (degrees: 0.0 -- 360.0) */
+    QString tex;
 
 
 

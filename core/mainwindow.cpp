@@ -85,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglM01hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglM02hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
 
+
     connect(seglist->seglviirsdnb, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
     connect(seglist->seglviirsdnbnoaa20, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
 
@@ -171,7 +172,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formtoolbox, SIGNAL(getgeosatchannel(QString, QVector<QString>, QVector<bool>, int, bool)), formgeostationary, SLOT(slotCreateGeoImage(QString, QVector<QString>, QVector<bool>, int, bool)));
     connect( formtoolbox, SIGNAL(switchstackedwidget(int)), this, SLOT(slotSwitchStackedWindow(int)));
-    connect( formtoolbox, SIGNAL(getrgbrecipe(int)), formgeostationary, SLOT(slotCreateRGBrecipe(int)));
+    connect( formtoolbox, SIGNAL(creatergbrecipe(int)), formgeostationary, SLOT(slotCreateRGBrecipe(int)));
 
     connect( formgeostationary, SIGNAL(enabletoolboxbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 

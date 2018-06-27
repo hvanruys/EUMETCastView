@@ -28,6 +28,10 @@ void DatahubAccessManager::DownloadXML(int nbrofpages, eDatahub hub)
     QUrl url;
 
     qDebug() << "start DownloadXML";
+    qDebug()<<"SSL version use for build: "<<QSslSocket::sslLibraryBuildVersionString();
+    qDebug()<<"SSL version use for run-time: "<<QSslSocket::sslLibraryVersionNumber();
+    qDebug()<<QCoreApplication::libraryPaths();
+
     Q_ASSERT(nbrofpages > 0);
 
     m_pBuffer->clear();
@@ -77,6 +81,9 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
     QUrl url;
 
     qDebug() << "start DownloadXML";
+    qDebug()<<"SSL version use for build: "<<QSslSocket::sslLibraryBuildVersionString();
+    qDebug()<<"SSL version use for run-time: "<<QSslSocket::sslLibraryVersionNumber();
+    qDebug()<<QCoreApplication::libraryPaths();
 
     if(opts.xmllogging)
     {
@@ -84,6 +91,9 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
         if (xmlloggingfile.open(QFile::WriteOnly | QFile::Truncate)) {
             QTextStream out(&xmlloggingfile);
             out << "Start logging : " << QDate::currentDate().toString();
+            out << "SSL version use for build: "<<QSslSocket::sslLibraryBuildVersionString();
+            out << "SSL version use for run-time: "<<QSslSocket::sslLibraryVersionNumber();
+
             xmlloggingfile.close();
         }
     }

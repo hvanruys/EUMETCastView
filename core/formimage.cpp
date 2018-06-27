@@ -1376,13 +1376,17 @@ void FormImage::displayGeoImageInfo()
 
 void FormImage::displayGeoImageInformation(QString satname)
 {
+    QString spectrum;
     SegmentListGeostationary *slgeo = NULL;
 
     slgeo = segs->getActiveSegmentList();
 
     QString type = slgeo->getKindofImage();
     QVector<QString> spectrumvector = slgeo->getSpectrumVector();
-    QString spectrum = ( type == "VIS_IR" ? spectrumvector.at(0) : "");
+    if(spectrumvector.size() > 0)
+        spectrum = ( type == "VIS_IR" ? spectrumvector.at(0) : "");
+    else
+        spectrum = "";
 
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"

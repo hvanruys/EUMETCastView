@@ -787,8 +787,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[2].imageheight = 1392;
     geosatellites[2].imagewidthhrv0 = 5568;
     geosatellites[2].imageheighthrv0 = 2320;
-    geosatellites[2].imagewidthhrv1 = 0;
-    geosatellites[2].imageheighthrv1 = 0;
+    geosatellites[2].imagewidthhrv1 = 5568;
+    geosatellites[2].imageheighthrv1 = 11136;
 
     geosatellites[2].indexspectrum = 26;
     geosatellites[2].indexfilenbr = 36;
@@ -811,8 +811,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[2].segmentlengthhrv = 464;
     geosatellites[2].startsegmentnbrtype0 = 5;
     geosatellites[2].startsegmentnbrhrvtype0 = 19;
-    geosatellites[2].startsegmentnbrtype1 = 0;
-    geosatellites[2].startsegmentnbrhrvtype1 = 0;
+    geosatellites[2].startsegmentnbrtype1 = 1;
+    geosatellites[2].startsegmentnbrhrvtype1 = 1;
     geosatellites[2].prologfile = true;
     geosatellites[2].epilogfile = true;
 

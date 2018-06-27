@@ -132,7 +132,8 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     inversevector.append(false);
 
     formimage->channelshown = IMAGE_GEOSTATIONARY;
-    ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
+    qDebug() << QString("Current tabwidget = %1").arg(opts.currenttabwidget);
+    //ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
     ui->tabWidgetVIIRS->setCurrentIndex(0);
     ui->tabWidgetSentinel->setCurrentIndex(0);
 
@@ -231,7 +232,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     qDebug() << QString("poi.strlComboGeo5.at(geoindex) = %1 ").arg(poi.strlComboGeo5.at(geoindex));
     qDebug() << QString("poi.strlComboGeo6.at(geoindex) = %1 ").arg(poi.strlComboGeo6.at(geoindex));
 
-
     setPOIsettings();
     setMConfigsettings();
     setOLCIefrConfigsettings();
@@ -243,9 +243,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     qDebug() << QString("poi.strlComboGeo4.at(geoindex) = %1 ").arg(poi.strlComboGeo4.at(geoindex));
     qDebug() << QString("poi.strlComboGeo5.at(geoindex) = %1 ").arg(poi.strlComboGeo5.at(geoindex));
     qDebug() << QString("poi.strlComboGeo6.at(geoindex) = %1 ").arg(poi.strlComboGeo6.at(geoindex));
-
-
-
 
     qDebug() << QString("Setting currenttoolbox = %1").arg(opts.currenttoolbox);
     ui->toolBox->setCurrentIndex(opts.currenttoolbox); // in projection tab LCC GVP or SG
@@ -276,9 +273,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     float fval = pow(10, opts.dnbsbvalue/20.0);
     ui->lblCentreBand->setText(QString("%1").arg(fval, 0, 'E', 2));
     ui->lblTitleCentreBand->setText(QString("Centre Band from %1 to %2 [W/cm² sr]").arg(fval/pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2).arg(fval*pow(10, opts.dnbspbwindowsvalue), 0, 'E', 2));
-
-
-
 
     ui->lblGeo1->setText("0.635");
     ui->lblGeo2->setText("0.81");
@@ -517,8 +511,15 @@ bool FormToolbox::eventFilter(QObject *target, QEvent *event)
 }
 
 
+void FormToolbox::setValuePrgBar(int val)
+{
+    ui->pbProgress->setValue(val);
+    //this->update();
+}
+
 void FormToolbox::setValueProgressBar(int val)
 {
+    qDebug() << "FormToolbox::setValueProgressBar(int val) " << val;
     ui->pbProgress->setValue(val);
     //this->update();
 }
@@ -2084,9 +2085,9 @@ void FormToolbox::on_btnGeoColor_clicked()
     QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
 
     ui->pbProgress->reset();
-    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_8)
+    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
         ui->pbProgress->setMaximum(8+8+8);
-    else if(geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_10)
+    else if(geoindex == (int)eGeoSatellite::MET_10)
         ui->pbProgress->setMaximum(3+3+3);
     else if(geoindex == (int)eGeoSatellite::GOMS2)
         ui->pbProgress->setMaximum(6+6+6);
@@ -2109,24 +2110,31 @@ void FormToolbox::on_btnRecipes_clicked()
     if(ui->lstRGB->currentRow() == -1)
         return;
 
-    if(!(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8))
+    if(!(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8))
         return;
 
     QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
 
+    formimage->displayImage(IMAGE_GEOSTATIONARY);
+    formimage->adjustPicSize(true);
+
     ui->pbProgress->reset();
-    ui->pbProgress->setMaximum(opts.geosatellites.at(geoindex).maxsegments);
+    ui->pbProgress->setMaximum(100);
 
     segs->seglgeo[geoindex]->areatype = 0;
     segs->seglgeo[geoindex]->setKindofImage("VIS_IR");
     formimage->setKindOfImage("VIS_IR");
 
 
-    formimage->displayImage(IMAGE_GEOSTATIONARY);
-    formimage->adjustPicSize(true);
     setToolboxButtons(false);
 
-    emit getrgbrecipe(ui->lstRGB->currentRow());
+    emit switchstackedwidget(3);
+
+    emit creatergbrecipe(ui->lstRGB->currentRow());
+
+    formimage->displayImage(IMAGE_GEOSTATIONARY);
+    formimage->adjustPicSize(true);
+    setToolboxButtons(true);
 
     QApplication::restoreOverrideCursor(); // restore in FormImage::slotUpdateGeosat()
 
@@ -2184,7 +2192,7 @@ void FormToolbox::on_btnHRV_clicked()
 
     ui->pbProgress->reset();
 
-    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_8)
+    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
     {
         if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
             ui->pbProgress->setMaximum(5);
@@ -2196,7 +2204,7 @@ void FormToolbox::on_btnHRV_clicked()
             ui->pbProgress->setMaximum(8+8+8+24);
     }
 
-    if(geoindex == (int)eGeoSatellite::MET_9)
+    if(geoindex == (int)eGeoSatellite::MET_10)
     {
         if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
             ui->pbProgress->setMaximum(5);
@@ -2257,7 +2265,7 @@ void FormToolbox::onButtonColorHRV(QString type)
     formimage->setKindOfImage(type);
 
     formimage->displayImage(IMAGE_GEOSTATIONARY);
-    formimage->adjustPicSize(true);
+    formimage->adjustPicSize(false);
 
 
     setToolboxButtons(false);
@@ -2611,8 +2619,6 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
 {
     qDebug() << "on_tabWidget_currentChanged(int index) index = " << index;
 
-//    if(ui->tabWidgetVIIRS->currentIndex() == 0)
-//        qDebug() << "begin ui->tabWidgetVIIRS->currentIndex() == 0";
 
     if(!forminfrascales->isHidden())
         forminfrascales->hide();

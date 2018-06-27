@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.3.7"
+#define APPVERSION "1.3.9"
 
 using namespace std;
 
@@ -31,7 +31,6 @@ bool ptrimagebusy;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-
 
 #ifdef NDEBUG
    // release mode code

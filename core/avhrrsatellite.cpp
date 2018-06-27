@@ -332,7 +332,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segviirsdnbnoaa20;
-        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR") // && fileInfo.fileName().mid( 100, 3) == "tar") // S3A EFR
+        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR" || fileInfo.fileName().mid( 0, 12) == "S3B_OL_1_EFR") // S3A/B EFR
         {
             //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -347,7 +347,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segolciefr;
-        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR") // && fileInfo.fileName().mid( 100, 3) == "tar") // S3A ERR
+        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR" || fileInfo.fileName().mid( 0, 12) == "S3B_OL_1_ERR") // S3A/B ERR
         {
             //S3A_OL_1_ERR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -362,7 +362,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segolcierr;
-        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_SL_1_RBT")
+        } else if (fileInfo.fileName().mid( 0, 12) == "S3A_SL_1_RBT" || fileInfo.fileName().mid( 0, 12) == "S3B_SL_1_RBT")
         {
             //S3A_SL_1_RBT____20170212T114405_20170212T114705_20170212T135851_0179_014_180_1800_SVL_O_NR_002.zip
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -779,8 +779,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
 
                     fileinfolist = map.values();
-//                    for(int i = 0; i < fileinfolist.count(); i++)
-//                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
+                    for(int i = 0; i < fileinfolist.count(); i++)
+                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
                     emit signalResetProgressbar(fileinfolist.size(), (*its));
 
@@ -1140,7 +1140,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789
         //S3A_SL_1_RBT____20170212T114405_20170212T114705_20170212T135851_0179_014_180_1800_SVL_O_NR_002.zip
-        else if (fileinfo.fileName().mid( 0, 12) == "S3A_SL_1_RBT")
+        else if (fileinfo.fileName().mid( 0, 6) == "S3A_SL_1_RBT")
         {
             *sentinel3Tle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());

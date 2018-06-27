@@ -10,6 +10,22 @@
 #include "formtoolbox.h"
 #include "formimage.h"
 
+//typedef struct {
+//    int listindex;
+//    int spectral_channel_nbr;
+//    QString directory;
+//    QString productid1;
+//    QString productid2;
+//    QString timing;
+//    double day_of_year;
+//    float min;
+//    float max;
+//    float *data;
+//    seviri_units units;
+//    double slope;
+//    double offset;
+//} bandstorage;
+
 class FormImage;
 
 namespace Ui {
@@ -32,16 +48,17 @@ public:
     SegmentListGeostationary *setActiveSegmentList(int geoindex);
     SegmentListGeostationary *getActiveSegmentList();
     int getTabWidgetGeoIndex();
+    //void ComposeGeoRGBRecipe(bandstorage &bs);
+
     ~FormGeostationary();
 
 private:
     QStringList getGeostationarySegments(int geoindex, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
     void PopulateTreeGeo(int geoindex);
-//    void PopulateTreeGeo1(int geoindex);
     void CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     void CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
-    void CreateRGBrecipeImage(int recipe);
+
     Ui::FormGeostationary *ui;
     AVHRRSatellite *segs;
     SatelliteList *sats;
@@ -63,6 +80,7 @@ signals:
     void geostationarysegmentschosen(int geoindex, QStringList ll);
     void setbuttonlabels(int geoindex, bool state);
     void enabletoolboxbuttons(bool);
+
 };
 
 #endif // FORMGEOSTATIONARY_H

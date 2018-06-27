@@ -80,6 +80,27 @@ enum class eGeoSatellite {
     NOGEO = 10
 };
 
+//1 "Airmass RGB"
+//2 "Dust RGB"
+//3 "24 hours Microphysics RGB"
+//4 "Ash RGB"
+//5 "Day Microphysics RGB"
+//6 "Severe Storms RGB"
+//7 "Snow RGB"
+//8 "Natural Colors RGB"
+//9 "Night Microphysics RGB";
+enum class eRgbRecipes {
+    RGB_AIRMASS = 0,
+    RGB_DUST = 1,
+    RGB_24MICRO = 2,
+    RGB_ASH = 3,
+    RGB_DAYMICRO = 4,
+    RGB_STORMS = 5,
+    RGB_SNOW = 6,
+    RGB_NATURAL = 7,
+    RGB_NIGHTMICRO = 8
+};
+
 // structures
 struct floatVector {
         float x, y, z;

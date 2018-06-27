@@ -386,7 +386,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
                         }
                         else
                         {
-                            if(sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_10)
+                            if(sl->getGeoSatellite() == eGeoSatellite::MET_10)
                             {
                                 if( picrow >= 0 && picrow < 5*464)
                                 {

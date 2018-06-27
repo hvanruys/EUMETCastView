@@ -5139,7 +5139,7 @@
        <item>
         <widget class="QFrame" name="frame_3">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>

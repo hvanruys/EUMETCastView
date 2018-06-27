@@ -58,6 +58,8 @@ public:
     void setOLCIefrConfigsettings();
     void setSLSTRConfigsettings();
     void setComboGeo(int geoindex);
+    void setValuePrgBar(int val);
+
 
     eProjectionType currentProjectionType;
 
@@ -122,7 +124,8 @@ signals:
     void getgeosatchannel(QString, QVector<QString>, QVector<bool>, int, bool);
     void overlaycorrection(int,int);
     void switchstackedwidget(int);
-    void getrgbrecipe(int recipe);
+    void creatergbrecipe(int recipe);
+
 
 private slots:
     void on_btnCol_clicked();

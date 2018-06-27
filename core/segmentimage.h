@@ -18,8 +18,25 @@ enum seviri_units {
      SEVIRI_UNIT_REF,
      SEVIRI_UNIT_BRF,
      SEVIRI_UNIT_BT,
+     SEVIRI_UNIT_REFL39,
 
      N_SEVIRI_UNITS
+};
+
+struct Bandstorage {
+    int listindex;
+    int spectral_channel_nbr;
+    QString directory;
+    QString productid1;
+    QString productid2;
+    QString timing;
+    double day_of_year;
+    float min;
+    float max;
+    float *data;
+    seviri_units units;
+    double slope;
+    double offset;
 };
 
 struct RGBRecipeColor {
@@ -38,6 +55,7 @@ struct RGBRecipeColor {
 
 struct RGBRecipe {
   QString Name;
+  bool reflectivechannel;
   QVector<RGBRecipeColor> Colorvector;
 };
 
