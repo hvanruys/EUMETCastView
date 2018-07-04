@@ -29,6 +29,10 @@ SegmentImage::SegmentImage()
     ptrimageSLSTR = new QImage();
     ptrProjectionBrightnessTemp.reset();
 
+    ptrimageRGBRecipeRed.reset(new quint8[3712 * 3712]);
+    ptrimageRGBRecipeGreen.reset(new quint8[3712 * 3712]);
+    ptrimageRGBRecipeBlue.reset(new quint8[3712 * 3712]);
+
     olcitype = SEG_NONE;
 
     CalcSatAngles();
@@ -78,18 +82,21 @@ void SegmentImage::SetupRGBrecipes()
  //1 "Dust RGB"
  //2 "24 hours Microphysics RGB"
  //3 "Ash RGB"
- //4 "Day Microphysics RGB"
+ //4 "Day Microphysics RGB Summer"
  //5 "Severe Storms RGB"
  //6 "Snow RGB"
  //7 "Natural Colors RGB"
  //8 "Night Microphysics RGB";
+ //9 "IR_39 sun reflected";
+ //10 "Day Microphysics RGB Winter"
+
 
     //***********
     //Airmass RGB
     //***********
     RGBRecipe airmass;
     airmass.Name = "Airmass RGB";
-    airmass.reflectivechannel = false;
+    airmass.needsza = false;
 
     RGBRecipeColor Red1;
     RGBRecipeColor Green1;
@@ -148,7 +155,7 @@ void SegmentImage::SetupRGBrecipes()
     //*********
     RGBRecipe dust;
     dust.Name = "Dust RGB";
-    dust.reflectivechannel = false;
+    dust.needsza = false;
 
     RGBRecipeColor Red2;
     RGBRecipeColor Green2;
@@ -208,7 +215,7 @@ void SegmentImage::SetupRGBrecipes()
 
     RGBRecipe micro24;
     micro24.Name = "24 hours Microphysics RGB";
-    micro24.reflectivechannel = false;
+    micro24.needsza = false;
 
     RGBRecipeColor Red3;
     RGBRecipeColor Green3;
@@ -269,7 +276,7 @@ void SegmentImage::SetupRGBrecipes()
 
     RGBRecipe ash;
     ash.Name = "Ash RGB";
-    ash.reflectivechannel = false;
+    ash.needsza = false;
 
     RGBRecipeColor Red4;
     RGBRecipeColor Green4;
@@ -324,11 +331,11 @@ void SegmentImage::SetupRGBrecipes()
     rgbrecipes.append(ash);
 
     //******************
-    //Day Microphysics RGB
+    //Day Microphysics RGB Summer
     //******************
     RGBRecipe day;
-    day.Name = "Day Microphysics RGB";
-    day.reflectivechannel = true;
+    day.Name = "Day Microphysics RGB Summer";
+    day.needsza = true;
 
     RGBRecipeColor Red5;
     RGBRecipeColor Green5;
@@ -343,7 +350,7 @@ void SegmentImage::SetupRGBrecipes()
     Red5.rangeto = 1.0;
     Red5.dimension = "%";
     Red5.gamma = 1.0;
-    Red5.units = SEVIRI_UNIT_BRF;
+    Red5.units = SEVIRI_UNIT_REF;
     day.Colorvector.append(Red5);
 
     Green5.channels.append("IR_039");
@@ -352,7 +359,7 @@ void SegmentImage::SetupRGBrecipes()
     Green5.inverse.append(false);
     Green5.reflective.append(true);
     Green5.rangefrom = 0.0;
-    Green5.rangeto = 1.0;
+    Green5.rangeto = 0.6;
     Green5.dimension = "%";
     Green5.gamma = 2.5;
     Green5.units = SEVIRI_UNIT_REFL39;
@@ -378,7 +385,7 @@ void SegmentImage::SetupRGBrecipes()
 
     RGBRecipe storm;
     storm.Name = "Severe Storms RGB";
-    storm.reflectivechannel = false;
+    storm.needsza = false;
 
     RGBRecipeColor Red6;
     RGBRecipeColor Green6;
@@ -428,8 +435,8 @@ void SegmentImage::SetupRGBrecipes()
     Blue6.inverse.append(false);
     Blue6.reflective.append(false);
     Blue6.reflective.append(false);
-    Blue6.rangefrom = -75.0;
-    Blue6.rangeto = 25.0;
+    Blue6.rangefrom = -0.75;
+    Blue6.rangeto = 0.25;
     Blue6.dimension = "%";
     Blue6.gamma = 1.0;
     Blue6.units = SEVIRI_UNIT_REF;
@@ -442,7 +449,7 @@ void SegmentImage::SetupRGBrecipes()
     //******************
     RGBRecipe snow;
     snow.Name = "Snow RGB";
-    snow.reflectivechannel = true;
+    snow.needsza = true;
 
     RGBRecipeColor Red7;
     RGBRecipeColor Green7;
@@ -456,8 +463,8 @@ void SegmentImage::SetupRGBrecipes()
     Red7.rangefrom = 0.0;
     Red7.rangeto = 1.0;
     Red7.dimension = "%";
-    Red7.gamma = 1.0;
-    Red7.units = SEVIRI_UNIT_REF;
+    Red7.gamma = 1.7;
+    Red7.units = SEVIRI_UNIT_BRF;
     snow.Colorvector.append(Red7);
 
     Green7.channels.append("IR_016");
@@ -469,7 +476,7 @@ void SegmentImage::SetupRGBrecipes()
     Green7.rangeto = 0.7;
     Green7.dimension = "%";
     Green7.gamma = 1.7;
-    Green7.units = SEVIRI_UNIT_REF;
+    Green7.units = SEVIRI_UNIT_BRF;
     snow.Colorvector.append(Green7);
 
     Blue7.channels.append("IR_039");
@@ -481,7 +488,7 @@ void SegmentImage::SetupRGBrecipes()
     Blue7.rangeto = 0.3;
     Blue7.dimension = "%";
     Blue7.gamma = 1.7;
-    Blue7.units = SEVIRI_UNIT_REF;
+    Blue7.units = SEVIRI_UNIT_REFL39;
     snow.Colorvector.append(Blue7);
 
     rgbrecipes.append(snow);
@@ -491,7 +498,7 @@ void SegmentImage::SetupRGBrecipes()
     //******************
     RGBRecipe natural;
     natural.Name = "Natural Colours RGB";
-    natural.reflectivechannel = false;
+    natural.needsza = false;
 
     RGBRecipeColor Red8;
     RGBRecipeColor Green8;
@@ -503,9 +510,9 @@ void SegmentImage::SetupRGBrecipes()
     Red8.inverse.append(false);
     Red8.reflective.append(false);
     Red8.rangefrom = 0.0;
-    Red8.rangeto = 1.0;
+    Red8.rangeto = 0.9;
     Red8.dimension = "%";
-    Red8.gamma = 1.0;
+    Red8.gamma = 1.8;
     Red8.units = SEVIRI_UNIT_REF;
     natural.Colorvector.append(Red8);
 
@@ -515,9 +522,9 @@ void SegmentImage::SetupRGBrecipes()
     Green8.inverse.append(false);
     Green8.reflective.append(false);
     Green8.rangefrom = 0.0;
-    Green8.rangeto = 1.0;
+    Green8.rangeto = 0.9;
     Green8.dimension = "%";
-    Green8.gamma = 1.0;
+    Green8.gamma = 1.8;
     Green8.units = SEVIRI_UNIT_REF;
     natural.Colorvector.append(Green8);
 
@@ -527,9 +534,9 @@ void SegmentImage::SetupRGBrecipes()
     Blue8.inverse.append(false);
     Blue8.reflective.append(false);
     Blue8.rangefrom = 0.0;
-    Blue8.rangeto = 1.0;
+    Blue8.rangeto = 0.9;
     Blue8.dimension = "%";
-    Blue8.gamma = 1.0;
+    Blue8.gamma = 1.8;
     Blue8.units = SEVIRI_UNIT_REF;
     natural.Colorvector.append(Blue8);
 
@@ -540,7 +547,7 @@ void SegmentImage::SetupRGBrecipes()
     //***********
     RGBRecipe night;
     night.Name = "Night Microphysics RGB";
-    night.reflectivechannel = false;
+    night.needsza = false;
 
     RGBRecipeColor Red9;
     RGBRecipeColor Green9;
@@ -593,6 +600,105 @@ void SegmentImage::SetupRGBrecipes()
     night.Colorvector.append(Blue9);
 
     rgbrecipes.append(night);
+
+    //******************
+    //IR_039 sun reflecetd
+    //******************
+    RGBRecipe sunrefl;
+    sunrefl.Name = "IR_039 sun reflected";
+    sunrefl.needsza = true;
+
+    RGBRecipeColor Red10;
+    RGBRecipeColor Green10;
+    RGBRecipeColor Blue10;
+
+    Red10.channels.append("IR_039");
+    Red10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
+    Red10.subtract.append(false);
+    Red10.inverse.append(false);
+    Red10.reflective.append(false);
+    Red10.rangefrom = 0.0;
+    Red10.rangeto = 1.0;
+    Red10.dimension = "%";
+    Red10.gamma = 1.0;
+    Red10.units = SEVIRI_UNIT_REFL39;
+    sunrefl.Colorvector.append(Red10);
+
+    Green10.channels.append("IR_039");
+    Green10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
+    Green10.subtract.append(false);
+    Green10.inverse.append(false);
+    Green10.reflective.append(false);
+    Green10.rangefrom = 0.0;
+    Green10.rangeto = 1.0;
+    Green10.dimension = "%";
+    Green10.gamma = 1.0;
+    Green10.units = SEVIRI_UNIT_REFL39;
+    sunrefl.Colorvector.append(Green10);
+
+    Blue10.channels.append("IR_039");
+    Blue10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
+    Blue10.subtract.append(false);
+    Blue10.inverse.append(false);
+    Blue10.reflective.append(false);
+    Blue10.rangefrom = 0.0;
+    Blue10.rangeto = 1.0;
+    Blue10.dimension = "%";
+    Blue10.gamma = 1.0;
+    Blue10.units = SEVIRI_UNIT_REFL39;
+    sunrefl.Colorvector.append(Blue10);
+
+    rgbrecipes.append(sunrefl);
+
+    //******************
+    //Day Microphysics RGB Winter
+    //******************
+    RGBRecipe winter;
+    winter.Name = "Day Microphysics RGB Winter";
+    winter.needsza = true;
+
+    RGBRecipeColor Red11;
+    RGBRecipeColor Green11;
+    RGBRecipeColor Blue11;
+
+    Red11.channels.append("VIS008");
+    Red11.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS008"));
+    Red11.subtract.append(false);
+    Red11.inverse.append(false);
+    Red11.reflective.append(false);
+    Red11.rangefrom = 0.0;
+    Red11.rangeto = 1.0;
+    Red11.dimension = "%";
+    Red11.gamma = 1.0;
+    Red11.units = SEVIRI_UNIT_REF;
+    winter.Colorvector.append(Red11);
+
+    Green11.channels.append("IR_039");
+    Green11.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
+    Green11.subtract.append(false);
+    Green11.inverse.append(false);
+    Green11.reflective.append(true);
+    Green11.rangefrom = 0.0;
+    Green11.rangeto = 0.25;
+    Green11.dimension = "%";
+    Green11.gamma = 1.5;
+    Green11.units = SEVIRI_UNIT_REFL39;
+    winter.Colorvector.append(Green11);
+
+    Blue11.channels.append("IR_108");
+    Blue11.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
+    Blue11.subtract.append(false);
+    Blue11.inverse.append(false);
+    Blue11.reflective.append(false);
+    Blue11.rangefrom = 213.0;
+    Blue11.rangeto = 303.0;
+    Blue11.dimension = "K";
+    Blue11.gamma = 1.0;
+    Blue11.units = SEVIRI_UNIT_BT;
+    winter.Colorvector.append(Blue11);
+
+    rgbrecipes.append(winter);
+
 
 
     //******************
@@ -795,6 +901,10 @@ void SegmentImage::DeleteImagePtrs()
     ptrimageProjectionGreen.reset();
     ptrimageProjectionBlue.reset();
     ptrimageProjectionAlpha.reset();
+
+    ptrimageRGBRecipeRed.reset();
+    ptrimageRGBRecipeGreen.reset();
+    ptrimageRGBRecipeBlue.reset();
 
     if(ptrimageViirsM != NULL)
     {

@@ -2997,6 +2997,57 @@ void FormImage::recalculateCLAHE1(QVector<QString> spectrumvector, QVector<bool>
     QApplication::restoreOverrideCursor();
 }
 
+void FormImage::CLAHERGBRecipe(float cliplimit)
+{
+    QRgb *row_col;
+    quint16 red, green, blue;
+    int npix = 3712 * 3712;
+    quint16 *pixelsRed = new quint16[npix];
+    quint16 *pixelsGreen = new quint16[npix];
+    quint16 *pixelsBlue = new quint16[npix];
+
+    qDebug() << "ptrimageGeostationary width = " << imageptrs->ptrimageGeostationary->width();
+    if(imageptrs->ptrimageGeostationary->width() != 3712)
+        return;
+
+    for (int line = 0; line < 3712; line++)
+    {
+        for (int pixelx = 0; pixelx < 3712; pixelx++)
+        {
+            int i_image = line * 3712 + pixelx;
+            pixelsRed[i_image] = imageptrs->ptrimageRGBRecipeRed[i_image];
+            pixelsGreen[i_image] = imageptrs->ptrimageRGBRecipeGreen[i_image];
+            pixelsBlue[i_image] = imageptrs->ptrimageRGBRecipeBlue[i_image];
+        }
+    }
+
+    imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 255, 16, 16, 256, cliplimit);
+    imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 255, 16, 16, 256, cliplimit);
+    imageptrs->CLAHE(pixelsBlue, 3712, 3712, 0, 255, 16, 16, 256, cliplimit);
+
+
+    for (int line = 0; line < 3712; line++)
+    {
+        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
+        for (int pixelx = 0; pixelx < 3712; pixelx++)
+        {
+            int i_image = line * 3712 + pixelx;
+
+            red = pixelsRed[i_image];
+            green = pixelsGreen[i_image];
+            blue = pixelsBlue[i_image];
+
+            row_col[pixelx] = qRgb((int)red, (int)green, (int)blue);
+        }
+    }
+
+
+    delete [] pixelsRed;
+    delete [] pixelsGreen;
+    delete [] pixelsBlue;
+}
+
+
 void FormImage::CLAHEprojection()
 {
     quint16 *pixelsRed;

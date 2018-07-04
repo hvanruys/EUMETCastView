@@ -83,6 +83,7 @@ public:
     void setThreadParameters(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
     void ComposeDayMicrophysicsRGB(bandstorage &bs, double julian_day);
     void ComposeSnowRGB(bandstorage &bs, double julian_day);
+    void ComposeIR_039sunreflected(bandstorage &bs, double julian_day);
 
     bool issegmentcomposedRed[10];
     bool issegmentcomposedGreen[10];
@@ -126,6 +127,8 @@ private:
     void Printbands();
     void PrintResults();
     void PrintResults(float *ptr, QString title);
+    void GetRadBT(int unit, int channel, bandstorage &bs, float *container);
+    QString getSeviribandfromChannel(int channel);
 
     quint16 stat_min[3];
     quint16 stat_max[3];
@@ -160,6 +163,7 @@ private:
     float *vza;		/* image of viewing zenith angle (degrees: 0.0 -- 180.0) */
     float *vaa;		/* image of viewing azimuth angle  (degrees: 0.0 -- 360.0) */
     QString tex;
+    int satid;
 
 
 

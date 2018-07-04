@@ -75,6 +75,7 @@ public:
     void UpdateProjection();
     bool SaveAsPNG48bits(bool mapto65535);
     void setupGeoOverlay(int geoindex);
+    void CLAHERGBRecipe(float cliplimit);
 
     int metopcount;
     int noaacount;

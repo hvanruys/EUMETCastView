@@ -12,7 +12,7 @@
 #include "lambertconformalconic.h"
 #include "stereographic.h"
 
-enum seviri_units {
+enum  seviriunits {
      SEVIRI_UNIT_CNT,
      SEVIRI_UNIT_RAD,
      SEVIRI_UNIT_REF,
@@ -34,7 +34,7 @@ struct Bandstorage {
     float min;
     float max;
     float *data;
-    seviri_units units;
+    seviriunits units;
     double slope;
     double offset;
 };
@@ -45,7 +45,7 @@ struct RGBRecipeColor {
     QList<bool> subtract;
     QList<bool> inverse;
     QList<bool> reflective;
-    seviri_units units;
+    seviriunits units;
     float rangefrom;
     float rangeto;
     QString dimension;
@@ -55,9 +55,25 @@ struct RGBRecipeColor {
 
 struct RGBRecipe {
   QString Name;
-  bool reflectivechannel;
+  bool needsza;
   QVector<RGBRecipeColor> Colorvector;
 };
+
+//typedef struct {
+//    int listindex;
+//    int spectral_channel_nbr;
+//    QString directory;
+//    QString productid1;
+//    QString productid2;
+//    QString timing;
+//    double day_of_year;
+//    float min;
+//    float max;
+//    float *data;
+//    seviriunits units;
+//    double slope;
+//    double offset;
+//} bandstorage;
 
 enum MapReturn
 {
@@ -117,6 +133,10 @@ public:
     QScopedArrayPointer<quint16> ptrimageProjectionGreen;
     QScopedArrayPointer<quint16> ptrimageProjectionBlue;
     QScopedArrayPointer<quint16> ptrimageProjectionAlpha;
+
+    QScopedArrayPointer<quint8> ptrimageRGBRecipeRed;
+    QScopedArrayPointer<quint8> ptrimageRGBRecipeGreen;
+    QScopedArrayPointer<quint8> ptrimageRGBRecipeBlue;
 
     QPixmap *pmOriginal;
     QPixmap *pmOut;

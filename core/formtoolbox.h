@@ -228,6 +228,7 @@ private slots:
     void on_btnTextureOLCI_clicked();
     void on_btnTextureSLSTR_clicked();
     void on_sliCLAHE_sliderMoved(int position);
+    void on_sliCLAHE_RGBRecipe_sliderMoved(int position);
 
     void on_cbProjResolutions_currentIndexChanged(int index);
 
@@ -279,6 +280,7 @@ private slots:
     void on_cmbHistogramAVHRR_activated(int index);
     void on_cmbHistogramGeo_activated(int index);
     void on_btnRecipes_clicked();
+    void on_btnCLAHE_RGBRecipe_clicked();
 };
 
 

@@ -260,6 +260,9 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
 
+    ui->lblCLAHE_RGBRecipe->setText(QString("%1").arg(1.8, 0, 'f', 1));
+    ui->sliCLAHE_RGBRecipe->setSliderPosition(18);
+
     ui->sbCentreBand->blockSignals(true);
 
     ui->sbCentreBand->setMinimum(opts.dnbsblowerlimit);
@@ -4040,6 +4043,11 @@ void FormToolbox::on_sliCLAHE_sliderMoved(int position)
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
 }
 
+void FormToolbox::on_sliCLAHE_RGBRecipe_sliderMoved(int position)
+{
+    ui->lblCLAHE_RGBRecipe->setText(QString("%1").arg(float(position)/10, 0, 'f', 1));
+}
+
 void FormToolbox::createFilenamestring(QString sat, QString d, QVector<QString> spectrum)
 {
     QString outstring;
@@ -5519,3 +5527,15 @@ void FormToolbox::on_cmbHistogramGeo_activated(int index)
 
 }
 
+
+void FormToolbox::on_btnCLAHE_RGBRecipe_clicked()
+{
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        this->setToolboxButtons(false);
+        QApplication::processEvents();
+        qDebug() << QString("ui->sliCLAHE_RGBRecipe value = %1").arg((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
+        formimage->CLAHERGBRecipe((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
+        formimage->slotUpdateGeosat();
+        QApplication::restoreOverrideCursor();
+
+}
