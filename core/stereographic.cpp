@@ -189,15 +189,11 @@ void StereoGraphic::CreateMapFromGeostationary()
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                     {
-                        row+=5;
-                        col+=3;
-
-                        picrow = row;
                         if( hrvmap == 0)
                         {
-                            if(picrow < imageptrs->ptrimageGeostationary->height())
+                            if(row < imageptrs->ptrimageGeostationary->height())
                             {
-                                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
+                                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(row);
                                 rgbval = scanl[col];
                                 fb_painter.setPen(rgbval);
                                 fb_painter.drawPoint(i,j);
@@ -205,6 +201,11 @@ void StereoGraphic::CreateMapFromGeostationary()
                         }
                         else
                         {
+                            row+=5;
+                            col+=3;
+
+                            picrow = row;
+
                             if(sl->getGeoSatellite() == eGeoSatellite::MET_10)
                             {
                                 if( picrow >= 0 && picrow < 5*464)
@@ -227,26 +228,26 @@ void StereoGraphic::CreateMapFromGeostationary()
                             }
                             else
                             {
-                                if( row < (sl->areatype == 0 ? 5*464 : 11136))
+                                if( picrow < (sl->areatype == 0 ? 5*464 : 11136))
                                 {
                                     scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
 
-                                    if (row >=LNLA ) //LOWER
+                                    if (picrow > USLA ) //LOWER
                                     {
                                         if( col > LWCA && col < LECA)
                                             piccol = col - LWCA;
                                         else
-                                            piccol = -1;
+                                            piccol = 0;
                                     }
                                     else //UPPER
                                     {
                                         if( col > UWCA && col < UECA)
                                             piccol = col - UWCA;
                                         else
-                                            piccol = -1;
+                                            piccol = 0;
                                     }
 
-                                    if(piccol >= 0 && piccol < 5568)
+                                    if(piccol > 0 && piccol < 5568)
                                     {
                                         rgbval = scanl[piccol];
                                         fb_painter.setPen(rgbval);
@@ -286,17 +287,21 @@ void StereoGraphic::CreateMapFromGeostationary()
                 }
                 else
                 {
-                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
+                    if (this->map_inverse(i, j, lon_rad, lat_rad))
                     {
-                        picrow = row;
-                        if(picrow < imageptrs->ptrimageGeostationary->height())
+                        if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                         {
-                            scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
-                            rgbval = scanl[col];
-                            fb_painter.setPen(rgbval);
-                            fb_painter.drawPoint(i,j);
+                            picrow = row;
+                            if(picrow < imageptrs->ptrimageGeostationary->height())
+                            {
+                                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
+                                rgbval = scanl[col];
+                                fb_painter.setPen(rgbval);
+                                fb_painter.drawPoint(i,j);
+                            }
                         }
                     }
+
                 }
             }
         }

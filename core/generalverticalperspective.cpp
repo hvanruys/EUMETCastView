@@ -295,14 +295,11 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                     {
-                        row+=0; //5;
-                        col+=50; //3;
-                        picrow = row;
                         if( hrvmap == 0)
                         {
-                            if(picrow < imageptrs->ptrimageGeostationary->height())
+                            if(row < imageptrs->ptrimageGeostationary->height())
                             {
-                                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
+                                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(row);
                                 rgbval = scanl[col];
                                 fb_painter.setPen(rgbval);
                                 fb_painter.drawPoint(i,j);
@@ -310,6 +307,10 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                         }
                         else
                         {
+                            row+=5; //5;
+                            col+=3; //3;
+                            picrow = row;
+
                             if(sl->getGeoSatellite() == eGeoSatellite::MET_10)
                             {
                                 if( row < 5*464)
@@ -332,11 +333,11 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                             }
                             else if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
                             {
-                                if( row < (sl->areatype == 0 ? 5*464 : 11136))
+                                if( picrow < (sl->areatype == 0 ? 5*464 : 11136))
                                 {
                                     scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
 
-                                    if (row > USLA ) //LOWER
+                                    if (picrow > USLA ) //LOWER
                                     {
                                         if( col > LWCA && col < LECA)
                                             piccol = col - LWCA;
@@ -403,8 +404,6 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                                 rgbval = scanl[col];
                                 fb_painter.setPen(rgbval);
                                 fb_painter.drawPoint(i,j);
-                                if(picrow == 1000)
-                                    piccnt++;
                             }
                         }
                     }

@@ -86,9 +86,13 @@ class pixgeoConversion
 {
 public:
     pixgeoConversion();
-    int pixcoord2geocoord(double sub_lon_deg, int column, int row, long coff, long loff, long long cfac, long long lfac, double *latitude, double *longitude);
-    int geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, long coff, long loff, long long cfac, long long lfac, int *column, int *row);
-    int geocoord2pixcoordrad(double sub_lon_deg, double lat_rad, double lon_rad, long coff, long loff, long long cfac, long long lfac, int *column, int *row);
+    //int pixcoord2geocoord(double sub_lon_deg, int column, int row, long coff, long loff, long long cfac, long long lfac, double *latitude, double *longitude);
+    int pixcoord2geocoord(double sub_lon_deg, int column, int row, int coff, int loff, double cfac, double lfac, double *latitude, double *longitude);
+
+    //int geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, long coff, long loff, long long cfac, long long lfac, int *column, int *row);
+    //int geocoord2pixcoordrad(double sub_lon_deg, double lat_rad, double lon_rad, long coff, long loff, long long cfac, long long lfac, int *column, int *row);
+    int geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, int coff, int loff, double cfac, double lfac, int *column, int *row);
+
     int nint(double val);
     void earth_to_fgf_(const int  *sat, const double *lon_degrees, const double *lat_degrees, const double *scale_x, const double *offset_x,
                        const double *scale_y, const double *offset_y, const double *sub_lon_degrees, double *fgf_x, double *fgf_y);

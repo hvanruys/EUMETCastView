@@ -556,11 +556,23 @@ void Options::InitializeGeo()
         geo.longitudelimit2 = settingsgeo.value("longitudelimit2").toDouble();
         geo.protocol = settingsgeo.value("protocol").toString();
         geo.rss = settingsgeo.value("rss").toBool();
+        if(geo.rss)
+        {
+            geo.imagewidth = 3712;
+            geo.imageheight = 1392;
+            geo.maxsegments = 3;
+            geo.maxsegmentshrv = 9;
+        }
+        else
+        {
+            geo.imagewidth = 3712;
+            geo.imageheight = 3712;
+            geo.maxsegments = 8;
+            geo.maxsegmentshrv = 24;
+        }
         geo.searchstring = settingsgeo.value("searchstring").toString();
         geo.indexsearchstring = settingsgeo.value("indexsearchstring").toInt();
         geo.filepattern = settingsgeo.value("filepattern").toString();
-        geo.imagewidth = settingsgeo.value("imagewidth").toInt();
-        geo.imageheight = settingsgeo.value("imageheight").toInt();
         geo.imagewidthhrv0 = settingsgeo.value("imagewidthhrv0").toInt();
         geo.imageheighthrv0 = settingsgeo.value("imageheighthrv0").toInt();
         geo.imagewidthhrv1 = settingsgeo.value("imagewidthhrv1").toInt();
@@ -581,8 +593,6 @@ void Options::InitializeGeo()
         geo.lengthdatehrv = settingsgeo.value("lengthdatehrv").toInt();
 
         geo.color = settingsgeo.value("color").toBool();
-        geo.maxsegments = settingsgeo.value("maxsegments").toInt();
-        geo.maxsegmentshrv = settingsgeo.value("maxsegmentshrv").toInt();
         geo.segmentlength = settingsgeo.value("segmentlength").toInt();
         geo.segmentlengthhrv = settingsgeo.value("segmentlengthhrv").toInt();
         geo.startsegmentnbrtype0 = settingsgeo.value("startsegmenttype0").toInt();
@@ -701,6 +711,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].imageheighthrv0 = 2320;
     geosatellites[0].imagewidthhrv1 = 5568;
     geosatellites[0].imageheighthrv1 = 11136;
+
     geosatellites[0].indexspectrum = 26;
     geosatellites[0].indexfilenbr = 36;
     geosatellites[0].lengthfilenbr = 6;
@@ -745,6 +756,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[1].imageheighthrv0 = 2320;
     geosatellites[1].imagewidthhrv1 = 5568;
     geosatellites[1].imageheighthrv1 = 11136;
+
     geosatellites[1].indexspectrum = 26;
     geosatellites[1].indexfilenbr = 36;
     geosatellites[1].lengthfilenbr = 6;
@@ -775,16 +787,16 @@ void Options::CreateGeoSatelliteIni()
     //Data Channel 5
     geosatellites[2].fullname = "Meteosat-9";
     geosatellites[2].shortname = "MET_9";
-    geosatellites[2].longitude = 9.5;
+    geosatellites[2].longitude = 0.0;
     geosatellites[2].longitudelimit1 = 0.0;
     geosatellites[2].longitudelimit2 = 0.0;
     geosatellites[2].protocol = "XRIT";
-    geosatellites[2].rss = true;
+    geosatellites[2].rss = false;
     geosatellites[2].searchstring = "H-000-MSG2__-MSG2";
     geosatellites[2].indexsearchstring = 0;
     geosatellites[2].filepattern = "H-000-MSG2??-????????????-?????????-0?????___-%1-C_";
     geosatellites[2].imagewidth = 3712;
-    geosatellites[2].imageheight = 1392;
+    geosatellites[2].imageheight = 3712;
     geosatellites[2].imagewidthhrv0 = 5568;
     geosatellites[2].imageheighthrv0 = 2320;
     geosatellites[2].imagewidthhrv1 = 5568;
@@ -805,8 +817,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[2].lengthdatehrv = 12;
 
     geosatellites[2].color = true;
-    geosatellites[2].maxsegments = 3;
-    geosatellites[2].maxsegmentshrv = 9;
+    geosatellites[2].maxsegments = 8;
+    geosatellites[2].maxsegmentshrv = 24;
     geosatellites[2].segmentlength = 464;
     geosatellites[2].segmentlengthhrv = 464;
     geosatellites[2].startsegmentnbrtype0 = 5;

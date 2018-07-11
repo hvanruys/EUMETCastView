@@ -2247,60 +2247,10 @@ int GeoConfigModel::rowCount(const QModelIndex & /*parent*/) const
     return opts.geosatellites.count();
 }
 
-//struct GeoSatellites
-//{
-//    QString fullname;
-//    QString shortname;
-//    double longitude;
-//    double longitudelimit1;
-//    double longitudelimit2;
-//    QString protocol;
-//    bool rss;
-//    QString searchstring;
-//    int indexsearchstring;
-//    QString filepattern;
-//    int imagewidth;
-//    int imageheight;
-//    int imagewidthhrv0;
-//    int imageheighthrv0;
-//    int imagewidthhrv1;
-//    int imageheighthrv1;
-//    QStringList spectrumlist;
-//    QStringList spectrumvalueslist;
-//    int indexspectrum;
-//    int indexfilenbr;
-//    int lengthfilenbr;
-//    int indexdate;
-//    int lengthdate;
-//    QString spectrumhrv;
-//    QString spectrumvaluehrv;
-//    int indexspectrumhrv;
-//    int indexfilenbrhrv;
-//    int lengthfilenbrhrv;
-//    int indexdatehrv;
-//    int lengthdatehrv;
-//    bool color;
-//    int maxsegments;
-//    int maxsegmentshrv;
-//    int startsegmentnbrtype0;
-//    int startsegmentnbrhrvtype0;
-//    int startsegmentnbrtype1;
-//    int startsegmentnbrhrvtype1;
-//    bool prologfile;
-//    bool epilogfile;
-//    qlonglong coff;
-//    qlonglong loff;
-//    double cfac;
-//    double lfac;
-//    qlonglong coffhrv;
-//    qlonglong loffhrv;
-//    double cfachrv;
-//    double lfachrv;
-//};
 
 int GeoConfigModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    return 9;
+    return 7;
 }
 
 QVariant GeoConfigModel::data(const QModelIndex &index, int role) const
@@ -2331,12 +2281,7 @@ QVariant GeoConfigModel::data(const QModelIndex &index, int role) const
         case 6:
             return opts.geosatellites.at(index.row()).indexsearchstring;
             break;
-        case 7:
-            return opts.geosatellites.at(index.row()).imagewidth;
-            break;
-        case 8:
-            return opts.geosatellites.at(index.row()).imageheight;
-            break;
+
         }
     }
 
@@ -2375,12 +2320,6 @@ bool GeoConfigModel::setData(const QModelIndex & index, const QVariant & value, 
         case 6:
             opts.geosatellites[index.row()].indexsearchstring = value.toInt();
             break;
-        case 7:
-            opts.geosatellites[index.row()].imagewidth = value.toInt();
-            break;
-        case 8:
-            opts.geosatellites[index.row()].imageheight = value.toInt();
-            break;
         }
 
         emit editCompleted();
@@ -2417,12 +2356,6 @@ QVariant GeoConfigModel::headerData(int section, Qt::Orientation orientation, in
         case 6:
             return tr("Index Search");
 
-        case 7:
-            return tr("Image width");
-
-        case 8:
-            return tr("Image height");
-
         default:
             return QVariant();
         }
@@ -2444,8 +2377,6 @@ bool GeoConfigModel::insertRows(int position, int rows, const QModelIndex &index
     sats.rss = false;
     sats.searchstring = " ";
     sats.indexsearchstring = 0;
-    sats.imagewidth = 0;
-    sats.imageheight = 0;
     opts.geosatellites.append(sats);
 
     endInsertRows();

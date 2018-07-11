@@ -371,14 +371,11 @@ void LambertConformalConic::CreateMapFromGeostationary()
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                         //if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, COFF_HRV, LOFF_HRV, CFAC_HRV, LFAC_HRV, &col, &row) == 0)
                     {
-                        row+=5;
-                        col+=3;
-                        picrow = row;
                         if( hrvmap == 0)
                         {
-                            if(picrow < imageptrs->ptrimageGeostationary->height())
+                            if(row < imageptrs->ptrimageGeostationary->height())
                             {
-                                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
+                                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(row);
                                 rgbval = scanl[col];
                                 fb_painter.setPen(rgbval);
                                 fb_painter.drawPoint(i,j);
@@ -386,6 +383,10 @@ void LambertConformalConic::CreateMapFromGeostationary()
                         }
                         else
                         {
+                            row+=5;
+                            col+=3;
+                            picrow = row;
+
                             if(sl->getGeoSatellite() == eGeoSatellite::MET_10)
                             {
                                 if( picrow >= 0 && picrow < 5*464)
