@@ -421,6 +421,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
         for(int i = 0; i < opts.geosatellites.count(); i++)
         {
+            //seglgeo.at(i)->setImagePath("");
+
             //qDebug() << fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length() ) << "???" << opts.geosatellites.at(i).searchstring;
             if (fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == opts.geosatellites.at(i).searchstring && fileInfo.isFile())
             {
@@ -1949,7 +1951,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsDatahubSLSTR()
 QStringList AVHRRSatellite::GetOverviewSegmentsGeo(int geoindex)
 {
     QStringList strlist;
-    strlist << " " << QString(opts.geosatellites.at(geoindex).fullname) << QString("%1").arg(this->segmentlistmapgeo.at(geoindex).count());
+    strlist << seglgeo.at(geoindex)->getImagePath() << QString(opts.geosatellites.at(geoindex).fullname) << QString("%1").arg(this->segmentlistmapgeo.at(geoindex).count());
 
     return strlist;
 }

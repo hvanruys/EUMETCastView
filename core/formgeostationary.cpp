@@ -903,8 +903,6 @@ void FormGeostationary::slotCreateRGBrecipe(int recipe)
 
     qDebug() << "CreateRGBrecipe = " << recipe;
 
-    //CreateRGBrecipeImageThread(recipe);
-
     SegmentListGeostationary *sl;
     QString tex;
 

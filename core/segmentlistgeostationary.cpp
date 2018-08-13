@@ -1386,6 +1386,7 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
                     this->SetupContrastStretch( stat_min[0], 0, stat_max[0], 255);
                     valcontrastred = ContrastStretch(rc);
                 }
+                *(imageptrs->ptrRed[0] + line * npix + pixelx) = valcontrastred;
 
             }
             else if(kindofimage == "HRV")
@@ -2350,9 +2351,9 @@ void SegmentListGeostationary::ComposeHRV()
 
 
 
-    //imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, 15);
-    //imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 1023, 16, 16, 256, 15);
-    //imageptrs->CLAHE(pixelsBlue, 3712, 3712, 0, 1023, 16, 16, 256, 15);
+    imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, 4);
+    imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 1023, 16, 16, 256, 4);
+    imageptrs->CLAHE(pixelsBlue, 3712, 3712, 0, 1023, 16, 16, 256, 4);
 
     if(opts.geosatellites.at(geoindex).rss)
         imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, 4);
@@ -2949,6 +2950,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipe(int recipe, QString tex)
 void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 {
     qDebug() << "start SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)";
+    qDebug() << "geoindex = " << geoindex;
     emit progressCounter(10);
 
     QStringList redbandlist = imageptrs->rgbrecipes[recipe].Colorvector.at(0).channels;
@@ -3326,7 +3328,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 
     QRgb *row_col;
     float red, green, blue;
-    imageptrs->InitializeImageGeostationary(opts.geosatellites.at(0).imagewidth, opts.geosatellites.at(0).imageheight);
+    imageptrs->InitializeImageGeostationary(opts.geosatellites.at(geoindex).imagewidth, opts.geosatellites.at(geoindex).imageheight);
 
 
     for(int colorindex = 0; colorindex < 3; colorindex++)
@@ -3393,9 +3395,48 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
         qDebug() << QString("%1 resultmin = %2 resultmax = %3").arg(colorindex).arg(resultmin[colorindex]).arg(resultmax[colorindex]);
 
 
-    for (int line = 0; line < 3712; line++)
+//    for (int line = 0; line < 3712; line++)
+//    {
+//        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(3711 - line);
+//        for (int pixelx = 0; pixelx < 3712; pixelx++)
+//        {
+//            int i_image = line * 3712 + pixelx;
+
+//            if(result[0][i_image] == FILL_VALUE_F || result[1][i_image] == FILL_VALUE_F || result[2][i_image] == FILL_VALUE_F )
+//            {
+//                red = 0.0;
+//                green = 0.0;
+//                blue = 0.0;
+//            }
+//            else
+//            {
+//                if(imageptrs->rgbrecipes[recipe].Colorvector.at(0).inverse.at(0))
+//                    red   = 255.0 - 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(0).gamma);
+//                else
+//                    red   = 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(0).gamma);
+//                if(imageptrs->rgbrecipes[recipe].Colorvector.at(1).inverse.at(0))
+//                    green = 255.0 - 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(1).gamma);
+//                else
+//                    green = 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(1).gamma);
+//                if(imageptrs->rgbrecipes[recipe].Colorvector.at(2).inverse.at(0))
+//                    blue  = 255 - 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(2).gamma);
+//                else
+//                    blue  = 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(2).gamma);
+//            }
+//            int i_image1 = (3711 - line) * 3712 + (3711 - pixelx);
+
+//            imageptrs->ptrimageRGBRecipeRed[i_image1] = (quint8)red;
+//            imageptrs->ptrimageRGBRecipeGreen[i_image1] = (quint8)green;
+//            imageptrs->ptrimageRGBRecipeBlue[i_image1] = (quint8)blue;
+
+//            row_col[3711 - pixelx] = qRgb((int)red, (int)green, (int)blue);
+//        }
+//    }
+
+
+    for (int line = (opts.geosatellites.at(geoindex).rss ? 5 * 464 : 0); line < 3712; line++)
     {
-        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(3711 - line);
+        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(opts.geosatellites.at(geoindex).rss ? 8 * 464 - 1 - line : 3711 - line);
         for (int pixelx = 0; pixelx < 3712; pixelx++)
         {
             int i_image = line * 3712 + pixelx;
@@ -4260,9 +4301,6 @@ void SegmentListGeostationary::CalculateGeoRadiances(bandstorage &bs)
                            bands[bs.listindex].data[i_image] /= cos(sza[i_image] * D2R);
 
                        bands[bs.listindex].data[i_image] = bands[bs.listindex].data[i_image] < 0.0 ? 0.0 : bands[bs.listindex].data[i_image];
-                       if( i_image == 1856 * 3712 + 1856 )
-                           qDebug() << QString("The effective radiance = %1 BRF = %2").arg(R).arg(bands[bs.listindex].data[i_image]);
-
 
                        if(bands[bs.listindex].data[i_image] < bands[bs.listindex].min) bands[bs.listindex].min = bands[bs.listindex].data[i_image];
                        if(bands[bs.listindex].data[i_image] > bands[bs.listindex].max) bands[bs.listindex].max = bands[bs.listindex].data[i_image];
@@ -4319,8 +4357,6 @@ void SegmentListGeostationary::CalculateGeoRadiances(bandstorage &bs)
                    double L = bands[bs.listindex].data[i_image] * bs.slope + bs.offset;
 
                    bands[bs.listindex].data[i_image] =  (c2 * nu / log(1. + nu3 * c1 / L) - b) / a;
-                   if( i_image == 1856 * 3712 + 1856 )
-                       qDebug() << QString("The effective radiance = %1 the brightense temp = %2").arg(L).arg(bands[bs.listindex].data[i_image]);
 
                    if(bands[bs.listindex].data[i_image] < bands[bs.listindex].min) bands[bs.listindex].min = bands[bs.listindex].data[i_image];
                    if(bands[bs.listindex].data[i_image] > bands[bs.listindex].max) bands[bs.listindex].max = bands[bs.listindex].data[i_image];

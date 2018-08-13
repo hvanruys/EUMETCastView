@@ -522,7 +522,6 @@ void FormToolbox::setValuePrgBar(int val)
 
 void FormToolbox::setValueProgressBar(int val)
 {
-    qDebug() << "FormToolbox::setValueProgressBar(int val) " << val;
     ui->pbProgress->setValue(val);
     //this->update();
 }

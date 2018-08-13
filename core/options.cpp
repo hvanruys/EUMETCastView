@@ -556,20 +556,32 @@ void Options::InitializeGeo()
         geo.longitudelimit2 = settingsgeo.value("longitudelimit2").toDouble();
         geo.protocol = settingsgeo.value("protocol").toString();
         geo.rss = settingsgeo.value("rss").toBool();
-        if(geo.rss)
+
+        if(i < 4) // only Meteosat-11,-10,-9,-8
         {
-            geo.imagewidth = 3712;
-            geo.imageheight = 1392;
-            geo.maxsegments = 3;
-            geo.maxsegmentshrv = 9;
+            if(geo.rss)
+            {
+                geo.imagewidth = 3712;
+                geo.imageheight = 1392;
+                geo.maxsegments = 3;
+                geo.maxsegmentshrv = 9;
+            }
+            else
+            {
+                geo.imagewidth = 3712;
+                geo.imageheight = 3712;
+                geo.maxsegments = 8;
+                geo.maxsegmentshrv = 24;
+            }
         }
         else
         {
-            geo.imagewidth = 3712;
-            geo.imageheight = 3712;
-            geo.maxsegments = 8;
-            geo.maxsegmentshrv = 24;
+            geo.imagewidth = settingsgeo.value("imagewidth").toInt();
+            geo.imageheight = settingsgeo.value("imageheight").toInt();
+            geo.maxsegments = settingsgeo.value("maxsegments").toInt();
+            geo.maxsegmentshrv = settingsgeo.value("maxsegmentshrv").toInt();
         }
+
         geo.searchstring = settingsgeo.value("searchstring").toString();
         geo.indexsearchstring = settingsgeo.value("indexsearchstring").toInt();
         geo.filepattern = settingsgeo.value("filepattern").toString();

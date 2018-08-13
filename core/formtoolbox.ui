@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>3</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -5524,7 +5524,7 @@
                <property name="geometry">
                 <rect>
                  <x>0</x>
-                 <y>-98</y>
+                 <y>0</y>
                  <width>430</width>
                  <height>529</height>
                 </rect>
@@ -6290,8 +6290,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>444</width>
-                 <height>410</height>
+                 <width>326</width>
+                 <height>264</height>
                 </rect>
                </property>
                <attribute name="label">
