@@ -1198,7 +1198,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
                                         << "12.3" << "13.3";
 
-    //E1B-TPG-1
+    //E1B-TPG-1 E1H-TPG-2
     geosatellites[9].fullname = "Himawari 8";
     geosatellites[9].shortname = "H8";
     geosatellites[9].longitude = 140.7;
@@ -1254,8 +1254,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[9].lfachrv = 0.;
 
 
-    geosatellites[9].spectrumlist << "VIS" << "B04" << "B05" << "B06" << "IR4" << "IR3" << "B09" << "B10" << "B11" << "B12" << "IR1" << "B14" << "IR2" << "B16";
-    geosatellites[9].spectrumvalueslist << "0.64" << "0.86" << "1.6" << "2.3" << "3.9" << "6.2" << "6.9" << "7.3" << "8.6" << "9.6" << "10.4" << "11.2" << "12.4" << "13.3";
+    geosatellites[9].spectrumlist << "B01" << "B02" << "VIS" << "B04" << "B05" << "B06" << "IR4" << "IR3" << "B09" << "B10" << "B11" << "B12" << "IR1" << "B14" << "IR2" << "B16";
+    geosatellites[9].spectrumvalueslist << "0.46" << "0.51" << "0.64" << "0.86" << "1.6" << "2.3" << "3.9" << "6.2" << "6.9" << "7.3" << "8.6" << "9.6" << "10.4" << "11.2" << "12.4" << "13.3";
 
     settingsgeo.beginWriteArray("geos");
     for (int i = 0; i < this->geosatellites.size(); ++i) {

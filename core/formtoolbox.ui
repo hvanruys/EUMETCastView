@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
+    <width>535</width>
     <height>1264</height>
    </rect>
   </property>
@@ -31,8 +31,14 @@
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="tabPosition">
+      <enum>QTabWidget::West</enum>
+     </property>
      <property name="currentIndex">
       <number>3</number>
+     </property>
+     <property name="elideMode">
+      <enum>Qt::ElideNone</enum>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -5525,7 +5531,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>430</width>
+                 <width>432</width>
                  <height>529</height>
                 </rect>
                </property>

@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     formephem = new FormEphem(this, satlist, seglist);
     ui->stackedWidget->addWidget(formephem); // index 0
 
-    formtoolbox = NULL;
+    //formtoolbox = NULL;
 
     formgeostationary = new FormGeostationary(this, satlist, seglist);
     ui->stackedWidget->addWidget(formgeostationary); // index 1

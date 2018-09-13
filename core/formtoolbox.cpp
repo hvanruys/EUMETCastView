@@ -2395,63 +2395,83 @@ void FormToolbox::onButtonColorHRV(QString type)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo1->currentIndex()-1] = "VIS";
+            spectrumvector[ui->comboGeo1->currentIndex()-1] = "B01";
             inversevector[ui->comboGeo1->currentIndex()-1] = ui->chkInverseGeo1->isChecked();
         }
         if(ui->comboGeo2->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo2->currentIndex()-1] = "B04";
+            spectrumvector[ui->comboGeo2->currentIndex()-1] = "B02";
             inversevector[ui->comboGeo2->currentIndex()-1] = ui->chkInverseGeo2->isChecked();
         }
         if(ui->comboGeo3->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo3->currentIndex()-1] = "B05";
+            spectrumvector[ui->comboGeo3->currentIndex()-1] = "VIS";
             inversevector[ui->comboGeo3->currentIndex()-1] = ui->chkInverseGeo3->isChecked();
         }
         if(ui->comboGeo4->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo4->currentIndex()-1] = "IR4";
+            spectrumvector[ui->comboGeo4->currentIndex()-1] = "B04";
             inversevector[ui->comboGeo4->currentIndex()-1] = ui->chkInverseGeo4->isChecked();
         }
         if(ui->comboGeo5->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo5->currentIndex()-1] = "IR3";
+            spectrumvector[ui->comboGeo5->currentIndex()-1] = "B05";
             inversevector[ui->comboGeo5->currentIndex()-1] = ui->chkInverseGeo5->isChecked();
         }
         if(ui->comboGeo6->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo6->currentIndex()-1] = "B09";
+            spectrumvector[ui->comboGeo6->currentIndex()-1] = "B06";
             inversevector[ui->comboGeo6->currentIndex()-1] = ui->chkInverseGeo6->isChecked();
         }
         if(ui->comboGeo7->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo7->currentIndex()-1] = "B10";
+            spectrumvector[ui->comboGeo7->currentIndex()-1] = "IR4";
             inversevector[ui->comboGeo7->currentIndex()-1] = ui->chkInverseGeo7->isChecked();
         }
         if(ui->comboGeo8->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo8->currentIndex()-1] = "B11";
+            spectrumvector[ui->comboGeo8->currentIndex()-1] = "IR3";
             inversevector[ui->comboGeo8->currentIndex()-1] = ui->chkInverseGeo8->isChecked();
         }
         if(ui->comboGeo9->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo9->currentIndex()-1] = "IR1";
+            spectrumvector[ui->comboGeo9->currentIndex()-1] = "B09";
             inversevector[ui->comboGeo9->currentIndex()-1] = ui->chkInverseGeo9->isChecked();
         }
         if(ui->comboGeo10->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo10->currentIndex()-1] = "B14";
+            spectrumvector[ui->comboGeo10->currentIndex()-1] = "B10";
             inversevector[ui->comboGeo10->currentIndex()-1] = ui->chkInverseGeo10->isChecked();
         }
         if(ui->comboGeo11->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo11->currentIndex()-1] = "IR2";
+            spectrumvector[ui->comboGeo11->currentIndex()-1] = "B11";
             inversevector[ui->comboGeo11->currentIndex()-1] = ui->chkInverseGeo11->isChecked();
         }
         if(ui->comboGeo12->currentIndex() > 0)
         {
-            spectrumvector[ui->comboGeo12->currentIndex()-1] = "B16";
+            spectrumvector[ui->comboGeo12->currentIndex()-1] = "B12";
             inversevector[ui->comboGeo12->currentIndex()-1] = ui->chkInverseGeo12->isChecked();
+        }
+        if(ui->comboGeo13->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboGeo13->currentIndex()-1] = "IR1";
+            inversevector[ui->comboGeo13->currentIndex()-1] = ui->chkInverseGeo13->isChecked();
+        }
+        if(ui->comboGeo14->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboGeo14->currentIndex()-1] = "B14";
+            inversevector[ui->comboGeo14->currentIndex()-1] = ui->chkInverseGeo14->isChecked();
+        }
+        if(ui->comboGeo15->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboGeo15->currentIndex()-1] = "IR2";
+            inversevector[ui->comboGeo15->currentIndex()-1] = ui->chkInverseGeo15->isChecked();
+        }
+        if(ui->comboGeo16->currentIndex() > 0)
+        {
+            spectrumvector[ui->comboGeo16->currentIndex()-1] = "B16";
+            inversevector[ui->comboGeo16->currentIndex()-1] = ui->chkInverseGeo16->isChecked();
         }
     }
     else if(geoindex == (int)eGeoSatellite::GOES_16 )
@@ -2537,6 +2557,8 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo16->currentIndex()-1] = ui->chkInverseGeo16->isChecked();
         }
     }
+
+    qDebug() << "spectrumvektor = " << spectrumvector << " ; inversevector = " << inversevector;
 
     emit switchstackedwidget(3);
     emit getgeosatchannel(type, spectrumvector, inversevector, ui->cmbHistogramGeo->currentIndex(), ui->rdbPseudoColor->isChecked());
