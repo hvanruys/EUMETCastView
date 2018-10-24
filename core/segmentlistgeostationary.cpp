@@ -2350,10 +2350,12 @@ void SegmentListGeostationary::ComposeHRV()
 
 
 
-
-    imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, 4);
-    imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 1023, 16, 16, 256, 4);
-    imageptrs->CLAHE(pixelsBlue, 3712, 3712, 0, 1023, 16, 16, 256, 4);
+    if(kindofimage == "HRV Color")
+    {
+        imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, 4);
+        imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 1023, 16, 16, 256, 4);
+        imageptrs->CLAHE(pixelsBlue, 3712, 3712, 0, 1023, 16, 16, 256, 4);
+    }
 
     if(opts.geosatellites.at(geoindex).rss)
         imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, 4);
