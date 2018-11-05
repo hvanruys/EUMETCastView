@@ -1472,7 +1472,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread() //(QStringLis
     int rh_ndims;
     int  rh_dimids[NC_MAX_VAR_DIMS];
     int rh_natts;
-    size_t xdim, ydim;
+    size_t xdim=0, ydim=0;
     float scale_factor[3];
     float add_offset[3];
     int fillvalue[3];
@@ -1646,8 +1646,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread() //(QStringLis
         if (retval != NC_NOERR) qDebug() << "error reading nominal_satellite_subpoint_lon values";
 
         qDebug() << "nominal_satellite_subpoint_lon = " << nominal_satellite_subpoint_lon;
-        this->geosatlon = nominal_satellite_subpoint_lon;
-        opts.geosatellites[(int)eGeoSatellite::GOES_16].longitude = nominal_satellite_subpoint_lon;
+        //this->geosatlon = nominal_satellite_subpoint_lon;
+        //opts.geosatellites[(int)eGeoSatellite::GOES_16].longitude = nominal_satellite_subpoint_lon;
 
         float scale_factor_x, add_offset_x;
         float scale_factor_y, add_offset_y;
