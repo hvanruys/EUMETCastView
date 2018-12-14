@@ -4957,7 +4957,7 @@
           <string extracomment="Select C01 = B, C02 = R and C03 = G"/>
          </property>
          <property name="text">
-          <string>Calculate pseudo True Color for GOES-16</string>
+          <string>Pseudo True Color for GOES-16 ( C01 = B, C02 = R and C03 = G)</string>
          </property>
         </widget>
        </item>

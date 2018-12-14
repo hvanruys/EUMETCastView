@@ -96,11 +96,13 @@ void MSG_data::read_from( std::ifstream &in, MSG_header &header )
       dsize = header.data_field_length / 8;
       dbuff = new unsigned char_1[dsize];
       in.read((char *) dbuff, dsize);
+
       if (in.fail( ))
       {
         std::cerr << "Read error from HRIT file: Data field." << std::endl;
         throw;
       }
+
 
       if (header.image_structure->compression_flag == MSG_NO_COMPRESSION)
       {

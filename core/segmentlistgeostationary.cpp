@@ -544,21 +544,25 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
 
     if (header->segment_id->data_field_format == MSG_NO_FORMAT)
     {
-      qDebug() << "Product dumped in binary format.";
-      return;
+      qDebug() << "Product dumped in binary format. " << (int)header->segment_id->data_field_format;
+      //return;
     }
 
     int planned_end_segment = header->segment_id->planned_end_segment_sequence_number;
 
     int npix = number_of_columns = header->image_structure->number_of_columns;
     int nlin = number_of_lines = header->image_structure->number_of_lines;
+
     size_t npixperseg = number_of_columns*number_of_lines;
 
     qDebug() << QString("---->[%1] SegmentListGeostationary::ComposeSegmentImageXRIT() planned end = %2 npix = %3 nlin = %4 filesequence = %5").arg(kindofimage).arg(planned_end_segment).arg(number_of_columns).arg(number_of_lines).arg(filesequence);
+    qDebug() << QString("----> npixperseg = %1  msgdat->image->len = %2").arg(npixperseg).arg(msgdat->image->len);
 
     MSG_SAMPLE *pixels = new MSG_SAMPLE[npixperseg];
     memset(pixels, 0, npixperseg*sizeof(MSG_SAMPLE));
     memcpy(pixels, msgdat->image->data, npixperseg*sizeof(MSG_SAMPLE));
+
+
 
     QImage *im;
     im = imageptrs->ptrimageGeostationary;
@@ -605,6 +609,10 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
             if (filespectrum == "HRV")
             {
                 *(imageptrs->ptrHRV[filesequence] + line * npix + pixelx) = c;
+            }
+            else if (m_GeoSatellite == eGeoSatellite::GOES_15)
+            {
+                *(imageptrs->ptrRed[filesequence] + line * npix + pixelx) = c;
             }
             else
             {
@@ -1689,7 +1697,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread() //(QStringLis
     emit this->progressCounter(progcounter);
 
 
-    if(this->pseudocolor)
+    if(this->pseudocolor) // R -> C02; G -> C03; B -> C01
     {
         for(int line = 0; line < ydim; line++)
         {
@@ -2004,6 +2012,12 @@ void SegmentListGeostationary::ComposeVISIR()
     int width = opts.geosatellites[geoindex].imagewidth;
     int height = opts.geosatellites[geoindex].imageheight;
     size_t nbrpix = width*height;
+    int nbroflinespersegment = 464;
+
+//    if(m_GeoSatellite == eGeoSatellite::GOES_15)
+//        nbroflinespersegment = 580;
+//    else
+//        nbroflinespersegment = 464;
 
     quint16 *pixelsRed;
     quint16 *pixelsGreen;
@@ -2019,19 +2033,19 @@ void SegmentListGeostationary::ComposeVISIR()
     for( int i = (bisRSS ? 5 : 0); i < opts.geosatellites[geoindex].maxsegments + (bisRSS ? 5 : 0); i++)
     {
         if(isPresentRed[i])
-            memcpy(pixelsRed + (bisRSS ? i - 5 : i) * 464 * opts.geosatellites[geoindex].imagewidth, imageptrs->ptrRed[i], 464 * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
+            memcpy(pixelsRed + (bisRSS ? i - 5 : i) * nbroflinespersegment * opts.geosatellites[geoindex].imagewidth, imageptrs->ptrRed[i], nbroflinespersegment * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
     }
     if(kindofimage == "VIS_IR Color")
     {
         for( int i = (bisRSS ? 5 : 0); i < opts.geosatellites[geoindex].maxsegments + (bisRSS ? 5 : 0); i++)
         {
             if(isPresentGreen[i])
-                memcpy(pixelsGreen + (bisRSS ? i - 5 : i) * 464 * opts.geosatellites[geoindex].imagewidth, imageptrs->ptrGreen[i], 464 * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
+                memcpy(pixelsGreen + (bisRSS ? i - 5 : i) * nbroflinespersegment * opts.geosatellites[geoindex].imagewidth, imageptrs->ptrGreen[i], nbroflinespersegment * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
         }
         for( int i = (bisRSS ? 5 : 0); i < opts.geosatellites[geoindex].maxsegments + (bisRSS ? 5 : 0); i++)
         {
             if(isPresentBlue[i])
-                memcpy(pixelsBlue + (bisRSS ? i - 5 : i) * 464 * opts.geosatellites[geoindex].imagewidth, imageptrs->ptrBlue[i], 464 * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
+                memcpy(pixelsBlue + (bisRSS ? i - 5 : i) * nbroflinespersegment * opts.geosatellites[geoindex].imagewidth, imageptrs->ptrBlue[i], nbroflinespersegment * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
         }
 
     }
@@ -2046,12 +2060,12 @@ void SegmentListGeostationary::ComposeVISIR()
         CalculateLUTGeo(2, pixelsBlue, 0);
     }
 
-    for (int line = opts.geosatellites[geoindex].maxsegments*464 - 1; line >= 0; line--)
+    for (int line = opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1; line >= 0; line--)
     {
         if(m_GeoSatellite == eGeoSatellite::GOES_15 || m_GeoSatellite == eGeoSatellite::GOMS2)
             row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
         else
-            row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(opts.geosatellites[geoindex].maxsegments*464 - 1 - line);
+            row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1 - line);
 
         for (int pixelx = opts.geosatellites[geoindex].imagewidth - 1 ; pixelx >= 0; pixelx--)
         {

@@ -1108,7 +1108,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789
         //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3
-        else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR") // && fileinfo.completeSuffix() == ".tar")
+        else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR" || fileinfo.fileName().mid( 0, 12) == "S3B_OL_1_EFR") // && fileinfo.completeSuffix() == ".tar")
         {
             *sentinel3Tle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
@@ -1125,7 +1125,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789
         //S3A_OL_1_ERR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3
-        else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR") // && fileinfo.completeSuffix() == ".tar")
+        else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR" || fileinfo.fileName().mid( 0, 12) == "S3B_OL_1_ERR") // && fileinfo.completeSuffix() == ".tar")
         {
             *sentinel3Tle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
@@ -1176,7 +1176,9 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
         }
-        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG4__-GOES15" && fileinfo.fileName().mid( 59, 2) == "C_" && fileinfo.isFile())
+        //0123456789012345678901234567890123456789012345678901234567890
+        //L-000-MSG4__-GOES15______-06_6_128W-PRO______-201811062100-__
+        else if (fileinfo.fileName().mid( 0, 19) == "L-000-MSG4__-GOES15" && fileinfo.fileName().mid( 36, 3) != "PRO" && fileinfo.isFile())
         {
             QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
             filedate.setDate(d);

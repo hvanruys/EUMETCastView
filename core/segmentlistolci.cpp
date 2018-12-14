@@ -162,7 +162,7 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
     qDebug() << QString("ptrimageOLCI created %1 x %2").arg(this->earth_views_per_scanline).arg(totalnbroflines);
 
 
-    bool composecolor;
+    bool composecolor = false;
 
     long cnt_active_pixels = 0;
 

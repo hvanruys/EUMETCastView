@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.4.3"
+#define APPVERSION "1.4.4"
 
 using namespace std;
 
@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
 {
     doLogging = true;
     ptrimagebusy = false;
+    bool recreate_geo_ini = false;
 
     QByteArray val("1");
     qputenv("HDF5_DISABLE_VERSION_CHECK", val);
@@ -120,6 +121,8 @@ int main(int argc, char *argv[])
     if (QCoreApplication::arguments().contains(QStringLiteral("--logging")) ||
         QCoreApplication::arguments().contains(QStringLiteral("-l")) )
         doLogging = true;
+    if (QCoreApplication::arguments().contains(QStringLiteral("-recreate_geo_ini")))
+        recreate_geo_ini = true;
 
     if(doLogging)
     {
@@ -128,7 +131,7 @@ int main(int argc, char *argv[])
             return 0;
     }
 
-    opts.Initialize();
+    opts.Initialize(recreate_geo_ini);
     poi.Initialize();
 
     imageptrs = new SegmentImage();

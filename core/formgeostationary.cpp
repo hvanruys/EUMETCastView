@@ -244,6 +244,9 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
             while (citfile != mapfile.constEnd())
             {
                 filenbr = citfile.key();
+                QFileInfo fileinfo = citfile.value();
+
+                qDebug() << "strdate = " << strdate << " strspectrum = " << strspectrum << " filenbr = " << filenbr << " info = " << fileinfo.completeBaseName();
 
                 if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
                 {
@@ -277,6 +280,7 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
         for(int i = 0; i < nbr_spectrum; i++)
         {
             strlist << QString("%1").arg(cnt_spectrum.at(i));
+            qDebug() << "cnt_spectrum " << i << " " << strlist;
         }
 
         newitem = new QTreeWidgetItem( widget, strlist, 0  );

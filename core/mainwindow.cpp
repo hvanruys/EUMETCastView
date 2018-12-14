@@ -293,7 +293,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     QDir workingdir1(".");
     filters.clear();
-    filters << "S3A_OL_1_*";
+    filters << "S3A_OL_1_*" << "S3B_OL_1_*";
     workingdir1.setNameFilters(filters);
     workingdir1.setFilter(QDir::Dirs | QDir::NoSymLinks);
     QStringList infolist = workingdir1.entryList();
@@ -311,7 +311,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     QDir workingdir2(".");
     filters.clear();
-    filters << "S3A_SL_1_*";
+    filters << "S3A_SL_1_*" << "S3B_SL_1_*";
     workingdir2.setNameFilters(filters);
     workingdir2.setFilter(QDir::Dirs | QDir::NoSymLinks);
     infolist = workingdir2.entryList();
@@ -371,7 +371,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br><b>Polar satellites :</b>"
     "<br>AVHHR images from Metop-A, Metop-B and NOAA-19"
     "<br>VIIRS images from SUOMI NPP and NOAA-20 (M-Band and Day/Night Band)"
-    "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A"
+    "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A/-3B"
     "<br><br><b>Geostationary satellites :</b>"
     "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-8"
     "<br>Electro L2, FengYun 2E, FengYun 2G"

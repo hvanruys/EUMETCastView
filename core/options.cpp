@@ -10,7 +10,7 @@ Options::Options()
     qDebug() << "Initializing options";
 }
 
-void Options::Initialize()
+void Options::Initialize(bool recreate_geo_ini)
 {
     qDebug() << "Options::Initialize()";
 
@@ -256,7 +256,19 @@ void Options::Initialize()
     mainwindowgeometry = settings.value("/window/mainwindowgeometry").toByteArray();
     mainwindowstate = settings.value("/window/mainwindowstate").toByteArray();
 
-    InitializeGeo();
+
+    if(recreate_geo_ini)
+    {
+        QFile file("GeoSatellites.ini");
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            CreateGeoSatelliteIni();
+            file.close();
+        }
+    }
+    else
+        InitializeGeo();
+
 
 }
 
@@ -532,15 +544,6 @@ void Options::Save()
 void Options::InitializeGeo()
 {
     qDebug() << "Options::InitializeGeo()";
-
-    QFile file("GeoSatellites.ini");
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        CreateGeoSatelliteIni();
-        return;
-    }
-
-    file.close();
 
     QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
 //    obslon = settings.value("/observer/longitude", 0.0 ).toDouble();
@@ -1077,17 +1080,20 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[6].spectrumlist << "VIS" << "IR4" << "IR3" << "IR1" << "IR2";
     geosatellites[6].spectrumvalueslist << "VIS 0.7" << "IR 3.7" << "IR 6.9" << "IR 10.8" << "IR 12.0";
 
+
     // Data Channel 3 & 4
+    //L-000-MSG4__-GOES15______-00_7_128W-000007___-201811061600-__
     geosatellites[7].fullname = "GOES 15";
     geosatellites[7].shortname = "GOES_15";
-    geosatellites[7].longitude = -135.2;
+    geosatellites[7].longitude = -128.0;
     geosatellites[7].longitudelimit1 = 0.0;
     geosatellites[7].longitudelimit2 = 0.0;
     geosatellites[7].protocol = "XRIT";
     geosatellites[7].rss = false;
     geosatellites[7].searchstring = "L-000-MSG4__-GOES15";
     geosatellites[7].indexsearchstring = 0;
-    geosatellites[7].filepattern =  "L-???-??????-GOES15*%1-C_";
+//    geosatellites[7].filepattern =  "L-???-??????-GOES15*%1-__";
+    geosatellites[7].filepattern =  "L-???-??????-GOES15______-?????????-00000?___-%1-__";
     geosatellites[7].imagewidth = 2816;
     geosatellites[7].imageheight = 3248;
     geosatellites[7].imagewidthhrv0 = 0;
@@ -1146,6 +1152,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].rss = false;
     geosatellites[8].searchstring = "OR_ABI";
     geosatellites[8].indexsearchstring = 0;
+    geosatellites[8].filepattern =  "";
+
     geosatellites[8].imagewidth = 5424;
     geosatellites[8].imageheight = 5424;
     geosatellites[8].imagewidthhrv0 = 0;

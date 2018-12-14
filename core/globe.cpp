@@ -1238,11 +1238,11 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 }
                 else if(seg == eSegmentType::SEG_OLCIEFR)
                 {
-                    renderout = QString("EFR %1:%2").arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
+                    renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(0, 3)).arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
                 }
                 else if(seg == eSegmentType::SEG_OLCIERR)
                 {
-                    renderout = QString("ERR %1:%2").arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
+                    renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(0, 3)).arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
                 }
                 else if(seg == eSegmentType::SEG_SLSTR)
                 {
