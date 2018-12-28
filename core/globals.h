@@ -76,8 +76,9 @@ enum class eGeoSatellite {
     FY2G = 6,
     GOES_15 = 7,
     GOES_16 = 8,
-    H8 = 9,
-    NOGEO = 10
+    GOES_17 = 9,
+    H8 = 10,
+    NOGEO = 11
 };
 
 //1 "Airmass RGB"

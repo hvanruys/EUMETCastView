@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.4.4"
+#define APPVERSION "1.4.5"
 
 using namespace std;
 
@@ -79,6 +79,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     case QtFatalMsg:
         strout = "Debug Fatal: " + msg + "\n";
+        out << strout;
+        fprintf(stderr, strout.toStdString().c_str());
         abort();
     }
 

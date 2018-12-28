@@ -2097,7 +2097,7 @@ void FormToolbox::on_btnGeoColor_clicked()
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::H8)
         ui->pbProgress->setMaximum(10+10+10);
-    else if(geoindex == (int)eGeoSatellite::GOES_16)
+    else if(geoindex == (int)eGeoSatellite::GOES_16 || geoindex == (int)eGeoSatellite::GOES_17)
         ui->pbProgress->setMaximum(100);
 
     onButtonColorHRV("VIS_IR Color");
@@ -2474,87 +2474,95 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo16->currentIndex()-1] = ui->chkInverseGeo16->isChecked();
         }
     }
-    else if(geoindex == (int)eGeoSatellite::GOES_16 )
+    else if(geoindex == (int)eGeoSatellite::GOES_16 || geoindex == (int)eGeoSatellite::GOES_17 )
     {
-        if(ui->comboGeo1->currentIndex() > 0)
+        if(ui->rdbPseudoColor->isChecked())
         {
-            spectrumvector[ui->comboGeo1->currentIndex()-1] = "C01";
-            inversevector[ui->comboGeo1->currentIndex()-1] = ui->chkInverseGeo1->isChecked();
+            spectrumvector.clear();
+            spectrumvector << "C02" << "C03" << "C01";
         }
-        if(ui->comboGeo2->currentIndex() > 0)
+        else
         {
-            spectrumvector[ui->comboGeo2->currentIndex()-1] = "C02";
-            inversevector[ui->comboGeo2->currentIndex()-1] = ui->chkInverseGeo2->isChecked();
-        }
-        if(ui->comboGeo3->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo3->currentIndex()-1] = "C03";
-            inversevector[ui->comboGeo3->currentIndex()-1] = ui->chkInverseGeo3->isChecked();
-        }
-        if(ui->comboGeo4->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo4->currentIndex()-1] = "C04";
-            inversevector[ui->comboGeo4->currentIndex()-1] = ui->chkInverseGeo4->isChecked();
-        }
-        if(ui->comboGeo5->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo5->currentIndex()-1] = "C05";
-            inversevector[ui->comboGeo5->currentIndex()-1] = ui->chkInverseGeo5->isChecked();
-        }
-        if(ui->comboGeo6->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo6->currentIndex()-1] = "C06";
-            inversevector[ui->comboGeo6->currentIndex()-1] = ui->chkInverseGeo6->isChecked();
-        }
-        if(ui->comboGeo7->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo7->currentIndex()-1] = "C07";
-            inversevector[ui->comboGeo7->currentIndex()-1] = ui->chkInverseGeo7->isChecked();
-        }
-        if(ui->comboGeo8->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo8->currentIndex()-1] = "C08";
-            inversevector[ui->comboGeo8->currentIndex()-1] = ui->chkInverseGeo8->isChecked();
-        }
-        if(ui->comboGeo9->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo9->currentIndex()-1] = "C09";
-            inversevector[ui->comboGeo9->currentIndex()-1] = ui->chkInverseGeo9->isChecked();
-        }
-        if(ui->comboGeo10->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo10->currentIndex()-1] = "C10";
-            inversevector[ui->comboGeo10->currentIndex()-1] = ui->chkInverseGeo10->isChecked();
-        }
-        if(ui->comboGeo11->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo11->currentIndex()-1] = "C11";
-            inversevector[ui->comboGeo11->currentIndex()-1] = ui->chkInverseGeo11->isChecked();
-        }
-        if(ui->comboGeo12->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo12->currentIndex()-1] = "C12";
-            inversevector[ui->comboGeo12->currentIndex()-1] = ui->chkInverseGeo12->isChecked();
-        }
-        if(ui->comboGeo13->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo13->currentIndex()-1] = "C13";
-            inversevector[ui->comboGeo13->currentIndex()-1] = ui->chkInverseGeo13->isChecked();
-        }
-        if(ui->comboGeo14->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo14->currentIndex()-1] = "C14";
-            inversevector[ui->comboGeo14->currentIndex()-1] = ui->chkInverseGeo14->isChecked();
-        }
-        if(ui->comboGeo15->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo15->currentIndex()-1] = "C15";
-            inversevector[ui->comboGeo15->currentIndex()-1] = ui->chkInverseGeo15->isChecked();
-        }
-        if(ui->comboGeo16->currentIndex() > 0)
-        {
-            spectrumvector[ui->comboGeo16->currentIndex()-1] = "C16";
-            inversevector[ui->comboGeo16->currentIndex()-1] = ui->chkInverseGeo16->isChecked();
+            if(ui->comboGeo1->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo1->currentIndex()-1] = "C01";
+                inversevector[ui->comboGeo1->currentIndex()-1] = ui->chkInverseGeo1->isChecked();
+            }
+            if(ui->comboGeo2->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo2->currentIndex()-1] = "C02";
+                inversevector[ui->comboGeo2->currentIndex()-1] = ui->chkInverseGeo2->isChecked();
+            }
+            if(ui->comboGeo3->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo3->currentIndex()-1] = "C03";
+                inversevector[ui->comboGeo3->currentIndex()-1] = ui->chkInverseGeo3->isChecked();
+            }
+            if(ui->comboGeo4->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo4->currentIndex()-1] = "C04";
+                inversevector[ui->comboGeo4->currentIndex()-1] = ui->chkInverseGeo4->isChecked();
+            }
+            if(ui->comboGeo5->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo5->currentIndex()-1] = "C05";
+                inversevector[ui->comboGeo5->currentIndex()-1] = ui->chkInverseGeo5->isChecked();
+            }
+            if(ui->comboGeo6->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo6->currentIndex()-1] = "C06";
+                inversevector[ui->comboGeo6->currentIndex()-1] = ui->chkInverseGeo6->isChecked();
+            }
+            if(ui->comboGeo7->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo7->currentIndex()-1] = "C07";
+                inversevector[ui->comboGeo7->currentIndex()-1] = ui->chkInverseGeo7->isChecked();
+            }
+            if(ui->comboGeo8->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo8->currentIndex()-1] = "C08";
+                inversevector[ui->comboGeo8->currentIndex()-1] = ui->chkInverseGeo8->isChecked();
+            }
+            if(ui->comboGeo9->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo9->currentIndex()-1] = "C09";
+                inversevector[ui->comboGeo9->currentIndex()-1] = ui->chkInverseGeo9->isChecked();
+            }
+            if(ui->comboGeo10->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo10->currentIndex()-1] = "C10";
+                inversevector[ui->comboGeo10->currentIndex()-1] = ui->chkInverseGeo10->isChecked();
+            }
+            if(ui->comboGeo11->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo11->currentIndex()-1] = "C11";
+                inversevector[ui->comboGeo11->currentIndex()-1] = ui->chkInverseGeo11->isChecked();
+            }
+            if(ui->comboGeo12->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo12->currentIndex()-1] = "C12";
+                inversevector[ui->comboGeo12->currentIndex()-1] = ui->chkInverseGeo12->isChecked();
+            }
+            if(ui->comboGeo13->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo13->currentIndex()-1] = "C13";
+                inversevector[ui->comboGeo13->currentIndex()-1] = ui->chkInverseGeo13->isChecked();
+            }
+            if(ui->comboGeo14->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo14->currentIndex()-1] = "C14";
+                inversevector[ui->comboGeo14->currentIndex()-1] = ui->chkInverseGeo14->isChecked();
+            }
+            if(ui->comboGeo15->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo15->currentIndex()-1] = "C15";
+                inversevector[ui->comboGeo15->currentIndex()-1] = ui->chkInverseGeo15->isChecked();
+            }
+            if(ui->comboGeo16->currentIndex() > 0)
+            {
+                spectrumvector[ui->comboGeo16->currentIndex()-1] = "C16";
+                inversevector[ui->comboGeo16->currentIndex()-1] = ui->chkInverseGeo16->isChecked();
+            }
         }
     }
 

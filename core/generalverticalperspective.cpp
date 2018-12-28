@@ -364,7 +364,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
 
                     }
                 }
-                else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+                else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17)
                 {
                     lon_deg = lon_rad * 180.0 / PI;
                     lat_deg = lat_rad * 180.0 / PI;

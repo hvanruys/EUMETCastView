@@ -1988,7 +1988,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 memcpy(pixelsBlue + i * 550 * 5500, imageptrs->ptrBlue[i], 550 * 5500 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+    else if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17))
     {
         pixelsRed = new quint16[npix];
         pixelsGreen = new quint16[npix];
@@ -2064,7 +2064,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         pixelsRed = new quint16[npix];
         memcpy(pixelsRed, imageptrs->ptrRed[0], npix * sizeof(quint16));
     }
-    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::GOES_16 ))
+    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17 ))
     {
         pixelsRed = new quint16[npix];
         memcpy(pixelsRed, imageptrs->ptrRed[0], npix * sizeof(quint16));
@@ -2108,7 +2108,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         imageptrs->CLAHE(pixelsGreen, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
         imageptrs->CLAHE(pixelsBlue, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::GOES_16 )
+    else if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17) )
     {
         ret = imageptrs->CLAHE(pixelsRed, 5424, 5424, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         qDebug() << QString("pixelsRed ret = %1").arg(ret);
@@ -2152,7 +2152,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         }
         else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
             imageptrs->CLAHE(pixelsRed, 2288, 2288, 0, 255, 16, 16, 256, opts.clahecliplimit);
-        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17)
             imageptrs->CLAHE(pixelsRed, 5424, 5424, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::H8)
             imageptrs->CLAHE(pixelsRed, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
@@ -2207,7 +2207,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+    else if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17))
     {
 
         for (int line = 0; line < 5424; line++)
@@ -2398,9 +2398,9 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+        else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17)
         {
-            qDebug() << "recalculate CLAHE ; VIS_IR and GOES_16 move to ptrImageGeostationary";
+            qDebug() << "recalculate CLAHE ; VIS_IR and GOES_16/_17 move to ptrImageGeostationary";
 
             for (int line = 0; line < 5424; line++)
             {
@@ -2536,7 +2536,7 @@ void FormImage::recalculateCLAHE1(QVector<QString> spectrumvector, QVector<bool>
 
     }
 
-    if(sl->getGeoSatellite() == eGeoSatellite::GOES_16)
+    if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17)
     {
         if(sl->getKindofImage() == "VIS_IR Color")
         {
@@ -3527,7 +3527,7 @@ void FormImage::setupGeoOverlay(int geoindex)
 
                     if(lon_deg < 90.0 || lon_deg > -90.0)
                     {
-                        if(opts.geosatellites.at(geoindex).shortname == "GOES_16")
+                        if(opts.geosatellites.at(geoindex).shortname == "GOES_16" || opts.geosatellites.at(geoindex).shortname == "GOES_17")
                         {
                             pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
                             if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)

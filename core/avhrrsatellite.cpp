@@ -153,6 +153,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     for (int i = 0; i < fileinfolist.size(); ++i)
     {
         fileInfo = fileinfolist.at(i);
+        qDebug() << "---->" << fileInfo.baseName();
+
         counter++;
 
         if (fileInfo.fileName().mid( 0, 8) == "AVHR_xxx" && fileInfo.fileName().mid( 67, 4) == ".bz2" && fileInfo.isFile())   // EPS-10
@@ -496,7 +498,7 @@ void AVHRRSatellite::getFilenameParameters(int geosatindex, QString filename,  Q
                     filenbr = filename.mid(opts.geosatellites.at(geosatindex).indexfilenbr, opts.geosatellites.at(geosatindex).lengthfilenbr).toInt();
                     strdate = filename.mid(opts.geosatellites.at(geosatindex).indexdate, opts.geosatellites.at(geosatindex).lengthdate);
 
-                    if( opts.geosatellites.at(geosatindex).shortname == "GOES_16" ) //convert YYYYDDDHHmm to YYYYMMDDHHmm
+                    if( opts.geosatellites.at(geosatindex).shortname == "GOES_16" || opts.geosatellites.at(geosatindex).shortname == "GOES_17" ) //convert YYYYDDDHHmm to YYYYMMDDHHmm
                     {
                         QDate fdate = QDate(strdate.mid(0, 4).toInt(), 1, 1).addDays(strdate.mid(4, 3).toInt() - 1);
                         strdate = fdate.toString("yyyyMMdd") + strdate.mid(7, 4);
@@ -781,8 +783,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
 
                     fileinfolist = map.values();
-                    for(int i = 0; i < fileinfolist.count(); i++)
-                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
+//                    for(int i = 0; i < fileinfolist.count(); i++)
+//                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
                     emit signalResetProgressbar(fileinfolist.size(), (*its));
 
@@ -1142,7 +1144,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789
         //S3A_SL_1_RBT____20170212T114405_20170212T114705_20170212T135851_0179_014_180_1800_SVL_O_NR_002.zip
-        else if (fileinfo.fileName().mid( 0, 6) == "S3A_SL_1_RBT")
+        else if (fileinfo.fileName().mid( 0, 12) == "S3A_SL_1_RBT")
         {
             *sentinel3Tle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());

@@ -128,14 +128,24 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
 
     url = QUrl(strurl);
     // HTTP Basic authentication header value: base64(username:password)
-    QString concatenated;
-    if(this->hub == HUBESA)
-        concatenated = opts.esauser + ":" + opts.esapassword;
-    else
-        concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
+//    QString concatenated;
+//    if(this->hub == HUBESA)
+//        concatenated = opts.esauser + ":" + opts.esapassword;
+//    else
+//        concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
 
-    QByteArray data = concatenated.toLocal8Bit().toBase64();
-    QString headerData = "Basic " + data;
+//    QByteArray data = concatenated.toLocal8Bit().toBase64();
+//    QString headerData = "Basic " + data;
+
+        QString concatenated;
+        concatenated = "hvanruys:china123";
+//        if(this->hub == HUBESA)
+//            concatenated = opts.esauser + ":" + opts.esapassword;
+//        else
+//            concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
+
+        QByteArray data = concatenated.toLocal8Bit().toBase64();
+        QString headerData = "Basic " + data;
 
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", headerData.toLocal8Bit());

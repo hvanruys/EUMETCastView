@@ -1692,6 +1692,9 @@
          </item>
          <item>
           <widget class="QLabel" name="label_24">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Deleting the file 'GeoSatellites.ini' will recreate the file at startup with default values.</string>
            </property>
@@ -1701,6 +1704,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_26">
            <item>
             <widget class="QLabel" name="label_22">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>When adding or deleting geosatellites restart the program</string>
              </property>
@@ -1721,6 +1727,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="btnAddGeoConfig">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Add</string>
              </property>
@@ -1728,6 +1737,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="btnDeleteGeoConfig">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Delete</string>
              </property>

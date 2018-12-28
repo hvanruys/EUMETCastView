@@ -26,7 +26,7 @@ FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AV
     segs = seglist;
     sats = satlist;
 
-    qDebug() << "in constructor FormGeostationary";
+    qDebug() << "in constructor FormGeostationary opts.geosatellites.count() = " << opts.geosatellites.count();
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
@@ -280,7 +280,7 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
         for(int i = 0; i < nbr_spectrum; i++)
         {
             strlist << QString("%1").arg(cnt_spectrum.at(i));
-            qDebug() << "cnt_spectrum " << i << " " << strlist;
+            //qDebug() << "cnt_spectrum " << i << " " << strlist;
         }
 
         newitem = new QTreeWidgetItem( widget, strlist, 0  );
@@ -818,8 +818,10 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
 
     //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
     //01234567890123456789012345678901234567890123456789
-    if(whichgeo == eGeoSatellite::GOES_16 && (type == "VIS_IR" || type == "VIS_IR Color"))
+    if((whichgeo == eGeoSatellite::GOES_16) && (type == "VIS_IR" || type == "VIS_IR Color"))
         filepattern = QString("OR_ABI-L1b-RadF-M????_G16_s") + filetiming + QString("*.nc");
+    else if((whichgeo == eGeoSatellite::GOES_17) && (type == "VIS_IR" || type == "VIS_IR Color"))
+        filepattern = QString("OR_ABI-L1b-RadF-M????_G17_s") + filetiming + QString("*.nc");
     else
         return;
 
