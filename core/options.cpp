@@ -1214,7 +1214,7 @@ void Options::CreateGeoSatelliteIni()
     //
     geosatellites[9].fullname = "GOES 17";
     geosatellites[9].shortname = "GOES_17";
-    geosatellites[9].longitude = -137.2;
+    geosatellites[9].longitude = -137.0;
     geosatellites[9].longitudelimit1 = 0;
     geosatellites[9].longitudelimit2 = 0;
     geosatellites[9].protocol = "netCDF";
