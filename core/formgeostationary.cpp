@@ -246,7 +246,7 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
                 filenbr = citfile.key();
                 QFileInfo fileinfo = citfile.value();
 
-                qDebug() << "strdate = " << strdate << " strspectrum = " << strspectrum << " filenbr = " << filenbr << " info = " << fileinfo.completeBaseName();
+                //qDebug() << "strdate = " << strdate << " strspectrum = " << strspectrum << " filenbr = " << filenbr << " info = " << fileinfo.completeBaseName();
 
                 if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
                 {

@@ -698,11 +698,12 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
                     if(metopTle)
                     {
-                        bool ok1 = false, ok2 = false;
+                        bool ok1 = false, ok2 = false, ok3 = false;
                         Satellite metop_sat;
                         ok1 = satlist->GetSatellite(29499, &metop_sat);
                         ok2 = satlist->GetSatellite(38771, &metop_sat);
-                        if (ok1 == false || ok2 == false)
+                        ok3 = satlist->GetSatellite(43689, &metop_sat);
+                        if (ok1 == false || ok2 == false || ok3 == false)
                         {
                             QApplication::restoreOverrideCursor();
                             QMessageBox msgBox;

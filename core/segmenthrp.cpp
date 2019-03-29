@@ -58,6 +58,8 @@ SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent)
         ok = satlist->GetSatellite(29499, &sat);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M01") // Metop-B
         ok = satlist->GetSatellite(38771, &sat);
+    else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M03") // Metop-C
+        ok = satlist->GetSatellite(43689, &sat);
 
     line1 = sat.line1;
     line2 = sat.line2;
@@ -341,6 +343,8 @@ bool SegmentHRP::inspectMPHRrecord(QByteArray mphr_record)
         ok = satlist->GetSatellite(29499, &metop_sat);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M01") // Metop-B
         ok = satlist->GetSatellite(38771, &metop_sat);
+    else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M03") // Metop-C
+        ok = satlist->GetSatellite(43689, &metop_sat);
 
     this->earth_views_per_scanline = 2048;
 

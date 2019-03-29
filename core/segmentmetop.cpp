@@ -61,6 +61,8 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
         ok = satlist->GetSatellite(29499, &metop_sat);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_xxx_1B_M01") // Metop-B
         ok = satlist->GetSatellite(38771, &metop_sat);
+    else if(fileInfo.fileName().mid(0,15) == "AVHR_xxx_1B_M03") // Metop-C
+        ok = satlist->GetSatellite(43689, &metop_sat);
 
     if(!ok)
     {
