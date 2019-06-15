@@ -970,14 +970,14 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[4].spectrumvalueslist << "VIS 0.9" << "IR 3.8" << "IR 8.0" << "IR 9.7" << "IR 10.7" << "IR 11.9";
 
     //Data Channel 12
-    geosatellites[5].fullname = "FengYun 2E";
-    geosatellites[5].shortname = "FY2E";
-    geosatellites[5].longitude = 86.5;
+    geosatellites[5].fullname = "FengYun 2H";
+    geosatellites[5].shortname = "FY2H";
+    geosatellites[5].longitude = 79.0;
     geosatellites[5].longitudelimit1 = 0.0;
     geosatellites[5].longitudelimit2 = 0.0;
     geosatellites[5].protocol = "HDF";
     geosatellites[5].rss = false;
-    geosatellites[5].searchstring = "FY2E_FDI";
+    geosatellites[5].searchstring = "FY2H_FDI";
     geosatellites[5].indexsearchstring = 31;
     geosatellites[5].imagewidth = 2288;
     geosatellites[5].imageheight = 2288;

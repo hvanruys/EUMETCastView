@@ -2027,7 +2027,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
-    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
+    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
     {
         pixelsHRV = new quint16[npixHRV];
         memcpy(pixelsHRV, imageptrs->ptrHRV[0], 9152 * 9152 * sizeof(quint16));
@@ -2059,7 +2059,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 memcpy(pixelsRed + i * 464 * 2816, imageptrs->ptrRed[i], 464 * 2816 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
+    else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
     {
         pixelsRed = new quint16[npix];
         memcpy(pixelsRed, imageptrs->ptrRed[0], npix * sizeof(quint16));
@@ -2136,7 +2136,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
-    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
+    else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
     {
         imageptrs->CLAHE(pixelsHRV, 9152, 9152, 0, 255, 16, 16, 256, opts.clahecliplimit);
     }
@@ -2150,7 +2150,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         {
             ret = imageptrs->CLAHE(pixelsRed, 2784, 464*6, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         }
-        else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
+        else if(sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G)
             imageptrs->CLAHE(pixelsRed, 2288, 2288, 0, 255, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17)
             imageptrs->CLAHE(pixelsRed, 5424, 5424, 0, 1023, 16, 16, 256, opts.clahecliplimit);
@@ -2272,7 +2272,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
+        else if(sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G)
         {
             for (int line = 0; line < 9152; line++)
             {
@@ -2379,9 +2379,9 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == eGeoSatellite::FY2E || sl->getGeoSatellite() == eGeoSatellite::FY2G)
+        else if(sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G)
         {
-            qDebug() << "recalculate CLAHE ; VIS_IR and FY2E/G move to ptrImageGeostationary";
+            qDebug() << "recalculate CLAHE ; VIS_IR and FY2H/G move to ptrImageGeostationary";
 
             for (int line = 0; line < 2288; line++)
             {
@@ -3324,7 +3324,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
 
                     if(ret == 0)
                     {
-                        if(sl->getGeoSatellite() != eGeoSatellite::FY2E && sl->getGeoSatellite() != eGeoSatellite::FY2G)
+                        if(sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
                         {
                             if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
                             {
@@ -3383,7 +3383,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
 
                     if(ret == 0)
                     {
-                        if(sl->getGeoSatellite() != eGeoSatellite::FY2E && sl->getGeoSatellite() != eGeoSatellite::FY2G)
+                        if(sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
                         {
                             if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
                             {
@@ -3443,7 +3443,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
 
                     if(ret == 0)
                     {
-                        if(sl->getGeoSatellite() != eGeoSatellite::FY2E && sl->getGeoSatellite() != eGeoSatellite::FY2G)
+                        if(sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
                         {
                             if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
                             {

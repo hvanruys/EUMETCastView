@@ -730,20 +730,20 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
     filedate = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2);
 
 
-    if(whichgeo == eGeoSatellite::FY2E && (type == "VIS_IR" || type == "VIS_IR Color"))
+    if(whichgeo == eGeoSatellite::FY2H && (type == "VIS_IR" || type == "VIS_IR Color"))
     {
-        filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_???") + QString("_001_NOM.HDF.gz");
-        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_???") + QString("_001_NOM.HDF");
+        filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2H_FDI_???") + QString("_001_NOM.HDF.gz");
+        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2H_FDI_???") + QString("_001_NOM.HDF");
     }
     else if(whichgeo == eGeoSatellite::FY2G && (type == "VIS_IR" || type == "VIS_IR Color"))
     {
         filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_???") + QString("_001_NOM.HDF.gz");
         filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2G_FDI_???") + QString("_001_NOM.HDF");
     }
-    else if(whichgeo == eGeoSatellite::FY2E && type == "HRV")
+    else if(whichgeo == eGeoSatellite::FY2H && type == "HRV")
     {
-        filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
-        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2E_FDI_VIS1KM") + QString("_001_NOM.HDF");
+        filepatterngz = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2H_FDI_VIS1KM") + QString("_001_NOM.HDF.gz");
+        filepattern = QString("Z_SATE_C_BABJ_") + filetiming + QString("_O_FY2H_FDI_VIS1KM") + QString("_001_NOM.HDF");
     }
     else if(whichgeo == eGeoSatellite::FY2G && type == "HRV")
     {

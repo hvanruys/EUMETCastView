@@ -374,7 +374,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A/-3B"
     "<br><br><b>Geostationary satellites :</b>"
     "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-8"
-    "<br>Electro L2, FengYun 2E, FengYun 2G"
+    "<br>Electro L2, FengYun 2H, FengYun 2G"
     "<br>GOES-16, GOES-17 and Himawari-8"
     "<ul>"
     "<li>Made by Hugo Van Ruyskensvelde.</li>"

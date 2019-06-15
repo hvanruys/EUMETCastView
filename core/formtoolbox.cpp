@@ -2093,7 +2093,7 @@ void FormToolbox::on_btnGeoColor_clicked()
         ui->pbProgress->setMaximum(3+3+3);
     else if(geoindex == (int)eGeoSatellite::GOMS2)
         ui->pbProgress->setMaximum(6+6+6);
-    else if(geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G )
+    else if(geoindex == (int)eGeoSatellite::FY2H || geoindex == (int)eGeoSatellite::FY2G )
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::H8)
         ui->pbProgress->setMaximum(10+10+10);
@@ -2230,7 +2230,7 @@ void FormToolbox::on_btnHRV_clicked()
             ui->pbProgress->setMaximum(0);
     }
 
-    if(geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
+    if(geoindex == (int)eGeoSatellite::FY2H || geoindex == (int)eGeoSatellite::FY2G)
     {
         ui->pbProgress->setMaximum(100);
     }
@@ -2245,7 +2245,7 @@ void FormToolbox::on_btnHRV_clicked()
         else
             onButtonColorHRV("HRV");
     }
-    if (geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
+    if (geoindex == (int)eGeoSatellite::FY2H || geoindex == (int)eGeoSatellite::FY2G)
     {
         onButtonColorHRV("HRV");
     }
@@ -2330,7 +2330,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo11->currentIndex()-1] = ui->chkInverseGeo11->isChecked();
         }
     }
-    else if (geoindex == (int)eGeoSatellite::FY2E || geoindex == (int)eGeoSatellite::FY2G)
+    else if (geoindex == (int)eGeoSatellite::FY2H || geoindex == (int)eGeoSatellite::FY2G)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
