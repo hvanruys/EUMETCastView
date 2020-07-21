@@ -392,10 +392,10 @@ void FormMapCyl::showSegmentCount()
         ui->btnRemoveSelected->setText(" No selected segments ");
     }
 
-    ui->btnMetop->setText((QString(" Metop A/B # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
+    ui->btnMetop->setText((QString(" Metop A/B/C # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
     ui->btnNoaa->setText((QString(" NOAA-19 # %1/%2 ").arg(cntselnoaa).arg(cntnoaa)));
     ui->btnGAC->setText((QString(" NOAA-19 GAC # %1/%2 ").arg(cntselgac).arg(cntgac)));
-    ui->btnHRP->setText((QString(" Metop A/B HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
+    ui->btnHRP->setText((QString(" Metop A/B/C HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
 
     ui->btnVIIRSM->setText((QString(" NPP VIIRS M # %1/%2 ").arg(cntselviirsm).arg(cntviirsm)));
     ui->btnVIIRSDNB->setText((QString(" NPP VIIRS DNB # %1/%2 ").arg(cntselviirsdnb).arg(cntviirsdnb)));

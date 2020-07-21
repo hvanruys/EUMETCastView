@@ -157,7 +157,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
         counter++;
 
-        if (fileInfo.fileName().mid( 0, 8) == "AVHR_xxx" && fileInfo.fileName().mid( 67, 4) == ".bz2" && fileInfo.isFile())   // EPS-10
+        if (fileInfo.fileName().mid( 0, 8) == "AVHR_xxx" && fileInfo.fileName().mid( 67, 4) == ".bz2" && fileInfo.isFile())   // bas/EPS-10 and hvs-1/E1H-EPS-10
         {
             seglmetop->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
