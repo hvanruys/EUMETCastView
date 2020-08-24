@@ -48,6 +48,7 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
     zoomValueviirs = opts.zoomfactorviirs;
     zoomValueolci = opts.zoomfactorolci;
     zoomValueslstr = opts.zoomfactorslstr;
+    zoomValuemersi = opts.zoomfactormersi;
 
     scaleFactor = (double)getZoomValue()/100;
     qDebug() << QString("FormImage::FormImage scalefactor = %1").arg(scaleFactor);
@@ -140,8 +141,8 @@ bool FormImage::toggleOverlayProjection()
 void FormImage::setPixmapToLabel(bool settoolboxbuttons)
 {
 
-    qDebug() << "FormImage::setPixmapToLabel(bool settoolboxbuttons) width = " << imageptrs->ptrimageSLSTR->size().width() << " height = "
-             << imageptrs->ptrimageSLSTR->size().height() << " channelshown = " << channelshown;
+    qDebug() << "FormImage::setPixmapToLabel(bool settoolboxbuttons) width = " << imageptrs->ptrimageMERSI->size().width() << " height = "
+             << imageptrs->ptrimageMERSI->size().height() << " channelshown = " << channelshown;
 
     refreshoverlay = true;
 
@@ -202,6 +203,13 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
         displaySentinelImageInfo(SEG_SLSTR);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageSLSTR)));
         break;
+    case IMAGE_MERSI:
+        displayMERSIImageInfo(SEG_MERSI);
+        imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageMERSI)));
+        break;
+    case IMAGE_NONE:
+        break;
+
 
     }
 
@@ -229,6 +237,7 @@ void FormImage::displayImage(eImageType channel)
     qDebug() << QString("FormImage ptrimageviirsdnb bytecount = %1").arg(imageptrs->ptrimageViirsDNB->byteCount());
     qDebug() << QString("FormImage ptrimageolci bytecount = %1").arg(imageptrs->ptrimageOLCI->byteCount());
     qDebug() << QString("FormImage ptrimageslstr bytecount = %1").arg(imageptrs->ptrimageSLSTR->byteCount());
+    qDebug() << QString("FormImage ptrimagemersi bytecount = %1").arg(imageptrs->ptrimageMERSI->byteCount());
 
     this->channelshown = channel;
 
@@ -258,6 +267,9 @@ void FormImage::displayImage(eImageType channel)
     {
         switch(channelshown)
         {
+        case IMAGE_NONE:
+            break;
+
         case IMAGE_AVHRR_CH1:
             if(imageptrs->ptrimagecomp_ch[0]->byteCount() == 0)
             {
@@ -420,6 +432,18 @@ void FormImage::displayImage(eImageType channel)
                 this->displaySentinelImageInfo(SEG_SLSTR);
             }
             break;
+        case IMAGE_MERSI:
+            if(imageptrs->ptrimageMERSI->byteCount() == 0)
+            {
+                painter.drawText(10, 100, "No MERSI image");
+                imageLabel->setPixmap(pm);
+            }
+            else
+            {
+                imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageMERSI)));
+                this->displayMERSIImageInfo(SEG_MERSI);
+            }
+            break;
 
         }
     }
@@ -484,6 +508,10 @@ void FormImage::MakeImage()
     {
         slstrcount = segs->seglslstr->NbrOfSegmentsSelected();
     }
+    else if(opts.buttonMERSI)
+    {
+        mersicount = segs->seglmersi->NbrOfSegmentsSelected();
+    }
     else
         return;
 
@@ -509,6 +537,7 @@ void FormImage::MakeImage()
     qDebug() << QString("in FormImage::ComposeImage nbr of olciefr segments selected = %1").arg(olciefrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of olcierr segments selected = %1").arg(olcierrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of slstr segments selected = %1").arg(slstrcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of mersi segments selected = %1").arg(mersicount);
 
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonGAC || opts.buttonHRP ||
             opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt || opts.buttonM01hrpt || opts.buttonM02hrpt )
@@ -528,7 +557,7 @@ void FormImage::MakeImage()
                 formtoolbox->setToolboxButtons(false);
 
                 this->kindofimage = "AVHRR Color";
-                this->setSegmentType(SEG_NOAA);
+                this->setSegmentType(SEG_NOAA19);
                 segs->seglnoaa->ComposeAVHRRImage();
             }
             else if (hrpcount > 0 && opts.buttonHRP)
@@ -797,6 +826,39 @@ void FormImage::MakeImage()
         //          in Workerthread
         segs->seglslstr->ComposeSLSTRImage(bandlist, colorlist, invertlist, true, slstrimageview);
     }
+    else if(mersicount > 0 && opts.buttonMERSI)
+    {
+        if(!formtoolbox->comboColMERSIOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the MERSI tab.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        formtoolbox->setToolboxButtons(false);
+
+        this->displayImage(IMAGE_MERSI);
+        this->kindofimage = "MERSI";
+        this->setSegmentType(SEG_MERSI);
+
+        bandlist = formtoolbox->getMERSIBandList();
+        colorlist = formtoolbox->getMERSIColorList();
+        invertlist = formtoolbox->getMERSIInvertList();
+
+        //          in Workerthread
+        segs->seglmersi->ComposeMERSIImage(bandlist, colorlist, invertlist, false);
+    }
     else
         return;
 }
@@ -1008,6 +1070,40 @@ bool FormImage::ShowVIIRSDNBImage()
 
 }
 
+bool FormImage::ShowMERSIImage()
+{
+    bool ret = false;
+
+    mersicount = segs->seglmersi->NbrOfSegmentsSelected();
+
+    QList<bool> bandlist;
+    QList<int> colorlist;
+    QList<bool> invertlist;
+
+    qDebug() << QString("in FormImage::ShowMERSIImage nbr of mersi segments selected = %1").arg(mersicount);
+
+    if (mersicount > 0)
+    {
+
+        ret = true;
+        displayImage(IMAGE_MERSI);
+
+        emit allsegmentsreceivedbuttons(false);
+
+        this->kindofimage = "MERSI";
+
+        bandlist = formtoolbox->getMERSIBandList();
+        colorlist = formtoolbox->getMERSIColorList();
+        invertlist = formtoolbox->getMERSIInvertList();
+        //segs->seglmersi->setHistogramMethod(histogrammethod);
+        segs->seglmersi->ComposeMERSIImage(bandlist, colorlist, invertlist, false);
+    }
+    else
+        ret = false;
+
+    return ret;
+}
+
 void FormImage::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton)
@@ -1104,6 +1200,10 @@ void FormImage::setZoomValue(int z)
         zoomValueslstr = z;
         opts.zoomfactorslstr = z;
         break;
+    case IMAGE_MERSI:
+        zoomValuemersi = z;
+        opts.zoomfactormersi = z;
+        break;
 
     }
 }
@@ -1137,6 +1237,9 @@ int FormImage::getZoomValue()
         break;
     case IMAGE_SLSTR:
         zoomValue = zoomValueslstr;
+        break;
+    case IMAGE_MERSI:
+        zoomValue = zoomValuemersi;
         break;
 
     }
@@ -1229,7 +1332,7 @@ void FormImage::displayAVHRRImageInfo()
     case SEG_METOP:
         segtype = "Metop";
         break;
-    case SEG_NOAA:
+    case SEG_NOAA19:
         segtype = "Noaa";
         break;
     case SEG_HRP:
@@ -1258,7 +1361,7 @@ void FormImage::displayAVHRRImageInfo()
         break;
     }
 
-    if (type == SEG_NOAA)
+    if (type == SEG_NOAA19)
         nbrselected = segs->seglnoaa->NbrOfSegmentsSelected();
     else if( type == SEG_METOP)
         nbrselected = segs->seglmetop->NbrOfSegmentsSelected();
@@ -1459,7 +1562,26 @@ void FormImage::displaySentinelImageInfo(eSegmentType type)
     }
 
 }
+void FormImage::displayMERSIImageInfo(eSegmentType type)
+{
+    QString segtype;
+    int nbrselected;
 
+    segtype = "MERSI";
+    nbrselected = segs->seglmersi->NbrOfSegmentsSelected();
+
+    txtInfo = QString("<!DOCTYPE html>"
+                      "<html><head><title>Info</title></head>"
+                      "<body>"
+                      "<h4 style='color:blue'>Image Information</h4>"
+                      "<p>Segment type = %1<br>"
+                      "Nbr of segments = %2<br>"
+                      "Image width = %3 height = %4<br>"
+                      "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageMERSI->width()).arg(imageptrs->ptrimageMERSI->height());
+    formtoolbox->writeInfoToTextEdit(txtInfo);
+
+
+}
 
 void FormImage::adjustPicSize(bool setwidth)
 {
@@ -1526,7 +1648,16 @@ void FormImage::adjustPicSize(bool setwidth)
        w=imageptrs->ptrimageSLSTR->width();
        h=imageptrs->ptrimageSLSTR->height();
     }
-
+    else if(channelshown == IMAGE_MERSI)
+    {
+       w=imageptrs->ptrimageMERSI->width();
+       h=imageptrs->ptrimageMERSI->height();
+    }
+    else
+    {
+        w = 0;
+        h = 0;
+    }
     mw=this->parentWidget()->width();
     mh=this->parentWidget()->height();
 

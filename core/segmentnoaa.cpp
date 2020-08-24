@@ -36,7 +36,7 @@ SegmentNoaa::SegmentNoaa(QFile *filesegment, SatelliteList *satl, QObject *paren
     satlist = satl;
     fileInfo.setFile(*filesegment);
     segment_type = "Noaa";
-    segtype = eSegmentType::SEG_NOAA;
+    segtype = eSegmentType::SEG_NOAA19;
 
     int sensing_start_year = fileInfo.fileName().mid(6, 4).toInt( &ok , 10);
     int sensing_start_month = fileInfo.fileName().mid(10, 2).toInt( &ok, 10);

@@ -16,7 +16,7 @@ SegmentListNoaa::SegmentListNoaa(SatelliteList *satl, QObject *parent) :
     SegmentList(parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
-    seglisttype = eSegmentType::SEG_NOAA;
+    seglisttype = eSegmentType::SEG_NOAA19;
 
     qDebug() << QString("in constructor SegmentListNoaa");
 

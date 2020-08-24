@@ -10,8 +10,6 @@ extern Options opts;
 
 SegmentImage::SegmentImage()
 {
-
-
     for(int k = 0; k < 5; k++)
     {
         this->ptrimagecomp_ch[k] = new QImage();
@@ -27,6 +25,7 @@ SegmentImage::SegmentImage()
     ptrimageViirsDNB = new QImage();
     ptrimageOLCI = new QImage();
     ptrimageSLSTR = new QImage();
+    ptrimageMERSI = new QImage();
     ptrProjectionBrightnessTemp.reset();
 
     ptrimageRGBRecipeRed.reset(new quint8[3712 * 3712]);
@@ -928,6 +927,12 @@ void SegmentImage::DeleteImagePtrs()
     {
         delete ptrimageSLSTR;
         ptrimageSLSTR = NULL;
+    }
+
+    if(ptrimageMERSI != NULL)
+    {
+        delete ptrimageMERSI;
+        ptrimageMERSI = NULL;
     }
 
     ResetPtrImage();

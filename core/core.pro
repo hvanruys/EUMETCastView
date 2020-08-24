@@ -26,6 +26,8 @@ SOURCES += main.cpp \
     segment.cpp \
     segmentgac.cpp \
     segmenthrp.cpp \
+    segmentlistmersi.cpp \
+    segmentmersi.cpp \
     segmentmetop.cpp \
     segmentnoaa.cpp \
     segmentlist.cpp \
@@ -100,6 +102,8 @@ HEADERS  += mainwindow.h \
     segment.h \
     segmentgac.h \
     segmenthrp.h \
+    segmentlistmersi.h \
+    segmentmersi.h \
     segmentmetop.h \
     segmentnoaa.h \
     segmentlist.h \

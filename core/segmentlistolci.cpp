@@ -13,7 +13,8 @@ void doComposeOLCIImageInThread(SegmentListOLCI *t, QList<bool> bandlist, QList<
 }
 
 
-SegmentListOLCI::SegmentListOLCI(eSegmentType type, SatelliteList *satl, QObject *parent)
+SegmentListOLCI::SegmentListOLCI(eSegmentType type, SatelliteList *satl, QObject *parent) :
+    SegmentList(parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListOLCI");

@@ -28,6 +28,7 @@ public:
     bool ShowOLCIefrImage(int histogrammethod, bool normalized);
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
     bool ShowSLSTRImage(int histogrammethod);
+    bool ShowMERSIImage();
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHE1(QVector<QString> spectrumvector, QVector<bool> inversevector);
@@ -95,6 +96,7 @@ public:
     int olciefrcount;
     int olcierrcount;
     int slstrcount;
+    int mersicount;
 
     QVector<QVector2D> geooverlay;
 
@@ -114,6 +116,7 @@ private:
     void displaySentinelImageInfo(eSegmentType type);
     void displayGeoImageInfo();
     void displayGeoImageInformation(QString satname);
+    void displayMERSIImageInfo(eSegmentType type);
     void EnhanceDarkSpace(int geoindex);
     void calchimawari(QRgb rgb, int &minred, int &maxred, int &mingreen, int &maxgreen, int &minblue, int &maxblue);
     QRgb ContrastStretch(QRgb val);
@@ -150,6 +153,7 @@ private:
     int zoomValueviirs;
     int zoomValueolci;
     int zoomValueslstr;
+    int zoomValuemersi;
     int zoomIncrement;
     int maxZoomValue;
     int minZoomValue;

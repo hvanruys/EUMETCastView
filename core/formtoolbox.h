@@ -38,6 +38,10 @@ public:
     QList<bool> getSLSTRBandList();
     QList<int> getSLSTRColorList();
     QList<bool> getSLSTRInvertList();
+    QList<bool> getMERSIBandList();
+    QList<int> getMERSIColorList();
+    QList<bool> getMERSIInvertList();
+
     eSLSTRImageView getSLSTRImageView();
 
     void setTabWidgetIndex(int index);
@@ -50,6 +54,7 @@ public:
     bool comboColOLCIOK();
     bool comboColSLSTROK();
     bool comboColGeoOK();
+    bool comboColMERSIOK();
     bool GridOnProjLCC();
     bool GridOnProjGVP();
     bool GridOnProjSG();
@@ -57,6 +62,7 @@ public:
     void setMConfigsettings();
     void setOLCIefrConfigsettings();
     void setSLSTRConfigsettings();
+    void setMERSIConfigsettings();
     void setComboGeo(int geoindex);
     void setValuePrgBar(int val);
 
@@ -84,8 +90,12 @@ private:
     void setSGParameters(int strlindex);
     void setConfigMParameters(int strlindex);
     void setRadioButtonsMToFalse();
+    void setRadioButtonsMERSIToFalse();
+
     void setConfigOLCIParameters(int strlindex);
     void setConfigSLSTRParameters(int strlindex);
+    void setConfigMERSIParameters(int strlindex);
+
     void setRadioButtonsOLCIefrToFalse();
     void setRadioButtonsSLSTRToFalse();
     void copyProjectionImage();
@@ -281,6 +291,9 @@ private slots:
     void on_cmbHistogramGeo_activated(int index);
     void on_btnRecipes_clicked();
     void on_btnCLAHE_RGBRecipe_clicked();
+    void on_btnUpdateMERSIImage_clicked();
+    void on_comboMERSIConfig_currentIndexChanged(int index);
+    void on_btnAddMERSIConfig_clicked();
 };
 
 

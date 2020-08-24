@@ -114,6 +114,8 @@ private slots:
 
     void on_btnDownloadFromDatahub_clicked();
 
+    void on_btnMERSI_clicked();
+
 public slots:
       void showSegmentList(int);
       void showSegmentCount();

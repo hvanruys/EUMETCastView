@@ -120,6 +120,7 @@ public:
     QImage *ptrimageViirsDNB;
     QImage *ptrimageOLCI;
     QImage *ptrimageSLSTR;
+    QImage *ptrimageMERSI;
     eSegmentType olcitype;
 
 

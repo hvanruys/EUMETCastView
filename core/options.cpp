@@ -32,6 +32,7 @@ void Options::Initialize(bool recreate_geo_ini)
     buttonDatahubOLCIefr=settings.value("/window/buttondatahubolciefr", false ).toBool();
     buttonDatahubOLCIerr=settings.value("/window/buttondatahubolcierr", false ).toBool();
     buttonDatahubSLSTR=settings.value("/window/buttondatahubslstr", false ).toBool();
+    buttonMERSI=settings.value("/window/buttonmersi", false ).toBool();
 
     buttonMetopAhrpt=settings.value("/window/buttonmetopAhrpt", false ).toBool();
     buttonMetopBhrpt=settings.value("/window/buttonmetopBhrpt", false ).toBool();
@@ -147,6 +148,7 @@ void Options::Initialize(bool recreate_geo_ini)
     imageontextureOnVIIRS = settings.value("/window/imageontextureonviirs", true ).toBool();
     imageontextureOnOLCI = settings.value("/window/imageontextureonolci", true ).toBool();
     imageontextureOnSLSTR = settings.value("/window/imageontextureonslstr", true ).toBool();
+    imageontextureOnMERSI = settings.value("/window/imageontextureonmersi", true ).toBool();
     windowvectors = settings.value("/window/windowsvectors", false ).toBool();
 
     localdirremote = settings.value("/window/localdirremote", "").value<QString>();
@@ -181,6 +183,10 @@ void Options::Initialize(bool recreate_geo_ini)
     zoomfactorslstr = settings.value("/window/zoomfactorslstr", 100).toInt();
     if( zoomfactorslstr < 5 || zoomfactorslstr > 500 )
         zoomfactorslstr = 100;
+
+    zoomfactormersi = settings.value("/window/zoomfactormersi", 100).toInt();
+    if( zoomfactormersi < 5 || zoomfactormersi > 500 )
+        zoomfactormersi = 100;
 
     currenttoolbox = settings.value("/parameters/currenttoolbox", 0).toInt();
 
@@ -375,6 +381,7 @@ void Options::Save()
     settings.setValue( "/window/buttonnoaa19hrpt", buttonNoaa19hrpt );
     settings.setValue( "/window/buttonM01hrpt", buttonM01hrpt );
     settings.setValue( "/window/buttonM02hrpt", buttonM02hrpt );
+    settings.setValue( "/window/buttonmersi", buttonMERSI );
 
     settings.setValue( "/window/buttonrealtime", buttonRealTime );
     settings.setValue( "/window/buttonphong", buttonPhong );
@@ -452,6 +459,7 @@ void Options::Save()
     settings.setValue("/window/imageontextureonviirs", imageontextureOnVIIRS );
     settings.setValue("/window/imageontextureonolci", imageontextureOnOLCI );
     settings.setValue("/window/imageontextureonslstr", imageontextureOnSLSTR );
+    settings.setValue("/window/imageontextureonmersi", imageontextureOnMERSI );
     settings.setValue("/window/windowsvectors", windowvectors );
 
     settings.setValue("/window/gshhsglobe1on", gshhsglobe1On );
@@ -470,6 +478,7 @@ void Options::Save()
     settings.setValue("/window/zoomfactorviirs", zoomfactorviirs );
     settings.setValue("/window/zoomfactorolci", zoomfactorolci );
     settings.setValue("/window/zoomfactorslstr", zoomfactorslstr );
+    settings.setValue("/window/zoomfactormersi", zoomfactormersi );
 
 
     settings.setValue("/parameters/currenttoolbox", currenttoolbox);

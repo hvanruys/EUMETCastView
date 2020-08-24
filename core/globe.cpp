@@ -277,6 +277,8 @@ void Globe::mouseDownAction(int x, int y)
             isselected = segs->segldatahubolcierr->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonDatahubSLSTR)
             isselected = segs->segldatahubslstr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+        else if (opts.buttonMERSI)
+            isselected = segs->seglmersi->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else
             isselected = false;
 
@@ -675,6 +677,11 @@ void Globe::paintGL()
         {
             segs->segldatahubslstr->GetFirstLastVisible(&first_julian, &last_julian);
             segs->segldatahubslstr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+        } else
+        if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
+        {
+            segs->seglmersi->GetFirstLastVisible(&first_julian, &last_julian);
+            segs->seglmersi->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         }
     }
 
@@ -732,20 +739,30 @@ void Globe::paintGL()
         painter.save();
         if (opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
             segs->seglmetop->ShowWinvec(&painter, distance, modelview );
+        else
         if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
             segs->seglnoaa->ShowWinvec(&painter, distance, modelview );
+        else
         if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
             segs->seglviirsm->ShowWinvec(&painter, distance, modelview );
+        else
         if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
             segs->seglviirsdnb->ShowWinvec(&painter, distance, modelview );
+        else
         if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
             segs->seglviirsmnoaa20->ShowWinvec(&painter, distance, modelview );
+        else
         if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
             segs->seglviirsdnbnoaa20->ShowWinvec(&painter, distance, modelview );
+        else
         if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
             segs->seglolciefr->ShowWinvec(&painter, distance, modelview );
+        else
         if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
             segs->seglolcierr->ShowWinvec(&painter, distance, modelview );
+        else
+        if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
+            segs->seglmersi->ShowWinvec(&painter, distance, modelview );
         painter.restore();
     }
 
@@ -883,6 +900,18 @@ void Globe::paintGL()
         if(segmentnameselected.mid(0,12) == "S3A_SL_1_RBT")
             painter.drawText(10, this->height() - 20, "Sentinel-3A SLSTR" + segdate);
     }
+    //012345678901234567890123456789012345678901234567890
+    //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
+    //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
+    else if (opts.buttonMERSI && segs->seglmersi->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(5, 4)).arg(segmentnameselected.mid(9, 2)).arg(segmentnameselected.mid(11, 2))
+                .arg(segmentnameselected.mid(14, 2)).arg(segmentnameselected.mid(16, 2)).arg(segmentnameselected.mid(18, 2));
+
+        if(segmentnameselected.mid(0,4) == "FY3D")
+            painter.drawText(10, this->height() - 20, "FY-3D " + segdate);
+    }
 
 
     if (bSegmentNames && opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
@@ -891,7 +920,7 @@ void Globe::paintGL()
     }
     else if (bSegmentNames && opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
     {
-        drawSegmentNames(&painter, modelview, eSegmentType::SEG_NOAA, segs->seglnoaa->GetSegmentlistptr());
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_NOAA19, segs->seglnoaa->GetSegmentlistptr());
     }
     else if (bSegmentNames && opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
     {
@@ -940,6 +969,10 @@ void Globe::paintGL()
     else if (bSegmentNames && opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_DATAHUB_SLSTR, segs->segldatahubslstr->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_MERSI, segs->seglmersi->GetSegmentlistptr());
     }
 
 
@@ -1174,7 +1207,7 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
     if(segs->getShowAllSegments())
     {
         if( (*segit)->segtype == SEG_DATAHUB_OLCIEFR || (*segit)->segtype == SEG_DATAHUB_OLCIERR || (*segit)->segtype == SEG_DATAHUB_SLSTR ||
-            (*segit)->segtype == SEG_OLCIEFR || (*segit)->segtype == SEG_OLCIERR || (*segit)->segtype == SEG_SLSTR)
+            (*segit)->segtype == SEG_OLCIEFR || (*segit)->segtype == SEG_OLCIERR || (*segit)->segtype == SEG_SLSTR || (*segit)->segtype == SEG_MERSI)
             showsegmenttext = true;
         else
             showsegmenttext = false;
@@ -1208,7 +1241,7 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 {
                     renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(12, 3)).arg((*segit)->fileInfo.fileName().mid(24, 2)).arg((*segit)->fileInfo.fileName().mid(26, 2));
                 }
-                else if(seg == eSegmentType::SEG_NOAA)
+                else if(seg == eSegmentType::SEG_NOAA19)
                 {
                     renderout = QString("%1 %2:%3").arg("N19").arg((*segit)->fileInfo.fileName().mid(15, 2)).arg((*segit)->fileInfo.fileName().mid(17, 2));
                 }
@@ -1262,6 +1295,13 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 {
                     SegmentDatahub *segm = (SegmentDatahub *)(*segit);
                     renderout = QString("SLSTR %1:%2").arg((*segm).getName().mid(25, 2)).arg((*segm).getName().mid(27, 2));
+                }
+                //012345678901234567890123456789012345678901234567890
+                //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
+                //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
+                else if(seg == eSegmentType::SEG_MERSI)
+                {
+                    renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(0, 4)).arg((*segit)->fileInfo.fileName().mid(14, 2)).arg((*segit)->fileInfo.fileName().mid(16, 2));
                 }
                 else
                 {

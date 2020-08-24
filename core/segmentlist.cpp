@@ -1391,7 +1391,7 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext,
             anchorY = miny;
             dimx = maxx + 1 - minx;
             dimy = maxy + 1 - miny;
-            if( dimx == 1 && dimy == 1 || (dimx > 50 && dimy > 50) || (dimx <= 0 || dimy <= 0) )
+            if( (dimx == 1 && dimy == 1) || (dimx > 50 && dimy > 50) || (dimx <= 0 || dimy <= 0) )
             {
                 counter++;
             }

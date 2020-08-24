@@ -99,7 +99,7 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
 void GeneralVerticalPerspective::CreateMapFromAVHRR(int inputchannel, eSegmentType type)
 {
 
-    if (type == SEG_NOAA)
+    if (type == SEG_NOAA19)
         segs->seglnoaa->ComposeGVProjection(inputchannel);
     else if( type == SEG_METOP)
         segs->seglmetop->ComposeGVProjection(inputchannel);
@@ -122,7 +122,7 @@ void GeneralVerticalPerspective::CreateMapFromAVHRR(int inputchannel, eSegmentTy
         imageptrs->SmoothProjectionImage();
     else if(opts.smoothprojectiontype == 2)
     {
-        if (type == SEG_NOAA)
+        if (type == SEG_NOAA19)
             segs->seglnoaa->SmoothProjectionImageBilinear();
         else if( type == SEG_METOP)
             segs->seglmetop->SmoothProjectionImageBilinear();
@@ -193,6 +193,19 @@ void GeneralVerticalPerspective::CreateMapFromOLCI(eSegmentType type, bool combi
         else if( type == SEG_OLCIERR)
             segs->seglolcierr->SmoothOLCIImage(combine);
     }
+}
+
+void GeneralVerticalPerspective::CreateMapFromMERSI(eSegmentType type, bool combine)
+{
+    segs->seglmersi->ComposeGVProjection(0);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+    {
+        segs->seglmersi->SmoothMERSIImage(combine);
+    }
+
 }
 
 void GeneralVerticalPerspective::CreateMapFromGeoStationary()

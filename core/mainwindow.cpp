@@ -84,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglnoaa19hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglM01hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglM02hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglmersi, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
 
 
     connect(seglist->seglviirsdnb, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
@@ -126,6 +127,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglslstr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglmersi, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
     connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -142,6 +144,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglviirsdnb, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglmersi, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
 
     connect(seglist, SIGNAL(signalXMLProgress(QString, int, bool)), formglobecyl, SLOT(slotShowXMLProgress(QString, int, bool)));
 
@@ -226,14 +229,16 @@ void MainWindow::createDockWidget()
     QScrollArea * scrollArea = new QScrollArea(this);
     scrollArea->setWidget(formtoolbox);
     scrollArea->setWidgetResizable(true);
+    //scrollArea->setFixedSize(1000, formtoolbox->height());
+
     dockwidget->setWidget(scrollArea);
 
-    //dockwidget->resize(1000, dockwidget->height());
+    dockwidget->resize(2000, formtoolbox->height());
 
     //dockwidget->setw ->setMinimumWidth(480);
     //dockwidget->close();
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
-    formtoolbox->resize(200, formtoolbox->height());
+
 }
 
 void MainWindow::timerDone(void)
@@ -372,6 +377,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br>AVHHR images from Metop-A/-B/-C and NOAA-19"
     "<br>VIIRS images from SUOMI NPP and NOAA-20 (M-Band and Day/Night Band)"
     "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A/-3B"
+    "<br>MERSI from FengYun 3D"
     "<br><br><b>Geostationary satellites :</b>"
     "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-8"
     "<br>Electro L2, FengYun 2H, FengYun 2G"
@@ -490,6 +496,10 @@ void MainWindow::on_actionImage_triggered()
             formimage->displayImage(IMAGE_OLCI); //OLCI image
         else
             formimage->displayImage(IMAGE_SLSTR); //SLSTR image
+    }
+    else if(index == TAB_MERSI)
+    {
+        formimage->displayImage(IMAGE_MERSI); //MERSI image
     }
     else if(index == TAB_GEOSTATIONARY)
     {

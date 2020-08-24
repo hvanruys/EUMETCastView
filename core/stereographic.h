@@ -23,6 +23,7 @@ public:
     void CreateMapFromAVHRR(int inputchannel, eSegmentType type);
     void CreateMapFromVIIRS(eSegmentType type, bool combine);
     void CreateMapFromOLCI(eSegmentType type, bool combine, int histogrammethod, bool normalized);
+    void CreateMapFromMERSI(eSegmentType type, bool combine);
     void CreateMapFromGeostationary();
 
 protected:

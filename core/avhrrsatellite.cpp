@@ -39,6 +39,7 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
     seglolciefr = new SegmentListOLCI(SEG_OLCIEFR);
     seglolcierr = new SegmentListOLCI(SEG_OLCIERR);
     seglslstr = new SegmentListSLSTR();
+    seglmersi = new SegmentListMERSI();
 
     seglmetopAhrpt = new SegmentListHRPT(SEG_HRPT_METOPA, satlist);
     seglmetopBhrpt = new SegmentListHRPT(SEG_HRPT_METOPB, satlist);
@@ -122,6 +123,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     SegmentOLCI *segolciefr;
     SegmentOLCI *segolcierr;
     SegmentSLSTR *segslstr;
+    SegmentMERSI *segmersi;
 
     SegmentHRPT *segmetopAhrpt;
     SegmentHRPT *segmetopBhrpt;
@@ -141,6 +143,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     QList<Segment*> *slolciefr = seglolciefr->GetSegmentlistptr();
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
     QList<Segment*> *slslstr = seglslstr->GetSegmentlistptr();
+    QList<Segment*> *slmersi = seglmersi->GetSegmentlistptr();
 
     QList<Segment*> *slmetopAhrpt = seglmetopAhrpt->GetSegmentlistptr();
     QList<Segment*> *slmetopBhrpt = seglmetopBhrpt->GetSegmentlistptr();
@@ -153,8 +156,6 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     for (int i = 0; i < fileinfolist.size(); ++i)
     {
         fileInfo = fileinfolist.at(i);
-        qDebug() << "---->" << fileInfo.baseName();
-
         counter++;
 
         if (fileInfo.fileName().mid( 0, 8) == "AVHR_xxx" && fileInfo.fileName().mid( 67, 4) == ".bz2" && fileInfo.isFile())   // bas/EPS-10 and hvs-1/E1H-EPS-10
@@ -378,6 +379,21 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segslstr;
+        } else if (fileInfo.fileName().mid( 0, 4) == "FY3D" && fileInfo.fileName().mid(40, 5) == "1000M")
+        {
+            //012345678901234567890123456789012345678901234567890
+            //0         1         2         3         4         5         6         7         8         9         10
+            //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
+            //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
+            seglmersi->SetDirectoryName(fileInfo.absolutePath());
+            segmersi = new SegmentMERSI(fileInfo, satlist);
+            if(segmersi->segmentok == true)
+            {
+                slmersi->append(segmersi);
+                countmersi++;
+            }
+            else
+                delete segmersi;
         }
         //012345678901234567890123456789012345678901234567890123456789012
         //H-000-MSG3__-MSG3________-HRV______-000001___-201310270845-C_
@@ -566,6 +582,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QList<Segment*> *slolciefr = seglolciefr->GetSegmentlistptr();
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
     QList<Segment*> *slslstr = seglslstr->GetSegmentlistptr();
+    QList<Segment*> *slmersi = seglmersi->GetSegmentlistptr();
 
     QList<Segment*> *slmetopAhrpt = seglmetopAhrpt->GetSegmentlistptr();
     QList<Segment*> *slmetopBhrpt = seglmetopBhrpt->GetSegmentlistptr();
@@ -590,6 +607,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     seglolciefr->ClearSegments();
     seglolcierr->ClearSegments();
     seglslstr->ClearSegments();
+    seglmersi->ClearSegments();
 
     seglmetopAhrpt->ClearSegments();
     seglmetopBhrpt->ClearSegments();
@@ -617,6 +635,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     this->countolciefr = 0;
     this->countolcierr = 0;
     this->countslstr = 0;
+    this->countmersi = 0;
 
     this->countmetopAhrpt = 0;
     this->countmetopBhrpt = 0;
@@ -635,10 +654,11 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QDateTime datebefore;
     QString pathbefore;
 
-    bool noaaTle = false;
+    bool noaa19Tle = false;
     bool metopTle = false;
     bool nppTle = false;
     bool sentinel3Tle = false;
+    bool fy3dTle = false;
 
     this->ReadXMLfiles();
 
@@ -694,7 +714,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
                     QMap<QString, QFileInfo> map;
 
-                    InsertToMap(fileinfolist, &map, &noaaTle, &metopTle, &nppTle, &sentinel3Tle, seldate, 0);
+                    InsertToMap(fileinfolist, &map, &noaa19Tle, &metopTle, &nppTle, &sentinel3Tle, &fy3dTle, seldate, 0);
 
                     if(metopTle)
                     {
@@ -723,14 +743,14 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         {
                             QApplication::restoreOverrideCursor();
                             QMessageBox msgBox;
-                            msgBox.setText("Need the Suomi NPP TLE's.");
+                            msgBox.setText("Need the Suomi NPP / NOAA-20 TLE's.");
                             msgBox.exec();
 
                             return;
                         }
                     }
 
-                    if(noaaTle)
+                    if(noaa19Tle)
                     {
                         bool ok = false;
                         Satellite noaasat;
@@ -739,7 +759,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         {
                             QApplication::restoreOverrideCursor();
                             QMessageBox msgBox;
-                            msgBox.setText("Need the Noaa TLE's.");
+                            msgBox.setText("Need the NOAA-19 TLE's.");
                             msgBox.exec();
 
                             return;
@@ -755,7 +775,23 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         {
                             QApplication::restoreOverrideCursor();
                             QMessageBox msgBox;
-                            msgBox.setText("Need the Sentinel 3 TLE's.");
+                            msgBox.setText("Need the Sentinel-3 TLE's.");
+                            msgBox.exec();
+
+                            return;
+                        }
+                    }
+
+                    if(fy3dTle)
+                    {
+                        bool ok = false;
+                        Satellite fy3dsat;
+                        ok = satlist->GetSatellite(43010, &fy3dsat);
+                        if (ok == false)
+                        {
+                            QApplication::restoreOverrideCursor();
+                            QMessageBox msgBox;
+                            msgBox.setText("Need the FY3D TLE's.");
                             msgBox.exec();
 
                             return;
@@ -777,7 +813,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                             segmentdir.setSorting(QDir::Name); //::Time);
                             fileinfolist = segmentdir.entryInfoList();
                             qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(pathbefore);
-                            InsertToMap(fileinfolist, &map, &noaaTle, &metopTle, &nppTle, &sentinel3Tle, seldate, hoursbefore);
+                            InsertToMap(fileinfolist, &map, &noaa19Tle, &metopTle, &nppTle, &sentinel3Tle, &fy3dTle, seldate, hoursbefore);
 
                         }
                     }
@@ -820,6 +856,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString("Count segmentlistolciefr = %1").arg(slolciefr->count());
     qDebug() << QString("Count segmentlistolcierr = %1").arg(slolcierr->count());
     qDebug() << QString("Count segmentlistslstr = %1").arg(slslstr->count());
+    qDebug() << QString("Count segmentlistmersi = %1").arg(slmersi->count());
 
     qDebug() << QString("Count segmentlisthrpt metop A = %1").arg(slmetopAhrpt->count());
     qDebug() << QString("Count segmentlisthrpt metop B = %1").arg(slmetopBhrpt->count());
@@ -839,7 +876,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
         totgeosegments += segmentlistmapgeo.at(i).size();
 
     QString strtot = QString("Total segments = %1").arg(slmetop->count()+slnoaa->count()+slgac->count()+slhrp->count()+slviirsm->count()
-                                                        +slolciefr->count()+slolcierr->count()+slslstr->count() + totgeosegments);
+                                                        +slolciefr->count()+slolcierr->count()+slslstr->count()+slmersi->count() + totgeosegments);
     emit signalResetProgressbar(1, strtot);
     emit signalShowSegmentCount();
 }
@@ -997,11 +1034,13 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
     emit signalShowSegmentCount();
 }
 
-void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, QDate seldate, int hoursbefore)
+void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaa19Tle,
+                                 bool *metopTle, bool *nppTle, bool *sentinel3Tle, bool *fy3dTle, QDate seldate, int hoursbefore)
 {
 
     QDateTime filedate;
     bool fileok = false;
+
 
     foreach (const QFileInfo &fileinfo, fileinfolist)
     {
@@ -1010,7 +1049,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //avhrr_20130701_151100_noaa19
         if (fileinfo.fileName().mid( 0, 6) == "avhrr_" && fileinfo.fileName().mid( 22, 6) == "noaa19" && fileinfo.isFile())
         {
-            *noaaTle = true;
+            *noaa19Tle = true;
             QDate d(fileinfo.fileName().mid( 6, 4).toInt(), fileinfo.fileName().mid( 10, 2).toInt(), fileinfo.fileName().mid( 12, 2).toInt());
             filedate.setDate(d);
             QTime t(fileinfo.fileName().mid( 15, 2).toInt(), fileinfo.fileName().mid( 17, 2).toInt(), fileinfo.fileName().mid( 19, 2).toInt());
@@ -1031,6 +1070,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
                  fileinfo.fileName().mid( 0, 11) == "AVHR_xxx_1B" ) && fileinfo.isFile() )
         {
             *metopTle = true;
+            *noaa19Tle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
             filedate.setDate(d);
             QTime t(fileinfo.fileName().mid( 24, 2).toInt(), fileinfo.fileName().mid( 26, 2).toInt(), fileinfo.fileName().mid( 28, 2).toInt());
@@ -1063,7 +1103,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         else if (fileinfo.fileName().mid( 16, 6) == "NOAA19" && fileinfo.completeSuffix() == "hpt" && fileinfo.isFile())
         {
-            *noaaTle = true;
+            *noaa19Tle = true;
             QDate d(fileinfo.fileName().mid( 0, 4).toInt(), fileinfo.fileName().mid( 5, 2).toInt(), fileinfo.fileName().mid( 8, 2).toInt());
             filedate.setDate(d);
             QTime t(fileinfo.fileName().mid( 11, 2).toInt(), fileinfo.fileName().mid( 13, 2).toInt(), 0);
@@ -1151,6 +1191,24 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
             filedate.setDate(d);
             QTime t(fileinfo.fileName().mid( 25, 2).toInt(), fileinfo.fileName().mid( 27, 2).toInt(), fileinfo.fileName().mid( 29, 2).toInt());
+            filedate.setTime(t);
+            if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
+                fileok = true;
+        }
+        //012345678901234567890123456789012345678901234567890
+        //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
+        //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
+        else if (fileinfo.fileName().mid( 0, 4) == "FY3D")
+        {
+            *fy3dTle = true;
+            QDate d(fileinfo.fileName().mid( 5, 4).toInt(), fileinfo.fileName().mid( 9, 2).toInt(), fileinfo.fileName().mid( 11, 2).toInt());
+            filedate.setDate(d);
+            QTime t(fileinfo.fileName().mid( 14, 2).toInt(), fileinfo.fileName().mid( 16, 2).toInt(), fileinfo.fileName().mid( 18, 2).toInt());
             filedate.setTime(t);
             if(hoursbefore == 0)
             {
@@ -1631,6 +1689,15 @@ void AVHRRSatellite::RemoveAllSelectedDatahubSLSTR()
     segldatahubslstr->GetSegsSelectedptr()->clear();
 }
 
+void AVHRRSatellite::RemoveAllSelectedMERSI()
+{
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedMERSI()";
+
+    QList<Segment*> *slmersi = seglmersi->GetSegmentlistptr();
+    RemoveFromList(slmersi);
+    seglmersi->GetSegsSelectedptr()->clear();
+}
+
 bool AVHRRSatellite::SelectedAVHRRSegments()
 {
     qDebug() << "AVHRRSatellite::SelectedAVHRRSegments()";
@@ -1771,6 +1838,15 @@ bool AVHRRSatellite::SelectedSLSTRSegments()
 {
     qDebug() << "AVHRRSatellite::SelectedSLSTRSegments()";
     if(seglslstr->NbrOfSegmentsSelected() == 0)
+        return false;
+    else
+        return true;
+}
+
+bool AVHRRSatellite::SelectedMERSISegments()
+{
+    qDebug() << "AVHRRSatellite::SelectedMERSISegments()";
+    if(seglmersi->NbrOfSegmentsSelected() == 0)
         return false;
     else
         return true;
@@ -1953,6 +2029,16 @@ QStringList AVHRRSatellite::GetOverviewSegmentsDatahubSLSTR()
 
 }
 
+QStringList AVHRRSatellite::GetOverviewSegmentsMERSI()
+{
+
+    QStringList strlist;
+    strlist << seglmersi->GetDirectoryName() << QString("FY3D") << QString("%1").arg(seglmersi->NbrOfSegments());
+
+    return strlist;
+
+}
+
 QStringList AVHRRSatellite::GetOverviewSegmentsGeo(int geoindex)
 {
     QStringList strlist;
@@ -1973,6 +2059,7 @@ QString AVHRRSatellite::GetOverviewSegments()
     int nbrsegmolciefr = 0, nbrsegmolciefrsel = 0;
     int nbrsegmolcierr = 0, nbrsegmolcierrsel = 0;
     int nbrsegmslstr = 0, nbrsegmslstrsel = 0;
+    int nbrsegmmersi = 0, nbrsegmmersisel = 0;
 
     QList<Segment*> *slmetop = seglmetop->GetSegmentlistptr();
     QList<Segment*> *slnoaa = seglnoaa->GetSegmentlistptr();
@@ -1983,6 +2070,7 @@ QString AVHRRSatellite::GetOverviewSegments()
     QList<Segment*> *slolciefr = seglolciefr->GetSegmentlistptr();
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
     QList<Segment*> *slslstr = seglslstr->GetSegmentlistptr();
+    QList<Segment*> *slmersi = seglmersi->GetSegmentlistptr();
 
     QList<Segment*>::iterator segitmetop = slmetop->begin();
     while ( segitmetop != slmetop->end() )
@@ -2092,6 +2180,18 @@ QString AVHRRSatellite::GetOverviewSegments()
         ++segitslstr;
     }
 
+    QList<Segment*>::iterator segitmersi = slmersi->begin();
+    while ( segitmersi != slmersi->end() )
+    {
+        if((*segitmersi)->IsSelected())
+        {
+            ++nbrsegmmersisel;
+
+        }
+        ++nbrsegmmersi;
+        ++segitmersi;
+    }
+
     return QString("For %1 \n"
                    "\rSegments in directory = %2\n\rTotal Segments Metop = %3\n\rselected = %4 \n"
                    "For %5 \n"
@@ -2109,7 +2209,9 @@ QString AVHRRSatellite::GetOverviewSegments()
                    "For %29 \n"
                    "\rSegments in directory = %30\n\rTotal Segments OLCI EFR = %31\n\rselected = %32 \n"
                    "For %33 \n"
-                   "\rSegments in directory = %34\n\rTotal Segments SLSTR = %35\n\rselected = %36 \n").
+                   "\rSegments in directory = %34\n\rTotal Segments SLSTR = %35\n\rselected = %36 \n"
+                   "For %37 \n"
+                   "\rSegments in directory = %38\n\rTotal Segments MERSI = %39\n\rselected = %40 \n").
             arg(seglmetop->GetDirectoryName()).arg(seglmetop->GetTotalSegmentsInDirectory()).arg(nbrsegmmetop).arg(nbrsegmmetopsel).
             arg(seglnoaa->GetDirectoryName()).arg(seglnoaa->GetTotalSegmentsInDirectory()).arg(nbrsegmnoaa).arg(nbrsegmnoaasel).
             arg(seglgac->GetDirectoryName()).arg(seglgac->GetTotalSegmentsInDirectory()).arg(nbrsegmgac).arg(nbrsegmgacsel).
@@ -2118,7 +2220,8 @@ QString AVHRRSatellite::GetOverviewSegments()
             arg(seglviirsdnb->GetDirectoryName()).arg(seglviirsdnb->GetTotalSegmentsInDirectory()).arg(nbrsegmviirsdnb).arg(nbrsegmviirsdnbsel).
             arg(seglolciefr->GetDirectoryName()).arg(seglolciefr->GetTotalSegmentsInDirectory()).arg(nbrsegmolciefr).arg(nbrsegmolciefrsel).
             arg(seglolcierr->GetDirectoryName()).arg(seglolcierr->GetTotalSegmentsInDirectory()).arg(nbrsegmolcierr).arg(nbrsegmolcierrsel).
-            arg(seglslstr->GetDirectoryName()).arg(seglslstr->GetTotalSegmentsInDirectory()).arg(nbrsegmslstr).arg(nbrsegmslstrsel);
+            arg(seglslstr->GetDirectoryName()).arg(seglslstr->GetTotalSegmentsInDirectory()).arg(nbrsegmslstr).arg(nbrsegmslstrsel).
+            arg(seglmersi->GetDirectoryName()).arg(seglmersi->GetTotalSegmentsInDirectory()).arg(nbrsegmmersi).arg(nbrsegmmersisel);
 
 }
 

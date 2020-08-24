@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1099</width>
-    <height>930</height>
+    <height>1046</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
      <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabEumetcast">
         <attribute name="title">
@@ -73,7 +73,7 @@
               </size>
              </property>
              <property name="text">
-              <string> GAC tracks </string>
+              <string> GAC</string>
              </property>
             </widget>
            </item>
@@ -92,7 +92,7 @@
               </size>
              </property>
              <property name="text">
-              <string> Noaa tracks </string>
+              <string> NOAA-19</string>
              </property>
              <property name="checkable">
               <bool>false</bool>
@@ -114,7 +114,7 @@
               </size>
              </property>
              <property name="text">
-              <string> Metop tracks </string>
+              <string> Metop</string>
              </property>
              <property name="checkable">
               <bool>false</bool>
@@ -145,7 +145,7 @@
               </size>
              </property>
              <property name="text">
-              <string> HRP tracks </string>
+              <string> HRP</string>
              </property>
             </widget>
            </item>
@@ -155,7 +155,7 @@
           <widget class="QLabel" name="label_4">
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -250,11 +250,11 @@
           <widget class="QLabel" name="label_5">
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
-            <string>OLCI</string>
+            <string>OLCI (Sentinel-3)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -278,7 +278,7 @@
               </size>
              </property>
              <property name="text">
-              <string>OLCI EFR</string>
+              <string>Sentinel-3 OLCI EFR</string>
              </property>
             </widget>
            </item>
@@ -297,7 +297,40 @@
               </size>
              </property>
              <property name="text">
-              <string>OLCI ERR</string>
+              <string>Sentinel-3 OLCI ERR</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>MERSI</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QPushButton" name="btnMERSI">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>230</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>FY-3D</string>
              </property>
             </widget>
            </item>
@@ -306,7 +339,7 @@
          <item>
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>SLSTR (only via Scihub/CODA)</string>
+            <string>SLSTR (Sentinel-3) (only via Scihub/CODA)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -314,20 +347,7 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
-           <item>
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0">
            <item>
             <widget class="QPushButton" name="btnSLSTR">
              <property name="minimumSize">
@@ -338,7 +358,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
+               <width>230</width>
                <height>16777215</height>
               </size>
              </property>
@@ -346,19 +366,6 @@
               <string>SLSTR</string>
              </property>
             </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </item>

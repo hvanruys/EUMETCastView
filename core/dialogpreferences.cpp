@@ -159,6 +159,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupGeoConfigTable();
     setupOLCIefrConfigTable();
     setupSLSTRConfigTable();
+    setupMERSIConfigTable();
     setupDatahubConfig();
 
     POItablechanged = false;
@@ -348,6 +349,26 @@ void DialogPreferences::setupSLSTRConfigTable()
 
     connect(ui->btnAddSLSTRConfig, SIGNAL(clicked()), this, SLOT(addSLSTRConfigRow()));
     connect(ui->btnDeleteSLSTRConfig, SIGNAL(clicked()), this, SLOT(deleteSLSTRConfigRow()));
+
+}
+
+void DialogPreferences::setupMERSIConfigTable()
+{
+    myMERSIConfigModel = new MERSIConfigModel(this);
+
+    ui->tbvMERSIConfig->setModel(myMERSIConfigModel);
+    ui->tbvMERSIConfig->setColumnWidth(0, 100);
+
+    for(int i = 1; i < 13; i++)
+        ui->tbvMERSIConfig->setColumnWidth(i, 50);
+
+    QHeaderView *hheader = ui->tbvMERSIConfig->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddMERSIConfig, SIGNAL(clicked()), this, SLOT(addMERSIConfigRow()));
+    connect(ui->btnDeleteMERSIConfig, SIGNAL(clicked()), this, SLOT(deleteMERSIConfigRow()));
 
 }
 
@@ -2944,6 +2965,267 @@ Qt::ItemFlags SLSTRConfigModel::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
 
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+MERSIConfigModel::MERSIConfigModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+
+}
+
+int MERSIConfigModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return poi.strlConfigNameMERSI.count();
+}
+
+int MERSIConfigModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 17;
+}
+
+QVariant MERSIConfigModel::data(const QModelIndex &index, int role) const
+{
+
+    if (role == Qt::DisplayRole)
+    {
+        switch(index.column())
+        {
+        case 0:
+            return poi.strlConfigNameMERSI.at(index.row());
+            break;
+        case 1:
+            return poi.strlColorBandMERSI.at(index.row());
+            break;
+        case 2:
+            return poi.strlComboMERSI5.at(index.row());
+            break;
+        case 3:
+            return poi.strlComboMERSI6.at(index.row());
+            break;
+        case 4:
+            return poi.strlComboMERSI7.at(index.row());
+            break;
+        case 5:
+            return poi.strlComboMERSI8.at(index.row());
+            break;
+        case 6:
+            return poi.strlComboMERSI9.at(index.row());
+            break;
+        case 7:
+            return poi.strlComboMERSI10.at(index.row());
+            break;
+        case 8:
+            return poi.strlComboMERSI11.at(index.row());
+            break;
+        case 9:
+            return poi.strlComboMERSI12.at(index.row());
+            break;
+        case 10:
+            return poi.strlComboMERSI13.at(index.row());
+            break;
+        case 11:
+            return poi.strlComboMERSI14.at(index.row());
+            break;
+        case 12:
+            return poi.strlComboMERSI15.at(index.row());
+            break;
+        case 13:
+            return poi.strlComboMERSI16.at(index.row());
+            break;
+        case 14:
+            return poi.strlComboMERSI17.at(index.row());
+            break;
+        case 15:
+            return poi.strlComboMERSI18.at(index.row());
+            break;
+        case 16:
+            return poi.strlComboMERSI19.at(index.row());
+            break;
+        }
+    }
+
+    return QVariant();
+
+
+}
+
+
+
+bool MERSIConfigModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            poi.strlConfigNameMERSI.replace(index.row(), value.toString());
+            break;
+        case 1:
+            poi.strlColorBandMERSI.replace(index.row(), value.toString());
+            break;
+        case 2:
+            poi.strlComboMERSI5.replace(index.row(), value.toString());
+            break;
+        case 3:
+            poi.strlComboMERSI6.replace(index.row(), value.toString());
+            break;
+        case 4:
+            poi.strlComboMERSI7.replace(index.row(), value.toString());
+            break;
+        case 5:
+            poi.strlComboMERSI8.replace(index.row(), value.toString());
+            break;
+        case 6:
+            poi.strlComboMERSI9.replace(index.row(), value.toString());
+            break;
+        case 7:
+            poi.strlComboMERSI10.replace(index.row(), value.toString());
+            break;
+        case 8:
+            poi.strlComboMERSI11.replace(index.row(), value.toString());
+            break;
+        case 9:
+            poi.strlComboMERSI12.replace(index.row(), value.toString());
+            break;
+        case 10:
+            poi.strlComboMERSI13.replace(index.row(), value.toString());
+            break;
+        case 11:
+            poi.strlComboMERSI14.replace(index.row(), value.toString());
+            break;
+        case 12:
+            poi.strlComboMERSI15.replace(index.row(), value.toString());
+            break;
+        case 13:
+            poi.strlComboMERSI16.replace(index.row(), value.toString());
+            break;
+        case 14:
+            poi.strlComboMERSI17.replace(index.row(), value.toString());
+            break;
+        case 15:
+            poi.strlComboMERSI18.replace(index.row(), value.toString());
+            break;
+        case 16:
+            poi.strlComboMERSI19.replace(index.row(), value.toString());
+            break;
+        }
+
+        emit editCompleted();
+    }
+
+    return true;
+}
+
+QVariant MERSIConfigModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Name");
+        case 1:
+            return tr("Band");
+        case 2:
+            return tr("Band 5");
+        case 3:
+            return tr("Band 6");
+        case 4:
+            return tr("Band 7");
+        case 5:
+            return tr("Band 8");
+        case 6:
+            return tr("Band 9");
+        case 7:
+            return tr("Band 10");
+        case 8:
+            return tr("Band 11");
+        case 9:
+            return tr("Band 12");
+        case 10:
+            return tr("Band 13");
+        case 11:
+            return tr("Band 14");
+        case 12:
+            return tr("Band 15");
+        case 13:
+            return tr("Band 16");
+        case 14:
+            return tr("Band 17");
+        case 15:
+            return tr("Band 18");
+        case 16:
+            return tr("Band 19");
+
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+
+}
+
+bool MERSIConfigModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+
+    poi.strlConfigNameMERSI.append( " " );
+    poi.strlColorBandMERSI.append( "0" );
+    poi.strlComboMERSI5.append( "0" );
+    poi.strlComboMERSI6.append( "0" );
+    poi.strlComboMERSI7.append( "0" );
+    poi.strlComboMERSI8.append( "0" );
+    poi.strlComboMERSI9.append( "0" );
+    poi.strlComboMERSI10.append( "0" );
+    poi.strlComboMERSI11.append( "0" );
+    poi.strlComboMERSI12.append( "0" );
+    poi.strlComboMERSI13.append( "0" );
+    poi.strlComboMERSI14.append( "0" );
+    poi.strlComboMERSI15.append( "0" );
+    poi.strlComboMERSI16.append( "0" );
+    poi.strlComboMERSI17.append( "0" );
+    poi.strlComboMERSI18.append( "0" );
+    poi.strlComboMERSI19.append( "0" );
+
+    poi.strlInverseMERSI5.append( "0" );
+    poi.strlInverseMERSI6.append( "0" );
+    poi.strlInverseMERSI7.append( "0" );
+    poi.strlInverseMERSI8.append( "0" );
+    poi.strlInverseMERSI9.append( "0" );
+    poi.strlInverseMERSI10.append( "0" );
+    poi.strlInverseMERSI11.append( "0" );
+    poi.strlInverseMERSI12.append( "0" );
+    poi.strlInverseMERSI13.append( "0" );
+    poi.strlInverseMERSI14.append( "0" );
+    poi.strlInverseMERSI15.append( "0" );
+    poi.strlInverseMERSI16.append( "0" );
+    poi.strlInverseMERSI17.append( "0" );
+    poi.strlInverseMERSI18.append( "0" );
+    poi.strlInverseMERSI19.append( "0" );
+
+    endInsertRows();
+    return true;
+
+}
+
+bool MERSIConfigModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+
+    endRemoveRows();
+    return true;
+
+}
+
+Qt::ItemFlags MERSIConfigModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
 
 
 void DialogPreferences::on_btnSearchProductDirectory_clicked()

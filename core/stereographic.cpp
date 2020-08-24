@@ -315,7 +315,7 @@ void StereoGraphic::CreateMapFromGeostationary()
 void StereoGraphic::CreateMapFromAVHRR(int inputchannel, eSegmentType type)
 {
 
-    if (type == SEG_NOAA)
+    if (type == SEG_NOAA19)
         segs->seglnoaa->ComposeSGProjection(inputchannel);
     else if( type == SEG_METOP)
         segs->seglmetop->ComposeSGProjection(inputchannel);
@@ -338,7 +338,7 @@ void StereoGraphic::CreateMapFromAVHRR(int inputchannel, eSegmentType type)
         imageptrs->SmoothProjectionImage();
     else if(opts.smoothprojectiontype == 2)
     {
-        if (type == SEG_NOAA)
+        if (type == SEG_NOAA19)
             segs->seglnoaa->SmoothProjectionImageBilinear();
         else if( type == SEG_METOP)
             segs->seglmetop->SmoothProjectionImageBilinear();
@@ -404,6 +404,19 @@ void StereoGraphic::CreateMapFromOLCI(eSegmentType type, bool combine, int histo
             segs->seglolciefr->SmoothOLCIImage(combine);
         else if( type == SEG_OLCIERR)
             segs->seglolcierr->SmoothOLCIImage(combine);
+    }
+
+}
+
+void StereoGraphic::CreateMapFromMERSI(eSegmentType type, bool combine)
+{
+    segs->seglmersi->ComposeSGProjection(0);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+    {
+        segs->seglmersi->SmoothMERSIImage(combine);
     }
 
 }

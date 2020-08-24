@@ -18,6 +18,7 @@ void Poi::Initialize()
     strlConfigNameM = POIsettings.value("/MConfig/strlName").value<QStringList>();
     strlConfigNameOLCI = POIsettings.value("/OLCIConfig/strlName").value<QStringList>();
     strlConfigNameSLSTR = POIsettings.value("/SLSTRConfig/strlName").value<QStringList>();
+    strlConfigNameMERSI = POIsettings.value("/MERSIConfig/strlName").value<QStringList>();
 
     if(strlGVPName.count() == 0)
     {
@@ -453,6 +454,79 @@ void Poi::Initialize()
 
     }
 
+    if(strlConfigNameMERSI.count() == 0)
+    {
+        strlConfigNameMERSI << "User defined" << "Natural Colors" << "True Colors";
+        strlColorBandMERSI << "0" << "0" << "0"; // "0" = color , "1" = Oa01, ..
+
+        strlComboMERSI5 << "0" << "0" << "0";
+        strlComboMERSI6 << "2" << "1" << "0";
+        strlComboMERSI7 << "0" << "0" << "0";
+        strlComboMERSI8 << "0" << "0" << "0";
+        strlComboMERSI9 << "0" << "0" << "0";
+        strlComboMERSI10 << "1" << "0" << "3";
+        strlComboMERSI11 << "0" << "0" << "2";
+        strlComboMERSI12 << "0" << "3" << "1";
+        strlComboMERSI13 << "0" << "0" << "0";
+        strlComboMERSI14 << "0" << "0" << "0";
+        strlComboMERSI15 << "0" << "2" << "0";
+        strlComboMERSI16 << "0" << "0" << "0";
+        strlComboMERSI17 << "0" << "0" << "0";
+        strlComboMERSI18 << "0" << "0" << "0";
+        strlComboMERSI19 << "0" << "0" << "0";
+
+        strlInverseMERSI5 << "0" << "0" << "0";
+        strlInverseMERSI6 << "0" << "0" << "0";
+        strlInverseMERSI7 << "0" << "0" << "0";
+        strlInverseMERSI8 << "0" << "0" << "0";
+        strlInverseMERSI9 << "0" << "0" << "0";
+        strlInverseMERSI10 << "0" << "0" << "0";
+        strlInverseMERSI11 << "0" << "0" << "0";
+        strlInverseMERSI12 << "0" << "0" << "0";
+        strlInverseMERSI13 << "0" << "0" << "0";
+        strlInverseMERSI14 << "0" << "0" << "0";
+        strlInverseMERSI15 << "0" << "0" << "0";
+        strlInverseMERSI16 << "0" << "0" << "0";
+        strlInverseMERSI17 << "0" << "0" << "0";
+        strlInverseMERSI18 << "0" << "0" << "0";
+        strlInverseMERSI19 << "0" << "0" << "0";
+
+    }
+    else
+    {
+        strlColorBandMERSI = POIsettings.value("/MERSIConfig/strlColorBandMERSI").value<QStringList>();
+        strlComboMERSI5 = POIsettings.value("/MERSIConfig/strlComboMERSI5").value<QStringList>();
+        strlComboMERSI6 = POIsettings.value("/MERSIConfig/strlComboMERSI6").value<QStringList>();
+        strlComboMERSI7 = POIsettings.value("/MERSIConfig/strlComboMERSI7").value<QStringList>();
+        strlComboMERSI8 = POIsettings.value("/MERSIConfig/strlComboMERSI8").value<QStringList>();
+        strlComboMERSI9 = POIsettings.value("/MERSIConfig/strlComboMERSI9").value<QStringList>();
+        strlComboMERSI10 = POIsettings.value("/MERSIConfig/strlComboMERSI10").value<QStringList>();
+        strlComboMERSI11 = POIsettings.value("/MERSIConfig/strlComboMERSI11").value<QStringList>();
+        strlComboMERSI12 = POIsettings.value("/MERSIConfig/strlComboMERSI12").value<QStringList>();
+        strlComboMERSI13 = POIsettings.value("/MERSIConfig/strlComboMERSI13").value<QStringList>();
+        strlComboMERSI14 = POIsettings.value("/MERSIConfig/strlComboMERSI14").value<QStringList>();
+        strlComboMERSI15 = POIsettings.value("/MERSIConfig/strlComboMERSI15").value<QStringList>();
+        strlComboMERSI16 = POIsettings.value("/MERSIConfig/strlComboMERSI16").value<QStringList>();
+        strlComboMERSI17 = POIsettings.value("/MERSIConfig/strlComboMERSI17").value<QStringList>();
+        strlComboMERSI18 = POIsettings.value("/MERSIConfig/strlComboMERSI18").value<QStringList>();
+        strlComboMERSI19 = POIsettings.value("/MERSIConfig/strlComboMERSI19").value<QStringList>();
+
+        strlInverseMERSI5 = POIsettings.value("/MERSIConfig/strlInverseMERSI5").value<QStringList>();
+        strlInverseMERSI6 = POIsettings.value("/MERSIConfig/strlInverseMERSI6").value<QStringList>();
+        strlInverseMERSI7 = POIsettings.value("/MERSIConfig/strlInverseMERSI7").value<QStringList>();
+        strlInverseMERSI8 = POIsettings.value("/MERSIConfig/strlInverseMERSI8").value<QStringList>();
+        strlInverseMERSI9 = POIsettings.value("/MERSIConfig/strlInverseMERSI9").value<QStringList>();
+        strlInverseMERSI10 = POIsettings.value("/MERSIConfig/strlInverseMERSI10").value<QStringList>();
+        strlInverseMERSI11 = POIsettings.value("/MERSIConfig/strlInverseMERSI11").value<QStringList>();
+        strlInverseMERSI12 = POIsettings.value("/MERSIConfig/strlInverseMERSI12").value<QStringList>();
+        strlInverseMERSI13 = POIsettings.value("/MERSIConfig/strlInverseMERSI13").value<QStringList>();
+        strlInverseMERSI14 = POIsettings.value("/MERSIConfig/strlInverseMERSI14").value<QStringList>();
+        strlInverseMERSI15 = POIsettings.value("/MERSIConfig/strlInverseMERSI15").value<QStringList>();
+        strlInverseMERSI16 = POIsettings.value("/MERSIConfig/strlInverseMERSI16").value<QStringList>();
+        strlInverseMERSI17 = POIsettings.value("/MERSIConfig/strlInverseMERSI17").value<QStringList>();
+        strlInverseMERSI18 = POIsettings.value("/MERSIConfig/strlInverseMERSI18").value<QStringList>();
+        strlInverseMERSI19 = POIsettings.value("/MERSIConfig/strlInverseMERSI19").value<QStringList>();
+    }
 }
 
 
@@ -639,6 +713,42 @@ void Poi::Save()
     POIsettings.setValue("/GeoConfig/strlInverseGeo14", strlInverseGeo14);
     POIsettings.setValue("/GeoConfig/strlInverseGeo15", strlInverseGeo15);
     POIsettings.setValue("/GeoConfig/strlInverseGeo16", strlInverseGeo16);
+
+    POIsettings.setValue("/MERSIConfig/strlName", strlConfigNameMERSI);
+    POIsettings.setValue("/MERSIConfig/strlColorBandMERSI", strlColorBandMERSI);
+
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI5", strlComboMERSI5);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI6", strlComboMERSI6);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI7", strlComboMERSI7);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI8", strlComboMERSI8);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI9", strlComboMERSI9);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI10", strlComboMERSI10);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI11", strlComboMERSI11);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI12", strlComboMERSI12);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI13", strlComboMERSI13);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI14", strlComboMERSI14);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI15", strlComboMERSI15);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI16", strlComboMERSI16);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI17", strlComboMERSI17);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI18", strlComboMERSI18);
+    POIsettings.setValue("/MERSIConfig/strlComboMERSI19", strlComboMERSI19);
+
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI5", strlInverseMERSI5);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI6", strlInverseMERSI6);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI7", strlInverseMERSI7);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI8", strlInverseMERSI8);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI9", strlInverseMERSI9);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI10", strlInverseMERSI10);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI11", strlInverseMERSI11);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI12", strlInverseMERSI12);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI13", strlInverseMERSI13);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI14", strlInverseMERSI14);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI15", strlInverseMERSI15);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI16", strlInverseMERSI16);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI17", strlInverseMERSI17);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI18", strlInverseMERSI18);
+    POIsettings.setValue("/MERSIConfig/strlInverseMERSI19", strlInverseMERSI19);
+
 
 }
 

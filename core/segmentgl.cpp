@@ -132,6 +132,8 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         sl = segs->segldatahubolcierr;
     else if (opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0)
         sl = segs->segldatahubslstr;
+    else if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
+        sl = segs->seglmersi;
     else
         return;
 

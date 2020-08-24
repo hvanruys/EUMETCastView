@@ -47,6 +47,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnOLCIefrDatahub->setCheckable(true);
     ui->btnOLCIerrDatahub->setCheckable(true);
     ui->btnSLSTRDatahub->setCheckable(true);
+    ui->btnMERSI->setCheckable(true);
 
     ui->btnRealTime->setCheckable(true);
     ui->btnPhong->setCheckable(true);
@@ -193,6 +194,11 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
         formtoolbox->setTabWidgetSentinelIndex(1);
     }
+    else if (opts.buttonMERSI)
+    {
+        SetAllButtonsToFalse();
+        opts.buttonMERSI = true;
+    }
 
 
     ui->btnMetop->setChecked(opts.buttonMetop);
@@ -215,6 +221,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnOLCIefrDatahub->setChecked(opts.buttonDatahubOLCIefr);
     ui->btnOLCIerrDatahub->setChecked(opts.buttonDatahubOLCIerr);
     ui->btnSLSTRDatahub->setChecked(opts.buttonDatahubSLSTR);
+    ui->btnMERSI->setChecked(opts.buttonMERSI);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
     ui->btnPhong->setChecked(opts.buttonPhong);
     ui->btnAllSegments->setChecked(opts.buttonShowAllSegments);
@@ -228,6 +235,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     connect( ui->btnNoaa19hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnM01hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnM02hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
+    connect( ui->btnMERSI, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
 
     //connect( ui->btnVIIRSM, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     //connect( ui->btnVIIRSDNB, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
@@ -290,6 +298,8 @@ void FormMapCyl::slotSetMapCylButtons(bool stat)
     ui->btnOLCIefr->setEnabled(stat);
     ui->btnOLCIerr->setEnabled(stat);
     ui->btnSLSTR->setEnabled(stat);
+    ui->btnMERSI->setEnabled(stat);
+
 
     ui->btnMetopAhrpt->setEnabled(stat);
     ui->btnMetopBhrpt->setEnabled(stat);
@@ -349,6 +359,7 @@ void FormMapCyl::showSegmentCount()
     int cntseldatahubolciefr = segs->segldatahubolciefr->NbrOfSegmentsSelected();
     int cntseldatahubolcierr = segs->segldatahubolcierr->NbrOfSegmentsSelected();
     int cntseldatahubslstr = segs->segldatahubslstr->NbrOfSegmentsSelected();
+    int cntselmersi = segs->seglmersi->NbrOfSegmentsSelected();
 
 
     int cntselmetopAhrpt = segs->seglmetopAhrpt->NbrOfSegmentsSelected();
@@ -371,6 +382,7 @@ void FormMapCyl::showSegmentCount()
     int cntdatahubolciefr = segs->segldatahubolciefr->NbrOfSegments();
     int cntdatahubolcierr = segs->segldatahubolcierr->NbrOfSegments();
     int cntdatahubslstr = segs->segldatahubslstr->NbrOfSegments();
+    int cntmersi = segs->seglmersi->NbrOfSegments();
 
     int cntmetopAhrpt = segs->seglmetopAhrpt->NbrOfSegments();
     int cntmetopBhrpt = segs->seglmetopBhrpt->NbrOfSegments();
@@ -379,9 +391,9 @@ void FormMapCyl::showSegmentCount()
     int cntM01hrpt = segs->seglM01hrpt->NbrOfSegments();
 
     long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb + cntviirsmnoaa20 + cntviirsdnbnoaa20 + cntolciefr + cntolcierr + cntslstr +
-            cntmetopAhrpt + cntmetopBhrpt + cntnoaa19hrpt + cntM01hrpt + cntM02hrpt + cntdatahubolciefr + cntdatahubolcierr + cntdatahubslstr;
+            cntmetopAhrpt + cntmetopBhrpt + cntnoaa19hrpt + cntM01hrpt + cntM02hrpt + cntdatahubolciefr + cntdatahubolcierr + cntdatahubslstr + cntmersi;
     long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb  + cntselviirsmnoaa20 + cntselviirsdnbnoaa20 + cntselolciefr + cntselolcierr + cntselslstr +
-            cntselmetopAhrpt + cntselmetopBhrpt + cntselnoaa19hrpt + cntselM01hrpt + cntselM02hrpt + cntseldatahubolciefr + cntseldatahubolcierr + cntseldatahubslstr;
+            cntselmetopAhrpt + cntselmetopBhrpt + cntselnoaa19hrpt + cntselM01hrpt + cntselM02hrpt + cntseldatahubolciefr + cntseldatahubolcierr + cntseldatahubslstr + cntselmersi;
 
     if ( totsegsel  > 0)
     {
@@ -416,6 +428,9 @@ void FormMapCyl::showSegmentCount()
     ui->btnOLCIefrDatahub->setText((QString(" OLCI EFR # %1/%2 ").arg(cntseldatahubolciefr).arg(cntdatahubolciefr)));
     ui->btnOLCIerrDatahub->setText((QString(" OLCI ERR # %1/%2 ").arg(cntseldatahubolcierr).arg(cntdatahubolcierr)));
     ui->btnSLSTRDatahub->setText((QString(" SLSTR # %1/%2 ").arg(cntseldatahubslstr).arg(cntdatahubslstr)));
+
+    ui->btnMERSI->setText((QString(" FY-3D # %1/%2 ").arg(cntselmersi).arg(cntmersi)));
+
 }
 
 void FormMapCyl::changeScrollBar(int value)
@@ -502,6 +517,10 @@ void FormMapCyl::updatesatmap(int index)
         if (opts.buttonSLSTR)
         {
             segs->seglslstr->ShowSegment(ui->verticalScrollBar->value());
+        } else
+        if (opts.buttonMERSI)
+        {
+            segs->seglmersi->ShowSegment(ui->verticalScrollBar->value());
         }
 
         mapcyl->update();
@@ -537,7 +556,11 @@ void FormMapCyl::updatesatmap(int index)
         }  else if (opts.buttonSLSTR)
         {
             tit = "SLSTR ";
+        }  else if (opts.buttonMERSI)
+        {
+            tit = "MERSI ";
         }
+
 
      }
 }
@@ -546,7 +569,7 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
 {
 
     opts.buttonMetop = segtype == eSegmentType::SEG_METOP ? true : false;
-    opts.buttonNoaa = segtype == eSegmentType::SEG_NOAA ? true : false;
+    opts.buttonNoaa = segtype == eSegmentType::SEG_NOAA19 ? true : false;
     opts.buttonGAC = segtype == eSegmentType::SEG_GAC ? true : false;
     opts.buttonHRP = segtype == eSegmentType::SEG_HRP ? true : false;
     opts.buttonVIIRSM = segtype == eSegmentType::SEG_VIIRSM ? true : false;
@@ -565,6 +588,7 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
     opts.buttonNoaa19hrpt = segtype == eSegmentType::SEG_HRPT_NOAA19 ? true : false;
     opts.buttonM01hrpt = segtype == eSegmentType::SEG_HRPT_M01 ? true : false;
     opts.buttonM02hrpt = segtype == eSegmentType::SEG_HRPT_M02 ? true : false;
+    opts.buttonMERSI = segtype == eSegmentType::SEG_MERSI ? true : false;
 
     ui->btnMetop->setChecked(opts.buttonMetop);
     ui->btnNoaa->setChecked(opts.buttonNoaa);
@@ -587,6 +611,7 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
     ui->btnOLCIefrDatahub->setChecked(opts.buttonDatahubOLCIefr);
     ui->btnOLCIerrDatahub->setChecked(opts.buttonDatahubOLCIerr);
     ui->btnSLSTRDatahub->setChecked(opts.buttonDatahubSLSTR);
+    ui->btnMERSI->setChecked(opts.buttonMERSI);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
     this->showSegmentList(0);
 
@@ -697,6 +722,11 @@ void FormMapCyl::setScrollBarMaximum()
     {
         ui->verticalScrollBar->setMaximum(segs->segldatahubslstr->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum Datahub SLSTR = %1").arg(segs->segldatahubslstr->NbrOfSegments());
+    }
+    else if (opts.buttonMERSI)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglmersi->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum MERSI = %1").arg(segs->seglmersi->NbrOfSegments());
     }
     else if (opts.buttonRealTime)
     {
@@ -865,6 +895,14 @@ void FormMapCyl::showSegmentList(int value)
 
         outp = QString("Datahub SLSTR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
+    else if(opts.buttonMERSI)
+    {
+        segs->seglmersi->ShowSegment(value);
+        segs->seglmersi->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglmersi->NbrOfSegments();
+
+        outp = QString("MERSI From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
     else if(opts.buttonRealTime)
     {
         outp = QString("Real time");
@@ -888,6 +926,7 @@ void FormMapCyl::RemoveAllSelected()
     segs->RemoveAllSelectedDatahubOLCIefr();
     segs->RemoveAllSelectedDatahubOLCIerr();
     segs->RemoveAllSelectedDatahubSLSTR();
+    segs->RemoveAllSelectedMERSI();
 
     imageptrs->ptrProjectionBrightnessTemp.reset();
     imageptrs->ptrProjectionInfra.reset();
@@ -911,25 +950,6 @@ void FormMapCyl::on_btnRemoveSelected_clicked()
 
 void FormMapCyl::on_btnMakeImage_clicked()
 {
-    if(!formtoolbox->comboColVIIRSOK())
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Need color choices for 3 different bands in the VIIRS tab.");
-        //msgBox.setInformativeText("Do you want to save your changes?");
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.setIcon(QMessageBox::Warning);
-        int ret = msgBox.exec();
-
-        switch (ret) {
-        case QMessageBox::Ok:
-            break;
-        default:
-            break;
-        }
-
-        return;
-    }
-
     this->slotSetMapCylButtons(false);
     emit signalMakeImage();
 }
@@ -964,7 +984,7 @@ void FormMapCyl::on_verticalScrollBar_valueChanged(int value)
 void FormMapCyl::on_btnNoaa_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButton(eSegmentType::SEG_NOAA);
+    toggleButton(eSegmentType::SEG_NOAA19);
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
 
@@ -1211,6 +1231,15 @@ void FormMapCyl::on_btnSLSTRDatahub_clicked()
     this->setScrollBarMaximum();
 
     return;
+}
+
+void FormMapCyl::on_btnMERSI_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_MERSI);
+    toggleButton(eSegmentType::SEG_MERSI);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+
 }
 
 void FormMapCyl::on_btnAllSegments_clicked()
@@ -1519,3 +1548,4 @@ void FormMapCyl::on_btnDownloadFromDatahub_clicked()
 {
     segs->LoadXMLfromDatahub();
 }
+

@@ -176,7 +176,7 @@ void LambertConformalConic::CreateMapFromAVHRR(int inputchannel, eSegmentType ty
 
     calc_map_extents();
 
-    if (type == SEG_NOAA)
+    if (type == SEG_NOAA19)
         segs->seglnoaa->ComposeLCCProjection(inputchannel);
     else if( type == SEG_METOP)
         segs->seglmetop->ComposeLCCProjection(inputchannel);
@@ -200,7 +200,7 @@ void LambertConformalConic::CreateMapFromAVHRR(int inputchannel, eSegmentType ty
         imageptrs->SmoothProjectionImage();
     else if(opts.smoothprojectiontype == 2)
     {
-        if (type == SEG_NOAA)
+        if (type == SEG_NOAA19)
             segs->seglnoaa->SmoothProjectionImageBilinear();
         else if( type == SEG_METOP)
             segs->seglmetop->SmoothProjectionImageBilinear();
@@ -273,6 +273,21 @@ void LambertConformalConic::CreateMapFromOLCI(eSegmentType type, bool combine, i
             segs->seglolciefr->SmoothOLCIImage(combine);
         else if( type == SEG_OLCIERR)
             segs->seglolcierr->SmoothOLCIImage(combine);
+    }
+
+}
+
+void LambertConformalConic::CreateMapFromMERSI(eSegmentType type, bool combine)
+{
+    calc_map_extents();
+
+    segs->seglmersi->ComposeLCCProjection(0);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+    {
+        segs->seglmersi->SmoothMERSIImage(combine);
     }
 
 }

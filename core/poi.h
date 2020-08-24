@@ -54,6 +54,9 @@ public:
     QStringList strlConfigNameOLCI;
     QStringList strlColorBandOLCI; // 0 = color , 1 = Oa01 , 2 = Oa02 , ...
 
+    QStringList strlConfigNameMERSI;
+    QStringList strlColorBandMERSI; // 0 = color , 1 = Band 5 , 2 = Band 6 , ...
+
     QStringList strlConfigNameSLSTR;
     QStringList strlColorBandSLSTR; // 0 = color , 1 = S1 , 2 = S2 , ...
 
@@ -192,6 +195,38 @@ public:
     QStringList strlInverseGeo14;
     QStringList strlInverseGeo15;
     QStringList strlInverseGeo16;
+
+    QStringList strlComboMERSI5;
+    QStringList strlComboMERSI6;
+    QStringList strlComboMERSI7;
+    QStringList strlComboMERSI8;
+    QStringList strlComboMERSI9;
+    QStringList strlComboMERSI10;
+    QStringList strlComboMERSI11;
+    QStringList strlComboMERSI12;
+    QStringList strlComboMERSI13;
+    QStringList strlComboMERSI14;
+    QStringList strlComboMERSI15;
+    QStringList strlComboMERSI16;
+    QStringList strlComboMERSI17;
+    QStringList strlComboMERSI18;
+    QStringList strlComboMERSI19;
+
+    QStringList strlInverseMERSI5;
+    QStringList strlInverseMERSI6;
+    QStringList strlInverseMERSI7;
+    QStringList strlInverseMERSI8;
+    QStringList strlInverseMERSI9;
+    QStringList strlInverseMERSI10;
+    QStringList strlInverseMERSI11;
+    QStringList strlInverseMERSI12;
+    QStringList strlInverseMERSI13;
+    QStringList strlInverseMERSI14;
+    QStringList strlInverseMERSI15;
+    QStringList strlInverseMERSI16;
+    QStringList strlInverseMERSI17;
+    QStringList strlInverseMERSI18;
+    QStringList strlInverseMERSI19;
 
 }; 
 

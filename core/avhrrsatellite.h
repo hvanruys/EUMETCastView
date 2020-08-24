@@ -16,6 +16,7 @@
 #include "segmenthrpt.h"
 #include "segmentslstr.h"
 #include "segmentdatahub.h"
+#include "segmentmersi.h"
 
 #include "segmentlistmetop.h"
 #include "segmentlistnoaa.h"
@@ -28,6 +29,7 @@
 #include "segmentlisthrpt.h"
 #include "segmentlistslstr.h"
 #include "segmentlistdatahub.h"
+#include "segmentlistmersi.h"
 #include "datahubaccessmanager.h"
 
 #include "segmentimage.h"
@@ -45,6 +47,7 @@ class SegmentListOLCI;
 class SegmentListSLSTR;
 class SegmentListHRPT;
 class SegmentListDatahub;
+class SegmentListMERSI;
 
 
 class AVHRRSatellite  : public QObject
@@ -62,6 +65,7 @@ public:
     bool SelectedOLCIefrSegments();
     bool SelectedOLCIerrSegments();
     bool SelectedSLSTRSegments();
+    bool SelectedMERSISegments();
 
     void RemoveAllSelectedAVHRR();
     void RemoveAllSelectedVIIRSM();
@@ -74,6 +78,7 @@ public:
     void RemoveAllSelectedDatahubOLCIefr();
     void RemoveAllSelectedDatahubOLCIerr();
     void RemoveAllSelectedDatahubSLSTR();
+    void RemoveAllSelectedMERSI();
 
     void emitProgressCounter(int);
 
@@ -100,6 +105,8 @@ public:
     QStringList GetOverviewSegmentsDatahubOLCIefr();
     QStringList GetOverviewSegmentsDatahubOLCIerr();
     QStringList GetOverviewSegmentsDatahubSLSTR();
+
+    QStringList GetOverviewSegmentsMERSI();
 
     QStringList GetOverviewSegmentsGeo(int geoindex);
 
@@ -134,6 +141,7 @@ public:
     SegmentListDatahub *segldatahubslstr;
     SegmentListVIIRSM *seglviirsmnoaa20;
     SegmentListVIIRSDNB *seglviirsdnbnoaa20;
+    SegmentListMERSI *seglmersi;
 
     QList<SegmentListGeostationary *> seglgeo;
     QList<QMap<QString, QMap<QString, QMap< int, QFileInfo > > > > segmentlistmapgeo;
@@ -141,7 +149,8 @@ public:
 
 private:
 
-    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, QDate seldate, int hoursbefore);
+    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, bool *fy3dTle,
+                     QDate seldate, int hoursbefore);
     void RemoveFromList(QList<Segment*> *sl);
     void CreateListfromXML(QDomDocument document);
     void getFilenameParameters(int geosatindex, QString filename, QString &strspectrum, QString &strdate, int &filenbr);
@@ -169,6 +178,7 @@ private:
     long countdatahubolciefr;
     long countdatahubolcierr;
     long countdatahubslstr;
+    long countmersi;
 
     bool showallsegments;
 

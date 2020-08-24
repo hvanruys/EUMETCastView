@@ -1,0 +1,747 @@
+
+// File name convention
+// FY3D_<startDate>_<startTime>_<endTime>_<orbitNumber>_MERSI_1000M_L1B.HDF (for the scientific data).
+// FY3D_<startDate>_<startTime>_<endTime>_<orbitNumber>_MERSI_GEO1K_L1B.HDF (for the geolocation data)
+#include "segmentmersi.h"
+#include "globals.h"
+#include "segmentimage.h"
+
+
+#include <QDebug>
+#include <QFile>
+#include <QImage>
+#include <QPainter>
+#include <QString>
+#include <QColor>
+#include <QPen>
+#include <QPixmap>
+#include <QDate>
+#include <QFileInfo>
+#include <QDebug>
+#include <QBitArray>
+#include <QByteArray>
+
+
+
+extern Options opts;
+extern SegmentImage *imageptrs;
+#include <QMutex>
+
+#define DIMX 410
+#define DIMY 80
+#define MULT 5
+
+
+//   y0 ---- Q00-------R2---------------Q01
+//            |         |                |
+//   y  ----------------P-----------------
+//            |         |                |
+//            |         |                |
+//   y1 -----Q10-------R1---------------Q11
+//            |         |                |
+//            x0        x                x1
+
+inline float
+BilinearInterpolation(float q10, float q00, float q11, float q01, float x0, float x1, float y1, float y0, float x, float y)
+{
+    float x1x0, y0y1, x1x, y0y, yy1, xx0;
+    x1x0 = x1 - x0;
+    y0y1 = y0 - y1;
+    x1x = x1 - x;
+    y0y = y0 - y;
+    yy1 = y - y1;
+    xx0 = x - x0;
+    return 1.0 / (x1x0 * y0y1) * (
+                q10 * x1x * y0y +
+                q11 * xx0 * y0y +
+                q00 * x1x * yy1 +
+                q01 * xx0 * yy1
+                );
+}
+
+
+SegmentMERSI::SegmentMERSI(QFileInfo fileinfo, SatelliteList *satl, QObject *parent) :
+    Segment(parent)
+{
+    bool ok;
+    satlist = satl;
+    this->fileInfo = fileinfo;
+
+    this->satname = fileInfo.baseName().mid(0, 4);
+
+    segment_type = "MERSI";
+    segtype = eSegmentType::SEG_MERSI;
+    this->earth_views_per_scanline = 2048;
+    this->NbrOfLines = 400;
+
+    //012345678901234567890123456789012345678901234567890
+    //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
+    //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
+
+    int sensing_start_year = fileInfo.fileName().mid(5, 4).toInt( &ok , 10);
+    int sensing_start_month = fileInfo.fileName().mid(9, 2).toInt( &ok, 10);
+    int sensing_start_day = fileInfo.fileName().mid(11, 2).toInt( &ok, 10);
+    int sensing_start_hour = fileInfo.fileName().mid(14, 2).toInt( &ok, 10);
+    int sensing_start_minute = fileInfo.fileName().mid(16, 2).toInt( &ok, 10);
+    int sensing_start_second = fileInfo.fileName().mid(18, 2).toInt( &ok, 10);
+
+    qdatetime_start.setDate(QDate(sensing_start_year, sensing_start_month, sensing_start_day));
+    qdatetime_start.setTime(QTime(sensing_start_hour,sensing_start_minute, sensing_start_second));
+
+    qsensingstart = QSgp4Date(sensing_start_year, sensing_start_month, sensing_start_day, sensing_start_hour, sensing_start_minute, sensing_start_second);
+    qsensingend = qsensingstart;
+    qsensingend.AddMin(3.0);
+
+    julian_sensing_start = qsensingstart.Julian();
+    julian_sensing_end = qsensingend.Julian();
+
+    Satellite fy3d_sat;
+
+    if(fileInfo.fileName().mid(0,4) == "FY3D")
+        ok = satlist->GetSatellite(43010, &fy3d_sat);
+
+    if(!ok)
+    {
+        qInfo() << "EUMETCastView needs TLE's";
+        return;
+    }
+
+    line1 = fy3d_sat.line1;
+    line2 = fy3d_sat.line2;
+
+    qtle.reset(new QTle(fileInfo.fileName().mid(0,4), line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
+
+    julian_state_vector = qtle->Epoch();
+
+    minutes_since_state_vector = ( julian_sensing_start - julian_state_vector ) * MINUTES_PER_DAY;
+    minutes_sensing = 1;
+
+    QEci eci;
+
+    qsgp4->getPosition(minutes_since_state_vector, eci);
+    QGeodetic geo = eci.ToGeo();
+
+    lon_start_rad = geo.longitude;
+    lat_start_rad = geo.latitude;
+    lon_start_deg = lon_start_rad * 180.0 / PI;
+    lat_start_deg = lat_start_rad * 180.0 /PI;
+
+
+
+    CalculateCornerPoints();
+}
+
+void SegmentMERSI::initializeMemory()
+{
+    qDebug() << "Initializing MERSI memory";
+    if(ptrbaMERSI.isNull())
+    {
+        ptrbaMERSI.reset(new quint16[15 * earth_views_per_scanline * NbrOfLines]);
+        qDebug() << QString("Initializing MERSI memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
+    }
+}
+
+void SegmentMERSI::ComposeSegmentImage(int colorarrayindex[], bool invertarrayindex[], int histogrammethod, bool normalized, int totallines)
+{
+
+    QRgb *row;
+    int indexout[3];
+
+    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() segm->startLineNbr = %1").arg(this->startLineNbr);
+    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() color = %1 ").arg(bandlist.at(0));
+    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() invertarrayindex[0] = %1").arg(invertarrayindex[0]);
+    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() invertarrayindex[1] = %1").arg(invertarrayindex[1]);
+    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() invertarrayindex[2] = %1").arg(invertarrayindex[2]);
+
+    int pixval[3];
+    int r, g, b;
+
+    bool color = bandlist.at(0);
+    bool valok[3];
+    int oneblock = 400 * 2048;
+
+    for(int i = 0; i < 3; i++)
+    {
+        this->colorarrayindex[i] = colorarrayindex[i];
+        this->invertarrayindex[i] = invertarrayindex[i];
+    }
+
+    for (int line = 0; line < this->NbrOfLines; line++)
+//    for (int line = this->NbrOfLines - 1; line >= 0; line--)
+    {
+        row = (QRgb*)imageptrs->ptrimageMERSI->scanLine(totallines - 1 - this->startLineNbr - line);
+        for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
+//        for (int pixelx = earth_views_per_scanline - 1; pixelx >= 0; pixelx--)
+        {
+            pixval[0] = *(this->ptrbaMERSI.data() + this->colorarrayindex[0] * oneblock + line * earth_views_per_scanline + earth_views_per_scanline - 1 - pixelx);
+            if(color)
+            {
+                pixval[1] = *(this->ptrbaMERSI.data() + this->colorarrayindex[1] * oneblock + line * earth_views_per_scanline + earth_views_per_scanline - 1 - pixelx);
+                pixval[2] = *(this->ptrbaMERSI.data() + this->colorarrayindex[2] * oneblock + line * earth_views_per_scanline + earth_views_per_scanline - 1 - pixelx);
+            }
+
+            valok[0] = pixval[0] < 65528 && pixval[0] > 0;
+            valok[1] = pixval[1] < 65528 && pixval[1] > 0;
+            valok[2] = pixval[2] < 65528 && pixval[2] > 0;
+
+            if( valok[0] && (color ? valok[1] && valok[2] : true))
+            {
+                for(int i = 0; i < (color ? 3 : 1); i++)
+                {
+                    //                    pixval1024[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
+
+                    indexout[i] =  (int)(255 * ( pixval[i] - imageptrs->stat_min_ch[i] ) / (imageptrs->stat_max_ch[i] - imageptrs->stat_min_ch[i]));
+                    indexout[i] = ( indexout[i] > 255 ? 255 : indexout[i] );
+                }
+
+                if(color)
+                {
+                    //                    if(invertarrayindex[0])
+                    //                    {
+                    //                        r = 255 - imageptrs->lut_ch[0][indexout[0]];
+                    //                    }
+                    //                    else
+                    //                        r = imageptrs->lut_ch[0][indexout[0]];
+                    //                    if(invertarrayindex[1])
+                    //                    {
+                    //                        g = 255 - imageptrs->lut_ch[1][indexout[1]];
+                    //                    }
+                    //                    else
+                    //                        g = imageptrs->lut_ch[1][indexout[1]];
+                    //                    if(invertarrayindex[2])
+                    //                    {
+                    //                        b = 255 - imageptrs->lut_ch[2][indexout[2]];
+                    //                    }
+                    //                    else
+                    //                        b = imageptrs->lut_ch[2][indexout[2]];
+                    if(invertarrayindex[0])
+                    {
+                        r = 255 - indexout[0];
+                    }
+                    else
+                        r = indexout[0];
+                    if(invertarrayindex[1])
+                    {
+                        g = 255 - indexout[1];
+                    }
+                    else
+                        g = indexout[1];
+                    if(invertarrayindex[2])
+                    {
+                        b = 255 - indexout[2];
+                    }
+                    else
+                        b = indexout[2];
+
+
+                    row[pixelx] = qRgb(r, g, b );
+                }
+                else
+                {
+                    //                    if(invertarrayindex[0])
+                    //                    {
+                    //                        r = 255 - imageptrs->lut_ch[0][indexout[0]];
+                    //                    }
+                    //                    else
+                    //                        r = imageptrs->lut_ch[0][indexout[0]];
+
+                    if(invertarrayindex[0])
+                    {
+                        r = 255 - indexout[0];
+                    }
+                    else
+                        r = indexout[0];
+
+                    row[pixelx] = qRgb(r, r, r );
+                }
+
+            }
+            else
+            {
+                if(pixval[0] >= 65528 && pixval[1] >= 65528 && pixval[2] >= 65528)
+                    row[pixelx] = qRgba(0, 0, 150, 250);
+                else if(pixval[0] == 0 || pixval[1] == 0 || pixval[2] == 0)
+                    row[pixelx] = qRgba(150, 0, 0, 250);
+                else
+                {
+                    row[pixelx] = qRgba(0, 150, 0, 250);
+                }
+            }
+
+        }
+
+        if(opts.imageontextureOnMERSI) // && ((line + 5 ) % 16 == 0 || (line + 10) % 16 == 0) )
+        {
+            this->RenderSegmentlineInTextureMERSI( line, row );
+            opts.texture_changed = true;
+        }
+
+    }
+
+}
+
+void SegmentMERSI::RenderSegmentlineInTextureMERSI( int nbrLine, QRgb *row )
+{
+
+    QColor rgb;
+    int posx, posy;
+
+    int oneblock = 400 * 2048;
+
+    QPainter fb_painter(imageptrs->pmOut);
+
+    int devwidth = (fb_painter.device())->width();
+    int devheight = (fb_painter.device())->height();
+
+    fb_painter.setPen( Qt::black );
+    fb_painter.setBrush( Qt::NoBrush );
+
+    int earthviews = earth_views_per_scanline;
+
+    int pixval[3];
+    bool valok[3];
+    bool color = bandlist.at(0);
+
+
+    for (int pix = 0 ; pix < earthviews; pix+=2)
+    {
+        pixval[0] = *(this->ptrbaMERSI.data() + this->colorarrayindex[0] * oneblock + nbrLine * earth_views_per_scanline + pix);
+
+        valok[0] = pixval[0] < 65528 && pixval[0] > 0;
+        if(color)
+        {
+            pixval[1] = *(this->ptrbaMERSI.data() + this->colorarrayindex[1] * oneblock + nbrLine * earth_views_per_scanline + pix);
+            pixval[2] = *(this->ptrbaMERSI.data() + this->colorarrayindex[2] * oneblock + nbrLine * earth_views_per_scanline + pix);
+
+            valok[1] = pixval[1] < 65528 && pixval[1] > 0;
+            valok[2] = pixval[2] < 65528 && pixval[2] > 0;
+        }
+
+
+        if( valok[0] && (color ? valok[1] && valok[2] : true))
+        {
+            sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + earth_views_per_scanline - 1 - pix] * PI/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + earth_views_per_scanline - 1 - pix] * PI/180.0, posx, posy, devwidth, devheight );
+            rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
+            fb_painter.setPen(rgb);
+            fb_painter.drawPoint( posx , posy );
+        }
+    }
+
+    fb_painter.end();
+
+}
+
+Segment *SegmentMERSI::ReadSegmentInMemory(bool composecolor, int colorarrayindex[])
+{
+    QScopedArrayPointer<float> ptrbaLongitude;
+    QScopedArrayPointer<float> ptrbaLatitude;
+
+    int geoindex;
+
+    qDebug() << "*SegmentMERSI::ReadSegmentInMemory() for " << fileInfo.filePath();
+    hid_t   h5_file_id, h5_filegeo_id, h5_Longitude_id, h5_Latitude_id;
+    herr_t  h5_status;
+
+    if( (h5_file_id = H5Fopen(fileInfo.filePath().toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
+        qDebug() << "File " << fileInfo.filePath().toLatin1() << " not open !!";
+
+
+    strgeofile = fileInfo.fileName().replace(40, 5, "GEO1K");
+    QString strgeofilepath = fileInfo.path() + "/" + strgeofile;
+    QFile geofile(strgeofilepath);
+    if (geofile.exists())
+    {
+        if( (h5_filegeo_id = H5Fopen( strgeofilepath.toLatin1(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
+            qDebug() << "File " << strgeofilepath << " not open !!";
+        else
+            qDebug() << "File " << strgeofilepath << " found !!";
+    }
+    else
+    {
+        qDebug() << "File " << strgeofilepath << " not found !!";
+        h5_filegeo_id = -1;
+    }
+
+    if(h5_filegeo_id < 0)
+    {
+        ptrbaLongitude.reset(new float[80 * 410]);
+        if( (h5_Longitude_id = H5Dopen2(h5_file_id, "/Geolocation/Longitude", H5P_DEFAULT)) < 0)
+            qDebug() << "/Geolocation/Longitude does not exist";
+        else
+            qDebug() << "Dataset '" << "/Geolocation/Longitude" << "' is open";
+        if((h5_status = H5Dread (h5_Longitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                                 H5P_DEFAULT, ptrbaLongitude.data())) < 0)
+            qDebug() << "Unable to read Longitude dataset";
+
+
+        ptrbaLatitude.reset(new float[80 * 410]);
+        if( (h5_Latitude_id = H5Dopen2(h5_file_id, "/Geolocation/Latitude", H5P_DEFAULT)) < 0)
+            qDebug() << "/Geolocation/Latitude does not exist";
+        else
+            qDebug() << "Dataset '" << "/Geolocation/Latitude" << "' is open";
+        if((h5_status = H5Dread (h5_Latitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                                 H5P_DEFAULT, ptrbaLatitude.data())) < 0)
+            qDebug() << "Unable to read Latitude dataset";
+
+        geolatitude.reset(new float[400 * 2050]);
+        geolongitude.reset(new float[400  * 2050]);
+
+        // BilinearInterpolation(float q10, float q00, float q11, float q01, float x0, float x1, float y1, float y0, float x, float y)
+
+        for(int i = 0; i < DIMY-1; i++)
+        {
+            for(int j = 0; j < DIMX-1; j++)
+            {
+                int index10 = (i+1) * DIMX + j;
+                int index11 = (i+1) * DIMX + j + 1;
+                int index00 = i * DIMX + j;
+                int index01 = i * DIMX + j + 1;
+                //            qDebug() << index00 << " " << index01;
+                //            qDebug() << index10 << " " << index11;
+                //            qDebug() << "--------------------";
+
+
+                for(int k = 0; k < MULT; k++)
+                {
+                    for(int l = 0; l < MULT; l++)
+                    {
+                        //                    qDebug() << "[" << i * MULT + k << ", " << j * MULT + l << "] = " << (DIMX * MULT - 2) * (i * MULT + k) + j * MULT + l;
+                        geoindex = (DIMX * MULT - 2) * (i * MULT + k) + j * MULT + l;
+                        geolatitude[geoindex] = BilinearInterpolation(ptrbaLatitude[index10], ptrbaLatitude[index00], ptrbaLatitude[index11], ptrbaLatitude[index01],
+                                                                      (float)(j * MULT), (float)((j+1) * MULT), (float)((i+1) * MULT), (float)(i * MULT),
+                                                                      (float)(j * MULT + l), (float)(i * MULT + k));
+                        geolongitude[geoindex] = BilinearInterpolation(ptrbaLongitude[index10], ptrbaLongitude[index00], ptrbaLongitude[index11], ptrbaLongitude[index01],
+                                                                       (float)(j * MULT), (float)((j+1) * MULT), (float)((i+1) * MULT), (float)(i * MULT),
+                                                                       (float)(j * MULT + l), (float)(i * MULT + k));
+
+                    }
+                }
+                //            qDebug() << "====================";
+            }
+        }
+        h5_status = H5Dclose (h5_Longitude_id);
+        h5_status = H5Dclose (h5_Latitude_id);
+
+    }
+    else
+    {
+        geolatitude.reset(new float[400 * 2048]);
+        geolongitude.reset(new float[400  * 2048]);
+        ReadGeoFile(h5_filegeo_id);
+
+    }
+
+    //    for(int i = 0; i < 5; i++)
+    //    {
+    //        for(int j = 0; j < 10; j++)
+    //        {
+    //            qDebug() << "latitude [" << i << " ," << j  << "] = " << geolatitude[i*2050 + j];
+    //        }
+    //    }
+
+    //    for(int i = 0; i < 5; i++)
+    //    {
+    //        for(int j = 0; j < 10; j++)
+    //        {
+    //            qDebug() << "longitude [" << i << " ," << j  << "] = " << geolongitude[i*2050 + j];
+    //        }
+    //    }
+
+    ReadMERSI_1KM(h5_file_id);
+    for(int k = 0; k < 3; k++)
+    {
+        stat_max_ch[k] = 0;
+        stat_min_ch[k] = 9999999;
+        active_pixels[k] = 0;
+    }
+
+    int oneblock = 400 * 2048;
+
+    for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
+    {
+        for (int j = 0; j < NbrOfLines; j++) {
+            for (int i = 0; i < earth_views_per_scanline; i++)
+            {
+                if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] > 0 && ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] < 65528)
+                {
+                    if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] >= stat_max_ch[k])
+                        stat_max_ch[k] = ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i];
+                    if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] < stat_min_ch[k])
+                        stat_min_ch[k] = ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i];
+                    active_pixels[k]++;
+                }
+            }
+        }
+    }
+
+
+    qDebug() << QString("ptrbaMERSI min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
+    if(this->bandlist.at(0))
+    {
+        qDebug() << QString("ptrbaMERSI min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
+        qDebug() << QString("ptrbaMERSI min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
+
+    }
+
+    //    this->cornerpointfirst1 = QGeodetic(geolatitude[0]*PI/180.0, geolongitude[0]*PI/180.0, 0 );
+    //    this->cornerpointlast1 = QGeodetic(geolatitude[3199]*PI/180.0, geolongitude[3199]*PI/180.0, 0 );
+    //    this->cornerpointfirst2 = QGeodetic(geolatitude[767*earth_views_per_scanline]*PI/180.0, geolongitude[767*earth_views_per_scanline]*PI/180.0, 0 );
+    //    this->cornerpointlast2 = QGeodetic(geolatitude[767*earth_views_per_scanline + 3199]*PI/180.0, geolongitude[767*earth_views_per_scanline + 3199]*PI/180.0, 0 );
+    //    this->cornerpointcenter1 = QGeodetic(geolatitude[1600]*PI/180.0, geolongitude[1600]*PI/180.0, 0);
+    //    this->cornerpointcenter2 = QGeodetic(geolatitude[767*earth_views_per_scanline + 1600]*PI/180.0, geolongitude[767*earth_views_per_scanline + 1600]*PI/180.0, 0);
+
+    qDebug() << "first1 = (" << geolatitude[0] << "," << geolongitude[0] << ") last1 = (" << geolatitude[2000] << "," << geolongitude[2000] << ")";
+    qDebug() << "first2 = (" << geolatitude[390*2050] << "," << geolongitude[390*2050] << ") last2 = (" << geolatitude[390*2050 + 2000] << "," << geolongitude[390*2050 + 2000] << ")";
+
+
+    h5_status = H5Fclose (h5_file_id);
+    return this;
+}
+
+void SegmentMERSI::ReadMERSI_1KM(hid_t h5_file_id)
+{
+    hid_t   h5_EV_1KM_RefSB_id;
+    herr_t  h5_status;
+
+    if( (h5_EV_1KM_RefSB_id = H5Dopen2(h5_file_id, "/Data/EV_1KM_RefSB", H5P_DEFAULT)) < 0)
+        qDebug() << "/Data/EV_1KM_RefSB does not exist";
+    else
+        qDebug() << "Dataset '" << "/Data/EV_1KM_RefSB" << "' is open";
+
+
+
+    if((h5_status = H5Dread (h5_EV_1KM_RefSB_id, H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ptrbaMERSI.data())) < 0)
+        qDebug() << "Unable to read radiance dataset";
+    h5_status = H5Dclose (h5_EV_1KM_RefSB_id);
+
+
+}
+
+void SegmentMERSI::ReadGeoFile(hid_t h5_geofile_id)
+{
+    hid_t   h5_Longitude_id, h5_Latitude_id;
+    herr_t  h5_status;
+
+    if( (h5_Longitude_id = H5Dopen2(h5_geofile_id, "/Geolocation/Longitude", H5P_DEFAULT)) < 0)
+        qDebug() << "/Geolocation/Longitude does not exist";
+    else
+        qDebug() << "Dataset '" << "/Geolocation/Longitude" << "' is open";
+
+    if( (h5_Latitude_id = H5Dopen2(h5_geofile_id, "/Geolocation/Latitude", H5P_DEFAULT)) < 0)
+        qDebug() << "/Geolocation/Latitude does not exist";
+    else
+        qDebug() << "Dataset '" << "/Geolocation/Latitude" << "' is open";
+
+    if((h5_status = H5Dread (h5_Longitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, geolongitude.data())) < 0)
+        qDebug() << "Unable to read Longitude dataset";
+    if((h5_status = H5Dread (h5_Latitude_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, geolatitude.data())) < 0)
+        qDebug() << "Unable to read Latitude dataset";
+
+    h5_status = H5Dclose (h5_Longitude_id);
+    h5_status = H5Dclose (h5_Latitude_id);
+
+
+}
+
+SegmentMERSI::~SegmentMERSI()
+{
+}
+
+void SegmentMERSI::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
+{
+    ComposeProjection(LCC, histogrammethod, normalized);
+}
+
+void SegmentMERSI::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
+{
+    ComposeProjection(GVP, histogrammethod, normalized);
+}
+
+void SegmentMERSI::ComposeSegmentSGProjection(int inputchannel, int histogrammethod,  bool normalized)
+{
+    ComposeProjection(SG, histogrammethod, normalized);
+}
+
+void SegmentMERSI::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
+{
+
+    double map_x, map_y;
+
+    float lonpos1, latpos1;
+
+
+    int pixval[3];
+
+    bool color = bandlist.at(0);
+    bool valok[3];
+
+    projectionCoordX.reset(new qint32[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordY.reset(new qint32[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValue.reset(new QRgb[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueRed.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueGreen.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
+    projectionCoordValueBlue.reset(new quint16[NbrOfLines * earth_views_per_scanline]);
+
+    for( int i = 0; i < NbrOfLines; i++)
+    {
+        for( int j = 0; j < earth_views_per_scanline; j++ )
+        {
+            projectionCoordX[i * earth_views_per_scanline + j] = 65535;
+            projectionCoordY[i * earth_views_per_scanline + j] = 65535;
+            projectionCoordValue[i * earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
+            projectionCoordValueRed[i * earth_views_per_scanline + j] = 0;
+            projectionCoordValueGreen[i * earth_views_per_scanline + j] = 0;
+            projectionCoordValueBlue[i * earth_views_per_scanline + j] = 0;
+        }
+    }
+
+    int oneblock = 400 * 2048;
+
+    for( int i = 0; i < this->NbrOfLines; i++)
+    {
+        for( int j = 0; j < this->earth_views_per_scanline ; j++ )
+        {
+            pixval[0] = ptrbaMERSI[oneblock * this->colorarrayindex[0] + i * earth_views_per_scanline + j];
+            valok[0] = pixval[0] > 0 && pixval[0] < 65528;
+
+            if(color)
+            {
+                pixval[1] = ptrbaMERSI[oneblock * this->colorarrayindex[1] + i * earth_views_per_scanline + j];
+                pixval[2] = ptrbaMERSI[oneblock * this->colorarrayindex[2] + i * earth_views_per_scanline + j];
+                valok[1] = pixval[1] > 0 && pixval[1] < 65528;
+                valok[2] = pixval[2] > 0 && pixval[2] < 65528;
+            }
+
+            if( valok[0] && (color ? valok[1] && valok[2] : true))
+            {
+                latpos1 = geolatitude[i * earth_views_per_scanline + j];
+                lonpos1 = geolongitude[i * earth_views_per_scanline + j];
+
+                if(proj == LCC) //Lambert
+                {
+                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    {
+                        MapPixel( i, j, map_x, map_y, color);
+                    }
+                }
+                else if(proj == GVP) // General Vertical Perspecitve
+                {
+                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    {
+                        MapPixel( i, j, map_x, map_y, color);
+                    }
+
+                }
+                else if(proj == SG) // Stereographic
+                {
+                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    {
+                        MapPixel( i, j, map_x, map_y, color);
+                    }
+                }
+            } else
+            {
+                projectionCoordX[i * earth_views_per_scanline + j] = 65535;
+                projectionCoordY[i * earth_views_per_scanline + j] = 65535;
+                projectionCoordValue[i * earth_views_per_scanline + j] = qRgba(0, 0, 0, 0);
+                projectionCoordValueRed[i * earth_views_per_scanline + j] = 0;
+                projectionCoordValueGreen[i * earth_views_per_scanline + j] = 0;
+                projectionCoordValueBlue[i * earth_views_per_scanline + j] = 0;
+            }
+        }
+    }
+
+}
+
+void SegmentMERSI::MapPixel(int lines, int views, double map_x, double map_y, bool iscolor)
+{
+    int indexout[3];
+    quint16 pixval[3];
+    quint16 pixval256[3];
+    quint16 pixval4096[3];
+
+    int color8[3];
+    int color12[3];
+    QRgb rgbvalue = qRgba(0,0,0,0);
+
+    int oneblock = 400 * 2048;
+
+    pixval[0] = ptrbaMERSI[oneblock * colorarrayindex[0] + lines * earth_views_per_scanline + views];
+
+    if(iscolor)
+    {
+        pixval[1] = ptrbaMERSI[oneblock * colorarrayindex[1] + lines * earth_views_per_scanline + views];
+        pixval[2] = ptrbaMERSI[oneblock * colorarrayindex[2] + lines * earth_views_per_scanline + views];
+    }
+
+    if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
+    {
+
+        projectionCoordX[lines * earth_views_per_scanline + views] = (qint32)map_x;
+        projectionCoordY[lines * earth_views_per_scanline + views] = (qint32)map_y;
+
+
+        for(int k = 0; k < (iscolor ? 3 : 1); k++)
+        {
+            pixval4096[k] =  (quint16)qMin(qMax(qRound(4095.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 4095);
+            pixval256[k] =  (quint16)qMin(qMax(qRound(255.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 255);
+
+            indexout[k] =  pixval256[k];
+
+
+            if(invertarrayindex[k])
+            {
+                color12[k] = 4095 - pixval4096[k];
+                color8[k] = 255 - (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval256[k]]), 0), 255);
+            }
+            else
+            {
+                color12[k] = pixval4096[k];
+                color8[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval256[k]]), 0), 255);
+            }
+        }
+
+
+//        rgbvalue = qRgba(color8[0], iscolor ? color8[1] : color8[0], iscolor ? color8[2] : color8[0], 255 );
+        rgbvalue = qRgba(pixval256[0], iscolor ? pixval256[1] : pixval256[0], iscolor ? pixval256[2] : pixval256[0], 255 );
+
+
+//        if(opts.sattrackinimage)
+//        {
+//            if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
+//            {
+//                rgbvalue = qRgb(250, 0, 0);
+//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//            }
+//            else
+//            {
+//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+//                projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+
+//            }
+//        }
+//        else
+//        {
+
+
+            if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+
+            projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+            projectionCoordValueRed[lines * earth_views_per_scanline + views] = color12[0];
+            if(iscolor)
+            {
+                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[1];
+                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[2];
+            }
+            else
+            {
+                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[0];
+                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[0];
+            }
+//        }
+    }
+}

@@ -81,6 +81,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     else
         ui->btnTextureSLSTR->setText("Texture Off");
 
+    if (opts.imageontextureOnMERSI)
+        ui->btnTextureMERSI->setText("Texture On");
+    else
+        ui->btnTextureMERSI->setText("Texture Off");
+
     ui->btnOverlayMeteosat->setText("Overlay On");
     ui->btnOverlayOLCI->setText("Overlay On");
     ui->btnOverlayProjectionGVP->setText("Overlay On");
@@ -97,8 +102,12 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         ui->rdbOLCIefrin->setChecked(true);
     else if(opts.lastinputprojection == 4)
         ui->rdbOLCIerrin->setChecked(true);
-    else
+    else if(opts.lastinputprojection == 5)
+        ui->rdbMERSIin->setChecked(true);
+    else if(opts.lastinputprojection == 6)
         ui->rdbMeteosatin->setChecked(true);
+    else
+        ui->rdbAVHRRin->setChecked(true);
 
     ui->cmbHRVtype->addItem("Europe");
     ui->cmbHRVtype->addItem("Full");
@@ -236,6 +245,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     setMConfigsettings();
     setOLCIefrConfigsettings();
     setSLSTRConfigsettings();
+    setMERSIConfigsettings();
 
     qDebug() << QString("FormToolbox::setComboGeo(int geoindex = %1) After  poi.strlComboGeo1.at(geoindex) = %2 ").arg(geoindex).arg(poi.strlComboGeo1.at(geoindex));
     qDebug() << QString("poi.strlComboGeo2.at(geoindex) = %1 ").arg(poi.strlComboGeo2.at(geoindex));
@@ -458,6 +468,20 @@ void FormToolbox::setOLCIefrConfigsettings()
     ui->comboOLCIConfig->blockSignals(false);
 }
 
+void FormToolbox::setMERSIConfigsettings()
+{
+    qDebug() << "FormToolbox::setMERSIConfigsettings()";
+
+    ui->comboMERSIConfig->blockSignals(true);
+    ui->comboMERSIConfig->clear();
+
+    ui->comboMERSIConfig->addItems(poi.strlConfigNameMERSI);
+
+    setConfigMERSIParameters(0); // 0 = User Defines
+
+    ui->comboMERSIConfig->blockSignals(false);
+}
+
 void FormToolbox::setSLSTRConfigsettings()
 {
     qDebug() << "FormToolbox::setSLSTRConfigsettings()";
@@ -607,6 +631,21 @@ void FormToolbox::setupChannelCombo()
     ui->cmbF1->addItems(coloritems);
     ui->cmbF2->addItems(coloritems);
 
+    ui->cmbMERSI5->addItems(coloritems);
+    ui->cmbMERSI6->addItems(coloritems);
+    ui->cmbMERSI7->addItems(coloritems);
+    ui->cmbMERSI8->addItems(coloritems);
+    ui->cmbMERSI9->addItems(coloritems);
+    ui->cmbMERSI10->addItems(coloritems);
+    ui->cmbMERSI11->addItems(coloritems);
+    ui->cmbMERSI12->addItems(coloritems);
+    ui->cmbMERSI13->addItems(coloritems);
+    ui->cmbMERSI14->addItems(coloritems);
+    ui->cmbMERSI15->addItems(coloritems);
+    ui->cmbMERSI16->addItems(coloritems);
+    ui->cmbMERSI17->addItems(coloritems);
+    ui->cmbMERSI18->addItems(coloritems);
+    ui->cmbMERSI19->addItems(coloritems);
 
 }
 
@@ -799,6 +838,42 @@ eSLSTRImageView FormToolbox::getSLSTRImageView()
         return OBLIQUE;
 }
 
+QList<bool> FormToolbox::getMERSIBandList()
+{
+    QList<bool> mersilist;
+    mersilist << ui->rbColorMERSI->isChecked() << ui->rbMERSI5->isChecked() << ui->rbMERSI6->isChecked() << ui->rbMERSI7->isChecked()
+             << ui->rbMERSI8->isChecked() << ui->rbMERSI9->isChecked() << ui->rbMERSI10->isChecked() << ui->rbMERSI11->isChecked()
+             << ui->rbMERSI12->isChecked() << ui->rbMERSI13->isChecked() << ui->rbMERSI14->isChecked() << ui->rbMERSI15->isChecked()
+             << ui->rbMERSI16->isChecked() << ui->rbMERSI17->isChecked() << ui->rbMERSI18->isChecked() << ui->rbMERSI19->isChecked();
+
+
+    Q_ASSERT(mersilist.count() == 16);
+
+    return(mersilist);
+}
+
+QList<int> FormToolbox::getMERSIColorList()
+{
+    QList<int> mersilist;
+    mersilist << ui->cmbMERSI5->currentIndex() << ui->cmbMERSI6->currentIndex() << ui->cmbMERSI7->currentIndex() << ui->cmbMERSI8->currentIndex()
+             << ui->cmbMERSI9->currentIndex() << ui->cmbMERSI10->currentIndex() << ui->cmbMERSI11->currentIndex() << ui->cmbMERSI12->currentIndex()
+             << ui->cmbMERSI13->currentIndex() << ui->cmbMERSI14->currentIndex() << ui->cmbMERSI15->currentIndex() << ui->cmbMERSI16->currentIndex()
+             << ui->cmbMERSI17->currentIndex() << ui->cmbMERSI18->currentIndex() << ui->cmbMERSI19->currentIndex();
+    Q_ASSERT(mersilist.count() == 15);
+
+    return(mersilist);
+}
+
+QList<bool> FormToolbox::getMERSIInvertList()
+{
+    QList<bool> mersilist;
+    mersilist << ui->chkInverseMERSI5->isChecked() << ui->chkInverseMERSI6->isChecked() << ui->chkInverseMERSI7->isChecked() << ui->chkInverseMERSI8->isChecked()
+              << ui->chkInverseMERSI9->isChecked() << ui->chkInverseMERSI10->isChecked() << ui->chkInverseMERSI11->isChecked() << ui->chkInverseMERSI12->isChecked()
+              << ui->chkInverseMERSI13->isChecked() << ui->chkInverseMERSI14->isChecked() << ui->chkInverseMERSI15->isChecked() << ui->chkInverseMERSI16->isChecked()
+              << ui->chkInverseMERSI17->isChecked() << ui->chkInverseMERSI18->isChecked() << ui->chkInverseMERSI19->isChecked();
+    Q_ASSERT(mersilist.count() == 15);
+    return(mersilist);
+}
 
 
 int FormToolbox::searchResolution(int mapwidth, int mapheight)
@@ -1032,34 +1107,14 @@ FormToolbox::~FormToolbox()
     else if(ui->rdbOLCIefrin->isChecked())
         opts.lastinputprojection = 3;
     else if(ui->rdbOLCIerrin->isChecked())
-        opts.lastinputprojection = 3;
-    else
+        opts.lastinputprojection = 4;
+    else if(ui->rdbMERSIin->isChecked())
         opts.lastinputprojection = 5;
+    else if(ui->rdbMeteosatin->isChecked())
+        opts.lastinputprojection = 6;
+    else
+        opts.lastinputprojection = 0;
 
-
-//    opts.lastcomboMet006 = ui->comboGeo1->currentIndex();
-//    opts.lastcomboMet008 = ui->comboGeo2->currentIndex();
-//    opts.lastcomboMet016 = ui->comboGeo3->currentIndex();
-//    opts.lastcomboMet039 = ui->comboGeo4->currentIndex();
-//    opts.lastcomboMet062 = ui->comboGeo5->currentIndex();
-//    opts.lastcomboMet073 = ui->comboGeo6->currentIndex();
-//    opts.lastcomboMet087 = ui->comboGeo7->currentIndex();
-//    opts.lastcomboMet097 = ui->comboGeo8->currentIndex();
-//    opts.lastcomboMet108 = ui->comboGeo9->currentIndex();
-//    opts.lastcomboMet120 = ui->comboGeo10->currentIndex();
-//    opts.lastcomboMet134 = ui->comboGeo11->currentIndex();
-
-//    opts.lastinverseMet006 = ui->chkInverseGeo1->isChecked();
-//    opts.lastinverseMet008 = ui->chkInverseGeo2->isChecked();
-//    opts.lastinverseMet016 = ui->chkInverseGeo3->isChecked();
-//    opts.lastinverseMet039 = ui->chkInverseGeo4->isChecked();
-//    opts.lastinverseMet062 = ui->chkInverseGeo5->isChecked();
-//    opts.lastinverseMet073 = ui->chkInverseGeo6->isChecked();
-//    opts.lastinverseMet087 = ui->chkInverseGeo7->isChecked();
-//    opts.lastinverseMet097 = ui->chkInverseGeo8->isChecked();
-//    opts.lastinverseMet108 = ui->chkInverseGeo9->isChecked();
-//    opts.lastinverseMet120 = ui->chkInverseGeo10->isChecked();
-//    opts.lastinverseMet134 = ui->chkInverseGeo11->isChecked();
 
 
     opts.currenttabwidget = ui->tabWidget->currentIndex();
@@ -1310,6 +1365,38 @@ FormToolbox::~FormToolbox()
     poi.strlComboSLSTRS9.replace(0, QString("%1").arg(ui->cmbS9->currentIndex()));
     poi.strlComboSLSTRF1.replace(0, QString("%1").arg(ui->cmbF1->currentIndex()));
     poi.strlComboSLSTRF2.replace(0, QString("%1").arg(ui->cmbF2->currentIndex()));
+
+    poi.strlInverseMERSI5.replace(0, QString("%1").arg(ui->chkInverseMERSI5->isChecked()));
+    poi.strlInverseMERSI6.replace(0, QString("%1").arg(ui->chkInverseMERSI6->isChecked()));
+    poi.strlInverseMERSI7.replace(0, QString("%1").arg(ui->chkInverseMERSI7->isChecked()));
+    poi.strlInverseMERSI8.replace(0, QString("%1").arg(ui->chkInverseMERSI8->isChecked()));
+    poi.strlInverseMERSI9.replace(0, QString("%1").arg(ui->chkInverseMERSI9->isChecked()));
+    poi.strlInverseMERSI10.replace(0, QString("%1").arg(ui->chkInverseMERSI10->isChecked()));
+    poi.strlInverseMERSI11.replace(0, QString("%1").arg(ui->chkInverseMERSI11->isChecked()));
+    poi.strlInverseMERSI12.replace(0, QString("%1").arg(ui->chkInverseMERSI12->isChecked()));
+    poi.strlInverseMERSI13.replace(0, QString("%1").arg(ui->chkInverseMERSI13->isChecked()));
+    poi.strlInverseMERSI14.replace(0, QString("%1").arg(ui->chkInverseMERSI14->isChecked()));
+    poi.strlInverseMERSI15.replace(0, QString("%1").arg(ui->chkInverseMERSI15->isChecked()));
+    poi.strlInverseMERSI16.replace(0, QString("%1").arg(ui->chkInverseMERSI16->isChecked()));
+    poi.strlInverseMERSI17.replace(0, QString("%1").arg(ui->chkInverseMERSI17->isChecked()));
+    poi.strlInverseMERSI18.replace(0, QString("%1").arg(ui->chkInverseMERSI18->isChecked()));
+    poi.strlInverseMERSI19.replace(0, QString("%1").arg(ui->chkInverseMERSI19->isChecked()));
+
+    poi.strlComboMERSI5.replace(0, QString("%1").arg(ui->cmbMERSI5->currentIndex()));
+    poi.strlComboMERSI6.replace(0, QString("%1").arg(ui->cmbMERSI6->currentIndex()));
+    poi.strlComboMERSI7.replace(0, QString("%1").arg(ui->cmbMERSI7->currentIndex()));
+    poi.strlComboMERSI8.replace(0, QString("%1").arg(ui->cmbMERSI8->currentIndex()));
+    poi.strlComboMERSI9.replace(0, QString("%1").arg(ui->cmbMERSI9->currentIndex()));
+    poi.strlComboMERSI10.replace(0, QString("%1").arg(ui->cmbMERSI10->currentIndex()));
+    poi.strlComboMERSI11.replace(0, QString("%1").arg(ui->cmbMERSI11->currentIndex()));
+    poi.strlComboMERSI12.replace(0, QString("%1").arg(ui->cmbMERSI12->currentIndex()));
+    poi.strlComboMERSI13.replace(0, QString("%1").arg(ui->cmbMERSI13->currentIndex()));
+    poi.strlComboMERSI14.replace(0, QString("%1").arg(ui->cmbMERSI14->currentIndex()));
+    poi.strlComboMERSI15.replace(0, QString("%1").arg(ui->cmbMERSI15->currentIndex()));
+    poi.strlComboMERSI16.replace(0, QString("%1").arg(ui->cmbMERSI16->currentIndex()));
+    poi.strlComboMERSI17.replace(0, QString("%1").arg(ui->cmbMERSI17->currentIndex()));
+    poi.strlComboMERSI18.replace(0, QString("%1").arg(ui->cmbMERSI18->currentIndex()));
+    poi.strlComboMERSI19.replace(0, QString("%1").arg(ui->cmbMERSI19->currentIndex()));
 
 
     delete ui;
@@ -1688,6 +1775,23 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->rbS9->setEnabled(state);
     ui->rbF1->setEnabled(state);
     ui->rbF2->setEnabled(state);
+
+    ui->rbColorMERSI->setEnabled(state);
+    ui->rbMERSI5->setEnabled(state);
+    ui->rbMERSI6->setEnabled(state);
+    ui->rbMERSI7->setEnabled(state);
+    ui->rbMERSI8->setEnabled(state);
+    ui->rbMERSI9->setEnabled(state);
+    ui->rbMERSI10->setEnabled(state);
+    ui->rbMERSI11->setEnabled(state);
+    ui->rbMERSI12->setEnabled(state);
+    ui->rbMERSI13->setEnabled(state);
+    ui->rbMERSI14->setEnabled(state);
+    ui->rbMERSI15->setEnabled(state);
+    ui->rbMERSI16->setEnabled(state);
+    ui->rbMERSI17->setEnabled(state);
+    ui->rbMERSI18->setEnabled(state);
+    ui->rbMERSI19->setEnabled(state);
 
     if(state)
         QApplication::restoreOverrideCursor();
@@ -2672,6 +2776,10 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
         else
             formimage->displayImage(IMAGE_VIIRSDNB);
     }
+    else if (index == TAB_MERSI) // MERSI
+    {
+        formimage->displayImage(IMAGE_MERSI);
+    }
     else if (index == TAB_SENTINEL) // OLCI or SLSTR
     {
         if(ui->tabWidgetSentinel->currentIndex() == 0)
@@ -2679,7 +2787,7 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
         else
             formimage->displayImage((IMAGE_SLSTR));
     }
-    else if (index == TAB_GEOSTATIONARY) // Geostationair
+    else if (index == TAB_GEOSTATIONARY) // Geostationary
     {
         formimage->displayImage(IMAGE_GEOSTATIONARY);
     }
@@ -2905,6 +3013,14 @@ void FormToolbox::on_btnCreatePerspective_clicked()
                 return;
         }
     }
+    else if(ui->rdbMERSIin->isChecked())
+    {
+        if(!opts.buttonMERSI || !segs->SelectedMERSISegments())
+        {
+               QMessageBox::information( this, "MERSI", "No selected MERSI segments  !" );
+                return;
+        }
+    }
     else if(ui->rdbMeteosatin->isChecked())
     {
         SegmentListGeostationary *slgeo = segs->getActiveSegmentList();
@@ -2975,6 +3091,11 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     {
         currentProjectionType = PROJ_OLCI_ERR;
         imageptrs->gvp->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, false, ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
+    else if(ui->rdbMERSIin->isChecked())
+    {
+        currentProjectionType = PROJ_MERSI;
+        imageptrs->gvp->CreateMapFromMERSI(eSegmentType::SEG_MERSI, false);
     }
     else if(ui->rdbMeteosatin->isChecked())
     {
@@ -3121,6 +3242,23 @@ void FormToolbox::on_btnCreateLambert_clicked()
         }
 
     }
+    else if(ui->rdbMERSIin->isChecked())
+    {
+        if(opts.buttonMERSI)
+        {
+            if(!segs->SelectedMERSISegments())
+            {
+                QMessageBox::information( this, "MERSI", "No selected MERSI segments  !" );
+                return;
+            }
+        }
+        else
+        {
+            QMessageBox::information( this, "MERSI", "No selected MERSI segments  !" );
+            return;
+        }
+
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
@@ -3184,6 +3322,11 @@ void FormToolbox::on_btnCreateLambert_clicked()
     {
         currentProjectionType = PROJ_OLCI_ERR;
         imageptrs->lcc->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
+    else if(ui->rdbMERSIin->isChecked())
+    {
+        currentProjectionType = PROJ_MERSI;
+        imageptrs->lcc->CreateMapFromMERSI(eSegmentType::SEG_MERSI, false);
     }
 
     if(ui->rdbCombine->isChecked())
@@ -3253,6 +3396,16 @@ void FormToolbox::on_btnCreateStereo_clicked()
         }
 
     }
+    else if(opts.buttonMERSI)
+    {
+        if(ui->rdbMERSIin->isChecked())
+        {
+            if(!segs->SelectedMERSISegments())
+                return;
+        }
+
+    }
+
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
@@ -3314,6 +3467,11 @@ void FormToolbox::on_btnCreateStereo_clicked()
     {
         currentProjectionType = PROJ_OLCI_ERR;
         imageptrs->sg->CreateMapFromOLCI(eSegmentType::SEG_OLCIERR,  ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
+    else if(ui->rdbMERSIin->isChecked())
+    {
+        currentProjectionType = PROJ_MERSI;
+        imageptrs->sg->CreateMapFromMERSI(eSegmentType::SEG_MERSI, false);
     }
 
     if(ui->rdbCombine->isChecked())
@@ -3910,6 +4068,32 @@ bool FormToolbox::comboColGeoOK()
         return false;
 }
 
+bool FormToolbox::comboColMERSIOK()
+{
+    int cnt = 0;
+
+    cnt += ui->cmbMERSI5->currentIndex();
+    cnt += ui->cmbMERSI6->currentIndex();
+    cnt += ui->cmbMERSI7->currentIndex();
+    cnt += ui->cmbMERSI8->currentIndex();
+    cnt += ui->cmbMERSI9->currentIndex();
+    cnt += ui->cmbMERSI10->currentIndex();
+    cnt += ui->cmbMERSI11->currentIndex();
+    cnt += ui->cmbMERSI12->currentIndex();
+    cnt += ui->cmbMERSI13->currentIndex();
+    cnt += ui->cmbMERSI14->currentIndex();
+    cnt += ui->cmbMERSI15->currentIndex();
+    cnt += ui->cmbMERSI16->currentIndex();
+    cnt += ui->cmbMERSI17->currentIndex();
+    cnt += ui->cmbMERSI18->currentIndex();
+    cnt += ui->cmbMERSI19->currentIndex();
+
+    if(cnt == 6)
+        return true;
+    else
+        return false;
+}
+
 void FormToolbox::on_btnUpdateVIIRSImage_clicked()
 {
 
@@ -4028,8 +4212,43 @@ void FormToolbox::on_btnUpdateSLSTRImage_clicked()
             formimage->ShowSLSTRImage(ui->cmbHistogram->currentIndex());
         }
     }
+}
+
+void FormToolbox::on_btnUpdateMERSIImage_clicked()
+{
+    if(segs->seglmersi->NbrOfSegmentsSelected() > 0)
+    {
+        if(!comboColMERSIOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the MERSI tab.");
+            //msgBox.setInformativeText("Do you want to save your changes?");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        if(!forminfrascales->isHidden())
+            forminfrascales->hide();
+        ui->btnGVPFalseColor->setChecked(false);
+        ui->btnSGFalseColor->setChecked(false);
+        ui->btnLCCFalseColor->setChecked(false);
+
+        ui->pbProgress->reset();
+        formimage->ShowMERSIImage();
+    }
 
 }
+
 void FormToolbox::on_rbtnAColor_clicked()
 {
     if(ui->rbtnAColor->isChecked())
@@ -4309,8 +4528,6 @@ void FormToolbox::setSGParameters(int strlindex)
 
 void FormToolbox::setConfigMParameters(int strlindex)
 {
-    qDebug() << "FormToolbox::setConfigMParameters(int strlindex)";
-
     int theband = poi.strlColorBandM.at(strlindex).toInt();
     if( theband == 0) // is color
     {
@@ -4435,7 +4652,6 @@ void FormToolbox::setRadioButtonsMToFalse()
 
 void FormToolbox::setConfigOLCIParameters(int strlindex)
 {
-    qDebug() << "FormToolbox::setConfigOLCIParameters(int strlindex)";
 
     int theband = poi.strlColorBandOLCI.at(strlindex).toInt();
     if( theband == 0) // is color
@@ -4539,8 +4755,6 @@ void FormToolbox::setConfigOLCIParameters(int strlindex)
     ui->chkInverseOLCI20->setChecked(poi.strlInverseOLCI20.at(strlindex).toInt());
     ui->chkInverseOLCI21->setChecked(poi.strlInverseOLCI21.at(strlindex).toInt());
 
-    qDebug() << "FormToolbox::setConfigOLCIefrParameters(int strlindex) 3";
-
     ui->cmbOLCI01->setCurrentIndex(poi.strlComboOLCI01.at(strlindex).toInt());
     ui->cmbOLCI02->setCurrentIndex(poi.strlComboOLCI02.at(strlindex).toInt());
     ui->cmbOLCI03->setCurrentIndex(poi.strlComboOLCI03.at(strlindex).toInt());
@@ -4563,14 +4777,11 @@ void FormToolbox::setConfigOLCIParameters(int strlindex)
     ui->cmbOLCI20->setCurrentIndex(poi.strlComboOLCI20.at(strlindex).toInt());
     ui->cmbOLCI21->setCurrentIndex(poi.strlComboOLCI21.at(strlindex).toInt());
 
-    qDebug() << "FormToolbox::setConfigOLCIefrParameters(int strlindex) 4";
-
 }
 
 
 void FormToolbox::setConfigSLSTRParameters(int strlindex)
 {
-    qDebug() << "FormToolbox::setConfigSLSTRParameters(int strlindex)";
 
     int theband = poi.strlColorBandSLSTR.at(strlindex).toInt();
     if( theband == 0) // is color
@@ -4633,8 +4844,6 @@ void FormToolbox::setConfigSLSTRParameters(int strlindex)
     ui->chkInverseF1->setChecked(poi.strlInverseSLSTRF1.at(strlindex).toInt());
     ui->chkInverseF2->setChecked(poi.strlInverseSLSTRF2.at(strlindex).toInt());
 
-    qDebug() << "FormToolbox::setConfigSLSTRParameters(int strlindex) 3";
-
     ui->cmbS1->setCurrentIndex(poi.strlComboSLSTRS1.at(strlindex).toInt());
     ui->cmbS2->setCurrentIndex(poi.strlComboSLSTRS2.at(strlindex).toInt());
     ui->cmbS3->setCurrentIndex(poi.strlComboSLSTRS3.at(strlindex).toInt());
@@ -4646,9 +4855,103 @@ void FormToolbox::setConfigSLSTRParameters(int strlindex)
     ui->cmbS9->setCurrentIndex(poi.strlComboSLSTRS9.at(strlindex).toInt());
     ui->cmbF1->setCurrentIndex(poi.strlComboSLSTRF1.at(strlindex).toInt());
     ui->cmbF2->setCurrentIndex(poi.strlComboSLSTRF2.at(strlindex).toInt());
+}
 
-    qDebug() << "FormToolbox::setConfigSLSTRParameters(int strlindex) 4";
+void FormToolbox::setConfigMERSIParameters(int strlindex)
+{
+    int theband = poi.strlColorBandMERSI.at(strlindex).toInt();
+    if( theband == 0) // is color
+    {
+        setRadioButtonsMERSIToFalse();
+        ui->rbColorMERSI->setChecked(true);
+    }
+    else
+    {
+        ui->rbColorMERSI->setChecked(false);
+        setRadioButtonsMERSIToFalse();
+        switch (theband)
+        {
+        case 1:
+            ui->rbMERSI5->setChecked(true);
+            break;
+        case 2:
+            ui->rbMERSI6->setChecked(true);
+            break;
+        case 3:
+            ui->rbMERSI7->setChecked(true);
+            break;
+        case 4:
+            ui->rbMERSI8->setChecked(true);
+            break;
+        case 5:
+            ui->rbMERSI9->setChecked(true);
+            break;
+        case 6:
+            ui->rbMERSI10->setChecked(true);
+            break;
+        case 7:
+            ui->rbMERSI11->setChecked(true);
+            break;
+        case 8:
+            ui->rbMERSI12->setChecked(true);
+            break;
+        case 9:
+            ui->rbMERSI13->setChecked(true);
+            break;
+        case 10:
+            ui->rbMERSI14->setChecked(true);
+            break;
+        case 11:
+            ui->rbMERSI15->setChecked(true);
+            break;
+        case 12:
+            ui->rbMERSI16->setChecked(true);
+            break;
+        case 13:
+            ui->rbMERSI17->setChecked(true);
+            break;
+        case 14:
+            ui->rbMERSI18->setChecked(true);
+            break;
+        case 15:
+            ui->rbMERSI19->setChecked(true);
+            break;
 
+        }
+
+    }
+
+    ui->chkInverseMERSI5->setChecked(poi.strlInverseMERSI5.at(strlindex).toInt());
+    ui->chkInverseMERSI6->setChecked(poi.strlInverseMERSI6.at(strlindex).toInt());
+    ui->chkInverseMERSI7->setChecked(poi.strlInverseMERSI7.at(strlindex).toInt());
+    ui->chkInverseMERSI8->setChecked(poi.strlInverseMERSI8.at(strlindex).toInt());
+    ui->chkInverseMERSI9->setChecked(poi.strlInverseMERSI9.at(strlindex).toInt());
+    ui->chkInverseMERSI10->setChecked(poi.strlInverseMERSI10.at(strlindex).toInt());
+    ui->chkInverseMERSI11->setChecked(poi.strlInverseMERSI11.at(strlindex).toInt());
+    ui->chkInverseMERSI12->setChecked(poi.strlInverseMERSI12.at(strlindex).toInt());
+    ui->chkInverseMERSI13->setChecked(poi.strlInverseMERSI13.at(strlindex).toInt());
+    ui->chkInverseMERSI14->setChecked(poi.strlInverseMERSI14.at(strlindex).toInt());
+    ui->chkInverseMERSI15->setChecked(poi.strlInverseMERSI15.at(strlindex).toInt());
+    ui->chkInverseMERSI16->setChecked(poi.strlInverseMERSI16.at(strlindex).toInt());
+    ui->chkInverseMERSI17->setChecked(poi.strlInverseMERSI17.at(strlindex).toInt());
+    ui->chkInverseMERSI18->setChecked(poi.strlInverseMERSI18.at(strlindex).toInt());
+    ui->chkInverseMERSI19->setChecked(poi.strlInverseMERSI19.at(strlindex).toInt());
+
+    ui->cmbMERSI5->setCurrentIndex(poi.strlComboMERSI5.at(strlindex).toInt());
+    ui->cmbMERSI6->setCurrentIndex(poi.strlComboMERSI6.at(strlindex).toInt());
+    ui->cmbMERSI7->setCurrentIndex(poi.strlComboMERSI7.at(strlindex).toInt());
+    ui->cmbMERSI8->setCurrentIndex(poi.strlComboMERSI8.at(strlindex).toInt());
+    ui->cmbMERSI9->setCurrentIndex(poi.strlComboMERSI9.at(strlindex).toInt());
+    ui->cmbMERSI10->setCurrentIndex(poi.strlComboMERSI10.at(strlindex).toInt());
+    ui->cmbMERSI11->setCurrentIndex(poi.strlComboMERSI11.at(strlindex).toInt());
+    ui->cmbMERSI12->setCurrentIndex(poi.strlComboMERSI12.at(strlindex).toInt());
+    ui->cmbMERSI13->setCurrentIndex(poi.strlComboMERSI13.at(strlindex).toInt());
+    ui->cmbMERSI14->setCurrentIndex(poi.strlComboMERSI14.at(strlindex).toInt());
+    ui->cmbMERSI15->setCurrentIndex(poi.strlComboMERSI15.at(strlindex).toInt());
+    ui->cmbMERSI16->setCurrentIndex(poi.strlComboMERSI16.at(strlindex).toInt());
+    ui->cmbMERSI17->setCurrentIndex(poi.strlComboMERSI17.at(strlindex).toInt());
+    ui->cmbMERSI18->setCurrentIndex(poi.strlComboMERSI18.at(strlindex).toInt());
+    ui->cmbMERSI19->setCurrentIndex(poi.strlComboMERSI19.at(strlindex).toInt());
 }
 
 void FormToolbox::setRadioButtonsOLCIefrToFalse()
@@ -4674,6 +4977,25 @@ void FormToolbox::setRadioButtonsOLCIefrToFalse()
     ui->rbOLCI19->setChecked(false);
     ui->rbOLCI20->setChecked(false);
     ui->rbOLCI21->setChecked(false);
+}
+
+void FormToolbox::setRadioButtonsMERSIToFalse()
+{
+    ui->rbMERSI5->setChecked(false);
+    ui->rbMERSI6->setChecked(false);
+    ui->rbMERSI7->setChecked(false);
+    ui->rbMERSI8->setChecked(false);
+    ui->rbMERSI9->setChecked(false);
+    ui->rbMERSI10->setChecked(false);
+    ui->rbMERSI11->setChecked(false);
+    ui->rbMERSI12->setChecked(false);
+    ui->rbMERSI13->setChecked(false);
+    ui->rbMERSI14->setChecked(false);
+    ui->rbMERSI15->setChecked(false);
+    ui->rbMERSI16->setChecked(false);
+    ui->rbMERSI17->setChecked(false);
+    ui->rbMERSI18->setChecked(false);
+    ui->rbMERSI19->setChecked(false);
 }
 
 void FormToolbox::setRadioButtonsSLSTRToFalse()
@@ -5566,5 +5888,100 @@ void FormToolbox::on_btnCLAHE_RGBRecipe_clicked()
         formimage->CLAHERGBRecipe((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
         formimage->slotUpdateGeosat();
         QApplication::restoreOverrideCursor();
+
+}
+
+
+void FormToolbox::on_comboMERSIConfig_currentIndexChanged(int index)
+{
+    setConfigMERSIParameters(index);
+}
+
+
+void FormToolbox::on_btnAddMERSIConfig_clicked()
+{
+    if(ui->leMERSIConfig->text().length() == 0)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Fill in a name for this Configuration.");
+        msgBox.exec();
+        return;
+    }
+
+    ui->comboMERSIConfig->blockSignals(true);
+
+    poi.strlConfigNameMERSI.append(QString("%1").arg(ui->leMERSIConfig->text()));
+
+    if(ui->rbColorMERSI->isChecked())
+        poi.strlColorBandMERSI.append("0");
+    else if(ui->rbMERSI5->isChecked())
+        poi.strlColorBandMERSI.append("1");
+    else if(ui->rbMERSI6->isChecked())
+        poi.strlColorBandM.append("2");
+    else if(ui->rbMERSI7->isChecked())
+        poi.strlColorBandM.append("3");
+    else if(ui->rbMERSI8->isChecked())
+        poi.strlColorBandM.append("4");
+    else if(ui->rbMERSI9->isChecked())
+        poi.strlColorBandM.append("5");
+    else if(ui->rbMERSI10->isChecked())
+        poi.strlColorBandM.append("6");
+    else if(ui->rbMERSI11->isChecked())
+        poi.strlColorBandM.append("7");
+    else if(ui->rbMERSI12->isChecked())
+        poi.strlColorBandM.append("8");
+    else if(ui->rbMERSI13->isChecked())
+        poi.strlColorBandM.append("9");
+    else if(ui->rbMERSI14->isChecked())
+        poi.strlColorBandM.append("10");
+    else if(ui->rbMERSI15->isChecked())
+        poi.strlColorBandM.append("11");
+    else if(ui->rbMERSI16->isChecked())
+        poi.strlColorBandM.append("12");
+    else if(ui->rbMERSI17->isChecked())
+        poi.strlColorBandM.append("13");
+    else if(ui->rbMERSI18->isChecked())
+        poi.strlColorBandM.append("14");
+    else if(ui->rbMERSI19->isChecked())
+        poi.strlColorBandM.append("15");
+
+
+    poi.strlInverseMERSI5.append(QString("%1").arg(ui->chkInverseMERSI5->isChecked()));
+    poi.strlInverseMERSI6.append(QString("%1").arg(ui->chkInverseMERSI6->isChecked()));
+    poi.strlInverseMERSI7.append(QString("%1").arg(ui->chkInverseMERSI7->isChecked()));
+    poi.strlInverseMERSI8.append(QString("%1").arg(ui->chkInverseMERSI8->isChecked()));
+    poi.strlInverseMERSI9.append(QString("%1").arg(ui->chkInverseMERSI9->isChecked()));
+    poi.strlInverseMERSI10.append(QString("%1").arg(ui->chkInverseMERSI10->isChecked()));
+    poi.strlInverseMERSI11.append(QString("%1").arg(ui->chkInverseMERSI11->isChecked()));
+    poi.strlInverseMERSI12.append(QString("%1").arg(ui->chkInverseMERSI12->isChecked()));
+    poi.strlInverseMERSI13.append(QString("%1").arg(ui->chkInverseMERSI13->isChecked()));
+    poi.strlInverseMERSI14.append(QString("%1").arg(ui->chkInverseMERSI14->isChecked()));
+    poi.strlInverseMERSI15.append(QString("%1").arg(ui->chkInverseMERSI15->isChecked()));
+    poi.strlInverseMERSI16.append(QString("%1").arg(ui->chkInverseMERSI16->isChecked()));
+    poi.strlInverseMERSI17.append(QString("%1").arg(ui->chkInverseMERSI17->isChecked()));
+    poi.strlInverseMERSI18.append(QString("%1").arg(ui->chkInverseMERSI18->isChecked()));
+    poi.strlInverseMERSI19.append(QString("%1").arg(ui->chkInverseMERSI19->isChecked()));
+
+    poi.strlComboMERSI5.append(QString("%1").arg(ui->cmbMERSI5->currentIndex()));
+    poi.strlComboMERSI6.append(QString("%1").arg(ui->cmbMERSI6->currentIndex()));
+    poi.strlComboMERSI7.append(QString("%1").arg(ui->cmbMERSI7->currentIndex()));
+    poi.strlComboMERSI8.append(QString("%1").arg(ui->cmbMERSI8->currentIndex()));
+    poi.strlComboMERSI9.append(QString("%1").arg(ui->cmbMERSI9->currentIndex()));
+    poi.strlComboMERSI10.append(QString("%1").arg(ui->cmbMERSI10->currentIndex()));
+    poi.strlComboMERSI11.append(QString("%1").arg(ui->cmbMERSI11->currentIndex()));
+    poi.strlComboMERSI12.append(QString("%1").arg(ui->cmbMERSI12->currentIndex()));
+    poi.strlComboMERSI13.append(QString("%1").arg(ui->cmbMERSI13->currentIndex()));
+    poi.strlComboMERSI14.append(QString("%1").arg(ui->cmbMERSI14->currentIndex()));
+    poi.strlComboMERSI15.append(QString("%1").arg(ui->cmbMERSI15->currentIndex()));
+    poi.strlComboMERSI16.append(QString("%1").arg(ui->cmbMERSI16->currentIndex()));
+    poi.strlComboMERSI17.append(QString("%1").arg(ui->cmbMERSI17->currentIndex()));
+    poi.strlComboMERSI18.append(QString("%1").arg(ui->cmbMERSI18->currentIndex()));
+    poi.strlComboMERSI19.append(QString("%1").arg(ui->cmbMERSI19->currentIndex()));
+
+    ui->comboMERSIConfig->clear();
+    ui->comboMERSIConfig->addItems(poi.strlConfigNameMERSI);
+    ui->comboMERSIConfig->setCurrentIndex(poi.strlConfigNameMERSI.count()-1);
+    ui->comboMERSIConfig->blockSignals(false);
+    ui->leMERSIConfig->setText("");
 
 }

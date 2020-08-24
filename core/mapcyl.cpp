@@ -114,6 +114,8 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
         sl = segs->seglolcierr;
     else if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
         sl = segs->seglslstr;
+    else if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
+        sl = segs->seglmersi;
 
     if (sl != NULL)
     {
@@ -412,6 +414,8 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
         isselected = segs->seglolcierr->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
     else if (opts.buttonSLSTR)
         isselected = segs->seglslstr->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
+    else if (opts.buttonMERSI)
+        isselected = segs->seglmersi->TestForSegment( &lon, &lat, true, segs->getShowAllSegments() );
 
 
     if(isselected)

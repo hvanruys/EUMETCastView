@@ -11,9 +11,10 @@
 #define TAB_AVHRR 0
 #define TAB_VIIRS 1
 #define TAB_SENTINEL 2
-#define TAB_GEOSTATIONARY 3
-#define TAB_PROJECTION 4
-#define TAB_HISTOGRAM 5
+#define TAB_MERSI 3
+#define TAB_GEOSTATIONARY 4
+#define TAB_PROJECTION 5
+#define TAB_HISTOGRAM 6
 
 #define TAB_LLC 0
 #define TAB_GVP 1
@@ -103,6 +104,7 @@ public:
     int zoomfactorviirs;
     int zoomfactorolci;
     int zoomfactorslstr;
+    int zoomfactormersi;
     QStringList segmentdirectorylist;
     QStringList segmentdirectorylistinc;
     bool buttonMetop;
@@ -124,6 +126,7 @@ public:
     bool buttonNoaa19hrpt;
     bool buttonM01hrpt;
     bool buttonM02hrpt;
+    bool buttonMERSI;
 
 
     bool buttonRealTime;
@@ -202,6 +205,7 @@ public:
     bool imageontextureOnVIIRS;
     bool imageontextureOnOLCI;
     bool imageontextureOnSLSTR;
+    bool imageontextureOnMERSI;
     bool windowvectors;
     bool udpmessages;
     bool gshhsglobe1On;

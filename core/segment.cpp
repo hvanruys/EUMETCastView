@@ -110,7 +110,7 @@ void Segment::CalculateCornerPoints()
 
     if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
             segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || segtype == SEG_HRPT_NOAA19 ||
-            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR )
+            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR) // || segtype == SEG_MERSI )
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = 0.00089 * sin(PSO);
@@ -196,7 +196,7 @@ void Segment::CalculateCornerPoints()
 
     if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
                 segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || segtype == SEG_HRPT_NOAA19 ||
-            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR )
+            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR ) //|| segtype == SEG_MERSI )
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = 0.00089 * sin(PSO);
@@ -210,7 +210,7 @@ void Segment::CalculateCornerPoints()
         d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
     }
     else
-    d3scan = QVector3D::crossProduct(d3pos,d3vel);
+        d3scan = QVector3D::crossProduct(d3pos,d3vel);
 
 
     d3scannorm = d3scan.normalized();
@@ -373,6 +373,7 @@ void Segment::resetMemory()
         ptrbaSLSTRnormalized[k].reset();
     }
     ptrbaVIIRSDNB.reset();
+    ptrbaMERSI.reset();
 
     projectionCoordX.reset();
     projectionCoordY.reset();
@@ -1224,7 +1225,7 @@ int Segment::DecompressSegmentToTemp()
 
     QString intarfile = this->fileInfo.absoluteFilePath();
 
-    qDebug() << "Start UntarSegmentToTemp 1 for absolutefilepath " + intarfile;
+    qDebug() << "Start DecompressSegmentToTemp 1 for absolutefilepath " + intarfile;
     qDebug() << "fileInfo.completeBaseName() = " << fileInfo.completeBaseName();
 
     if(this->fileInfo.isDir())
