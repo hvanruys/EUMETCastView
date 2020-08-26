@@ -261,6 +261,7 @@ void Options::Initialize(bool recreate_geo_ini)
 
     mainwindowgeometry = settings.value("/window/mainwindowgeometry").toByteArray();
     mainwindowstate = settings.value("/window/mainwindowstate").toByteArray();
+    toolboxwidth = settings.value("/window/toolboxwidth", 500).toInt();
 
 
     CreateGeoSatelliteIni();
@@ -551,6 +552,7 @@ void Options::Save()
     settings.setValue("/ephemwindow/splitterSizes", ephemsplittersizes );
     settings.setValue("/window/mainwindowgeometry", mainwindowgeometry);
     settings.setValue("/window/mainwindowstate", mainwindowstate);
+    settings.setValue("/window/toolboxwidth", toolboxwidth);
 
     SaveGeoIni();
 }

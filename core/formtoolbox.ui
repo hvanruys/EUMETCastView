@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>786</width>
+    <width>821</width>
     <height>1385</height>
    </rect>
   </property>
@@ -29,6 +29,9 @@
    <string>toolbox</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetDefaultConstraint</enum>
+   </property>
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="tabPosition">
@@ -6996,7 +6999,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>650</width>
+                 <width>685</width>
                  <height>685</height>
                 </rect>
                </property>

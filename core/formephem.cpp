@@ -21,10 +21,10 @@ FormEphem::FormEphem(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 {
     ui->setupUi(this);
 
-    if(ui->splitter->restoreState( opts.ephemsplittersizes ))
-        qDebug() << "splitter ok";
-    else
-        qDebug() << "splitter not ok";
+//    if(ui->splitter->restoreState( opts.ephemsplittersizes ))
+//        qDebug() << "splitter ok";
+//    else
+//        qDebug() << "splitter not ok";
 
 
     sats = satlist;

@@ -200,8 +200,13 @@ win32:INCLUDEPATH += "C:/msys64/mingw64/include" ../bz2 ../meteosatlib ../QSgp4
 CONFIG(release, debug|release) {
 #This is a release build
 unix:LIBS += -lpthread -lz -lfreeimage
-unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive
+unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lqsgp4 -lbz2 -lhdf5_serial -larchive
 unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/DISE -lDISE
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/JPEG/Src -lJPEG
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/WT/Src -lWT
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/T4/Src -lT4
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/Src -lCOMP
 win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDISE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
 win32:LIBS += -L"C:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
 }
@@ -209,8 +214,13 @@ else
 {
 #This is a debug build
 unix:LIBS += -lpthread -lz -lfreeimage
-unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive
+unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lqsgp4 -lbz2 -lhdf5_serial -larchive
 unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/DISE -lDISE
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/JPEG/Src -lJPEG
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/WT/Src -lWT
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/T4/Src -lT4
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/Src -lCOMP
 win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDISE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
 win32:LIBS += -L"C:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
 }

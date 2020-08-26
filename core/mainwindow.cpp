@@ -198,6 +198,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
+    QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
 
     seglist->ReadXMLfiles();
 
@@ -206,7 +207,8 @@ MainWindow::MainWindow(QWidget *parent) :
                 arg(QThreadPool::globalInstance()->maxThreadCount()).
                 arg(QThreadPool::globalInstance()->activeThreadCount());
 
-    qDebug() << "currentthreadid = " << QThread::currentThreadId();
+    qDebug() << "currentthreadid = " << QThread::currentThreadId() << " dockwidget width = " << dockwidget->width();
+
     QList<QThread*> mainwindowthreadslist = this->findChildren <QThread*> ();
     for(int i = 0; i < mainwindowthreadslist.count(); i++)
         qDebug() << mainwindowthreadslist.at(i)->currentThread()->currentThreadId();
@@ -229,15 +231,10 @@ void MainWindow::createDockWidget()
     QScrollArea * scrollArea = new QScrollArea(this);
     scrollArea->setWidget(formtoolbox);
     scrollArea->setWidgetResizable(true);
-    //scrollArea->setFixedSize(1000, formtoolbox->height());
-
     dockwidget->setWidget(scrollArea);
-
-    dockwidget->resize(2000, formtoolbox->height());
-
-    //dockwidget->setw ->setMinimumWidth(480);
-    //dockwidget->close();
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
+//    QMainWindow::resizeDocks({dockwidget}, {opts.toolboxwidth}, Qt::Horizontal);
+    QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
 
 }
 
@@ -263,6 +260,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     opts.mainwindowgeometry = saveGeometry();
     opts.mainwindowstate = saveState(0);
+    opts.toolboxwidth = formtoolbox->width();
+
     forminfrascales->close();
 
     delete timer;

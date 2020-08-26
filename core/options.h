@@ -253,6 +253,7 @@ public:
     QByteArray ephemsplittersizes;
     QByteArray mainwindowgeometry;
     QByteArray mainwindowstate;
+    int toolboxwidth;
 
     QString localdirremote;
     QString dirremote;
