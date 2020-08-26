@@ -10,6 +10,8 @@ core.depends = bz2
 core.depends = meteosatlib
 core.depends = QSgp4
 
-DISTFILES += README.md
+DISTFILES += README.md \
+               EUMETCastView.desktop \
+                Globe_48x48.png
 
 
