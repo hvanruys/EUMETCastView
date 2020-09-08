@@ -198,7 +198,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
-    QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
+    //QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
 
     seglist->ReadXMLfiles();
 
@@ -231,10 +231,12 @@ void MainWindow::createDockWidget()
     QScrollArea * scrollArea = new QScrollArea(this);
     scrollArea->setWidget(formtoolbox);
     scrollArea->setWidgetResizable(true);
+    scrollArea->resize(700, MainWindow::height());
     dockwidget->setWidget(scrollArea);
+    dockwidget->resize(700, MainWindow::height());
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
 //    QMainWindow::resizeDocks({dockwidget}, {opts.toolboxwidth}, Qt::Horizontal);
-    QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
+//    QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
 
 }
 

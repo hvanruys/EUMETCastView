@@ -1749,6 +1749,8 @@ void FormImage::slotcomposefinished(QString kindofimage)
         refreshoverlay = true;
     }
 
+    QApplication::restoreOverrideCursor();
+
     if(opts.imageontextureOnMet)
     {
         if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
@@ -1765,7 +1767,6 @@ void FormImage::slotcomposefinished(QString kindofimage)
     else
         emit allsegmentsreceivedbuttons(true);
 
-    QApplication::restoreOverrideCursor();
     qDebug() << "end FormImage::slotcomposefinished()";
     this->update();
 

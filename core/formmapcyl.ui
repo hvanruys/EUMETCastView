@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1099</width>
+    <width>1200</width>
     <height>1046</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="10,0,0">
+  <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="10,0,3">
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="sizePolicy">
@@ -36,10 +36,27 @@
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_4">
+     <property name="spacing">
+      <number>5</number>
+     </property>
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
      <item>
       <widget class="QTabWidget" name="tabWidget">
+       <property name="baseSize">
+        <size>
+         <width>499</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tabEumetcast">
         <attribute name="title">
@@ -48,6 +65,11 @@
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
           <widget class="QLabel" name="label_6">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>AVHRR</string>
            </property>
@@ -72,6 +94,11 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string> GAC</string>
              </property>
@@ -90,6 +117,11 @@
                <width>230</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
              </property>
              <property name="text">
               <string> NOAA-19</string>
@@ -112,6 +144,14 @@
                <width>230</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+               <kerning>true</kerning>
+              </font>
              </property>
              <property name="text">
               <string> Metop</string>
@@ -144,6 +184,11 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string> HRP</string>
              </property>
@@ -155,7 +200,7 @@
           <widget class="QLabel" name="label_4">
            <property name="font">
             <font>
-             <pointsize>11</pointsize>
+             <pointsize>12</pointsize>
             </font>
            </property>
            <property name="text">
@@ -182,6 +227,11 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string> NPP M-Band </string>
              </property>
@@ -200,6 +250,11 @@
                <width>230</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
              </property>
              <property name="text">
               <string> NPP Day/night </string>
@@ -220,6 +275,11 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string> NOAA-20 M-Band </string>
              </property>
@@ -239,6 +299,11 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string> NOAA-20 Day/night </string>
              </property>
@@ -250,7 +315,7 @@
           <widget class="QLabel" name="label_5">
            <property name="font">
             <font>
-             <pointsize>11</pointsize>
+             <pointsize>12</pointsize>
             </font>
            </property>
            <property name="text">
@@ -277,6 +342,11 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Sentinel-3 OLCI EFR</string>
              </property>
@@ -296,6 +366,11 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Sentinel-3 OLCI ERR</string>
              </property>
@@ -305,6 +380,11 @@
          </item>
          <item>
           <widget class="QLabel" name="label_10">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>MERSI</string>
            </property>
@@ -328,6 +408,11 @@
                <width>230</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
              </property>
              <property name="text">
               <string>FY-3D</string>
@@ -361,6 +446,11 @@
                <width>230</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
              </property>
              <property name="text">
               <string>SLSTR</string>
@@ -411,6 +501,11 @@
                  <height>30</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Metop B</string>
                </property>
@@ -424,6 +519,11 @@
                  <height>30</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Metop A</string>
                </property>
@@ -436,6 +536,11 @@
                  <width>0</width>
                  <height>30</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="text">
                 <string>NOAA19</string>
@@ -469,6 +574,11 @@
                  <height>30</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Metop A (M02)</string>
                </property>
@@ -481,6 +591,11 @@
                  <width>0</width>
                  <height>30</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="text">
                 <string>Metop B (M01)</string>
@@ -861,7 +976,7 @@
       <widget class="QPushButton" name="btnSaveTexture">
        <property name="minimumSize">
         <size>
-         <width>230</width>
+         <width>300</width>
          <height>30</height>
         </size>
        </property>
@@ -870,6 +985,11 @@
          <width>230</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
        </property>
        <property name="text">
         <string> Save Texture </string>
@@ -880,7 +1000,7 @@
       <widget class="QPushButton" name="btnClearTexture">
        <property name="minimumSize">
         <size>
-         <width>230</width>
+         <width>300</width>
          <height>30</height>
         </size>
        </property>
@@ -889,6 +1009,11 @@
          <width>230</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
        </property>
        <property name="text">
         <string> Clear Texture </string>
@@ -899,7 +1024,7 @@
       <widget class="QPushButton" name="btnRealTime">
        <property name="minimumSize">
         <size>
-         <width>230</width>
+         <width>300</width>
          <height>30</height>
         </size>
        </property>
@@ -908,6 +1033,11 @@
          <width>230</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
        </property>
        <property name="text">
         <string> Real Time </string>
@@ -918,7 +1048,7 @@
       <widget class="QPushButton" name="btnPhong">
        <property name="minimumSize">
         <size>
-         <width>230</width>
+         <width>300</width>
          <height>30</height>
         </size>
        </property>
@@ -927,6 +1057,11 @@
          <width>230</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
        </property>
        <property name="text">
         <string>PhongModel</string>
@@ -940,7 +1075,7 @@
       <widget class="QPushButton" name="btnAllSegments">
        <property name="minimumSize">
         <size>
-         <width>230</width>
+         <width>300</width>
          <height>30</height>
         </size>
        </property>
@@ -949,6 +1084,11 @@
          <width>230</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
        </property>
        <property name="text">
         <string> Show All Segments </string>
@@ -962,7 +1102,7 @@
       <widget class="QPushButton" name="btnRemoveSelected">
        <property name="minimumSize">
         <size>
-         <width>230</width>
+         <width>300</width>
          <height>30</height>
         </size>
        </property>
@@ -971,6 +1111,11 @@
          <width>230</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
        </property>
        <property name="text">
         <string>  No Selected Segments  </string>
@@ -981,7 +1126,7 @@
       <widget class="QPushButton" name="btnMakeImage">
        <property name="minimumSize">
         <size>
-         <width>230</width>
+         <width>300</width>
          <height>30</height>
         </size>
        </property>
@@ -990,6 +1135,11 @@
          <width>230</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
        </property>
        <property name="text">
         <string> Make Image </string>

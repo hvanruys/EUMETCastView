@@ -100,6 +100,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
+    qDebug() << "Start program";
+
     doLogging = true;
     ptrimagebusy = false;
     bool recreate_geo_ini = false;

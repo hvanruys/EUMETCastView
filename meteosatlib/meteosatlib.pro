@@ -96,12 +96,12 @@ CONFIG(release, debug|release) {
     else:win32:TARGET = ../../../libs/win64_mingw64/debug/meteosat
 }
 
-unix:INCLUDEPATH += ../PublicDecompWT-master_2.7.2/DISE \
-                    ../PublicDecompWT-master_2.7.2/COMP/JPEG/Inc \
-                    ../PublicDecompWT-master_2.7.2/COMP/Inc \
-                    ../PublicDecompWT-master_2.7.2/COMP/WT/Inc \
-                    ../PublicDecompWT-master_2.7.2/COMP/T4/Inc
-else:win32:INCLUDEPATH += ../../PublicDecompWT-master_2.7.2/DISE \
+unix:INCLUDEPATH += ../PublicDecompWT_2.7.2-master/DISE \
+                    ../PublicDecompWT_2.7.2-master/COMP/JPEG/Inc \
+                    ../PublicDecompWT_2.7.2-master/COMP/Inc \
+                    ../PublicDecompWT_2.7.2-master/COMP/WT/Inc \
+                    ../PublicDecompWT_2.7.2-master/COMP/T4/Inc
+else:win32:INCLUDEPATH += ../../PublicDecompWT-master_2.7.2/DOSE \
                     ../../PublicDecompWT-master_2.7.2/COMP/JPEG/Inc \
                     ../../PublicDecompWT-master_2.7.2/COMP/Inc \
                     ../../PublicDecompWT-master_2.7.2/COMP/WT/Inc \

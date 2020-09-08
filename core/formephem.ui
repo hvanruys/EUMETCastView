@@ -37,6 +37,11 @@
         <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
           <widget class="QPushButton" name="btnAdd">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Add TLE File</string>
            </property>
@@ -44,6 +49,11 @@
          </item>
          <item>
           <widget class="QPushButton" name="btnDel">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Delete TLE File</string>
            </property>
@@ -51,6 +61,11 @@
          </item>
          <item>
           <widget class="QPushButton" name="btnUpdateTLE">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Update TLE's</string>
            </property>
@@ -215,6 +230,11 @@
              </item>
              <item>
               <widget class="QPushButton" name="btnReload">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Reload &amp;Segments</string>
                </property>
@@ -222,6 +242,11 @@
              </item>
              <item>
               <widget class="QPushButton" name="btnDownloadFromDatahub">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Download available segments from Scihub/CODA</string>
                </property>
@@ -295,6 +320,11 @@
               <layout class="QHBoxLayout" name="horizontalLayout_5">
                <item>
                 <widget class="QPushButton" name="btnAddsegmentdir">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Add directory</string>
                  </property>
@@ -302,6 +332,11 @@
                </item>
                <item>
                 <widget class="QPushButton" name="btnDelsegmentdir">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Delete directory</string>
                  </property>

@@ -190,7 +190,7 @@ unix:QMAKE_LFLAGS += -no-pie
 
 #/home/hugo/TAR_LIBS/libarchive-master/libarchive
 unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
-win32:INCLUDEPATH += "C:/msys64/mingw64/include" ../bz2 ../meteosatlib ../QSgp4
+win32:INCLUDEPATH += "D:/msys64/mingw64/include" ../bz2 ../meteosatlib ../QSgp4
 #else:win32:INCLUDEPATH += "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/libarchive" \
 #                ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4 \
 #                "C:/Program Files/netCDF 4.4.1/include" "C:/Program Files/HDF_Group/HDF5/1.8.16/include"
@@ -202,13 +202,13 @@ CONFIG(release, debug|release) {
 unix:LIBS += -lpthread -lz -lfreeimage
 unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lqsgp4 -lbz2 -lhdf5_serial -larchive
 unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/DISE -lDISE
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/JPEG/Src -lJPEG
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/WT/Src -lWT
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/T4/Src -lT4
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/Src -lCOMP
-win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDISE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
-win32:LIBS += -L"C:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/DISE -lDISE
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/JPEG/Src -lJPEG
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/WT/Src -lWT
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/T4/Src -lT4
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/Src -lCOMP
+win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDOSE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
+win32:LIBS += -L"D:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
 }
 else
 {
@@ -216,13 +216,13 @@ else
 unix:LIBS += -lpthread -lz -lfreeimage
 unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lqsgp4 -lbz2 -lhdf5_serial -larchive
 unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/DISE -lDISE
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/JPEG/Src -lJPEG
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/WT/Src -lWT
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/T4/Src -lT4
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT-master_2.7.2/COMP/Src -lCOMP
-win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDISE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
-win32:LIBS += -L"C:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/DISE -lDISE
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/JPEG/Src -lJPEG
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/WT/Src -lWT
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/T4/Src -lT4
+unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/Src -lCOMP
+win32:LIBS += -L$$PWD/../../libs/win64_mingw64/debug -lmeteosat -lDOSE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
+win32:LIBS += -L"D:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
 }
 
 #CONFIG(release, debug|release) {

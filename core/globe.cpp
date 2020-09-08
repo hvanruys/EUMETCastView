@@ -319,7 +319,7 @@ void Globe::mouseReleaseEvent(QMouseEvent *event)
 void Globe::wheelEvent(QWheelEvent * event)
 {
 
-    if (event->delta() > 0)
+    if (event->angleDelta().y() > 0)
     {
         if(distance > -3)
             distance += 0.05;
@@ -1534,7 +1534,7 @@ void Globe::Render3DGeoSegment(int geoindex)
 
     qDebug() << "Globe::Render3DGeoSegment(SegmentListMeteosat::eGeoSatellite sat)";
 
-    QApplication::restoreOverrideCursor();
+   // QApplication::restoreOverrideCursor();
     opts.texture_changed = true;
     emit renderingglobefinished(true);
 }
@@ -1563,21 +1563,29 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
 
         if(pixconv.pixcoord2geocoord(segs->seglgeo[geoindex]->geosatlon, pix, heightinimage, segs->seglgeo[geoindex]->COFF, segs->seglgeo[geoindex]->LOFF, segs->seglgeo[geoindex]->CFAC, segs->seglgeo[geoindex]->LFAC, &lat_deg, &lon_deg) == 0)
         {
-            if(opts.geosatellites[geoindex].longitudelimit1 != 0.0 && opts.geosatellites[geoindex].longitudelimit2 != 0.0)
-            {
-                if(lon_deg > opts.geosatellites[geoindex].longitudelimit1 && lon_deg < opts.geosatellites[geoindex].longitudelimit2)
-                {
-                    sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                    fb_painter.setPen(rgbval);
-                    fb_painter.drawPoint(x, y);
-                }
-            }
-            else
-            {
+//            if(lon_deg > -75.0 && lon_deg < 75.0 && lat_deg > -75.0 && lat_deg < 75.0)
+//            {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
                 fb_painter.drawPoint(x, y);
-            }
+//            }
+
+//            if(opts.geosatellites[geoindex].longitudelimit1 != 0.0 && opts.geosatellites[geoindex].longitudelimit2 != 0.0)
+//            {
+
+//                if(lon_deg > opts.geosatellites[geoindex].longitudelimit1 && lon_deg < opts.geosatellites[geoindex].longitudelimit2)
+//                {
+//                    sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+//                    fb_painter.setPen(rgbval);
+//                    fb_painter.drawPoint(x, y);
+//                }
+//            }
+//            else
+//            {
+//                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+//                fb_painter.setPen(rgbval);
+//                fb_painter.drawPoint(x, y);
+//            }
         }
     }
 

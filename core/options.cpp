@@ -729,8 +729,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].fullname = "Meteosat-11";
     geosatellites[0].shortname = "MET_11";
     geosatellites[0].longitude = 0.0;
-    geosatellites[0].longitudelimit1 = -30.0;
-    geosatellites[0].longitudelimit2 = 20.0;
+    geosatellites[0].longitudelimit1 = -75.0;
+    geosatellites[0].longitudelimit2 = +75.0;
     geosatellites[0].protocol = "XRIT";
     geosatellites[0].rss = false;
     geosatellites[0].searchstring = "H-000-MSG4__-MSG4";

@@ -52,7 +52,7 @@ void TextureWriter::setupBuffers(QVector<GLfloat> positions, QVector<GLfloat> te
     //glGenTextures(1, &texturelineId);
     glBindTexture(GL_TEXTURE_1D, texturelineId);
 
-    glTexImage1D(GL_TEXTURE_1D, 0, 4, rainbow.size()/3, 0, GL_RGB, GL_UNSIGNED_BYTE, rainbow.data());
+//    glTexImage1D(GL_TEXTURE_1D, 0, 4, rainbow.size()/3, 0, GL_RGB, GL_UNSIGNED_BYTE, rainbow.data());
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
