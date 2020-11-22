@@ -21,10 +21,10 @@ FormEphem::FormEphem(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 {
     ui->setupUi(this);
 
-//    if(ui->splitter->restoreState( opts.ephemsplittersizes ))
-//        qDebug() << "splitter ok";
-//    else
-//        qDebug() << "splitter not ok";
+    if(ui->splitter->restoreState( opts.ephemsplittersizes ))
+        qDebug() << "splitter ok";
+    else
+        qDebug() << "splitter not ok";
 
 
     sats = satlist;
@@ -190,8 +190,7 @@ void FormEphem::on_btnDel_clicked()
         if ( (*it1)->isSelected() )
         {
             if( (*it1)->parent() )
-                QMessageBox::information( this, "QtTrack",
-            "Only Tle files can be removed !" );
+                QMessageBox::information( this, "QtTrack", "Only Tle files can be removed !" );
             else
                 sel = (*it1)->text( 0 );
             break;

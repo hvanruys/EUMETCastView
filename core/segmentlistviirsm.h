@@ -26,6 +26,10 @@ public:
     void ComposeGVProjection(int inputchannel);
     void ComposeLCCProjection(int inputchannel);
     void ComposeSGProjection(int inputchannel);
+    void ComposeOMProjection(int inputchannel);
+
+    void GetCentralCoords(double *startcentrallon, double *startcentrallat, double *endcentrallon, double *endcentrallat);
+    void GetCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2, double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4);
 
     static void doComposeVIIRSMImageInThread(SegmentListVIIRSM *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
 
@@ -54,9 +58,7 @@ private:
     float maxBrightnessTemp;
     float minBrightnessTempProjection;
     float maxBrightnessTempProjection;
-//    QList<bool> bandlist;
-//    QList<int> colorlist;
-//    QList<bool> inverselist;
+
 
 protected:
 

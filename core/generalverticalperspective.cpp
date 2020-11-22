@@ -16,6 +16,9 @@ GeneralVerticalPerspective::GeneralVerticalPerspective(QObject *parent, AVHRRSat
 {
     segs = seglist;
     qDebug() << QString("constructor GeneralVerticalPerspective");
+    image_width = 0;
+    image_height = 0;
+
     Initialize(opts.mapgvplon, opts.mapgvplat, opts.mapgvpheight, opts.mapgvpscale, opts.mapwidth, opts.mapheight);
 }
 
@@ -82,10 +85,10 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
     map_radius = R*sqrt((p-1)/(p+1));
     scale = scaling;
 
-    qDebug() << QString("-------> Map radius = %1 scale = %2").arg(map_radius).arg(scale);
+//    qDebug() << QString("-------> Map radius = %1 scale = %2").arg(map_radius).arg(scale);
 
 
-#ifdef WIN32 && __GNUC__
+#ifdef WIN32 //&& __GNUC__
         sin_lat_o = sin(lat_center);
         cos_lat_o = cos(lat_center);
 #else

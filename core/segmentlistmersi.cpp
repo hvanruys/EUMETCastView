@@ -113,8 +113,8 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
         SegmentMERSI *segm = (SegmentMERSI *)(*segit);
         if (segm->segmentselected)
         {
-             segsselected.append(segm);
-             totalnbrofsegments++;
+            segsselected.append(segm);
+            totalnbrofsegments++;
         }
         ++segit;
     }
@@ -141,13 +141,26 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
     getIndexFromColor(2);
     getIndexFromColor(3);
 
+    if(bandlist.at(0) == false)
+    {
+        for(int i = 1; i < 16; i++)
+        {
+            if(bandlist.at(i) == true)
+                bandindex = i;
+        }
+    }
+    else
+    {
+        bandindex = 0;
+    }
+
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
         segm->setBandandColor(bandlist, colorlist, invertlist);
         segm->initializeMemory();
-        segm->ReadSegmentInMemory(composecolor, colorarrayindex);
+        segm->ReadSegmentInMemory(bandindex, colorarrayindex);
 
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
@@ -241,7 +254,7 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
     while ( segsel != segsselected.end() )
     {
         SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
-        segm->ComposeSegmentImage(colorarrayindex, invertarrayindex, this->histogrammethod, this->normalized, this->totalnbroflines);
+        segm->ComposeSegmentImage(bandindex, colorarrayindex, invertarrayindex, this->histogrammethod, this->normalized, this->totalnbroflines);
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
         QApplication::processEvents();
@@ -468,4 +481,195 @@ void SegmentListMERSI::ComposeSGProjection(int inputchannel)
     }
 }
 
+void SegmentListMERSI::ComposeOMProjection(int inputchannel)
+{
 
+    qDebug() << "SegmentListMERSI::ComposeOMProjection()";
+    QList<Segment *>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentOMProjection(inputchannel, 0, false);
+        emit segmentprojectionfinished(false);
+        ++segit;
+    }
+}
+
+void SegmentListMERSI::GetCentralCoords(double *startcentrallon, double *startcentrallat, double *endcentrallon, double *endcentrallat)
+{
+    double slon, slat, elon, elat;
+    double save_slon, save_slat, save_elon, save_elat;
+    int startindex, endindex;
+
+    save_slon = 65535.0;
+    save_slat = 65535.0;
+    save_elon = 65535.0;
+    save_elat = 65535.0;
+
+    bool first = true;
+
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
+        segm->GetCentralCoords(&slon, &slat, &elon, &elat, &startindex, &endindex);
+
+        if(abs(slon) < 180.0 && abs(slat) < 90.0 && abs(elon) < 180.0 && abs(elat) < 90.0)
+        {
+            if(first == true)
+            {
+                first = false;
+                save_slon = slon;
+                save_slat = slat;
+                save_elon = elon;
+                save_elat = elat;
+            }
+            else
+            {
+                save_elon = elon;
+                save_elat = elat;
+            }
+
+        }
+
+        QApplication::processEvents();
+        ++segsel;
+    }
+
+    *startcentrallon = save_slon;
+    *startcentrallat = save_slat;
+    *endcentrallon = save_elon;
+    *endcentrallat = save_elat;
+
+}
+
+void SegmentListMERSI::GetCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2, double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4)
+{
+    double save_cornerlon1, save_cornerlat1, save_cornerlon2, save_cornerlat2;
+    double save_cornerlon3, save_cornerlat3, save_cornerlon4, save_cornerlat4;
+    int Xcornerindex1, Xcornerindex2, Ycornerindex12;
+    int Xcornerindex3, Xcornerindex4, Ycornerindex34;
+
+    save_cornerlon1 = 65535.0;
+    save_cornerlat1 = 65535.0;
+    save_cornerlon2 = 65535.0;
+    save_cornerlat2 = 65535.0;
+
+    save_cornerlon3 = 65535.0;
+    save_cornerlat3 = 65535.0;
+    save_cornerlon4 = 65535.0;
+    save_cornerlat4 = 65535.0;
+
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+
+    int count = 0;
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
+        count++;
+        if(count == 1)
+        {
+            segm->GetStartCornerCoords(&save_cornerlon1, &save_cornerlat1, &save_cornerlon2, &save_cornerlat2, &Xcornerindex1, &Xcornerindex2, &Ycornerindex12 );
+            if(abs(save_cornerlon1) < 180.0 && abs(save_cornerlat1) < 90.0 && abs(save_cornerlon2) < 180.0 && abs(save_cornerlat2) < 90.0)
+                break;
+        }
+        ++segsel;
+    }
+
+    segsel = segsselected.begin();
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
+        count++;
+
+        if(count == segsselected.size())
+        {
+            segm->GetEndCornerCoords(&save_cornerlon3, &save_cornerlat3, &save_cornerlon4, &save_cornerlat4, &Xcornerindex3, &Xcornerindex4, &Ycornerindex34 );
+            if(abs(save_cornerlon3) < 180.0 && abs(save_cornerlat3) < 90.0 && abs(save_cornerlon4) < 180.0 && abs(save_cornerlat4) < 90.0)
+                break;
+        }
+        ++segsel;
+    }
+
+    *cornerlon1 = save_cornerlon1;
+    *cornerlat1 = save_cornerlat1;
+    *cornerlon2 = save_cornerlon2;
+    *cornerlat2 = save_cornerlat2;
+
+    *cornerlon3 = save_cornerlon3;
+    *cornerlat3 = save_cornerlat3;
+    *cornerlon4 = save_cornerlon4;
+    *cornerlat4 = save_cornerlat4;
+
+}
+
+//void SegmentListMERSI::GetContourPolygon(QPolygonF *poly)
+//{
+//    QList<Segment *>::iterator segsel;
+//    segsel = segsselected.begin();
+//    int segscount = segsselected.size();
+//    int count = 0;
+//    int nbroflines;
+
+//    while ( segsel != segsselected.end() )
+//    {
+//        SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
+//        nbroflines = segm->GetNbrOfLines();
+//        count++;
+//        if(count == 1)
+//        {
+//            for(int j = 0; j < nbroflines; j=j+10)
+//            {
+//                if(segm->geolongitude[j*segm->getEarthViewsPerScanline()] < 180.0 && segm->geolatitude[j*segm->getEarthViewsPerScanline()] < 90.0)
+//                {
+//                    for(int i = 0; i < segm->getEarthViewsPerScanline(); i++ )
+//                        poly->append(QPointF(segm->geolongitude[i + j*segm->getEarthViewsPerScanline()], segm->geolatitude[i + j*segm->getEarthViewsPerScanline()] ));
+//                    break;
+//                }
+//            }
+//        }
+//        if(count == segscount)
+//        {
+//            for(int j = nbroflines - 1; j >= 0; j=j-10)
+//            {
+//                if(segm->geolongitude[j*segm->getEarthViewsPerScanline()] < 180.0 && segm->geolatitude[j*segm->getEarthViewsPerScanline()] < 90.0)
+//                {
+//                    for(int i = 0; i < segm->getEarthViewsPerScanline(); i++ )
+//                        poly->append(QPointF(segm->geolongitude[i + j*segm->getEarthViewsPerScanline()], segm->geolatitude[i + j*segm->getEarthViewsPerScanline()] ));
+//                    break;
+//                }
+//            }
+//        }
+
+//        QApplication::processEvents();
+//        ++segsel;
+//    }
+//}
+
+//void SegmentListMERSI::GetTrackPolygon(QPolygonF *poly)
+//{
+//    QList<Segment *>::iterator segsel;
+//    int nbroflines;
+
+//    segsel = segsselected.begin();
+
+//    while ( segsel != segsselected.end() )
+//    {
+//        SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
+//        nbroflines = segm->GetNbrOfLines();
+//        for(int j = 0; j < nbroflines; j=j+10)
+//        {
+//            if(segm->geolongitude[j*segm->getEarthViewsPerScanline()] < 180.0 && segm->geolatitude[j*segm->getEarthViewsPerScanline()] < 90.0)
+//            {
+//                    poly->append(QPointF(segm->geolongitude[j*segm->getEarthViewsPerScanline() + (int)(segm->getEarthViewsPerScanline()/2)], segm->geolatitude[j*segm->getEarthViewsPerScanline() + (int)(segm->getEarthViewsPerScanline()/2)] ));
+//            }
+//        }
+
+//    QApplication::processEvents();
+//    ++segsel;
+//    }
+//}

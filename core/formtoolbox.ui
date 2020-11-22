@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>821</width>
-    <height>1385</height>
+    <width>813</width>
+    <height>1767</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,7 +38,7 @@
       <enum>QTabWidget::West</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>5</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideNone</enum>
@@ -6979,7 +6979,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QFrame" name="frame_4">
+        <widget class="QFrame" name="frameprojectionmethods">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -6992,14 +6992,14 @@
             <item>
              <widget class="QToolBox" name="toolBox">
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>685</width>
+                 <width>429</width>
                  <height>685</height>
                 </rect>
                </property>
@@ -7879,9 +7879,15 @@
                      </item>
                      <item>
                       <widget class="QDoubleSpinBox" name="spbGVPlon">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="maximumSize">
                         <size>
-                         <width>70</width>
+                         <width>80</width>
                          <height>16777215</height>
                         </size>
                        </property>
@@ -7936,6 +7942,12 @@
                      </item>
                      <item>
                       <widget class="QSpinBox" name="spbGVPheight">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="minimumSize">
                         <size>
                          <width>70</width>
@@ -7944,7 +7956,7 @@
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>80</width>
+                         <width>140</width>
                          <height>16777215</height>
                         </size>
                        </property>
@@ -8432,6 +8444,120 @@
                 </item>
                </layout>
               </widget>
+              <widget class="QWidget" name="pageOM">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>696</width>
+                 <height>406</height>
+                </rect>
+               </property>
+               <attribute name="label">
+                <string>Oblique Mercator</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_27">
+                <item>
+                 <widget class="QLabel" name="label_70">
+                  <property name="text">
+                   <string>Only possible for AVHRR(Metop), VIIRS M and MERSI images</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_124">
+                  <item>
+                   <widget class="QPushButton" name="btnCreateOM">
+                    <property name="text">
+                     <string>Create Map</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_175">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_126">
+                  <item>
+                   <widget class="QPushButton" name="btnOverlayProjectionOM">
+                    <property name="text">
+                     <string>Overlay</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_183">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_125">
+                  <item>
+                   <widget class="QCheckBox" name="chkOMGridOnProj">
+                    <property name="text">
+                     <string>Grid on Projection</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnOMClearMap">
+                    <property name="text">
+                     <string>Clear</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_182">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_10">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>253</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
              </widget>
             </item>
            </layout>
@@ -8484,7 +8610,7 @@
             <item>
              <widget class="QLabel" name="label_41">
               <property name="text">
-               <string>Point of interest :</string>
+               <string>Area of interest :</string>
               </property>
              </widget>
             </item>
@@ -8505,7 +8631,7 @@
             <item>
              <widget class="QPushButton" name="btnAddPOI">
               <property name="text">
-               <string>Add POI :</string>
+               <string>Add AOI :</string>
               </property>
              </widget>
             </item>

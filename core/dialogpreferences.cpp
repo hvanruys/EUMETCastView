@@ -483,10 +483,21 @@ void DialogPreferences::addVIIRSMConfigRow()
     myVIIRSMConfigModel->insertRows(myVIIRSMConfigModel->rowCount(), 1, QModelIndex());
 }
 
+void DialogPreferences::addMERSIConfigRow()
+{
+    myMERSIConfigModel->insertRows(myMERSIConfigModel->rowCount(), 1, QModelIndex());
+}
+
 void DialogPreferences::deleteVIIRSMConfigRow()
 {
     int row = ui->tbvVIIRSMConfig->currentIndex().row();
     myVIIRSMConfigModel->removeRow(row, QModelIndex());
+}
+
+void DialogPreferences::deleteMERSIConfigRow()
+{
+    int row = ui->tbvMERSIConfig->currentIndex().row();
+    myMERSIConfigModel->removeRow(row, QModelIndex());
 }
 
 

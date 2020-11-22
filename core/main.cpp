@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.4.8"
+#define APPVERSION "1.4.9"
 
 using namespace std;
 
@@ -29,6 +29,7 @@ QNetworkAccessManager networkaccessmanager;
 bool doLogging;
 bool ptrimagebusy;
 
+// Every now and then a masterpiece like this comes out, and the world is gifted with a few hours of  hope for the human race, before dropping back into it's usual chaos.
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
 

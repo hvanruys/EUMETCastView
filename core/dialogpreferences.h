@@ -57,6 +57,9 @@ private slots:
     void deleteOLCIefrConfigRow();
     void addSLSTRConfigRow();
     void deleteSLSTRConfigRow();
+    void addMERSIConfigRow();
+    void deleteMERSIConfigRow();
+
 
     void on_btnLocalDirRemote_clicked();
 

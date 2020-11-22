@@ -24,7 +24,9 @@ public:
     void ComposeGVProjection(int inputchannel);
     void ComposeLCCProjection(int inputchannel);
     void ComposeSGProjection(int inputchannel);
-
+    void ComposeOMProjection(int inputchannel);
+    void GetCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat);
+    void GetCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2, double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4);
 
 protected:
     QFutureWatcher<void> *watchermersi;
@@ -34,17 +36,17 @@ protected slots:
     void progressreadvalue(int progress);
 
 private:
+    int getIndexFromColor(int colorindex);
+
     bool invertarrayindex[3];
     int colorarrayindex[3];
+    int bandindex;
 
     SatelliteList *satlist;
     bool normalized;
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> invertlist;
-
-    int getIndexFromColor(int colorindex);
-
 
 
 };

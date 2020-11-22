@@ -379,12 +379,13 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
             else
                 delete segslstr;
-        } else if (fileInfo.fileName().mid( 0, 4) == "FY3D" && fileInfo.fileName().mid(40, 5) == "1000M")
+        } else if (fileInfo.fileName().mid( 0, 4) == "FY3D"  && (fileInfo.fileName().mid(39, 5) == "1000M" || fileInfo.fileName().mid(40, 5) == "1000M"))
         {
             //012345678901234567890123456789012345678901234567890
             //0         1         2         3         4         5         6         7         8         9         10
             //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
             //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
+            //FY3D_20191007_193900_194000_9821_MERSI_1000M_L1B.HDF
             seglmersi->SetDirectoryName(fileInfo.absolutePath());
             segmersi = new SegmentMERSI(fileInfo, satlist);
             if(segmersi->segmentok == true)
@@ -709,8 +710,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
                     }
 
-//                    for(int i= 0; i < fileinfolist.size(); i++)
-//                        qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
+                    for(int i= 0; i < fileinfolist.size(); i++)
+                        qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
 
                     QMap<QString, QFileInfo> map;
 
@@ -820,8 +821,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
 
                     fileinfolist = map.values();
-//                    for(int i = 0; i < fileinfolist.count(); i++)
-//                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
+                    for(int i = 0; i < fileinfolist.count(); i++)
+                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
                     emit signalResetProgressbar(fileinfolist.size(), (*its));
 
@@ -1205,6 +1206,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
         else if (fileinfo.fileName().mid( 0, 4) == "FY3D")
         {
+
             *fy3dTle = true;
             QDate d(fileinfo.fileName().mid( 5, 4).toInt(), fileinfo.fileName().mid( 9, 2).toInt(), fileinfo.fileName().mid( 11, 2).toInt());
             filedate.setDate(d);

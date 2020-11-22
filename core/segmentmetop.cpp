@@ -791,7 +791,7 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                     QByteArray mdr_record = QByteArray::fromRawData(buf, nBuf);
                     //qDebug() << QString("line at 0 = mdr heightintotalimage = %1").arg(heightintotalimage);
                     //qDebug() << QString("mdr_record length = %1").arg(mdr_record.length());
-                    inspectSolarAngle(&mdr_record, heightinsegment);
+                    //inspectSolarAngle(&mdr_record, heightinsegment);
                     inspectEarthLocations(&mdr_record, heightinsegment);
 
                     //mdr_record = QByteArray::fromRawData(buf, nBuf);
@@ -949,6 +949,23 @@ void SegmentMetop::ComposeSegmentGVProjection(int inputchannel, int histogrammet
 
 }
 
+void SegmentMetop::ComposeSegmentOMProjection(int inputchannel, int histogrammethod, bool normalized)
+{
+
+    qDebug() << QString("ComposeSegmentOMProjection startLineNbr = %1").arg(this->startLineNbr);
+    int startheight = this->startLineNbr;
+
+    initializeProjectionCoord();
+
+    for (int line = 0; line < this->NbrOfLines; line++)
+    {
+        this->RenderSegmentlineInOM( (inputchannel == 0 ? 6 : inputchannel), line, startheight + line, normalized );
+    }
+
+    QApplication::processEvents();
+
+}
+
 void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightintotalimage , bool normalized)
 {
     double lonpos1, latpos1;
@@ -977,10 +994,10 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
         to = 5 + 20 * 102 + 3 = 2048
     */
 
-    if(num_navigation_points == 103 && (nbrLine == 0 || nbrLine == 540 || nbrLine == 1079))
-    {
-        qDebug() << QString("------>IEL nbrLine = %1  lon[0] = %2, lon[52] = %3, lon[102] = %4").arg(nbrLine).arg( earthloc_lon[nbrLine*103]).arg( earthloc_lon[nbrLine*103 + 52]).arg( earthloc_lon[nbrLine * 103 + 102]);
-    }
+//    if(num_navigation_points == 103 && (nbrLine == 0 || nbrLine == 540 || nbrLine == 1079))
+//    {
+//        qDebug() << QString("------>IEL nbrLine = %1  lon[0] = %2, lon[52] = %3, lon[102] = %4").arg(nbrLine).arg( earthloc_lon[nbrLine*103]).arg( earthloc_lon[nbrLine*103 + 52]).arg( earthloc_lon[nbrLine * 103 + 102]);
+//    }
 
 
     if(num_navigation_points == 103)
@@ -1095,59 +1112,6 @@ float SegmentMetop::getSolarZenith(int navpoint, int intpoint, int nbrLine, int 
 
 }
 
-//float SegmentMetop::getSolarZenith(int navpoint, int intpoint, int nbrLine) //navpoint = [0, 101] intpoint = [0, 19] nbrLine = [0, 1079]
-//{
-//    // second order Lagrange interpolation ==> 3 points
-//    //    from pt 5 --> pt 2045
-//    //    = 5 + 20 * 102 total of 103 pts
-//    //    to = 5 + 20 * 102 + 3 = 2048
-//    //
-
-//    float a, k, s, t;
-//    float x[3];
-//    float y[3];
-
-//    int n = 3;
-//    if(navpoint == 0)
-//    {
-//        y[0] = solar_zenith_angle[nbrLine*103];
-//        y[1] = solar_zenith_angle[nbrLine*103 + 1];
-//        y[2] = solar_zenith_angle[nbrLine*103 + 2];
-//        x[0] = 4;
-//        x[1] = 24;
-//        x[2] = 44;
-//    }
-//    else
-//    {
-//        y[0] = solar_zenith_angle[nbrLine*103 + navpoint - 1];
-//        y[1] = solar_zenith_angle[nbrLine*103 + navpoint];
-//        y[2] = solar_zenith_angle[nbrLine*103 + navpoint + 1];
-//        x[0] = (navpoint-1) * 20 + 4;
-//        x[1] = navpoint * 20 + 4;
-//        x[2] = (navpoint+1) * 20 + 4;
-//    }
-
-//    k = 0;
-//    a = navpoint * 20 + intpoint + 4;
-
-//    for(int i=0; i<n; i++)
-//    {
-//        s=1;
-//        t=1;
-//        for(int j=0; j<n; j++)
-//        {
-//            if(j!=i)
-//            {
-//                s=s*(a-x[j]);
-//                t=t*(x[i]-x[j]);
-//            }
-//        }
-//        k=k+((s/t)*y[i]);
-//    }
-//    return k;
-
-//}
-
 void SegmentMetop::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
 
@@ -1201,6 +1165,67 @@ void SegmentMetop::RenderSegmentlineInSG(int channel, int nbrLine, int heightint
             {
                 intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->sg->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
+                {
+                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
+                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = (int)map_y;
+
+                    //if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                    {
+                        rgbvalue = row_col[4 + i * 20 + j];
+                        if (map_x > 0 && map_x < imageptrs->ptrimageProjection->width() && map_y > 0 && map_y < imageptrs->ptrimageProjection->height())
+                            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                        projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = rgbvalue;
+
+                    }
+                }
+                else
+                {
+                    projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = 65535;
+                    projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = 65535;
+                    projectionCoordValue[nbrLine * 2048 + i * 20 + j + 4] = qRgb(0,0,0);
+                }
+
+            }
+        }
+    }
+
+}
+
+void SegmentMetop::RenderSegmentlineInOM(int channel, int nbrLine, int heightintotalimage , bool normalized)
+{
+
+    double lonpos1, latpos1;
+    double map_x, map_y;
+    double dtot;
+
+    QRgb *row_col;
+    QRgb rgbvalue = qRgb(0,0,0);
+
+
+
+    if (channel == 6)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_col->scanLine(heightintotalimage);
+    else if (channel == 1)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[0]->scanLine(heightintotalimage);
+    else if (channel == 2)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[1]->scanLine(heightintotalimage);
+    else if (channel == 3)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[2]->scanLine(heightintotalimage);
+    else if (channel == 4)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[3]->scanLine(heightintotalimage);
+    else if (channel == 5)
+        row_col = (QRgb*)imageptrs->ptrimagecomp_ch[4]->scanLine(heightintotalimage);
+
+
+    if(num_navigation_points == 103)
+    {
+        for( int i = 0; i < num_navigation_points-1; i++)
+        {
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PI/180.0 - earthloc_lat[nbrLine*103 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PI/180.0-earthloc_lon[nbrLine*103 + i+1]*PI/180.0) / 2), 2)));
+            for( int j = 0; j < 20 ; j++ )
+            {
+                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
+                if(imageptrs->om->map_forward(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
                     projectionCoordY[nbrLine * 2048 + i * 20 + j + 4] = (int)map_y;
@@ -1475,4 +1500,42 @@ void SegmentMetop::intermediatePoint(double lat1, double lng1, double lat2, doub
   double z = A * sin(lat1) + B * sin(lat2);
   *lat = atan2(z, sqrt(pow(x, 2) + pow(y, 2)));
   *lng = atan2(y, x);
+}
+
+void SegmentMetop::GetCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex)
+{
+    //    from pt 5 --> pt 2045
+    //    = 5 + 20 * 102 total of 103 pts
+    //    to = 5 + 20 * 102 + 3 = 2048
+    //    central point 5 + 51 * 20 = 1025
+    if(earthloc_lon.isNull())
+    {
+        *startlon = 0.0;
+        *startlat = 0.0;
+        *endlon = 0.0;
+        *endlat = 0.0;
+        return;
+    }
+
+    for(int i = 0; i < NbrOfLines; i++)
+    {
+        *startindex = i;
+        *startlon = earthloc_lon[i * 103 + 51];
+        *startlat = earthloc_lat[i * 103 + 51];
+        if(abs(*startlon) < 180.0 && abs(*startlat) < 90.0)
+            break;
+    }
+
+    for(int i = NbrOfLines - 1; i >= 0; i--)
+    {
+        *endindex  = i;
+        *endlon = earthloc_lon[i * 103 + 51];
+        *endlat = earthloc_lat[i * 103 + 51];
+        if(abs(*endlon) < 180.0 && abs(*endlat) < 90.0)
+            break;
+    }
+
+    qDebug() << "SegmentMetop::GetCentralCoords startindex = " << *startindex << " endindex = " << *endindex << " slon = " << *startlon <<
+                " slat = " << *startlat << " elon = " << *endlon << " elat = " << *endlat;
+
 }

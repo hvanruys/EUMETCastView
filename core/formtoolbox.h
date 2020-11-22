@@ -24,8 +24,10 @@ class FormToolbox : public QWidget
 public:
     explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, FormInfraScales *p_forminfrascales = 0, AVHRRSatellite *seglist = 0);
     int getTabWidgetIndex();
+    int getToolboxIndex();
     int getTabWidgetVIIRSIndex();
     int getTabWidgetSentinelIndex();
+    eProjectionType getCurrentProjectionType();
     int getGeoIndex() { return geoindex; }
     void setGeoIndex(int geo) { this->geoindex = geo; }
 
@@ -58,6 +60,7 @@ public:
     bool GridOnProjLCC();
     bool GridOnProjGVP();
     bool GridOnProjSG();
+    bool GridOnProjOM();
     void setPOIsettings();
     void setMConfigsettings();
     void setOLCIefrConfigsettings();
@@ -224,6 +227,7 @@ private slots:
     void on_spbSGRadius_valueChanged(double arg1);
     void on_btnSGClearMap_clicked();
     void on_btnOverlayProjectionSG_clicked();
+    void on_btnOverlayProjectionOM_clicked();
     void on_spbLCCCorrX_valueChanged(int arg1);
     void on_spbLCCCorrY_valueChanged(int arg1);
     void on_btnUpdateVIIRSImage_clicked();
@@ -294,6 +298,18 @@ private slots:
     void on_btnUpdateMERSIImage_clicked();
     void on_comboMERSIConfig_currentIndexChanged(int index);
     void on_btnAddMERSIConfig_clicked();
+    void on_btnCreateOM_clicked();
+
+    void on_rdbAVHRRin_clicked();
+    void on_rdbVIIRSMin_clicked();
+    void on_rdbVIIRSDNBin_clicked();
+    void on_rdbOLCIefrin_clicked();
+    void on_rdbOLCIerrin_clicked();
+    void on_rdbMERSIin_clicked();
+    void on_rdbMeteosatin_clicked();
+
+    void on_btnOMClearMap_clicked();
+    void on_chkOMGridOnProj_clicked();
 };
 
 

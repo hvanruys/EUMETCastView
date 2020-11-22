@@ -227,7 +227,11 @@ void sortSphericalVectorLon(SphericalVector arr[], int size);
 
 int Min(const int *Numbers, const int Count);
 int Max(const int *Numbers, const int Count);
+float Minf(const float v11, const float v12, const float v21, const float v22);
+float Maxf(const float v11, const float v12, const float v21, const float v22);
+double Mind(const double v11, const double v12, const double v21, const double v22);
+double Maxd(const double v11, const double v12, const double v21, const double v22);
 
-
+double asinz(double con);
 
 #endif

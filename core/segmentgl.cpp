@@ -142,18 +142,12 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         QList<Segment*>::iterator segit = sl->GetSegmentlistptr()->begin();
         while ( segit != sl->GetSegmentlistptr()->end() )
         {
-            if(segs->getShowAllSegments())
+            if(segs->getShowAllSegments() || (*segit)->segmentshow)
             {
                 RenderContourDetail(*segit, projection, modelview, width, height);
 
             }
-            else
-            {
-                if ((*segit)->segmentshow)
-                {
-                   RenderContourDetail(*segit, projection, modelview, width, height);
-                }
-            }
+
             ++segit;
         }
 
@@ -162,17 +156,10 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         QList<Segment*>::iterator segit = sl->GetSegmentlistptr()->begin();
         while ( segit != sl->GetSegmentlistptr()->end() )
         {
-            if(segs->getShowAllSegments())
+            if(segs->getShowAllSegments() || (*segit)->segmentshow)
             {
                 RenderContour(*segit, projection, modelview, width, height);
 
-            }
-            else
-            {
-                if ((*segit)->segmentshow)
-                {
-                    RenderContour(*segit, projection, modelview, width, height);
-                }
             }
             ++segit;
         }

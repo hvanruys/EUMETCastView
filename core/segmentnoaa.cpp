@@ -801,6 +801,8 @@ void SegmentNoaa::RenderSegmentlineInProjectionAlternative( int channel, int nbr
         double latpos = geolocation.latitude;
         /////////////////////////////////////////////
 
+        if(nbrLine == 0)
+            qDebug() << QString("nbrPoint = %1 lonpos = %2 latpos = %3").arg(nbrPoint).arg(Util::RadiansToDegrees(lonpos)).arg(Util::RadiansToDegrees(latpos));
 
         if(proj == LCC)
         {
@@ -885,12 +887,12 @@ void SegmentNoaa::RenderSegmentlineInProjectionAlternative( int channel, int nbr
             }
 
         }
-        //qDebug() << QString("lonpos = %1 latpos = %2 Angle = %3 posmag = %4 rangvector = %5 firstterm = %6 secterm = %7 posnorm = %8 scan x = %9 y = %10 z = %11").arg(Util::RadiansToDegrees(lonpos)).arg(Util::RadiansToDegrees(latpos))
-        //            .arg(Off_Nadir_Angle).arg(posmag).arg(rangevector.Magnitude()).arg(firstterm).arg(secterm).arg(posnorm.Magnitude()).arg(scan.x).arg(scan.y).arg(scan.z);
-        //double dotprod = pos.Dot(location);
-        //double phi = acos(dotprod / ( pos.Magnitude()*location.Magnitude()));
-        //qDebug() << QString("nbrLine = %1 nbrPoint = %2 off_nadir angle = %3 phi = %4 range_disctance = %5").arg(nbrLine).arg(nbrPoint).arg(Util::RadiansToDegrees(Off_Nadir_Angle)).arg(Util::RadiansToDegrees(phi))
-        //            .arg(range_distance);
+//        qDebug() << QString("lonpos = %1 latpos = %2 Angle = %3 posmag = %4 rangvector = %5 firstterm = %6 secterm = %7 posnorm = %8 scan x = %9 y = %10 z = %11").arg(Util::RadiansToDegrees(lonpos)).arg(Util::RadiansToDegrees(latpos))
+//                    .arg(Off_Nadir_Angle).arg(posmag).arg(rangevector.Magnitude()).arg(firstterm).arg(secterm).arg(posnorm.Magnitude()).arg(scan.x).arg(scan.y).arg(scan.z);
+//        double dotprod = pos.Dot(location);
+//        double phi = acos(dotprod / ( pos.Magnitude()*location.Magnitude()));
+//        qDebug() << QString("nbrLine = %1 nbrPoint = %2 off_nadir angle = %3 phi = %4 range_disctance = %5").arg(nbrLine).arg(nbrPoint).arg(Util::RadiansToDegrees(Off_Nadir_Angle)).arg(Util::RadiansToDegrees(phi))
+//                    .arg(range_distance);
 
     }
 }

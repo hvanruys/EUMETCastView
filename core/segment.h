@@ -25,7 +25,8 @@
 enum eProjections {
     LCC = 0,
     GVP,
-    SG
+    SG,
+    OM
 };
 
 enum eSLSTRImageView
@@ -62,6 +63,7 @@ public:
     virtual void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
     virtual void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
     virtual void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
+    virtual void ComposeSegmentOMProjection(int inputchannel, int histogrammethod, bool normalized);
 
     virtual void RecalculateProjection();
 
@@ -80,6 +82,8 @@ public:
     QString GetTle_line1() { return line1; }
     QString GetTle_line2() { return line2; }
     int GetNbrOfLines() { return NbrOfLines; }
+    int getEarthViewsPerScanline() { return this->earth_views_per_scanline; }
+
     //void setImageReady() { image_ready = true; }
     //void resetImageReady() { image_ready = false; }
     //bool isImageReady() { return image_ready; }
@@ -190,6 +194,8 @@ public:
     QScopedArrayPointer<float> solar_zenith;
     QScopedArrayPointer<float> lunar_azimuth;
     QScopedArrayPointer<float> solar_azimuth;
+    QScopedArrayPointer<float> sc_position;
+    QScopedArrayPointer<float> sc_velocity;
 
 
 protected:

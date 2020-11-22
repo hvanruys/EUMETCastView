@@ -18,6 +18,7 @@ DEFINES += OPENGL30
 
 SOURCES += main.cpp \
     mainwindow.cpp \
+    obliquemercator.cpp \
     options.cpp \
     segmentimage.cpp \
     satellite.cpp \
@@ -94,6 +95,7 @@ SOURCES += main.cpp \
     nav_util.cpp
 
 HEADERS  += mainwindow.h \
+    obliquemercator.h \
     options.h \
     segmentimage.h \
     satellite.h \

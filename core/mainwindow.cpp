@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
     imageptrs->lcc = new LambertConformalConic(this, seglist);
     imageptrs->sg = new StereoGraphic(this, seglist);
+    imageptrs->om = new ObliqueMercator(this, seglist);
 
     QMainWindow::setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     QMainWindow::setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
@@ -142,6 +143,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(seglist->seglviirsm, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglviirsdnb, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsmnoaa20, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsdnbnoaa20, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
     connect(seglist->seglmersi, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -199,6 +202,9 @@ MainWindow::MainWindow(QWidget *parent) :
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
     //QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
+    bool restored = QMainWindow::restoreDockWidget(dockwidget);
+    qDebug() << "restoredockwidget = " << restored << " width of toolbox = " << formtoolbox->width();
+
 
     seglist->ReadXMLfiles();
 
@@ -228,7 +234,7 @@ void MainWindow::createDockWidget()
     dockwidget = new QDockWidget(tr("Toolbox"),this,Qt::Widget|Qt::WindowStaysOnTopHint|Qt::X11BypassWindowManagerHint);
     dockwidget->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
     dockwidget->setObjectName("Toolbox");
-    QScrollArea * scrollArea = new QScrollArea(this);
+    QScrollArea * scrollArea = new QScrollArea;
     scrollArea->setWidget(formtoolbox);
     scrollArea->setWidgetResizable(true);
     scrollArea->resize(700, MainWindow::height());
@@ -236,7 +242,7 @@ void MainWindow::createDockWidget()
     dockwidget->resize(700, MainWindow::height());
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
 //    QMainWindow::resizeDocks({dockwidget}, {opts.toolboxwidth}, Qt::Horizontal);
-//    QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
+    //QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
 
 }
 
@@ -264,7 +270,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     opts.mainwindowstate = saveState(0);
     opts.toolboxwidth = formtoolbox->width();
 
-    forminfrascales->close();
+    qDebug() << "Width of toolbox = " << formtoolbox->width();
+
+    //forminfrascales->close();
 
     delete timer;
     delete formtoolbox;
@@ -507,7 +515,14 @@ void MainWindow::on_actionImage_triggered()
         formimage->displayImage(IMAGE_GEOSTATIONARY); //Geostationary image
     }
     else if(index == TAB_PROJECTION)
-        formimage->displayImage(IMAGE_PROJECTION); //Projection image
+    {
+        if( formtoolbox->getToolboxIndex() == 3)
+            imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, formtoolbox->getCurrentProjectionType());
+
+        formimage->UpdateProjection();
+
+       // formimage->displayImage(IMAGE_PROJECTION); //Projection image
+    }
 
     ui->actionSatSelection->setChecked(false);
     ui->actionMeteosat->setChecked(false);

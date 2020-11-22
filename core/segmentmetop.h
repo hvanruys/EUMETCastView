@@ -37,9 +37,14 @@ public:
     void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
     void RenderSegmentlineInSG( int channel, int nbrLine, int heightintotalimage, bool normalized);
 
+    void ComposeSegmentOMProjection(int inputchannel, int histogrammethod, bool normalized);
+    void RenderSegmentlineInOM( int channel, int nbrLine, int heightintotalimage, bool normalized);
+
+
     void intermediatePoint(double lat1, double lng1, double lat2, double lng2, double f, double *lat, double *lng, double d);
     int ReadNbrOfLines();
     float getSolarZenith(int navpoint, int intpoint, int nbrLine, int startnavindex, int deltaint, int lengthintindex, int lengthnavindex );
+    void GetCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex);
 
     double earth_loc_lon_first[1080], earth_loc_lat_first[1080];
     double earth_loc_lon_last[1080], earth_loc_lat_last[1080];

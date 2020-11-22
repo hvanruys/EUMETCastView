@@ -141,8 +141,8 @@ bool FormImage::toggleOverlayProjection()
 void FormImage::setPixmapToLabel(bool settoolboxbuttons)
 {
 
-    qDebug() << "FormImage::setPixmapToLabel(bool settoolboxbuttons) width = " << imageptrs->ptrimageMERSI->size().width() << " height = "
-             << imageptrs->ptrimageMERSI->size().height() << " channelshown = " << channelshown;
+//    qDebug() << "FormImage::setPixmapToLabel(bool settoolboxbuttons) width = " << imageptrs->ptrimageMERSI->size().width() << " height = "
+//             << imageptrs->ptrimageMERSI->size().height() << " channelshown = " << channelshown;
 
     refreshoverlay = true;
 
@@ -231,13 +231,13 @@ void FormImage::setPixmapToLabelDNB(bool settoolboxbuttons)
 void FormImage::displayImage(eImageType channel)
 {
 
-    qDebug() << QString("FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
-    qDebug() << QString("FormImage ptrimagecomp[0] bytecount = %1").arg(imageptrs->ptrimagecomp_ch[0]->byteCount());
-    qDebug() << QString("FormImage ptrimageviirsm bytecount = %1").arg(imageptrs->ptrimageViirsM->byteCount());
-    qDebug() << QString("FormImage ptrimageviirsdnb bytecount = %1").arg(imageptrs->ptrimageViirsDNB->byteCount());
-    qDebug() << QString("FormImage ptrimageolci bytecount = %1").arg(imageptrs->ptrimageOLCI->byteCount());
-    qDebug() << QString("FormImage ptrimageslstr bytecount = %1").arg(imageptrs->ptrimageSLSTR->byteCount());
-    qDebug() << QString("FormImage ptrimagemersi bytecount = %1").arg(imageptrs->ptrimageMERSI->byteCount());
+//    qDebug() << QString("FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
+//    qDebug() << QString("FormImage ptrimagecomp[0] bytecount = %1").arg(imageptrs->ptrimagecomp_ch[0]->byteCount());
+//    qDebug() << QString("FormImage ptrimageviirsm bytecount = %1").arg(imageptrs->ptrimageViirsM->byteCount());
+//    qDebug() << QString("FormImage ptrimageviirsdnb bytecount = %1").arg(imageptrs->ptrimageViirsDNB->byteCount());
+//    qDebug() << QString("FormImage ptrimageolci bytecount = %1").arg(imageptrs->ptrimageOLCI->byteCount());
+//    qDebug() << QString("FormImage ptrimageslstr bytecount = %1").arg(imageptrs->ptrimageSLSTR->byteCount());
+//    qDebug() << QString("FormImage ptrimagemersi bytecount = %1").arg(imageptrs->ptrimageMERSI->byteCount());
 
     this->channelshown = channel;
 
@@ -447,13 +447,14 @@ void FormImage::displayImage(eImageType channel)
 
         }
     }
+
     refreshoverlay = true;
 
     this->update();
     this->adjustImage();
 
 
-    qDebug() << QString("after FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
+//    qDebug() << QString("after FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
 
 }
 
@@ -1092,9 +1093,22 @@ bool FormImage::ShowMERSIImage()
 
         this->kindofimage = "MERSI";
 
-        bandlist = formtoolbox->getMERSIBandList();
-        colorlist = formtoolbox->getMERSIColorList();
+        bandlist = formtoolbox->getMERSIBandList(); // 16 items
+        colorlist = formtoolbox->getMERSIColorList(); // 15 items
         invertlist = formtoolbox->getMERSIInvertList();
+
+//        qDebug()<< "FormImage::ShowMERSIImage() bandlist";
+//        for(int i = 0; i < 16; i++)
+//        {
+//            qDebug() << bandlist.at(i);
+//        }
+
+//        qDebug()<< "FormImage::ShowMERSIImage() colorlist";
+//        for(int i = 0; i < 15; i++)
+//        {
+//            qDebug() << colorlist.at(i);
+//        }
+
         //segs->seglmersi->setHistogramMethod(histogrammethod);
         segs->seglmersi->ComposeMERSIImage(bandlist, colorlist, invertlist, false);
     }
@@ -3748,6 +3762,8 @@ void FormImage::OverlayAVHRRImage(QPainter *paint)
 void FormImage::OverlayProjection(QPainter *paint)
 {
     qDebug() << QString("FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl) opts.currenttoolbox = %1").arg(opts.currenttoolbox);
+    if(!paint->isActive())
+        return;
 
     double lat_deg;
     double lon_deg;
@@ -3765,8 +3781,12 @@ void FormImage::OverlayProjection(QPainter *paint)
         bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
     else if (opts.currenttoolbox == 1)      // GVP
         bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-    else                                    //SG
+    else if (opts.currenttoolbox == 2)      //SG
         bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+    else if (opts.currenttoolbox == 3)      //OM
+        bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+    else
+        bret = false;
 
     if(bret)
     {
@@ -3803,9 +3823,12 @@ void FormImage::OverlayProjection(QPainter *paint)
                     bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
                 else if (opts.currenttoolbox == 1)  //GVP
                     bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
-                else                                //SG
+                else if (opts.currenttoolbox == 2)  //SG
                     bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
-
+                else if (opts.currenttoolbox == 3)  //OM
+                    bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+                else
+                    bret = false;
 
                 if(bret)
                 {
@@ -3817,8 +3840,11 @@ void FormImage::OverlayProjection(QPainter *paint)
                     }
                     else
                     {
-                        paint->setPen(QColor(opts.projectionoverlaycolor1));
-                        paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                        if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
+                        {
+                            paint->setPen(QColor(opts.projectionoverlaycolor1));
+                            paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                        }
                         save_map_x = map_x;
                         save_map_y = map_y;
                     }
@@ -3847,8 +3873,12 @@ void FormImage::OverlayProjection(QPainter *paint)
                     bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
                 else if (opts.currenttoolbox == 1)  //GVP
                     bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-                else                                //SG
+                else if (opts.currenttoolbox == 2)  //SG
                     bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                else if (opts.currenttoolbox == 3)  //OM
+                    bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                else
+                    bret = false;
 
                 if(bret)
                 {
@@ -3860,8 +3890,11 @@ void FormImage::OverlayProjection(QPainter *paint)
                     }
                     else
                     {
-                        paint->setPen(QColor(opts.projectionoverlaycolor2));
-                        paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                        if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
+                        {
+                            paint->setPen(QColor(opts.projectionoverlaycolor2));
+                            paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                        }
                         save_map_x = map_x;
                         save_map_y = map_y;
                     }
@@ -3890,8 +3923,12 @@ void FormImage::OverlayProjection(QPainter *paint)
                     bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
                 else if (opts.currenttoolbox == 1)  //GVP
                     bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-                else                                //SG
+                else if (opts.currenttoolbox == 2)  //SG
                     bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                else if (opts.currenttoolbox == 3)  //OM
+                    bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                else
+                    bret = false;
 
                 if(bret)
                 {
@@ -3903,8 +3940,11 @@ void FormImage::OverlayProjection(QPainter *paint)
                     }
                     else
                     {
-                        paint->setPen(QColor(opts.projectionoverlaycolor3));
-                        paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                        if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
+                        {
+                            paint->setPen(QColor(opts.projectionoverlaycolor3));
+                            paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                        }
                         save_map_x = map_x;
                         save_map_y = map_y;
                     }
@@ -4115,7 +4155,130 @@ void FormImage::OverlayProjection(QPainter *paint)
         }
     }
 
-    qDebug() << QString("End FormImage::OverlayProjection(QPainter *paint, SegmentListGeostationary *sl)");
+    if (opts.currenttoolbox == 3)  //OM
+    {
+        QPolygonF poly;
+        if(opts.buttonMERSI)
+            segs->seglmersi->GetContourPolygon(&poly);
+        else if(opts.buttonVIIRSM)
+            segs->seglviirsm->GetContourPolygon(&poly);
+        else if(opts.buttonVIIRSMNOAA20)
+            segs->seglviirsmnoaa20->GetContourPolygon(&poly);
+        else if(opts.buttonMetop)
+            segs->seglmetop->GetContourPolygonAVHRR(&poly);
+
+        for(int i = 0; i < poly.size(); i++)
+        {
+            bret = imageptrs->om->map_forward( poly.at(i).x()*PI/180, poly.at(i).y()*PI/180, map_x, map_y);
+            if(bret)
+            {
+                paint->setPen(QColor(255, 0, 255));
+                paint->drawPoint(map_x, map_y);
+            }
+        }
+    }
+
+//        QPolygonF track;
+//        if(opts.buttonMERSI)
+//            segs->seglmersi->GetTrackPolygon(&track);
+//        else if(opts.buttonVIIRSMNOAA20)
+//            segs->seglviirsmnoaa20->GetTrackPolygon(&track);
+
+//        first = true;
+//        for(int i = 0; i < track.size(); i++)
+//        {
+//            bret = imageptrs->om->map_forward( track.at(i).x()*PI/180, track.at(i).y()*PI/180, map_x, map_y);
+//            if(bret)
+//            {
+//                if (first)
+//                {
+//                    first = false;
+//                    save_map_x = map_x;
+//                    save_map_y = map_y;
+//                }
+//                else
+//                {
+//                    paint->setPen(QColor(0, 0, 255));
+//                    paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+//                    save_map_x = map_x;
+//                    save_map_y = map_y;
+//                }
+//            }
+//        }
+
+    if (opts.currenttoolbox == 3 && formtoolbox->GridOnProjOM() ) //OM
+    {
+
+        first = true;
+
+        for(double lon = -180.0; lon < 180.0; lon+=10.0)
+        {
+            first = true;
+            {
+                for(double lat = -80.0; lat < 81.0; lat+=0.5)
+                {
+                    bret = imageptrs->om->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+
+                    if(bret)
+                    {
+                        if (first)
+                        {
+                            first = false;
+                            save_map_x = map_x;
+                            save_map_y = map_y;
+                        }
+                        else
+                        {
+                            paint->setPen(QColor(opts.projectionoverlaylonlatcolor));
+//                            paint->drawPoint(map_x, map_y);
+                            if(abs(save_map_x - map_x) < 200 && abs(save_map_y - map_y) < 200)
+                                paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                            save_map_x = map_x;
+                            save_map_y = map_y;
+                        }
+                    }
+                    else
+                        first = true;
+
+                }
+            }
+        }
+        for(double lat = -80.0; lat < 81.0; lat+=10.0)
+        {
+            first = true;
+            {
+                for(double lon = -180.0; lon < 180.0; lon+=1.0)
+                {
+                    bret = imageptrs->om->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+
+                    if(bret)
+                    {
+                        if (first)
+                        {
+                            first = false;
+                            save_map_x = map_x;
+                            save_map_y = map_y;
+                        }
+                        else
+                        {
+                            paint->setPen(QColor(opts.projectionoverlaylonlatcolor));
+                            //paint->drawPoint(map_x, map_y);
+                            if(abs(save_map_x - map_x) < 200 && abs(save_map_y - map_y) < 200)
+                                paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                            save_map_x = map_x;
+                            save_map_y = map_y;
+                        }
+                    }
+                    else
+                        first = true;
+
+                }
+            }
+        }
+
+
+
+    }
 
 
 }
@@ -4128,6 +4291,7 @@ void FormImage::OverlayOLCI(QPainter *paint)
     int width = imageptrs->ptrimageOLCI->width();
     if( height == 0 || width == 0)
         return;
+
     qDebug() << "FormImage::OverlayOLCI(QPainter *paint) 1";
     qDebug() << "opts.buttonOLCIefr = " << opts.buttonOLCIefr;
     qDebug() << "opts.buttonOLCIerr = " << opts.buttonOLCIerr;
@@ -4440,8 +4604,12 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *event)
                 bret = imageptrs->lcc->map_inverse(xpos, ypos, lon, lat);
             else if (opts.currenttoolbox == 1)  //GVP
                 bret = imageptrs->gvp->map_inverse(xpos, ypos, lon, lat);
-            else                                //SG
+            else if (opts.currenttoolbox == 2)  //SG
                 bret = imageptrs->sg->map_inverse(xpos, ypos, lon, lat);
+            else if (opts.currenttoolbox == 3)  //OM
+                bret = imageptrs->om->map_inverse(xpos, ypos, lon, lat);
+            else
+                bret = false;
 
             if(bret)
                 emit coordinateChanged(QString("longitude = %1 latitude = %2   ")

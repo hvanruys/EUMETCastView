@@ -22,6 +22,9 @@ StereoGraphic::StereoGraphic(QObject *parent, AVHRRSatellite *seglist) :
     scale = opts.mapsgscale;
     double map_x,map_y;
 
+    image_width = 0;
+    image_height = 0;
+
     map_radius = 0;
 //    Initialize(opts.mapsglon, opts.mapsglat, opts.mapsgscale, opts.mapwidth, opts.mapheight);
     Initialize(0.0, 0.0, 1.0, opts.mapwidth, opts.mapheight, 0, 0);

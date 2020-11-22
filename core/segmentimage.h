@@ -11,6 +11,7 @@
 #include "generalverticalperspective.h"
 #include "lambertconformalconic.h"
 #include "stereographic.h"
+#include "obliquemercator.h"
 
 enum  seviriunits {
      SEVIRI_UNIT_CNT,
@@ -85,6 +86,7 @@ enum MapReturn
 class GeneralVerticalPerspective;
 class LambertConformalConic;
 class StereoGraphic;
+class ObliqueMercator;
 
 class SegmentImage
 {
@@ -147,6 +149,7 @@ public:
     GeneralVerticalPerspective *gvp;
     LambertConformalConic *lcc;
     StereoGraphic *sg;
+    ObliqueMercator *om;
 
     quint16 lut_ch[5][1024];
     quint16 lut_norm_ch[5][1024];

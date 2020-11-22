@@ -109,7 +109,7 @@ void Segment::CalculateCornerPoints()
     //qDebug() << QString("minutes_since_state_vector = %1 in CalculateCornerPoints").arg(minutes_since_state_vector);
 
     if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
-            segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || segtype == SEG_HRPT_NOAA19 ||
+            segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || // segtype == SEG_HRPT_NOAA19 ||
             segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR) // || segtype == SEG_MERSI )
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
@@ -195,7 +195,7 @@ void Segment::CalculateCornerPoints()
     PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
     if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
-                segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || segtype == SEG_HRPT_NOAA19 ||
+                segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || // segtype == SEG_HRPT_NOAA19 ||
             segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR ) //|| segtype == SEG_MERSI )
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
@@ -790,7 +790,8 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
     double r = d3pos.length();
     double sindelta = sin(-delta);
     double dd = r * cos(-delta) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
-    QVector3D d3d = - d3posnorm * cos(-delta) * dd + d3scannorm * sin(-delta) * dd;
+//    QVector3D d3d = - d3posnorm * cos(-delta) * dd + d3scannorm * sin(-delta) * dd;
+    QVector3D d3d = - d3posnorm * cos(-delta) * dd + d3scannorm * sindelta * dd;
 
     //qDebug() << QString("a = %1 b = %2").arg(XKMPER * XKMPER).arg( r * r * sindelta * sindelta);
     QVector3D d3earthposfirst = d3pos + d3d;
@@ -800,7 +801,8 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
 
     sindelta = sin(delta);
     dd = r * cos(delta) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
-    d3d = - d3posnorm * cos(delta) * dd + d3scannorm * sin(delta) * dd;
+//    d3d = - d3posnorm * cos(delta) * dd + d3scannorm * sin(delta) * dd;
+    d3d = - d3posnorm * cos(delta) * dd + d3scannorm * sindelta * dd;
 
     QVector3D d3earthposlast = d3pos + d3d;
 
@@ -1125,6 +1127,11 @@ void Segment::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, 
 
 }
 
+void Segment::ComposeSegmentOMProjection(int inputchannel, int histogrammethod, bool normalized)
+{
+
+}
+
 void Segment::RecalculateProjection()
 {
 
@@ -1388,4 +1395,5 @@ qint32 Segment::Max(const qint32 v11, const qint32 v12, const qint32 v21, const 
 
     return Maximum;
 }
+
 

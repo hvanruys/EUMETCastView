@@ -865,16 +865,6 @@ void SegmentList::ComposeGVProjection(int inputchannel)
 
 }
 
-//void SegmentList::ComposeGVProjection(int inputchannel)
-//{
-//    projectioninputchannel = inputchannel;
-//    watchercomposeprojection = new QFutureWatcher<void>(this);
-//    connect(watchercomposeprojection, SIGNAL(resultReadyAt(int)), SLOT(composeprojectionreadyat(int)));
-//    connect(watchercomposeprojection, SIGNAL(finished()), SLOT(composeprojectionfinished()));
-
-//    watchercomposeprojection->setFuture(QtConcurrent::map(segsselected.begin(), segsselected.end(), &SegmentList::doComposeGVProjection));
-//}
-
 void SegmentList::ComposeLCCProjection(int inputchannel)
 {
 
@@ -896,6 +886,19 @@ void SegmentList::ComposeSGProjection(int inputchannel)
     while ( segit != segsselected.end() )
     {
         (*segit)->ComposeSegmentSGProjection(inputchannel, 0, false);
+        emit segmentprojectionfinished(false);
+        ++segit;
+    }
+
+}
+
+void SegmentList::ComposeOMProjection(int inputchannel)
+{
+    qDebug() << "SegmentList::ComposeOMProjection()";
+    QList<Segment*>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentOMProjection(inputchannel, 0, false);
         emit segmentprojectionfinished(false);
         ++segit;
     }
@@ -2613,4 +2616,144 @@ void SegmentList::Compose48bitProjectionPNG(QString fileName, bool mapto65535)
     FreeImage_DeInitialise();
 
 
+}
+
+void SegmentList::GetContourPolygon(QPolygonF *poly)
+{
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+    int segscount = segsselected.size();
+    int count = 0;
+    int nbroflines;
+    int earthviews;
+
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        nbroflines = segm->GetNbrOfLines();
+        earthviews = segm->getEarthViewsPerScanline();
+        count++;
+        if(count == 1)
+        {
+            for(int j = 0; j < nbroflines; j++)
+            {
+                if(segm->geolongitude[j*earthviews] < 180.0 && segm->geolatitude[j*earthviews] < 90.0)
+                {
+                    for(int i = 0; i < earthviews; i += 10 )
+                        poly->append(QPointF(segm->geolongitude[i + j*earthviews], segm->geolatitude[i + j*earthviews] ));
+                    break;
+                }
+            }
+        }
+
+        for(int j = 0; j < nbroflines; j += 10)
+        {
+            if(segm->geolongitude[j*earthviews] < 180.0 && segm->geolatitude[j*earthviews] < 90.0 &&
+                    segm->geolongitude[j*earthviews + earthviews - 1] < 180.0 && segm->geolatitude[j*earthviews + earthviews - 1] < 90.0)
+            {
+                poly->append(QPointF(segm->geolongitude[j*earthviews + earthviews - 1], segm->geolatitude[j*earthviews + earthviews - 1] ));
+                poly->append(QPointF(segm->geolongitude[j*earthviews], segm->geolatitude[j*earthviews] ));
+            }
+        }
+
+
+        if(count == segscount)
+        {
+            for(int j = nbroflines - 1; j >= 0; j--)
+            {
+                if(segm->geolongitude[j*earthviews] < 180.0 && segm->geolatitude[j*earthviews] < 90.0)
+                {
+                    for(int i = 0; i < earthviews; i += 10 )
+                        poly->append(QPointF(segm->geolongitude[i + j*earthviews], segm->geolatitude[i + j*earthviews] ));
+                    break;
+                }
+            }
+        }
+
+        ++segsel;
+    }
+
+
+}
+
+void SegmentList::GetContourPolygonAVHRR(QPolygonF *poly)
+{
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+    int segscount = segsselected.size();
+    int count = 0;
+    int nbroflines;
+
+    while ( segsel != segsselected.end() )
+    {
+
+        Segment *segm = (Segment *)(*segsel);
+        nbroflines = segm->GetNbrOfLines();
+        count++;
+        if(count == 1)
+        {
+            for(int j = 0; j < nbroflines; j++)
+            {
+                if(segm->earthloc_lon[j*103] < 180.0 && segm->earthloc_lat[j*103] < 90.0)
+                {
+                    for(int i = 0; i < 103; i++ )
+                        poly->append(QPointF(segm->earthloc_lon[i + j*103], segm->earthloc_lat[i + j*103] ));
+                    break;
+                }
+            }
+        }
+
+        for(int j = 0; j < nbroflines; j += 10)
+        {
+            if(segm->earthloc_lon[j*103] < 180.0 && segm->earthloc_lat[j*103] < 90.0 &&
+                    segm->earthloc_lon[j*103 + 103 - 1] < 180.0 && segm->earthloc_lat[j*103 + 103 - 1] < 90.0)
+            {
+                poly->append(QPointF(segm->earthloc_lon[j*103 + 103 - 1], segm->earthloc_lat[j*103 + 103 - 1] ));
+                poly->append(QPointF(segm->earthloc_lon[j*103], segm->earthloc_lat[j*103] ));
+            }
+        }
+
+
+        if(count == segscount)
+        {
+            for(int j = nbroflines - 1; j >= 0; j--)
+            {
+                if(segm->earthloc_lon[j*103] < 180.0 && segm->earthloc_lat[j*103] < 90.0)
+                {
+                    for(int i = 0; i < 103; i++ )
+                        poly->append(QPointF(segm->earthloc_lon[i + j*103], segm->earthloc_lat[i + j*103] ));
+                    break;
+                }
+            }
+        }
+
+        ++segsel;
+    }
+
+
+}
+
+void SegmentList::GetTrackPolygon(QPolygonF *poly)
+{
+    QList<Segment *>::iterator segsel;
+    int nbroflines;
+    int earthviews;
+    segsel = segsselected.begin();
+
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        nbroflines = segm->GetNbrOfLines();
+        earthviews = segm->getEarthViewsPerScanline();
+
+        for(int j = 0; j < nbroflines; j=j+10)
+        {
+            if(segm->geolongitude[j*earthviews] < 180.0 && segm->geolatitude[j*earthviews] < 90.0)
+            {
+                    poly->append(QPointF(segm->geolongitude[j*earthviews + (int)(earthviews/2)], segm->geolatitude[j*earthviews + (int)(earthviews/2)] ));
+            }
+        }
+
+    ++segsel;
+    }
 }

@@ -142,7 +142,7 @@ void SegmentMERSI::initializeMemory()
     }
 }
 
-void SegmentMERSI::ComposeSegmentImage(int colorarrayindex[], bool invertarrayindex[], int histogrammethod, bool normalized, int totallines)
+void SegmentMERSI::ComposeSegmentImage(int bandindex, int colorarrayindex[], bool invertarrayindex[], int histogrammethod, bool normalized, int totallines)
 {
 
     QRgb *row;
@@ -150,9 +150,9 @@ void SegmentMERSI::ComposeSegmentImage(int colorarrayindex[], bool invertarrayin
 
     qDebug() << QString("SegmentMERSI::ComposeSegmentImage() segm->startLineNbr = %1").arg(this->startLineNbr);
     qDebug() << QString("SegmentMERSI::ComposeSegmentImage() color = %1 ").arg(bandlist.at(0));
-    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() invertarrayindex[0] = %1").arg(invertarrayindex[0]);
-    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() invertarrayindex[1] = %1").arg(invertarrayindex[1]);
-    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() invertarrayindex[2] = %1").arg(invertarrayindex[2]);
+    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() colorarrayindex[0] = %1").arg(colorarrayindex[0]);
+    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() colorarrayindex[1] = %1").arg(colorarrayindex[1]);
+    qDebug() << QString("SegmentMERSI::ComposeSegmentImage() colorarrayindex[2] = %1").arg(colorarrayindex[2]);
 
     int pixval[3];
     int r, g, b;
@@ -166,24 +166,34 @@ void SegmentMERSI::ComposeSegmentImage(int colorarrayindex[], bool invertarrayin
         this->colorarrayindex[i] = colorarrayindex[i];
         this->invertarrayindex[i] = invertarrayindex[i];
     }
+    this->bandindex = bandindex;
 
     for (int line = 0; line < this->NbrOfLines; line++)
-//    for (int line = this->NbrOfLines - 1; line >= 0; line--)
     {
         row = (QRgb*)imageptrs->ptrimageMERSI->scanLine(totallines - 1 - this->startLineNbr - line);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
-//        for (int pixelx = earth_views_per_scanline - 1; pixelx >= 0; pixelx--)
         {
-            pixval[0] = *(this->ptrbaMERSI.data() + this->colorarrayindex[0] * oneblock + line * earth_views_per_scanline + earth_views_per_scanline - 1 - pixelx);
             if(color)
             {
+                pixval[0] = *(this->ptrbaMERSI.data() + this->colorarrayindex[0] * oneblock + line * earth_views_per_scanline + earth_views_per_scanline - 1 - pixelx);
                 pixval[1] = *(this->ptrbaMERSI.data() + this->colorarrayindex[1] * oneblock + line * earth_views_per_scanline + earth_views_per_scanline - 1 - pixelx);
                 pixval[2] = *(this->ptrbaMERSI.data() + this->colorarrayindex[2] * oneblock + line * earth_views_per_scanline + earth_views_per_scanline - 1 - pixelx);
-            }
 
-            valok[0] = pixval[0] < 65528 && pixval[0] > 0;
-            valok[1] = pixval[1] < 65528 && pixval[1] > 0;
-            valok[2] = pixval[2] < 65528 && pixval[2] > 0;
+                valok[0] = pixval[0] < 65528 && pixval[0] > 0;
+                valok[1] = pixval[1] < 65528 && pixval[1] > 0;
+                valok[2] = pixval[2] < 65528 && pixval[2] > 0;
+            }
+            else
+            {
+                pixval[0] = *(this->ptrbaMERSI.data() + (this->bandindex - 1) * oneblock + line * earth_views_per_scanline + earth_views_per_scanline - 1 - pixelx);
+                pixval[1] = pixval[0];
+                pixval[2] = pixval[0];
+
+                valok[0] = pixval[0] < 65528 && pixval[0] > 0;
+                valok[1] = valok[0];
+                valok[2] = valok[0];
+
+            }
 
             if( valok[0] && (color ? valok[1] && valok[2] : true))
             {
@@ -332,7 +342,7 @@ void SegmentMERSI::RenderSegmentlineInTextureMERSI( int nbrLine, QRgb *row )
 
 }
 
-Segment *SegmentMERSI::ReadSegmentInMemory(bool composecolor, int colorarrayindex[])
+Segment *SegmentMERSI::ReadSegmentInMemory(int bandindex, int colorarrayindex[])
 {
     QScopedArrayPointer<float> ptrbaLongitude;
     QScopedArrayPointer<float> ptrbaLatitude;
@@ -340,6 +350,7 @@ Segment *SegmentMERSI::ReadSegmentInMemory(bool composecolor, int colorarrayinde
     int geoindex;
 
     qDebug() << "*SegmentMERSI::ReadSegmentInMemory() for " << fileInfo.filePath();
+    qDebug() << "bandindex = " << bandindex << " colorarrayindex[0] = " << colorarrayindex[0]<< " colorarrayindex[1] = " << colorarrayindex[1]<< " colorarrayindex[2] = " << colorarrayindex[2];
     hid_t   h5_file_id, h5_filegeo_id, h5_Longitude_id, h5_Latitude_id;
     herr_t  h5_status;
 
@@ -347,7 +358,13 @@ Segment *SegmentMERSI::ReadSegmentInMemory(bool composecolor, int colorarrayinde
         qDebug() << "File " << fileInfo.filePath().toLatin1() << " not open !!";
 
 
-    strgeofile = fileInfo.fileName().replace(40, 5, "GEO1K");
+    if(fileInfo.fileName().indexOf("1000M") == 40)
+        strgeofile = fileInfo.fileName().replace(40, 5, "GEO1K");
+    else if(fileInfo.fileName().indexOf("1000M") == 39)
+        strgeofile = fileInfo.fileName().replace(39, 5, "GEO1K");
+    else
+        qDebug() << "Wrong filename = " << fileInfo.fileName();
+
     QString strgeofilepath = fileInfo.path() + "/" + strgeofile;
     QFile geofile(strgeofilepath);
     if (geofile.exists())
@@ -458,23 +475,44 @@ Segment *SegmentMERSI::ReadSegmentInMemory(bool composecolor, int colorarrayinde
 
     int oneblock = 400 * 2048;
 
-    for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
+    if(bandindex == 0) // color
     {
-        for (int j = 0; j < NbrOfLines; j++) {
-            for (int i = 0; i < earth_views_per_scanline; i++)
+        for(int k = 0; k < 3; k++)
+        {
+            for (int j = 0; j < NbrOfLines; j++)
             {
-                if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] > 0 && ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] < 65528)
+                for (int i = 0; i < earth_views_per_scanline; i++)
                 {
-                    if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] >= stat_max_ch[k])
-                        stat_max_ch[k] = ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i];
-                    if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] < stat_min_ch[k])
-                        stat_min_ch[k] = ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i];
-                    active_pixels[k]++;
+                    if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] > 0 && ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] < 65528)
+                    {
+                        if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] >= stat_max_ch[k])
+                            stat_max_ch[k] = ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i];
+                        if(ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i] < stat_min_ch[k])
+                            stat_min_ch[k] = ptrbaMERSI[oneblock * colorarrayindex[k] + j * earth_views_per_scanline + i];
+                        active_pixels[k]++;
+                    }
                 }
             }
         }
     }
+    else
+    {
+        for (int j = 0; j < NbrOfLines; j++)
+        {
+            for (int i = 0; i < earth_views_per_scanline; i++)
+            {
+                if(ptrbaMERSI[oneblock * (bandindex-1) + j * earth_views_per_scanline + i] > 0 && ptrbaMERSI[oneblock * (bandindex-1) + j * earth_views_per_scanline + i] < 65528)
+                {
+                    if(ptrbaMERSI[oneblock * (bandindex-1) + j * earth_views_per_scanline + i] >= stat_max_ch[0])
+                        stat_max_ch[0] = ptrbaMERSI[oneblock * (bandindex-1) + j * earth_views_per_scanline + i];
+                    if(ptrbaMERSI[oneblock * (bandindex-1) + j * earth_views_per_scanline + i] < stat_min_ch[0])
+                        stat_min_ch[0] = ptrbaMERSI[oneblock * (bandindex-1) + j * earth_views_per_scanline + i];
+                    active_pixels[0]++;
+                }
+            }
+        }
 
+    }
 
     qDebug() << QString("ptrbaMERSI min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
     if(this->bandlist.at(0))
@@ -520,6 +558,8 @@ void SegmentMERSI::ReadMERSI_1KM(hid_t h5_file_id)
 
 void SegmentMERSI::ReadGeoFile(hid_t h5_geofile_id)
 {
+    qDebug() << "SegmentMERSI::ReadGeoFile(hid_t h5_geofile_id)";
+
     hid_t   h5_Longitude_id, h5_Latitude_id;
     herr_t  h5_status;
 
@@ -561,6 +601,11 @@ void SegmentMERSI::ComposeSegmentGVProjection(int inputchannel, int histogrammet
 void SegmentMERSI::ComposeSegmentSGProjection(int inputchannel, int histogrammethod,  bool normalized)
 {
     ComposeProjection(SG, histogrammethod, normalized);
+}
+
+void SegmentMERSI::ComposeSegmentOMProjection(int inputchannel, int histogrammethod,  bool normalized)
+{
+    ComposeProjection(OM, histogrammethod, normalized);
 }
 
 void SegmentMERSI::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
@@ -640,6 +685,13 @@ void SegmentMERSI::ComposeProjection(eProjections proj, int histogrammethod, boo
                         MapPixel( i, j, map_x, map_y, color);
                     }
                 }
+                else if(proj == OM) // Oblique Mercator
+                {
+                    if(imageptrs->om->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    {
+                        MapPixel( i, j, map_x, map_y, color);
+                    }
+                }
             } else
             {
                 projectionCoordX[i * earth_views_per_scanline + j] = 65535;
@@ -703,45 +755,169 @@ void SegmentMERSI::MapPixel(int lines, int views, double map_x, double map_y, bo
         }
 
 
-//        rgbvalue = qRgba(color8[0], iscolor ? color8[1] : color8[0], iscolor ? color8[2] : color8[0], 255 );
+        //        rgbvalue = qRgba(color8[0], iscolor ? color8[1] : color8[0], iscolor ? color8[2] : color8[0], 255 );
         rgbvalue = qRgba(pixval256[0], iscolor ? pixval256[1] : pixval256[0], iscolor ? pixval256[2] : pixval256[0], 255 );
 
 
-//        if(opts.sattrackinimage)
-//        {
-//            if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
-//            {
-//                rgbvalue = qRgb(250, 0, 0);
-//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-//            }
-//            else
-//            {
-//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-//                projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
-
-//            }
-//        }
-//        else
-//        {
-
-
-            if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-
-            projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
-            projectionCoordValueRed[lines * earth_views_per_scanline + views] = color12[0];
-            if(iscolor)
+        if(opts.sattrackinimage)
+        {
+            if(views == 1023 || views == 1024 || views == 1025 )
             {
-                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[1];
-                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[2];
+                rgbvalue = qRgb(250, 0, 0);
+                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
             }
             else
             {
-                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[0];
-                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[0];
+                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+                projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+
             }
-//        }
+        }
+        else
+        {
+            if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+        }
+
+        projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+        projectionCoordValueRed[lines * earth_views_per_scanline + views] = color12[0];
+        if(iscolor)
+        {
+            projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[1];
+            projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[2];
+        }
+        else
+        {
+            projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[0];
+            projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[0];
+        }
+        //        }
     }
+}
+
+void SegmentMERSI::GetCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex)
+{
+    if(geolatitude.isNull())
+    {
+        *startlon = 0.0;
+        *startlat = 0.0;
+        *endlon = 0.0;
+        *endlat = 0.0;
+        return;
+    }
+
+    for(int i = 0; i < NbrOfLines; i++)
+    {
+        *startindex = i;
+        *startlon = geolongitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)];
+        *startlat = geolatitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)];
+        if(*startlon != 65535 && *startlat != 65535)
+            break;
+    }
+
+    for(int i = NbrOfLines - 1; i >= 0; i--)
+    {
+        *endindex  = i;
+        *endlon = geolongitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)];
+        *endlat = geolatitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)];
+        if(*endlon != 65535 && *endlat != 65535)
+            break;
+    }
+
+//    qDebug() << "SegmentMERSI::GetCentralCoords startindex = " << *startindex << " endindex = " << *endindex << " slon = " << *startlon <<
+//                " slat = " << *startlat << " elon = " << *endlon << " elat = " << *endlat;
+
+}
+
+void SegmentMERSI::GetStartCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2,
+                                        int *Xstartindex1, int *Xstartindex2, int *Ystartindex12)
+{
+    if(geolatitude.isNull())
+    {
+        *cornerlon1 = 999.0;
+        *cornerlat1 = 999.0;
+        *cornerlon2 = 999.0;
+        *cornerlat2 = 999.0;
+        *Xstartindex1 = 0;
+        *Xstartindex2 = 0;
+        *Ystartindex12 = 0;
+        return;
+    }
+
+    for(int i = 0; i < NbrOfLines; i++)
+    {
+        *Ystartindex12 = i;
+
+        for(int j = 0; j < earth_views_per_scanline; j++)
+        {
+            *Xstartindex1 = j;
+            *cornerlon1 = geolongitude[i * earth_views_per_scanline + j];
+            *cornerlat1 = geolatitude[i * earth_views_per_scanline + j];
+            if(abs(*cornerlon1) < 180.0 && abs(*cornerlat1) < 90.0)
+                break;
+        }
+
+        for(int j = earth_views_per_scanline - 1; j >= 0; j--)
+        {
+            *Xstartindex2 = j;
+            *cornerlon2 = geolongitude[i * earth_views_per_scanline + j];
+            *cornerlat2 = geolatitude[i * earth_views_per_scanline + j];
+            if(abs(*cornerlon2) < 180.0 && abs(*cornerlat2) < 90.0)
+                break;
+        }
+
+        if(abs(*cornerlon1) < 180.0 && abs(*cornerlat1) < 90.0 && abs(*cornerlon2) < 180.0 && abs(*cornerlat2) < 90.0)
+            break;
+    }
+
+    qDebug() << "SegmentMERSI::GetStartCornerCoords " << " cornerlon1 = " << *cornerlon1 << " cornerlat1 = " << *cornerlat1 << " cornerlon2 = " << *cornerlon2 <<
+                " cornerlat2 = " << *cornerlat2 << " Xstartindex1 = " << *Xstartindex1 << " Xstartindex2 = " << *Xstartindex2 << " Ystartindex12 = " << *Ystartindex12;
+
+}
+void SegmentMERSI::GetEndCornerCoords(double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4,
+                                        int *Xstartindex3, int *Xstartindex4, int *Ystartindex34)
+{
+    if(geolatitude.isNull())
+    {
+        *cornerlon3 = 999.0;
+        *cornerlat3 = 999.0;
+        *cornerlon4 = 999.0;
+        *cornerlat4 = 999.0;
+        *Xstartindex3 = 0;
+        *Xstartindex4 = 0;
+        *Ystartindex34 = 0;
+        return;
+    }
+
+    for(int i = 399; i >= 0; i--)
+    {
+        *Ystartindex34 = i;
+
+        for(int j = 0; j < 2048; j++)
+        {
+            *Xstartindex3 = j;
+            *cornerlon3 = geolongitude[i * earth_views_per_scanline + j];
+            *cornerlat3 = geolatitude[i * earth_views_per_scanline + j];
+            if(abs(*cornerlon3) < 180.0 && abs(*cornerlat3) < 90.0)
+                break;
+        }
+
+        for(int j = 2047; j >= 0; j--)
+        {
+            *Xstartindex4 = j;
+            *cornerlon4 = geolongitude[i * earth_views_per_scanline + j];
+            *cornerlat4 = geolatitude[i * earth_views_per_scanline + j];
+            if(abs(*cornerlon4) < 180.0 && abs(*cornerlat4) < 90.0)
+                break;
+        }
+
+        if(abs(*cornerlon3) < 180.0 && abs(*cornerlat3) < 90.0 && abs(*cornerlon4) < 180.0 && abs(*cornerlat4) < 90.0)
+            break;
+    }
+
+    qDebug() << "SegmentMERSI::GetEndCornerCoords " << " cornerlon3 = " << *cornerlon3 << " cornerlat3 = " << *cornerlat3 << " cornerlon4 = " << *cornerlon4 << " cornerlat4 = " << *cornerlat4 <<
+                " Xstartindex3 = " << *Xstartindex3 << " Xstartindex4 = " << *Xstartindex4 << " Ystartindex34 = " << *Ystartindex34;
+
 }

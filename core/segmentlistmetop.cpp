@@ -20,9 +20,6 @@ bool  SegmentListMetop::GetGeoLocation(double lon_rad, double lat_rad, int *x, i
 {
     //qDebug() << QString("SegmentListMetop::GetGeoLocation segsselected count = %1").arg(segsselected.count());
 
-    float flon;
-    float flat;
-
     *x = 0;
     *y = 0;
 
@@ -54,4 +51,54 @@ bool  SegmentListMetop::GetGeoLocation(double lon_rad, double lat_rad, int *x, i
     return false;
 }
 
+void SegmentListMetop::GetCentralCoords(double *startcentrallon, double *startcentrallat, double *endcentrallon, double *endcentrallat)
+{
+
+    double slon, slat, elon, elat;
+    double save_slon, save_slat, save_elon, save_elat;
+    int startindex, endindex;
+
+    save_slon = 65535.0;
+    save_slat = 65535.0;
+    save_elon = 65535.0;
+    save_elat = 65535.0;
+
+    bool first = true;
+
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentMetop *segm = (SegmentMetop *)(*segsel);
+        segm->GetCentralCoords(&slon, &slat, &elon, &elat, &startindex, &endindex);
+
+        if(abs(slon) < 180.0 && abs(slat) < 90.0 && abs(elon) < 180.0 && abs(elat) < 90.0)
+        {
+            if(first == true)
+            {
+                first = false;
+                save_slon = slon;
+                save_slat = slat;
+                save_elon = elon;
+                save_elat = elat;
+            }
+            else
+            {
+                save_elon = elon;
+                save_elat = elat;
+            }
+
+        }
+
+        QApplication::processEvents();
+        ++segsel;
+    }
+
+    *startcentrallon = save_slon;
+    *startcentrallat = save_slat;
+    *endcentrallon = save_elon;
+    *endcentrallat = save_elat;
+
+}
 

@@ -18,6 +18,9 @@ LambertConformalConic::LambertConformalConic(QObject *parent, AVHRRSatellite *se
     min_y = 9999999999.0;
     max_y = 0.0;
 
+    image_width = 0;
+    image_height = 0;
+
      qDebug() << QString("constructor LambertConformalConic");
 
 }
@@ -136,7 +139,7 @@ void LambertConformalConic::Initialize(double r_maj, double r_min, double stdlat
     es = 1.0 - temp*temp;
     e = sqrt(es);
 
-#ifdef WIN32 && __GNUC__
+#ifdef WIN32 // && __GNUC__
     sin_po = sin(lat1);
     cos_po = cos(lat1);
 #else
@@ -147,7 +150,7 @@ void LambertConformalConic::Initialize(double r_maj, double r_min, double stdlat
     ms1 = msfnz(e,sin_po,cos_po);
     ts1 = tsfnz(e,lat1,sin_po);
 
-#ifdef WIN32 && __GNUC__
+#ifdef WIN32 //&& __GNUC__
     sin_po = sin(lat2);
     cos_po = cos(lat2);
 #else

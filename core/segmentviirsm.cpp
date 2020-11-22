@@ -401,6 +401,7 @@ void SegmentVIIRSM::ReadVIIRSM_GEO_All(hid_t h5_file_id)
 {
     hid_t   tiepoints_lat_id, tiepoints_lon_id;
     hid_t   aligncoef_id, expanscoef_id;
+    hid_t   sc_position_id, sc_velocity_id;
     herr_t  h5_status;
 
     tiepoints_lat.reset(new float[96 * 201]);
@@ -409,12 +410,16 @@ void SegmentVIIRSM::ReadVIIRSM_GEO_All(hid_t h5_file_id)
     expanscoef.reset(new float[200]);
     geolongitude.reset(new float[NbrOfLines * earth_views_per_scanline]);
     geolatitude.reset(new float[NbrOfLines * earth_views_per_scanline]);
+    sc_position.reset(new float[48 * 3]);
+    sc_velocity.reset(new float[48 * 3]);
 
 
     tiepoints_lat_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/Latitude", H5P_DEFAULT);
     tiepoints_lon_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/Longitude", H5P_DEFAULT);
     aligncoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/AlignmentCoefficient", H5P_DEFAULT);
     expanscoef_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/ExpansionCoefficient", H5P_DEFAULT);
+    sc_position_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/SCPosition", H5P_DEFAULT);
+    sc_velocity_id = H5Dopen2(h5_file_id, "/All_Data/VIIRS-MOD-GEO_All/SCVelocity", H5P_DEFAULT);
 
     if((h5_status = H5Dread (tiepoints_lat_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
                              H5P_DEFAULT, tiepoints_lat.data())) < 0)
@@ -432,10 +437,20 @@ void SegmentVIIRSM::ReadVIIRSM_GEO_All(hid_t h5_file_id)
                              H5P_DEFAULT, expanscoef.data())) < 0)
         fprintf(stderr, "unable to read ExpansionCoefficient dataset");
 
+    if((h5_status = H5Dread (sc_position_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, sc_position.data())) < 0)
+        fprintf(stderr, "unable to read SCPosition dataset");
+
+    if((h5_status = H5Dread (sc_velocity_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                             H5P_DEFAULT, sc_velocity.data())) < 0)
+        fprintf(stderr, "unable to read SCVelocity dataset");
+
     h5_status = H5Dclose (tiepoints_lat_id);
     h5_status = H5Dclose (tiepoints_lon_id);
     h5_status = H5Dclose (aligncoef_id);
     h5_status = H5Dclose (expanscoef_id);
+    h5_status = H5Dclose (sc_position_id);
+    h5_status = H5Dclose (sc_velocity_id);
 
 
 }
@@ -707,7 +722,7 @@ void SegmentVIIRSM::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48
     lat_C = tiepoints_lat[iC * 201 + jC];
     lat_D = tiepoints_lat[iD * 201 + jD];
 
-//    if(itrack == 0)
+//    if(itrack == 47)
 //        qDebug() << QString("itrack = %1 iscan = %2 Lat tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lat_A).arg(lat_B).arg(lat_C).arg(lat_D);
 
     lon_A = tiepoints_lon[iA * 201 + jA];
@@ -721,24 +736,37 @@ void SegmentVIIRSM::CalcGeoLocations(int itrack, int iscan)  // 0 <= itrack < 48
     val_C = ptrbaVIIRS[0][((itrack * 16) + 15) * earth_views_per_scanline + (iscan * 16) + 15];
     val_D = ptrbaVIIRS[0][((itrack * 16) + 15) * earth_views_per_scanline + (iscan * 16)];
 
-    if( val_A == 0 || val_A > 65528 || val_B == 0 || val_B > 65528 || val_C == 0 || val_C > 65528 || val_D == 0 || val_D > 65528)
+    if( val_A == 0 || val_A > 65527 || val_B == 0 || val_B > 65527 || val_C == 0 || val_C > 65527 || val_D == 0 || val_D > 65527)
     {
-        quint16 minval = Min(val_A, val_B, val_C, val_D);
-
         for(int relt = 0; relt < 16; relt++)
         {
             for(int rels = 0; rels < 16; rels++)
             {
-                if(ptrbaVIIRS[0][((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] == 0 || ptrbaVIIRS[0][((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] >= 65528)
-                {
+//                if(ptrbaVIIRS[0][((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] == 0 || ptrbaVIIRS[0][((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] >= 65528)
+//                {
                     geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
                     geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
-                }
+//                }
             }
         }
     }
 
-//    if(itrack == 0)
+    if(lon_A > 180.0 || lon_A < -180.0 || lon_B > 180.0 || lon_B < -180.0 || lon_C > 180.0 || lon_C < -180.0 || lon_D > 180.0 || lon_D < -180.0 ||
+            lat_A > 90.0 || lat_A < -90.0 || lat_B > 90.0 || lat_B < -90.0 || lat_C > 90.0 || lat_C < -90.0 || lat_D > 90.0 || lat_D < -90.0)
+    {
+        for(int relt = 0; relt < 16; relt++)
+        {
+            for(int rels = 0; rels < 16; rels++)
+            {
+                geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
+                geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = 65535;
+            }
+        }
+        return;
+
+    }
+
+//    if(itrack == 47)
 //        qDebug() << QString("itrack = %1 iscan = %2 Lon tiepoint A = %3 B = %4 C = %5 D = %6").arg(itrack).arg(iscan).arg(lon_A).arg(lon_B).arg(lon_C).arg(lon_D);
 
     float themin = Minf(lon_A, lon_B, lon_C, lon_D);
@@ -1044,6 +1072,11 @@ void SegmentVIIRSM::ComposeSegmentSGProjection(int inputchannel, int histogramme
     ComposeProjection(SG, histogrammethod, normalized);
 }
 
+void SegmentVIIRSM::ComposeSegmentOMProjection(int inputchannel, int histogrammethod,  bool normalized)
+{
+    ComposeProjection(OM, histogrammethod, normalized);
+}
+
 void SegmentVIIRSM::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
 {
 
@@ -1115,6 +1148,13 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj, int histogrammethod, bo
                 else if(proj == SG) // Stereographic
                 {
                     if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    {
+                        MapPixel( i, j, map_x, map_y, color);
+                    }
+                }
+                else if(proj == OM) // Oblique Mercator
+                {
+                    if(imageptrs->om->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
@@ -1756,59 +1796,133 @@ qint32 SegmentVIIRSM::Max(const qint32 v11, const qint32 v12, const qint32 v21, 
     return Maximum;
 }
 
-//    float m00_A = -sin(lon_A);
-//    float m01_A = cos(lon_A);
-//    float m02_A = 0;
-//    float m10_A = -sin(lat_A)*cos(lon_A);
-//    float m11_A = -sin(lat_A)*sin(lon_A);
-//    float m12_A = cos(lat_A);
-//    float m20_A = cos(lat_A) * cos(lon_A);
-//    float m21_A = cos(lat_A) * sin(lon_A);
-//    float m22_A = sin(lat_A);
+void SegmentVIIRSM::GetCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex)
+{
+    if(geolatitude.isNull())
+    {
+        *startlon = 0.0;
+        *startlat = 0.0;
+        *endlon = 0.0;
+        *endlat = 0.0;
+        return;
+    }
 
-//    float m00_B = -sin(lon_B);
-//    float m01_B = cos(lon_B);
-//    float m02_B = 0;
-//    float m10_B = -sin(lat_B)*cos(lon_B);
-//    float m11_B = -sin(lat_B)*sin(lon_B);
-//    float m12_B = cos(lat_B);
-//    float m20_B = cos(lat_B) * cos(lon_B);
-//    float m21_B = cos(lat_B) * sin(lon_B);
-//    float m22_B = sin(lat_B);
+    for(int i = 0; i < this->NbrOfLines; i++)
+    {
+        *startindex = i;
+        *startlon = geolongitude[i * earth_views_per_scanline + (earth_views_per_scanline/2)];
+        *startlat = geolatitude[i * earth_views_per_scanline + (earth_views_per_scanline/2)];
+        if(abs(*startlon) <= 180.0 && abs(*startlat) <= 90.0)
+            break;
+    }
 
-//    float m00_C = -sin(lon_C);
-//    float m01_C = cos(lon_C);
-//    float m02_C = 0;
-//    float m10_C = -sin(lat_C)*cos(lon_C);
-//    float m11_C = -sin(lat_C)*sin(lon_C);
-//    float m12_C = cos(lat_C);
-//    float m20_C = cos(lat_C) * cos(lon_C);
-//    float m21_C = cos(lat_C) * sin(lon_C);
-//    float m22_C = sin(lat_C);
+    for(int i = this->NbrOfLines - 1; i >= 0; i--)
+    {
+        *endindex  = i;
+        *endlon = geolongitude[i * earth_views_per_scanline + (earth_views_per_scanline/2)];
+        *endlat = geolatitude[i * earth_views_per_scanline + (earth_views_per_scanline/2)];
+        if(abs(*endlon) <= 180.0 && abs(*endlat) <= 90.0)
+            break;
+    }
 
-//    float m00_D = -sin(lon_D);
-//    float m01_D = cos(lon_D);
-//    float m02_D = 0;
-//    float m10_D = -sin(lat_D)*cos(lon_D);
-//    float m11_D = -sin(lat_D)*sin(lon_D);
-//    float m12_D = cos(lat_D);
-//    float m20_D = cos(lat_D) * cos(lon_D);
-//    float m21_D = cos(lat_D) * sin(lon_D);
-//    float m22_D = sin(lat_D);
+//    for(int i = 0; i < this->NbrOfLines;i++)
+//    {
+//        cout << geolongitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)] << " ";
+//    }
+//    cout << endl;
 
-//// Pixel centred
-//    float x_A_pc = m00_A * x_A_ec + m10_A * y_A_ec + m20_A * z_A_ec;
-//    float y_A_pc = m01_A * x_A_ec + m11_A * y_A_ec + m21_A * z_A_ec;
-//    float z_A_pc = m02_A * x_A_ec + m12_A * y_A_ec + m22_A * z_A_ec;
+    qDebug() << "SegmentVIIRSM::GetCentralCoords startindex = " << *startindex << " endindex = " << *endindex << " slon = " << *startlon <<
+                " slat = " << *startlat << " elon = " << *endlon << " elat = " << *endlat;
 
-//    float x_B_pc = m00_B * x_B_ec + m10_B * y_B_ec + m20_B * z_B_ec;
-//    float y_B_pc = m01_B * x_B_ec + m11_B * y_B_ec + m21_B * z_B_ec;
-//    float z_B_pc = m02_B * x_B_ec + m12_B * y_B_ec + m22_B * z_B_ec;
+}
 
-//    float x_C_pc = m00_C * x_C_ec + m10_C * y_C_ec + m20_C * z_C_ec;
-//    float y_C_pc = m01_C * x_C_ec + m11_C * y_C_ec + m21_C * z_C_ec;
-//    float z_C_pc = m02_C * x_C_ec + m12_C * y_C_ec + m22_C * z_C_ec;
+void SegmentVIIRSM::GetStartCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2,
+                                        int *Xstartindex1, int *Xstartindex2, int *Ystartindex12)
+{
+    if(geolatitude.isNull())
+    {
+        *cornerlon1 = 999.0;
+        *cornerlat1 = 999.0;
+        *cornerlon2 = 999.0;
+        *cornerlat2 = 999.0;
+        *Xstartindex1 = 0;
+        *Xstartindex2 = 0;
+        *Ystartindex12 = 0;
+        return;
+    }
 
-//    float x_D_pc = m00_D * x_D_ec + m10_D * y_D_ec + m20_D * z_D_ec;
-//    float y_D_pc = m01_D * x_D_ec + m11_D * y_D_ec + m21_D * z_D_ec;
-//    float z_D_pc = m02_D * x_D_ec + m12_D * y_D_ec + m22_D * z_D_ec;
+    for(int i = 0; i < this->NbrOfLines; i++)
+    {
+        *Ystartindex12 = i;
+
+        for(int j = 0; j < earth_views_per_scanline; j++)
+        {
+            *Xstartindex1 = j;
+            *cornerlon1 = geolongitude[i * earth_views_per_scanline + j];
+            *cornerlat1 = geolatitude[i * earth_views_per_scanline + j];
+            if(abs(*cornerlon1) <= 180.0 && abs(*cornerlat1) <= 90.0)
+                break;
+        }
+
+        for(int j = earth_views_per_scanline - 1; j >= 0; j--)
+        {
+            *Xstartindex2 = j;
+            *cornerlon2 = geolongitude[i * earth_views_per_scanline + j];
+            *cornerlat2 = geolatitude[i * earth_views_per_scanline + j];
+            if(abs(*cornerlon2) <= 180.0 && abs(*cornerlat2) <= 90.0)
+                break;
+        }
+
+        if(abs(*cornerlon1) <= 180.0 && abs(*cornerlat1) <= 90.0 && abs(*cornerlon2) <= 180.0 && abs(*cornerlat2) <= 90.0)
+            break;
+    }
+
+    qDebug() << "SegmentVIIRSM::GetStartCornerCoords " << " cornerlon1 = " << *cornerlon1 << " cornerlat1 = " << *cornerlat1 << " cornerlon2 = " << *cornerlon2 << " cornerlat2 = " << *cornerlat2 <<
+                " Xstartindex1 = " << *Xstartindex1 << " Xstartindex2 = " << *Xstartindex2 << " Ystartindex12 = " << *Ystartindex12;
+
+}
+void SegmentVIIRSM::GetEndCornerCoords(double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4,
+                                        int *Xstartindex3, int *Xstartindex4, int *Ystartindex34)
+{
+    if(geolatitude.isNull())
+    {
+        *cornerlon3 = 999.0;
+        *cornerlat3 = 999.0;
+        *cornerlon4 = 999.0;
+        *cornerlat4 = 999.0;
+        *Xstartindex3 = 0;
+        *Xstartindex4 = 0;
+        *Ystartindex34 = 0;
+        return;
+    }
+
+    for(int i = this->NbrOfLines - 1; i >= 0; i--)
+    {
+        *Ystartindex34 = i;
+
+        for(int j = 0; j < earth_views_per_scanline; j++)
+        {
+            *Xstartindex3 = j;
+            *cornerlon3 = geolongitude[i * earth_views_per_scanline + j];
+            *cornerlat3 = geolatitude[i * earth_views_per_scanline + j];
+            if(abs(*cornerlon3) <= 180.0 && abs(*cornerlat3) <= 90.0)
+                break;
+        }
+
+        for(int j = earth_views_per_scanline - 1; j >= 0; j--)
+        {
+            *Xstartindex4 = j;
+            *cornerlon4 = geolongitude[i * earth_views_per_scanline + j];
+            *cornerlat4 = geolatitude[i * earth_views_per_scanline + j];
+            if(abs(*cornerlon4) <= 180.0 && abs(*cornerlat4) <= 90.0)
+                break;
+        }
+
+        if(abs(*cornerlon3) <= 180.0 && abs(*cornerlat3) <= 90.0 && abs(*cornerlon4) <= 180.0 && abs(*cornerlat4) <= 90.0)
+            break;
+    }
+
+    qDebug() << "SegmentVIIRSM::GetEndCornerCoords " << " cornerlon3 = " << *cornerlon3 << " cornerlat3 = " << *cornerlat3 << " cornerlon4 = " << *cornerlon4 << " cornerlat4 = " << *cornerlat4 <<
+                " Xstartindex3 = " << *Xstartindex3 << " Xstartindex4 = " << *Xstartindex4 << " Ystartindex34 = " << *Ystartindex34;
+
+}

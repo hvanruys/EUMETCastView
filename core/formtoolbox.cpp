@@ -20,7 +20,7 @@ class SignalsBlocker
 {
 public:
     SignalsBlocker(QObject* ptr):
-    _ptr(ptr)
+        _ptr(ptr)
     {
         _b = ptr->blockSignals(true);
     }
@@ -93,21 +93,45 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->btnOverlayProjectionSG->setText(("Overlay On"));
 
     if(opts.lastinputprojection == 0)
+    {
         ui->rdbAVHRRin->setChecked(true);
+        this->currentProjectionType = PROJ_AVHRR;
+    }
     else if(opts.lastinputprojection == 1)
+    {
         ui->rdbVIIRSMin->setChecked(true);
+        this->currentProjectionType = PROJ_VIIRSM;
+    }
     else if(opts.lastinputprojection == 2)
+    {
         ui->rdbVIIRSDNBin->setChecked(true);
+        this->currentProjectionType = PROJ_VIIRSDNB;
+    }
     else if(opts.lastinputprojection == 3)
+    {
         ui->rdbOLCIefrin->setChecked(true);
+        this->currentProjectionType = PROJ_OLCI_EFR;
+    }
     else if(opts.lastinputprojection == 4)
+    {
         ui->rdbOLCIerrin->setChecked(true);
+        this->currentProjectionType = PROJ_OLCI_ERR;
+    }
     else if(opts.lastinputprojection == 5)
+    {
         ui->rdbMERSIin->setChecked(true);
+        this->currentProjectionType = PROJ_MERSI;
+    }
     else if(opts.lastinputprojection == 6)
+    {
         ui->rdbMeteosatin->setChecked(true);
+        this->currentProjectionType = PROJ_GEOSTATIONARY;
+    }
     else
+    {
         ui->rdbAVHRRin->setChecked(true);
+        this->currentProjectionType = PROJ_AVHRR;
+    }
 
     ui->cmbHRVtype->addItem("Europe");
     ui->cmbHRVtype->addItem("Full");
@@ -393,6 +417,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     {
         QListWidgetItem* item = new QListWidgetItem(imageptrs->rgbrecipes.at(i).Name, ui->lstRGB);
     }
+    qDebug() << "Width of formtoolbox = " << this->width();
 
 }
 
@@ -669,38 +694,38 @@ void FormToolbox::setChannelComboBoxes()
         ui->comboCh5->setCurrentIndex(opts.channellistmetop.at(4).toInt());
 
     } else
-    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
-    {
-        qDebug() << "noaa";
+        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+        {
+            qDebug() << "noaa";
 
-        ui->comboCh1->setCurrentIndex(opts.channellistnoaa.at(0).toInt());
-        ui->comboCh2->setCurrentIndex(opts.channellistnoaa.at(1).toInt());
-        ui->comboCh3->setCurrentIndex(opts.channellistnoaa.at(2).toInt());
-        ui->comboCh4->setCurrentIndex(opts.channellistnoaa.at(3).toInt());
-        ui->comboCh5->setCurrentIndex(opts.channellistnoaa.at(4).toInt());
+            ui->comboCh1->setCurrentIndex(opts.channellistnoaa.at(0).toInt());
+            ui->comboCh2->setCurrentIndex(opts.channellistnoaa.at(1).toInt());
+            ui->comboCh3->setCurrentIndex(opts.channellistnoaa.at(2).toInt());
+            ui->comboCh4->setCurrentIndex(opts.channellistnoaa.at(3).toInt());
+            ui->comboCh5->setCurrentIndex(opts.channellistnoaa.at(4).toInt());
 
-    } else
-    if (opts.buttonGAC)
-    {
-        qDebug() << "GAC";
+        } else
+            if (opts.buttonGAC)
+            {
+                qDebug() << "GAC";
 
-        ui->comboCh1->setCurrentIndex(opts.channellistgac.at(0).toInt());
-        ui->comboCh2->setCurrentIndex(opts.channellistgac.at(1).toInt());
-        ui->comboCh3->setCurrentIndex(opts.channellistgac.at(2).toInt());
-        ui->comboCh4->setCurrentIndex(opts.channellistgac.at(3).toInt());
-        ui->comboCh5->setCurrentIndex(opts.channellistgac.at(4).toInt());
+                ui->comboCh1->setCurrentIndex(opts.channellistgac.at(0).toInt());
+                ui->comboCh2->setCurrentIndex(opts.channellistgac.at(1).toInt());
+                ui->comboCh3->setCurrentIndex(opts.channellistgac.at(2).toInt());
+                ui->comboCh4->setCurrentIndex(opts.channellistgac.at(3).toInt());
+                ui->comboCh5->setCurrentIndex(opts.channellistgac.at(4).toInt());
 
-    } else
-    if (opts.buttonHRP)
-    {
-        qDebug() << "HRP";
+            } else
+                if (opts.buttonHRP)
+                {
+                    qDebug() << "HRP";
 
-        ui->comboCh1->setCurrentIndex(opts.channellisthrp.at(0).toInt());
-        ui->comboCh2->setCurrentIndex(opts.channellisthrp.at(1).toInt());
-        ui->comboCh3->setCurrentIndex(opts.channellisthrp.at(2).toInt());
-        ui->comboCh4->setCurrentIndex(opts.channellisthrp.at(3).toInt());
-        ui->comboCh5->setCurrentIndex(opts.channellisthrp.at(4).toInt());
-    }
+                    ui->comboCh1->setCurrentIndex(opts.channellisthrp.at(0).toInt());
+                    ui->comboCh2->setCurrentIndex(opts.channellisthrp.at(1).toInt());
+                    ui->comboCh3->setCurrentIndex(opts.channellisthrp.at(2).toInt());
+                    ui->comboCh4->setCurrentIndex(opts.channellisthrp.at(3).toInt());
+                    ui->comboCh5->setCurrentIndex(opts.channellisthrp.at(4).toInt());
+                }
 
     setInverseCheckBoxes();
 
@@ -729,8 +754,8 @@ QList<bool> FormToolbox::getVIIRSMBandList()
 {
     QList<bool> viirslist;
     viirslist << ui->rbColorVIIRS->isChecked() << ui->rbM1->isChecked() << ui->rbM2->isChecked() << ui->rbM3->isChecked() << ui->rbM4->isChecked() << ui->rbM5->isChecked() << ui->rbM6->isChecked()
-                 << ui->rbM7->isChecked() << ui->rbM8->isChecked() << ui->rbM9->isChecked() << ui->rbM10->isChecked() << ui->rbM11->isChecked() << ui->rbM12->isChecked()
-                    << ui->rbM13->isChecked() << ui->rbM14->isChecked() << ui->rbM15->isChecked() << ui->rbM16->isChecked();
+              << ui->rbM7->isChecked() << ui->rbM8->isChecked() << ui->rbM9->isChecked() << ui->rbM10->isChecked() << ui->rbM11->isChecked() << ui->rbM12->isChecked()
+              << ui->rbM13->isChecked() << ui->rbM14->isChecked() << ui->rbM15->isChecked() << ui->rbM16->isChecked();
     return(viirslist);
 }
 
@@ -738,9 +763,9 @@ QList<int> FormToolbox::getVIIRSMColorList()
 {
     QList<int> viirslist;
     viirslist << ui->comboM1->currentIndex() << ui->comboM2->currentIndex() << ui->comboM3->currentIndex() << ui->comboM4->currentIndex() << ui->comboM5->currentIndex()
-                  << ui->comboM6->currentIndex() << ui->comboM7->currentIndex() << ui->comboM8->currentIndex() << ui->comboM9->currentIndex() << ui->comboM10->currentIndex()
-                      << ui->comboM11->currentIndex() << ui->comboM12->currentIndex() << ui->comboM13->currentIndex() << ui->comboM14->currentIndex() << ui->comboM15->currentIndex()
-                          << ui->comboM16->currentIndex();
+              << ui->comboM6->currentIndex() << ui->comboM7->currentIndex() << ui->comboM8->currentIndex() << ui->comboM9->currentIndex() << ui->comboM10->currentIndex()
+              << ui->comboM11->currentIndex() << ui->comboM12->currentIndex() << ui->comboM13->currentIndex() << ui->comboM14->currentIndex() << ui->comboM15->currentIndex()
+              << ui->comboM16->currentIndex();
     return(viirslist);
 }
 
@@ -748,9 +773,9 @@ QList<bool> FormToolbox::getVIIRSMInvertList()
 {
     QList<bool> viirslist;
     viirslist << ui->chkInverseM1->isChecked() << ui->chkInverseM2->isChecked() << ui->chkInverseM3->isChecked() << ui->chkInverseM4->isChecked() << ui->chkInverseM5->isChecked()
-                  << ui->chkInverseM6->isChecked() << ui->chkInverseM7->isChecked() << ui->chkInverseM8->isChecked() << ui->chkInverseM9->isChecked() << ui->chkInverseM10->isChecked()
-                      << ui->chkInverseM11->isChecked() << ui->chkInverseM12->isChecked() << ui->chkInverseM13->isChecked() << ui->chkInverseM14->isChecked() << ui->chkInverseM15->isChecked()
-                          << ui->chkInverseM16->isChecked();
+              << ui->chkInverseM6->isChecked() << ui->chkInverseM7->isChecked() << ui->chkInverseM8->isChecked() << ui->chkInverseM9->isChecked() << ui->chkInverseM10->isChecked()
+              << ui->chkInverseM11->isChecked() << ui->chkInverseM12->isChecked() << ui->chkInverseM13->isChecked() << ui->chkInverseM14->isChecked() << ui->chkInverseM15->isChecked()
+              << ui->chkInverseM16->isChecked();
     return(viirslist);
 }
 
@@ -788,11 +813,11 @@ QList<bool> FormToolbox::getOLCIInvertList()
 {
     QList<bool> olcilist;
     olcilist << ui->chkInverseOLCI01->isChecked() << ui->chkInverseOLCI02->isChecked() << ui->chkInverseOLCI03->isChecked() << ui->chkInverseOLCI04->isChecked()
-              << ui->chkInverseOLCI05->isChecked() << ui->chkInverseOLCI06->isChecked() << ui->chkInverseOLCI07->isChecked() << ui->chkInverseOLCI08->isChecked()
-              << ui->chkInverseOLCI09->isChecked() << ui->chkInverseOLCI10->isChecked() << ui->chkInverseOLCI11->isChecked() << ui->chkInverseOLCI12->isChecked()
-              << ui->chkInverseOLCI13->isChecked() << ui->chkInverseOLCI14->isChecked() << ui->chkInverseOLCI15->isChecked() << ui->chkInverseOLCI16->isChecked()
-              << ui->chkInverseOLCI17->isChecked() << ui->chkInverseOLCI18->isChecked() << ui->chkInverseOLCI19->isChecked() << ui->chkInverseOLCI20->isChecked()
-              << ui->chkInverseOLCI21->isChecked();
+             << ui->chkInverseOLCI05->isChecked() << ui->chkInverseOLCI06->isChecked() << ui->chkInverseOLCI07->isChecked() << ui->chkInverseOLCI08->isChecked()
+             << ui->chkInverseOLCI09->isChecked() << ui->chkInverseOLCI10->isChecked() << ui->chkInverseOLCI11->isChecked() << ui->chkInverseOLCI12->isChecked()
+             << ui->chkInverseOLCI13->isChecked() << ui->chkInverseOLCI14->isChecked() << ui->chkInverseOLCI15->isChecked() << ui->chkInverseOLCI16->isChecked()
+             << ui->chkInverseOLCI17->isChecked() << ui->chkInverseOLCI18->isChecked() << ui->chkInverseOLCI19->isChecked() << ui->chkInverseOLCI20->isChecked()
+             << ui->chkInverseOLCI21->isChecked();
     Q_ASSERT(olcilist.count() == 21);
     return(olcilist);
 }
@@ -801,8 +826,8 @@ QList<bool> FormToolbox::getSLSTRBandList()
 {
     QList<bool> slstrlist;
     slstrlist << ui->rbColorSLSTR->isChecked() << ui->rbS1->isChecked() << ui->rbS2->isChecked() << ui->rbS3->isChecked()
-             << ui->rbS4->isChecked() << ui->rbS5->isChecked() << ui->rbS6->isChecked() << ui->rbS7->isChecked()
-             << ui->rbS8->isChecked() << ui->rbS9->isChecked() << ui->rbF1->isChecked() << ui->rbF2->isChecked();
+              << ui->rbS4->isChecked() << ui->rbS5->isChecked() << ui->rbS6->isChecked() << ui->rbS7->isChecked()
+              << ui->rbS8->isChecked() << ui->rbS9->isChecked() << ui->rbF1->isChecked() << ui->rbF2->isChecked();
 
     Q_ASSERT(slstrlist.count() == 12);
 
@@ -813,8 +838,8 @@ QList<int> FormToolbox::getSLSTRColorList()
 {
     QList<int> slstrlist;
     slstrlist << ui->cmbS1->currentIndex() << ui->cmbS2->currentIndex() << ui->cmbS3->currentIndex() << ui->cmbS4->currentIndex()
-             << ui->cmbS5->currentIndex() << ui->cmbS6->currentIndex() << ui->cmbS7->currentIndex() << ui->cmbS8->currentIndex()
-             << ui->cmbS9->currentIndex() << ui->cmbF1->currentIndex() << ui->cmbF2->currentIndex();
+              << ui->cmbS5->currentIndex() << ui->cmbS6->currentIndex() << ui->cmbS7->currentIndex() << ui->cmbS8->currentIndex()
+              << ui->cmbS9->currentIndex() << ui->cmbF1->currentIndex() << ui->cmbF2->currentIndex();
     Q_ASSERT(slstrlist.count() == 11);
 
     return(slstrlist);
@@ -842,10 +867,15 @@ QList<bool> FormToolbox::getMERSIBandList()
 {
     QList<bool> mersilist;
     mersilist << ui->rbColorMERSI->isChecked() << ui->rbMERSI5->isChecked() << ui->rbMERSI6->isChecked() << ui->rbMERSI7->isChecked()
-             << ui->rbMERSI8->isChecked() << ui->rbMERSI9->isChecked() << ui->rbMERSI10->isChecked() << ui->rbMERSI11->isChecked()
-             << ui->rbMERSI12->isChecked() << ui->rbMERSI13->isChecked() << ui->rbMERSI14->isChecked() << ui->rbMERSI15->isChecked()
-             << ui->rbMERSI16->isChecked() << ui->rbMERSI17->isChecked() << ui->rbMERSI18->isChecked() << ui->rbMERSI19->isChecked();
+              << ui->rbMERSI8->isChecked() << ui->rbMERSI9->isChecked() << ui->rbMERSI10->isChecked() << ui->rbMERSI11->isChecked()
+              << ui->rbMERSI12->isChecked() << ui->rbMERSI13->isChecked() << ui->rbMERSI14->isChecked() << ui->rbMERSI15->isChecked()
+              << ui->rbMERSI16->isChecked() << ui->rbMERSI17->isChecked() << ui->rbMERSI18->isChecked() << ui->rbMERSI19->isChecked();
 
+    //    qDebug() << "FormToolbox::getMERSIBandList()";
+    //    for(int i = 0; i < 16; i++)
+    //    {
+    //        qDebug() << i << " " << mersilist.at(i);
+    //    }
 
     Q_ASSERT(mersilist.count() == 16);
 
@@ -856,9 +886,9 @@ QList<int> FormToolbox::getMERSIColorList()
 {
     QList<int> mersilist;
     mersilist << ui->cmbMERSI5->currentIndex() << ui->cmbMERSI6->currentIndex() << ui->cmbMERSI7->currentIndex() << ui->cmbMERSI8->currentIndex()
-             << ui->cmbMERSI9->currentIndex() << ui->cmbMERSI10->currentIndex() << ui->cmbMERSI11->currentIndex() << ui->cmbMERSI12->currentIndex()
-             << ui->cmbMERSI13->currentIndex() << ui->cmbMERSI14->currentIndex() << ui->cmbMERSI15->currentIndex() << ui->cmbMERSI16->currentIndex()
-             << ui->cmbMERSI17->currentIndex() << ui->cmbMERSI18->currentIndex() << ui->cmbMERSI19->currentIndex();
+              << ui->cmbMERSI9->currentIndex() << ui->cmbMERSI10->currentIndex() << ui->cmbMERSI11->currentIndex() << ui->cmbMERSI12->currentIndex()
+              << ui->cmbMERSI13->currentIndex() << ui->cmbMERSI14->currentIndex() << ui->cmbMERSI15->currentIndex() << ui->cmbMERSI16->currentIndex()
+              << ui->cmbMERSI17->currentIndex() << ui->cmbMERSI18->currentIndex() << ui->cmbMERSI19->currentIndex();
     Q_ASSERT(mersilist.count() == 15);
 
     return(mersilist);
@@ -878,18 +908,18 @@ QList<bool> FormToolbox::getMERSIInvertList()
 
 int FormToolbox::searchResolution(int mapwidth, int mapheight)
 {
-   int index = -1;
+    int index = -1;
 
-   for(int i = 0; i < resolutionX.size(); i++)
-   {
-       if(resolutionX.at(i) == mapwidth && resolutionY.at(i) == mapheight )
-       {
-           index = i;
-           break;
-       }
-   }
+    for(int i = 0; i < resolutionX.size(); i++)
+    {
+        if(resolutionX.at(i) == mapwidth && resolutionY.at(i) == mapheight )
+        {
+            index = i;
+            break;
+        }
+    }
 
-   return(index+1);
+    return(index+1);
 
 }
 
@@ -933,65 +963,65 @@ void FormToolbox::setInverseCheckBoxes()
         }
 
     } else
-    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
-    {
-        if (opts.noaa_invlist.count() == 5)
+        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
         {
-            ui->chkInverseCh1->setChecked(opts.noaa_invlist.at(0) == "1" ? true : false);
-            ui->chkInverseCh2->setChecked(opts.noaa_invlist.at(1) == "1" ? true : false);
-            ui->chkInverseCh3->setChecked(opts.noaa_invlist.at(2) == "1" ? true : false);
-            ui->chkInverseCh4->setChecked(opts.noaa_invlist.at(3) == "1" ? true : false);
-            ui->chkInverseCh5->setChecked(opts.noaa_invlist.at(4) == "1" ? true : false);
-        }
-        else
-        {
-            ui->chkInverseCh1->setChecked(false);
-            ui->chkInverseCh2->setChecked(false);
-            ui->chkInverseCh3->setChecked(false);
-            ui->chkInverseCh4->setChecked(false);
-            ui->chkInverseCh5->setChecked(false);
-        }
+            if (opts.noaa_invlist.count() == 5)
+            {
+                ui->chkInverseCh1->setChecked(opts.noaa_invlist.at(0) == "1" ? true : false);
+                ui->chkInverseCh2->setChecked(opts.noaa_invlist.at(1) == "1" ? true : false);
+                ui->chkInverseCh3->setChecked(opts.noaa_invlist.at(2) == "1" ? true : false);
+                ui->chkInverseCh4->setChecked(opts.noaa_invlist.at(3) == "1" ? true : false);
+                ui->chkInverseCh5->setChecked(opts.noaa_invlist.at(4) == "1" ? true : false);
+            }
+            else
+            {
+                ui->chkInverseCh1->setChecked(false);
+                ui->chkInverseCh2->setChecked(false);
+                ui->chkInverseCh3->setChecked(false);
+                ui->chkInverseCh4->setChecked(false);
+                ui->chkInverseCh5->setChecked(false);
+            }
 
-    } else
-    if (opts.buttonGAC)
-    {
-        if (opts.gac_invlist.count() == 5)
-        {
-            ui->chkInverseCh1->setChecked(opts.gac_invlist.at(0) == "1" ? true : false);
-            ui->chkInverseCh2->setChecked(opts.gac_invlist.at(1) == "1" ? true : false);
-            ui->chkInverseCh3->setChecked(opts.gac_invlist.at(2) == "1" ? true : false);
-            ui->chkInverseCh4->setChecked(opts.gac_invlist.at(3) == "1" ? true : false);
-            ui->chkInverseCh5->setChecked(opts.gac_invlist.at(4) == "1" ? true : false);
-        }
-        else
-        {
-            ui->chkInverseCh1->setChecked(false);
-            ui->chkInverseCh2->setChecked(false);
-            ui->chkInverseCh3->setChecked(false);
-            ui->chkInverseCh4->setChecked(false);
-            ui->chkInverseCh5->setChecked(false);
-        }
+        } else
+            if (opts.buttonGAC)
+            {
+                if (opts.gac_invlist.count() == 5)
+                {
+                    ui->chkInverseCh1->setChecked(opts.gac_invlist.at(0) == "1" ? true : false);
+                    ui->chkInverseCh2->setChecked(opts.gac_invlist.at(1) == "1" ? true : false);
+                    ui->chkInverseCh3->setChecked(opts.gac_invlist.at(2) == "1" ? true : false);
+                    ui->chkInverseCh4->setChecked(opts.gac_invlist.at(3) == "1" ? true : false);
+                    ui->chkInverseCh5->setChecked(opts.gac_invlist.at(4) == "1" ? true : false);
+                }
+                else
+                {
+                    ui->chkInverseCh1->setChecked(false);
+                    ui->chkInverseCh2->setChecked(false);
+                    ui->chkInverseCh3->setChecked(false);
+                    ui->chkInverseCh4->setChecked(false);
+                    ui->chkInverseCh5->setChecked(false);
+                }
 
-    } else
-    if (opts.buttonHRP)
-    {
-        if (opts.hrp_invlist.count() == 5)
-        {
-            ui->chkInverseCh1->setChecked(opts.hrp_invlist.at(0) == "1" ? true : false);
-            ui->chkInverseCh2->setChecked(opts.hrp_invlist.at(1) == "1" ? true : false);
-            ui->chkInverseCh3->setChecked(opts.hrp_invlist.at(2) == "1" ? true : false);
-            ui->chkInverseCh4->setChecked(opts.hrp_invlist.at(3) == "1" ? true : false);
-            ui->chkInverseCh5->setChecked(opts.hrp_invlist.at(4) == "1" ? true : false);
-        }
-        else
-        {
-            ui->chkInverseCh1->setChecked(false);
-            ui->chkInverseCh2->setChecked(false);
-            ui->chkInverseCh3->setChecked(false);
-            ui->chkInverseCh4->setChecked(false);
-            ui->chkInverseCh5->setChecked(false);
-        }
-    }
+            } else
+                if (opts.buttonHRP)
+                {
+                    if (opts.hrp_invlist.count() == 5)
+                    {
+                        ui->chkInverseCh1->setChecked(opts.hrp_invlist.at(0) == "1" ? true : false);
+                        ui->chkInverseCh2->setChecked(opts.hrp_invlist.at(1) == "1" ? true : false);
+                        ui->chkInverseCh3->setChecked(opts.hrp_invlist.at(2) == "1" ? true : false);
+                        ui->chkInverseCh4->setChecked(opts.hrp_invlist.at(3) == "1" ? true : false);
+                        ui->chkInverseCh5->setChecked(opts.hrp_invlist.at(4) == "1" ? true : false);
+                    }
+                    else
+                    {
+                        ui->chkInverseCh1->setChecked(false);
+                        ui->chkInverseCh2->setChecked(false);
+                        ui->chkInverseCh3->setChecked(false);
+                        ui->chkInverseCh4->setChecked(false);
+                        ui->chkInverseCh5->setChecked(false);
+                    }
+                }
     qDebug() << QString("chkInverse = %1 %2 %3 %4 %5").arg(opts.noaa_invlist.at(0)).arg(opts.noaa_invlist.at(1)).arg(opts.noaa_invlist.at(2)).arg(opts.noaa_invlist.at(3)).arg(opts.noaa_invlist.at(4));
 }
 
@@ -1009,36 +1039,36 @@ void FormToolbox::setChannelInverse()
         opts.metop_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
         opts.metop_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
     } else
-    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
-    {
-        opts.noaa_invlist.clear();
+        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+        {
+            opts.noaa_invlist.clear();
 
-        opts.noaa_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
-        opts.noaa_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
-        opts.noaa_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
-        opts.noaa_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
-        opts.noaa_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
-    } else
-    if (opts.buttonGAC)
-    {
-        opts.gac_invlist.clear();
+            opts.noaa_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
+            opts.noaa_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
+            opts.noaa_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
+            opts.noaa_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
+            opts.noaa_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
+        } else
+            if (opts.buttonGAC)
+            {
+                opts.gac_invlist.clear();
 
-        opts.gac_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
-        opts.gac_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
-        opts.gac_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
-        opts.gac_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
-        opts.gac_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
-    } else
-    if (opts.buttonHRP)
-    {
-        opts.hrp_invlist.clear();
+                opts.gac_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
+                opts.gac_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
+                opts.gac_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
+                opts.gac_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
+                opts.gac_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
+            } else
+                if (opts.buttonHRP)
+                {
+                    opts.hrp_invlist.clear();
 
-        opts.hrp_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
-        opts.hrp_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
-        opts.hrp_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
-        opts.hrp_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
-        opts.hrp_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
-    }
+                    opts.hrp_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
+                    opts.hrp_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
+                    opts.hrp_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
+                    opts.hrp_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
+                    opts.hrp_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
+                }
 
 }
 
@@ -1056,36 +1086,36 @@ void FormToolbox::setChannelIndex()
         opts.channellistmetop << QString("%1").arg(ui->comboCh5->currentIndex());
     }
     else
-    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
-    {
-        opts.channellistnoaa.clear();
-        opts.channellistnoaa << QString("%1").arg(ui->comboCh1->currentIndex());
-        opts.channellistnoaa << QString("%1").arg(ui->comboCh2->currentIndex());
-        opts.channellistnoaa << QString("%1").arg(ui->comboCh3->currentIndex());
-        opts.channellistnoaa << QString("%1").arg(ui->comboCh4->currentIndex());
-        opts.channellistnoaa << QString("%1").arg(ui->comboCh5->currentIndex());
-    }
-    else
-    if (opts.buttonGAC)
-    {
-        opts.channellistgac.clear();
-        opts.channellistgac << QString("%1").arg(ui->comboCh1->currentIndex());
-        opts.channellistgac << QString("%1").arg(ui->comboCh2->currentIndex());
-        opts.channellistgac << QString("%1").arg(ui->comboCh3->currentIndex());
-        opts.channellistgac << QString("%1").arg(ui->comboCh4->currentIndex());
-        opts.channellistgac << QString("%1").arg(ui->comboCh5->currentIndex());
+        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+        {
+            opts.channellistnoaa.clear();
+            opts.channellistnoaa << QString("%1").arg(ui->comboCh1->currentIndex());
+            opts.channellistnoaa << QString("%1").arg(ui->comboCh2->currentIndex());
+            opts.channellistnoaa << QString("%1").arg(ui->comboCh3->currentIndex());
+            opts.channellistnoaa << QString("%1").arg(ui->comboCh4->currentIndex());
+            opts.channellistnoaa << QString("%1").arg(ui->comboCh5->currentIndex());
+        }
+        else
+            if (opts.buttonGAC)
+            {
+                opts.channellistgac.clear();
+                opts.channellistgac << QString("%1").arg(ui->comboCh1->currentIndex());
+                opts.channellistgac << QString("%1").arg(ui->comboCh2->currentIndex());
+                opts.channellistgac << QString("%1").arg(ui->comboCh3->currentIndex());
+                opts.channellistgac << QString("%1").arg(ui->comboCh4->currentIndex());
+                opts.channellistgac << QString("%1").arg(ui->comboCh5->currentIndex());
 
-    }
-    else
-    if (opts.buttonHRP)
-    {
-        opts.channellisthrp.clear();
-        opts.channellisthrp << QString("%1").arg(ui->comboCh1->currentIndex());
-        opts.channellisthrp << QString("%1").arg(ui->comboCh2->currentIndex());
-        opts.channellisthrp << QString("%1").arg(ui->comboCh3->currentIndex());
-        opts.channellisthrp << QString("%1").arg(ui->comboCh4->currentIndex());
-        opts.channellisthrp << QString("%1").arg(ui->comboCh5->currentIndex());
-    }
+            }
+            else
+                if (opts.buttonHRP)
+                {
+                    opts.channellisthrp.clear();
+                    opts.channellisthrp << QString("%1").arg(ui->comboCh1->currentIndex());
+                    opts.channellisthrp << QString("%1").arg(ui->comboCh2->currentIndex());
+                    opts.channellisthrp << QString("%1").arg(ui->comboCh3->currentIndex());
+                    opts.channellisthrp << QString("%1").arg(ui->comboCh4->currentIndex());
+                    opts.channellisthrp << QString("%1").arg(ui->comboCh5->currentIndex());
+                }
 
     qDebug() << QString("setChannelIndex combo 1 channelindex = %1 %2").arg(ui->comboCh1->currentIndex()).arg(ui->comboCh1->currentText());
     qDebug() << QString("setChannelIndex combo 2 channelindex = %1 %2").arg(ui->comboCh2->currentIndex()).arg(ui->comboCh2->currentText());
@@ -1417,6 +1447,11 @@ bool FormToolbox::GridOnProjSG()
     return ui->chkSGGridOnProj->isChecked();
 }
 
+bool FormToolbox::GridOnProjOM()
+{
+    return ui->chkOMGridOnProj->isChecked();
+}
+
 void FormToolbox::on_btnCol_clicked()
 {
     formimage->setKindOfImage("AVHRR Color");
@@ -1515,6 +1550,15 @@ void FormToolbox::on_btnOverlayProjectionSG_clicked()
         ui->btnOverlayProjectionSG->setText("Overlay On");
     else
         ui->btnOverlayProjectionSG->setText("Overlay Off");
+
+}
+
+void FormToolbox::on_btnOverlayProjectionOM_clicked()
+{
+    if(formimage->toggleOverlayProjection())
+        ui->btnOverlayProjectionOM->setText("Overlay On");
+    else
+        ui->btnOverlayProjectionOM->setText("Overlay Off");
 
 }
 
@@ -1694,7 +1738,7 @@ void FormToolbox::setToolboxButtons(bool state)
     {
         ui->btnHRV->setEnabled(state);
         if(opts.geosatellites.at(geoindex).color)
-              ui->chkColorHRV->setEnabled(state);
+            ui->chkColorHRV->setEnabled(state);
     }
 
     if(opts.geosatellites.at(geoindex).startsegmentnbrtype1 > 0)
@@ -1718,9 +1762,12 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->btnCreateLambert->setEnabled(state);
     ui->btnCreatePerspective->setEnabled(state);
     ui->btnCreateStereo->setEnabled(state);
+    ui->btnCreateOM->setEnabled(state);
+
     ui->btnLCCClearMap->setEnabled(state);
     ui->btnGVPClearMap->setEnabled(state);
     ui->btnSGClearMap->setEnabled(state);
+    ui->btnOMClearMap->setEnabled(state);
 
     ui->rbColorVIIRS->setEnabled(state);
     ui->rbM1->setEnabled(state);
@@ -1803,34 +1850,34 @@ void FormToolbox::setToolboxButtonLabels(int geoindex)
 
     qDebug() << QString("FormToolbox::setToolboxButtonLabels geoindex = %1").arg(geoindex);
 
-//    ui->btnCh1->setEnabled(false);
-//    ui->btnCh2->setEnabled(false);
-//    ui->btnCh3->setEnabled(false);
-//    ui->btnCh4->setEnabled(false);
-//    ui->btnCh5->setEnabled(false);
-//    ui->btnCol->setEnabled(false);
+    //    ui->btnCh1->setEnabled(false);
+    //    ui->btnCh2->setEnabled(false);
+    //    ui->btnCh3->setEnabled(false);
+    //    ui->btnCh4->setEnabled(false);
+    //    ui->btnCh5->setEnabled(false);
+    //    ui->btnCol->setEnabled(false);
 
-//    ui->btnGeoColor->setEnabled(false);
-//    ui->btnGeo1->setEnabled(false);
-//    ui->btnGeo2->setEnabled(false);
-//    ui->btnGeo3->setEnabled(false);
-//    ui->btnGeo4->setEnabled(false);
-//    ui->btnGeo5->setEnabled(false);
-//    ui->btnGeo6->setEnabled(false);
-//    ui->btnGeo7->setEnabled(false);
-//    ui->btnGeo8->setEnabled(false);
-//    ui->btnGeo9->setEnabled(false);
-//    ui->btnGeo10->setEnabled(false);
-//    ui->btnGeo11->setEnabled(false);
-//    ui->btnGeo12->setEnabled(false);
-//    ui->btnGeo13->setEnabled(false);
-//    ui->btnGeo14->setEnabled(false);
-//    ui->btnGeo15->setEnabled(false);
-//    ui->btnGeo16->setEnabled(false);
+    //    ui->btnGeoColor->setEnabled(false);
+    //    ui->btnGeo1->setEnabled(false);
+    //    ui->btnGeo2->setEnabled(false);
+    //    ui->btnGeo3->setEnabled(false);
+    //    ui->btnGeo4->setEnabled(false);
+    //    ui->btnGeo5->setEnabled(false);
+    //    ui->btnGeo6->setEnabled(false);
+    //    ui->btnGeo7->setEnabled(false);
+    //    ui->btnGeo8->setEnabled(false);
+    //    ui->btnGeo9->setEnabled(false);
+    //    ui->btnGeo10->setEnabled(false);
+    //    ui->btnGeo11->setEnabled(false);
+    //    ui->btnGeo12->setEnabled(false);
+    //    ui->btnGeo13->setEnabled(false);
+    //    ui->btnGeo14->setEnabled(false);
+    //    ui->btnGeo15->setEnabled(false);
+    //    ui->btnGeo16->setEnabled(false);
 
-//    ui->btnHRV->setEnabled(false);
-//    ui->cmbHRVtype->setEnabled(false);
-//    ui->chkColorHRV->setEnabled(false);
+    //    ui->btnHRV->setEnabled(false);
+    //    ui->cmbHRVtype->setEnabled(false);
+    //    ui->chkColorHRV->setEnabled(false);
 
     ui->btnGeo1->setText("");
     ui->btnGeo2->setText("");
@@ -1870,19 +1917,19 @@ void FormToolbox::setToolboxButtonLabels(int geoindex)
     if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
     {
         ui->btnHRV->setText(opts.geosatellites.at(geoindex).spectrumhrv);
-//        if(opts.geosatellites.at(geoindex).color)
-//            ui->chkColorHRV->setEnabled(true);
+        //        if(opts.geosatellites.at(geoindex).color)
+        //            ui->chkColorHRV->setEnabled(true);
     }
 
-//    if(opts.geosatellites.at(geoindex).color)
-//    {
-//        ui->btnGeoColor->setEnabled(true);
-//    }
+    //    if(opts.geosatellites.at(geoindex).color)
+    //    {
+    //        ui->btnGeoColor->setEnabled(true);
+    //    }
 
-//    if(opts.geosatellites.at(geoindex).startsegmentnbrtype1 > 0)
-//    {
-//        ui->cmbHRVtype->setEnabled(true);
-//    }
+    //    if(opts.geosatellites.at(geoindex).startsegmentnbrtype1 > 0)
+    //    {
+    //        ui->cmbHRVtype->setEnabled(true);
+    //    }
 
     for(int i = 0; i < opts.geosatellites.at(geoindex).spectrumlist.count(); i++)
     {
@@ -2025,113 +2072,113 @@ void FormToolbox::setComboGeo(int geoindex)
 void FormToolbox::on_btnGeo1_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo1->text().length() != 0 )
-        onButtonChannel(ui->btnGeo1->text(), ui->chkInverseGeo1->isChecked());
+        if(ui->btnGeo1->text().length() != 0 )
+            onButtonChannel(ui->btnGeo1->text(), ui->chkInverseGeo1->isChecked());
 }
 
 void FormToolbox::on_btnGeo2_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo2->text().length() != 0 )
-        onButtonChannel(ui->btnGeo2->text(), ui->chkInverseGeo2->isChecked());
+        if(ui->btnGeo2->text().length() != 0 )
+            onButtonChannel(ui->btnGeo2->text(), ui->chkInverseGeo2->isChecked());
 }
 
 void FormToolbox::on_btnGeo3_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo3->text().length() != 0 )
-        onButtonChannel(ui->btnGeo3->text(), ui->chkInverseGeo3->isChecked());
+        if(ui->btnGeo3->text().length() != 0 )
+            onButtonChannel(ui->btnGeo3->text(), ui->chkInverseGeo3->isChecked());
 }
 
 void FormToolbox::on_btnGeo4_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo4->text().length() != 0 )
-        onButtonChannel(ui->btnGeo4->text(), ui->chkInverseGeo4->isChecked());
+        if(ui->btnGeo4->text().length() != 0 )
+            onButtonChannel(ui->btnGeo4->text(), ui->chkInverseGeo4->isChecked());
 }
 
 void FormToolbox::on_btnGeo5_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo5->text().length() != 0 )
-        onButtonChannel(ui->btnGeo5->text(), ui->chkInverseGeo5->isChecked());
+        if(ui->btnGeo5->text().length() != 0 )
+            onButtonChannel(ui->btnGeo5->text(), ui->chkInverseGeo5->isChecked());
 }
 
 void FormToolbox::on_btnGeo6_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo6->text().length() != 0 )
-        onButtonChannel(ui->btnGeo6->text(), ui->chkInverseGeo6->isChecked());
+        if(ui->btnGeo6->text().length() != 0 )
+            onButtonChannel(ui->btnGeo6->text(), ui->chkInverseGeo6->isChecked());
 }
 
 void FormToolbox::on_btnGeo7_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo7->text().length() != 0 )
-        onButtonChannel(ui->btnGeo7->text(), ui->chkInverseGeo7->isChecked());
+        if(ui->btnGeo7->text().length() != 0 )
+            onButtonChannel(ui->btnGeo7->text(), ui->chkInverseGeo7->isChecked());
 }
 
 void FormToolbox::on_btnGeo8_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo8->text().length() != 0 )
-        onButtonChannel(ui->btnGeo8->text(), ui->chkInverseGeo8->isChecked());
+        if(ui->btnGeo8->text().length() != 0 )
+            onButtonChannel(ui->btnGeo8->text(), ui->chkInverseGeo8->isChecked());
 }
 
 void FormToolbox::on_btnGeo9_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo9->text().length() != 0 )
-        onButtonChannel(ui->btnGeo9->text(), ui->chkInverseGeo9->isChecked());
+        if(ui->btnGeo9->text().length() != 0 )
+            onButtonChannel(ui->btnGeo9->text(), ui->chkInverseGeo9->isChecked());
 }
 
 void FormToolbox::on_btnGeo10_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo10->text().length() != 0 )
-        onButtonChannel(ui->btnGeo10->text(), ui->chkInverseGeo10->isChecked());
+        if(ui->btnGeo10->text().length() != 0 )
+            onButtonChannel(ui->btnGeo10->text(), ui->chkInverseGeo10->isChecked());
 }
 
 void FormToolbox::on_btnGeo11_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo11->text().length() != 0 )
-        onButtonChannel(ui->btnGeo11->text(), ui->chkInverseGeo11->isChecked());
+        if(ui->btnGeo11->text().length() != 0 )
+            onButtonChannel(ui->btnGeo11->text(), ui->chkInverseGeo11->isChecked());
 }
 
 void FormToolbox::on_btnGeo12_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo12->text().length() != 0 )
-        onButtonChannel(ui->btnGeo12->text(), ui->chkInverseGeo12->isChecked());
+        if(ui->btnGeo12->text().length() != 0 )
+            onButtonChannel(ui->btnGeo12->text(), ui->chkInverseGeo12->isChecked());
 }
 
 void FormToolbox::on_btnGeo13_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo13->text().length() != 0 )
-        onButtonChannel(ui->btnGeo13->text(), ui->chkInverseGeo13->isChecked());
+        if(ui->btnGeo13->text().length() != 0 )
+            onButtonChannel(ui->btnGeo13->text(), ui->chkInverseGeo13->isChecked());
 }
 
 void FormToolbox::on_btnGeo14_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo14->text().length() != 0 )
-        onButtonChannel(ui->btnGeo14->text(), ui->chkInverseGeo14->isChecked());
+        if(ui->btnGeo14->text().length() != 0 )
+            onButtonChannel(ui->btnGeo14->text(), ui->chkInverseGeo14->isChecked());
 }
 
 void FormToolbox::on_btnGeo15_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo15->text().length() != 0 )
-        onButtonChannel(ui->btnGeo15->text(), ui->chkInverseGeo15->isChecked());
+        if(ui->btnGeo15->text().length() != 0 )
+            onButtonChannel(ui->btnGeo15->text(), ui->chkInverseGeo15->isChecked());
 }
 
 void FormToolbox::on_btnGeo16_clicked()
 {
     if(checkSegmentDateTime())
-    if(ui->btnGeo16->text().length() != 0 )
-        onButtonChannel(ui->btnGeo16->text(), ui->chkInverseGeo16->isChecked());
+        if(ui->btnGeo16->text().length() != 0 )
+            onButtonChannel(ui->btnGeo16->text(), ui->chkInverseGeo16->isChecked());
 }
 
 
@@ -2798,13 +2845,17 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
                                        ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         else if( ui->toolBox->currentIndex() == 1)
             imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
-        else
+        else if( ui->toolBox->currentIndex() == 2)
             imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+        else
+            imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType);
+
         formimage->UpdateProjection();
+        formimage->adjustPicSize(false);
     }
 
-//    opts.currenttabwidget = ui->tabWidget->currentIndex();
-//    opts.currenttoolbox = ui->toolBox->currentIndex();
+    //    opts.currenttabwidget = ui->tabWidget->currentIndex();
+    //    opts.currenttoolbox = ui->toolBox->currentIndex();
 }
 
 void FormToolbox::on_tabWidgetVIIRS_currentChanged(int index)
@@ -2974,18 +3025,18 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     if(ui->rdbAVHRRin->isChecked())
     {
         if(!(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt ||
-                opts.buttonM01hrpt || opts.buttonM02hrpt) || !segs->SelectedAVHRRSegments())
+             opts.buttonM01hrpt || opts.buttonM02hrpt) || !segs->SelectedAVHRRSegments())
         {
-                QMessageBox::information( this, "AVHHR", "No selected AVHRR segments  !" );
-                return;
+            QMessageBox::information( this, "AVHHR", "No selected AVHRR segments  !" );
+            return;
         }
     }
     else if(ui->rdbVIIRSMin->isChecked())
     {
         if(!(opts.buttonVIIRSM || opts.buttonVIIRSMNOAA20) || !segs->SelectedVIIRSMSegments())
         {
-                QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
-                return;
+            QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
+            return;
         }
 
     }
@@ -2993,32 +3044,32 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     {
         if(!(opts.buttonVIIRSDNB || opts.buttonVIIRSDNBNOAA20) || !segs->SelectedVIIRSDNBSegments())
         {
-                QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
-                return;
+            QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
+            return;
         }
     }
     else if(ui->rdbOLCIefrin->isChecked())
     {
         if(!opts.buttonOLCIefr || !segs->SelectedOLCIefrSegments())
         {
-                QMessageBox::information( this, "OLCI EFR", "No selected OLCI EFR segments  !" );
-                return;
+            QMessageBox::information( this, "OLCI EFR", "No selected OLCI EFR segments  !" );
+            return;
         }
     }
     else if(ui->rdbOLCIerrin->isChecked())
     {
         if(!opts.buttonOLCIerr || !segs->SelectedOLCIerrSegments())
         {
-               QMessageBox::information( this, "OLCI ERR", "No selected OLCI ERR segments  !" );
-                return;
+            QMessageBox::information( this, "OLCI ERR", "No selected OLCI ERR segments  !" );
+            return;
         }
     }
     else if(ui->rdbMERSIin->isChecked())
     {
         if(!opts.buttonMERSI || !segs->SelectedMERSISegments())
         {
-               QMessageBox::information( this, "MERSI", "No selected MERSI segments  !" );
-                return;
+            QMessageBox::information( this, "MERSI", "No selected MERSI segments  !" );
+            return;
         }
     }
     else if(ui->rdbMeteosatin->isChecked())
@@ -3194,8 +3245,8 @@ void FormToolbox::on_btnCreateLambert_clicked()
     {
         if(!(opts.buttonVIIRSM || opts.buttonVIIRSMNOAA20) || !segs->SelectedVIIRSMSegments())
         {
-                QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
-                return;
+            QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
+            return;
         }
 
     }
@@ -3203,8 +3254,8 @@ void FormToolbox::on_btnCreateLambert_clicked()
     {
         if(!(opts.buttonVIIRSDNB || opts.buttonVIIRSDNBNOAA20) || !segs->SelectedVIIRSDNBSegments())
         {
-                QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
-                return;
+            QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
+            return;
         }
 
     }
@@ -3482,29 +3533,91 @@ void FormToolbox::on_btnCreateStereo_clicked()
 
 }
 
+void FormToolbox::on_btnCreateOM_clicked()
+{
+    //    if(!opts.buttonVIIRSM)
+    //    {
+    //        QMessageBox msgBox;
+    //        msgBox.setText("Only possible for VIIRS images.");
+    //        msgBox.exec();
+    //        return;
+    //    }
+
+    ui->pbProgress->reset();
+
+    if(ui->rdbVIIRSMin->isChecked())
+    {
+        if(!(opts.buttonVIIRSM || opts.buttonVIIRSMNOAA20) || !segs->SelectedVIIRSMSegments())
+        {
+            QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
+            return;
+        }
+    }
+    else if(ui->rdbMERSIin->isChecked())
+    {
+        if(!opts.buttonMERSI || !segs->SelectedMERSISegments())
+        {
+            QMessageBox::information( this, "MERSI", "No selected MERSI segments  !" );
+            return;
+        }
+    }
+    else if(ui->rdbAVHRRin->isChecked())
+    {
+        if(!opts.buttonMetop || !segs->SelectedAVHRRSegments())
+        {
+            QMessageBox::information( this, "MERSI", "No selected Metop segments  !" );
+            return;
+        }
+    }
+
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+    imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType);
+
+    if(ui->rdbVIIRSMin->isChecked())
+    {
+        currentProjectionType = PROJ_VIIRSM;
+        if(opts.buttonVIIRSM)
+            imageptrs->om->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
+        else if(opts.buttonVIIRSMNOAA20)
+            imageptrs->om->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSMNOAA20, false);
+    }
+    else if(ui->rdbMERSIin->isChecked())
+    {
+        currentProjectionType = PROJ_MERSI;
+        imageptrs->om->CreateMapFromMERSI(eSegmentType::SEG_MERSI, false);
+    }
+    else if(ui->rdbAVHRRin->isChecked())
+    {
+        currentProjectionType = PROJ_AVHRR;
+        imageptrs->om->CreateMapFromAVHRR(eSegmentType::SEG_METOP, ui->cmbInputAVHRRChannel->currentIndex());
+    }
+
+    formimage->setPixmapToLabel(true);
+    QApplication::restoreOverrideCursor();
+
+}
+
 void FormToolbox::on_spbParallel1_valueChanged(int arg1)
 {
-        opts.parallel1 = arg1;
-        if(imageptrs->ptrimageProjection->width() > 0)
-        {
-            imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                       ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-            formimage->UpdateProjection();
-        }
+    opts.parallel1 = arg1;
+    if(imageptrs->ptrimageProjection->width() > 0)
+    {
+        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+        formimage->UpdateProjection();
+    }
 }
 
 void FormToolbox::on_spbParallel2_valueChanged(int arg1)
 {
-        opts.parallel2 = arg1;
+    opts.parallel2 = arg1;
 
-        if(imageptrs->ptrimageProjection->width() > 0)
-        {
-            imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                       ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-            formimage->UpdateProjection();
-        }
-
-
+    if(imageptrs->ptrimageProjection->width() > 0)
+    {
+        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+        formimage->UpdateProjection();
+    }
 }
 
 void FormToolbox::on_spbCentral_valueChanged(int arg1)
@@ -3524,16 +3637,16 @@ void FormToolbox::on_spbCentral_valueChanged(int arg1)
 
 void FormToolbox::on_spbLatOrigin_valueChanged(int arg1)
 {
-        opts.latitudeoforigin = arg1;
+    opts.latitudeoforigin = arg1;
 
-        qDebug() << QString("FormToolbox::on_spbOrigin_valueChanged(int arg1) origin value = %1").arg(arg1);
+    qDebug() << QString("FormToolbox::on_spbOrigin_valueChanged(int arg1) origin value = %1").arg(arg1);
 
-        if(imageptrs->ptrimageProjection->width() > 0)
-        {
-            imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                       ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-            formimage->UpdateProjection();
-        }
+    if(imageptrs->ptrimageProjection->width() > 0)
+    {
+        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+        formimage->UpdateProjection();
+    }
 
 }
 
@@ -3615,29 +3728,37 @@ void FormToolbox::on_spbEast_valueChanged(int arg1)
         return;
     }
 
-   opts.mapextenteast = arg1;
+    opts.mapextenteast = arg1;
 
 
-   int central = ui->spbWest->value() + longitudediffdeg( ui->spbEast->value(), ui->spbWest->value())/2;
-   qDebug() << QString("FormToolbox::on_spbEast_valueChanged(int arg1) central = %1").arg(central);
+    int central = ui->spbWest->value() + longitudediffdeg( ui->spbEast->value(), ui->spbWest->value())/2;
+    qDebug() << QString("FormToolbox::on_spbEast_valueChanged(int arg1) central = %1").arg(central);
 
 
-   ui->spbCentral->setValue(adjust_lon_deg(central));
+    ui->spbCentral->setValue(adjust_lon_deg(central));
 
-   if(imageptrs->ptrimageProjection->width() > 0)
-   {
-       imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
-                                  ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
-       formimage->UpdateProjection();
-   }
+    if(imageptrs->ptrimageProjection->width() > 0)
+    {
+        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+        formimage->UpdateProjection();
+    }
 
 }
 
-
+eProjectionType FormToolbox::getCurrentProjectionType()
+{
+    return this->currentProjectionType;
+}
 
 int FormToolbox::getTabWidgetIndex()
 {
     return ui->tabWidget->currentIndex();
+}
+
+int FormToolbox::getToolboxIndex()
+{
+    return ui->toolBox->currentIndex();
 }
 
 int FormToolbox::getTabWidgetVIIRSIndex()
@@ -3657,8 +3778,8 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     ui->comboPOI->blockSignals(true);
     ui->comboPOI->clear();
 
-//    if(!dockinfrascales->isHidden())
-//        dockinfrascales->hide();
+    //    if(!dockinfrascales->isHidden())
+    //        dockinfrascales->hide();
 
     imageptrs->ptrProjectionInfra.reset();
     imageptrs->ptrProjectionBrightnessTemp.reset();
@@ -3667,7 +3788,7 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     if (index == 0)
     {
         ui->comboPOI->addItems(poi.strlLCCName);
-//        on_comboPOI_currentIndexChanged(0);
+        //        on_comboPOI_currentIndexChanged(0);
         ui->cbProjResolutions->setCurrentIndex(searchResolution(ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value()));
         imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(),  ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                    ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
@@ -3675,20 +3796,26 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     else if(index == 1)
     {
         ui->comboPOI->addItems(poi.strlGVPName);
-//        on_comboPOI_currentIndexChanged(0);
+        //        on_comboPOI_currentIndexChanged(0);
         ui->cbProjResolutions->setCurrentIndex(searchResolution(ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value()));
         imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
     }
-    else
+    else if(index == 2)
     {
         ui->comboPOI->addItems(poi.strlSGName);
-//        on_comboPOI_currentIndexChanged(0);
+        //        on_comboPOI_currentIndexChanged(0);
         ui->cbProjResolutions->setCurrentIndex(searchResolution(ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value()));
         imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+    }
+    else
+    {
+        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, currentProjectionType);
+
     }
 
     ui->comboPOI->blockSignals(false);
     formimage->UpdateProjection();
+    formimage->adjustPicSize(false);
 }
 
 
@@ -5053,6 +5180,12 @@ void FormToolbox::on_chkSGGridOnProj_clicked()
     formimage->UpdateProjection();
 }
 
+void FormToolbox::on_chkOMGridOnProj_clicked()
+{
+    qDebug() << "FormToolbox::on_chkOMGridOnProjection_clicked()";
+    formimage->UpdateProjection();
+}
+
 void FormToolbox::on_btnAddPOI_clicked()
 {
     if(ui->lePOI->text().length() == 0)
@@ -5192,24 +5325,24 @@ void FormToolbox::on_btnAddMConfig_clicked()
     else if(ui->rbM16->isChecked())
         poi.strlColorBandM.append("16");
 
-//    poi.strlColorsM.append(QString("%1").arg(ui->rbColorVIIRS->isChecked()));
+    //    poi.strlColorsM.append(QString("%1").arg(ui->rbColorVIIRS->isChecked()));
 
-//    poi.strlBandM1.append(QString("%1").arg(ui->rbM1->isChecked()));
-//    poi.strlBandM2.append(QString("%1").arg(ui->rbM2->isChecked()));
-//    poi.strlBandM3.append(QString("%1").arg(ui->rbM3->isChecked()));
-//    poi.strlBandM4.append(QString("%1").arg(ui->rbM4->isChecked()));
-//    poi.strlBandM5.append(QString("%1").arg(ui->rbM5->isChecked()));
-//    poi.strlBandM6.append(QString("%1").arg(ui->rbM6->isChecked()));
-//    poi.strlBandM7.append(QString("%1").arg(ui->rbM7->isChecked()));
-//    poi.strlBandM8.append(QString("%1").arg(ui->rbM8->isChecked()));
-//    poi.strlBandM9.append(QString("%1").arg(ui->rbM9->isChecked()));
-//    poi.strlBandM10.append(QString("%1").arg(ui->rbM10->isChecked()));
-//    poi.strlBandM11.append(QString("%1").arg(ui->rbM11->isChecked()));
-//    poi.strlBandM12.append(QString("%1").arg(ui->rbM12->isChecked()));
-//    poi.strlBandM13.append(QString("%1").arg(ui->rbM13->isChecked()));
-//    poi.strlBandM14.append(QString("%1").arg(ui->rbM14->isChecked()));
-//    poi.strlBandM15.append(QString("%1").arg(ui->rbM15->isChecked()));
-//    poi.strlBandM16.append(QString("%1").arg(ui->rbM16->isChecked()));
+    //    poi.strlBandM1.append(QString("%1").arg(ui->rbM1->isChecked()));
+    //    poi.strlBandM2.append(QString("%1").arg(ui->rbM2->isChecked()));
+    //    poi.strlBandM3.append(QString("%1").arg(ui->rbM3->isChecked()));
+    //    poi.strlBandM4.append(QString("%1").arg(ui->rbM4->isChecked()));
+    //    poi.strlBandM5.append(QString("%1").arg(ui->rbM5->isChecked()));
+    //    poi.strlBandM6.append(QString("%1").arg(ui->rbM6->isChecked()));
+    //    poi.strlBandM7.append(QString("%1").arg(ui->rbM7->isChecked()));
+    //    poi.strlBandM8.append(QString("%1").arg(ui->rbM8->isChecked()));
+    //    poi.strlBandM9.append(QString("%1").arg(ui->rbM9->isChecked()));
+    //    poi.strlBandM10.append(QString("%1").arg(ui->rbM10->isChecked()));
+    //    poi.strlBandM11.append(QString("%1").arg(ui->rbM11->isChecked()));
+    //    poi.strlBandM12.append(QString("%1").arg(ui->rbM12->isChecked()));
+    //    poi.strlBandM13.append(QString("%1").arg(ui->rbM13->isChecked()));
+    //    poi.strlBandM14.append(QString("%1").arg(ui->rbM14->isChecked()));
+    //    poi.strlBandM15.append(QString("%1").arg(ui->rbM15->isChecked()));
+    //    poi.strlBandM16.append(QString("%1").arg(ui->rbM16->isChecked()));
 
     poi.strlInverseM1.append(QString("%1").arg(ui->chkInverseM1->isChecked()));
     poi.strlInverseM2.append(QString("%1").arg(ui->chkInverseM2->isChecked()));
@@ -5270,7 +5403,7 @@ void FormToolbox::on_btnGVPFalseColor_clicked()
     if(forminfrascales->isHidden())
     {
         QList<bool> blist = this->getVIIRSMBandList();
-//        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
+        //        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
         if(ui->rdbVIIRSMin->isChecked() &&
                 (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
         {
@@ -5314,7 +5447,7 @@ void FormToolbox::on_btnLCCFalseColor_clicked()
     if(forminfrascales->isHidden())
     {
         QList<bool> blist = this->getVIIRSMBandList();
-//        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
+        //        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
         if(ui->rdbVIIRSMin->isChecked() &&
                 (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
         {
@@ -5358,7 +5491,7 @@ void FormToolbox::on_btnSGFalseColor_clicked()
     if(forminfrascales->isHidden())
     {
         QList<bool> blist = this->getVIIRSMBandList();
-//        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
+        //        if(formimage->getSegmentType() == eSegmentType::SEG_VIIRSM &&
         if(ui->rdbVIIRSMin->isChecked() &&
                 (blist.at(12) == true || blist.at(13) == true || blist.at(14) == true || blist.at(15) == true || blist.at(16) == true ))
         {
@@ -5460,62 +5593,62 @@ void FormToolbox::fitCurve()
 {
 
 
-//    QVector<double> xmax(180), ymax(180); // initialize with entries 0..100
-//    QVector<double> x, y;
+    //    QVector<double> xmax(180), ymax(180); // initialize with entries 0..100
+    //    QVector<double> x, y;
 
-////    for(int i = 149; i >= 0; i--)
-////    {
+    ////    for(int i = 149; i >= 0; i--)
+    ////    {
 
-////            double lowind = (double)(i % 10 + 1)/10.0;
-////            double upperind = (double)(i % 10)/10.0;
-////            double lowerlimit2 = pow(10, -lowind - (int)(i/10.0));
-////            double upperlimit2 = pow(10, -upperind - (int)(i/10.0));
-////            int index = 149 - i;
-////            qDebug() << QString("---- index = %1 lowelimit2 = %2  upperlimit2 = %3")
-////                        .arg(index).arg(lowerlimit2).arg(upperlimit2);
-////    }
+    ////            double lowind = (double)(i % 10 + 1)/10.0;
+    ////            double upperind = (double)(i % 10)/10.0;
+    ////            double lowerlimit2 = pow(10, -lowind - (int)(i/10.0));
+    ////            double upperlimit2 = pow(10, -upperind - (int)(i/10.0));
+    ////            int index = 149 - i;
+    ////            qDebug() << QString("---- index = %1 lowelimit2 = %2  upperlimit2 = %3")
+    ////                        .arg(index).arg(lowerlimit2).arg(upperlimit2);
+    ////    }
 
 
-//    for(int xzenith = 0; xzenith < 180; xzenith++)
-//    {
-//        xmax[xzenith] = xzenith;
-//        ymax[xzenith] = 0;
-//        double radval = 0;
-//        long maxval = 0;
-//        int jmax = 0;
+    //    for(int xzenith = 0; xzenith < 180; xzenith++)
+    //    {
+    //        xmax[xzenith] = xzenith;
+    //        ymax[xzenith] = 0;
+    //        double radval = 0;
+    //        long maxval = 0;
+    //        int jmax = 0;
 
-//        for(int j = 149; j >= 0; j--)
-//        {
-//            int index = j * 180 + xzenith;
-//            long val = segs->seglviirsdnb->graphvalues.operator [](index);
-//            if(val > maxval)
-//            {
-//                maxval = val;
-//                jmax = 149 - j;
-//            }
-//        }
-//        //qDebug() << QString("maxval = %1 jmax = %2").arg(maxval).arg(jmax);
+    //        for(int j = 149; j >= 0; j--)
+    //        {
+    //            int index = j * 180 + xzenith;
+    //            long val = segs->seglviirsdnb->graphvalues.operator [](index);
+    //            if(val > maxval)
+    //            {
+    //                maxval = val;
+    //                jmax = 149 - j;
+    //            }
+    //        }
+    //        //qDebug() << QString("maxval = %1 jmax = %2").arg(maxval).arg(jmax);
 
-//        if(maxval > 0)
-//        {
-//            double lowind = (double)((jmax % 10) + 1)/10.0;
-//            double upperind = (double)(jmax % 10)/10.0;
-//            double lowerlimit = pow(10, -lowind - (int)(jmax/10));
-//            double upperlimit = pow(10, -upperind - (int)(jmax/10));
+    //        if(maxval > 0)
+    //        {
+    //            double lowind = (double)((jmax % 10) + 1)/10.0;
+    //            double upperind = (double)(jmax % 10)/10.0;
+    //            double lowerlimit = pow(10, -lowind - (int)(jmax/10));
+    //            double upperlimit = pow(10, -upperind - (int)(jmax/10));
 
-//            ymax[xzenith] = upperlimit;
-//          //  qDebug() << QString("lowlimit = %1   upperlimit = %2").arg(lowerlimit, 0, 'E', 3).arg(upperlimit, 0, 'E', 3);
-//        }
-//    }
+    //            ymax[xzenith] = upperlimit;
+    //          //  qDebug() << QString("lowlimit = %1   upperlimit = %2").arg(lowerlimit, 0, 'E', 3).arg(upperlimit, 0, 'E', 3);
+    //        }
+    //    }
 
-//    for(int i = 0; i < 180; i++)
-//    {
-//        if(ymax[i] > 0)
-//        {
-//            x.append(xmax.at(i));
-//            y.append(ymax.at(i));
-//        }
-//    }
+    //    for(int i = 0; i < 180; i++)
+    //    {
+    //        if(ymax[i] > 0)
+    //        {
+    //            x.append(xmax.at(i));
+    //            y.append(ymax.at(i));
+    //        }
+    //    }
     // create graph and assign data to it:
     ui->graph->addGraph();
     if(opts.buttonVIIRSDNB)
@@ -5617,48 +5750,48 @@ void FormToolbox::setAllWhatsThis()
 {
 
     const QString htmlText1 =
-    "<b>None 95%</b><br>"
-    "Linear mapping of 95% of the pixels to 0 - 255. The lower 2.5% of the pixel values are set to 0 and the higher 2.5% of the pixel values are set to 255. <br><br>"
-    "<b>None 100%</b><br>"
-    "Linear mapping of 100% of the pixels to 0 - 255<br><br>"
-    "<b>Equalize%</b><br>"
-    "Histogram equalization of the projected image.<br>The LUT is calculated over the complete input image.<br><br>"
-    "<b>Equalize Projection</b><br>"
-    "Histogram equalization of the projected image.<br>The LUT is calculated only over the pixels of the projected image.";
+            "<b>None 95%</b><br>"
+            "Linear mapping of 95% of the pixels to 0 - 255. The lower 2.5% of the pixel values are set to 0 and the higher 2.5% of the pixel values are set to 255. <br><br>"
+            "<b>None 100%</b><br>"
+            "Linear mapping of 100% of the pixels to 0 - 255<br><br>"
+            "<b>Equalize%</b><br>"
+            "Histogram equalization of the projected image.<br>The LUT is calculated over the complete input image.<br><br>"
+            "<b>Equalize Projection</b><br>"
+            "Histogram equalization of the projected image.<br>The LUT is calculated only over the pixels of the projected image.";
 
 
     ui->cmbHistogramProj->setWhatsThis(htmlText1);
     ui->cmbHistogram->setWhatsThis(htmlText1);
 
     const QString htmlText2 =
-    "<b>Normalized</b><br>"
-    "The values of the radiances are divided with the cosine of the Sun Zenith Angle.";
+            "<b>Normalized</b><br>"
+            "The values of the radiances are divided with the cosine of the Sun Zenith Angle.";
     ui->rdbOLCINormalized->setWhatsThis(htmlText2);
     ui->rdbOLCIprojNormalized->setWhatsThis(htmlText2);
 
     const QString htmlText3 =
-    "A 48bit RGB PNG image as 16 bits per colorchannel. The RGB values of the PNG contains the radiances multiplied by 10";
+            "A 48bit RGB PNG image as 16 bits per colorchannel. The RGB values of the PNG contains the radiances multiplied by 10";
     ui->btnSaveAsPNG48bits->setWhatsThis(htmlText3);
 
     const QString htmlText31 =
-    "When set the radiances will be linear mapped to 0 - 65535.";
+            "When set the radiances will be linear mapped to 0 - 65535.";
     ui->rdbMapTo65535->setWhatsThis(htmlText31);
 
     const QString htmlText4 =
-    "A Lambert conformal conic projection (LCC) is a conic map projection used for aeronautical charts, portions of the State Plane Coordinate System, and many national and regional mapping systems.";
+            "A Lambert conformal conic projection (LCC) is a conic map projection used for aeronautical charts, portions of the State Plane Coordinate System, and many national and regional mapping systems.";
     ui->pageLambert->setWhatsThis(htmlText4);
 
     const QString htmlText5 =
-    "The point of perspective for the General Vertical Perspective Projection (GVP) is a finite distance."
-    "It depicts the earth as it appears from some relatively short distance above the surface, typically a few hundred to a few tens of thousands of kilometers.";
+            "The point of perspective for the General Vertical Perspective Projection (GVP) is a finite distance."
+            "It depicts the earth as it appears from some relatively short distance above the surface, typically a few hundred to a few tens of thousands of kilometers.";
     ui->pagePerspective->setWhatsThis(htmlText5);
 
     const QString htmlText6 =
-    "The stereographic projection was known to Hipparchus, Ptolemy and probably earlier to the Egyptians. It was originally known as the planisphere projection. One of its most important uses was the representation of celestial charts.";
+            "The stereographic projection was known to Hipparchus, Ptolemy and probably earlier to the Egyptians. It was originally known as the planisphere projection. One of its most important uses was the representation of celestial charts.";
     ui->pageStereographic->setWhatsThis(htmlText6);
 
     const QString htmlText7 =
-    "For making a projection (LCC, GVP or SG) select one of the input images.<br><br>"
+            "For making a projection (LCC, GVP or SG) select one of the input images.<br><br>"
             "<b>AVHRR image</b><br>"
             "Input Images from the NOAA-19, Metop-A and B satellite<br><br>"
             "<b>VIIRS M and DNB image</b><br>"
@@ -5678,7 +5811,7 @@ void FormToolbox::on_btnSaveAsPNG48bits_clicked()
     if(!formimage->SaveAsPNG48bits(ui->rdbMapTo65535->isChecked()))
     {
         QMessageBox::information( this, "Save 48bit PNG",
-            "There is no input file !" );
+                                  "There is no input file !" );
     }
 
 }
@@ -5760,35 +5893,35 @@ void FormToolbox::on_btnSaveProjectionAsPNG48bits_clicked()
         return;
     else
     {
-            QApplication::setOverrideCursor(Qt::WaitCursor);
-            if(fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
-                fileName.append(".png");
-            switch(currentProjectionType)
-            {
-            case PROJ_AVHRR:
-                break;
-            case PROJ_GEOSTATIONARY:
-                break;
-            case PROJ_OLCI_EFR:
-                segs->seglolciefr->SmoothOLCIImage12bits();
-                segs->seglolciefr->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
-                break;
-            case PROJ_OLCI_ERR:
-                segs->seglolcierr->SmoothOLCIImage12bits();
-                segs->seglolcierr->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
-                break;
-            case PROJ_SLSTR:
-                break;
-            case PROJ_VIIRSM:
-                segs->seglviirsm->SmoothVIIRSImage12bits();
-                segs->seglviirsm->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
-                break;
-            case PROJ_VIIRSDNB:
-                break;
-            default:
-                return;
-            }
-            QApplication::restoreOverrideCursor();
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        if(fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
+            fileName.append(".png");
+        switch(currentProjectionType)
+        {
+        case PROJ_AVHRR:
+            break;
+        case PROJ_GEOSTATIONARY:
+            break;
+        case PROJ_OLCI_EFR:
+            segs->seglolciefr->SmoothOLCIImage12bits();
+            segs->seglolciefr->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
+            break;
+        case PROJ_OLCI_ERR:
+            segs->seglolcierr->SmoothOLCIImage12bits();
+            segs->seglolcierr->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
+            break;
+        case PROJ_SLSTR:
+            break;
+        case PROJ_VIIRSM:
+            segs->seglviirsm->SmoothVIIRSImage12bits();
+            segs->seglviirsm->Compose48bitProjectionPNG(fileName, ui->rdbMapTo65535Proj->isChecked());
+            break;
+        case PROJ_VIIRSDNB:
+            break;
+        default:
+            return;
+        }
+        QApplication::restoreOverrideCursor();
     }
 }
 
@@ -5881,13 +6014,13 @@ void FormToolbox::on_cmbHistogramGeo_activated(int index)
 
 void FormToolbox::on_btnCLAHE_RGBRecipe_clicked()
 {
-        QApplication::setOverrideCursor(Qt::WaitCursor);
-        this->setToolboxButtons(false);
-        QApplication::processEvents();
-        qDebug() << QString("ui->sliCLAHE_RGBRecipe value = %1").arg((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
-        formimage->CLAHERGBRecipe((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
-        formimage->slotUpdateGeosat();
-        QApplication::restoreOverrideCursor();
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    this->setToolboxButtons(false);
+    QApplication::processEvents();
+    qDebug() << QString("ui->sliCLAHE_RGBRecipe value = %1").arg((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
+    formimage->CLAHERGBRecipe((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
+    formimage->slotUpdateGeosat();
+    QApplication::restoreOverrideCursor();
 
 }
 
@@ -5985,3 +6118,58 @@ void FormToolbox::on_btnAddMERSIConfig_clicked()
     ui->leMERSIConfig->setText("");
 
 }
+
+
+void FormToolbox::on_rdbAVHRRin_clicked()
+{
+    this->currentProjectionType = PROJ_AVHRR;
+}
+
+void FormToolbox::on_rdbVIIRSMin_clicked()
+{
+    this->currentProjectionType = PROJ_VIIRSM;
+    if( this->getToolboxIndex() == 3)
+        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType);
+
+    formimage->UpdateProjection();
+
+}
+
+void FormToolbox::on_rdbVIIRSDNBin_clicked()
+{
+    this->currentProjectionType = PROJ_VIIRSDNB;
+}
+
+void FormToolbox::on_rdbOLCIefrin_clicked()
+{
+    this->currentProjectionType = PROJ_OLCI_EFR;
+}
+
+void FormToolbox::on_rdbOLCIerrin_clicked()
+{
+    this->currentProjectionType = PROJ_OLCI_ERR;
+}
+
+void FormToolbox::on_rdbMERSIin_clicked()
+{
+    this->currentProjectionType = PROJ_MERSI;
+    if( this->getToolboxIndex() == 3)
+        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType);
+
+    formimage->UpdateProjection();
+
+}
+
+void FormToolbox::on_rdbMeteosatin_clicked()
+{
+    this->currentProjectionType = PROJ_GEOSTATIONARY;
+}
+
+
+
+void FormToolbox::on_btnOMClearMap_clicked()
+{
+    imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
+    formimage->displayImage(IMAGE_PROJECTION);
+}
+

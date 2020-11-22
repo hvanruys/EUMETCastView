@@ -51,6 +51,7 @@ public:
     void ComposeGVProjection(int inputchannel);
     void ComposeLCCProjection(int inputchannel);
     void ComposeSGProjection(int inputchannel);
+    void ComposeOMProjection(int inputchannel);
     void SmoothProjectionImageBilinear();
     void SmoothProjectionImageBicubic();
     void Compose48bitProjectionPNG(QString fileName, bool mapto65535);
@@ -62,6 +63,9 @@ public:
     bool TestForSegmentGL(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
     bool TestForSegmentGLextended(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
     void setHistogramMethod(int histo);
+    void GetContourPolygon(QPolygonF *poly);
+    void GetContourPolygonAVHRR(QPolygonF *poly);
+    void GetTrackPolygon(QPolygonF *poly);
 
 
 protected:

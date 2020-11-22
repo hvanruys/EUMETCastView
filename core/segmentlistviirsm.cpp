@@ -136,6 +136,8 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
     }
 
     imageptrs->ptrimageViirsM = new QImage(earthviews, totalnbroflines, QImage::Format_ARGB32);
+     qDebug() << "bool SegmentListVIIRSM::ComposeVIIRSImageInThread ptrimageViirsM QImage created " <<
+                 imageptrs->ptrimageViirsM->width() << "X" << imageptrs->ptrimageViirsM->height();
 
     int deltaprogress = 99 / (totalnbrofsegments*2);
     int totalprogress = 0;
@@ -285,6 +287,22 @@ void SegmentListVIIRSM::ComposeSGProjection(int inputchannel)
     }
 
     initBrightnessTemp();
+}
+
+void SegmentListVIIRSM::ComposeOMProjection(int inputchannel)
+{
+
+    qDebug() << "SegmentListVIIRSM::ComposeOMProjection()";
+    QList<Segment *>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentOMProjection(inputchannel, 0, false);
+        emit segmentprojectionfinished(false);
+        QApplication::processEvents();
+
+        ++segit;
+    }
+
 }
 
 void SegmentListVIIRSM::initBrightnessTemp()
@@ -1356,5 +1374,117 @@ void SegmentListVIIRSM::MapCanvasFloat(float *canvas, int *canvas1, qint32 ancho
             }
         }
     }
+}
+
+void SegmentListVIIRSM::GetCentralCoords(double *startcentrallon, double *startcentrallat, double *endcentrallon, double *endcentrallat)
+{
+    double slon, slat, elon, elat;
+    double save_slon, save_slat, save_elon, save_elat;
+    int startindex, endindex;
+
+    save_slon = 65535.0;
+    save_slat = 65535.0;
+    save_elon = 65535.0;
+    save_elat = 65535.0;
+
+    bool first = true;
+
+    QList<Segment*>::iterator segsel = segsselected.begin();
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+        segm->GetCentralCoords(&slon, &slat, &elon, &elat, &startindex, &endindex);
+
+        if(abs(slon) <= 180.0 && abs(slat) <= 90.0 && abs(elon) <= 180.0 && abs(elat) <= 90.0)
+        {
+            if(first == true)
+            {
+                first = false;
+                save_slon = slon;
+                save_slat = slat;
+                save_elon = elon;
+                save_elat = elat;
+            }
+            else
+            {
+                save_elon = elon;
+                save_elat = elat;
+            }
+        }
+
+        QApplication::processEvents();
+        ++segsel;
+    }
+
+    *startcentrallon = save_slon;
+    *startcentrallat = save_slat;
+    *endcentrallon = save_elon;
+    *endcentrallat = save_elat;
+
+}
+
+void SegmentListVIIRSM::GetCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2, double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4)
+{
+    double save_cornerlon1, save_cornerlat1, save_cornerlon2, save_cornerlat2;
+    double save_cornerlon3, save_cornerlat3, save_cornerlon4, save_cornerlat4;
+    int Xcornerindex1, Xcornerindex2, Ycornerindex12;
+    int Xcornerindex3, Xcornerindex4, Ycornerindex34;
+
+    save_cornerlon1 = 65535.0;
+    save_cornerlat1 = 65535.0;
+    save_cornerlon2 = 65535.0;
+    save_cornerlat2 = 65535.0;
+
+    save_cornerlon3 = 65535.0;
+    save_cornerlat3 = 65535.0;
+    save_cornerlon4 = 65535.0;
+    save_cornerlat4 = 65535.0;
+
+    QList<Segment *>::iterator segsel;
+    segsel = segsselected.begin();
+
+    int count = 0;
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+        count++;
+        if(count == 1)
+        {
+            segm->GetStartCornerCoords(&save_cornerlon1, &save_cornerlat1, &save_cornerlon2, &save_cornerlat2, &Xcornerindex1, &Xcornerindex2, &Ycornerindex12 );
+            if(abs(save_cornerlon1) <= 180.0 && abs(save_cornerlat1) <= 90.0 && abs(save_cornerlon2) <= 180.0 && abs(save_cornerlat2) <= 90.0)
+                break;
+        }
+        ++segsel;
+    }
+
+    segsel = segsselected.begin();
+    count = 0;
+
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
+        count++;
+
+        if(count == segsselected.size())
+        {
+            segm->GetEndCornerCoords(&save_cornerlon3, &save_cornerlat3, &save_cornerlon4, &save_cornerlat4, &Xcornerindex3, &Xcornerindex4, &Ycornerindex34 );
+            if(abs(save_cornerlon3) <= 180.0 && abs(save_cornerlat3) <= 90.0 && abs(save_cornerlon4) <= 180.0 && abs(save_cornerlat4) <= 90.0)
+                break;
+        }
+        ++segsel;
+    }
+
+    *cornerlon1 = save_cornerlon1;
+    *cornerlat1 = save_cornerlat1;
+    *cornerlon2 = save_cornerlon2;
+    *cornerlat2 = save_cornerlat2;
+
+    *cornerlon3 = save_cornerlon3;
+    *cornerlat3 = save_cornerlat3;
+    *cornerlon4 = save_cornerlon4;
+    *cornerlat4 = save_cornerlat4;
+
 }
 
