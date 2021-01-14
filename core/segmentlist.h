@@ -30,6 +30,8 @@ public:
     QList<Segment *> *GetSegsSelectedptr(void) { return &segsselected; }
     eSegmentType GetSegmentType() { return seglisttype; }
     void ClearSegments();
+    void ClearSelectedSegments();
+
     int NbrOfSegments();
     int NbrOfSegmentsSelected();
     int NbrOfSegmentsSelectedinMemory();
@@ -62,10 +64,13 @@ public:
     int GetEartViewsPerScanline() { return this->earth_views_per_scanline; }
     bool TestForSegmentGL(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
     bool TestForSegmentGLextended(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
+    bool TestForSegmentGLXML(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
     void setHistogramMethod(int histo);
     void GetContourPolygon(QPolygonF *poly);
     void GetContourPolygonAVHRR(QPolygonF *poly);
     void GetTrackPolygon(QPolygonF *poly);
+    void GetTrackPolygonAVHRR(QPolygonF *poly);
+
 
 
 protected:

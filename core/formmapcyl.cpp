@@ -2,6 +2,7 @@
 
 #include "formmapcyl.h"
 #include "ui_formmapcyl.h"
+#include <netcdf.h>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -69,134 +70,114 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->twSelectedProducts->setStyleSheet("QTableView {selection-background-color: green;}");
     ui->lblTotalDownloadSize->setText("No selected segments");
 
+    SetAllButtonsToFalse();
     if (opts.buttonMetop)
     {
-        SetAllButtonsToFalse();
         opts.buttonMetop = true;
     }
     else if (opts.buttonNoaa)
     {
-        SetAllButtonsToFalse();
         opts.buttonNoaa = true;
     }
     else if (opts.buttonGAC)
     {
-        SetAllButtonsToFalse();
         opts.buttonGAC = true;
     }
     else if (opts.buttonHRP)
     {
-        SetAllButtonsToFalse();
         opts.buttonHRP = true;
     }
     else if (opts.buttonRealTime)
     {
-        SetAllButtonsToFalse();
         opts.buttonRealTime = true;
     }
     else if (opts.buttonVIIRSM)
     {
-        SetAllButtonsToFalse();
         opts.buttonVIIRSM = true;
         formtoolbox->setTabWidgetIndex(TAB_VIIRS);
         formtoolbox->setTabWidgetVIIRSIndex(0);
     }
     else if (opts.buttonVIIRSDNB)
     {
-        SetAllButtonsToFalse();
         opts.buttonVIIRSDNB = true;
         formtoolbox->setTabWidgetIndex(TAB_VIIRS);
         formtoolbox->setTabWidgetVIIRSIndex(1);
     }
     else if (opts.buttonVIIRSMNOAA20)
     {
-        SetAllButtonsToFalse();
         opts.buttonVIIRSMNOAA20 = true;
         formtoolbox->setTabWidgetIndex(TAB_VIIRS);
         formtoolbox->setTabWidgetVIIRSIndex(0);
     }
     else if (opts.buttonVIIRSDNBNOAA20)
     {
-        SetAllButtonsToFalse();
         opts.buttonVIIRSDNBNOAA20 = true;
         formtoolbox->setTabWidgetIndex(TAB_VIIRS);
         formtoolbox->setTabWidgetVIIRSIndex(1);
     }
     else if (opts.buttonOLCIefr)
     {
-        SetAllButtonsToFalse();
         opts.buttonOLCIefr = true;
         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
         formtoolbox->setTabWidgetSentinelIndex(0);
     }
     else if (opts.buttonOLCIerr)
     {
-        SetAllButtonsToFalse();
         opts.buttonOLCIerr = true;
         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
         formtoolbox->setTabWidgetSentinelIndex(0);
     }
     else if (opts.buttonSLSTR)
     {
-        SetAllButtonsToFalse();
         opts.buttonSLSTR = true;
         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
         formtoolbox->setTabWidgetSentinelIndex(1);
     }
     else if (opts.buttonMetopAhrpt)
     {
-        SetAllButtonsToFalse();
         opts.buttonMetopAhrpt = true;
         formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     }
     else if (opts.buttonMetopBhrpt)
     {
-        SetAllButtonsToFalse();
         opts.buttonMetopBhrpt = true;
         formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     }
     else if (opts.buttonNoaa19hrpt)
     {
-        SetAllButtonsToFalse();
         opts.buttonNoaa19hrpt = true;
         formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     }
     else if (opts.buttonM01hrpt)
     {
-        SetAllButtonsToFalse();
         opts.buttonM01hrpt = true;
         formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     }
     else if (opts.buttonM02hrpt)
     {
-        SetAllButtonsToFalse();
         opts.buttonM02hrpt = true;
         formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     }
     else if (opts.buttonDatahubOLCIefr)
     {
-        SetAllButtonsToFalse();
         opts.buttonDatahubOLCIefr = true;
         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
         formtoolbox->setTabWidgetSentinelIndex(0);
     }
     else if (opts.buttonDatahubOLCIerr)
     {
-        SetAllButtonsToFalse();
         opts.buttonDatahubOLCIerr = true;
         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
         formtoolbox->setTabWidgetSentinelIndex(0);
     }
     else if (opts.buttonDatahubSLSTR)
     {
-        SetAllButtonsToFalse();
         opts.buttonDatahubSLSTR = true;
         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
         formtoolbox->setTabWidgetSentinelIndex(1);
     }
     else if (opts.buttonMERSI)
     {
-        SetAllButtonsToFalse();
         opts.buttonMERSI = true;
     }
 
@@ -226,6 +207,11 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnPhong->setChecked(opts.buttonPhong);
     ui->btnAllSegments->setChecked(opts.buttonShowAllSegments);
 
+    if(opts.buttonDatahubOLCIefr || opts.buttonDatahubOLCIerr || opts.buttonDatahubSLSTR)
+        ui->btnMakeImage->setEnabled(false);
+    else
+        ui->btnMakeImage->setEnabled(true);
+
     connect( ui->btnMetop, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
     connect( ui->btnNoaa, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnGAC, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
@@ -248,6 +234,11 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     segs->setShowAllSegments(ui->btnAllSegments->isChecked());
 
     this->showSegmentCount();
+
+    ui->rdbDownloadXMLOLCIEFR->setChecked(true);
+    ui->rdbDownloadXMLOLCIERR->setChecked(false);
+    ui->rdbDownloadXMLSLSTR->setChecked(false);
+
 
 }
 
@@ -307,12 +298,12 @@ void FormMapCyl::slotSetMapCylButtons(bool stat)
     ui->btnM01hrpt->setEnabled(stat);
     ui->btnM02hrpt->setEnabled(stat);
 
-    ui->btnDownloadFromDatahub->setEnabled(stat);
     ui->btnOLCIefrDatahub->setEnabled(stat);
     ui->btnOLCIerrDatahub->setEnabled(stat);
     ui->btnSLSTRDatahub->setEnabled(stat);
     ui->btnDownloadQuicklook->setEnabled(stat);
-    ui->btnDownloadProduct->setEnabled(stat);
+    ui->btnDownloadCompleteProduct->setEnabled(stat);
+    ui->btnDownloadPartialProduct->setEnabled(stat);
     ui->btnCancelDownloadProduct->setEnabled(stat);
 }
 
@@ -458,70 +449,70 @@ void FormMapCyl::updatesatmap(int index)
         {
             segs->seglmetop->ShowSegment(ui->verticalScrollBar->value());
         } else
-        if (opts.buttonNoaa )
-        {
-            segs->seglnoaa->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonHRP)
-        {
-            segs->seglhrp->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonGAC)
-        {
-            segs->seglgac->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonMetopAhrpt)
-        {
-            segs->seglmetopAhrpt->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonMetopBhrpt)
-        {
-            segs->seglmetopBhrpt->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonNoaa19hrpt)
-        {
-            segs->seglnoaa19hrpt->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonM01hrpt)
-        {
-            segs->seglM01hrpt->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonM02hrpt)
-        {
-            segs->seglM02hrpt->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonVIIRSM)
-        {
-            segs->seglviirsm->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonVIIRSDNB)
-        {
-            segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonVIIRSMNOAA20)
-        {
-            segs->seglviirsmnoaa20->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonVIIRSDNBNOAA20)
-        {
-            segs->seglviirsdnbnoaa20->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonOLCIefr)
-        {
-            segs->seglolciefr->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonOLCIerr)
-        {
-            segs->seglolcierr->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonSLSTR)
-        {
-            segs->seglslstr->ShowSegment(ui->verticalScrollBar->value());
-        } else
-        if (opts.buttonMERSI)
-        {
-            segs->seglmersi->ShowSegment(ui->verticalScrollBar->value());
-        }
+            if (opts.buttonNoaa )
+            {
+                segs->seglnoaa->ShowSegment(ui->verticalScrollBar->value());
+            } else
+                if (opts.buttonHRP)
+                {
+                    segs->seglhrp->ShowSegment(ui->verticalScrollBar->value());
+                } else
+                    if (opts.buttonGAC)
+                    {
+                        segs->seglgac->ShowSegment(ui->verticalScrollBar->value());
+                    } else
+                        if (opts.buttonMetopAhrpt)
+                        {
+                            segs->seglmetopAhrpt->ShowSegment(ui->verticalScrollBar->value());
+                        } else
+                            if (opts.buttonMetopBhrpt)
+                            {
+                                segs->seglmetopBhrpt->ShowSegment(ui->verticalScrollBar->value());
+                            } else
+                                if (opts.buttonNoaa19hrpt)
+                                {
+                                    segs->seglnoaa19hrpt->ShowSegment(ui->verticalScrollBar->value());
+                                } else
+                                    if (opts.buttonM01hrpt)
+                                    {
+                                        segs->seglM01hrpt->ShowSegment(ui->verticalScrollBar->value());
+                                    } else
+                                        if (opts.buttonM02hrpt)
+                                        {
+                                            segs->seglM02hrpt->ShowSegment(ui->verticalScrollBar->value());
+                                        } else
+                                            if (opts.buttonVIIRSM)
+                                            {
+                                                segs->seglviirsm->ShowSegment(ui->verticalScrollBar->value());
+                                            } else
+                                                if (opts.buttonVIIRSDNB)
+                                                {
+                                                    segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
+                                                } else
+                                                    if (opts.buttonVIIRSMNOAA20)
+                                                    {
+                                                        segs->seglviirsmnoaa20->ShowSegment(ui->verticalScrollBar->value());
+                                                    } else
+                                                        if (opts.buttonVIIRSDNBNOAA20)
+                                                        {
+                                                            segs->seglviirsdnbnoaa20->ShowSegment(ui->verticalScrollBar->value());
+                                                        } else
+                                                            if (opts.buttonOLCIefr)
+                                                            {
+                                                                segs->seglolciefr->ShowSegment(ui->verticalScrollBar->value());
+                                                            } else
+                                                                if (opts.buttonOLCIerr)
+                                                                {
+                                                                    segs->seglolcierr->ShowSegment(ui->verticalScrollBar->value());
+                                                                } else
+                                                                    if (opts.buttonSLSTR)
+                                                                    {
+                                                                        segs->seglslstr->ShowSegment(ui->verticalScrollBar->value());
+                                                                    } else
+                                                                        if (opts.buttonMERSI)
+                                                                        {
+                                                                            segs->seglmersi->ShowSegment(ui->verticalScrollBar->value());
+                                                                        }
 
         mapcyl->update();
     }
@@ -534,13 +525,13 @@ void FormMapCyl::updatesatmap(int index)
             tit = "Metop ";
         } else if (opts.buttonNoaa )
         {
-             tit = "Noaa ";
+            tit = "Noaa ";
         } else if (opts.buttonGAC)
         {
-             tit = "GAC ";
+            tit = "GAC ";
         } else if (opts.buttonHRP)
         {
-             tit = "HRP ";
+            tit = "HRP ";
         } else if (opts.buttonVIIRSM)
         {
             tit = "VIIRSM ";
@@ -562,7 +553,7 @@ void FormMapCyl::updatesatmap(int index)
         }
 
 
-     }
+    }
 }
 
 void FormMapCyl::toggleButton(eSegmentType segtype)
@@ -613,6 +604,13 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
     ui->btnSLSTRDatahub->setChecked(opts.buttonDatahubSLSTR);
     ui->btnMERSI->setChecked(opts.buttonMERSI);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
+
+    if(opts.buttonDatahubOLCIefr || opts.buttonDatahubOLCIerr || opts.buttonDatahubSLSTR)
+        ui->btnMakeImage->setEnabled(false);
+    else
+        ui->btnMakeImage->setEnabled(true);
+
+
     this->showSegmentList(0);
 
     //imagetab->SetGammaSpinboxes();
@@ -1158,8 +1156,8 @@ void FormMapCyl::on_btnOLCIefr_clicked()
     formtoolbox->setTabWidgetSentinelIndex(0);
     toggleButton(eSegmentType::SEG_OLCIEFR);
     this->RemoveAllSelected();
-//    mapcyl->update();
-//    this->showSegmentCount();
+    //    mapcyl->update();
+    //    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -1171,8 +1169,8 @@ void FormMapCyl::on_btnOLCIerr_clicked()
     formtoolbox->setTabWidgetSentinelIndex(0);
     toggleButton(eSegmentType::SEG_OLCIERR);
     this->RemoveAllSelected();
-//    mapcyl->update();
-//    this->showSegmentCount();
+    //    mapcyl->update();
+    //    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -1184,8 +1182,8 @@ void FormMapCyl::on_btnSLSTR_clicked()
     formtoolbox->setTabWidgetSentinelIndex(1);
     toggleButton(eSegmentType::SEG_SLSTR);
     this->RemoveAllSelected();
-//    mapcyl->update();
-//    this->showSegmentCount();
+    //    mapcyl->update();
+    //    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -1206,7 +1204,6 @@ void FormMapCyl::on_btnOLCIefrDatahub_clicked()
 
 void FormMapCyl::on_btnOLCIerrDatahub_clicked()
 {
-    qDebug() << "FormMapCyl::on_btnOLCIerrDatahub_clicked()";
 
     formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
     formtoolbox->setTabWidgetSentinelIndex(0);
@@ -1215,7 +1212,6 @@ void FormMapCyl::on_btnOLCIerrDatahub_clicked()
     mapcyl->update();
     this->showSegmentCount();
     this->setScrollBarMaximum();
-    qDebug() << "einde FormMapCyl::on_btnOLCIerrDatahub_clicked()";
 
     return;
 }
@@ -1253,27 +1249,431 @@ void FormMapCyl::on_btnPhong_clicked()
     opts.buttonPhong = ui->btnPhong->isChecked();
 }
 
-void FormMapCyl::on_btnDownloadProduct_clicked()
+bool FormMapCyl::IsProductDirFilledIn()
 {
+    if(opts.productdirectory.isEmpty())
+    {
+        QMessageBox::critical(this, "Product directory is empty !", "Please first create a directory where you want to download the products.\n "
+                                                                    "Open Scihub/CODA Config in Preferences and select the created directory.", QMessageBox::Ok);
+        return false;
+    }
+    return true;
+}
+
+void FormMapCyl::on_btnDownloadCompleteProduct_clicked()
+{
+
+    if(!IsProductDirFilledIn())
+        return;
+
 
     if(todownloadlist.count() ==  0)
         return;
 
-    SearchForFreeManager(false);
+    for(int i = 0; i < todownloadlist.count(); i++)
+    {
+        todownloadlist[i].band_or_quicklook = "complete";
+    }
+
+
+    SearchForFreeManager();
 
 }
 
 void FormMapCyl::on_btnDownloadQuicklook_clicked()
 {
+    if(!IsProductDirFilledIn())
+        return;
+
+
+    QList<ProductList> newtodownloadlist;
 
     if(todownloadlist.count() ==  0)
         return;
 
-    SearchForFreeManager(true);
+    for(int i = 0; i < todownloadlist.count(); i++)
+    {
+        if(!QuicklookExist(todownloadlist.at(i).completebasename))
+        {
+            todownloadlist[i].band_or_quicklook = "quicklook";
+            newtodownloadlist.append(todownloadlist.at(i));
+            ProductList newtoadd;
+            newtoadd.completebasename = todownloadlist.at(i).completebasename;
+            newtoadd.uuid = todownloadlist.at(i).uuid;
+            newtoadd.status = "waiting";
+            if(newtoadd.completebasename.mid(9, 3) == "RBT")
+                newtoadd.band_or_quicklook = "geodetic_ao.nc";
+            else
+                newtoadd.band_or_quicklook = "tie_geo_coordinates.nc";
+
+            newtodownloadlist.append(newtoadd);
+        }
+        else
+        {
+            RenderQuicklookinTexture(todownloadlist.at(i).completebasename);
+        }
+    }
+
+    todownloadlist = newtodownloadlist;
+
+    showSelectedSegmentToDownloadList();
+
+    SearchForFreeManager();
 
 }
 
-void FormMapCyl::SearchForFreeManager(bool quicklook)
+void FormMapCyl::on_btnDownloadPartialProduct_clicked()
+{
+    if(!IsProductDirFilledIn())
+        return;
+
+    QList<bool> bandlist = formtoolbox->getOLCIBandList();
+    QList<int> colorlist = formtoolbox->getOLCIColorList();
+
+    QList<ProductList> newtodownloadlist;
+
+    if(todownloadlist.count() ==  0)
+        return;
+
+    for(int i = 0; i < todownloadlist.count(); i++)
+    {
+        if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, "geo_coordinates.nc"))
+        {
+            todownloadlist[i].band_or_quicklook = "geo_coordinates.nc";
+            newtodownloadlist.append(todownloadlist.at(i)); // 1
+        }
+
+        ProductList newtoadd;
+        newtoadd.completebasename = todownloadlist.at(i).completebasename;
+        newtoadd.uuid = todownloadlist.at(i).uuid;
+        newtoadd.status = "waiting";
+
+        if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, "tie_geometries.nc"))
+        {
+            if(newtoadd.completebasename.mid(9, 3) == "RBT")
+                newtoadd.band_or_quicklook = "";
+            else
+                newtoadd.band_or_quicklook = "tie_geometries.nc";
+            newtodownloadlist.append(newtoadd); // 2
+        }
+
+        if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, "qualityFlags.nc"))
+        {
+            newtoadd.band_or_quicklook = "qualityFlags.nc";
+            newtodownloadlist.append(newtoadd); // 3
+        }
+
+        if(bandlist.at(0) == false) // No color
+        {
+            QString bandfile;
+            SegmentListOLCI::getDatasetNameFromBand(bandlist, &bandfile );
+            if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, bandfile))
+            {
+                newtoadd.band_or_quicklook = bandfile;
+                newtodownloadlist.append(newtoadd);
+            }
+        }
+        else
+        {
+            QString colorfile;
+            SegmentListOLCI::getDatasetNameFromColor(colorlist, 0, &colorfile);
+            if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, colorfile))
+            {
+                newtoadd.band_or_quicklook = colorfile;
+                newtodownloadlist.append(newtoadd);
+            }
+            SegmentListOLCI::getDatasetNameFromColor(colorlist, 1, &colorfile);
+            if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, colorfile))
+            {
+                newtoadd.band_or_quicklook = colorfile;
+                newtodownloadlist.append(newtoadd);
+            }
+            SegmentListOLCI::getDatasetNameFromColor(colorlist, 2, &colorfile);
+            if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, colorfile))
+            {
+                newtoadd.band_or_quicklook = colorfile;
+                newtodownloadlist.append(newtoadd);
+            }
+        }
+
+    }
+
+    todownloadlist = newtodownloadlist;
+
+    showSelectedSegmentToDownloadList();
+
+    SearchForFreeManager();
+
+}
+
+void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
+{
+    QColor rgb;
+    int posx, posy;
+    int retval;
+    int tiegeofileid;
+    int tiecolumnsid, tierowsid;
+    size_t tiecolumnslength, tierowslength;
+    int *longitude_tie;
+    int *latitude_tie;
+
+    int geofileid;
+    int columnsid, rowsid;
+    size_t columnslength, rowslength;
+
+    int *longitude_img;
+    int *latitude_img;
+
+    if(completebasename.mid(9, 3) == "RBT")
+        return;
+
+    QDir dir(opts.productdirectory);
+
+    QString fileyear = completebasename.mid(16, 4);
+    QString filemonth = completebasename.mid(20, 2);
+    QString fileday = completebasename.mid(22,2);
+
+    QString quicklookpath(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename + "/quicklook/" + completebasename + ".jpg");
+    QString tiegeopath(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename);
+    QString geopath(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename);
+
+    if(completebasename.mid(9, 3) == "RBT")
+        tiegeopath.append("/geodetic_ao.nc");
+    else
+    {
+        tiegeopath.append("/tie_geo_coordinates.nc");
+        geopath.append("/geo_coordinates.nc");
+    }
+
+    qDebug() << "quicklookpath = " << QFile::exists(quicklookpath);
+    qDebug() << "tiegeopath = " << QFile::exists(tiegeopath);
+    qDebug() << "geopath = " << QFile::exists(geopath);
+
+    if(!(QFile::exists(quicklookpath) && (QFile::exists(tiegeopath) || QFile::exists(geopath))))
+    {
+        return;
+    }
+
+    QImage img(quicklookpath);
+    if(completebasename.mid(9, 3) == "EFR")
+        columnslength = 4865; // (4090, 4865)
+    else if(completebasename.mid(9, 3) == "ERR")
+        columnslength = 1217; // (14997, 1217)
+    else if(completebasename.mid(9, 3) == "RBT")
+        columnslength = 2400; // (2400, 1800)
+    else
+        columnslength = 0;
+
+    if(QFile::exists(geopath))
+    {
+        QByteArray arraygeocoordinates = geopath.toUtf8();
+        const char *pgeocoordinatesfile = arraygeocoordinates.constData();
+
+        retval = nc_open(pgeocoordinatesfile, NC_NOWRITE, &geofileid);
+        if(retval != NC_NOERR) qDebug() << "error opening geo_coordinates";
+
+        retval = nc_inq_dimid(geofileid, "columns", &columnsid);
+        if(retval != NC_NOERR) qDebug() << "error reading columns id";
+        retval = nc_inq_dimlen(geofileid, columnsid, &columnslength);
+        if(retval != NC_NOERR) qDebug() << "error reading columns length";
+
+        retval = nc_inq_dimid(geofileid, "rows", &rowsid);
+        if(retval != NC_NOERR) qDebug() << "error reading rows id";
+        retval = nc_inq_dimlen(geofileid, rowsid, &rowslength); // 4091 or 14997
+        if(retval != NC_NOERR) qDebug() << "error reading tie_rows length";
+
+        longitude_img = new int[rowslength*columnslength];
+        latitude_img = new int[rowslength*columnslength];
+
+        tierowslength = rowslength;
+        int longitudeid, latitudeid;
+
+        retval = nc_inq_varid(geofileid, "longitude", &longitudeid);
+        if (retval != NC_NOERR) qDebug() << "error reading longitude id";
+        retval = nc_get_var_int(geofileid, longitudeid, longitude_img);
+        if (retval != NC_NOERR) qDebug() << "error reading longitude values";
+
+        retval = nc_inq_varid(geofileid, "latitude", &latitudeid);
+        if (retval != NC_NOERR) qDebug() << "error reading latitude id";
+        retval = nc_get_var_int(geofileid, latitudeid, latitude_img);
+        if (retval != NC_NOERR) qDebug() << "error reading latitude values";
+
+        retval = nc_close(geofileid);
+        if (retval != NC_NOERR) qDebug() << "error closing geo_coordinates";
+
+
+
+
+    }
+    else
+    {
+        QByteArray arraytiegeocoordinates = tiegeopath.toUtf8();
+        const char *ptiegeocoordinatesfile = arraytiegeocoordinates.constData();
+
+        retval = nc_open(ptiegeocoordinatesfile, NC_NOWRITE, &tiegeofileid);
+        if(retval != NC_NOERR) qDebug() << "error opening tie_geo_coordinates";
+
+        retval = nc_inq_dimid(tiegeofileid, "tie_columns", &tiecolumnsid);
+        if(retval != NC_NOERR) qDebug() << "error reading tie_columns id";
+        retval = nc_inq_dimlen(tiegeofileid, tiecolumnsid, &tiecolumnslength); // 77
+        if(retval != NC_NOERR) qDebug() << "error reading tie_columns length";
+
+        retval = nc_inq_dimid(tiegeofileid, "tie_rows", &tierowsid);
+        if(retval != NC_NOERR) qDebug() << "error reading tie_rows id";
+        retval = nc_inq_dimlen(tiegeofileid, tierowsid, &tierowslength); // 4091 or 14997
+        if(retval != NC_NOERR) qDebug() << "error reading tie_rows length";
+
+        longitude_tie = new int[tiecolumnslength * tierowslength]; // new int[77*4091];
+        latitude_tie = new int[tiecolumnslength * tierowslength];
+
+        longitude_img = new int[tierowslength*columnslength];
+        latitude_img = new int[tierowslength*columnslength];
+
+
+        int longitudetieid, latitudetieid;
+
+        retval = nc_inq_varid(tiegeofileid, "longitude", &longitudetieid);
+        if (retval != NC_NOERR) qDebug() << "error reading longitudetie id";
+        retval = nc_get_var_int(tiegeofileid, longitudetieid, longitude_tie);
+        if (retval != NC_NOERR) qDebug() << "error reading longitude_tie values";
+
+        retval = nc_inq_varid(tiegeofileid, "latitude", &latitudetieid);
+        if (retval != NC_NOERR) qDebug() << "error reading latitudetie id";
+        retval = nc_get_var_int(tiegeofileid, latitudetieid, latitude_tie);
+        if (retval != NC_NOERR) qDebug() << "error reading latitude_tie values";
+
+        retval = nc_close(tiegeofileid);
+        if (retval != NC_NOERR) qDebug() << "error closing tie_geo_coordinates";
+
+        int val1, val2, diff;
+
+        int factor = (columnslength-1)/(tiecolumnslength-1);
+
+
+
+
+        //    Debug Debug: "rowslength = 4091 columnslength : 4865 earth_views_per_scanline = 4865"
+        //    Debug Debug: "tierowslength = 4091 tiecolumnslength : 77 NbrOfLines = 4091"
+        //    Debug Debug: "rowslength * columnslength = 19902715 factor = 64 "
+
+        //    // Linear interpolation
+        for(int j=0; j < tierowslength; j++)
+        {
+            for(int i=0; i < tiecolumnslength-1; i++) // tiecolumnslength = 77
+            {
+                val1 = longitude_tie[j*tiecolumnslength + i];
+                val2 = longitude_tie[j*tiecolumnslength + i+1];
+                diff = (val2 - val1)/factor;
+
+                for(int k=0; k < factor; k++)
+                {
+                    longitude_img[j*columnslength + i*factor + k] = (val1 + diff*k);
+                }
+            }
+            longitude_img[j*columnslength + (tiecolumnslength - 1)*factor] = val2;
+        }
+
+        for(int j=0; j < tierowslength; j++)
+        {
+            for(int i=0; i < tiecolumnslength-1; i++) // tiecolumnslength = 77
+            {
+                val1 = latitude_tie[j*tiecolumnslength + i];
+                val2 = latitude_tie[j*tiecolumnslength + i+1];
+                diff = (val2 - val1)/factor;
+
+                for(int k=0; k < factor; k++)
+                {
+                    latitude_img[j*columnslength + i*factor + k] = (val1 + diff*k);
+                }
+            }
+            latitude_img[j*columnslength + (tiecolumnslength - 1)*factor] = val2;
+        }
+        delete [] longitude_tie;
+        delete [] latitude_tie;
+    }
+
+
+    QImage imgscaled = img.scaled(columnslength, tierowslength);
+    QPainter fb_painter(imageptrs->pmOut);
+
+    int devwidth = (fb_painter.device())->width();
+    int devheight = (fb_painter.device())->height();
+
+    int imgwidth = img.width();
+    int imgheight = img.height();
+
+
+    qDebug() << QString("columnslength : %2 ").arg(columnslength);
+    qDebug() << QString("imgwidth = %1 imgheight = %2 ").arg(imgwidth).arg(imgheight);
+
+
+    fb_painter.setPen( Qt::black );
+    fb_painter.setBrush( Qt::NoBrush );
+
+    float flon, flat, fflon, fflat;
+
+
+    rgb.setRgb(0, 255, 0);
+
+    for(int yimg = 0; yimg < imgscaled.height(); yimg+=4)
+    {
+
+        QRgb *row = (QRgb *)imgscaled.scanLine(yimg);
+        for (int ximg = 0 ; ximg < imgscaled.width(); ximg+=4)
+        {
+            fflon = (float)longitude_img[yimg*columnslength + ximg]/1000000.0;
+            fflat = (float)latitude_img[yimg*columnslength + ximg]/1000000.0;
+            flon = fflon * PI/180.0;
+            flat = fflat * PI/180.0;
+            sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );
+            rgb.setRgb(qRed(row[ximg]), qGreen(row[ximg]), qBlue(row[ximg]));
+            fb_painter.setPen(rgb);
+            fb_painter.drawPoint(posx , posy );
+
+        }
+
+    }
+
+    fb_painter.end();
+
+    delete [] longitude_img;
+    delete [] latitude_img;
+
+    opts.texture_changed = true;
+
+}
+
+bool FormMapCyl::QuicklookExist(QString completebasename)
+{
+    // S3A_OL_1_EFR____20201205T102330_20201205T102630_20201205T121305_0179_066_008_2340_LN1_O_NR_002.SEN3
+    // S3A_OL_1_ERR____20201210T094858_20201210T103307_20201210T115918_2649_066_079______LN1_O_NR_002.SEN3
+    // 01234567890123456789012345678901234567890123456789012345678901234567890123456789
+
+    QDir dir(opts.productdirectory);
+    QString returndirstr;
+
+    QString fileyear = completebasename.mid(16, 4);
+    QString filemonth = completebasename.mid(20, 2);
+    QString fileday = completebasename.mid(22,2);
+
+    QString jpgstr(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename + "/quicklook/" + completebasename + ".jpg");
+    QString geostr(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename);
+
+    if(completebasename.mid(9, 3) == "RBT")
+        geostr.append("/geodetic_ao.nc");
+    else
+        geostr.append("/tie_geo_coordinates.nc");
+
+    QFile jpgfile(jpgstr);
+    QFile geofile(geostr);
+    if(jpgfile.exists() && geofile.exists())
+        return true;
+    else
+        return false;
+
+}
+
+void FormMapCyl::SearchForFreeManager()
 {
     eDatahub hub;
     if(opts.provideresaoreumetsat)
@@ -1293,7 +1693,7 @@ void FormMapCyl::SearchForFreeManager(bool quicklook)
                 QObject::connect(&hubmanagerprod1, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
                 QObject::connect(&hubmanagerprod1, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
                 todownloadlist[i].status = "busy";
-                hubmanagerprod1.DownloadProduct(todownloadlist, i, hub, 0, quicklook);
+                hubmanagerprod1.DownloadProduct(todownloadlist, i, hub, 0);
                 showSelectedSegmentToDownloadList();
             }
             else if(!hubmanagerprod2.isProductDownloadBusy())
@@ -1303,7 +1703,7 @@ void FormMapCyl::SearchForFreeManager(bool quicklook)
                 QObject::connect(&hubmanagerprod2, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
                 QObject::connect(&hubmanagerprod2, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
                 todownloadlist[i].status = "busy";
-                hubmanagerprod2.DownloadProduct(todownloadlist, i, hub, 1, quicklook );
+                hubmanagerprod2.DownloadProduct(todownloadlist, i, hub, 1);
                 showSelectedSegmentToDownloadList();
             }
         }
@@ -1313,7 +1713,8 @@ void FormMapCyl::SearchForFreeManager(bool quicklook)
     {
         if(todownloadlist.at(i).status == "busy")
         {
-            ui->btnDownloadProduct->setEnabled(false);
+            ui->btnDownloadCompleteProduct->setEnabled(false);
+            ui->btnDownloadPartialProduct->setEnabled(false);
             ui->btnDownloadQuicklook->setEnabled(false);
             break;
         }
@@ -1335,7 +1736,7 @@ void FormMapCyl::productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
     }
 }
 
-void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, bool quicklook)
+void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, QString absoluteproductpath, QString absolutepath, QString filename)
 {
     if(whichdownload == 0)
     {
@@ -1353,8 +1754,10 @@ void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, boo
     }
 
     if(downloadindex < todownloadlist.count())
+    {
         todownloadlist[downloadindex].status = "finished";
-
+        todownloadlist[downloadindex].absoluteproductpath = absoluteproductpath;
+    }
     showSelectedSegmentToDownloadList();
 
     qDebug() << "hubmanagerprod1.isProductDownloadBusy() = " << hubmanagerprod1.isProductDownloadBusy();
@@ -1362,14 +1765,41 @@ void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, boo
 
     if((!hubmanagerprod1.isProductDownloadBusy()) && (!hubmanagerprod2.isProductDownloadBusy()))
     {
-        ui->btnDownloadProduct->setEnabled(true);
+        ui->btnDownloadCompleteProduct->setEnabled(true);
+        ui->btnDownloadPartialProduct->setEnabled(true);
         ui->btnDownloadQuicklook->setEnabled(true);
         ui->btnCancelDownloadProduct->setEnabled(true);
     }
 
-    SearchForFreeManager(quicklook);
+    bool alldownloaded = true;
+    for(int i = 0; i < todownloadlist.count() ; i++)
+    {
+        qDebug() << "status = " << todownloadlist.at(i).status;
+        if(todownloadlist.at(i).status != "finished")
+        {
+            alldownloaded = false;
+            break;
+        }
+    }
+
+
+    if(alldownloaded)
+    {
+        for(int i = 0; i < todownloadlist.count(); i++)
+        {
+            qDebug() << "todownloadlist " << todownloadlist.at(i).band_or_quicklook << " " << todownloadlist.at(i).completebasename;
+            if(todownloadlist.at(i).band_or_quicklook == "quicklook")
+            {
+                RenderQuicklookinTexture(todownloadlist.at(i).completebasename);
+            }
+        }
+        segs->ReadDirectoriesDatahub(ui->calendarDatahub->selectedDate());
+    }
+
+    SearchForFreeManager();
 
 }
+
 
 void FormMapCyl::createSelectedSegmentToDownloadList()
 {
@@ -1381,21 +1811,20 @@ void FormMapCyl::createSelectedSegmentToDownloadList()
 
     //if (opts.buttonDatahubOLCIefr)
     {
-        QList<Segment*>::iterator segitolciefr = sldatahubolciefr->begin();
-        while ( segitolciefr != sldatahubolciefr->end() )
+        for(int i = 0; i < sldatahubolciefr->count(); i++)
         {
-            if((*segitolciefr)->IsSelected())
+            if( sldatahubolciefr->at(i)->IsSelected())
             {
                 ProductList prodlist;
-                prodlist.productname = (*segitolciefr)->fileInfo.fileName();
-                prodlist.uuid = ((SegmentDatahub *)(*segitolciefr))->getUUID();
-                prodlist.size = ((SegmentDatahub *)(*segitolciefr))->getSize();
+                SegmentDatahub *segdatahub = (SegmentDatahub *)sldatahubolciefr->at(i);
+                prodlist.completebasename = segdatahub->fileInfo.fileName();
+                prodlist.uuid = segdatahub->getUUID();
+                prodlist.size = segdatahub->getSize();
                 prodlist.status = "waiting";
+                prodlist.band_or_quicklook = "";
                 todownloadlist.append(prodlist);
             }
-            ++segitolciefr;
         }
-
     }
     //else if (opts.buttonDatahubOLCIerr)
     {
@@ -1405,10 +1834,11 @@ void FormMapCyl::createSelectedSegmentToDownloadList()
             if((*segitolcierr)->IsSelected())
             {
                 ProductList prodlist;
-                prodlist.productname = (*segitolcierr)->fileInfo.fileName();
+                prodlist.completebasename = (*segitolcierr)->fileInfo.fileName();
                 prodlist.uuid = ((SegmentDatahub *)(*segitolcierr))->getUUID();
                 prodlist.size = ((SegmentDatahub *)(*segitolcierr))->getSize();
                 prodlist.status = "waiting";
+                prodlist.band_or_quicklook = "";
                 todownloadlist.append(prodlist);
             }
             ++segitolcierr;
@@ -1423,10 +1853,11 @@ void FormMapCyl::createSelectedSegmentToDownloadList()
             if((*segitslstr)->IsSelected())
             {
                 ProductList prodlist;
-                prodlist.productname = (*segitslstr)->fileInfo.fileName();
+                prodlist.completebasename = (*segitslstr)->fileInfo.fileName();
                 prodlist.uuid = ((SegmentDatahub *)(*segitslstr))->getUUID();
                 prodlist.size = ((SegmentDatahub *)(*segitslstr))->getSize();
                 prodlist.status = "waiting";
+                prodlist.band_or_quicklook = "";
                 todownloadlist.append(prodlist);
             }
             ++segitslstr;
@@ -1441,7 +1872,7 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
 {
     bool ok;
 
-    long totalsize = 0;
+    double totalsize = 0;
     ui->twSelectedProducts->clearContents();
     ui->twSelectedProducts->setRowCount(0);
 
@@ -1451,51 +1882,39 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
     for( int i = 0; i < todownloadlist.count(); ++i )
     {
         ui->twSelectedProducts->insertRow(i);
+
         QTableWidgetItem *item0 = new QTableWidgetItem(todownloadlist.at(i).status);
         ui->twSelectedProducts->setItem(i, 0, item0);
-        QTableWidgetItem *item1 = new QTableWidgetItem("");
-        if(todownloadlist.at(i).productname.mid(0, 12) == "S3A_OL_1_EFR")
-        {
-            item1->setText("OLCI EFR");
-        }
-        else if(todownloadlist.at(i).productname.mid(0, 12) == "S3A_OL_1_ERR")
-        {
-            item1->setText("OLCI ERR");
-        }
-        else if(todownloadlist.at(i).productname.mid(0, 12) == "S3A_SL_1_RBT")
-        {
-            item1->setText("SLSTR");
-        }
 
+        QTableWidgetItem *item1 = new QTableWidgetItem(todownloadlist.at(i).band_or_quicklook);  // complete or quiclook or band
         ui->twSelectedProducts->setItem(i, 1, item1);
 
-        QString year = todownloadlist.at(i).productname.mid(16, 4);
-        QString month = todownloadlist.at(i).productname.mid(20, 2);
-        QString day = todownloadlist.at(i).productname.mid(22, 2);
+        QString year = todownloadlist.at(i).completebasename.mid(16, 4);
+        QString month = todownloadlist.at(i).completebasename.mid(20, 2);
+        QString day = todownloadlist.at(i).completebasename.mid(22, 2);
         QTableWidgetItem *item2 = new QTableWidgetItem(year + "-" + month + "-" + day);
         ui->twSelectedProducts->setItem(i, 2, item2);
 
-        QString hour = todownloadlist.at(i).productname.mid(25, 2);
-        QString min = todownloadlist.at(i).productname.mid(27, 2);
-        QString sec = todownloadlist.at(i).productname.mid(29, 2);
+        QString hour = todownloadlist.at(i).completebasename.mid(25, 2);
+        QString min = todownloadlist.at(i).completebasename.mid(27, 2);
+        QString sec = todownloadlist.at(i).completebasename.mid(29, 2);
         QTableWidgetItem *item3 = new QTableWidgetItem(hour + ":" + min + ":" + sec);
         ui->twSelectedProducts->setItem(i, 3, item3);
 
-        hour = todownloadlist.at(i).productname.mid(41, 2);
-        min = todownloadlist.at(i).productname.mid(43, 2);
-        sec = todownloadlist.at(i).productname.mid(45, 2);
+        hour = todownloadlist.at(i).completebasename.mid(41, 2);
+        min = todownloadlist.at(i).completebasename.mid(43, 2);
+        sec = todownloadlist.at(i).completebasename.mid(45, 2);
         QTableWidgetItem *item4 = new QTableWidgetItem(hour + ":" + min + ":" + sec);
         ui->twSelectedProducts->setItem(i, 4, item4);
 
-        long lsize = todownloadlist.at(i).size.toLong(&ok);
-        totalsize += lsize;
+        int strsizelength = todownloadlist.at(i).size.length();
+        QString strsize = todownloadlist.at(i).size.mid(0, todownloadlist.at(i).size.indexOf(" MB"));
+        double lsize = strsize.toDouble(&ok);
         if(ok)
-        {
-            float fsize = (float)lsize/1000000;
-            QString strsize = QString("%1 Mb").arg(fsize, 0, 'f', 2);
-            QTableWidgetItem *item5 = new QTableWidgetItem(strsize);
-            ui->twSelectedProducts->setItem(i, 5, item5);
-        }
+            totalsize += lsize;
+
+        QTableWidgetItem *item5 = new QTableWidgetItem(todownloadlist.at(i).size);
+        ui->twSelectedProducts->setItem(i, 5, item5);
 
         ui->twSelectedProducts->setColumnWidth(0, 60); // status
         ui->twSelectedProducts->setColumnWidth(1, 80); // type
@@ -1505,8 +1924,8 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
         ui->twSelectedProducts->setColumnWidth(5, 80); // size
     }
 
-    float ftotalsize = (float)totalsize/1000000;
-    ui->lblTotalDownloadSize->setText(QString("Total size to download = %1 Mb").arg(ftotalsize, 0, 'f', 2));
+    //    float ftotalsize = (float)totalsize/1000000;
+    ui->lblTotalDownloadSize->setText(QString("Total size to download = %1 Mb").arg(totalsize, 0, 'f', 2));
 
     ui->twSelectedProducts->resizeRowsToContents();
     ui->twSelectedProducts->show();
@@ -1519,12 +1938,14 @@ void FormMapCyl::slotShowXMLProgress(QString str, int pages, bool downloadinprog
     ui->lblTotalAvailable->setText(str);
     if(downloadinprogress)
     {
-        ui->btnDownloadProduct->setEnabled(false);
+        ui->btnDownloadCompleteProduct->setEnabled(false);
+        ui->btnDownloadPartialProduct->setEnabled(false);
         ui->btnCancelDownloadProduct->setEnabled(false);
     }
     else
     {
-        ui->btnDownloadProduct->setEnabled(true);
+        ui->btnDownloadCompleteProduct->setEnabled(true);
+        ui->btnDownloadPartialProduct->setEnabled(true);
         ui->btnCancelDownloadProduct->setEnabled(true);
     }
 
@@ -1541,11 +1962,36 @@ void FormMapCyl::on_btnCancelDownloadProduct_clicked()
     hubmanagerprod2.CancelDownload();
     ui->pbProduct1->setValue(0);
     ui->pbProduct2->setValue(0);
+
+    todownloadlist.clear();
+
+    RemoveAllSelected();
+
+    ui->twSelectedProducts->clearContents();
+    ui->twSelectedProducts->setRowCount(0);
+
+    ui->btnDownloadCompleteProduct->setEnabled(true);
+    ui->btnDownloadPartialProduct->setEnabled(true);
+    ui->btnDownloadQuicklook->setEnabled(true);
+
+
 }
 
 
 void FormMapCyl::on_btnDownloadFromDatahub_clicked()
 {
-    segs->LoadXMLfromDatahub();
+    QFile segfile("Segments.xml");
+    segfile.remove();
+
+    QString type;
+    if(ui->rdbDownloadXMLOLCIEFR->isChecked())
+        type = "EFR";
+    else if(ui->rdbDownloadXMLOLCIERR->isChecked())
+        type = "ERR";
+    else if(ui->rdbDownloadXMLSLSTR->isChecked())
+        type = "SLSTR";
+
+    segs->LoadXMLfromDatahub(ui->calendarDatahub->selectedDate(), type);
 }
+
 

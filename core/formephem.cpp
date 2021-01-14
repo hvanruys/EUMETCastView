@@ -1036,11 +1036,6 @@ void FormEphem::on_calendar_selectionChanged()
     getSegmentsForCalendar();
 }
 
-void FormEphem::on_btnDownloadFromDatahub_clicked()
-{
-    segs->setXMLDate(ui->calendar->selectedDate());
-    segs->LoadXMLfromDatahub();
-}
 
 
 

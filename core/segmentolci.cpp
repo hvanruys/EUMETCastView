@@ -218,7 +218,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     //QFuture<void> future = QtConcurrent::run(doCalcOverlayLatLon, this, columnslength, rowslength);
     //CalcOverlayLatLon(columnslength, rowslength);
 
-
+    // tie_geometries.nc
     QString tiegeofile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/tie_geometries.nc" : fileInfo.baseName() + ".SEN3/tie_geometries.nc";
     QByteArray arraytiegeo = tiegeofile.toUtf8();
     const char *ptiegeofile = arraytiegeo.constData();
@@ -248,7 +248,6 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
     retval = nc_close(nctiegeofileid);
     if (retval != NC_NOERR) qDebug() << "error closing tie_geometries";
-
 
 //    for(int i = 0; i < tiecolumnslength; i++)
 //         qDebug() << i << " " << tieSZA[i];
@@ -332,15 +331,14 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         qDebug() << i << " " << masks[i];
     }
 
-
     qDebug() << "Nbr of saturated pixels = " << nbrsaturatedpixels << " nbr of coastline pixels = " << nbrcoastlinepixels;
-
-
 
     delete [] string_attr;
     retval = nc_close(ncqualityflagsid);
     if (retval != NC_NOERR) qDebug() << "error closing qualityFlags";
 
+    int val1, val2, diff;
+    int factor = (columnslength-1)/(tiecolumnslength-1);
 
 
 
@@ -488,7 +486,6 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
     }
 
-    int val1, val2, diff;
 
     for(int k = 0; k < 3; k++)
     {
@@ -502,7 +499,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     qDebug() << QString("rowslength = %1 columnslength : %2 earth_views_per_scanline = %3").arg(rowslength).arg(columnslength).arg(earth_views_per_scanline);
     qDebug() << QString("tierowslength = %1 tiecolumnslength : %2 NbrOfLines = %3").arg(tierowslength).arg(tiecolumnslength).arg(NbrOfLines);
 
-    int factor = (columnslength-1)/(tiecolumnslength-1);
+    factor = (columnslength-1)/(tiecolumnslength-1);
 
     qDebug() << QString("rowslength * columnslength = %1 factor = %2 ").arg(rowslength*columnslength).arg(factor);
 
@@ -591,53 +588,8 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
 }
 
-/*
-void SegmentOLCI::CalcOverlayLatLon(int columnslength, int rowslength)
-{
-    qDebug() << "Start SegmentOLCI::CalcOverlayLatLon";
-
-    for(int i = 0; i < columnslength-1; i++)
-    {
-        for(int j = 0; j < rowslength-1; j++)
-        {
-            for(int lats = -80000000; lats < 90000000; lats = lats+10000000)
-            {
-                if((this->latitude[j * columnslength + i] >= lats && this->latitude[j * columnslength + i + 1] < lats) ||
-                   (this->latitude[j * columnslength + i] < lats && this->latitude[j * columnslength + i + 1] >= lats) ||
-                   (this->latitude[j * columnslength + i] >= lats && this->latitude[(j+1) * columnslength + i] < lats) ||
-                   (this->latitude[j * columnslength + i] < lats && this->latitude[(j+1) * columnslength + i] >= lats) ||
-                   (this->latitude[j * columnslength + i] >= lats && this->latitude[(j+1) * columnslength + i + 1] < lats) ||
-                    (this->latitude[j * columnslength + i] < lats && this->latitude[(j+1) * columnslength + i + 1] >= lats))
-
-                {
-                    latlonline << QPoint(i, j);
-                    //latlonline << QPoint(i, j+1);
-                }
-            }
-
-            for(int lons = -180000000; lons < 170000000; lons = lons+10000000)
-            {
-                if((this->longitude[j * columnslength + i] >= lons && this->longitude[j * columnslength + i + 1] < lons) ||
-                   (this->longitude[j * columnslength + i] < lons && this->longitude[j * columnslength + i + 1] >= lons) ||
-                   (this->longitude[j * columnslength + i] >= lons && this->longitude[(j+1) * columnslength + i] < lons) ||
-                   (this->longitude[j * columnslength + i] < lons && this->longitude[(j+1) * columnslength + i] >= lons) ||
-                   (this->longitude[j * columnslength + i] >= lons && this->longitude[(j+1) * columnslength + i + 1] < lons) ||
-                   (this->longitude[j * columnslength + i] < lons && this->longitude[(j+1) * columnslength + i + 1] >= lons))
-                {
-                    latlonline << QPoint(i, j);
-                    //latlonline << QPoint(i+1, j);
-                }
-            }
-        }
-    }
-    qDebug() << "End SegmentOLCI::CalcOverlayLatLon";
-
-
-}
-*/
-
 // There is no difference between a linear interpolation and the Lagrange interpolation
-float SegmentOLCI::getSolarZenith(int *tieSZA, int navpoint, int intpoint, int nbrLine) //navpoint = [0, 76] intpoint = [0, 63] nbrLine = [0, this->NbrOfLines]
+float SegmentOLCI::getTieValue(QScopedArrayPointer<int> *tiefile, int navpoint, int intpoint, int nbrLine) //navpoint = [0, 76] intpoint = [0, 63] nbrLine = [0, this->NbrOfLines]
 {
     // second order Lagrange interpolation ==> 3 points
     //  from pt 0 --> pt 4864
@@ -650,18 +602,18 @@ float SegmentOLCI::getSolarZenith(int *tieSZA, int navpoint, int intpoint, int n
     int n = 3;
     if(navpoint == 0)
     {
-        y[0] = (float)tieSZA[nbrLine*77];
-        y[1] = (float)tieSZA[nbrLine*77 + 1];
-        y[2] = (float)tieSZA[nbrLine*77 + 2];
+        y[0] = (float)*tiefile[nbrLine*77];
+        y[1] = (float)*tiefile[nbrLine*77 + 1];
+        y[2] = (float)*tiefile[nbrLine*77 + 2];
         x[0] = 0.0f;
         x[1] = 64.0f;
         x[2] = 128.0f;
     }
     else
     {
-        y[0] = (float)tieSZA[nbrLine*77 + navpoint - 1];
-        y[1] = (float)tieSZA[nbrLine*77 + navpoint];
-        y[2] = (float)tieSZA[nbrLine*77 + navpoint + 1];
+        y[0] = (float)*tiefile[nbrLine*77 + navpoint - 1];
+        y[1] = (float)*tiefile[nbrLine*77 + navpoint];
+        y[2] = (float)*tiefile[nbrLine*77 + navpoint + 1];
         x[0] = (float)(navpoint-1) * 64;
         x[1] = (float)navpoint * 64;
         x[2] = (float)(navpoint+1) * 64;

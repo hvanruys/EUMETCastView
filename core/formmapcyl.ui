@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>1046</height>
+    <width>1572</width>
+    <height>1601</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,13 +35,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_4">
-     <property name="spacing">
-      <number>5</number>
-     </property>
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
+    <layout class="QVBoxLayout" name="verticalLayout_6">
      <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="baseSize">
@@ -56,7 +50,7 @@
         </font>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tabEumetcast">
         <attribute name="title">
@@ -625,7 +619,7 @@
         <attribute name="title">
          <string>Scihub/CODA</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_10">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_9">
            <item>
@@ -639,6 +633,34 @@
             <widget class="QProgressBar" name="pbXMLprogress">
              <property name="value">
               <number>24</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QCalendarWidget" name="calendarDatahub"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item>
+            <widget class="QRadioButton" name="rdbDownloadXMLOLCIEFR">
+             <property name="text">
+              <string>OLCI EFR</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rdbDownloadXMLOLCIERR">
+             <property name="text">
+              <string>OLCI ERR</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rdbDownloadXMLSLSTR">
+             <property name="text">
+              <string>SLSTR</string>
              </property>
             </widget>
            </item>
@@ -806,7 +828,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>180</height>
+             <height>300</height>
             </size>
            </property>
           </widget>
@@ -856,7 +878,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="btnDownloadProduct">
+               <widget class="QPushButton" name="btnDownloadCompleteProduct">
                 <property name="minimumSize">
                  <size>
                   <width>130</width>
@@ -870,7 +892,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Download Products</string>
+                 <string>Download Complete Products</string>
                 </property>
                </widget>
               </item>
@@ -890,7 +912,7 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0,0">
+             <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0,0,0">
               <item>
                <spacer name="horizontalSpacer_7">
                 <property name="orientation">
@@ -903,6 +925,19 @@
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnDownloadPartialProduct">
+                <property name="minimumSize">
+                 <size>
+                  <width>130</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Download Partial Products</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="btnCancelDownloadProduct">
@@ -919,7 +954,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Cancel Download Products</string>
+                 <string>Clear Download list</string>
                 </property>
                </widget>
               </item>
@@ -1064,7 +1099,7 @@
         </font>
        </property>
        <property name="text">
-        <string>PhongModel</string>
+        <string>Show Day/Night</string>
        </property>
        <property name="checkable">
         <bool>true</bool>

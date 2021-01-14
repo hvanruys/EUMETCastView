@@ -6,11 +6,11 @@
 template <typename T>
 struct PtrLess // public std::binary_function<bool, const T*, const T*>
 {
-  bool operator()(const T* a, const T* b) const
-  {
-    // may want to check that the pointers aren't zero...
-    return *a < *b;
-  }
+    bool operator()(const T* a, const T* b) const
+    {
+        // may want to check that the pointers aren't zero...
+        return *a < *b;
+    }
 };
 
 extern Options opts;
@@ -22,7 +22,7 @@ bool LessThan(const QFileInfo &s1, const QFileInfo &s2)
 }
 
 AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
-  QObject(parent)
+    QObject(parent)
 {
     qDebug() << QString("constructor AVHRRSatellite");
 
@@ -103,11 +103,6 @@ void AVHRRSatellite::emitProgressCounter(int counter)
  */
 void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 {
-
-    QFile file("out.txt");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-            return;
-    QTextStream out(&file);
 
     QFileInfo fileInfo;
     QDir segmentdir;
@@ -370,6 +365,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //S3A_SL_1_RBT____20170212T114405_20170212T114705_20170212T135851_0179_014_180_1800_SVL_O_NR_002.zip
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
             //0         1         2         3         4         5         6         7         8         9         10
+
+            qDebug() << "====> SLSTR file = " << fileInfo.absoluteFilePath();
             seglslstr->SetDirectoryName(fileInfo.absolutePath());
             segslstr = new SegmentSLSTR(fileInfo, satlist);
             if(segslstr->segmentok == true)
@@ -476,8 +473,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                     }
                 }
                 //qDebug() << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
-                out << fileInfo.absoluteFilePath() << "\n";
-             }
+            }
         }
 
 
@@ -616,6 +612,10 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     seglM01hrpt->ClearSegments();
     seglM02hrpt->ClearSegments();
 
+    segldatahubolciefr->ClearSegments();
+    segldatahubolcierr->ClearSegments();
+    segldatahubslstr->ClearSegments();
+
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
@@ -710,8 +710,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
                     }
 
-                    for(int i= 0; i < fileinfolist.size(); i++)
-                        qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
+                    //                    for(int i= 0; i < fileinfolist.size(); i++)
+                    //                        qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
 
                     QMap<QString, QFileInfo> map;
 
@@ -821,8 +821,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
 
                     fileinfolist = map.values();
-                    for(int i = 0; i < fileinfolist.count(); i++)
-                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
+                    //                    for(int i = 0; i < fileinfolist.count(); i++)
+                    //                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
                     emit signalResetProgressbar(fileinfolist.size(), (*its));
 
@@ -882,7 +882,79 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     emit signalShowSegmentCount();
 }
 
-void AVHRRSatellite::LoadXMLfromDatahub()
+void AVHRRSatellite::ReadDirectoriesDatahub(QDate seldate)
+{
+    QFileInfoList fileinfolist;
+
+    QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
+
+    QList<Segment*> *slolciefr = seglolciefr->GetSegmentlistptr();
+    QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
+    QList<Segment*> *slslstr = seglslstr->GetSegmentlistptr();
+
+
+    qDebug() << QString("Start clearing segments");
+
+    seglolciefr->ClearSegments();
+    seglolcierr->ClearSegments();
+    seglslstr->ClearSegments();
+
+    qDebug() << QString("End clearing segments");
+
+
+    this->countolciefr = 0;
+    this->countolcierr = 0;
+    this->countslstr = 0;
+
+    QDir segmentdir;
+    QDateTime datebefore;
+    QString pathbefore;
+
+    bool booltrue = true;
+
+    QString yeardir = seldate.toString("yyyyMMdd").mid(0, 4);
+    QString monthdir = seldate.toString("yyyyMMdd").mid(4, 2);
+    QString daydir = seldate.toString("yyyyMMdd").mid(6, 2);
+
+    QString thepathYYYYMMDD = opts.productdirectory + "/" + yeardir + "/" + monthdir + "/" + daydir;
+
+    if(segmentdir.cd( thepathYYYYMMDD ))
+    {
+        segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+        segmentdir.setSorting(QDir::Name); //::Time);
+        fileinfolist.append(segmentdir.entryInfoList());
+        qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
+    }
+
+    //                    for(int i= 0; i < fileinfolist.size(); i++)
+    //                        qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
+
+    QMap<QString, QFileInfo> map;
+
+    InsertToMap(fileinfolist, &map, &booltrue, &booltrue, &booltrue, &booltrue, &booltrue, seldate, 0);
+
+
+
+    fileinfolist = map.values();
+//    for(int i = 0; i < fileinfolist.count(); i++)
+//        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
+
+    emit signalResetProgressbar(fileinfolist.size(), opts.productdirectory);
+
+    if( fileinfolist.count() > 0)
+        AddSegmentsToList(fileinfolist);
+    qDebug() << QString("ReadDirectories count = %1").arg(fileinfolist.count());
+
+
+
+    QApplication::restoreOverrideCursor();
+
+
+    emit signalResetProgressbar(1, " ");
+    emit signalShowSegmentCount();
+}
+
+void AVHRRSatellite::LoadXMLfromDatahub(QDate selecteddate, QString type)
 {
     QObject::connect(&hubmanager, &DatahubAccessManager::XMLFinished, this, &AVHRRSatellite::XMLFileDownloaded);
     QObject::connect(&hubmanager, &DatahubAccessManager::XMLProgress, this, &AVHRRSatellite::XMLPagesDownloaded);
@@ -897,7 +969,7 @@ void AVHRRSatellite::LoadXMLfromDatahub()
     segldatahubolcierr->ClearSegments();
     segldatahubslstr->ClearSegments();
 
-    hubmanager.DownloadXML(this->xmlselectdate, hub);
+    hubmanager.DownloadXML(selecteddate, hub, type);
 }
 
 
@@ -918,6 +990,20 @@ void AVHRRSatellite::XMLPagesDownloaded(int pages)
 
 void AVHRRSatellite::ReadXMLfiles()
 {
+
+    bool ok = false;
+    Satellite sentinelsat;
+    ok = satlist->GetSatellite(41335, &sentinelsat);
+    if (ok == false)
+    {
+        QApplication::restoreOverrideCursor();
+        QMessageBox msgBox;
+        msgBox.setText("Need the Sentinel-3 TLE's.");
+        msgBox.exec();
+
+        return;
+    }
+
 
 
     QDomDocument document;
@@ -948,11 +1034,11 @@ void AVHRRSatellite::ReadXMLfiles()
 void AVHRRSatellite::CreateListfromXML(QDomDocument document)
 {
     SegmentDatahub *segdatahub;
-    QString selstring = xmlselectdate.toString("yyyyMMdd").mid(0, 8);
+    //QString selstring = xmlselectdate.toString("yyyyMMdd").mid(0, 8);
     //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
 
-    qDebug() << "AVHRRSatellite::CreateListfromXML(QDomDocument document) selstring = " << selstring;
+    qDebug() << "AVHRRSatellite::CreateListfromXML(QDomDocument document)";
 
     QList<Segment*> *sldatahubolciefr = segldatahubolciefr->GetSegmentlistptr();
     QList<Segment*> *sldatahubolcierr = segldatahubolcierr->GetSegmentlistptr();
@@ -969,30 +1055,34 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
         {
             QDomElement segment = segmentnode.toElement();
 
-            if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_EFR" && selstring == segment.attribute("Name").mid(16, 8))
+            if(segment.attribute("Name").mid(3, 9) == "_OL_1_EFR") // && selstring == segment.attribute("Name").mid(16, 8))
             {
                 segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIEFR, segment.attribute("Name"), this->satlist);
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_OLCIEFR;
                 segdatahub->setSize(segment.attribute("size"));
+                segdatahub->setFootprint(segment.attribute("footprint"));
                 sldatahubolciefr->append(segdatahub);
+
                 this->countdatahubolciefr++;
             }
-            else if(segment.attribute("Name").mid(0, 12) == "S3A_OL_1_ERR" && selstring == segment.attribute("Name").mid(16, 8))
+            else if(segment.attribute("Name").mid(3, 9) == "_OL_1_ERR") // && selstring == segment.attribute("Name").mid(16, 8))
             {
                 segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIERR, segment.attribute("Name"), this->satlist);
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_OLCIERR;
                 segdatahub->setSize(segment.attribute("size"));
+                segdatahub->setFootprint(segment.attribute("footprint"));
                 sldatahubolcierr->append(segdatahub);
                 this->countdatahubolcierr++;
             }
-            else if(segment.attribute("Name").mid(0, 12) == "S3A_SL_1_RBT" && selstring == segment.attribute("Name").mid(16, 8))
+            else if(segment.attribute("Name").mid(3, 9) == "_SL_1_RBT") // && selstring == segment.attribute("Name").mid(16, 8))
             {
                 segdatahub = new SegmentDatahub(SEG_DATAHUB_SLSTR, segment.attribute("Name"), this->satlist);
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_SLSTR;
                 segdatahub->setSize(segment.attribute("size"));
+                segdatahub->setFootprint(segment.attribute("footprint"));
                 sldatahubslstr->append(segdatahub);
                 this->countdatahubslstr++;
             }
@@ -1003,35 +1093,57 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
     //0         1         2         3         4         5         6         7         8         9         10
 
     // Sort the segments in time
-    int n;
-    int i;
-    for (n=0; n < sldatahubolciefr->count(); n++)
-    {
-        for (i=n+1; i < sldatahubolciefr->count(); i++)
-        {
-            QString valorN=((SegmentDatahub *)(sldatahubolciefr->at(n)))->getName();
-            QString valorI=((SegmentDatahub *)(sldatahubolciefr->at(i)))->getName();
-            if (valorN.mid(25, 6) > valorI.mid(25, 6))
-            {
-                sldatahubolciefr->move(i, n);
-                n=0;
-            }
-        }
-    }
-    for (n=0; n < sldatahubslstr->count(); n++)
-    {
-        for (i=n+1; i < sldatahubslstr->count(); i++)
-        {
-            QString valorN=((SegmentDatahub *)(sldatahubslstr->at(n)))->getName();
-            QString valorI=((SegmentDatahub *)(sldatahubslstr->at(i)))->getName();
-            if (valorN.mid(25, 6) > valorI.mid(25, 6))
-            {
-                sldatahubslstr->move(i, n);
-                n=0;
-            }
-        }
-    }
-
+    //    int n;
+    //    int i;
+    //    if(sldatahubolciefr->count() > 0)
+    //    {
+    //        for (n=0; n < sldatahubolciefr->count(); n++)
+    //        {
+    //            for (i=n+1; i < sldatahubolciefr->count(); i++)
+    //            {
+    //                QString valorN=((SegmentDatahub *)(sldatahubolciefr->at(n)))->getName();
+    //                QString valorI=((SegmentDatahub *)(sldatahubolciefr->at(i)))->getName();
+    //                if (valorN.mid(25, 6) > valorI.mid(25, 6))
+    //                {
+    //                    sldatahubolciefr->move(i, n);
+    //                    n=0;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    else if(sldatahubolcierr->count() > 0)
+    //    {
+    //        for (n=0; n < sldatahubolcierr->count(); n++)
+    //        {
+    //            for (i=n+1; i < sldatahubolcierr->count(); i++)
+    //            {
+    //                QString valorN=((SegmentDatahub *)(sldatahubolcierr->at(n)))->getName();
+    //                QString valorI=((SegmentDatahub *)(sldatahubolcierr->at(i)))->getName();
+    //                if (valorN.mid(25, 6) > valorI.mid(25, 6))
+    //                {
+    //                    sldatahubolcierr->move(i, n);
+    //                    n=0;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    else if(sldatahubslstr->count() > 0)
+    //    {
+    //        for (n=0; n < sldatahubslstr->count(); n++)
+    //        {
+    //            for (i=n+1; i < sldatahubslstr->count(); i++)
+    //            {
+    //                QString valorN=((SegmentDatahub *)(sldatahubslstr->at(n)))->getName();
+    //                QString valorI=((SegmentDatahub *)(sldatahubslstr->at(i)))->getName();
+    //                if (valorN.mid(25, 6) > valorI.mid(25, 6))
+    //                {
+    //                    sldatahubslstr->move(i, n);
+    //                    n=0;
+    //                }
+    //            }
+    //        }
+    //    }
+    qDebug() << "end AVHRRSatellite::CreateListfromXML(QDomDocument document)";
     emit signalShowSegmentCount();
 }
 
@@ -1067,8 +1179,8 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //AVHR_GAC_1B_N19_20130701041003Z_20130701041303Z_N_O_20130701054958Z
         //AVHR_HRP_00_M02_20130701060200Z_20130701060300Z_N_O_20130701061314Z
         else if ((fileinfo.fileName().mid( 0, 11) == "AVHR_GAC_1B" ||
-                 fileinfo.fileName().mid( 0, 11) == "AVHR_HRP_00" ||
-                 fileinfo.fileName().mid( 0, 11) == "AVHR_xxx_1B" ) && fileinfo.isFile() )
+                  fileinfo.fileName().mid( 0, 11) == "AVHR_HRP_00" ||
+                  fileinfo.fileName().mid( 0, 11) == "AVHR_xxx_1B" ) && fileinfo.isFile() )
         {
             *metopTle = true;
             *noaa19Tle = true;
@@ -1186,7 +1298,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         }
         //0123456789012345678901234567890123456789
         //S3A_SL_1_RBT____20170212T114405_20170212T114705_20170212T135851_0179_014_180_1800_SVL_O_NR_002.zip
-        else if (fileinfo.fileName().mid( 0, 12) == "S3A_SL_1_RBT")
+        else if (fileinfo.fileName().mid( 0, 12) == "S3A_SL_1_RBT" || fileinfo.fileName().mid( 0, 12) == "S3B_SL_1_RBT")
         {
             *sentinel3Tle = true;
             QDate d(fileinfo.fileName().mid( 16, 4).toInt(), fileinfo.fileName().mid( 20, 2).toInt(), fileinfo.fileName().mid( 22, 2).toInt());
@@ -1584,13 +1696,11 @@ void AVHRRSatellite::RemoveAllSelectedAVHRR()
 
 void AVHRRSatellite::RemoveFromList(QList<Segment*> *sl)
 {
-    int countsel = 0;
     QList<Segment*>::iterator segit = sl->begin();
     while ( segit != sl->end() )
     {
         if((*segit)->IsSelected())
         {
-            countsel++;
             (*segit)->ToggleSelected();
         }
         (*segit)->resetMemory();
@@ -2248,8 +2358,8 @@ void AVHRRSatellite::drawOverlay(char *pFileName )
 
 
     if ((fp = fopen (pFileName, "rb")) == 0 ) {
-            qDebug() << QString( "gshhs:  Could not find file %s.").arg(pFileName);
-            return; //exit (EXIT_FAILURE);
+        qDebug() << QString( "gshhs:  Could not find file %s.").arg(pFileName);
+        return; //exit (EXIT_FAILURE);
     }
 
     n_read = fread ((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
@@ -2261,78 +2371,78 @@ void AVHRRSatellite::drawOverlay(char *pFileName )
 
     while (n_read == 1)
     {
+        if (flip)
+        {
+            h.id = swabi4 ((unsigned int)h.id);
+            h.n  = swabi4 ((unsigned int)h.n);
+            h.west  = swabi4 ((unsigned int)h.west);
+            h.east  = swabi4 ((unsigned int)h.east);
+            h.south = swabi4 ((unsigned int)h.south);
+            h.north = swabi4 ((unsigned int)h.north);
+            h.area  = swabi4 ((unsigned int)h.area);
+            h.area_full  = swabi4 ((unsigned int)h.area_full);
+            h.flag  = swabi4 ((unsigned int)h.flag);
+            h.container  = swabi4 ((unsigned int)h.container);
+            h.ancestor  = swabi4 ((unsigned int)h.ancestor);
+        }
+        level = h.flag & 255;				// Level is 1-4
+        version = (h.flag >> 8) & 255;			// Version is 1-7
+        //if (first) fprintf (stderr, "gshhs %s - Found GSHHS version %d in file %s\n", GSHHS_PROG_VERSION, version, file);
+        greenwich = (h.flag >> 16) & 1;			// Greenwich is 0 or 1
+        src = (h.flag >> 24) & 1;			// Greenwich is 0 (WDBII) or 1 (WVS)
+        river = (h.flag >> 25) & 1;			// River is 0 (not river) or 1 (is river)
+        w = h.west  * GSHHS_SCL;			// Convert from microdegrees to degrees
+        e = h.east  * GSHHS_SCL;
+        s = h.south * GSHHS_SCL;
+        n = h.north * GSHHS_SCL;
+        source = (src == 1) ? 'W' : 'C';		// Either WVS or CIA (WDBII) pedigree
+        if (river) source = tolower ((int)source);	// Lower case c means river-lake
+        line = (h.area) ? 0 : 1;			// Either Polygon (0) or Line (1) (if no area)
+        area = 0.1 * h.area;				// Now im km^2
+        f_area = 0.1 * h.area_full;			// Now im km^2
+
+        //OK = (!single || h.id == ID);
+        first = 0;
+
+        if (!msformat) c = kind[line];
+
+        vxp->pFeatures[0].nVerts = h.n;
+        vxp->pFeatures[0].pVerts = new QVector3D[ h.n ];
+
+        for (int k = 0; k < h.n; k++)
+        {
+            if (fread ((void *)&p, (size_t)sizeof(struct POINT_GSHHS), (size_t)1, fp) != 1)
+            {
+                //fprintf (stderr, "gshhs:  Error reading file %s for %s %d, point %d.\n", argv[1], name[line], h.id, k);
+                exit (EXIT_FAILURE);
+            }
             if (flip)
             {
-                    h.id = swabi4 ((unsigned int)h.id);
-                    h.n  = swabi4 ((unsigned int)h.n);
-                    h.west  = swabi4 ((unsigned int)h.west);
-                    h.east  = swabi4 ((unsigned int)h.east);
-                    h.south = swabi4 ((unsigned int)h.south);
-                    h.north = swabi4 ((unsigned int)h.north);
-                    h.area  = swabi4 ((unsigned int)h.area);
-                    h.area_full  = swabi4 ((unsigned int)h.area_full);
-                    h.flag  = swabi4 ((unsigned int)h.flag);
-                    h.container  = swabi4 ((unsigned int)h.container);
-                    h.ancestor  = swabi4 ((unsigned int)h.ancestor);
+                p.x = swabi4 ((unsigned int)p.x);
+                p.y = swabi4 ((unsigned int)p.y);
             }
-            level = h.flag & 255;				// Level is 1-4
-            version = (h.flag >> 8) & 255;			// Version is 1-7
-            //if (first) fprintf (stderr, "gshhs %s - Found GSHHS version %d in file %s\n", GSHHS_PROG_VERSION, version, file);
-            greenwich = (h.flag >> 16) & 1;			// Greenwich is 0 or 1
-            src = (h.flag >> 24) & 1;			// Greenwich is 0 (WDBII) or 1 (WVS)
-            river = (h.flag >> 25) & 1;			// River is 0 (not river) or 1 (is river)
-            w = h.west  * GSHHS_SCL;			// Convert from microdegrees to degrees
-            e = h.east  * GSHHS_SCL;
-            s = h.south * GSHHS_SCL;
-            n = h.north * GSHHS_SCL;
-            source = (src == 1) ? 'W' : 'C';		// Either WVS or CIA (WDBII) pedigree
-            if (river) source = tolower ((int)source);	// Lower case c means river-lake
-            line = (h.area) ? 0 : 1;			// Either Polygon (0) or Line (1) (if no area)
-            area = 0.1 * h.area;				// Now im km^2
-            f_area = 0.1 * h.area_full;			// Now im km^2
+            lon = p.x * GSHHS_SCL;
+            if ((greenwich && p.x > max_east) || (h.west > 180000000)) lon -= 360.0;
+            lat = p.y * GSHHS_SCL;
+            // LonLat2Point(lat, lon, &vxp->pFeatures[nFeatures].pVerts[k], 1.0f);
 
-            //OK = (!single || h.id == ID);
-            first = 0;
+            //if (lon > 0. && lon < 30.0 && lat > 30.0 && lat < 60.0)
+            //{
+            totnbrofpoints++;
+            //drawPoint(lon * PI / 180, lat * PI/ 180);
+            //}
 
-            if (!msformat) c = kind[line];
+        }
 
-            vxp->pFeatures[0].nVerts = h.n;
-            vxp->pFeatures[0].pVerts = new QVector3D[ h.n ];
-
-            for (int k = 0; k < h.n; k++)
-            {
-                if (fread ((void *)&p, (size_t)sizeof(struct POINT_GSHHS), (size_t)1, fp) != 1)
-                {
-                    //fprintf (stderr, "gshhs:  Error reading file %s for %s %d, point %d.\n", argv[1], name[line], h.id, k);
-                    exit (EXIT_FAILURE);
-                }
-                if (flip)
-                {
-                    p.x = swabi4 ((unsigned int)p.x);
-                    p.y = swabi4 ((unsigned int)p.y);
-                }
-                lon = p.x * GSHHS_SCL;
-                if ((greenwich && p.x > max_east) || (h.west > 180000000)) lon -= 360.0;
-                lat = p.y * GSHHS_SCL;
-                // LonLat2Point(lat, lon, &vxp->pFeatures[nFeatures].pVerts[k], 1.0f);
-
-                //if (lon > 0. && lon < 30.0 && lat > 30.0 && lat < 60.0)
-                //{
-                    totnbrofpoints++;
-                    //drawPoint(lon * PI / 180, lat * PI/ 180);
-                //}
-
-            }
-
-            max_east = 180000000;	// Only Eurasia needs 270
-            n_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
-            nFeatures++;
+        max_east = 180000000;	// Only Eurasia needs 270
+        n_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
+        nFeatures++;
     }
 
     fclose (fp);
 
 
-   qDebug() << QString("total nbr of points = %1 total selected = %2").arg(totnbrofpoints).arg(nbrofpointsselected);
+    qDebug() << QString("total nbr of points = %1 total selected = %2").arg(totnbrofpoints).arg(nbrofpointsselected);
 }
 
 SegmentListGeostationary *AVHRRSatellite::getActiveSegmentList()

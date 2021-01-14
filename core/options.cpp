@@ -263,6 +263,7 @@ void Options::Initialize(bool recreate_geo_ini)
     mainwindowstate = settings.value("/window/mainwindowstate").toByteArray();
     toolboxwidth = settings.value("/window/toolboxwidth", 500).toInt();
 
+    bellipsoid = true; // elipsoid or spherical Oblique Mercator
 
     CreateGeoSatelliteIni();
 

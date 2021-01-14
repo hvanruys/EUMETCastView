@@ -74,8 +74,6 @@ private slots:
 
     void on_calendar_selectionChanged();
 
-    void on_btnDownloadFromDatahub_clicked();
-
     void on_chkSelectAllDir_toggled(bool checked);
 
 public slots:

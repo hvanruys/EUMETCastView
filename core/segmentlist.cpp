@@ -39,8 +39,8 @@ int SegmentList::NbrOfSegments()
 
     while ( segit != segmentlist.end() )
     {
-       nbr++;
-       ++segit;
+        nbr++;
+        ++segit;
     }
 
     return nbr;
@@ -181,7 +181,7 @@ void SegmentList::ShowSegment(int value)
 
     QList<Segment*>::iterator segit = segmentlist.begin();
     int nos = this->NbrOfSegments();
-//    int novs = this->GetNbrOfVisibleSegments();
+    //    int novs = this->GetNbrOfVisibleSegments();
     int novs = opts.nbrofvisiblesegments;
 
     int viseg = (nos < novs ? nos : novs);
@@ -360,17 +360,17 @@ bool SegmentList::TestForSegmentGL(int x, int realy, float distance, const QMatr
                     QPoint(p01.x, p01.y),
                     QPoint(p02.x, p02.y),
                     QPoint(p03.x, p03.y)
-                 };
+                };
 
                 QPoint points2[4] = {
                     QPoint(p00.x, p00.y),
                     QPoint(p01.x, p01.y),
                     QPoint(p04.x, p04.y),
                     QPoint(p05.x, p05.y)
-                 };
+                };
 
-               int result1 = pnpoly( 4, points1, x, realy);
-               int result2 = pnpoly( 4, points2, x, realy);
+                int result1 = pnpoly( 4, points1, x, realy);
+                int result2 = pnpoly( 4, points2, x, realy);
 
                 if (result1 || result2)
                 {
@@ -484,6 +484,48 @@ bool SegmentList::TestForSegmentGLextended(int x, int realy, float distance, con
     return isselected;
 }
 
+bool SegmentList::TestForSegmentGLXML(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname)
+{
+
+    bool isselected = false;
+
+    qDebug() << QString("Nbr of segments = %1").arg(segmentlist.count());
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+
+    QVector3D vecZ = m.row(2).toVector3D();
+
+    segmentname = "";
+
+    while ( segit != segmentlist.end() )
+    {
+        if(showallsegments ? true : (*segit)->segmentshow)
+        {
+            qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
+//            qDebug() << QString("angle = %1").arg(angle * 180.0 / PI);
+
+            if (angle < PI/2 + (asin(1/distance)))
+            {
+                int result = (*segit)->pnpolyinsegment(x, realy);
+
+                if (result)
+                {
+                    if((*segit)->ToggleSelected())
+                    {
+                        qDebug() << QString("segment selected is = %1").arg((*segit)->fileInfo.fileName());
+                        isselected = true;
+                        segmentname = (*segit)->fileInfo.fileName();
+                        qApp->processEvents();
+                    }
+                    break;
+                }
+            }
+        }
+        ++segit;
+    }
+    return isselected;
+}
+
 void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview)
 {
 
@@ -492,10 +534,10 @@ void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4
 
     QVector3D vecZ = modelview.row(2).toVector3D();
 
-//    static GLfloat mat[16];
-//    const float *data = modelview.constData();
-//    for (int index = 0; index < 16; ++index)
-//         mat[index] = data[index];
+    //    static GLfloat mat[16];
+    //    const float *data = modelview.constData();
+    //    for (int index = 0; index < 16; ++index)
+    //         mat[index] = data[index];
 
     //modelview.inverted( &ok );
 
@@ -606,7 +648,7 @@ bool SegmentList::ComposeAVHRRImageInThread()
         ++segit;
     }
 
-//#if 0 // necessary for incomplete segments !!
+    //#if 0 // necessary for incomplete segments !!
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
@@ -615,7 +657,7 @@ bool SegmentList::ComposeAVHRRImageInThread()
         qDebug() << QString("SegmentList::ReadNbrOfLines NbrOfLines = %1").arg(segm->NbrOfLines);
         ++segsel;
     }
-//#endif
+    //#endif
 
     emit progressCounter(10);
 
@@ -787,7 +829,7 @@ bool SegmentList::ComposeAVHRRImageInThread()
     while ( segit != segsselected.end() )
     {
         (*segit)->ComposeSegmentImage();
-         ++segit;
+        ++segit;
     }
 
     opts.texture_changed = true;
@@ -859,7 +901,7 @@ void SegmentList::ComposeGVProjection(int inputchannel)
     while ( segit != segsselected.end() )
     {
         (*segit)->ComposeSegmentGVProjection(inputchannel, 0, false);
-         emit segmentprojectionfinished(false);
+        emit segmentprojectionfinished(false);
         ++segit;
     }
 
@@ -915,6 +957,19 @@ void SegmentList::ClearSegments()
         delete segmentlist.takeFirst();
     }
 }
+
+void SegmentList::ClearSelectedSegments()
+{
+    segsselected.clear();
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+    while ( segit != segmentlist.end() )
+    {
+        (*segit)->segmentselected = false;
+        ++segit;
+    }
+}
+
 
 void SegmentList::SmoothProjectionImageBilinear()
 {
@@ -1220,8 +1275,8 @@ void SegmentList::BilinearInterpolation12bits(Segment *segm)
 
             if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
                     && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528)
-                    // && x11 > -50 && x12 > -50 && x21 > -50 && x22 > -50
-                    // && y11 > -50 && y12 > -50 && y21 > -50 && y22 > -50 )
+                // && x11 > -50 && x12 > -50 && x21 > -50 && x22 > -50
+                // && y11 > -50 && y12 > -50 && y21 > -50 && y22 > -50 )
             {
                 minx = Min(x11, x12, x21, x22);
                 miny = Min(y11, y12, y21, y22);
@@ -1658,7 +1713,7 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             deltared = (float)(qRed(rgb2) - qRed(rgb1))/ (float)dx1 ;
             deltagreen = (float)(qGreen(rgb2) - qGreen(rgb1))/ (float)dx1 ;
             deltablue = (float)(qBlue(rgb2) - qBlue(rgb1))/ (float)dx1 ;
-//            canvas[y * yy + x] = val1;
+            //            canvas[y * yy + x] = val1;
 
         }
         else
@@ -1669,7 +1724,7 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             deltared = (float)(qRed(rgb1) - qRed(rgb2))/ (float)dx1 ;
             deltagreen = (float)(qGreen(rgb1) - qGreen(rgb2))/ (float)dx1 ;
             deltablue = (float)(qBlue(rgb1) - qBlue(rgb2))/ (float)dx1 ;
-//            canvas[y * yy + x] = val2;
+            //            canvas[y * yy + x] = val2;
 
         }
 
@@ -1730,7 +1785,7 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             deltagreen = (float)(qGreen(rgb2) - qGreen(rgb1))/ (float)dy1 ;
             deltablue = (float)(qBlue(rgb2) - qBlue(rgb1))/ (float)dy1 ;
 
-//            canvas[y * yy + x] = val1;
+            //            canvas[y * yy + x] = val1;
         }
         else
         {
@@ -1741,7 +1796,7 @@ bool SegmentList::bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2,
             deltagreen = (float)(qGreen(rgb1) - qGreen(rgb2))/ (float)dy1 ;
             deltablue = (float)(qBlue(rgb1) - qBlue(rgb2))/ (float)dy1 ;
 
-//            canvas[y * yy + x] = val2;
+            //            canvas[y * yy + x] = val2;
         }
 
 
@@ -1825,7 +1880,7 @@ bool SegmentList::bhm_line12bits(int x1, int y1, int x2, int y2, quint16 col1[3]
             deltared = (float)(col2[0] - col1[0])/ (float)dx1 ;
             deltagreen = (float)(col2[1] - col1[1])/ (float)dx1 ;
             deltablue = (float)(col2[2] - col1[2])/ (float)dx1 ;
-//            canvas[y * yy + x] = val1;
+            //            canvas[y * yy + x] = val1;
 
         }
         else
@@ -1836,7 +1891,7 @@ bool SegmentList::bhm_line12bits(int x1, int y1, int x2, int y2, quint16 col1[3]
             deltared = (float)(col1[0] - col2[0])/ (float)dx1 ;
             deltagreen = (float)(col1[1] - col2[1])/ (float)dx1 ;
             deltablue = (float)(col1[2] - col2[2])/ (float)dx1 ;
-//            canvas[y * yy + x] = val2;
+            //            canvas[y * yy + x] = val2;
 
         }
 
@@ -1905,7 +1960,7 @@ bool SegmentList::bhm_line12bits(int x1, int y1, int x2, int y2, quint16 col1[3]
             deltagreen = (float)(col2[1] - col1[1])/ (float)dy1 ;
             deltablue = (float)(col2[2] - col1[2])/ (float)dy1 ;
 
-//            canvas[y * yy + x] = val1;
+            //            canvas[y * yy + x] = val1;
         }
         else
         {
@@ -1916,7 +1971,7 @@ bool SegmentList::bhm_line12bits(int x1, int y1, int x2, int y2, quint16 col1[3]
             deltagreen = (float)(col1[1] - col2[1])/ (float)dy1 ;
             deltablue = (float)(col1[2] - col2[2])/ (float)dy1 ;
 
-//            canvas[y * yy + x] = val2;
+            //            canvas[y * yy + x] = val2;
         }
 
 
@@ -2501,10 +2556,10 @@ void SegmentList::MapCanvas12bits(quint16 *canvasred, quint16 *canvasgreen, quin
             {
                 if (anchorX + w >= 0 && anchorX + w < width && anchorY + h >= 0 && anchorY + h < height)
                 {
-                     imageptrs->ptrimageProjectionRed[(anchorY + h) * width + anchorX + w] = r;
-                     imageptrs->ptrimageProjectionGreen[(anchorY + h) * width + anchorX + w] = g;
-                     imageptrs->ptrimageProjectionBlue[(anchorY + h) * width + anchorX + w] = b;
-                     imageptrs->ptrimageProjectionAlpha[(anchorY + h) * width + anchorX + w] = 65535;
+                    imageptrs->ptrimageProjectionRed[(anchorY + h) * width + anchorX + w] = r;
+                    imageptrs->ptrimageProjectionGreen[(anchorY + h) * width + anchorX + w] = g;
+                    imageptrs->ptrimageProjectionBlue[(anchorY + h) * width + anchorX + w] = b;
+                    imageptrs->ptrimageProjectionAlpha[(anchorY + h) * width + anchorX + w] = 65535;
                 }
             }
         }
@@ -2529,11 +2584,11 @@ qint32 SegmentList::Min(const qint32 v11, const qint32 v12, const qint32 v21, co
     qint32 Minimum = v11;
 
     if( Minimum > v12 )
-            Minimum = v12;
+        Minimum = v12;
     if( Minimum > v21 )
-            Minimum = v21;
+        Minimum = v21;
     if( Minimum > v22 )
-            Minimum = v22;
+        Minimum = v22;
 
     return Minimum;
 }
@@ -2543,11 +2598,11 @@ qint32 SegmentList::Max(const qint32 v11, const qint32 v12, const qint32 v21, co
     int Maximum = v11;
 
     if( Maximum < v12 )
-            Maximum = v12;
+        Maximum = v12;
     if( Maximum < v21 )
-            Maximum = v21;
+        Maximum = v21;
     if( Maximum < v22 )
-            Maximum = v22;
+        Maximum = v22;
 
     return Maximum;
 }
@@ -2748,12 +2803,35 @@ void SegmentList::GetTrackPolygon(QPolygonF *poly)
 
         for(int j = 0; j < nbroflines; j=j+10)
         {
-            if(segm->geolongitude[j*earthviews] < 180.0 && segm->geolatitude[j*earthviews] < 90.0)
+            if(segm->geolongitude[j*(int)(earthviews/2)] < 180.0 && segm->geolatitude[j*(int)(earthviews/2)] < 90.0)
             {
-                    poly->append(QPointF(segm->geolongitude[j*earthviews + (int)(earthviews/2)], segm->geolatitude[j*earthviews + (int)(earthviews/2)] ));
+                poly->append(QPointF(segm->geolongitude[j*earthviews + (int)(earthviews/2)], segm->geolatitude[j*earthviews + (int)(earthviews/2)] ));
             }
         }
 
-    ++segsel;
+        ++segsel;
+    }
+}
+
+void SegmentList::GetTrackPolygonAVHRR(QPolygonF *poly)
+{
+    QList<Segment *>::iterator segsel;
+    int nbroflines;
+    segsel = segsselected.begin();
+
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        nbroflines = segm->GetNbrOfLines();
+
+        for(int j = 0; j < nbroflines; j=j+10)
+        {
+            if(segm->earthloc_lon[j*51] < 180.0 && segm->earthloc_lat[j*51] < 90.0)
+            {
+                poly->append(QPointF(segm->earthloc_lon[j*103 + 51], segm->earthloc_lat[j*103 + 51] ));
+            }
+        }
+
+        ++segsel;
     }
 }

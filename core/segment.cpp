@@ -1396,4 +1396,21 @@ qint32 Segment::Max(const qint32 v11, const qint32 v12, const qint32 v21, const 
     return Maximum;
 }
 
+int Segment::pnpolyinsegment(int testx, int testy)   //
+{
+    int i, j, c = 0;
+
+    // in QVector<QVector2D> winvectorfirst;
+
+    int nvert = winvectorfirst.count();
+
+    for (i = 0, j = nvert-1; i < nvert; j = i++) {
+        if ( (( winvectorfirst.at(i).y() > testy) != (winvectorfirst.at(j).y() > testy)) &&
+             (testx < (winvectorfirst.at(j).x() - winvectorfirst.at(i).x() ) * (testy-winvectorfirst.at(i).y()) / (winvectorfirst.at(j).y() - winvectorfirst.at(i).y()) + winvectorfirst.at(i).x()) )
+            c = !c;
+    }
+
+    return c;
+}
+
 

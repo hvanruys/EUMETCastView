@@ -44,10 +44,18 @@ private:
 
     QList<ProductList> todownloadlist;
 
+
     void RemoveAllSelected();
-    void SearchForFreeManager(bool quicklook);
+    void SearchForFreeManager();
     void SetAllButtonsToFalse();
     void showSelectedSegmentToDownloadList();
+    bool IsProductDirFilledIn();
+    void RenderQuicklookinTexture(QString completebasename);
+    bool QuicklookExist(QString completebasename);
+    bool FileExist(QString completebasename, QString band_or_quicklook);
+//    void getDatasetNameFromBand(QList<bool> bandlist, QString *filename);
+//    void getDatasetNameFromColor(QList<int> colorlist, int colorindex, QString *filename);
+
 
 
 private slots:
@@ -58,7 +66,7 @@ private slots:
     void slotShowSegmentCount();
     void createSelectedSegmentToDownloadList();
 
-    void productFileDownloaded(int whichdownload, int downloadindex, bool quicklook);
+    void productFileDownloaded(int whichdownload, int downloadindex, QString absoluteproductpath, QString absolutepath, QString filename);
     void productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal, int whichdownload);
 
     void on_btnRemoveSelected_clicked();
@@ -107,7 +115,8 @@ private slots:
     void on_btnOLCIerrDatahub_clicked();
     void on_btnSLSTRDatahub_clicked();
 
-    void on_btnDownloadProduct_clicked();
+    void on_btnDownloadCompleteProduct_clicked();
+    void on_btnDownloadPartialProduct_clicked();
     void on_btnDownloadQuicklook_clicked();
 
     void on_btnCancelDownloadProduct_clicked();

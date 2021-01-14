@@ -158,15 +158,15 @@ void SatGL::render(QMatrix4x4 projection, float distance, QQuaternion quat )
         ++sat;
     }
 
-//        QMatrix4x4 mod;
-//        mod.setToIdentity();
-//        mod.translate(0.0, 0.0, distance);
-//        mod.rotate(quat);
+        QMatrix4x4 mod;
+        mod.setToIdentity();
+        mod.translate(0.0, 0.0, distance);
+        mod.rotate(quat);
 
-//        modelocta = mod;
-//        modelocta.translate(0.0, 1.0, 0.0);
-//        modelocta.scale(0.009f);
-//        octa->render(projection, modelocta, col);
+        modelocta = mod;
+        modelocta.translate(0.0, 1.0, 0.0);
+        modelocta.scale(0.009f);
+        octa->render(projection, modelocta, col);
 
 //        modelocta = mod;
 //        modelocta.translate(0.0, 0.0, 1.0);
@@ -178,6 +178,10 @@ void SatGL::render(QMatrix4x4 projection, float distance, QQuaternion quat )
 //        modelocta.scale(0.009f);
 //        octa->render(projection, modelocta, col);
 
+        modelocta = mod;
+        modelocta.translate(0.0, -1.0, 0.0);
+        modelocta.scale(0.009f);
+        octa->render(projection, modelocta, col);
 
 }
 

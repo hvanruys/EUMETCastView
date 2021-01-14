@@ -3,12 +3,16 @@
 
 extern Options opts;
 
+
+
 SegmentDatahub::SegmentDatahub(eSegmentType type, QString name, SatelliteList *satl, QObject *parent) : Segment(parent)
 {
     segtype = type;
     satlist = satl;
     this->name = name;
     this->fileInfo.setFile(name);
+    filedownloaded = false;
+    quicklookdownloaded = false;
     bool ok;
 
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -50,17 +54,21 @@ SegmentDatahub::SegmentDatahub(eSegmentType type, QString name, SatelliteList *s
     qsensingend = QSgp4Date(sensing_end_year, sensing_end_month, sensing_end_day, sensing_end_hour, sensing_end_minute, d_sensing_end_second);
 
 
-    Satellite s3a;
-    ok = satlist->GetSatellite(41335, &s3a);
-    line1 = s3a.line1;
-    line2 = s3a.line2;
+    Satellite s3_sat;
+    if(name.mid(0,3) == "S3A")  // S3A
+        ok = satlist->GetSatellite(41335, &s3_sat);
+    else if(name.mid(0,3) == "S3B") // S3B
+        ok = satlist->GetSatellite(43437, &s3_sat);
+
+    line1 = s3_sat.line1;
+    line2 = s3_sat.line2;
 
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
     double epoch = line1.mid(18,14).toDouble(&ok);
     julian_state_vector = Julian_Date_of_Epoch(epoch);
 
-    qtle.reset(new QTle(s3a.sat_name, line1, line2, QTle::wgs72));
+    qtle.reset(new QTle(s3_sat.sat_name, line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));
 
 
@@ -88,5 +96,108 @@ SegmentDatahub::SegmentDatahub(eSegmentType type, QString name, SatelliteList *s
         CalculateDetailCornerPoints();
     }
 
+
+}
+
+void SegmentDatahub::addtovector(QVector<QGeodetic> *vec, QString latlonstr)
+{
+
+    QString longstr, latstr;
+
+    int ind = latlonstr.indexOf(" ");
+    longstr = latlonstr.mid(0, ind);
+    latstr = latlonstr.mid(ind + 1);
+
+    QGeodetic ll;
+    ll.longitude = deg2rad(longstr.toFloat());
+    ll.latitude = deg2rad(latstr.toFloat());
+    vec->append(ll);
+
+
+}
+
+void SegmentDatahub::setFootprint(QString footprint)
+{
+    QStringList stringlist;
+
+    QVector<QGeodetic> invec;
+
+
+    this->footprint = footprint;
+    if(footprint.mid(0, 12) != "MULTIPOLYGON" && footprint.mid(0, 7) != "POLYGON")
+        return;
+
+
+    int indend, indsep, indfrom;
+    int nbrofpolygons = 1;
+
+    if(footprint.mid(0, 12) == "MULTIPOLYGON")
+    {
+        indend = footprint.indexOf(")))");
+        nbrofpolygons = footprint.count(")),") + 1;
+        indfrom = footprint.indexOf("(((") + 3;
+    }
+    else if(footprint.mid(0, 7) == "POLYGON")
+    {
+        indend = footprint.indexOf("))");
+        nbrofpolygons = 1;
+        indfrom = footprint.indexOf("((") + 2;
+    }
+
+
+    for(int i = 0; i < nbrofpolygons; i++)
+    {
+        indsep = footprint.indexOf(")), ((", indfrom);
+        if(indsep == -1) // last substring
+        {
+            stringlist.append(footprint.mid(indfrom, indend - indfrom));
+        }
+        else
+        {
+            stringlist.append(footprint.mid(indfrom, indsep - indfrom));
+            indfrom = indsep + 6;
+        }
+    }
+
+    int commaindex1, commaindex2;
+    QString lonlatstr;
+
+    for(int i = 0; i < nbrofpolygons; i++)
+    {
+        if(!stringlist.at(i).isEmpty())
+        {
+            invec.clear();
+            commaindex2 = 0;
+            while(true)
+            {
+                commaindex1 = stringlist.at(i).indexOf(",", commaindex2 );
+                if(commaindex1 == -1)
+                {
+                    lonlatstr = stringlist.at(i).mid(commaindex2).trimmed();
+                    addtovector(&invec, lonlatstr );
+                    break;
+                }
+                lonlatstr = stringlist.at(i).mid(commaindex2, commaindex1 - commaindex2 ).trimmed();
+                addtovector(&invec, lonlatstr );
+
+                commaindex2 = commaindex1+1;
+            }
+            listvect.append(invec);
+        }
+
+    }
+
+//    for(int i = 0; i < stringlist.count(); i++)
+//    {
+//        qDebug() << stringlist.at(i);
+//    }
+
+//    for(int i = 0; i < listvect.count(); i++)
+//    {
+//        for(int j = 0; j < listvect.at(i).count(); j++)
+//        {
+//            qDebug() << i << " " << j << " " << listvect.at(i).at(j).longitude << ";" << listvect.at(i).at(j).latitude;
+//        }
+//    }
 
 }

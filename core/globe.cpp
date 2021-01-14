@@ -272,11 +272,11 @@ void Globe::mouseDownAction(int x, int y)
         else if (opts.buttonSLSTR)
             isselected = segs->seglslstr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonDatahubOLCIefr)
-            isselected = segs->segldatahubolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+            isselected = segs->segldatahubolciefr->TestForSegmentGLXML( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonDatahubOLCIerr)
-            isselected = segs->segldatahubolcierr->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+            isselected = segs->segldatahubolcierr->TestForSegmentGLXML( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonDatahubSLSTR)
-            isselected = segs->segldatahubslstr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+            isselected = segs->segldatahubslstr->TestForSegmentGLXML( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else if (opts.buttonMERSI)
             isselected = segs->seglmersi->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
         else
@@ -763,6 +763,12 @@ void Globe::paintGL()
         else
         if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
             segs->seglmersi->ShowWinvec(&painter, distance, modelview );
+        else
+        if (opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
+            segs->segldatahubolciefr->ShowWinvec(&painter, distance, modelview );
+        else
+        if (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
+            segs->segldatahubolcierr->ShowWinvec(&painter, distance, modelview );
         painter.restore();
     }
 
@@ -878,6 +884,8 @@ void Globe::paintGL()
 
         if(segmentnameselected.mid(0,12) == "S3A_OL_1_EFR")
             painter.drawText(10, this->height() - 20, "Sentinel-3A EFR" + segdate);
+        else if(segmentnameselected.mid(0,12) == "S3B_OL_1_EFR")
+            painter.drawText(10, this->height() - 20, "Sentinel-3B EFR" + segdate);
     }
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
     //0         1         2         3         4         5         6         7         8         9         10
@@ -890,6 +898,8 @@ void Globe::paintGL()
 
         if(segmentnameselected.mid(0,12) == "S3A_OL_1_ERR")
             painter.drawText(10, this->height() - 20, "Sentinel-3A ERR" + segdate);
+        else if(segmentnameselected.mid(0,12) == "S3B_OL_1_ERR")
+            painter.drawText(10, this->height() - 20, "Sentinel-3B ERR" + segdate);
     }
     else if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegmentsSelected() > 0)
     {
@@ -899,6 +909,8 @@ void Globe::paintGL()
 
         if(segmentnameselected.mid(0,12) == "S3A_SL_1_RBT")
             painter.drawText(10, this->height() - 20, "Sentinel-3A SLSTR" + segdate);
+        else if(segmentnameselected.mid(0,12) == "S3B_SL_1_RBT")
+            painter.drawText(10, this->height() - 20, "Sentinel-3B SLSTR" + segdate);
     }
     //012345678901234567890123456789012345678901234567890
     //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
@@ -1271,37 +1283,44 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 }
                 else if(seg == eSegmentType::SEG_OLCIEFR)
                 {
-                    renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(0, 3)).arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
+                    QString filename = (*segit)->fileInfo.fileName();
+                    renderout = QString("%1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
                 }
                 else if(seg == eSegmentType::SEG_OLCIERR)
                 {
-                    renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(0, 3)).arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
+                    QString filename = (*segit)->fileInfo.fileName();
+                    renderout = QString("%1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
                 }
                 else if(seg == eSegmentType::SEG_SLSTR)
                 {
-                    renderout = QString("SLSTR %1:%2").arg((*segit)->fileInfo.fileName().mid(25, 2)).arg((*segit)->fileInfo.fileName().mid(27, 2));
+                    QString filename = (*segit)->fileInfo.fileName();
+                    renderout = QString("SLSTR %1 %2:%3").arg(filename.mid(0,3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
                 }
                 else if(seg == eSegmentType::SEG_DATAHUB_OLCIEFR)
                 {
                     SegmentDatahub *segm = (SegmentDatahub *)(*segit);
-                    renderout = QString("EFR %1:%2").arg((*segm).getName().mid(25, 2)).arg((*segm).getName().mid(27, 2));
+                    QString filename = (*segm).getName();
+                    renderout = QString("EFR %1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
                 }
                 else if(seg == eSegmentType::SEG_DATAHUB_OLCIERR)
                 {
                     SegmentDatahub *segm = (SegmentDatahub *)(*segit);
-                    renderout = QString("ERR %1:%2").arg((*segm).getName().mid(25, 2)).arg((*segm).getName().mid(27, 2));
+                    QString filename = (*segm).getName();
+                    renderout = QString("ERR %1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
                 }
                 else if(seg == eSegmentType::SEG_DATAHUB_SLSTR)
                 {
                     SegmentDatahub *segm = (SegmentDatahub *)(*segit);
-                    renderout = QString("SLSTR %1:%2").arg((*segm).getName().mid(25, 2)).arg((*segm).getName().mid(27, 2));
+                    QString filename = (*segm).getName();
+                    renderout = QString("SLSTR %1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
                 }
                 //012345678901234567890123456789012345678901234567890
                 //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
                 //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
                 else if(seg == eSegmentType::SEG_MERSI)
                 {
-                    renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(0, 4)).arg((*segit)->fileInfo.fileName().mid(14, 2)).arg((*segit)->fileInfo.fileName().mid(16, 2));
+                    QString filename = (*segit)->fileInfo.fileName();
+                    renderout = QString("%1 %2:%3").arg(filename.mid(0, 4)).arg(filename.mid(14, 2)).arg(filename.mid(16, 2));
                 }
                 else
                 {

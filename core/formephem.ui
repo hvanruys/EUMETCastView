@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1147</width>
+    <width>1402</width>
     <height>688</height>
    </rect>
   </property>
@@ -241,18 +241,6 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="btnDownloadFromDatahub">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>Download available segments from Scihub/CODA</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
                 <widget class="QLabel" name="lblProgress">
@@ -301,7 +289,7 @@
                <item>
                 <widget class="QLabel" name="label_3">
                  <property name="text">
-                  <string>List of segment directories</string>
+                  <string>Select/Deselect all</string>
                  </property>
                 </widget>
                </item>

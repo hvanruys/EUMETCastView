@@ -25,6 +25,95 @@ SegmentListOLCI::SegmentListOLCI(eSegmentType type, SatelliteList *satl, QObject
     normalized = false;
 }
 
+bool SegmentListOLCI::CheckForOLCIFiles(QList<bool> bandlist, QList<int> colorlist, QStringList &missing)
+{
+    QString filemono;
+    QString filered, filegreen, fileblue;
+    bool bmono = true;
+    bool bred = true;
+    bool bgreen = true;
+    bool bblue = true;
+    bool bgeocoord = true;
+    bool btiegeo = true;
+    bool bquality = true;
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+    while ( segit != segmentlist.end() )
+    {
+        SegmentOLCI *segm = (SegmentOLCI *)(*segit);
+        if (segm->segmentselected)
+        {
+            qDebug() << "====> fileinfo.filepath = " << segm->fileInfo.filePath() << " isdirectory = " << segm->fileInfo.isDir();
+            qDebug() << "====> fileinfo.filename = " << segm->fileInfo.fileName();
+
+            if(segm->fileInfo.isDir())
+            {
+                bgeocoord = QFile::exists(segm->fileInfo.filePath() + "/geo_coordinates.nc");
+                btiegeo = QFile::exists(segm->fileInfo.filePath() + "/tie_geometries.nc");
+                bquality = QFile::exists(segm->fileInfo.filePath() + "/qualityFlags.nc");
+                if(bandlist.at(0) == false) // no color
+                {
+                    getDatasetNameFromBand(bandlist, &filemono);
+                    bmono = QFile::exists(segm->fileInfo.filePath() + "/" + filemono);
+                    if(!bmono)
+                        break;
+                }
+                else
+                {
+                    getDatasetNameFromColor(colorlist, 0, &filered);
+                    getDatasetNameFromColor(colorlist, 1, &filegreen);
+                    getDatasetNameFromColor(colorlist, 2, &fileblue);
+                    bred = QFile::exists(segm->fileInfo.filePath() + "/" + filered);
+                    bgreen = QFile::exists(segm->fileInfo.filePath() + "/" + filegreen);
+                    bblue = QFile::exists(segm->fileInfo.filePath() + "/" + fileblue);
+                    if(!bred || !bgreen || !bblue)
+                        break;
+                }
+
+            }
+        }
+        ++segit;
+    }
+
+    if(!bgeocoord)
+        missing.append("geo_coordinates.nc");
+    if(!btiegeo)
+        missing.append("tie_geometries.nc");
+    if(!bquality)
+        missing.append("qualityFlags.nc");
+
+    if(bandlist.at(0) == false) // no color
+    {
+        if(!bmono)
+            missing.append(filemono);
+    }
+    else
+    {
+        if(!bred)
+            missing.append(filered);
+        if(!bgreen)
+            missing.append(filegreen);
+        if(!bblue)
+            missing.append(fileblue);
+    }
+
+    if(bandlist.at(0) == false)
+    {
+        if(!bgeocoord || !btiegeo || !bquality || !bmono)
+            return false;
+        else
+            return  true;
+    }
+    else
+    {
+        if(!bgeocoord || !btiegeo || !bquality || !bred || !bgreen || !bblue)
+            return false;
+        else
+            return  true;
+    }
+
+}
+
 bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles)
 {
     qDebug() << QString("SegmentListOLCI::ComposeOLCIImage");
@@ -32,6 +121,54 @@ bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlis
     this->bandlist = bandlist;
     this->colorlist = colorlist;
     this->inverselist = invertlist;
+
+    //    qDebug() << "====> GetdirectoryName = " << this->GetDirectoryName();
+
+    //    QList<Segment*>::iterator segit = segmentlist.begin();
+    //    while ( segit != segmentlist.end() )
+    //    {
+    //        SegmentOLCI *segm = (SegmentOLCI *)(*segit);
+    //        if (segm->segmentselected)
+    //        {
+    //            qDebug() << "====> fileinfo.filepath = " << segm->fileInfo.filePath() << " isdirectory = " << segm->fileInfo.isDir();
+    //            qDebug() << "====> fileinfo.filename = " << segm->fileInfo.fileName();
+
+    //            if(segm->fileInfo.isDir())
+    //            {
+    //                QString filename;
+    //                QString filered, filegreen, fileblue;
+    //                bool bfile;
+    //                bool bred, bgreen, bblue;
+    //                bool bgeocoord = QFile::exists(segm->fileInfo.filePath() + "/geo_coordinates.nc");
+    //                bool btiegeo = QFile::exists(segm->fileInfo.filePath() + "/tie_geometries.nc");
+    //                bool bquality = QFile::exists(segm->fileInfo.filePath() + "/qualityFlags.nc");
+    //                if(!bgeocoord || !btiegeo || !bquality )
+    //                    return  false;
+    //                if(this->bandlist.at(0) == false) // no color
+    //                {
+    //                    getDatasetNameFromBand(this->bandlist, &filename);
+    //                    bfile = QFile::exists(segm->fileInfo.filePath() + "/" + filename);
+    //                    if(!bfile)
+    //                        return false;
+    //                }
+    //                else
+    //                {
+    //                    getDatasetNameFromColor(this->colorlist, 0, &filered);
+    //                    getDatasetNameFromColor(this->colorlist, 1, &filegreen);
+    //                    getDatasetNameFromColor(this->colorlist, 2, &fileblue);
+    //                    bred = QFile::exists(segm->fileInfo.filePath() + "/" + filered);
+    //                    bgreen = QFile::exists(segm->fileInfo.filePath() + "/" + filegreen);
+    //                    bblue = QFile::exists(segm->fileInfo.filePath() + "/" + fileblue);
+    //                    if(!bred || !bgreen || !bblue)
+    //                        return  false;
+    //                }
+
+    //            }
+    //        }
+    //        ++segit;
+    //    }
+
+
 
     ptrimagebusy = true;
     QApplication::setOverrideCursor(( Qt::WaitCursor));
@@ -46,10 +183,217 @@ bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlis
 
 }
 
+bool SegmentListOLCI::OLCIFileExist(QString completebasename, QString band_or_quicklook)
+{
+    // S3A_OL_1_EFR____20201205T102330_20201205T102630_20201205T121305_0179_066_008_2340_LN1_O_NR_002.SEN3
+    // S3A_OL_1_ERR____20201210T094858_20201210T103307_20201210T115918_2649_066_079______LN1_O_NR_002.SEN3
+    // 01234567890123456789012345678901234567890123456789012345678901234567890123456789
+
+    QDir dir(opts.productdirectory);
+    QString returndirstr;
+
+    QString fileyear = completebasename.mid(16, 4);
+    QString filemonth = completebasename.mid(20, 2);
+    QString fileday = completebasename.mid(22,2);
+
+    QString filestr(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename);
+
+    filestr.append("/" + band_or_quicklook);
+
+    QFile filefile(filestr);
+    if(filefile.exists())
+        return true;
+    else
+        return false;
+
+}
+
+void SegmentListOLCI::getDatasetNameFromBand(QList<bool> bandlist, QString *filename)
+{
+    if(bandlist.at(1))
+    {
+        *filename = "Oa01_radiance.nc";
+    }
+    else if(bandlist.at(2))
+    {
+        *filename = "Oa02_radiance.nc";
+    }
+    else if(bandlist.at(3))
+    {
+        *filename = "Oa03_radiance.nc";
+    }
+    else if(bandlist.at(4))
+    {
+        *filename = "Oa04_radiance.nc";
+    }
+    else if(bandlist.at(5))
+    {
+        *filename = "Oa05_radiance.nc";
+    }
+    else if(bandlist.at(6))
+    {
+        *filename = "Oa06_radiance.nc";
+    }
+    else if(bandlist.at(7))
+    {
+        *filename = "Oa07_radiance.nc";
+    }
+    else if(bandlist.at(8))
+    {
+        *filename = "Oa08_radiance.nc";
+    }
+    else if(bandlist.at(9))
+    {
+        *filename = "Oa09_radiance.nc";
+    }
+    else if(bandlist.at(10))
+    {
+        *filename = "Oa10_radiance.nc";
+    }
+    else if(bandlist.at(11))
+    {
+        *filename = "Oa11_radiance.nc";
+    }
+    else if(bandlist.at(12))
+    {
+        *filename = "Oa12_radiance.nc";
+    }
+    else if(bandlist.at(13))
+    {
+        *filename = "Oa13_radiance.nc";
+    }
+    else if(bandlist.at(14))
+    {
+        *filename = "Oa14_radiance.nc";
+    }
+    else if(bandlist.at(15))
+    {
+        *filename = "Oa15_radiance.nc";
+    }
+    else if(bandlist.at(16))
+    {
+        *filename = "Oa16_radiance.nc";
+    }
+    else if(bandlist.at(17))
+    {
+        *filename = "Oa17_radiance.nc";
+    }
+    else if(bandlist.at(18))
+    {
+        *filename = "Oa18_radiance.nc";
+    }
+    else if(bandlist.at(19))
+    {
+        *filename = "Oa19_radiance.nc";
+    }
+    else if(bandlist.at(20))
+    {
+        *filename = "Oa20_radiance.nc";
+    }
+    else if(bandlist.at(21))
+    {
+        *filename = "Oa21_radiance.nc";
+    }
+
+}
+
+void SegmentListOLCI::getDatasetNameFromColor(QList<int> colorlist, int colorindex, QString *filename)
+{
+    qDebug() << "getDatasetNameFromColor colorindex = " << colorindex;
+
+    Q_ASSERT(colorindex >=0 && colorindex < 3);
+    colorindex++; // 1, 2 or 3
+
+    if(colorlist.at(0) == colorindex)
+    {
+        *filename = "Oa01_radiance.nc";
+    }
+    else if(colorlist.at(1) == colorindex)
+    {
+        *filename = "Oa02_radiance.nc";
+    }
+    else if(colorlist.at(2) == colorindex)
+    {
+        *filename = "Oa03_radiance.nc";
+    }
+    else if(colorlist.at(3) == colorindex)
+    {
+        *filename = "Oa04_radiance.nc";
+    }
+    else if(colorlist.at(4) == colorindex)
+    {
+        *filename = "Oa05_radiance.nc";
+    }
+    else if(colorlist.at(5) == colorindex)
+    {
+        *filename = "Oa06_radiance.nc";
+    }
+    else if(colorlist.at(6) == colorindex)
+    {
+        *filename = "Oa07_radiance.nc";
+    }
+    else if(colorlist.at(7) == colorindex)
+    {
+        *filename = "Oa08_radiance.nc";
+    }
+    else if(colorlist.at(8) == colorindex)
+    {
+        *filename = "Oa09_radiance.nc";
+    }
+    else if(colorlist.at(9) == colorindex)
+    {
+        *filename = "Oa10_radiance.nc";
+    }
+    else if(colorlist.at(10) == colorindex)
+    {
+        *filename = "Oa11_radiance.nc";
+    }
+    else if(colorlist.at(11) == colorindex)
+    {
+        *filename = "Oa12_radiance.nc";
+    }
+    else if(colorlist.at(12) == colorindex)
+    {
+        *filename = "Oa13_radiance.nc";
+    }
+    else if(colorlist.at(13) == colorindex)
+    {
+        *filename = "Oa14_radiance.nc";
+    }
+    else if(colorlist.at(14) == colorindex)
+    {
+        *filename = "Oa15_radiance.nc";
+    }
+    else if(colorlist.at(15) == colorindex)
+    {
+        *filename = "Oa16_radiance.nc";
+    }
+    else if(colorlist.at(16) == colorindex)
+    {
+        *filename = "Oa17_radiance.nc";
+    }
+    else if(colorlist.at(17) == colorindex)
+    {
+        *filename = "Oa18_radiance.nc";
+    }
+    else if(colorlist.at(18) == colorindex)
+    {
+        *filename = "Oa19_radiance.nc";
+    }
+    else if(colorlist.at(19) == colorindex)
+    {
+        *filename = "Oa20_radiance.nc";
+    }
+    else if(colorlist.at(20) == colorindex)
+    {
+        *filename = "Oa21_radiance.nc";
+    }
+}
+
 bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles)
 {
 
-    qDebug() << "bool SegmentListOLCIefr::ComposeOLCIImageInThread() started";
+    qDebug() << "bool SegmentListOLCIefr::ComposeOLCIImageInThread() started decompressfiles = " << decompressfiles;
 
     progressresultready = 0;
     QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -106,8 +450,8 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
         SegmentOLCI *segm = (SegmentOLCI *)(*segit);
         if (segm->segmentselected)
         {
-             segsselected.append(segm);
-             totalnbrofsegments++;
+            segsselected.append(segm);
+            totalnbrofsegments++;
         }
         ++segit;
     }
@@ -392,10 +736,10 @@ void SegmentListOLCI::CalculateProjectionLUT()
         }
     }
 
-//    for( int i = 0; i < 1024; i++)
-//    {
-//        qDebug() << QString("CalculateProjectionLUT i = %1 lut_proj_ch[0][i] = %2").arg(i).arg(imageptrs->lut_proj_ch[0][i]);
-//    }
+    //    for( int i = 0; i < 1024; i++)
+    //    {
+    //        qDebug() << QString("CalculateProjectionLUT i = %1 lut_proj_ch[0][i] = %2").arg(i).arg(imageptrs->lut_proj_ch[0][i]);
+    //    }
 }
 
 void SegmentListOLCI::finishedolci()
@@ -527,7 +871,7 @@ void SegmentListOLCI::Compose48bitPNGSegment(SegmentOLCI *segm, FIBITMAP *bitmap
                 {
                     if(mapto65535)
                     {
-//                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 65535);
+                        //                        pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval[k] - imageptrs->stat_min_ch[k] ) / (float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 65535);
                         pixval65535[k] =  (quint16)qMin(qMax(qRound(16.0 * (float)(pixval[k])), 0), 65535);
                         //pixval65535[k] =  (quint16)qMin(qMax(qRound(65535.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 65535);
                         pixval[k] = pixval65535[k];
@@ -658,16 +1002,16 @@ void SegmentListOLCI::RecalculateCLAHEOLCI()
     pixelsBlue = new quint16[npix];
 
     int segnbr = 0;
-//    QList<Segment*>::iterator segsel = segsselected.begin();
-//    while ( segsel != segsselected.end() )
-//    {
-//        SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
-//        memcpy(pixelsRed + segnbr * segm->NbrOfLines * earth_views_per_scanline, segm->ptrbaOLCI[0].data(), segm->NbrOfLines * earth_views_per_scanline * sizeof(quint16));
-//        memcpy(pixelsGreen + segnbr * segm->NbrOfLines * earth_views_per_scanline, segm->ptrbaOLCI[1].data(), segm->NbrOfLines * earth_views_per_scanline * sizeof(quint16));
-//        memcpy(pixelsBlue + segnbr * segm->NbrOfLines * earth_views_per_scanline, segm->ptrbaOLCI[2].data(), segm->NbrOfLines * earth_views_per_scanline * sizeof(quint16));
-//        segnbr++;
-//        ++segsel;
-//    }
+    //    QList<Segment*>::iterator segsel = segsselected.begin();
+    //    while ( segsel != segsselected.end() )
+    //    {
+    //        SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
+    //        memcpy(pixelsRed + segnbr * segm->NbrOfLines * earth_views_per_scanline, segm->ptrbaOLCI[0].data(), segm->NbrOfLines * earth_views_per_scanline * sizeof(quint16));
+    //        memcpy(pixelsGreen + segnbr * segm->NbrOfLines * earth_views_per_scanline, segm->ptrbaOLCI[1].data(), segm->NbrOfLines * earth_views_per_scanline * sizeof(quint16));
+    //        memcpy(pixelsBlue + segnbr * segm->NbrOfLines * earth_views_per_scanline, segm->ptrbaOLCI[2].data(), segm->NbrOfLines * earth_views_per_scanline * sizeof(quint16));
+    //        segnbr++;
+    //        ++segsel;
+    //    }
 
 
     int restnbrofpixels = 0;
@@ -677,9 +1021,9 @@ void SegmentListOLCI::RecalculateCLAHEOLCI()
         SegmentOLCI *segm = (SegmentOLCI *)(*segsel);
         for(int i = 0; i < (segm == segsselected.last() ? segm->GetNbrOfLines() - difflines : segm->GetNbrOfLines()); i++)
         {
-//            memcpy(pixelsRed + segnbr * segm->GetNbrOfLines() * 4688 + i * 4688, segm->ptrbaOLCI[0].data() + i * 4865 + 139, 4688 * sizeof(quint16));
-//            memcpy(pixelsGreen + segnbr * nbroflinesreduced * 4688 + i * 4688, segm->ptrbaOLCI[1].data() + i * 4865 + 139, 4688 * sizeof(quint16));
-//            memcpy(pixelsBlue + segnbr * nbroflinesreduced * 4688 + i * 4688, segm->ptrbaOLCI[2].data() + i * 4865 + 139, 4688 * sizeof(quint16));
+            //            memcpy(pixelsRed + segnbr * segm->GetNbrOfLines() * 4688 + i * 4688, segm->ptrbaOLCI[0].data() + i * 4865 + 139, 4688 * sizeof(quint16));
+            //            memcpy(pixelsGreen + segnbr * nbroflinesreduced * 4688 + i * 4688, segm->ptrbaOLCI[1].data() + i * 4865 + 139, 4688 * sizeof(quint16));
+            //            memcpy(pixelsBlue + segnbr * nbroflinesreduced * 4688 + i * 4688, segm->ptrbaOLCI[2].data() + i * 4865 + 139, 4688 * sizeof(quint16));
             memcpy(pixelsRed + restnbrofpixels + i * 4688, segm->ptrbaOLCI[0].data() + i * 4865 + 139, 4688 * sizeof(quint16));
             memcpy(pixelsGreen + restnbrofpixels + i * 4688, segm->ptrbaOLCI[1].data() + i * 4865 + 139, 4688 * sizeof(quint16));
             memcpy(pixelsBlue + restnbrofpixels + i * 4688, segm->ptrbaOLCI[2].data() + i * 4865 + 139, 4688 * sizeof(quint16));
@@ -772,10 +1116,10 @@ void SegmentListOLCI::CalculateLUT()
     }
 
 
-//    for(int i = 0; i < 256; i++)
-//    {
-//        qDebug() << QString("stats_ch[0][%1] = %2").arg(i).arg(stats_ch[0][i]);
-//    }
+    //    for(int i = 0; i < 256; i++)
+    //    {
+    //        qDebug() << QString("stats_ch[0][%1] = %2").arg(i).arg(stats_ch[0][i]);
+    //    }
 
 
     // float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
@@ -836,17 +1180,17 @@ void SegmentListOLCI::CalculateLUTFull()
                     quint16 pixelnorm = *(segm->ptrbaOLCInormalized[k].data() + line * earth_views + pixelx) ;
                     quint16 indexoutnorm = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixelnorm - imageptrs->stat_min_norm_ch[k])/(float)(imageptrs->stat_max_norm_ch[k] - imageptrs->stat_min_norm_ch[k])), 0), 1023);
                     stats_norm_ch[k][indexoutnorm]++;
-                 }
+                }
             }
         }
         ++segsel;
     }
 
 
-//    for(int i = 0; i < 1024; i++)
-//    {
-//        qDebug() << QString("stats_ch[0][%1] = %2 ; stats_norm_ch[0][%3] = %4").arg(i).arg(stats_ch[0][i]).arg(i).arg(stats_norm_ch[0][i]);
-//    }
+    //    for(int i = 0; i < 1024; i++)
+    //    {
+    //        qDebug() << QString("stats_ch[0][%1] = %2 ; stats_norm_ch[0][%3] = %4").arg(i).arg(stats_ch[0][i]).arg(i).arg(stats_norm_ch[0][i]);
+    //    }
 
 
     // float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
@@ -920,10 +1264,10 @@ void SegmentListOLCI::CalculateLUTFull()
         }
     }
 
-//    for(int i = 0; i < 1024; i++)
-//    {
-//        qDebug() << QString("stats_ch[0][%1] = %2 lut_ch[0][%3] = %4").arg(i).arg(stats_ch[0][i]).arg(i).arg(imageptrs->lut_ch[0][i]);
-//    }
+    //    for(int i = 0; i < 1024; i++)
+    //    {
+    //        qDebug() << QString("stats_ch[0][%1] = %2 lut_ch[0][%3] = %4").arg(i).arg(stats_ch[0][i]).arg(i).arg(imageptrs->lut_ch[0][i]);
+    //    }
 
 
     for(int k = 0; k < (composecolor ? 3 : 1); k++)
@@ -940,10 +1284,10 @@ void SegmentListOLCI::CalculateLUTAlt()
     int earth_views = this->earth_views_per_scanline;
     long stats[256];
 
-        for (int j = 0; j < 256; j++)
-        {
-            stats[j] = 0;
-        }
+    for (int j = 0; j < 256; j++)
+    {
+        stats[j] = 0;
+    }
 
 
     bool composecolor;
@@ -1149,10 +1493,10 @@ void SegmentListOLCI::ShowWinvec(QPainter *painter, float distance, const QMatri
 
     QVector3D vecZ = modelview.row(2).toVector3D();
 
-//    static GLfloat mat[16];
-//    const float *data = modelview.constData();
-//    for (int index = 0; index < 16; ++index)
-//         mat[index] = data[index];
+    //    static GLfloat mat[16];
+    //    const float *data = modelview.constData();
+    //    for (int index = 0; index < 16; ++index)
+    //         mat[index] = data[index];
 
     //modelview.inverted( &ok );
 

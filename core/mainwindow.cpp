@@ -305,6 +305,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
             qDebug() << QString("Deleting h5 and Himawari files : %1").arg(fileinfolist.at(i).fileName());
     }
 
+//    QFile segfile("Segments.xml");
+//    segfile.remove();
+
+
     QDir workingdir1(".");
     filters.clear();
     filters << "S3A_OL_1_*" << "S3B_OL_1_*";

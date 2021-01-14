@@ -1468,8 +1468,7 @@ Latitude of point on GC
 
 Intermediate points {lat,lon} lie on the great circle connecting points 1 and 2 when:
 
-lat=atan((sin(lat1)*cos(lat2)*sin(lon-lon2)
-     -sin(lat2)*cos(lat1)*sin(lon-lon1))/(cos(lat1)*cos(lat2)*sin(lon1-lon2)))
+lat=atan((sin(lat1)*cos(lat2)*sin(lon-lon2) - sin(lat2)*cos(lat1)*sin(lon-lon1))/(cos(lat1)*cos(lat2)*sin(lon1-lon2)))
 
 (not applicable for meridians. i.e if sin(lon1-lon2)=0)
 

@@ -24,7 +24,7 @@ SegmentGL::SegmentGL(QOpenGLShaderProgram *prog, SatelliteList *satlist, AVHRRSa
 
     howdetailed = 10;
     nbrOfVertices = howdetailed * 5;
-    positionsBuf.allocate( nbrOfVertices * 3 * sizeof(GLfloat));
+    //positionsBuf.allocate( nbrOfVertices * 3 * sizeof(GLfloat));
 
     vertexPosition = program->attributeLocation("VertexPosition");
     program->enableAttributeArray(vertexPosition);
@@ -137,7 +137,7 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
     else
         return;
 
-    if ((opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0) || (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0))
+    if ((opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)) // || (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0))
     {
         QList<Segment*>::iterator segit = sl->GetSegmentlistptr()->begin();
         while ( segit != sl->GetSegmentlistptr()->end() )
@@ -145,6 +145,22 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
             if(segs->getShowAllSegments() || (*segit)->segmentshow)
             {
                 RenderContourDetail(*segit, projection, modelview, width, height);
+
+            }
+
+            ++segit;
+        }
+
+    } else if((opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0) ||
+              (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0) ||
+              (opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0))
+    {
+        QList<Segment*>::iterator segit = sl->GetSegmentlistptr()->begin();
+        while ( segit != sl->GetSegmentlistptr()->end() )
+        {
+            if(segs->getShowAllSegments() || (*segit)->segmentshow)
+            {
+                RenderContourXML(*segit, projection, modelview, width, height);
 
             }
 
@@ -175,19 +191,14 @@ void SegmentGL::RenderContour(Segment *seg, QMatrix4x4 projection, QMatrix4x4 mo
     QVector<GLfloat> positions;
     QEci qeci;
 
+    int howdetailed = 10;
+    CalculateSegmentContour(&positions, seg->cornerpointfirst1, seg->cornerpointlast1, howdetailed);
+    CalculateSegmentContour(&positions,seg->cornerpointlast1, seg->cornerpointlast2, howdetailed);
+    CalculateSegmentContour(&positions, seg->cornerpointlast2, seg->cornerpointfirst2, howdetailed);
+    CalculateSegmentContour(&positions,seg->cornerpointfirst2, seg->cornerpointfirst1, howdetailed);
 
-    CalculateSegmentContour(&positions, seg->cornerpointfirst1, seg->cornerpointlast1);
-    CalculateSegmentContour(&positions,seg->cornerpointlast1, seg->cornerpointlast2);
-    CalculateSegmentContour(&positions, seg->cornerpointlast2, seg->cornerpointfirst2);
-    CalculateSegmentContour(&positions,seg->cornerpointfirst2, seg->cornerpointfirst1);
 
-//    seg->qsgp4->getPosition(seg->minutes_since_state_vector, qeci);
-//    QGeodetic first = qeci.ToGeo();
-
-//    seg->qsgp4->getPosition(seg->minutes_since_state_vector + seg->minutes_sensing, qeci);
-//    QGeodetic last = qeci.ToGeo();
-
-    CalculateSegmentContour(&positions, seg->cornerpointcenter1, seg->cornerpointcenter2);
+    CalculateSegmentContour(&positions, seg->cornerpointcenter1, seg->cornerpointcenter2, howdetailed);
 
     positionsBuf.bind();
     positionsBuf.allocate(positions.data(), positions.size() * sizeof(GLfloat));
@@ -273,17 +284,17 @@ void SegmentGL::RenderContourDetail(Segment *seg, QMatrix4x4 projection, QMatrix
     QVector<GLfloat> positions;
     QEci qeci;
 
-
-    CalculateSegmentContour(&positions, seg->vectorfirst.first(), seg->vectorlast.first()); // +10
+    int howdetailed = 10;
+    CalculateSegmentContour(&positions, seg->vectorfirst.first(), seg->vectorlast.first(), howdetailed); // +10
     for(int i = 0; i < seg->vectorfirst.length()-1; i++)
     {
-        CalculateSegmentContour(&positions,seg->vectorlast.at(i), seg->vectorlast.at(i+1)); // + (10 * (length-1))
+        CalculateSegmentContour(&positions,seg->vectorlast.at(i), seg->vectorlast.at(i+1), howdetailed); // + (10 * (length-1))
     }
-    CalculateSegmentContour(&positions, seg->vectorlast.last(), seg->vectorfirst.last()); // + 10
+    CalculateSegmentContour(&positions, seg->vectorlast.last(), seg->vectorfirst.last(), howdetailed); // + 10
 
     for(int i = seg->vectorfirst.length()-1; i > 0; i--)
     {
-        CalculateSegmentContour(&positions,seg->vectorfirst.at(i), seg->vectorfirst.at(i-1)); // + (10 * (length-1))
+        CalculateSegmentContour(&positions,seg->vectorfirst.at(i), seg->vectorfirst.at(i-1), howdetailed); // + (10 * (length-1))
     }
 
 //    seg->qsgp4->getPosition(seg->minutes_since_state_vector, qeci);
@@ -336,29 +347,6 @@ void SegmentGL::RenderContourDetail(Segment *seg, QMatrix4x4 projection, QMatrix
 
     QVector2D win;
 
-//    LonLat2PointRad((float)seg->cornerpointfirst1.latitude, (float)seg->cornerpointfirst1.longitude, &vec, 1.0);
-//    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-//    seg->winvecend1 = win;
-
-//    LonLat2PointRad((float)seg->cornerpointfirst2.latitude, (float)seg->cornerpointfirst2.longitude, &vec, 1.0);
-//    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-//    seg->winvecend2 = win;
-
-//    LonLat2PointRad((float)seg->cornerpointlast1.latitude, (float)seg->cornerpointlast1.longitude, &vec, 1.0);
-//    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-//    seg->winvecend3 = win;
-
-//    LonLat2PointRad((float)seg->cornerpointlast2.latitude, (float)seg->cornerpointlast2.longitude, &vec, 1.0);
-//    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-//    seg->winvecend4 = win;
-
-//    win = glhProjectf (seg->vec1, mvmatrix, projmatrix, width, height);
-//    seg->winvec1 = win;
-
-//    win = glhProjectf (seg->vec2, mvmatrix, projmatrix, width, height);
-//    seg->winvec2 = win;
-
-
     seg->winvectorfirst.clear();
     seg->winvectorlast.clear();
     for(int i = 0; i < seg->vectorfirst.length()-1; i++)
@@ -376,6 +364,194 @@ void SegmentGL::RenderContourDetail(Segment *seg, QMatrix4x4 projection, QMatrix
 
 
 }
+
+void SegmentGL::RenderContourXML(Segment *seg, QMatrix4x4 projection, QMatrix4x4 modelview, int width, int height)
+{
+
+    QVector3D vec;
+    QVector3D pos;
+    QList<QVector<GLfloat>> positions;
+    int nbrofvertices;
+
+    QList<QVector<QGeodetic>> listvect = seg->getFootprintListptr();
+
+    if(listvect.count() == 0)
+        return;
+
+    for(int k = 0; k < listvect.count(); k++)
+    {
+        QVector<GLfloat> posvector;
+        nbrofvertices = listvect.at(k).count();
+        for(int i = 0; i < listvect.at(k).count(); i++)
+        {
+            LonLat2PointRad(listvect.at(k).at(i).latitude, listvect.at(k).at(i).longitude, &pos, 1.003f);
+
+            posvector.append(pos.x());
+            posvector.append(pos.y());
+            posvector.append(pos.z());
+        }
+
+        positions.append(posvector);
+
+        positionsBuf.bind();
+        positionsBuf.allocate(positions.at(k).data(), positions.at(k).size() * sizeof(GLfloat));
+
+
+        QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
+
+        program->bind();
+        program->setUniformValue("MVP", projection * modelview);
+
+        QColor rendercolor(opts.satsegmentcolor);
+        QColor rendercolorsel(opts.satsegmentcolorsel);
+
+        if((*seg).segmentselected)
+            program->setUniformValue("outcolor", QVector4D(rendercolorsel.redF(), rendercolorsel.greenF(), rendercolorsel.blueF(), 1.0f));
+        else
+            program->setUniformValue("outcolor", QVector4D(rendercolor.redF(), rendercolor.greenF(), rendercolor.blueF(), 1.0f));
+
+        QMatrix3x3 norm = modelview.normalMatrix();
+        program->setUniformValue("NormalMatrix", norm);
+
+        glDrawArrays(GL_LINE_STRIP, 0, nbrofvertices);
+
+        positionsBuf.release();
+
+    }
+
+    // calculating winvec vectors
+    float mvmatrix[16], projmatrix[16];
+    QMatrix4x4 MVP;
+    MVP = projection * modelview;
+
+    float *ptr = modelview.data();
+    for(int i = 0; i < 16; i++)
+        mvmatrix[i] = *(ptr + i);
+
+    ptr = projection.data();
+    for(int i = 0; i < 16; i++)
+        projmatrix[i] = *(ptr + i);
+
+
+    seg->winvectorfirst.clear();
+//    for(int k = 0; k < seg->getFootprintListptr().count(); k++)
+//    {
+        QVector2D win;
+
+        for(int i = 0; i < seg->getFootprintListptr().at(0).count(); i++)
+        {
+            LonLat2PointRad((float)seg->getFootprintListptr().at(0).at(i).latitude, (float)seg->getFootprintListptr().at(0).at(i).longitude, &vec, 1.0);
+            win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+            seg->winvectorfirst.append(win);
+        }
+//    }
+
+}
+
+
+
+//void SegmentGL::RenderContourXML(Segment *seg, QMatrix4x4 projection, QMatrix4x4 modelview, int width, int height)
+//{
+
+//    QVector3D vec;
+//    QVector3D pos;
+//    QVector<GLfloat> positions;
+//    QEci qeci;
+
+//    QList<QVector<QGeodetic>> listvect = seg->getFootprintListptr();
+
+//    if(listvect.count() == 0)
+//        return;
+
+//    int nbrofvertices = listvect.at(0).count();
+
+//    for(int i = 0; i < listvect.at(0).count(); i++)
+//    {
+//        LonLat2PointRad(listvect.at(0).at(i).latitude, listvect.at(0).at(i).longitude, &pos, 1.001f);
+
+//        positions.append(pos.x());
+//        positions.append(pos.y());
+//        positions.append(pos.z());
+
+//    }
+
+
+//    positionsBuf.bind();
+//    positionsBuf.allocate(positions.data(), positions.size() * sizeof(GLfloat));
+
+////    positionsBuf.write(0, positions.data(), positions.size() * sizeof(GLfloat));
+////    positionsBuf.release();
+
+//    QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
+
+//    program->bind();
+//    program->setUniformValue("MVP", projection * modelview);
+//    QColor rendercolor(opts.satsegmentcolor);
+//    QColor rendercolorsel(opts.satsegmentcolorsel);
+
+//    if((*seg).segmentselected)
+//        program->setUniformValue("outcolor", QVector4D(rendercolorsel.redF(), rendercolorsel.greenF(), rendercolorsel.blueF(), 1.0f));
+//    else
+//        program->setUniformValue("outcolor", QVector4D(rendercolor.redF(), rendercolor.greenF(), rendercolor.blueF(), 1.0f));
+
+//    QMatrix3x3 norm = modelview.normalMatrix();
+//    program->setUniformValue("NormalMatrix", norm);
+
+//    glDrawArrays(GL_LINE_STRIP, 0, nbrofvertices);
+
+//    positionsBuf.release();
+
+//    // calculating winvec vectors
+////    float mvmatrix[16], projmatrix[16];
+////    QMatrix4x4 MVP;
+////    MVP = projection * modelview;
+
+////    float *ptr = modelview.data();
+////    for(int i = 0; i < 16; i++)
+////        mvmatrix[i] = *(ptr + i);
+
+////    ptr = projection.data();
+////    for(int i = 0; i < 16; i++)
+////        projmatrix[i] = *(ptr + i);
+
+//    //                           winvec1
+//    //  winvecend1 ------------------------------------ winvecend3
+//    //      | p03                   | p00               | p05
+//    //      |                       |                   |
+//    //      |                       |                   |
+//    //      |                       |                   |
+//    //      |                       |                   |
+//    //      |                       |                   |
+//    //      | p02                   | p01               | p04
+//    //  winvecend2 ------------------------------------ winvecend4
+//    //                           winvec2
+
+////    QVector2D win;
+
+////    LonLat2PointRad((float)seg->cornerpointfirst1.latitude, (float)seg->cornerpointfirst1.longitude, &vec, 1.0);
+////    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+////    seg->winvecend1 = win;
+
+////    LonLat2PointRad((float)seg->cornerpointfirst2.latitude, (float)seg->cornerpointfirst2.longitude, &vec, 1.0);
+////    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+////    seg->winvecend2 = win;
+
+////    LonLat2PointRad((float)seg->cornerpointlast1.latitude, (float)seg->cornerpointlast1.longitude, &vec, 1.0);
+////    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+////    seg->winvecend3 = win;
+
+////    LonLat2PointRad((float)seg->cornerpointlast2.latitude, (float)seg->cornerpointlast2.longitude, &vec, 1.0);
+////    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+////    seg->winvecend4 = win;
+
+////    win = glhProjectf (seg->vec1, mvmatrix, projmatrix, width, height);
+////    seg->winvec1 = win;
+
+////    win = glhProjectf (seg->vec2, mvmatrix, projmatrix, width, height);
+////    seg->winvec2 = win;
+
+//}
+
 
 
 QVector2D SegmentGL::glhProjectf(QVector3D obj, float *modelview, float *projection, int width, int height)
@@ -410,7 +586,7 @@ QVector2D SegmentGL::glhProjectf(QVector3D obj, float *modelview, float *project
   }
 
 
-void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, float lat_first, float lon_first, float lat_last, float lon_last)
+void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, float lat_first, float lon_first, float lat_last, float lon_last, int howdetailed)
 {
     QVector3D pos;
 
@@ -420,7 +596,7 @@ void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, float lat_f
     double sinpsi = sqrt(sinlatdiff * sinlatdiff + cos(lat_first)*cos(lat_last)*sinlondiff * sinlondiff);
     double delta = 2*asin(sinpsi);
 
-    int nDelta = 10;
+    int nDelta = howdetailed;
     double deltax = delta / (nDelta - 1);
     double lonpos, latpos, dlon, tc;
 
@@ -439,7 +615,7 @@ void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, float lat_f
     }
 }
 
-void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, QGeodetic first, QGeodetic last)
+void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, QGeodetic first, QGeodetic last, int howdetailed)
 {
     QVector3D pos;
 

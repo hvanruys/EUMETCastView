@@ -288,6 +288,8 @@ public:
     bool downloadxmlslstr;
     bool xmllogging;
 
+    bool bellipsoid; // for OM projection
+
     QList<GeoSatellites> geosatellites;
 
 }; 

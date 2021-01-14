@@ -1242,8 +1242,6 @@ int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned 
  */
 {
 
-    qDebug() << "int  SegmentImage::CLAHE (unsigned short ............";
-
     unsigned int uiX, uiY;		  /* counters */
     unsigned int uiXSize, uiYSize, uiSubX, uiSubY; /* size of context. reg. and subimages */
     unsigned int uiXL, uiXR, uiYU, uiYB;  /* auxiliary variables interpolation routine */

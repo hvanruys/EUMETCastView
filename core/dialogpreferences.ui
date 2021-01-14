@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1183</width>
+    <width>1247</width>
     <height>967</height>
    </rect>
   </property>
@@ -167,7 +167,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>11</number>
+        <number>12</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -2137,7 +2137,7 @@
             <item>
              <widget class="QRadioButton" name="rdbUseScihub">
               <property name="text">
-               <string>Use Scihub (scihub.copernicus.eu/s3)</string>
+               <string>Use Scihub (scihub.copernicus.eu/dhus/</string>
               </property>
              </widget>
             </item>
@@ -2159,53 +2159,7 @@
               <string>Choose the available segments you want to see on the 3D Globe</string>
              </property>
              <property name="text">
-              <string>Download only available</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="rdbDownloadXMLOLCIEFR">
-             <property name="toolTip">
-              <string>Choose the available segments you want to see on the 3D Globe</string>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
-             </property>
-             <property name="text">
-              <string>OLCI EFR</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="rdbDownloadXMLOLCIERR">
-             <property name="toolTip">
-              <string>Choose the available segments you want to see on the 3D Globe</string>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
-             </property>
-             <property name="text">
-              <string> or OLCI ERR</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="rdbDownloadXMLSLSTR">
-             <property name="toolTip">
-              <string>Choose the available segments you want to see on the 3D Globe</string>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
-             </property>
-             <property name="text">
-              <string> or SLSTR</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_20">
-             <property name="text">
-              <string> segments  (XML format)</string>
+              <string>The downloaded segments will be stored in the product directory</string>
              </property>
             </widget>
            </item>

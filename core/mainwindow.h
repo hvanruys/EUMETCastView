@@ -26,7 +26,6 @@
 
 #include "options.h"
 #include "poi.h"
-#include "datahubaccessmanager.h"
 
 namespace Ui {
 class MainWindow;
@@ -72,8 +71,6 @@ private:
     QLabel *timeLabel;
     QLabel *formulaLabel;
     QLabel *coordinateLabel;
-
-    DatahubAccessManager hubmanager;
 
 protected:
 

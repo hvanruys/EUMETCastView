@@ -18,7 +18,7 @@ public:
     ~ObliqueMercator();
 
     void Initialize(double r_maj, double r_min, eProjectionType projtype);
-    //void InitializeSpherical(eProjectionType projtype);
+
 
     void CreateMapFromVIIRS(eSegmentType type, bool combine);
     void CreateMapFromMERSI(eSegmentType type, bool combine);
@@ -33,13 +33,16 @@ public:
 
 
 private:
+    void InitializeEllipsoid(double r_maj, double r_min, eProjectionType projtype);
+    void InitializeSpherical(eProjectionType projtype);
+
     double tsfnz(double eccent, double phi, double sinphi);
     bool omerfor(double lon, double lat, double *x, double *y);
-    //bool omerforspherical(double lon, double lat, double *x, double *y);
+    bool omerforspherical(double lon, double lat, double *x, double *y);
 
     void GetMinMaxXBoundingBox(eSegmentType type, double *boundingbox_min_x, double *boundingbox_max_x, double *boundingbox_min_y, double *boundingbox_max_y);
     void GetMinMaxXBoundingBoxAVHRR(eSegmentType type, double *boundingbox_min_x, double *boundingbox_max_x, double *boundingbox_min_y, double *boundingbox_max_y);
-    //void GetMinMaxXBoundingBoxAVHRRSpherical(eSegmentType type, double *boundingbox_min_x, double *boundingbox_max_x, double *boundingbox_min_y, double *boundingbox_max_y);
+    void GetMinMaxXBoundingBoxAVHRRSpherical(eSegmentType type, double *boundingbox_min_x, double *boundingbox_max_x, double *boundingbox_min_y, double *boundingbox_max_y);
 
     AVHRRSatellite *segs;
 
@@ -63,6 +66,7 @@ private:
     // spherical
     double lon_p1, lat_p1;
     double sinazimuth, cosazimuth;
+    double lon_ori;
 
     QPixmap pmGeneral;
     QPixmap pmScaled_res;
@@ -77,9 +81,7 @@ private:
     double boundingbox_max_y;
     double boundingbox_min_y;
 
-
-    double deltaboundingboxX;
-    double deltaboundingboxY;
+    bool ellipsoid;
 
 signals:
     

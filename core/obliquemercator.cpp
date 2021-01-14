@@ -20,10 +20,7 @@ ObliqueMercator::ObliqueMercator(QObject *parent, AVHRRSatellite *seglist) :
     segs = seglist;
     image_width = 0;
     image_height = 0;
-
-
-    deltaboundingboxX = 0.0;
-    deltaboundingboxY = 0.0;
+    ellipsoid = true;
 
     qDebug() << QString("constructor ObliqueMercator");
 }
@@ -33,6 +30,20 @@ ObliqueMercator::~ObliqueMercator()
 }
 
 void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType projtype)
+{
+    if(opts.bellipsoid)
+    {
+        this->ellipsoid = true;
+        InitializeEllipsoid(r_maj, r_min, projtype);
+    }
+    else
+    {
+        this->ellipsoid = false;
+        InitializeSpherical(projtype);
+    }
+}
+
+void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectionType projtype)
 {
     double temp;			/* temporary variable		*/
     double con,com;
@@ -90,8 +101,8 @@ void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType pro
     lon2_r = deg2rad(lon2_d);
     lat2_r = deg2rad(lat2_d);
 
-//    double lat_origin_deg = (lat2_d - lat1_d)/2 + lat1_d;
-    double lat_origin_deg = lat2_d;
+    double lat_origin_deg = (lat2_d - lat1_d)/2 + lat1_d;
+//    double lat_origin_deg = lat2_d;
     lat_origin = deg2rad(lat_origin_deg);
     qDebug() << "latitude origin = " << lat_origin_deg;
 
@@ -262,9 +273,6 @@ void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType pro
     qDebug() << "For central 2 : map_x_2 =" << map_x_2 << " map_y_2 = " << map_y_2;
 
 
-    deltaboundingboxY = 0;
-    deltaboundingboxX = 0;
-
     if(projtype == PROJ_VIIRSM)
     {
         if(opts.buttonVIIRSM)
@@ -293,171 +301,174 @@ void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType pro
 
 }
 
-//void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
-//{
+void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
+{
 
-//    double temp;			/* temporary variable		*/
-//    double con,com;
-//    double ts;
-//    double ts1,ts2;
-//    double h,l;
-//    double j,p,dlon;
-//    double f,g,gama;
-//    double sinphi;
-//    double lon1_r;			/* fist point to define central line in rad	*/
-//    double lat1_r;			/* fist point to define central line	*/
-//    double lon2_r;			/* second point to define central line	*/
-//    double lat2_r;			/* second point to define central line	*/
+    double temp;			/* temporary variable		*/
+    double con,com;
+    double ts;
+    double ts1,ts2;
+    double h,l;
+    double j,p,dlon;
+    double f,g,gama;
+    double sinphi;
+    double lon1_r;			/* fist point to define central line in rad	*/
+    double lat1_r;			/* fist point to define central line	*/
+    double lon2_r;			/* second point to define central line	*/
+    double lat2_r;			/* second point to define central line	*/
 
-//    double lon1_d;			/* fist point to define central line in deg	*/
-//    double lat1_d;			/* fist point to define central line	*/
-//    double lon2_d;			/* second point to define central line	*/
-//    double lat2_d;			/* second point to define central line	*/
+    double lon1_d;			/* fist point to define central line in deg	*/
+    double lat1_d;			/* fist point to define central line	*/
+    double lon2_d;			/* second point to define central line	*/
+    double lat2_d;			/* second point to define central line	*/
 
-//    lon1_d = 65535.0;
-//    lat1_d = 65535.0;
-//    lon2_d = 65535.0;
-//    lat2_d = 65535.0;
+    lon1_d = 65535.0;
+    lat1_d = 65535.0;
+    lon2_d = 65535.0;
+    lat2_d = 65535.0;
 
-//    qDebug() << "ObliqueMercator::Initialize input image = " << projtype;
+    qDebug() << "ObliqueMercator::Initialize input image = " << projtype;
 
-//    if(projtype != PROJ_AVHRR && projtype != PROJ_MERSI && projtype != PROJ_VIIRSM )
-//    {
-//        QMessageBox msgBox;
-//        msgBox.setText("Only possible for MERSI and VIIRS M projections !");
-//        msgBox.exec();
-//        return;
-//    }
+    if(projtype != PROJ_AVHRR && projtype != PROJ_MERSI && projtype != PROJ_VIIRSM )
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Only possible for MERSI and VIIRS M projections !");
+        msgBox.exec();
+        return;
+    }
 
-//    if(projtype == PROJ_VIIRSM)
-//    {
-//        if(opts.buttonVIIRSM)
-//            segs->seglviirsm->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
-//        else if(opts.buttonVIIRSMNOAA20)
-//            segs->seglviirsmnoaa20->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
-//    }
-//    else if(projtype == PROJ_MERSI)
-//    {
-//        segs->seglmersi->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
-//    }
-//    else if(projtype == PROJ_AVHRR)
-//    {
-//        if(opts.buttonMetop)
-//            segs->seglmetop->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
-//    }
+    if(projtype == PROJ_VIIRSM)
+    {
+        if(opts.buttonVIIRSM)
+            segs->seglviirsm->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+        else if(opts.buttonVIIRSMNOAA20)
+            segs->seglviirsmnoaa20->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+    }
+    else if(projtype == PROJ_MERSI)
+    {
+        segs->seglmersi->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+    }
+    else if(projtype == PROJ_AVHRR)
+    {
+        if(opts.buttonMetop)
+            segs->seglmetop->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+    }
 
-//    qDebug() << "lon1_d = " << lon1_d << " lat1_d = " << lat1_d << " lon2_d = " << lon2_d << " lat2_d = " << lat2_d;
-//    lon1_r = deg2rad(lon1_d);
-//    lat1_r = deg2rad(lat1_d);
-//    lon2_r = deg2rad(lon2_d);
-//    lat2_r = deg2rad(lat2_d);
+    qDebug() << "lon1_d = " << lon1_d << " lat1_d = " << lat1_d << " lon2_d = " << lon2_d << " lat2_d = " << lat2_d;
+    lon1_r = deg2rad(lon1_d);
+    lat1_r = deg2rad(lat1_d);
+    lon2_r = deg2rad(lon2_d);
+    lat2_r = deg2rad(lat2_d);
 
-//    double lat_origin_deg = (lat2_d - lat1_d)/2 + lat1_d;
-//    lat_origin = deg2rad(lat2_d);
-//    qDebug() << "latitude origin = " << lat_origin_deg;
+    double lat_origin_deg = (lat2_d - lat1_d)/2 + lat1_d;
+    lat_origin = deg2rad(lat2_d);
+    qDebug() << "latitude origin = " << lat_origin_deg;
 
-//    double P1 = cos(lat1_r)*sin(lat2_r)*cos(lon1_r) - sin(lat1_r)*cos(lat2_r)*cos(lon2_r);
-//    double P2 = sin(lat1_r)*cos(lat2_r)*sin(lon2_r) - cos(lat1_r)*cos(lat2_r)*sin(lon1_r);
-//    lon_p1 = atan(P1/P2);
-//    lat_p1 = atan( - cos(lon_p1 - lon1_r)/tan(lat1_r));
+    double P1 = cos(lat1_r)*sin(lat2_r)*cos(lon1_r) - sin(lat1_r)*cos(lat2_r)*cos(lon2_r);
+    double P2 = sin(lat1_r)*cos(lat2_r)*sin(lon2_r) - cos(lat1_r)*cos(lat2_r)*sin(lon1_r);
 
-//    if(lat_p1 < 0)
-//    {
-//        lat_p1 = - lat_p1;
-//        if(lon_p1 + PI > PI)
-//            lon_p1 = lon_p1 - PI;
-//        else
-//            lon_p1 = lon_p1 + PI;
-//    }
+    qDebug() << "P1 = " << P1 << " P2 = " << P2;
 
-//    qDebug() << "Pole 1 = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")  Pole 2 = (" << rad2deg(-lat_p1) << ", " << rad2deg(lon_p1 + PI) << ")";
-//    qDebug() << "Pole 1 = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")  Pole 2 = (" << rad2deg(-lat_p1) << ", " << rad2deg(lon_p1 - PI) << ")";
-//    sinazimuth = sin(lat_p1);
-//    cosazimuth = cos(lat_p1);
+    lon_p1 = atan(P1/P2);
+    lat_p1 = atan( - cos(lon_p1 - lon1_r)/tan(lat1_r));
 
-//    if(projtype == PROJ_VIIRSM)
-//    {
-//        image_width = imageptrs->ptrimageViirsM->width();
-//        image_height = imageptrs->ptrimageViirsM->height();
-//    }
-//    else if(projtype == PROJ_MERSI)
-//    {
-//        image_width = imageptrs->ptrimageMERSI->width();
-//        image_height = imageptrs->ptrimageMERSI->height();
+    if(lat_p1 < 0)
+    {
+        lat_p1 = - lat_p1;
+        if(lon_p1 + PI > PI)
+            lon_p1 = lon_p1 - PI;
+        else
+            lon_p1 = lon_p1 + PI;
+    }
 
-//    }
-//    else if(projtype == PROJ_AVHRR)
-//    {
-//        if(opts.buttonMetop)
-//        {
-//            image_width = imageptrs->ptrimagecomp_ch[0]->width();
-//            image_height = imageptrs->ptrimagecomp_ch[0]->height();
-//        }
-//    }
+    qDebug() << "Pole = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")";
 
-//    if (image_width != imageptrs->ptrimageProjection->width() || image_height != imageptrs->ptrimageProjection->height())
-//    {
-//        delete imageptrs->ptrimageProjection;
-//        imageptrs->ptrimageProjection = new QImage(image_width, image_height, QImage::Format_ARGB32);
-//        imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
-//    }
+    sinazimuth = sin(PIO2 - lat_p1);
+    cosazimuth = cos(PIO2 - lat_p1);
 
-//    imageptrs->ptrimageProjectionRed.reset(new quint16[image_width * image_height]);
-//    imageptrs->ptrimageProjectionGreen.reset(new quint16[image_width * image_height]);
-//    imageptrs->ptrimageProjectionBlue.reset(new quint16[image_width * image_height]);
-//    imageptrs->ptrimageProjectionAlpha.reset(new quint16[image_width * image_height]);
-
-//    for(int i = 0; i < image_width * image_height; i++)
-//    {
-//        imageptrs->ptrimageProjectionRed[i] = 0;
-//        imageptrs->ptrimageProjectionGreen[i] = 0;
-//        imageptrs->ptrimageProjectionBlue[i] = 0;
-//        imageptrs->ptrimageProjectionAlpha[i] = 0;
-//    }
+    lon_ori = lon_p1 + PIO2;
 
 
+    if(projtype == PROJ_VIIRSM)
+    {
+        image_width = imageptrs->ptrimageViirsM->width();
+        image_height = imageptrs->ptrimageViirsM->height();
+    }
+    else if(projtype == PROJ_MERSI)
+    {
+        image_width = imageptrs->ptrimageMERSI->width();
+        image_height = imageptrs->ptrimageMERSI->height();
 
-//    ////////////////////////////////////////////
+    }
+    else if(projtype == PROJ_AVHRR)
+    {
+        if(opts.buttonMetop)
+        {
+            image_width = imageptrs->ptrimagecomp_ch[0]->width();
+            image_height = imageptrs->ptrimagecomp_ch[0]->height();
+        }
+    }
 
-//    double map_x_1, map_y_1;
-//    double map_x_2, map_y_2;
+    if (image_width != imageptrs->ptrimageProjection->width() || image_height != imageptrs->ptrimageProjection->height())
+    {
+        delete imageptrs->ptrimageProjection;
+        imageptrs->ptrimageProjection = new QImage(image_width, image_height, QImage::Format_ARGB32);
+        imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
+    }
 
-//    omerforspherical(lon1_r, lat1_r, &map_x_1, &map_y_1);
-//    qDebug() << "For central 1 : map_x_1 =" << map_x_1 << " map_y_1 = " << map_y_1;
-//    omerforspherical(lon2_r, lat2_r, &map_x_2, &map_y_2);
-//    qDebug() << "For central 2 : map_x_2 =" << map_x_2 << " map_y_2 = " << map_y_2;
+    imageptrs->ptrimageProjectionRed.reset(new quint16[image_width * image_height]);
+    imageptrs->ptrimageProjectionGreen.reset(new quint16[image_width * image_height]);
+    imageptrs->ptrimageProjectionBlue.reset(new quint16[image_width * image_height]);
+    imageptrs->ptrimageProjectionAlpha.reset(new quint16[image_width * image_height]);
 
-
-//    deltaboundingboxY = 0;
-//    deltaboundingboxX = 0;
-
-//    if(projtype == PROJ_VIIRSM)
-//    {
-//        if(opts.buttonVIIRSM)
-//            GetMinMaxXBoundingBox(SEG_VIIRSM, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
-//        else if(opts.buttonVIIRSMNOAA20)
-//            GetMinMaxXBoundingBox(SEG_VIIRSMNOAA20, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
-//    } else if(projtype == PROJ_MERSI)
-//    {
-//        GetMinMaxXBoundingBox(SEG_MERSI, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
-//    }
-//    else if(projtype == PROJ_AVHRR)
-//    {
-//        if(opts.buttonMetop)
-//            GetMinMaxXBoundingBoxAVHRRSpherical(SEG_METOP, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
-//    }
+    for(int i = 0; i < image_width * image_height; i++)
+    {
+        imageptrs->ptrimageProjectionRed[i] = 0;
+        imageptrs->ptrimageProjectionGreen[i] = 0;
+        imageptrs->ptrimageProjectionBlue[i] = 0;
+        imageptrs->ptrimageProjectionAlpha[i] = 0;
+    }
 
 
-//    qDebug() << "bounding box max_x = " << boundingbox_max_x << " min_x = " << boundingbox_min_x;
-//    qDebug() << "bounding box max_y = " << boundingbox_max_y << " min_y = " << boundingbox_min_y;
 
-//    map_extend_x = abs(boundingbox_max_x - boundingbox_min_x);
-//    map_extend_y = abs(boundingbox_max_y - boundingbox_min_y);
+    ////////////////////////////////////////////
 
-//    qDebug() << "map_extend_x = " << map_extend_x;
-//    qDebug() << "map_extend_y = " << map_extend_y;
+    double map_x_1, map_y_1;
+    double map_x_2, map_y_2;
 
-//}
+    omerforspherical(lon1_r, lat1_r, &map_x_1, &map_y_1);
+    qDebug() << "For central 1 : map_x_1 =" << map_x_1 << " map_y_1 = " << map_y_1;
+    omerforspherical(lon2_r, lat2_r, &map_x_2, &map_y_2);
+    qDebug() << "For central 2 : map_x_2 =" << map_x_2 << " map_y_2 = " << map_y_2;
+
+
+    if(projtype == PROJ_VIIRSM)
+    {
+        if(opts.buttonVIIRSM)
+            GetMinMaxXBoundingBox(SEG_VIIRSM, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+        else if(opts.buttonVIIRSMNOAA20)
+            GetMinMaxXBoundingBox(SEG_VIIRSMNOAA20, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+    } else if(projtype == PROJ_MERSI)
+    {
+        GetMinMaxXBoundingBox(SEG_MERSI, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+    }
+    else if(projtype == PROJ_AVHRR)
+    {
+        if(opts.buttonMetop)
+            GetMinMaxXBoundingBoxAVHRRSpherical(SEG_METOP, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+    }
+
+
+    qDebug() << "bounding box max_x = " << boundingbox_max_x << " min_x = " << boundingbox_min_x;
+    qDebug() << "bounding box max_y = " << boundingbox_max_y << " min_y = " << boundingbox_min_y;
+
+    map_extend_x = abs(boundingbox_max_x - boundingbox_min_x);
+    map_extend_y = abs(boundingbox_max_y - boundingbox_min_y);
+
+    qDebug() << "map_extend_x = " << map_extend_x;
+    qDebug() << "map_extend_y = " << map_extend_y;
+
+}
 
 void ObliqueMercator::GetMinMaxXBoundingBox(eSegmentType type, double *boundingbox_min_x, double *boundingbox_max_x, double *boundingbox_min_y, double *boundingbox_max_y)
 {
@@ -652,99 +663,99 @@ void ObliqueMercator::GetMinMaxXBoundingBoxAVHRR(eSegmentType type, double *boun
 
 }
 
-//void ObliqueMercator::GetMinMaxXBoundingBoxAVHRRSpherical(eSegmentType type, double *boundingbox_min_x, double *boundingbox_max_x, double *boundingbox_min_y, double *boundingbox_max_y)
-//{
+void ObliqueMercator::GetMinMaxXBoundingBoxAVHRRSpherical(eSegmentType type, double *boundingbox_min_x, double *boundingbox_max_x, double *boundingbox_min_y, double *boundingbox_max_y)
+{
 
-//    SegmentList *seglist;
-//    double min_x, max_x;
-//    double min_y, max_y;
-//    double map_x, map_y;
-//    float geolon_d, geolat_d;
-//    float geolon_r, geolat_r;
-//    bool ret;
+    SegmentList *seglist;
+    double min_x, max_x;
+    double min_y, max_y;
+    double map_x, map_y;
+    float geolon_d, geolat_d;
+    float geolon_r, geolat_r;
+    bool ret;
 
-//    min_x = DBL_MAX;
-//    max_x = -DBL_MAX;
-//    min_y = DBL_MAX;
-//    max_y = -DBL_MAX;
+    min_x = DBL_MAX;
+    max_x = -DBL_MAX;
+    min_y = DBL_MAX;
+    max_y = -DBL_MAX;
 
-//    if( type == SEG_METOP)
-//    {
-//        seglist = (SegmentList *)segs->seglmetop;
-//    }
-//    else
-//        seglist = NULL;
+    if( type == SEG_METOP)
+    {
+        seglist = (SegmentList *)segs->seglmetop;
+    }
+    else
+        seglist = NULL;
 
-//    QList<Segment *>::iterator segsel;
-//    segsel = seglist->GetSegsSelectedptr()->begin();
-//    while ( segsel != seglist->GetSegsSelectedptr()->end() )
-//    {
-//        Segment *segm = (Segment *)(*segsel);
-//        for(int i = 0; i < segm->NbrOfLines; i++)
-//        {
-//            for(int j = 0; j < 103; j++)
-//            {
-//                geolon_d = segm->earthloc_lon[i * 103 + j];
-//                geolat_d = segm->earthloc_lat[i * 103 + j];
-//                if(abs(geolon_d) <= 180.0 && abs(geolat_d) <= 90.0)
-//                {
-//                    geolon_r = deg2rad(geolon_d);
-//                    geolat_r = deg2rad(geolat_d);
-//                    ret = omerforspherical(geolon_r, geolat_r, &map_x, &map_y);
+    QList<Segment *>::iterator segsel;
+    segsel = seglist->GetSegsSelectedptr()->begin();
+    while ( segsel != seglist->GetSegsSelectedptr()->end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        for(int i = 0; i < segm->NbrOfLines; i++)
+        {
+            for(int j = 0; j < 103; j++)
+            {
+                geolon_d = segm->earthloc_lon[i * 103 + j];
+                geolat_d = segm->earthloc_lat[i * 103 + j];
+                if(abs(geolon_d) <= 180.0 && abs(geolat_d) <= 90.0)
+                {
+                    geolon_r = deg2rad(geolon_d);
+                    geolat_r = deg2rad(geolat_d);
+                    ret = omerforspherical(geolon_r, geolat_r, &map_x, &map_y);
 
-//                    if(ret)
-//                    {
-//                        if(map_x < min_x)
-//                            min_x = map_x;
-//                        if(map_x > max_x)
-//                            max_x = map_x;
-//                        if(map_y < min_y)
-//                            min_y = map_y;
-//                        if(map_y > max_y)
-//                            max_y = map_y;
-//                    }
-//                    break;
-//                }
-//            }
-//            for(int j = 103 - 1; j >= 0; j--)
-//            {
-//                geolon_d = segm->earthloc_lon[i * 103 + j];
-//                geolat_d = segm->earthloc_lat[i * 103 + j];
-//                if(abs(geolon_d) <= 180.0 && abs(geolat_d) <= 90.0)
-//                {
-//                    geolon_r = deg2rad(geolon_d);
-//                    geolat_r = deg2rad(geolat_d);
-//                    ret = omerforspherical(geolon_r, geolat_r, &map_x, &map_y);
+                    if(ret)
+                    {
+                        if(map_x < min_x)
+                            min_x = map_x;
+                        if(map_x > max_x)
+                            max_x = map_x;
+                        if(map_y < min_y)
+                            min_y = map_y;
+                        if(map_y > max_y)
+                            max_y = map_y;
+                    }
+                    break;
+                }
+            }
+            for(int j = 103 - 1; j >= 0; j--)
+            {
+                geolon_d = segm->earthloc_lon[i * 103 + j];
+                geolat_d = segm->earthloc_lat[i * 103 + j];
+                if(abs(geolon_d) <= 180.0 && abs(geolat_d) <= 90.0)
+                {
+                    geolon_r = deg2rad(geolon_d);
+                    geolat_r = deg2rad(geolat_d);
+                    ret = omerforspherical(geolon_r, geolat_r, &map_x, &map_y);
 
-//                    if(ret)
-//                    {
-//                        if(map_x < min_x)
-//                            min_x = map_x;
-//                        if(map_x > max_x)
-//                            max_x = map_x;
-//                        if(map_y < min_y)
-//                            min_y = map_y;
-//                        if(map_y > max_y)
-//                            max_y = map_y;
+                    if(ret)
+                    {
+                        if(map_x < min_x)
+                            min_x = map_x;
+                        if(map_x > max_x)
+                            max_x = map_x;
+                        if(map_y < min_y)
+                            min_y = map_y;
+                        if(map_y > max_y)
+                            max_y = map_y;
 
-//                    }
-//                    break;
-//                }
-//            }
+                    }
+                    break;
+                }
+            }
 
-//        }
+        }
 
-//        ++segsel;
-//    }
+        ++segsel;
+    }
 
 
 
-//    *boundingbox_min_x = min_x;
-//    *boundingbox_max_x = max_x;
-//    *boundingbox_min_y = min_y;
-//    *boundingbox_max_y = max_y;
+    *boundingbox_min_x = min_x;
+    *boundingbox_max_x = max_x;
+    *boundingbox_min_y = min_y;
+    *boundingbox_max_y = max_y;
 
-//}
+}
 
 void ObliqueMercator::CreateMapFromAVHRR(eSegmentType type, int inputchannel)
 {
@@ -867,13 +878,48 @@ bool ObliqueMercator::omerfor(double lon, double lat, double *x, double *y)
     return true;
 }
 
+bool ObliqueMercator::omerforspherical(double lon, double lat, double *x, double *y)
+/* (I) Longitude 		*/
+/* (I) Latitude 		*/
+/* (O) X projection coordinate 	*/
+/* (O) Y projection coordinate 	*/
+{
+
+
+    double K = tan(lat)*cos(lat_p1) + sin(lat_p1)*sin(lon - lon_ori);
+    double L = cos(lon - lon_ori);
+
+    double xx = atan(K/L);
+
+    if(L < 0)
+        xx = xx - PI;
+    double A = sin(lat_p1)*sin(lat) - cos(lat_p1)*cos(lat)*sin(lon - lon_ori);
+    double yy = atanh(A);
+
+    *x = xx * cosazimuth - yy * sinazimuth;
+    *y = xx * sinazimuth + yy * cosazimuth;
+
+    *x = xx;
+    *y = yy;
+
+    return true;
+}
+
 bool ObliqueMercator::map_forward(double lon_rad, double lat_rad, double &map_x, double &map_y)
 {
 
 
     double x, y;
     double x1, y1;
-    bool ret = this->omerfor(lon_rad, lat_rad, &x, &y);
+    bool ret;
+
+    double lon_d = rad2deg(lon_rad);
+    double lat_d = rad2deg(lat_rad);
+
+    if(ellipsoid)
+        ret = this->omerfor(lon_rad, lat_rad, &x, &y);
+    else
+        ret = this->omerforspherical(lon_rad, lat_rad, &x, &y);
 
     double scale_x, scale_y;
     double map_x1, map_y1;
@@ -883,38 +929,23 @@ bool ObliqueMercator::map_forward(double lon_rad, double lat_rad, double &map_x,
     if(ret)
     {
 
-        map_x = image_width * (x + abs(boundingbox_min_x))/map_extend_x;
-        map_y = image_height - image_height * (y + abs(boundingbox_min_y))/map_extend_y;
+//        map_x = image_width * (x + boundingbox_min_x)/map_extend_x;
+//        map_y = image_height - image_height * (y + boundingbox_min_y)/map_extend_y;
+//        if(map_x < 0 || map_x > image_width || map_y < 0 || map_y > image_height)
+//            ret = false;
+        map_x = image_width * (x - boundingbox_min_x)/map_extend_x;
+        map_y = image_height - image_height * (y - boundingbox_min_y)/map_extend_y;
         if(map_x < 0 || map_x > image_width || map_y < 0 || map_y > image_height)
             ret = false;
 
+
     }
 
-    return true;
+    return ret;
 }
 
-//bool ObliqueMercator::omerforspherical(double lon, double lat, double *x, double *y)
-///* (I) Longitude 		*/
-///* (I) Latitude 		*/
-///* (O) X projection coordinate 	*/
-///* (O) Y projection coordinate 	*/
-//{
 
 
-//    double K = tan(lat)*cos(lat_p1) + sin(lat_p1)*sin(lon - lon_p1);
-
-//    double xx = atan(K/cos(lon - lon_p1));
-//    double A = sin(lat_p1)*sin(lat) - cos(lat_p1)*cos(lat)*sin(lon - lon_p1);
-//    double yy = atanh(A);
-
-//    //*x = xx * cosazimuth - yy * sinazimuth;
-//    //*y = xx * sinazimuth + yy * cosazimuth;
-
-//    *x = xx;
-//    *y = yy;
-
-//    return true;
-//}
 
 double ObliqueMercator::tsfnz(double eccent, double phi, double sinphi)
 {

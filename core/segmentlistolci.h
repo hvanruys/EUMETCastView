@@ -39,6 +39,11 @@ public:
     long NbrOfSaturatedPixels();
     bool searchLatLon(int mapx, int mapy, float &lon, float &lat);
 
+    void static getDatasetNameFromBand(QList<bool> bandlist, QString *filename);
+    void static getDatasetNameFromColor(QList<int> colorlist, int colorindex, QString *filename);
+    bool static OLCIFileExist(QString completebasename, QString band_or_quicklook);
+    bool CheckForOLCIFiles(QList<bool> bandlist, QList<int> colorlist, QStringList &missing);
+
 
 private:
 
@@ -47,10 +52,6 @@ private:
     void CalculateLUTFull();
     void CalculateProjectionLUT();
     SatelliteList *satlist;
-
-//    QList<bool> bandlist;
-//    QList<int> colorlist;
-//    QList<bool> inverselist;
 
     int histogrammethod;
     bool normalized;

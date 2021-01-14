@@ -44,7 +44,7 @@ void DatahubAccessManager::DownloadXML(int nbrofpages, eDatahub hub)
     docout.appendChild(root);
 
     if(this->hub == HUBESA)
-        strurl = QString("https://scihub.copernicus.eu/s3/search?q=*&start=%1&rows=100").arg(0);
+        strurl = QString("https://scihub.copernicus.eu/dhus/search?q=*&start=%1&rows=100").arg(0);
     else
         strurl = QString("https://coda.eumetsat.int/search?q=*&start=%1&rows=100").arg(0);
 
@@ -75,11 +75,12 @@ void DatahubAccessManager::DownloadXML(int nbrofpages, eDatahub hub)
 // https://coda.eumetsat.int/odata/v1/Products?$select=Id&$filter=substringof('S3A_OL_1_EFR____20170309T',Name)
 // S3A_OL_1_EFR____20170212T100905_20170212T101205_20170212T120355_0179_014_179_2159_SVL_O_NR_002
 
-void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
+void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub, QString type)
 {
     QString strurl;
     QUrl url;
 
+    typetodownload = type;
     qDebug() << "start DownloadXML";
     qDebug()<<"SSL version use for build: "<<QSslSocket::sslLibraryBuildVersionString();
     qDebug()<<"SSL version use for run-time: "<<QSslSocket::sslLibraryVersionNumber();
@@ -115,37 +116,36 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
     QDomElement root = docout.createElement("Segments");
     docout.appendChild(root);
 
-    QString resourcepath = getresourcepath(this->selectdate, nbrofpagescounter - 1);
+    QString resourcepath = getresourcepath(this->selectdate, nbrofpagescounter - 1, type);
     if (resourcepath.isEmpty())
         return;
 
     if(this->hub == HUBESA)
-        strurl = "https://scihub.copernicus.eu/s3/odata/v1/" + resourcepath;
+        strurl = "https://scihub.copernicus.eu/dhus/search?q=" + resourcepath;
     else
-        strurl = "https://coda.eumetsat.int/odata/v1/" + resourcepath;
+        strurl = "https://coda.eumetsat.int/search?q=" + resourcepath;
 
     qDebug() << strurl;
 
     url = QUrl(strurl);
     // HTTP Basic authentication header value: base64(username:password)
-//    QString concatenated;
-//    if(this->hub == HUBESA)
-//        concatenated = opts.esauser + ":" + opts.esapassword;
-//    else
-//        concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
+    //    QString concatenated;
+    //    if(this->hub == HUBESA)
+    //        concatenated = opts.esauser + ":" + opts.esapassword;
+    //    else
+    //        concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
 
-//    QByteArray data = concatenated.toLocal8Bit().toBase64();
-//    QString headerData = "Basic " + data;
+    //    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    //    QString headerData = "Basic " + data;
 
-        QString concatenated;
-        concatenated = "hvanruys:china123";
-//        if(this->hub == HUBESA)
-//            concatenated = opts.esauser + ":" + opts.esapassword;
-//        else
-//            concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
+    QString concatenated;
+    if(this->hub == HUBESA)
+        concatenated = opts.esauser + ":" + opts.esapassword;
+    else
+        concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
 
-        QByteArray data = concatenated.toLocal8Bit().toBase64();
-        QString headerData = "Basic " + data;
+    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    QString headerData = "Basic " + data;
 
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", headerData.toLocal8Bit());
@@ -153,7 +153,7 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub)
     reply = networkaccessmanager.get(request);
 
 
-    qDebug() << "Errorstring = " << reply->errorString() << " errorcode = " << reply->error();
+    // qDebug() << "Errorstring = " << reply->errorString() << " errorcode = " << reply->error();
 
     if(reply->error() != QNetworkReply::NoError)
     {
@@ -193,9 +193,9 @@ void DatahubAccessManager::slotFinishedXML()
 
         QString strurl;
         if(this->hub == HUBESA)
-            strurl = "https://scihub.copernicus.eu/s3/odata/v1/" + getresourcepath(this->selectdate, nbrofpagescounter - 1);
+            strurl = "https://scihub.copernicus.eu/dhus/search?q=" + getresourcepath(this->selectdate, nbrofpagescounter - 1, typetodownload);
         else
-            strurl = "https://coda.eumetsat.int/odata/v1/" + getresourcepath(this->selectdate, nbrofpagescounter - 1);
+            strurl = "https://coda.eumetsat.int/search?q=" + getresourcepath(this->selectdate, nbrofpagescounter - 1, typetodownload);
 
         QUrl url = QUrl(strurl);
         qDebug() << strurl;
@@ -237,22 +237,22 @@ void DatahubAccessManager::slotReadDataXML()
 void DatahubAccessManager::endTransmission()
 {
     //Write to file
-     QFile file(QCoreApplication::applicationDirPath() + "/Segments.xml");
-     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
-     {
-         qDebug() << "Failed to open file for writting";
-         return;
-     }
-     else
-     {
-         QTextStream stream(&file);
-         stream << docout.toString();
-         file.close();
-         docout.clear();
-         qDebug() << "Finished";
-     }
-     m_pBuffer->clear();
-     emit XMLFinished(this->selectdate);
+    QFile file(QCoreApplication::applicationDirPath() + "/Segments.xml");
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for writting";
+        return;
+    }
+    else
+    {
+        QTextStream stream(&file);
+        stream << docout.toString();
+        file.close();
+        docout.clear();
+        qDebug() << "Finished";
+    }
+    m_pBuffer->clear();
+    emit XMLFinished(this->selectdate);
 }
 
 bool DatahubAccessManager::appendToOutDocument()
@@ -260,6 +260,7 @@ bool DatahubAccessManager::appendToOutDocument()
 
     QString errortext;
     int errorline, errorcol;
+    QString uuid, filename, contentlength, footprint;
 
     QDomDocument document;
     if(document.setContent(*m_pBuffer, false, &errortext, &errorline, &errorcol ) == false)
@@ -290,30 +291,40 @@ bool DatahubAccessManager::appendToOutDocument()
     }
 
     qDebug() << "nbr of entries " << entries.count();
-    //qDebug() << QString::fromUtf8((char *)m_pBuffer->data());
 
     for(int i = 0; i < entries.count(); i++)
     {
-        QDomElement entryelement = entries.at(i).toElement();
 
-        QDomNodeList properties = entryelement.elementsByTagName("m:properties");
-        //qDebug() << "nbr of properties " << properties.count();
-        QDomElement propertyelement = properties.at(0).toElement();
-        QDomNodeList namelist = propertyelement.elementsByTagName("d:Name");
-        //qDebug() << "nbr of name " << namelist.count();
-        QDomElement nameelement = namelist.at(0).toElement();
+        QDomNode entrynode = entries.at(i);
+        QDomNodeList childnodes = entrynode.childNodes();
 
-        QDomNodeList idlist = propertyelement.elementsByTagName("d:Id");
-        QDomElement idelement = idlist.at(0).toElement();
+        for(int j = 0; j < childnodes.count(); j++)
+        {
+            QDomNode childnode = childnodes.at(j);
+            //convert to an element
+            if(childnode.isElement())
+            {
+                QDomElement child = childnode.toElement();
+                if(child.tagName() == "str")
+                {
+                    if(child.attribute("name") == "uuid")
+                        uuid = child.text();
+                    else if(child.attribute("name") == "filename")
+                        filename = child.text();
+                    else if(child.attribute("name") == "size")
+                        contentlength = child.text();
+                    else if(child.attribute("name") == "footprint")
+                        footprint = child.text();
+                }
+            }
+        }
 
-        QDomNodeList contentlist = propertyelement.elementsByTagName("d:ContentLength");
-        QDomElement contentelement = contentlist.at(0).toElement();
-        //qDebug() << i << " " << nameelement.text() << " " << idelement.text() << " " << contentelement.text();
 
         QDomElement segment = docout.createElement("Segment");
-        segment.setAttribute("Name", nameelement.text());
-        segment.setAttribute("size", contentelement.text());
-        segment.setAttribute("uuid", idelement.text());
+        segment.setAttribute("Name", filename);
+        segment.setAttribute("size", contentlength);
+        segment.setAttribute("uuid", uuid);
+        segment.setAttribute("footprint", footprint);
         docout.firstChildElement().appendChild(segment);
 
     }
@@ -327,41 +338,26 @@ bool DatahubAccessManager::appendToOutDocument()
 
 }
 
-QString DatahubAccessManager::getresourcepath(QString strselectdate, int page)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief DatahubAccessManager::download the products
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+QString DatahubAccessManager::getresourcepath(QString strselectdate, int page, QString type)
 {
-    //QString resourcepath = QString("Products?$skip=0&$top=100&$filter=substringof('S3A_OL_1_EFR____%1',Name) or substringof('S3A_OL_1_ERR____%1',Name) or substringof('S3A_SL_1_RBT____%1',Name)").arg(strselectdate);
-    QString resourcepath = QString("Products?$skip=%1&$top=100&$filter=").arg(page * 100);
-    QString resourcepatholciefr = QString("substringof('S3A_OL_1_EFR____%1',Name)").arg(strselectdate);
-    QString resourcepatholcierr = QString("substringof('S3A_OL_1_ERR____%1',Name)").arg(strselectdate);
-    QString resourcepathslstr = QString("substringof('S3A_SL_1_RBT____%1',Name)").arg(strselectdate);
+    //S3A_OL_1_EFR____20170131
+    int start = page * 100;
+    QString resourcepath = "";
+    QString resourcepatholciefr = QString("filename:S3?_OL_1_EFR____%1*&start=%2&rows=100&orderby=beginposition asc").arg(strselectdate).arg(start);
+    QString resourcepatholcierr = QString("filename:S3?_OL_1_ERR____%1*&start=%2&rows=100&orderby=beginposition asc").arg(strselectdate).arg(start);
+    QString resourcepathslstr = QString("filename:S3?_SL_1_RBT____%1*&start=%2&rows=100&orderby=beginposition asc").arg(strselectdate).arg(start);
 
-    int countopts = 0;
-    if (opts.downloadxmlolciefr) countopts++;
-    if (opts.downloadxmlolcierr) countopts++;
-    if (opts.downloadxmlslstr) countopts++;
 
-    if(countopts == 0)
-        return "";
-    if(countopts == 1)
-    {
-        if(opts.downloadxmlolciefr)
-            resourcepath += resourcepatholciefr;
-        else if(opts.downloadxmlolcierr)
-            resourcepath += resourcepatholcierr;
-        else if(opts.downloadxmlslstr)
-            resourcepath += resourcepathslstr;
-    }
-    else if(countopts == 2)
-    {
-        if(opts.downloadxmlolciefr && opts.downloadxmlolcierr)
-            resourcepath += resourcepatholciefr + " or " + resourcepatholcierr;
-        else if(opts.downloadxmlolciefr && opts.downloadxmlslstr)
-            resourcepath += resourcepatholciefr + " or " + resourcepathslstr;
-        else if(opts.downloadxmlolcierr && opts.downloadxmlslstr)
-            resourcepath += resourcepatholcierr + " or " + resourcepathslstr;
-    }
-    else if(countopts == 3)
-        resourcepath += resourcepatholciefr + " or " + resourcepatholcierr + " or " + resourcepathslstr;
+    if(type == "EFR")
+        resourcepath = resourcepatholciefr;
+    else if(type == "ERR")
+        resourcepath = resourcepatholcierr;
+    else if(type == "SLSTR")
+        resourcepath = resourcepathslstr;
+
     return resourcepath;
 
 }
@@ -385,32 +381,41 @@ QString DatahubAccessManager::extractFootprint(QString footprint)
         return("");
 }
 
-void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int index, eDatahub hub, int whichdownload, bool quicklook)
+void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int index, eDatahub hub, int whichdownload)
 {
 
     isAborted = false;
     isProductBusy = true;
     this->whichdownload = whichdownload;
     this->downloadindex = index;
-    this->quicklook = quicklook;
 
-    this->filename = prodlist.at(index).productname;
+    this->completebasename = prodlist.at(index).completebasename;
+    this->uuid = prodlist.at(index).uuid;
+    this->band_or_quicklook = prodlist.at(index).band_or_quicklook;
     QString strurl;
+
 
     if(hub == HUBESA)
     {
-        if(quicklook)
-            strurl = QString("https://scihub.copernicus.eu/s3/odata/v1/Products('%1')/Products('Quicklook')/$value").arg(prodlist.at(index).uuid);
+        if(band_or_quicklook == "quicklook")
+            strurl = QString("https://scihub.copernicus.eu/dhus/odata/v1/Products('%1')/Products('Quicklook')/$value").arg(uuid);
+        else if(band_or_quicklook == "complete")
+            strurl = QString("https://scihub.copernicus.eu/dhus/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
         else
-            strurl = QString("https://scihub.copernicus.eu/s3/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
+            strurl = QString("https://scihub.copernicus.eu/dhus/odata/v1/Products('%1')/Nodes('%2')/Nodes('%3')/$value")
+                    .arg(uuid).arg(completebasename).arg(band_or_quicklook);
     }
     else
     {
-        if(quicklook)
-            strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/Products('Quicklook')/$value").arg(prodlist.at(index).uuid);
-        else
+        if(band_or_quicklook == "quicklook")
+            strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/Products('Quicklook')/$value").arg(uuid);
+        else if(band_or_quicklook == "complete")
             strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
+        else
+            strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/Nodes('%2')/Nodes('%3')/$value")
+                    .arg(uuid).arg(completebasename).arg(band_or_quicklook);
     }
+
     qDebug() << strurl;
 
     QUrl url(strurl);
@@ -460,43 +465,60 @@ void DatahubAccessManager::slotFinishedProduct()
 {
     qDebug() << "AccessManager::slotFinishedProduct() buffer = " << m_pBuffer->count();
 
-    disconnect(reply,SIGNAL(readyRead()),this,SLOT(slotReadDataXML()));
-    disconnect(reply,SIGNAL(finished()), this,SLOT(slotFinishedXML()));
+    disconnect(reply,SIGNAL(readyRead()),this,SLOT(slotReadDataProduct()));
+    disconnect(reply,SIGNAL(finished()), this,SLOT(slotFinishedProduct()));
     reply->deleteLater();
     reply = NULL;
 
     if(!isAborted)
     {
 
-        QString dirpath;
-        if(opts.productdirectory.isEmpty())
-            dirpath = QCoreApplication::applicationDirPath() + "/" + filename + (quicklook ? ".jpg" : ".zip");
-        else
-            dirpath = opts.productdirectory + "/" + filename + (quicklook ? ".jpg" : ".zip");
-
-        if(quicklook)
+        QString aboluteproductpath;
+        QString absolutepath;
+        QString filename;
+        QDir dir = TestForDirectory();
+        absolutepath =dir.absolutePath();
+        if(band_or_quicklook == "quicklook")
         {
-            QImage img = QImage::fromData(*m_pBuffer,"JPG");
-            img.save(opts.productdirectory + "/" + "myimage.jpg");
+            filename = completebasename + ".jpg";
+            aboluteproductpath = dir.absolutePath() + "/" + completebasename + ".jpg";
+        }
+        else if(band_or_quicklook == "complete")
+        {
+            filename = completebasename + ".zip";
+            aboluteproductpath = dir.absolutePath() + "/" + completebasename + ".zip";
+        }
+        else
+        {
+            filename = completebasename;
+            aboluteproductpath = dir.absolutePath() + "/" + band_or_quicklook;
         }
 
-        QFile file(dirpath);
+        //        if(quicklook)
+        //        {
+        //            QImage img = QImage::fromData(*m_pBuffer,"JPG");
+        //            img.save(opts.productdirectory + "/quicklook/" + filename + ".jpg");
+        //        }
+
+        QFile file(aboluteproductpath);
 
         if(file.open(QIODevice::WriteOnly))
         {
             file.write(*m_pBuffer);
             file.close();
-            qDebug() << "File has been saved to " << dirpath;
+
+            qDebug() << "File has been saved to " << aboluteproductpath;
         }
         else
         {
             qDebug() << "Error saving file!";
         }
+        emit productFinished(whichdownload, downloadindex, aboluteproductpath, absolutepath, filename);
+
     }
 
     m_pBuffer->clear();
     isProductBusy = false;
-    emit productFinished(whichdownload, downloadindex, quicklook);
 
 }
 
@@ -511,3 +533,84 @@ DatahubAccessManager::~DatahubAccessManager()
     delete m_pBuffer;
 }
 
+//void DatahubAccessManager::TestForDirectory(QString dirpath)
+//{
+//    QDir thedir(dirpath);
+//    if(!thedir.exists())
+//    {
+//        thedir.mkdir(dirpath);
+//    }
+
+//}
+
+QDir DatahubAccessManager::TestForDirectory()
+{
+    // S3A_OL_1_EFR____20201205T102330_20201205T102630_20201205T121305_0179_066_008_2340_LN1_O_NR_002.SEN3
+    // S3A_OL_1_ERR____20201210T094858_20201210T103307_20201210T115918_2649_066_079______LN1_O_NR_002.SEN3
+    // 01234567890123456789012345678901234567890123456789012345678901234567890123456789
+
+    bool dirok;
+    QDir dir(opts.productdirectory);
+    QString returndirstr;
+
+    QString fileyear = completebasename.mid(16, 4);
+    QString filemonth = completebasename.mid(20, 2);
+    QString fileday = completebasename.mid(22,2);
+
+    QDir dirdateyear(dir.absolutePath() + "/" + fileyear);
+    QDir dirdatemonth(dir.absolutePath() + "/" + fileyear + "/" + filemonth);
+    QDir dirdateday(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday);
+    QDir dirdateproduct(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename);
+
+    dirok = false;
+    if (!dirdateyear.exists())
+    {
+        returndirstr = dir.absolutePath() + "/" + fileyear;
+        dirok = dir.mkdir(returndirstr);
+        qDebug() << returndirstr;
+    }
+    if (!dirdatemonth.exists())
+    {
+        returndirstr = dir.absolutePath() + "/" + fileyear + "/" + filemonth;
+        dirok = dir.mkdir(returndirstr);
+        qDebug() << returndirstr;
+    }
+    if (!dirdateday.exists())
+    {
+        returndirstr = dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday;
+        dirok = dir.mkdir(returndirstr);
+        qDebug() << returndirstr;
+    }
+
+    if (band_or_quicklook == "quicklook")
+    {
+        if (!dirdateproduct.exists())
+        {
+            returndirstr = dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename;
+            dirok = dir.mkdir(returndirstr);
+            qDebug() << returndirstr;
+        }
+        returndirstr = dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename + "/quicklook";
+        dirok = dir.mkdir(returndirstr);
+        qDebug() << returndirstr;
+    }
+    else if(band_or_quicklook == "complete")
+    {
+        returndirstr = dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday;
+        qDebug() << returndirstr;
+    }
+    else
+    {
+        if (!dirdateproduct.exists())
+        {
+            returndirstr = dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename;
+            dirok = dir.mkdir(returndirstr);
+            qDebug() << returndirstr;
+        }
+
+        returndirstr = dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename;
+    }
+
+    return QDir(returndirstr);
+
+}

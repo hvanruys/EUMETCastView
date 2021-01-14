@@ -46,6 +46,8 @@ public:
     QScopedArrayPointer<int> longitude;
 
 
+
+
 private:
     void RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row );
     void getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename, int *saturationindex);
@@ -53,7 +55,7 @@ private:
 
     void ComposeProjection(eProjections proj, int histogrammethod, bool normalized);
     void MapPixel(int lines, int views, double map_x, double map_y, bool iscolor, int histogrammethod, bool normalized);
-    float getSolarZenith(int *tieSZA, int navpoint, int intpoint, int nbrLine);
+    float getTieValue(QScopedArrayPointer<int> *tiefile, int navpoint, int intpoint, int nbrLine);
     bool invertthissegment[3];
     int copy_data(struct archive *ar, struct archive *aw);
 

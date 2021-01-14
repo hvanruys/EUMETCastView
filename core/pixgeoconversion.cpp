@@ -574,8 +574,7 @@ int pixgeoConversion::pixcoord2geocoord(double sub_lon_deg, int column, int row,
  *************************************************************/
 
 int pixgeoConversion::geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, int coff, int loff,
-              double cfac, double lfac,
-              int *column, int *row)
+              double cfac, double lfac, int *column, int *row)
 {
   int ccc=0, lll=0;
 

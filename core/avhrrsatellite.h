@@ -57,6 +57,8 @@ class AVHRRSatellite  : public QObject
 public:
     AVHRRSatellite(QObject *parent = 0, SatelliteList *lst = 0);
     void ReadDirectories(QDate seldate, int hoursbefore);
+    void ReadDirectoriesDatahub(QDate seldate);
+
     void AddSegmentsToList(QFileInfoList fileinfolist);
     SegmentListGeostationary *getActiveSegmentList();
     bool SelectedAVHRRSegments();
@@ -116,7 +118,7 @@ public:
     bool getShowAllSegments() { return showallsegments; }
     void setShowAllSegments(bool allseg) { showallsegments = allseg; }
 
-    void LoadXMLfromDatahub();
+    void LoadXMLfromDatahub(QDate selecteddate, QString type);
     void ReadXMLfiles();
     void setXMLDate(QDate date) { xmlselectdate = date; }
     void setAbsolutePathFromMap(int geoindex, QString strdate);

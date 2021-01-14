@@ -98,8 +98,8 @@ public:
     int DecompressSegmentToTemp();
     int copy_data(struct archive *ar, struct archive *aw);
     void setHistogrammethod(int histogrammethod) { this->histogrammethod = histogrammethod; }
-
-
+    QList<QVector<QGeodetic>> getFootprintListptr() { return listvect; }
+    int pnpolyinsegment(int testx, int testy) ;
     bool segmentok;   // check if segment is read
     bool segmentselected; // selected for display
     bool segmentshow;     // show the segment in the map
@@ -250,7 +250,7 @@ protected:
 
     int histogrammethod;
 
-
+    QList<QVector<QGeodetic>> listvect;
 
 signals:
     //void segmentimagecomposed();
