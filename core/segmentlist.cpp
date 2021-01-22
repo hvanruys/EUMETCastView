@@ -501,23 +501,27 @@ bool SegmentList::TestForSegmentGLXML(int x, int realy, float distance, const QM
     {
         if(showallsegments ? true : (*segit)->segmentshow)
         {
-            qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
-//            qDebug() << QString("angle = %1").arg(angle * 180.0 / PI);
-
-            if (angle < PI/2 + (asin(1/distance)))
+            for(int i = 0; i < (*segit)->winvectorfirst.length()-1; i++)
             {
-                int result = (*segit)->pnpolyinsegment(x, realy);
 
-                if (result)
+                qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
+                //            qDebug() << QString("angle = %1").arg(angle * 180.0 / PI);
+
+                if (angle < PI/2 + (asin(1/distance)))
                 {
-                    if((*segit)->ToggleSelected())
+                    int result = (*segit)->pnpolyinsegment(x, realy);
+
+                    if (result)
                     {
-                        qDebug() << QString("segment selected is = %1").arg((*segit)->fileInfo.fileName());
-                        isselected = true;
-                        segmentname = (*segit)->fileInfo.fileName();
-                        qApp->processEvents();
+                        if((*segit)->ToggleSelected())
+                        {
+                            qDebug() << QString("segment selected is = %1").arg((*segit)->fileInfo.fileName());
+                            isselected = true;
+                            segmentname = (*segit)->fileInfo.fileName();
+                            qApp->processEvents();
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -583,6 +587,46 @@ void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4
                 painter->drawLine((int)winvec2.x(), (painter->device())->height() - (int)winvec2.y(), (int)winvecend4.x(), (painter->device())->height() - (int)winvecend4.y() );
 
             }
+        }
+        ++segit;
+    }
+}
+
+void SegmentList::ShowWinvecXML(QPainter *painter, float distance, const QMatrix4x4 modelview)
+{
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+    QVector2D winvec1, winvec2, winvecend1, winvecend2, winvecend3, winvecend4;
+
+    QVector3D vecZ = modelview.row(2).toVector3D();
+
+    //    static GLfloat mat[16];
+    //    const float *data = modelview.constData();
+    //    for (int index = 0; index < 16; ++index)
+    //         mat[index] = data[index];
+
+    //modelview.inverted( &ok );
+
+    while ( segit != segmentlist.end() )
+    {
+        if( (*segit)->segmentshow)
+        {
+
+            qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
+
+//            if (angle < PI/2 + (asin(1/distance)))
+//            {
+            for(int i = 0; i < (*segit)->winvectorfirst.count() - 1; i++)
+            {
+                winvec1.setX((*segit)->winvectorfirst.at(i).x());
+                winvec1.setY((*segit)->winvectorfirst.at(i).y());
+                winvec2.setX((*segit)->winvectorfirst.at(i+1).x());
+                winvec2.setY((*segit)->winvectorfirst.at(i+1).y());
+
+                painter->drawLine((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y(), (int)winvec2.x(), (painter->device())->height() - (int)winvec2.y() );
+            }
+//            }
+
         }
         ++segit;
     }

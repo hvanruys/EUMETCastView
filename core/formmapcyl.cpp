@@ -1285,7 +1285,6 @@ void FormMapCyl::on_btnDownloadQuicklook_clicked()
     if(!IsProductDirFilledIn())
         return;
 
-
     QList<ProductList> newtodownloadlist;
 
     if(todownloadlist.count() ==  0)
@@ -1302,7 +1301,7 @@ void FormMapCyl::on_btnDownloadQuicklook_clicked()
             newtoadd.uuid = todownloadlist.at(i).uuid;
             newtoadd.status = "waiting";
             if(newtoadd.completebasename.mid(9, 3) == "RBT")
-                newtoadd.band_or_quicklook = "geodetic_ao.nc";
+                newtoadd.band_or_quicklook = "geodetic_an.nc";
             else
                 newtoadd.band_or_quicklook = "tie_geo_coordinates.nc";
 
@@ -1325,6 +1324,9 @@ void FormMapCyl::on_btnDownloadQuicklook_clicked()
 void FormMapCyl::on_btnDownloadPartialProduct_clicked()
 {
     if(!IsProductDirFilledIn())
+        return;
+
+    if(ui->btnSLSTRDatahub->isChecked())
         return;
 
     QList<bool> bandlist = formtoolbox->getOLCIBandList();
@@ -1413,7 +1415,7 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
     int retval;
     int tiegeofileid;
     int tiecolumnsid, tierowsid;
-    size_t tiecolumnslength, tierowslength;
+    size_t tiecolumnslength, tierowslength = 0;
     int *longitude_tie;
     int *latitude_tie;
 
@@ -1424,8 +1426,8 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
     int *longitude_img;
     int *latitude_img;
 
-    if(completebasename.mid(9, 3) == "RBT")
-        return;
+    //    if(completebasename.mid(9, 3) == "RBT")
+    //        return;
 
     QDir dir(opts.productdirectory);
 
@@ -1438,33 +1440,90 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
     QString geopath(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename);
 
     if(completebasename.mid(9, 3) == "RBT")
-        tiegeopath.append("/geodetic_ao.nc");
+        geopath.append("/geodetic_an.nc");
     else
     {
         tiegeopath.append("/tie_geo_coordinates.nc");
         geopath.append("/geo_coordinates.nc");
     }
 
-    qDebug() << "quicklookpath = " << QFile::exists(quicklookpath);
-    qDebug() << "tiegeopath = " << QFile::exists(tiegeopath);
-    qDebug() << "geopath = " << QFile::exists(geopath);
+    bool bexistquicklookpath = QFileInfo::exists(quicklookpath) && QFileInfo(quicklookpath).isFile();
+    bool bexisttiegeopath = QFileInfo::exists(tiegeopath) && QFileInfo(tiegeopath).isFile();
+    bool bexistgeopath = QFileInfo::exists(geopath) && QFileInfo(geopath).isFile();
 
-    if(!(QFile::exists(quicklookpath) && (QFile::exists(tiegeopath) || QFile::exists(geopath))))
+    qDebug() << "quicklookpath exist = " << bexistquicklookpath << " " << quicklookpath;
+    qDebug() << "tiegeopath exist = " << bexisttiegeopath << " " << tiegeopath;
+    qDebug() << "geopath exist = " << bexistgeopath << " " << geopath;
+
+    if(!(bexistquicklookpath && (bexisttiegeopath || bexistgeopath)))
     {
         return;
     }
 
+    bool bslstrfile = false;
+    bool bolcifile = false;
+
     QImage img(quicklookpath);
     if(completebasename.mid(9, 3) == "EFR")
+    {
         columnslength = 4865; // (4090, 4865)
+        bslstrfile = false;
+        bolcifile = true;
+    }
     else if(completebasename.mid(9, 3) == "ERR")
+    {
         columnslength = 1217; // (14997, 1217)
+        bslstrfile = false;
+        bolcifile = true;
+    }
     else if(completebasename.mid(9, 3) == "RBT")
+    {
         columnslength = 2400; // (2400, 1800)
+        bslstrfile = true;
+        bolcifile = false;
+    }
     else
         columnslength = 0;
 
-    if(QFile::exists(geopath))
+    if(bexistgeopath && bslstrfile)
+    {
+        QByteArray arraygeocoordinates = geopath.toUtf8();
+        const char *pgeocoordinatesfile = arraygeocoordinates.constData();
+
+        retval = nc_open(pgeocoordinatesfile, NC_NOWRITE, &geofileid);
+        if(retval != NC_NOERR) qDebug() << "error opening geo_coordinates";
+
+        retval = nc_inq_dimid(geofileid, "columns", &columnsid);
+        if(retval != NC_NOERR) qDebug() << "error reading columns id";
+        retval = nc_inq_dimlen(geofileid, columnsid, &columnslength);
+        if(retval != NC_NOERR) qDebug() << "error reading columns length";
+
+        retval = nc_inq_dimid(geofileid, "rows", &rowsid);
+        if(retval != NC_NOERR) qDebug() << "error reading rows id";
+        retval = nc_inq_dimlen(geofileid, rowsid, &rowslength); // 4091 or 14997
+        if(retval != NC_NOERR) qDebug() << "error reading tie_rows length";
+
+        longitude_img = new int[rowslength*columnslength];
+        latitude_img = new int[rowslength*columnslength];
+
+        tierowslength = rowslength;
+        int longitudeid, latitudeid;
+
+        retval = nc_inq_varid(geofileid, "longitude_an", &longitudeid);
+        if (retval != NC_NOERR) qDebug() << "error reading longitude_an id";
+        retval = nc_get_var_int(geofileid, longitudeid, longitude_img);
+        if (retval != NC_NOERR) qDebug() << "error reading longitude_an values";
+
+        retval = nc_inq_varid(geofileid, "latitude_an", &latitudeid);
+        if (retval != NC_NOERR) qDebug() << "error reading latitude_an id";
+        retval = nc_get_var_int(geofileid, latitudeid, latitude_img);
+        if (retval != NC_NOERR) qDebug() << "error reading latitude_an values";
+
+        retval = nc_close(geofileid);
+        if (retval != NC_NOERR) qDebug() << "error closing geo_coordinates";
+
+    }
+    else if(bexistgeopath && bolcifile)
     {
         QByteArray arraygeocoordinates = geopath.toUtf8();
         const char *pgeocoordinatesfile = arraygeocoordinates.constData();
@@ -1505,7 +1564,7 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
 
 
     }
-    else
+    else if(bexisttiegeopath && bolcifile)
     {
         QByteArray arraytiegeocoordinates = tiegeopath.toUtf8();
         const char *ptiegeocoordinatesfile = arraytiegeocoordinates.constData();
@@ -1550,8 +1609,6 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
         int factor = (columnslength-1)/(tiecolumnslength-1);
 
 
-
-
         //    Debug Debug: "rowslength = 4091 columnslength : 4865 earth_views_per_scanline = 4865"
         //    Debug Debug: "tierowslength = 4091 tiecolumnslength : 77 NbrOfLines = 4091"
         //    Debug Debug: "rowslength * columnslength = 19902715 factor = 64 "
@@ -1559,15 +1616,29 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
         //    // Linear interpolation
         for(int j=0; j < tierowslength; j++)
         {
+            val1 = 0;
+            val2 = 0;
             for(int i=0; i < tiecolumnslength-1; i++) // tiecolumnslength = 77
             {
+
                 val1 = longitude_tie[j*tiecolumnslength + i];
                 val2 = longitude_tie[j*tiecolumnslength + i+1];
-                diff = (val2 - val1)/factor;
+                if(val1 < -179000000 && val2 > 179000000)
+                    diff = (360000000 - val2 + val1)/factor;
+                else if( val1 > 179000000 && val2 < -179000000)
+                    diff = (360000000 - val1 + val2)/factor;
+                else
+                    diff = (val2 - val1)/factor;
 
                 for(int k=0; k < factor; k++)
                 {
-                    longitude_img[j*columnslength + i*factor + k] = (val1 + diff*k);
+                    int limg = val1 + diff*k;
+                    if(limg < -180000000)
+                        limg = 360000000 + limg;
+                    else if(limg > 180000000)
+                        limg = 360000000 - limg;
+
+                    longitude_img[j*columnslength + i*factor + k] = limg;
                 }
             }
             longitude_img[j*columnslength + (tiecolumnslength - 1)*factor] = val2;
@@ -1575,6 +1646,8 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
 
         for(int j=0; j < tierowslength; j++)
         {
+            val1 = 0;
+            val2 = 0;
             for(int i=0; i < tiecolumnslength-1; i++) // tiecolumnslength = 77
             {
                 val1 = latitude_tie[j*tiecolumnslength + i];
@@ -1583,17 +1656,26 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
 
                 for(int k=0; k < factor; k++)
                 {
-                    latitude_img[j*columnslength + i*factor + k] = (val1 + diff*k);
+                    int limg = val1 + diff*k;
+                    if(limg < -90000000)
+                        limg = -(180000000 + limg);
+                    else if(limg > 90000000)
+                        limg = 180000000 - limg;
+
+                    latitude_img[j*columnslength + i*factor + k] = limg;
                 }
             }
             latitude_img[j*columnslength + (tiecolumnslength - 1)*factor] = val2;
         }
+
         delete [] longitude_tie;
         delete [] latitude_tie;
+
     }
 
 
     QImage imgscaled = img.scaled(columnslength, tierowslength);
+    //imgscaled.save("mytest.jpg");
     QPainter fb_painter(imageptrs->pmOut);
 
     int devwidth = (fb_painter.device())->width();
@@ -1615,6 +1697,7 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
 
     rgb.setRgb(0, 255, 0);
 
+    QString segtype = completebasename.mid(9, 3);
     for(int yimg = 0; yimg < imgscaled.height(); yimg+=4)
     {
 
@@ -1625,10 +1708,27 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
             fflat = (float)latitude_img[yimg*columnslength + ximg]/1000000.0;
             flon = fflon * PI/180.0;
             flat = fflat * PI/180.0;
-            sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );
-            rgb.setRgb(qRed(row[ximg]), qGreen(row[ximg]), qBlue(row[ximg]));
-            fb_painter.setPen(rgb);
-            fb_painter.drawPoint(posx , posy );
+            if(segtype == "ERR" && ximg > 40 && ximg < imgscaled.width() - 8)
+            {
+                sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );
+                rgb.setRgb(qRed(row[ximg]), qGreen(row[ximg]), qBlue(row[ximg]));
+                fb_painter.setPen(rgb);
+                fb_painter.drawPoint(posx , posy );
+            }
+            else if(segtype == "RBT" && ximg > 105 && ximg < imgscaled.width() - 40)
+            {
+                sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );
+                rgb.setRgb(qRed(row[ximg]), qGreen(row[ximg]), qBlue(row[ximg]));
+                fb_painter.setPen(rgb);
+                fb_painter.drawPoint(posx , posy );
+            }
+            else if(segtype == "EFR" && ximg > 157 && ximg < imgscaled.width() - 43)
+            {
+                sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );
+                rgb.setRgb(qRed(row[ximg]), qGreen(row[ximg]), qBlue(row[ximg]));
+                fb_painter.setPen(rgb);
+                fb_painter.drawPoint(posx , posy );
+            }
 
         }
 
@@ -1640,6 +1740,67 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
     delete [] latitude_img;
 
     opts.texture_changed = true;
+
+}
+
+#define FILE_NAME "mynetcdf.nc"
+#define ERRCODE 2
+#define ERR(e) {printf("Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
+
+bool FormMapCyl::WriteNetCDFFile(int *longitude_img, int *latitude_img, int tierowslength, int columnslength)
+{
+    int ncid, x_dimid, y_dimid, varid1, varid2;
+    int retval;
+    int dimids[2];
+    //int data_out[tierowslength][columnslength];
+
+    qDebug() << "Writing NetCDF file tierowslength = " << tierowslength << " columnslength = " << columnslength;
+
+    /* Create some pretend data. */
+//    for (int x = 0; x < tierowslength; x++)
+//       for (int y = 0; y < columnslength; y++)
+//       {
+//          data_out[x][y] = x * columnslength + y;
+//       }
+
+//    int longitude[columnslength][tierowslength];
+
+//    for(int j = 0; j < tierowslength; j++)
+//    {
+//        for(int i = 0; i < columnslength; i++)
+//        {
+//            longitude[i][j] = longitude_img[j*columnslength + j];
+//        }
+//    }
+
+    if ((retval = nc_create(FILE_NAME, NC_NETCDF4|NC_CLOBBER, &ncid)))
+        ERR(retval);
+
+    /* Define the dimensions in the root group. Dimensions are visible
+     * in all subgroups. */
+    if ((retval = nc_def_dim(ncid, "x", tierowslength, &x_dimid)))
+        ERR(retval);
+    if ((retval = nc_def_dim(ncid, "y", columnslength, &y_dimid)))
+        ERR(retval);
+
+    /* The dimids passes the IDs of the dimensions of the variable. */
+    dimids[0] = x_dimid;
+    dimids[1] = y_dimid;
+
+    /* Define an unsigned 64bit integer variable in grp1, using dimensions
+     * in the root group. */
+    if ((retval = nc_def_var(ncid, "longitude_img", NC_INT, 2, dimids, &varid1)))
+        ERR(retval);
+
+    /* Write unsigned long long data to the file. For netCDF-4 files,
+     * nc_enddef will be called automatically. */
+    if ((retval = nc_put_var_int(ncid, varid1, longitude_img)))
+        ERR(retval);
+
+    /* Close the file. */
+    if ((retval = nc_close(ncid)))
+        ERR(retval);
+
 
 }
 
@@ -1660,7 +1821,7 @@ bool FormMapCyl::QuicklookExist(QString completebasename)
     QString geostr(dir.absolutePath() + "/" + fileyear + "/" + filemonth + "/" + fileday + "/" + completebasename);
 
     if(completebasename.mid(9, 3) == "RBT")
-        geostr.append("/geodetic_ao.nc");
+        geostr.append("/geodetic_an.nc");
     else
         geostr.append("/tie_geo_coordinates.nc");
 
@@ -1738,6 +1899,12 @@ void FormMapCyl::productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
 
 void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, QString absoluteproductpath, QString absolutepath, QString filename)
 {
+
+    qDebug() << "productFileDownloaded absoluteproductpath = " << absoluteproductpath;
+    qDebug() << "productFileDownloaded absolutepath = " << absolutepath;
+    qDebug() << "productFileDownloaded filename = " << filename;
+    qDebug() << "todownloadlist[downloadindex].band_or_quicklook = " << todownloadlist[downloadindex].band_or_quicklook;
+
     if(whichdownload == 0)
     {
         qDebug() << "FormMapCyl::productFileDownloaded whichdownload = 0";
@@ -1763,6 +1930,16 @@ void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, QSt
     qDebug() << "hubmanagerprod1.isProductDownloadBusy() = " << hubmanagerprod1.isProductDownloadBusy();
     qDebug() << "hubmanagerprod2.isProductDownloadBusy() = " << hubmanagerprod2.isProductDownloadBusy();
 
+    if(todownloadlist[downloadindex].band_or_quicklook == "complete")
+    {
+        qDebug() << "Start extraction to " << absolutepath;
+        QString ArchivePath = absoluteproductpath;
+        QString DestinationPath = absolutepath;
+        ExtractSegment(ArchivePath, DestinationPath);
+        qDebug() << "Removing " << ArchivePath;
+        QFile::remove(ArchivePath);
+    }
+
     if((!hubmanagerprod1.isProductDownloadBusy()) && (!hubmanagerprod2.isProductDownloadBusy()))
     {
         ui->btnDownloadCompleteProduct->setEnabled(true);
@@ -1770,6 +1947,7 @@ void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, QSt
         ui->btnDownloadQuicklook->setEnabled(true);
         ui->btnCancelDownloadProduct->setEnabled(true);
     }
+
 
     bool alldownloaded = true;
     for(int i = 0; i < todownloadlist.count() ; i++)
@@ -1799,6 +1977,108 @@ void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, QSt
     SearchForFreeManager();
 
 }
+
+int FormMapCyl::ExtractSegment(QString ArchivePath, QString DestinationPath)
+{
+
+    int flags = ARCHIVE_EXTRACT_TIME;
+    struct archive *a;
+    struct archive *ext;
+    struct archive_entry *entry;
+    int r;
+
+
+    qDebug() << "Start ExtractSegment for absolutefilepath " + ArchivePath;
+
+    QByteArray array = ArchivePath.toUtf8();
+    const char* p = array.constData();
+
+    a = archive_read_new();
+    ext = archive_write_disk_new();
+    //archive_read_support_filter_all(a);
+    archive_read_support_format_all(a);
+
+    archive_write_disk_set_options(ext, flags);
+
+    r = archive_read_open_filename(a, p, 20480);
+    if (r != ARCHIVE_OK)
+    {
+        qDebug() << "Input file " << ArchivePath << " not found ....";
+        return(1);
+    }
+
+//    while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
+//    {
+//      qDebug() << QString("%1").arg(archive_entry_pathname(entry));
+//      archive_read_data_skip(a);  // Note 2
+//    }
+
+    int nbrblocks = 1;
+
+    for (;;)
+    {
+        r = archive_read_next_header(a, &entry);
+        if (r == ARCHIVE_EOF)
+            break;
+        if (r != ARCHIVE_OK)
+            qDebug() << "archive_read_next_header() " << QString(archive_error_string(a));
+        const char* currentFile = archive_entry_pathname(entry);
+        QString strcurrentFile = QString::fromUtf8((char*)currentFile);
+        QString fullOutputPath = DestinationPath + "/" + strcurrentFile;
+        QByteArray fullarray = fullOutputPath.toUtf8();
+        const char* pfullarray = fullarray.constData();
+
+        archive_entry_set_pathname(entry, pfullarray);
+        r = archive_write_header(ext, entry);
+        if (r != ARCHIVE_OK)
+            qDebug() << "archive_write_header() " << QString(archive_error_string(ext));
+        else
+        {
+            qDebug() << QString("Start copy_data ....%1").arg(nbrblocks);
+
+            copy_data(a, ext);
+            r = archive_write_finish_entry(ext);
+            if (r != ARCHIVE_OK)
+                qDebug() << "archive_write_finish_entry() " << QString(archive_error_string(ext));
+            nbrblocks++;
+        }
+    }
+
+    archive_read_close(a);
+    archive_read_free(a);
+
+    archive_write_close(ext);
+    archive_write_free(ext);
+
+    return(0);
+}
+
+int FormMapCyl::copy_data(struct archive *ar, struct archive *aw)
+{
+    int r;
+    const void *buff;
+    size_t size;
+#if ARCHIVE_VERSION_NUMBER >= 3000000
+    int64_t offset;
+#else
+    off_t offset;
+#endif
+
+
+    for (;;) {
+        r = archive_read_data_block(ar, &buff, &size, &offset);
+        if (r == ARCHIVE_EOF)
+            return (ARCHIVE_OK);
+        if (r != ARCHIVE_OK)
+            return (r);
+        r = archive_write_data_block(aw, buff, size, offset);
+        if (r != ARCHIVE_OK) {
+            qDebug() << "archive_write_data_block() " << QString(archive_error_string(aw));
+            return (r);
+        }
+    }
+}
+
 
 
 void FormMapCyl::createSelectedSegmentToDownloadList()
@@ -1872,6 +2152,7 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
 {
     bool ok;
 
+    QBrush background(Qt::green);
     double totalsize = 0;
     ui->twSelectedProducts->clearContents();
     ui->twSelectedProducts->setRowCount(0);
@@ -1883,28 +2164,37 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
     {
         ui->twSelectedProducts->insertRow(i);
 
+        if(todownloadlist.at(i).status == "finished")
+            background.setColor(Qt::green);
+        else
+            background.setColor(Qt::white);
         QTableWidgetItem *item0 = new QTableWidgetItem(todownloadlist.at(i).status);
+        item0->setBackground(background);
         ui->twSelectedProducts->setItem(i, 0, item0);
 
         QTableWidgetItem *item1 = new QTableWidgetItem(todownloadlist.at(i).band_or_quicklook);  // complete or quiclook or band
+        item1->setBackground(background);
         ui->twSelectedProducts->setItem(i, 1, item1);
 
         QString year = todownloadlist.at(i).completebasename.mid(16, 4);
         QString month = todownloadlist.at(i).completebasename.mid(20, 2);
         QString day = todownloadlist.at(i).completebasename.mid(22, 2);
         QTableWidgetItem *item2 = new QTableWidgetItem(year + "-" + month + "-" + day);
+        item2->setBackground(background);
         ui->twSelectedProducts->setItem(i, 2, item2);
 
         QString hour = todownloadlist.at(i).completebasename.mid(25, 2);
         QString min = todownloadlist.at(i).completebasename.mid(27, 2);
         QString sec = todownloadlist.at(i).completebasename.mid(29, 2);
         QTableWidgetItem *item3 = new QTableWidgetItem(hour + ":" + min + ":" + sec);
+        item3->setBackground(background);
         ui->twSelectedProducts->setItem(i, 3, item3);
 
         hour = todownloadlist.at(i).completebasename.mid(41, 2);
         min = todownloadlist.at(i).completebasename.mid(43, 2);
         sec = todownloadlist.at(i).completebasename.mid(45, 2);
         QTableWidgetItem *item4 = new QTableWidgetItem(hour + ":" + min + ":" + sec);
+        item4->setBackground(background);
         ui->twSelectedProducts->setItem(i, 4, item4);
 
         int strsizelength = todownloadlist.at(i).size.length();
@@ -1914,6 +2204,7 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
             totalsize += lsize;
 
         QTableWidgetItem *item5 = new QTableWidgetItem(todownloadlist.at(i).size);
+        item5->setBackground(background);
         ui->twSelectedProducts->setItem(i, 5, item5);
 
         ui->twSelectedProducts->setColumnWidth(0, 60); // status
@@ -1925,7 +2216,7 @@ void FormMapCyl::showSelectedSegmentToDownloadList()
     }
 
     //    float ftotalsize = (float)totalsize/1000000;
-    ui->lblTotalDownloadSize->setText(QString("Total size to download = %1 Mb").arg(totalsize, 0, 'f', 2));
+    ui->lblTotalDownloadSize->setText(QString("Total size complete product = %1 Mb").arg(totalsize, 0, 'f', 2));
 
     ui->twSelectedProducts->resizeRowsToContents();
     ui->twSelectedProducts->show();
@@ -1938,12 +2229,14 @@ void FormMapCyl::slotShowXMLProgress(QString str, int pages, bool downloadinprog
     ui->lblTotalAvailable->setText(str);
     if(downloadinprogress)
     {
+        ui->btnDownloadQuicklook->setEnabled(false);
         ui->btnDownloadCompleteProduct->setEnabled(false);
         ui->btnDownloadPartialProduct->setEnabled(false);
-        ui->btnCancelDownloadProduct->setEnabled(false);
+        ui->btnCancelDownloadProduct->setEnabled(true);
     }
     else
     {
+        ui->btnDownloadQuicklook->setEnabled(true);
         ui->btnDownloadCompleteProduct->setEnabled(true);
         ui->btnDownloadPartialProduct->setEnabled(true);
         ui->btnCancelDownloadProduct->setEnabled(true);

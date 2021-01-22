@@ -257,6 +257,7 @@ void SegmentSLSTR::ComposeSegmentImage(int histogrammethod)
     }
 }
 
+
 Segment *SegmentSLSTR::ReadSegmentInMemory()
 {
     QString radiancename1;
@@ -302,6 +303,9 @@ Segment *SegmentSLSTR::ReadSegmentInMemory()
         getDatasetNameFromColor(slstrview, 1, &radiancename2, &radiancevar2, &geoname, &geolat, &geolon);
         getDatasetNameFromColor(slstrview, 2, &radiancename3, &radiancevar3, &geoname, &geolat, &geolon);
 
+        if((QFile::exists(radiancename1) && QFile::exists(radiancename2) && QFile::exists(radiancename3) && QFile::exists(geoname)) == false)
+            return this;
+
         qDebug() << "getDatasetNameFromBand fname1 = " << radiancename1 << " var1 = " << radiancevar1 << " geoname = " << geoname << " geolon = " << geolon << " geolat = " << geolat;
         qDebug() << "getDatasetNameFromBand fname2 = " << radiancename2 << " var2 = " << radiancevar2 << " geoname = " << geoname << " geolon = " << geolon << " geolat = " << geolat;
         qDebug() << "getDatasetNameFromBand fname3 = " << radiancename3 << " var3 = " << radiancevar3 << " geoname = " << geoname << " geolon = " << geolon << " geolat = " << geolat;
@@ -315,11 +319,11 @@ Segment *SegmentSLSTR::ReadSegmentInMemory()
         pfile3 = array3.constData();
 
         retval = nc_open(pfile1, NC_NOWRITE, &ncfileid1);
-        if(retval != NC_NOERR) qDebug() << "error opening file1";
+        if(retval != NC_NOERR) qDebug() << "error opening radiancename1 = " << radiancename1;
         retval = nc_open(pfile2, NC_NOWRITE, &ncfileid2);
-        if(retval != NC_NOERR) qDebug() << "error opening file2";
+        if(retval != NC_NOERR) qDebug() << "error opening radiancename2 = " << radiancename2;
         retval = nc_open(pfile3, NC_NOWRITE, &ncfileid3);
-        if(retval != NC_NOERR) qDebug() << "error opening file3";
+        if(retval != NC_NOERR) qDebug() << "error opening radiancename3 = " << radiancename3;
 
         retval = nc_inq_dimid(ncfileid1, "columns", &columnsid);
         if(retval != NC_NOERR) qDebug() << "error reading columns id file1";
@@ -395,6 +399,9 @@ Segment *SegmentSLSTR::ReadSegmentInMemory()
     else
     {
         getDatasetNameFromBand(slstrview, &radiancename1, &radiancevar1, &geoname, &geolat, &geolon);
+        if(!(QFile::exists(radiancename1) && QFile::exists(geoname)))
+            return this;
+
         qDebug() << "getDatasetNameFromBand fname1 = " << radiancename1 << " var1 = " << radiancevar1 << " geoname = " << geoname << " geolon = " << geolon << " geolat = " << geolat;
 
         // open radiance nc file
@@ -402,7 +409,7 @@ Segment *SegmentSLSTR::ReadSegmentInMemory()
         pfile1 = array1.constData();
 
         retval = nc_open(pfile1, NC_NOWRITE, &ncfileid1);
-        if(retval != NC_NOERR) qDebug() << "error opening file1 " << radiancename1;
+        if(retval != NC_NOERR) qDebug() << "error opening radiancename1 = " << radiancename1;
 
         retval = nc_inq_dimid(ncfileid1, "columns", &columnsid);
         if(retval != NC_NOERR) qDebug() << "error reading columns id file1";
@@ -637,12 +644,12 @@ void SegmentSLSTR::getDatasetNameFromBand(eSLSTRImageView view, QString *radianc
     }
     else if(bandlist.at(10))
     {
-        ncRadiance = view == OBLIQUE ? "/F1_BT_io.nc" : "/F1_BT_in.nc";
-        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+        ncRadiance = view == OBLIQUE ? "/F1_BT_fo.nc" : "/F1_BT_fn.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_fo.nc" : "/geodetic_fn.nc";
         invertthissegment[0] = invertlist.at(9);
-        *radiancevariable = view == OBLIQUE ? "F1_BT_io" : "F1_BT_in";
-        *latitude = view == OBLIQUE ? "latitude_io" : "latitude_in";
-        *longitude = view == OBLIQUE ? "longitude_io" : "longitude_in";
+        *radiancevariable = view == OBLIQUE ? "F1_BT_fo" : "F1_BT_fn";
+        *latitude = view == OBLIQUE ? "latitude_fo" : "latitude_fn";
+        *longitude = view == OBLIQUE ? "longitude_fo" : "longitude_fn";
     }
     else if(bandlist.at(11))
     {

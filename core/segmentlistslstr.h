@@ -16,6 +16,9 @@ public:
     bool ComposeSLSTRImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles);
     void setHistogramMethod(int histo) { histogrammethod = histo;}
     bool ChangeHistogramMethod();
+    bool CheckForSLSTRFiles(QList<bool> bandlist, QList<int> colorlist, QStringList &missing);
+    void static getDatasetNameFromBand(QList<bool> bandlist, eSLSTRImageView view,  QString *radiancedataset, QString *geodeticdataset);
+    void static getDatasetNameFromColor(QList<int> colorlist, eSLSTRImageView view, int colorindex, QString *radiancedataset, QString *geodeticdataset);
 
 
 private:
@@ -25,10 +28,6 @@ private:
 
 
     SatelliteList *satlist;
-
-//    QList<bool> bandlist;
-//    QList<int> colorlist;
-//    QList<bool> inverselist;
 
     int histogrammethod;
 

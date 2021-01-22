@@ -26,6 +26,8 @@ class FormMapCyl : public QWidget
 public:
     explicit FormMapCyl(QWidget *parent = 0, MapFieldCyl *p_mapcyl = 0, Globe *p_globe = 0, FormToolbox *p_formtoolbox = 0, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
 
+    int ExtractSegment(QString ArchivePath, QString DestinationPath);
+
     void setCylOrGlobe(int ind);
 
 private:
@@ -53,8 +55,8 @@ private:
     void RenderQuicklookinTexture(QString completebasename);
     bool QuicklookExist(QString completebasename);
     bool FileExist(QString completebasename, QString band_or_quicklook);
-//    void getDatasetNameFromBand(QList<bool> bandlist, QString *filename);
-//    void getDatasetNameFromColor(QList<int> colorlist, int colorindex, QString *filename);
+    bool WriteNetCDFFile(int *longitude_img, int *latitude_img, int tierowslength, int columnslength);
+    int copy_data(struct archive *ar, struct archive *aw);
 
 
 

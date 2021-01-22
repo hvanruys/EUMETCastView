@@ -340,6 +340,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             segolciefr = new SegmentOLCI(SEG_OLCIEFR, fileInfo, satlist);
             if(segolciefr->segmentok == true)
             {
+                qDebug() << "==> " << fileInfo.absoluteFilePath() << " isFile = " << fileInfo.isFile();
                 slolciefr->append(segolciefr);
                 countolciefr++;
             }
@@ -355,6 +356,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             segolcierr = new SegmentOLCI(SEG_OLCIERR, fileInfo, satlist);
             if(segolcierr->segmentok == true)
             {
+                qDebug() << "==> " << fileInfo.absoluteFilePath() << " isFile = " << fileInfo.isFile();
                 slolcierr->append(segolcierr);
                 countolcierr++;
             }
@@ -366,11 +368,11 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
             //0         1         2         3         4         5         6         7         8         9         10
 
-            qDebug() << "====> SLSTR file = " << fileInfo.absoluteFilePath();
             seglslstr->SetDirectoryName(fileInfo.absolutePath());
             segslstr = new SegmentSLSTR(fileInfo, satlist);
             if(segslstr->segmentok == true)
             {
+                qDebug() << "==> " << fileInfo.absoluteFilePath() << " isFile = " << fileInfo.isFile();
                 slslstr->append(segslstr);
                 countslstr++;
             }

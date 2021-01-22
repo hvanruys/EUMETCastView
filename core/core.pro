@@ -3,7 +3,6 @@
 # Project created by QtCreator 2011-11-28T10:50:15
 #
 #-------------------------------------------------
-
 QT       += core gui network widgets printsupport
 QT       += concurrent xml
 unix:TARGET = ../EUMETCastView
@@ -190,13 +189,9 @@ unix:QMAKE_CXXFLAGS += -Wno-trigraphs
 unix:QMAKE_LFLAGS += -no-pie
 #win32:QMAKE_LFLAGS += /NODEFAULTLIB:MSVCRT
 
-#/home/hugo/TAR_LIBS/libarchive-master/libarchive
+
 unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
 win32:INCLUDEPATH += "D:/msys64/mingw64/include" ../bz2 ../meteosatlib ../QSgp4
-#else:win32:INCLUDEPATH += "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/libarchive" \
-#                ../bz2 ../zlib128-dll/include ../meteosatlib ../QSgp4 \
-#                "C:/Program Files/netCDF 4.4.1/include" "C:/Program Files/HDF_Group/HDF5/1.8.16/include"
-
 
 
 CONFIG(release, debug|release) {
@@ -226,33 +221,6 @@ unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/Src -lCOMP
 win32:LIBS += -L$$PWD/../../libs/win64_mingw64/debug -lmeteosat -lDOSE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
 win32:LIBS += -L"D:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
 }
-
-#CONFIG(release, debug|release) {
-#This is a release build
-#    unix:LIBS += -lpthread -lz -lfreeimage \
-#        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lpng -lbz2 -lhdf5_serial -larchive \
-#        -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
-#        #-L/usr/local/hdf5/lib -lhdf5
-#    unix:LIBS += -lpthread -lz -lfreeimage \
-#        -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 -lhdf5_serial -larchive \
-#        -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
-#        #-L/usr/local/hdf5/lib -lhdf5
-#    else:win32:
-#        LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -ldise -ljpeg -lwt -lt4 -lcomp -lqsgp4 -lbz2
-#        LIBS += -L"C:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
-#} #else {
-#This is a debug build
-#unix:LIBS += -lpthread -lz -lfreeimage \
-#    -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lpng -lbz2 -lhdf5_serial -larchive \
-#    -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
-    #-L/usr/local/hdf5/lib -lhdf5
-#else:win32:LIBS += -lfreeimage \
-#        -L"C:/Program Files/HDF_Group/HDF5/1.8.16/lib/" libszip.lib libzlib.lib libhdf5.lib \
-#        "C:/Program Files/netCDF 4.4.1/lib/netcdf.lib" \
-#        -L$$PWD/../../libs/win64_MSVC2012/debug -lmeteosat -lDISE -lJPEG -lWT -lT4 -lCOMP -lqsgp4 -lbz2 \
-#        "C:/Users/Windows7/libarchive-3.2.2-new/libarchive-3.2.2/x64/Release/archive_static.lib" \
-#        Advapi32.lib
-#}
 
 CONFIG(release, debug|release): DEFINES += NDEBUG
 

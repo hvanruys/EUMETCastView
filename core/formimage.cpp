@@ -875,10 +875,37 @@ void FormImage::MakeImage()
         bandlist = formtoolbox->getSLSTRBandList();
         colorlist = formtoolbox->getSLSTRColorList();
         invertlist = formtoolbox->getSLSTRInvertList();
-        eSLSTRImageView slstrimageview = formtoolbox->getSLSTRImageView();
+        eSLSTRImageView slstrimageview = formtoolbox->getSLSTRImageView(); //Oblique or Nadir
 
-        //          in Workerthread
-        segs->seglslstr->ComposeSLSTRImage(bandlist, colorlist, invertlist, true, slstrimageview);
+        QStringList missing;
+
+        if(segs->seglslstr->CheckForSLSTRFiles(bandlist, colorlist, missing) == false)
+        {
+            formtoolbox->setToolboxButtons(true);
+
+            emit setmapcylbuttons(true);
+
+            QMessageBox msgBox;
+            QString txt = "One or more files are missing ; download the complete product";
+            for(int i = 0; i < missing.count(); i++)
+            {
+                txt.append(missing.at(i) + "\n");
+            }
+            msgBox.setText(txt);
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+            return;
+        }
+        else     //          in Workerthread
+            segs->seglslstr->ComposeSLSTRImage(bandlist, colorlist, invertlist, true, slstrimageview);
     }
     else if(mersicount > 0 && opts.buttonMERSI)
     {

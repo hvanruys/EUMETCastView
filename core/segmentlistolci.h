@@ -25,7 +25,6 @@ public:
     void SmoothOLCIImage(bool combine);
     void SmoothOLCIImage12bits();
     void ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview);
-//    bool TestForSegmentGLextended(int x, int realy, float distance, const QMatrix4x4 &m, bool showallsegments, QString &segmentname);
     void setHistogramMethod(int histo, bool normal) { histogrammethod = histo; normalized = normal;}
     bool ChangeHistogramMethod();
 

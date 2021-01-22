@@ -1287,6 +1287,9 @@ int Segment::DecompressSegmentToTemp()
             break;
         if (r != ARCHIVE_OK)
             qDebug() << "archive_read_next_header() " << QString(archive_error_string(a));
+//        const char* currentFile = archive_entry_pathname(archiveEntry);
+//            const std::string fullOutputPath = destination + currentFile;
+//            archive_entry_set_pathname(archiveEntry, fullOutputPath.c_str());
         r = archive_write_header(ext, entry);
         if (r != ARCHIVE_OK)
             qDebug() << "archive_write_header() " << QString(archive_error_string(ext));

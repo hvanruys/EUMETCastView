@@ -44,6 +44,7 @@ public:
     void RenderEarthLocationsGL();
     void ShowSegment(int value);
     void ShowWinvec(QPainter *painter, float distance, const QMatrix4x4 modelview);
+    void ShowWinvecXML(QPainter *painter, float distance, const QMatrix4x4 modelview);
 
     bool ComposeAVHRRImage();
 

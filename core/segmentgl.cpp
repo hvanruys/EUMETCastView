@@ -203,7 +203,7 @@ void SegmentGL::RenderContour(Segment *seg, QMatrix4x4 projection, QMatrix4x4 mo
     positionsBuf.bind();
     positionsBuf.allocate(positions.data(), positions.size() * sizeof(GLfloat));
 
-//    positionsBuf.write(0, positions.data(), positions.size() * sizeof(GLfloat));
+    //    positionsBuf.write(0, positions.data(), positions.size() * sizeof(GLfloat));
     positionsBuf.release();
 
     QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
@@ -297,20 +297,20 @@ void SegmentGL::RenderContourDetail(Segment *seg, QMatrix4x4 projection, QMatrix
         CalculateSegmentContour(&positions,seg->vectorfirst.at(i), seg->vectorfirst.at(i-1), howdetailed); // + (10 * (length-1))
     }
 
-//    seg->qsgp4->getPosition(seg->minutes_since_state_vector, qeci);
-//    QGeodetic first = qeci.ToGeo();
+    //    seg->qsgp4->getPosition(seg->minutes_since_state_vector, qeci);
+    //    QGeodetic first = qeci.ToGeo();
 
-//    seg->qsgp4->getPosition(seg->minutes_since_state_vector + seg->minutes_sensing, qeci);
-//    QGeodetic last = qeci.ToGeo();
+    //    seg->qsgp4->getPosition(seg->minutes_since_state_vector + seg->minutes_sensing, qeci);
+    //    QGeodetic last = qeci.ToGeo();
 
-//    CalculateSegmentContour(&positions, first, last);
+    //    CalculateSegmentContour(&positions, first, last);
 
 
 
     positionsBuf.bind();
     positionsBuf.allocate(positions.data(), positions.size() * sizeof(GLfloat));
 
-//    positionsBuf.write(0, positions.data(), positions.size() * sizeof(GLfloat));
+    //    positionsBuf.write(0, positions.data(), positions.size() * sizeof(GLfloat));
     positionsBuf.release();
 
     QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
@@ -432,158 +432,59 @@ void SegmentGL::RenderContourXML(Segment *seg, QMatrix4x4 projection, QMatrix4x4
     for(int i = 0; i < 16; i++)
         projmatrix[i] = *(ptr + i);
 
+    QVector3D vecZ = modelview.row(2).toVector3D();
 
     seg->winvectorfirst.clear();
-//    for(int k = 0; k < seg->getFootprintListptr().count(); k++)
-//    {
+    for(int k = 0; k < seg->getFootprintListptr().count(); k++)
+    {
         QVector2D win;
 
-        for(int i = 0; i < seg->getFootprintListptr().at(0).count(); i++)
+        for(int i = 0; i < seg->getFootprintListptr().at(k).count(); i++)
         {
-            LonLat2PointRad((float)seg->getFootprintListptr().at(0).at(i).latitude, (float)seg->getFootprintListptr().at(0).at(i).longitude, &vec, 1.0);
-            win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-            seg->winvectorfirst.append(win);
+
+            LonLat2PointRad((float)seg->getFootprintListptr().at(k).at(i).latitude, (float)seg->getFootprintListptr().at(k).at(i).longitude, &vec, 1.0);
+            qreal angle = ArcCos(QVector3D::dotProduct( vecZ, vec));
+            if(angle < PI/2)
+            {
+                win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
+                seg->winvectorfirst.append(win);
+            }
         }
-//    }
+    }
 
 }
 
 
-
-//void SegmentGL::RenderContourXML(Segment *seg, QMatrix4x4 projection, QMatrix4x4 modelview, int width, int height)
-//{
-
-//    QVector3D vec;
-//    QVector3D pos;
-//    QVector<GLfloat> positions;
-//    QEci qeci;
-
-//    QList<QVector<QGeodetic>> listvect = seg->getFootprintListptr();
-
-//    if(listvect.count() == 0)
-//        return;
-
-//    int nbrofvertices = listvect.at(0).count();
-
-//    for(int i = 0; i < listvect.at(0).count(); i++)
-//    {
-//        LonLat2PointRad(listvect.at(0).at(i).latitude, listvect.at(0).at(i).longitude, &pos, 1.001f);
-
-//        positions.append(pos.x());
-//        positions.append(pos.y());
-//        positions.append(pos.z());
-
-//    }
-
-
-//    positionsBuf.bind();
-//    positionsBuf.allocate(positions.data(), positions.size() * sizeof(GLfloat));
-
-////    positionsBuf.write(0, positions.data(), positions.size() * sizeof(GLfloat));
-////    positionsBuf.release();
-
-//    QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
-
-//    program->bind();
-//    program->setUniformValue("MVP", projection * modelview);
-//    QColor rendercolor(opts.satsegmentcolor);
-//    QColor rendercolorsel(opts.satsegmentcolorsel);
-
-//    if((*seg).segmentselected)
-//        program->setUniformValue("outcolor", QVector4D(rendercolorsel.redF(), rendercolorsel.greenF(), rendercolorsel.blueF(), 1.0f));
-//    else
-//        program->setUniformValue("outcolor", QVector4D(rendercolor.redF(), rendercolor.greenF(), rendercolor.blueF(), 1.0f));
-
-//    QMatrix3x3 norm = modelview.normalMatrix();
-//    program->setUniformValue("NormalMatrix", norm);
-
-//    glDrawArrays(GL_LINE_STRIP, 0, nbrofvertices);
-
-//    positionsBuf.release();
-
-//    // calculating winvec vectors
-////    float mvmatrix[16], projmatrix[16];
-////    QMatrix4x4 MVP;
-////    MVP = projection * modelview;
-
-////    float *ptr = modelview.data();
-////    for(int i = 0; i < 16; i++)
-////        mvmatrix[i] = *(ptr + i);
-
-////    ptr = projection.data();
-////    for(int i = 0; i < 16; i++)
-////        projmatrix[i] = *(ptr + i);
-
-//    //                           winvec1
-//    //  winvecend1 ------------------------------------ winvecend3
-//    //      | p03                   | p00               | p05
-//    //      |                       |                   |
-//    //      |                       |                   |
-//    //      |                       |                   |
-//    //      |                       |                   |
-//    //      |                       |                   |
-//    //      | p02                   | p01               | p04
-//    //  winvecend2 ------------------------------------ winvecend4
-//    //                           winvec2
-
-////    QVector2D win;
-
-////    LonLat2PointRad((float)seg->cornerpointfirst1.latitude, (float)seg->cornerpointfirst1.longitude, &vec, 1.0);
-////    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-////    seg->winvecend1 = win;
-
-////    LonLat2PointRad((float)seg->cornerpointfirst2.latitude, (float)seg->cornerpointfirst2.longitude, &vec, 1.0);
-////    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-////    seg->winvecend2 = win;
-
-////    LonLat2PointRad((float)seg->cornerpointlast1.latitude, (float)seg->cornerpointlast1.longitude, &vec, 1.0);
-////    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-////    seg->winvecend3 = win;
-
-////    LonLat2PointRad((float)seg->cornerpointlast2.latitude, (float)seg->cornerpointlast2.longitude, &vec, 1.0);
-////    win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
-////    seg->winvecend4 = win;
-
-////    win = glhProjectf (seg->vec1, mvmatrix, projmatrix, width, height);
-////    seg->winvec1 = win;
-
-////    win = glhProjectf (seg->vec2, mvmatrix, projmatrix, width, height);
-////    seg->winvec2 = win;
-
-//}
-
-
-
 QVector2D SegmentGL::glhProjectf(QVector3D obj, float *modelview, float *projection, int width, int height)
-  {
-      //Transformation vectors
-      float fTempo[8];
-      //Modelview transform
-      fTempo[0]=modelview[0]*obj.x()+modelview[4]*obj.y()+modelview[8]*obj.z()+modelview[12];  //w is always 1
-      fTempo[1]=modelview[1]*obj.x()+modelview[5]*obj.y()+modelview[9]*obj.z()+modelview[13];
-      fTempo[2]=modelview[2]*obj.x()+modelview[6]*obj.y()+modelview[10]*obj.z()+modelview[14];
-      fTempo[3]=modelview[3]*obj.x()+modelview[7]*obj.y()+modelview[11]*obj.z()+modelview[15];
-      //Projection transform, the final row of projection matrix is always [0 0 -1 0]
-      //so we optimize for that.
-      fTempo[4]=projection[0]*fTempo[0]+projection[4]*fTempo[1]+projection[8]*fTempo[2]+projection[12]*fTempo[3];
-      fTempo[5]=projection[1]*fTempo[0]+projection[5]*fTempo[1]+projection[9]*fTempo[2]+projection[13]*fTempo[3];
-      fTempo[6]=projection[2]*fTempo[0]+projection[6]*fTempo[1]+projection[10]*fTempo[2]+projection[14]*fTempo[3];
-      fTempo[7]=-fTempo[2];
-      //The result normalizes between -1 and 1
-//      if(fTempo[7]==0.0)	//The w value
-//         return 0;
-      fTempo[7]=1.0/fTempo[7];
-      //Perspective division
-      fTempo[4]*=fTempo[7];
-      fTempo[5]*=fTempo[7];
-      fTempo[6]*=fTempo[7];
-      //Window coordinates
-      //Map x, y to range 0-1
-      QVector2D win((fTempo[4]*0.5+0.5)*width, (fTempo[5]*0.5+0.5)*height);
-      //This is only correct when glDepthRange(0.0, 1.0)
-      //windowCoordinate[2]=(1.0+fTempo[6])*0.5;	//Between 0 and 1
-      return win;
-  }
+{
+    //Transformation vectors
+    float fTempo[8];
+    //Modelview transform
+    fTempo[0]=modelview[0]*obj.x()+modelview[4]*obj.y()+modelview[8]*obj.z()+modelview[12];  //w is always 1
+    fTempo[1]=modelview[1]*obj.x()+modelview[5]*obj.y()+modelview[9]*obj.z()+modelview[13];
+    fTempo[2]=modelview[2]*obj.x()+modelview[6]*obj.y()+modelview[10]*obj.z()+modelview[14];
+    fTempo[3]=modelview[3]*obj.x()+modelview[7]*obj.y()+modelview[11]*obj.z()+modelview[15];
+    //Projection transform, the final row of projection matrix is always [0 0 -1 0]
+    //so we optimize for that.
+    fTempo[4]=projection[0]*fTempo[0]+projection[4]*fTempo[1]+projection[8]*fTempo[2]+projection[12]*fTempo[3];
+    fTempo[5]=projection[1]*fTempo[0]+projection[5]*fTempo[1]+projection[9]*fTempo[2]+projection[13]*fTempo[3];
+    fTempo[6]=projection[2]*fTempo[0]+projection[6]*fTempo[1]+projection[10]*fTempo[2]+projection[14]*fTempo[3];
+    fTempo[7]=-fTempo[2];
+    //The result normalizes between -1 and 1
+    //      if(fTempo[7]==0.0)	//The w value
+    //         return 0;
+    fTempo[7]=1.0/fTempo[7];
+    //Perspective division
+    fTempo[4]*=fTempo[7];
+    fTempo[5]*=fTempo[7];
+    fTempo[6]*=fTempo[7];
+    //Window coordinates
+    //Map x, y to range 0-1
+    QVector2D win((fTempo[4]*0.5+0.5)*width, (fTempo[5]*0.5+0.5)*height);
+    //This is only correct when glDepthRange(0.0, 1.0)
+    //windowCoordinate[2]=(1.0+fTempo[6])*0.5;	//Between 0 and 1
+    return win;
+}
 
 
 void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, float lat_first, float lon_first, float lat_last, float lon_last, int howdetailed)

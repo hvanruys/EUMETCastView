@@ -108,8 +108,8 @@ bool SegmentListSLSTR::ComposeSLSTRImageInThread(QList<bool> bandlist, QList<int
         SegmentOLCI *segm = (SegmentOLCI *)(*segit);
         if (segm->segmentselected)
         {
-             segsselected.append(segm);
-             totalnbrofsegments++;
+            segsselected.append(segm);
+            totalnbrofsegments++;
         }
         ++segit;
     }
@@ -283,7 +283,7 @@ void SegmentListSLSTR::CalculateLUTFull()
                     quint16 pixel = *(segm->ptrbaSLSTR[k].data() + line * earth_views + pixelx) ;
                     quint16 indexout = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel - imageptrs->stat_min_ch[k])/(float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
                     stats_ch[k][indexout]++;
-                 }
+                }
             }
         }
         ++segsel;
@@ -421,5 +421,192 @@ void SegmentListSLSTR::ComposeSegments()
         QApplication::processEvents();
         ++segsel;
     }
+
+}
+
+bool SegmentListSLSTR::CheckForSLSTRFiles(QList<bool> bandlist, QList<int> colorlist, QStringList &missing)
+{
+    QString radiancename1;
+    QString radiancename2;
+    QString radiancename3;
+    QString geoname;
+
+    bool iscolorimage = bandlist.at(0);
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+    while ( segit != segmentlist.end() )
+    {
+        SegmentSLSTR *segm = (SegmentSLSTR *)(*segit);
+        if (segm->segmentselected)
+        {
+            qDebug() << "====> fileinfo.filepath = " << segm->fileInfo.filePath() << " isdirectory = " << segm->fileInfo.isDir();
+            qDebug() << "====> fileinfo.filename = " << segm->fileInfo.fileName();
+
+            if(segm->fileInfo.isDir())
+            {
+                if(iscolorimage)
+                {
+                    getDatasetNameFromColor(colorlist, slstrview, 0, &radiancename1, &geoname);
+                    getDatasetNameFromColor(colorlist, slstrview, 1, &radiancename2, &geoname);
+                    getDatasetNameFromColor(colorlist, slstrview, 2, &radiancename3, &geoname);
+
+                    if((QFileInfo::exists(segm->fileInfo.filePath() + "/" + radiancename1) && QFileInfo(segm->fileInfo.filePath() + "/" + radiancename1).isFile() &&
+                        QFileInfo::exists(segm->fileInfo.filePath() + "/" + radiancename2) && QFileInfo(segm->fileInfo.filePath() + "/" + radiancename2).isFile() &&
+                        QFileInfo::exists(segm->fileInfo.filePath() + "/" + radiancename3) && QFileInfo(segm->fileInfo.filePath() + "/" + radiancename3).isFile() &&
+                        QFileInfo::exists(segm->fileInfo.filePath() + "/" + geoname) && QFileInfo(segm->fileInfo.filePath() + "/" + geoname).isFile()) == false)
+                        return false;
+                    else
+                        return true;
+                }
+                else
+                {
+                    getDatasetNameFromBand(bandlist, slstrview, &radiancename1, &geoname);
+                    if(!(QFile::exists(segm->fileInfo.filePath() + "/" + radiancename1) && QFile::exists(segm->fileInfo.filePath() + "/" + geoname)))
+                        return false;
+                    else
+                        return true;
+                }
+            }
+        }
+        ++segit;
+    }
+
+}
+
+void SegmentListSLSTR::getDatasetNameFromBand(QList<bool> bandlist, eSLSTRImageView view,  QString *radiancedataset, QString *geodeticdataset)
+{
+    QString ncRadiance;
+    QString ncGeodetic;
+
+    if(bandlist.at(1))
+    {
+        ncRadiance = view == OBLIQUE ? "/S1_radiance_ao.nc" : "/S1_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(bandlist.at(2))
+    {
+        ncRadiance = view == OBLIQUE ? "/S2_radiance_ao.nc" : "/S2_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(bandlist.at(3))
+    {
+        ncRadiance = view == OBLIQUE ? "/S3_radiance_ao.nc" : "/S3_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(bandlist.at(4))
+    {
+        ncRadiance = view == OBLIQUE ? "/S4_radiance_ao.nc" : "/S4_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(bandlist.at(5))
+    {
+        ncRadiance = view == OBLIQUE ? "/S5_radiance_ao.nc" : "/S5_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(bandlist.at(6))
+    {
+        ncRadiance = view == OBLIQUE ? "/S6_radiance_ao.nc" : "/S6_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(bandlist.at(7))
+    {
+        ncRadiance = view == OBLIQUE ? "/S7_BT_io.nc" : "/S7_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+    else if(bandlist.at(8))
+    {
+        ncRadiance = view == OBLIQUE ? "/S8_BT_io.nc" : "/S8_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+    else if(bandlist.at(9))
+    {
+        ncRadiance = view == OBLIQUE ? "/S9_BT_io.nc" : "/S9_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+    else if(bandlist.at(10))
+    {
+        ncRadiance = view == OBLIQUE ? "/F1_BT_fo.nc" : "/F1_BT_fn.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_fo.nc" : "/geodetic_fn.nc";
+    }
+    else if(bandlist.at(11))
+    {
+        ncRadiance = view == OBLIQUE ? "/F2_BT_io.nc" : "/F2_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+
+    *radiancedataset = ncRadiance;
+    *geodeticdataset = ncGeodetic;
+
+
+}
+
+void SegmentListSLSTR::getDatasetNameFromColor(QList<int> colorlist, eSLSTRImageView view, int colorindex, QString *radiancedataset, QString *geodeticdataset)
+{
+    QString ncRadiance;
+    QString ncGeodetic;
+
+    qDebug() << "getDatasetNameFromColor colorindex = " << colorindex;
+
+    Q_ASSERT(colorindex >=0 && colorindex < 3);
+    colorindex++; // 1, 2 or 3
+
+    if(colorlist.at(0) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S1_radiance_ao.nc" : "/S1_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(colorlist.at(1) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S2_radiance_ao.nc" : "/S2_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(colorlist.at(2) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S3_radiance_ao.nc" : "/S3_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(colorlist.at(3) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S4_radiance_ao.nc" : "/S4_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(colorlist.at(4) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S5_radiance_ao.nc" : "/S5_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(colorlist.at(5) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S6_radiance_ao.nc" : "/S6_radiance_an.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_ao.nc" : "/geodetic_an.nc";
+    }
+    else if(colorlist.at(6) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S7_BT_io.nc" : "/S7_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+    else if(colorlist.at(7) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S8_BT_io.nc" : "/S8_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+    else if(colorlist.at(8) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/S9_BT_io.nc" : "/S9_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+    else if(colorlist.at(9) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/F1_BT_io.nc" : "/F1_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+    else if(colorlist.at(10) == colorindex)
+    {
+        ncRadiance = view == OBLIQUE ? "/F2_BT_io.nc" : "/F2_BT_in.nc";
+        ncGeodetic = view == OBLIQUE ? "/geodetic_io.nc" : "/geodetic_in.nc";
+    }
+
+    *radiancedataset = ncRadiance;
+    *geodeticdataset = ncGeodetic;
 
 }

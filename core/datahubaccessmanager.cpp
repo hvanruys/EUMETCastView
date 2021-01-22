@@ -477,7 +477,7 @@ void DatahubAccessManager::slotFinishedProduct()
         QString absolutepath;
         QString filename;
         QDir dir = TestForDirectory();
-        absolutepath =dir.absolutePath();
+        absolutepath = dir.absolutePath();
         if(band_or_quicklook == "quicklook")
         {
             filename = completebasename + ".jpg";

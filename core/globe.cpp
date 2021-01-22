@@ -765,10 +765,10 @@ void Globe::paintGL()
             segs->seglmersi->ShowWinvec(&painter, distance, modelview );
         else
         if (opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
-            segs->segldatahubolciefr->ShowWinvec(&painter, distance, modelview );
+            segs->segldatahubolciefr->ShowWinvecXML(&painter, distance, modelview );
         else
         if (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
-            segs->segldatahubolcierr->ShowWinvec(&painter, distance, modelview );
+            segs->segldatahubolcierr->ShowWinvecXML(&painter, distance, modelview );
         painter.restore();
     }
 

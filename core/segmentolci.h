@@ -7,6 +7,7 @@
 
 #include "segment.h"
 #include "archive.h"
+#include "archive_entry.h"
 #include "satellite.h"
 
 

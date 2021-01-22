@@ -2,7 +2,7 @@
 #include "segmentimage.h"
 #include "options.h"
 #include <QDebug>
-#include "archive_entry.h"
+
 #include <netcdf.h>
 #include <QMutex>
 
