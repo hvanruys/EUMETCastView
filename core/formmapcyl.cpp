@@ -2,6 +2,8 @@
 
 #include "formmapcyl.h"
 #include "ui_formmapcyl.h"
+#include "dialogpreferences.h"
+
 #include <netcdf.h>
 
 extern Options opts;
@@ -2271,8 +2273,9 @@ void FormMapCyl::on_btnCancelDownloadProduct_clicked()
 }
 
 
-void FormMapCyl::on_btnDownloadFromDatahub_clicked()
+void FormMapCyl::on_btnDownloadXMLFromDatahub_clicked()
 {
+    bool ok = false;
     QFile segfile("Segments.xml");
     segfile.remove();
 
@@ -2284,7 +2287,31 @@ void FormMapCyl::on_btnDownloadFromDatahub_clicked()
     else if(ui->rdbDownloadXMLSLSTR->isChecked())
         type = "SLSTR";
 
-    segs->LoadXMLfromDatahub(ui->calendarDatahub->selectedDate(), type);
+    if(opts.datahubuser.isEmpty())
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::critical(this, tr("Datahub User Id"),
+                                        "The Datahub User Id is empty. Open the 'Preferences' , 'Scihub/CODA config' and fill in the User Id",
+                                        QMessageBox::Ok);
+        if (reply == QMessageBox::Ok)
+            return;
+    }
+    if(opts.datahubpassword.isEmpty())
+    {
+
+        QString text = QInputDialog::getText(this, tr("Your Datahub password "),
+                                             tr("Password : "), QLineEdit::Normal, "",&ok);
+        if (ok && !text.isEmpty())
+            opts.datahubpassword = text;
+        else
+            return;
+
+    }
+    else
+        ok = false;
+
+    if(ok)
+        segs->LoadXMLfromDatahub(ui->calendarDatahub->selectedDate(), type);
 }
 
 

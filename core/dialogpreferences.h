@@ -4,6 +4,9 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QColorDialog>
+#include <QLabel>
+#include <QGroupBox>
+#include <QDialogButtonBox>
 
 #include "options.h"
 

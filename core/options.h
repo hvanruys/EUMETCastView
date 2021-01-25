@@ -277,10 +277,8 @@ public:
     bool texture_changed;
     bool gridonolciimage;
 
-    QString esauser;
-    QString esapassword;
-    QString eumetsatuser;
-    QString eumetsatpassword;
+    QString datahubuser;
+    QString datahubpassword;
     QString productdirectory;
     bool provideresaoreumetsat; // 0 = ESA , 1 = eumetsat
     bool downloadxmlolciefr;

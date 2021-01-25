@@ -123,7 +123,7 @@ private slots:
 
     void on_btnCancelDownloadProduct_clicked();
 
-    void on_btnDownloadFromDatahub_clicked();
+    void on_btnDownloadXMLFromDatahub_clicked();
 
     void on_btnMERSI_clicked();
 

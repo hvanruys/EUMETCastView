@@ -2034,7 +2034,7 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pageScihubCodaConfig">
-        <layout class="QVBoxLayout" name="verticalLayout_21">
+        <layout class="QVBoxLayout" name="verticalLayout_19">
          <item>
           <widget class="QLabel" name="label_21">
            <property name="font">
@@ -2049,84 +2049,6 @@
             <set>Qt::AlignCenter</set>
            </property>
           </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_29">
-           <item>
-            <widget class="QGroupBox" name="groupBox_4">
-             <property name="title">
-              <string>Copernicus Open Access Hub (E.S.A)</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_19">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_21">
-                <item>
-                 <widget class="QLabel" name="label_15">
-                  <property name="text">
-                   <string>User : </string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="leEsaUser"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_22">
-                <item>
-                 <widget class="QLabel" name="label_16">
-                  <property name="text">
-                   <string>Password :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="leEsaPassword"/>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_5">
-             <property name="title">
-              <string>Copernicus Data Access (Eumetsat)</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_20">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_24">
-                <item>
-                 <widget class="QLabel" name="label_18">
-                  <property name="text">
-                   <string>User : </string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="leEumetsatUser"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_23">
-                <item>
-                 <widget class="QLabel" name="label_17">
-                  <property name="text">
-                   <string>Password :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="leEumetsatPassword"/>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
          </item>
          <item>
           <widget class="QGroupBox" name="groupBox_6">
@@ -2150,6 +2072,20 @@
             </item>
            </layout>
           </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_21">
+           <item>
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>Datahub User Id : </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="leDatahubUserId"/>
+           </item>
+          </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_25">
@@ -2235,40 +2171,6 @@
            </item>
            <item>
             <spacer name="horizontalSpacer_17">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_31">
-           <item>
-            <spacer name="horizontalSpacer_18">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_27">
-           <item>
-            <spacer name="horizontalSpacer_20">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>

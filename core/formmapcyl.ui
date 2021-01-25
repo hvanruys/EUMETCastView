@@ -667,7 +667,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QPushButton" name="btnDownloadFromDatahub">
+          <widget class="QPushButton" name="btnDownloadXMLFromDatahub">
            <property name="minimumSize">
             <size>
              <width>0</width>

@@ -54,9 +54,9 @@ void DatahubAccessManager::DownloadXML(int nbrofpages, eDatahub hub)
     // HTTP Basic authentication header value: base64(username:password)
     QString concatenated;
     if(this->hub == HUBESA)
-        concatenated = opts.esauser + ":" + opts.esapassword;
+        concatenated = opts.datahubuser + ":" + opts.datahubpassword;
     else
-        concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
+        concatenated = opts.datahubuser + ":" + opts.datahubpassword;
 
     QByteArray data = concatenated.toLocal8Bit().toBase64();
     QString headerData = "Basic " + data;
@@ -140,9 +140,9 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub, QString t
 
     QString concatenated;
     if(this->hub == HUBESA)
-        concatenated = opts.esauser + ":" + opts.esapassword;
+        concatenated = opts.datahubuser + ":" + opts.datahubpassword;
     else
-        concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
+        concatenated = opts.datahubuser + ":" + opts.datahubpassword;
 
     QByteArray data = concatenated.toLocal8Bit().toBase64();
     QString headerData = "Basic " + data;
@@ -205,9 +205,9 @@ void DatahubAccessManager::slotFinishedXML()
         // HTTP Basic authentication header value: base64(username:password)
         QString concatenated;
         if(this->hub == HUBESA)
-            concatenated = opts.esauser + ":" + opts.esapassword;
+            concatenated = opts.datahubuser + ":" + opts.datahubpassword;
         else
-            concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
+            concatenated = opts.datahubuser + ":" + opts.datahubpassword;
         QByteArray data = concatenated.toLocal8Bit().toBase64();
         QString headerData = "Basic " + data;
         request.setRawHeader("Authorization", headerData.toLocal8Bit());
@@ -423,9 +423,9 @@ void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int inde
     // HTTP Basic authentication header value: base64(username:password)
     QString concatenated;
     if(hub == HUBESA)
-        concatenated = opts.esauser + ":" + opts.esapassword;
+        concatenated = opts.datahubuser + ":" + opts.datahubpassword;
     else
-        concatenated = opts.eumetsatuser + ":" + opts.eumetsatpassword;
+        concatenated = opts.datahubuser + ":" + opts.datahubpassword;
     QByteArray data = concatenated.toLocal8Bit().toBase64();
     QString headerData = "Basic " + data;
 

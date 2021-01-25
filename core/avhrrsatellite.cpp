@@ -1,4 +1,5 @@
 #include "avhrrsatellite.h"
+
 #include <QDebug>
 #include <QDate>
 #include <QApplication>

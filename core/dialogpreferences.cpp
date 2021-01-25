@@ -374,10 +374,10 @@ void DialogPreferences::setupMERSIConfigTable()
 
 void DialogPreferences::setupDatahubConfig()
 {
-    ui->leEsaUser->setText(opts.esauser);
-    ui->leEsaPassword->setText(opts.esapassword);
-    ui->leEumetsatUser->setText(opts.eumetsatuser);
-    ui->leEumetsatPassword->setText(opts.eumetsatpassword);
+    ui->leDatahubUserId->setText(opts.datahubuser);
+//    ui->leEsaPassword->setText(opts.esapassword);
+//    ui->leEumetsatUser->setText(opts.eumetsatuser);
+//    ui->leEumetsatPassword->setText(opts.eumetsatpassword);
     ui->leProductDirectory->setText(opts.productdirectory);
     if(opts.provideresaoreumetsat)
         ui->rdbUseScihub->setChecked(true);
@@ -645,10 +645,6 @@ void DialogPreferences::dialogaccept()
     opts.remove_SLSTR_dirs = ui->rdbRemoveSLSTRDirs->isChecked();
     opts.usesaturationmask = ui->rdbSaturation->isChecked();
 
-    opts.esauser = ui->leEsaUser->text();
-    opts.esapassword = ui->leEsaPassword->text();
-    opts.eumetsatuser = ui->leEumetsatUser->text();
-    opts.eumetsatpassword = ui->leEumetsatPassword->text();
     opts.productdirectory = ui->leProductDirectory->text();
     if(ui->rdbUseScihub->isChecked())
         opts.provideresaoreumetsat = true;
@@ -656,7 +652,7 @@ void DialogPreferences::dialogaccept()
         opts.provideresaoreumetsat = false;
 
     opts.xmllogging = ui->rdbXMLlogging->isChecked();
-
+    opts.datahubuser = ui->leDatahubUserId->text();
 
     if(POItablechanged)
         done(2);
@@ -3252,3 +3248,4 @@ void DialogPreferences::on_btnSearchProductDirectory_clicked()
     }
 
 }
+

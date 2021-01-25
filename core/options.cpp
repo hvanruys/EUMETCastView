@@ -246,10 +246,10 @@ void Options::Initialize(bool recreate_geo_ini)
     texture_changed = false;
     gridonolciimage = false;
 
-    esauser = settings.value("/datahub/esauser", "").value<QString>();
-    esapassword = settings.value("/datahub/esapassword", "").value<QString>();
-    eumetsatuser = settings.value("/datahub/eumetsatuser", "").value<QString>();
-    eumetsatpassword = settings.value("/datahub/eumetsatpassword", "").value<QString>();
+    datahubuser = settings.value("/datahub/datahubuser", "").value<QString>();
+//    esapassword = settings.value("/datahub/esapassword", "").value<QString>();
+//    eumetsatuser = settings.value("/datahub/eumetsatuser", "").value<QString>();
+//    eumetsatpassword = settings.value("/datahub/eumetsatpassword", "").value<QString>();
     productdirectory = settings.value("/datahub/productdirectory", "").value<QString>();
     provideresaoreumetsat = settings.value("/datahub/provideresaoreumetsat", false).toBool();
     downloadxmlolciefr = settings.value("/datahub/downloadxmlolciefr", false).toBool();
@@ -539,10 +539,10 @@ void Options::Save()
     settings.setValue("/parameters/removeslstrdirs", remove_SLSTR_dirs);
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
 
-    settings.setValue("/datahub/esauser", esauser);
-    settings.setValue("/datahub/esapassword", esapassword);
-    settings.setValue("/datahub/eumetsatuser", eumetsatuser);
-    settings.setValue("/datahub/eumetsatpassword", eumetsatpassword);
+    settings.setValue("/datahub/datahubuser", datahubuser);
+//    settings.setValue("/datahub/esapassword", esapassword);
+//    settings.setValue("/datahub/eumetsatuser", eumetsatuser);
+//    settings.setValue("/datahub/eumetsatpassword", eumetsatpassword);
     settings.setValue("/datahub/productdirectory", productdirectory);
     settings.setValue("/datahub/provideresaoreumetsat", provideresaoreumetsat);
 
