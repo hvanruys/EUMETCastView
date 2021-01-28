@@ -101,11 +101,11 @@ unix:INCLUDEPATH += ../PublicDecompWT_2.7.2-master/DISE \
                     ../PublicDecompWT_2.7.2-master/COMP/Inc \
                     ../PublicDecompWT_2.7.2-master/COMP/WT/Inc \
                     ../PublicDecompWT_2.7.2-master/COMP/T4/Inc
-else:win32:INCLUDEPATH += ../../PublicDecompWT-master_2.7.2/DOSE \
-                    ../../PublicDecompWT-master_2.7.2/COMP/JPEG/Inc \
-                    ../../PublicDecompWT-master_2.7.2/COMP/Inc \
-                    ../../PublicDecompWT-master_2.7.2/COMP/WT/Inc \
-                    ../../PublicDecompWT-master_2.7.2/COMP/T4/Inc
+else:win32:INCLUDEPATH += ../../PublicDecompWT-master/DISE \
+                    ../../PublicDecompWT-master/COMP/JPEG/Inc \
+                    ../../PublicDecompWT-master/COMP/Inc \
+                    ../../PublicDecompWT-master/COMP/WT/Inc \
+                    ../../PublicDecompWT-master/COMP/T4/Inc
 
 DISTFILES += \
     README.md

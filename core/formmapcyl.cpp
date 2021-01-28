@@ -948,8 +948,71 @@ void FormMapCyl::on_btnRemoveSelected_clicked()
     RemoveAllSelected();
 }
 
+bool FormMapCyl::AreThereSelectedSegments()
+{
+
+    if(opts.buttonMetop && segs->seglmetop->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonNoaa && segs->seglnoaa->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonHRP && segs->seglhrp->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonGAC && segs->seglgac->NbrOfSegmentsSelected() > 0)
+        return true;
+
+    if(opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegmentsSelected() > 0)
+        return true;
+
+    if(opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegmentsSelected() > 0)
+        return true;
+
+
+    if(opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonSLSTR && segs->seglslstr->NbrOfSegmentsSelected() > 0)
+        return true;
+
+    if(opts.buttonMERSI && segs->seglmersi->NbrOfSegmentsSelected() > 0)
+        return true;
+
+}
+
 void FormMapCyl::on_btnMakeImage_clicked()
 {
+    if(!AreThereSelectedSegments())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("You need to select one or more segments.");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+        return;
+
+    }
+
     this->slotSetMapCylButtons(false);
     emit signalMakeImage();
 }
@@ -1268,6 +1331,8 @@ void FormMapCyl::on_btnDownloadCompleteProduct_clicked()
     if(!IsProductDirFilledIn())
         return;
 
+    if(!CheckUserAndPassword())
+        return;
 
     if(todownloadlist.count() ==  0)
         return;
@@ -1285,6 +1350,9 @@ void FormMapCyl::on_btnDownloadCompleteProduct_clicked()
 void FormMapCyl::on_btnDownloadQuicklook_clicked()
 {
     if(!IsProductDirFilledIn())
+        return;
+
+    if(!CheckUserAndPassword())
         return;
 
     QList<ProductList> newtodownloadlist;
@@ -1326,6 +1394,9 @@ void FormMapCyl::on_btnDownloadQuicklook_clicked()
 void FormMapCyl::on_btnDownloadPartialProduct_clicked()
 {
     if(!IsProductDirFilledIn())
+        return;
+
+    if(!CheckUserAndPassword())
         return;
 
     if(ui->btnSLSTRDatahub->isChecked())
@@ -1759,21 +1830,21 @@ bool FormMapCyl::WriteNetCDFFile(int *longitude_img, int *latitude_img, int tier
     qDebug() << "Writing NetCDF file tierowslength = " << tierowslength << " columnslength = " << columnslength;
 
     /* Create some pretend data. */
-//    for (int x = 0; x < tierowslength; x++)
-//       for (int y = 0; y < columnslength; y++)
-//       {
-//          data_out[x][y] = x * columnslength + y;
-//       }
+    //    for (int x = 0; x < tierowslength; x++)
+    //       for (int y = 0; y < columnslength; y++)
+    //       {
+    //          data_out[x][y] = x * columnslength + y;
+    //       }
 
-//    int longitude[columnslength][tierowslength];
+    //    int longitude[columnslength][tierowslength];
 
-//    for(int j = 0; j < tierowslength; j++)
-//    {
-//        for(int i = 0; i < columnslength; i++)
-//        {
-//            longitude[i][j] = longitude_img[j*columnslength + j];
-//        }
-//    }
+    //    for(int j = 0; j < tierowslength; j++)
+    //    {
+    //        for(int i = 0; i < columnslength; i++)
+    //        {
+    //            longitude[i][j] = longitude_img[j*columnslength + j];
+    //        }
+    //    }
 
     if ((retval = nc_create(FILE_NAME, NC_NETCDF4|NC_CLOBBER, &ncid)))
         ERR(retval);
@@ -2009,11 +2080,11 @@ int FormMapCyl::ExtractSegment(QString ArchivePath, QString DestinationPath)
         return(1);
     }
 
-//    while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
-//    {
-//      qDebug() << QString("%1").arg(archive_entry_pathname(entry));
-//      archive_read_data_skip(a);  // Note 2
-//    }
+    //    while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
+    //    {
+    //      qDebug() << QString("%1").arg(archive_entry_pathname(entry));
+    //      archive_read_data_skip(a);  // Note 2
+    //    }
 
     int nbrblocks = 1;
 
@@ -2287,31 +2358,49 @@ void FormMapCyl::on_btnDownloadXMLFromDatahub_clicked()
     else if(ui->rdbDownloadXMLSLSTR->isChecked())
         type = "SLSTR";
 
+    if(CheckUserAndPassword())
+        segs->LoadXMLfromDatahub(ui->calendarDatahub->selectedDate(), type);
+}
+
+bool FormMapCyl::CheckUserAndPassword()
+{
+
+    bool okuser = false;
+    bool okpassword = false;
+
     if(opts.datahubuser.isEmpty())
     {
         QMessageBox::StandardButton reply;
         reply = QMessageBox::critical(this, tr("Datahub User Id"),
-                                        "The Datahub User Id is empty. Open the 'Preferences' , 'Scihub/CODA config' and fill in the User Id",
-                                        QMessageBox::Ok);
+                                      "The Datahub User Id is empty. Open the 'Preferences' , 'Scihub/CODA config' and fill in the User Id",
+                                      QMessageBox::Ok);
         if (reply == QMessageBox::Ok)
-            return;
-    }
-    if(opts.datahubpassword.isEmpty())
-    {
-
-        QString text = QInputDialog::getText(this, tr("Your Datahub password "),
-                                             tr("Password : "), QLineEdit::Normal, "",&ok);
-        if (ok && !text.isEmpty())
-            opts.datahubpassword = text;
-        else
-            return;
-
+            okuser = true;
     }
     else
-        ok = false;
+        okuser = true;
 
-    if(ok)
-        segs->LoadXMLfromDatahub(ui->calendarDatahub->selectedDate(), type);
+    if(!opts.datahubuser.isEmpty())
+    {
+        if(opts.datahubpassword.isEmpty())
+        {
+            bool ok;
+            QString text = QInputDialog::getText(this, tr("Your Datahub password "),
+                                                 tr("Password : "), QLineEdit::Normal, "",&ok);
+            if (ok && !text.isEmpty())
+            {
+                opts.datahubpassword = text;
+                okpassword = true;
+                qDebug() << "Password = " << text;
+            }
+            else
+                okpassword = false;
+
+        }
+        else
+            okpassword = true;
+    }
+
+    return okuser && okpassword;
+
 }
-
-

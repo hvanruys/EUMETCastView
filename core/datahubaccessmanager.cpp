@@ -274,7 +274,7 @@ bool DatahubAccessManager::appendToOutDocument()
         if( strdoc.mid(0, 15) == "<!DOCTYPE html>")
             strdoc.remove(0, 15);
         QMessageBox msgBox;
-        msgBox.setText(strdoc);
+        msgBox.setText("Received a wrong XML document");
         msgBox.exec();
         return false;
     }

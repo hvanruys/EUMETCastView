@@ -744,6 +744,25 @@ void FormImage::MakeImage()
             return;
         }
 
+        if(segs->seglolciefr->NbrOfSegmentsSelected() == 0)
+        {
+            QMessageBox msgBox;
+            msgBox.setText("You need to select one or more segments.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+            return;
+
+        }
+
+
         formtoolbox->setToolboxButtons(false);
 
         imageptrs->olcitype = SEG_OLCIEFR;
@@ -783,8 +802,10 @@ void FormImage::MakeImage()
             return;
 
         }
-        else      //          in Workerthread
+        else
+        { //          in Workerthread
             segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
+        }
     }
     else if(olcierrcount > 0 && opts.buttonOLCIerr)
     {

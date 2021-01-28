@@ -17,7 +17,7 @@ namespace Ui {
 }
 
 class FormToolbox;
-class ProductList;
+struct ProductList;
 
 class FormMapCyl : public QWidget
 {
@@ -27,8 +27,9 @@ public:
     explicit FormMapCyl(QWidget *parent = 0, MapFieldCyl *p_mapcyl = 0, Globe *p_globe = 0, FormToolbox *p_formtoolbox = 0, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
 
     int ExtractSegment(QString ArchivePath, QString DestinationPath);
-
+    bool AreThereSelectedSegments();
     void setCylOrGlobe(int ind);
+    bool CheckUserAndPassword();
 
 private:
     Ui::FormMapCyl *ui;
