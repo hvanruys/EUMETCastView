@@ -924,14 +924,14 @@ void Options::CreateGeoSatelliteIni()
     }
 
     //E1B-TPG-1
-    geosatellites[4].fullname = "Electro L2";
-    geosatellites[4].shortname = "GOMS2";
+    geosatellites[4].fullname = "Electro L3";
+    geosatellites[4].shortname = "GOMS3";
     geosatellites[4].longitude = 76.1;
     geosatellites[4].longitudelimit1 = 0.0;
     geosatellites[4].longitudelimit2 = 0.0;
     geosatellites[4].protocol = "XRIT";
     geosatellites[4].rss = false;
-    geosatellites[4].searchstring = "H-000-GOMS2_-GOMS2_4";
+    geosatellites[4].searchstring = "H-000-GOMS3_-GOMS3_4";
     geosatellites[4].indexsearchstring = 0;
     geosatellites[4].filepattern = "H-???-??????-?????????___-?????????-0?????___-%1-C_";
     geosatellites[4].imagewidth = 2784;

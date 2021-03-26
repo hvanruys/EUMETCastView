@@ -159,8 +159,8 @@ eGeoSatellite SegmentListGeostationary::getGeoSatellite()
         return eGeoSatellite::MET_9;
     else if(str_GeoSatellite == "MET_8")
         return eGeoSatellite::MET_8;
-    else if(str_GeoSatellite == "GOMS2")
-        return eGeoSatellite::GOMS2;
+    else if(str_GeoSatellite == "GOMS3")
+        return eGeoSatellite::GOMS3;
     else if(str_GeoSatellite == "FY2H")
         return eGeoSatellite::FY2H;
     else if(str_GeoSatellite == "FY2G")
@@ -239,9 +239,9 @@ void SegmentListGeostationary::setGeoSatellite(int geoindex, QString strgeo)
     {
         this->m_GeoSatellite = eGeoSatellite::MET_8;
     }
-    else if(strgeo == "GOMS2")
+    else if(strgeo == "GOMS3")
     {
-        this->m_GeoSatellite = eGeoSatellite::GOMS2;
+        this->m_GeoSatellite = eGeoSatellite::GOMS3;
     }
     else if(strgeo == "FY2H")
     {
@@ -345,7 +345,7 @@ bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QStr
     {
         QtConcurrent::run(doComposeGeostationaryXRIT, this, fileinfo.filePath(), 0, spectrumvector, inversevector);
     }
-    else if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_9 || m_GeoSatellite == eGeoSatellite::MET_8 || m_GeoSatellite == eGeoSatellite::GOMS2)
+    else if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_9 || m_GeoSatellite == eGeoSatellite::MET_8 || m_GeoSatellite == eGeoSatellite::GOMS3)
     {
         if( spectrumvector.at(1) == "" && spectrumvector.at(2) == "")
         {
@@ -479,7 +479,7 @@ void SegmentListGeostationary::InsertPresent( QVector<QString> spectrumvector, Q
     qDebug() << QString("InsertPresent ; spectrum %1 %2 %3    filespectrum  %4  fileseq %5").arg(spectrumvector[0]).arg(spectrumvector[1]).arg(spectrumvector[2]).arg(filespectrum).arg(filesequence);
     if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_9 ||
             m_GeoSatellite == eGeoSatellite::MET_8 || m_GeoSatellite == eGeoSatellite::H8 || m_GeoSatellite == eGeoSatellite::GOES_16 ||
-            m_GeoSatellite == eGeoSatellite::GOES_17 || m_GeoSatellite == eGeoSatellite::GOMS2)
+            m_GeoSatellite == eGeoSatellite::GOES_17 || m_GeoSatellite == eGeoSatellite::GOMS3)
     {
         if(spectrumvector.at(0) == filespectrum)
         {
@@ -2070,7 +2070,7 @@ void SegmentListGeostationary::ComposeVISIR()
 
     for (int line = opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1; line >= 0; line--)
     {
-        if(m_GeoSatellite == eGeoSatellite::GOES_15 || m_GeoSatellite == eGeoSatellite::GOMS2)
+        if(m_GeoSatellite == eGeoSatellite::GOES_15 || m_GeoSatellite == eGeoSatellite::GOMS3)
             row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
         else
             row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1 - line);
@@ -2154,7 +2154,7 @@ void SegmentListGeostationary::ComposeVISIR()
                     b = r;
                 }
             }
-            if(m_GeoSatellite == eGeoSatellite::GOES_15 || m_GeoSatellite == eGeoSatellite::GOMS2 )
+            if(m_GeoSatellite == eGeoSatellite::GOES_15 || m_GeoSatellite == eGeoSatellite::GOMS3 )
                 row_col[pixelx] = qRgb(r,g,b);
             else
                 row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r,g,b);
@@ -2575,7 +2575,7 @@ bool SegmentListGeostationary::allVIS_IRSegmentsReceived()
                 }
             }
         }
-        else if(m_GeoSatellite == eGeoSatellite::GOMS2)
+        else if(m_GeoSatellite == eGeoSatellite::GOMS3)
         {
             for(int i = 0 ; i < 6; i++)
             {
@@ -2610,7 +2610,7 @@ bool SegmentListGeostationary::allVIS_IRSegmentsReceived()
                     pbCounter++;
             }
         }
-        else if(m_GeoSatellite == eGeoSatellite::GOMS2)
+        else if(m_GeoSatellite == eGeoSatellite::GOMS3)
         {
             for(int i = 0; i < 6; i++)
             {
@@ -2701,7 +2701,7 @@ bool SegmentListGeostationary::allVIS_IRSegmentsReceived()
                 if (isPresentBlue[i] && issegmentcomposedBlue[i] == false)
                     return false;
             }
-        } else if(m_GeoSatellite == eGeoSatellite::GOMS2)
+        } else if(m_GeoSatellite == eGeoSatellite::GOMS3)
         {
             for(int i = 0 ; i < 6; i++)
             {
@@ -2744,7 +2744,7 @@ bool SegmentListGeostationary::allVIS_IRSegmentsReceived()
                     return false;
             }
         }
-        else if(m_GeoSatellite == eGeoSatellite::GOMS2)
+        else if(m_GeoSatellite == eGeoSatellite::GOMS3)
         {
             for(int i = 0; i < 6; i++)
             {

@@ -1439,7 +1439,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //H-000-GOMS2_-GOMS2_4_____-_________-PRO______-201705181530-__
         //H-000-GOMS2_-GOMS2_4_____-00_9_077E-000001___-201705181530-C_
         //H-000-GOMS2_-GOMS2_4_____-_________-EPI______-201705181530-__
-        else if (fileinfo.fileName().mid( 0, 20) == "H-000-GOMS2_-GOMS2_4" && fileinfo.isFile()) //E1B-TPG-1
+        else if (fileinfo.fileName().mid( 0, 20) == "H-000-GOMS3_-GOMS3_4" && fileinfo.isFile()) //E1B-TPG-1
         {
             QDate d(fileinfo.fileName().mid( 46, 4).toInt(), fileinfo.fileName().mid( 50, 2).toInt(), fileinfo.fileName().mid( 52, 2).toInt());
             filedate.setDate(d);
