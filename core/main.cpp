@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.5.1"
+#define APPVERSION "1.5.2"
 
 using namespace std;
 

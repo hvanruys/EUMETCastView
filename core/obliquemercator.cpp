@@ -29,12 +29,12 @@ ObliqueMercator::~ObliqueMercator()
 {
 }
 
-void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType projtype)
+void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType projtype, int imgwidth, int imgheight)
 {
     if(opts.bellipsoid)
     {
         this->ellipsoid = true;
-        InitializeEllipsoid(r_maj, r_min, projtype);
+        InitializeEllipsoid(r_maj, r_min, projtype, imgwidth, imgheight);
     }
     else
     {
@@ -43,7 +43,7 @@ void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType pro
     }
 }
 
-void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectionType projtype)
+void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectionType projtype, int imgwidth, int imgheight)
 {
     double temp;			/* temporary variable		*/
     double con,com;
@@ -130,23 +130,27 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
 
     if(projtype == PROJ_VIIRSM)
     {
-        image_width = imageptrs->ptrimageViirsM->width();
-        image_height = imageptrs->ptrimageViirsM->height();
+        image_width = imgwidth; //imageptrs->ptrimageViirsM->width();
+        image_height = imgheight; //imageptrs->ptrimageViirsM->height();
+
     }
     else if(projtype == PROJ_MERSI)
     {
-        image_width = imageptrs->ptrimageMERSI->width();
-        image_height = imageptrs->ptrimageMERSI->height();
+        image_width = imgwidth; //imageptrs->ptrimageMERSI->width();
+        image_height = imgheight; //imageptrs->ptrimageMERSI->height();
 
     }
     else if(projtype == PROJ_AVHRR)
     {
         if(opts.buttonMetop)
         {
-            image_width = imageptrs->ptrimagecomp_ch[0]->width();
-            image_height = imageptrs->ptrimagecomp_ch[0]->height();
+            image_width = imgwidth; //imageptrs->ptrimagecomp_ch[0]->width();
+            image_height = imgheight; //imageptrs->ptrimagecomp_ch[0]->height();
         }
     }
+
+    QPoint imagepoint(image_width, image_height);
+    emit aspectratioChanged(imagepoint);
 
     if (image_width != imageptrs->ptrimageProjection->width() || image_height != imageptrs->ptrimageProjection->height())
     {
@@ -160,13 +164,13 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
     imageptrs->ptrimageProjectionBlue.reset(new quint16[image_width * image_height]);
     imageptrs->ptrimageProjectionAlpha.reset(new quint16[image_width * image_height]);
 
-    for(int i = 0; i < image_width * image_height; i++)
-    {
-        imageptrs->ptrimageProjectionRed[i] = 0;
-        imageptrs->ptrimageProjectionGreen[i] = 0;
-        imageptrs->ptrimageProjectionBlue[i] = 0;
-        imageptrs->ptrimageProjectionAlpha[i] = 0;
-    }
+//    for(int i = 0; i < image_width * image_height; i++)
+//    {
+//        imageptrs->ptrimageProjectionRed[i] = 0;
+//        imageptrs->ptrimageProjectionGreen[i] = 0;
+//        imageptrs->ptrimageProjectionBlue[i] = 0;
+//        imageptrs->ptrimageProjectionAlpha[i] = 0;
+//    }
 
     r_major = r_maj;
     r_minor = r_min;

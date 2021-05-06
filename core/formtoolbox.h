@@ -30,6 +30,8 @@ public:
     eProjectionType getCurrentProjectionType();
     int getGeoIndex() { return geoindex; }
     void setGeoIndex(int geo) { this->geoindex = geo; }
+    void getOMimagesize(int *width, int *height );
+    void setOMimagesize(int width, int height);
 
     QList<bool> getVIIRSMBandList();
     QList<int> getVIIRSMColorList();
@@ -132,6 +134,7 @@ public slots:
     void setButtons(int geoindex, bool state);
 
     void slotDisplayDNBGraph();
+        void slotChangeAspectRatio(QPoint);
 
 signals:
     void getgeosatchannel(QString, QVector<QString>, QVector<bool>, int, bool);
@@ -310,6 +313,8 @@ private slots:
 
     void on_btnOMClearMap_clicked();
     void on_chkOMGridOnProj_clicked();
+    void on_spbOMwidth_valueChanged(int arg1);
+    void on_spbOMheight_valueChanged(int arg1);
 };
 
 

@@ -106,7 +106,6 @@ public:
     bool refreshoverlay;
     ImageLabel *imageLabel;
 
-
     ~FormImage();
 
 private:
@@ -136,7 +135,6 @@ private:
 
     QVBoxLayout *mainLayout;
 
-    QPoint mousepoint;
     double scaleFactor;
 
     bool overlaymeteosat;
@@ -166,6 +164,7 @@ private:
     double A1red, B1red;
     double A1green, B1green;
     double A1blue, B1blue;
+    QPoint mousepoint;
 
 signals:
     void moveImage(QPoint, QPoint);
@@ -202,6 +201,7 @@ public:
     explicit ImageLabel(QWidget *parent=0, AVHRRSatellite *seglist=0);
     void setFormImagePtr(FormImage *ptr) { formimage = ptr; }
     void resize(const QSize&);
+    QPoint getMousePosition() { return mousepos; }
 
 public slots:
     void setPixmap ( const QPixmap & );
@@ -212,6 +212,7 @@ private:
     QSize scaledpixmapsize;
     FormImage *formimage;
     AVHRRSatellite *segs;
+    QPoint mousepos;
 
 signals:
     void coordinateChanged(QString str);

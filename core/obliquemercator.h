@@ -17,7 +17,7 @@ public:
     explicit ObliqueMercator(QObject *parent = 0, AVHRRSatellite *seglist = 0);
     ~ObliqueMercator();
 
-    void Initialize(double r_maj, double r_min, eProjectionType projtype);
+    void Initialize(double r_maj, double r_min, eProjectionType projtype, int imgwidth, int imgheight);
 
 
     void CreateMapFromVIIRS(eSegmentType type, bool combine);
@@ -33,7 +33,7 @@ public:
 
 
 private:
-    void InitializeEllipsoid(double r_maj, double r_min, eProjectionType projtype);
+    void InitializeEllipsoid(double r_maj, double r_min, eProjectionType projtype, int imgwidth, int imgheight);
     void InitializeSpherical(eProjectionType projtype);
 
     double tsfnz(double eccent, double phi, double sinphi);
@@ -84,7 +84,8 @@ private:
     bool ellipsoid;
 
 signals:
-    
+    void aspectratioChanged(QPoint);
+
 public slots:
     
 };

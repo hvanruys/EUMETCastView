@@ -182,6 +182,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect( formgeostationary, SIGNAL(enabletoolboxbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 
+    connect( imageptrs->om, SIGNAL(aspectratioChanged(QPoint)), formtoolbox, SLOT(slotChangeAspectRatio(QPoint)));
+
     formtoolbox->setChannelIndex();
 
     setWindowTitle(tr("EUMETCast Viewer"));
@@ -447,7 +449,7 @@ void MainWindow::setupStatusBar()
     coordinateLabel->setAlignment(Qt::AlignRight);
     statusBar()->addWidget(timeLabel);
     statusBar()->addWidget(formulaLabel);
-    statusBar()->addWidget(coordinateLabel,1);
+    statusBar()->addWidget(coordinateLabel);
 }
 
 
@@ -521,8 +523,11 @@ void MainWindow::on_actionImage_triggered()
     else if(index == TAB_PROJECTION)
     {
         if( formtoolbox->getToolboxIndex() == 3)
-            imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, formtoolbox->getCurrentProjectionType());
-
+        {
+            int w, h;
+            formtoolbox->getOMimagesize(&w, &h);
+            imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, formtoolbox->getCurrentProjectionType(), w, h);
+        }
         formimage->UpdateProjection();
 
        // formimage->displayImage(IMAGE_PROJECTION); //Projection image

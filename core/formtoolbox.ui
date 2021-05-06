@@ -6999,7 +6999,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>429</width>
+                 <width>435</width>
                  <height>685</height>
                 </rect>
                </property>
@@ -7764,7 +7764,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>402</width>
+                 <width>405</width>
                  <height>342</height>
                 </rect>
                </property>
@@ -8450,7 +8450,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>696</width>
-                 <height>406</height>
+                 <height>514</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8530,6 +8530,93 @@
                   </item>
                   <item>
                    <spacer name="horizontalSpacer_182">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_127">
+                  <item>
+                   <widget class="QLabel" name="lblAspectRatio">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_184">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_128">
+                  <item>
+                   <widget class="QLabel" name="label_71">
+                    <property name="text">
+                     <string>Image width : </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spbOMwidth">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximum">
+                     <number>99999</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>100</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_72">
+                    <property name="text">
+                     <string>Height : </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spbOMheight">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximum">
+                     <number>99999</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>100</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_185">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>

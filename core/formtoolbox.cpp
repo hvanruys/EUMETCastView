@@ -417,7 +417,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     {
         QListWidgetItem* item = new QListWidgetItem(imageptrs->rgbrecipes.at(i).Name, ui->lstRGB);
     }
-    qDebug() << "Width of formtoolbox = " << this->width();
 
 }
 
@@ -572,7 +571,6 @@ void FormToolbox::setValuePrgBar(int val)
 void FormToolbox::setValueProgressBar(int val)
 {
     ui->pbProgress->setValue(val);
-    //this->update();
 }
 
 void FormToolbox::setupChannelCombo()
@@ -2848,7 +2846,7 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
         else if( ui->toolBox->currentIndex() == 2)
             imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
         else
-            imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType);
+            imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
 
         formimage->UpdateProjection();
         formimage->adjustPicSize(false);
@@ -3571,7 +3569,7 @@ void FormToolbox::on_btnCreateOM_clicked()
     }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
-    imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType);
+    imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
 
     if(ui->rdbVIIRSMin->isChecked())
     {
@@ -3751,6 +3749,18 @@ eProjectionType FormToolbox::getCurrentProjectionType()
     return this->currentProjectionType;
 }
 
+void FormToolbox::getOMimagesize(int *width, int *height)
+{
+    *width = ui->spbOMwidth->value();
+    *height = ui->spbOMheight->value();
+}
+
+void FormToolbox::setOMimagesize(int width, int height)
+{
+    ui->spbOMwidth->setValue(width);
+    ui->spbOMheight->setValue(height);
+}
+
 int FormToolbox::getTabWidgetIndex()
 {
     return ui->tabWidget->currentIndex();
@@ -3809,7 +3819,7 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     }
     else
     {
-        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, currentProjectionType);
+        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
 
     }
 
@@ -6129,7 +6139,7 @@ void FormToolbox::on_rdbVIIRSMin_clicked()
 {
     this->currentProjectionType = PROJ_VIIRSM;
     if( this->getToolboxIndex() == 3)
-        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType);
+        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
 
     formimage->UpdateProjection();
 
@@ -6154,10 +6164,9 @@ void FormToolbox::on_rdbMERSIin_clicked()
 {
     this->currentProjectionType = PROJ_MERSI;
     if( this->getToolboxIndex() == 3)
-        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType);
+        imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
 
     formimage->UpdateProjection();
-
 }
 
 void FormToolbox::on_rdbMeteosatin_clicked()
@@ -6165,11 +6174,30 @@ void FormToolbox::on_rdbMeteosatin_clicked()
     this->currentProjectionType = PROJ_GEOSTATIONARY;
 }
 
-
-
 void FormToolbox::on_btnOMClearMap_clicked()
 {
     imageptrs->ptrimageProjection->fill(qRgba(0, 0, 0, 250));
     formimage->displayImage(IMAGE_PROJECTION);
 }
 
+void FormToolbox::slotChangeAspectRatio(QPoint vec)
+{
+    qDebug() << "FormToolbox::slotChangeAspectRatio(QPoint vec) " << vec.x() << " " << vec.y();
+    QString str;
+    double ar = (double)vec.x()/(double)vec.y();
+    str = QString("Canvas size = %1 x %2   Aspect Ratio = %3").arg(vec.x()).arg(vec.y()).arg(ar, 0, 'f', 3);
+    ui->lblAspectRatio->setText(str);
+}
+
+
+void FormToolbox::on_spbOMwidth_valueChanged(int arg1)
+{
+    imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
+    formimage->UpdateProjection();
+}
+
+void FormToolbox::on_spbOMheight_valueChanged(int arg1)
+{
+    imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
+    formimage->UpdateProjection();
+}

@@ -91,6 +91,9 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 
     this->currentgeooverlay = 0;
     this->setupGeoOverlay(0);
+
+    //setMouseTracking(true);
+
 }
 
 QLabel *FormImage::returnimageLabelptr()
@@ -154,26 +157,32 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
     case IMAGE_AVHRR_CH1:
         displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[0]) ));
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[0]->width(), imageptrs->ptrimagecomp_ch[0]->height());
         break;
     case IMAGE_AVHRR_CH2:
         displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[1]) ));
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[1]->width(), imageptrs->ptrimagecomp_ch[1]->height());
         break;
     case IMAGE_AVHRR_CH3:
         displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[2]) ));
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[2]->width(), imageptrs->ptrimagecomp_ch[2]->height());
         break;
     case IMAGE_AVHRR_CH4:
         displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[3]) ));
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[3]->width(), imageptrs->ptrimagecomp_ch[3]->height());
         break;
     case IMAGE_AVHRR_CH5:
         displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_ch[4]) ));
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[4]->width(), imageptrs->ptrimagecomp_ch[4]->height());
         break;
     case IMAGE_AVHRR_COL:
         displayAVHRRImageInfo();
         imageLabel->setPixmap(QPixmap::fromImage(*(imageptrs->ptrimagecomp_col)));
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_col->width(), imageptrs->ptrimagecomp_col->height());
         break;
     case IMAGE_AVHRR_EXPAND:
         displayAVHRRImageInfo();
@@ -190,6 +199,7 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
     case IMAGE_VIIRSM:
         displayVIIRSImageInfo(segmenttype);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsM)));
+        formtoolbox->setOMimagesize(imageptrs->ptrimageViirsM->width(), imageptrs->ptrimageViirsM->height());
         break;
     case IMAGE_VIIRSDNB:
         displayVIIRSImageInfo(segmenttype);
@@ -206,6 +216,7 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
     case IMAGE_MERSI:
         displayMERSIImageInfo(SEG_MERSI);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageMERSI)));
+        formtoolbox->setOMimagesize(imageptrs->ptrimageMERSI->width(), imageptrs->ptrimageMERSI->height());
         break;
     case IMAGE_NONE:
         break;
@@ -1282,7 +1293,7 @@ void FormImage::mousePressEvent(QMouseEvent *e)
     if(e->button() == Qt::LeftButton)
     {
         mousepoint = e->pos();
-        setCursor(Qt::ClosedHandCursor);
+        this->setCursor(Qt::ClosedHandCursor);
     }
 }
 
@@ -1427,7 +1438,7 @@ void FormImage::zoomOverlaySwitch()
 }
 */
 
-void FormImage::paintEvent( QPaintEvent * )
+void FormImage::paintEvent( QPaintEvent *event )
 {
     if (imageLabel->pixmap() == 0)
         return;
@@ -1442,13 +1453,15 @@ void FormImage::paintEvent( QPaintEvent * )
     //pix=QPixmap::fromImage(*(imageptrs->ptrimageMeteosat));
     QPainter painter(pix);
 
-    //    if(channelshown >= 1 && channelshown <= 8)
-    //    {
-    //        QFont f("Courier", 40, QFont::Bold);
-    //        painter.setFont(f);
-    //        painter.setPen(Qt::yellow);
-    //        painter.drawText(10, 50, kindofimage);
-    //    }
+//    qDebug() << "FormImage::paintEvent( QPaintEvent * )";
+
+//        if(channelshown >= 1 && channelshown <= 8)
+//        {
+//            QFont f("Courier", 40, QFont::Bold);
+//            painter.setFont(f);
+//            painter.setPen(Qt::yellow);
+//            painter.drawText(10, 50, QString("%1 %2").arg(mousepoint.x()).arg(mousepoint.y()));
+//        }
 
 
     SegmentListGeostationary *slgeo = NULL;
@@ -1486,7 +1499,6 @@ void FormImage::paintEvent( QPaintEvent * )
 
     this->adjustImage();
 
-    //qDebug() << "FormImage::paintEvent( QPaintEvent * )";
 
 }
 
@@ -4744,6 +4756,9 @@ FormImage::~FormImage()
 ImageLabel::ImageLabel(QWidget *parent, AVHRRSatellite *seglist) :  QLabel(parent)
 {
     segs = seglist;
+    mousepos.setX(0);
+    mousepos.setY(0);
+
     setMouseTracking(true);
 
 }
@@ -4759,8 +4774,12 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *event)
     double xpos = (double)event->pos().x() * factorwidth;
     double ypos = (double)event->pos().y() * factorheight;
 
+    mousepos.setX(event->pos().x());
+    mousepos.setY(event->pos().y());
     if(xpos >= this->originalpixmapsize.width() || ypos >= this->originalpixmapsize.height() )
         return;
+
+    formimage->update();
 
     if(formimage->getPictureSize() != QSize(-1,-1))
     {
@@ -4798,7 +4817,8 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *event)
         }
         else
         {
-            emit coordinateChanged(" ");
+            //formimage
+            emit coordinateChanged(QString("%1 %2  ").arg(mousepos.x()).arg(mousepos.y()));
         }
     }
     else
