@@ -14,7 +14,6 @@
 
 #define APPVERSION "1.5.2"
 
-
 using namespace std;
 
 QMutex g_mutex;
