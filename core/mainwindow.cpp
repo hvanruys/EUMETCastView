@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     formgeostationary = new FormGeostationary(this, satlist, seglist);
     ui->stackedWidget->addWidget(formgeostationary); // index 1
 
-    cylequidist = new CylEquiDist( opts.backgroundimage2D );
+    cylequidist = new CylEquiDist( opts.appdir_env == "" ? opts.backgroundimage2D : opts.appdir_env + "/" + opts.backgroundimage2D );
     mapcyl = new MapFieldCyl(this, cylequidist, satlist, seglist);
     globe = new Globe(this, satlist, seglist);
 
@@ -220,6 +220,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QList<QThread*> mainwindowthreadslist = this->findChildren <QThread*> ();
     for(int i = 0; i < mainwindowthreadslist.count(); i++)
         qDebug() << mainwindowthreadslist.at(i)->currentThread()->currentThreadId();
+
+    if(!QFile::exists("weather.txt"))
+        formephem->downloadTLE();
 
 }
 
@@ -614,11 +617,6 @@ void MainWindow::on_actionCreatePNG_triggered()
         QApplication::restoreOverrideCursor();
 
     }
-}
-
-void MainWindow::on_actionXml_triggered()
-{
-
 }
 
 void MainWindow::moveImage(QPoint d, QPoint e)

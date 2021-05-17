@@ -994,6 +994,9 @@ void AVHRRSatellite::XMLPagesDownloaded(int pages)
 void AVHRRSatellite::ReadXMLfiles()
 {
 
+    if(!QFile::exists(QCoreApplication::applicationDirPath() +  "/Segments.xml"))
+        return;
+
     bool ok = false;
     Satellite sentinelsat;
     ok = satlist->GetSatellite(41335, &sentinelsat);
@@ -2340,113 +2343,113 @@ QString AVHRRSatellite::GetOverviewSegments()
 
 }
 
-void AVHRRSatellite::drawOverlay(char *pFileName )
-{
+//void AVHRRSatellite::drawOverlay(char *pFileName )
+//{
 
-    double w, e, s, n, area, f_area, lon, lat;
-    char source, kind[2] = {'P', 'L'}, c = '>';
-    FILE *fp = 0;
-    int line, max_east = 270000000, info, single, error, ID, flip;
-    int  level, version, greenwich, river, src, msformat = 0, first = 1;
-    size_t n_read;
-    struct POINT_GSHHS p;
-    struct GSHHS h;
-    Vxp *vxp = new Vxp;
+//    double w, e, s, n, area, f_area, lon, lat;
+//    char source, kind[2] = {'P', 'L'}, c = '>';
+//    FILE *fp = 0;
+//    int line, max_east = 270000000, info, single, error, ID, flip;
+//    int  level, version, greenwich, river, src, msformat = 0, first = 1;
+//    size_t n_read;
+//    struct POINT_GSHHS p;
+//    struct GSHHS h;
+//    Vxp *vxp = new Vxp;
 
-    int nFeatures = 0;
-    long totnbrofpoints = 0;
-    nbrofpointsselected = 0;
+//    int nFeatures = 0;
+//    long totnbrofpoints = 0;
+//    nbrofpointsselected = 0;
 
-    info = single = error = ID = 0;
-
-
-    if ((fp = fopen (pFileName, "rb")) == 0 ) {
-        qDebug() << QString( "gshhs:  Could not find file %s.").arg(pFileName);
-        return; //exit (EXIT_FAILURE);
-    }
-
-    n_read = fread ((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
-    version = (h.flag >> 8) & 255;
-    flip = (version != GSHHS_DATA_RELEASE);	// Take as sign that byte-swabbing is needed
-
-    vxp->nFeatures = 1;
-    vxp->pFeatures = new VxpFeature[1];
-
-    while (n_read == 1)
-    {
-        if (flip)
-        {
-            h.id = swabi4 ((unsigned int)h.id);
-            h.n  = swabi4 ((unsigned int)h.n);
-            h.west  = swabi4 ((unsigned int)h.west);
-            h.east  = swabi4 ((unsigned int)h.east);
-            h.south = swabi4 ((unsigned int)h.south);
-            h.north = swabi4 ((unsigned int)h.north);
-            h.area  = swabi4 ((unsigned int)h.area);
-            h.area_full  = swabi4 ((unsigned int)h.area_full);
-            h.flag  = swabi4 ((unsigned int)h.flag);
-            h.container  = swabi4 ((unsigned int)h.container);
-            h.ancestor  = swabi4 ((unsigned int)h.ancestor);
-        }
-        level = h.flag & 255;				// Level is 1-4
-        version = (h.flag >> 8) & 255;			// Version is 1-7
-        //if (first) fprintf (stderr, "gshhs %s - Found GSHHS version %d in file %s\n", GSHHS_PROG_VERSION, version, file);
-        greenwich = (h.flag >> 16) & 1;			// Greenwich is 0 or 1
-        src = (h.flag >> 24) & 1;			// Greenwich is 0 (WDBII) or 1 (WVS)
-        river = (h.flag >> 25) & 1;			// River is 0 (not river) or 1 (is river)
-        w = h.west  * GSHHS_SCL;			// Convert from microdegrees to degrees
-        e = h.east  * GSHHS_SCL;
-        s = h.south * GSHHS_SCL;
-        n = h.north * GSHHS_SCL;
-        source = (src == 1) ? 'W' : 'C';		// Either WVS or CIA (WDBII) pedigree
-        if (river) source = tolower ((int)source);	// Lower case c means river-lake
-        line = (h.area) ? 0 : 1;			// Either Polygon (0) or Line (1) (if no area)
-        area = 0.1 * h.area;				// Now im km^2
-        f_area = 0.1 * h.area_full;			// Now im km^2
-
-        //OK = (!single || h.id == ID);
-        first = 0;
-
-        if (!msformat) c = kind[line];
-
-        vxp->pFeatures[0].nVerts = h.n;
-        vxp->pFeatures[0].pVerts = new QVector3D[ h.n ];
-
-        for (int k = 0; k < h.n; k++)
-        {
-            if (fread ((void *)&p, (size_t)sizeof(struct POINT_GSHHS), (size_t)1, fp) != 1)
-            {
-                //fprintf (stderr, "gshhs:  Error reading file %s for %s %d, point %d.\n", argv[1], name[line], h.id, k);
-                exit (EXIT_FAILURE);
-            }
-            if (flip)
-            {
-                p.x = swabi4 ((unsigned int)p.x);
-                p.y = swabi4 ((unsigned int)p.y);
-            }
-            lon = p.x * GSHHS_SCL;
-            if ((greenwich && p.x > max_east) || (h.west > 180000000)) lon -= 360.0;
-            lat = p.y * GSHHS_SCL;
-            // LonLat2Point(lat, lon, &vxp->pFeatures[nFeatures].pVerts[k], 1.0f);
-
-            //if (lon > 0. && lon < 30.0 && lat > 30.0 && lat < 60.0)
-            //{
-            totnbrofpoints++;
-            //drawPoint(lon * PI / 180, lat * PI/ 180);
-            //}
-
-        }
-
-        max_east = 180000000;	// Only Eurasia needs 270
-        n_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
-        nFeatures++;
-    }
-
-    fclose (fp);
+//    info = single = error = ID = 0;
 
 
-    qDebug() << QString("total nbr of points = %1 total selected = %2").arg(totnbrofpoints).arg(nbrofpointsselected);
-}
+//    if ((fp = fopen (pFileName, "rb")) == 0 ) {
+//        qDebug() << QString( "gshhs:  Could not find file %s.").arg(pFileName);
+//        return; //exit (EXIT_FAILURE);
+//    }
+
+//    n_read = fread ((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
+//    version = (h.flag >> 8) & 255;
+//    flip = (version != GSHHS_DATA_RELEASE);	// Take as sign that byte-swabbing is needed
+
+//    vxp->nFeatures = 1;
+//    vxp->pFeatures = new VxpFeature[1];
+
+//    while (n_read == 1)
+//    {
+//        if (flip)
+//        {
+//            h.id = swabi4 ((unsigned int)h.id);
+//            h.n  = swabi4 ((unsigned int)h.n);
+//            h.west  = swabi4 ((unsigned int)h.west);
+//            h.east  = swabi4 ((unsigned int)h.east);
+//            h.south = swabi4 ((unsigned int)h.south);
+//            h.north = swabi4 ((unsigned int)h.north);
+//            h.area  = swabi4 ((unsigned int)h.area);
+//            h.area_full  = swabi4 ((unsigned int)h.area_full);
+//            h.flag  = swabi4 ((unsigned int)h.flag);
+//            h.container  = swabi4 ((unsigned int)h.container);
+//            h.ancestor  = swabi4 ((unsigned int)h.ancestor);
+//        }
+//        level = h.flag & 255;				// Level is 1-4
+//        version = (h.flag >> 8) & 255;			// Version is 1-7
+//        //if (first) fprintf (stderr, "gshhs %s - Found GSHHS version %d in file %s\n", GSHHS_PROG_VERSION, version, file);
+//        greenwich = (h.flag >> 16) & 1;			// Greenwich is 0 or 1
+//        src = (h.flag >> 24) & 1;			// Greenwich is 0 (WDBII) or 1 (WVS)
+//        river = (h.flag >> 25) & 1;			// River is 0 (not river) or 1 (is river)
+//        w = h.west  * GSHHS_SCL;			// Convert from microdegrees to degrees
+//        e = h.east  * GSHHS_SCL;
+//        s = h.south * GSHHS_SCL;
+//        n = h.north * GSHHS_SCL;
+//        source = (src == 1) ? 'W' : 'C';		// Either WVS or CIA (WDBII) pedigree
+//        if (river) source = tolower ((int)source);	// Lower case c means river-lake
+//        line = (h.area) ? 0 : 1;			// Either Polygon (0) or Line (1) (if no area)
+//        area = 0.1 * h.area;				// Now im km^2
+//        f_area = 0.1 * h.area_full;			// Now im km^2
+
+//        //OK = (!single || h.id == ID);
+//        first = 0;
+
+//        if (!msformat) c = kind[line];
+
+//        vxp->pFeatures[0].nVerts = h.n;
+//        vxp->pFeatures[0].pVerts = new QVector3D[ h.n ];
+
+//        for (int k = 0; k < h.n; k++)
+//        {
+//            if (fread ((void *)&p, (size_t)sizeof(struct POINT_GSHHS), (size_t)1, fp) != 1)
+//            {
+//                //fprintf (stderr, "gshhs:  Error reading file %s for %s %d, point %d.\n", argv[1], name[line], h.id, k);
+//                exit (EXIT_FAILURE);
+//            }
+//            if (flip)
+//            {
+//                p.x = swabi4 ((unsigned int)p.x);
+//                p.y = swabi4 ((unsigned int)p.y);
+//            }
+//            lon = p.x * GSHHS_SCL;
+//            if ((greenwich && p.x > max_east) || (h.west > 180000000)) lon -= 360.0;
+//            lat = p.y * GSHHS_SCL;
+//            // LonLat2Point(lat, lon, &vxp->pFeatures[nFeatures].pVerts[k], 1.0f);
+
+//            //if (lon > 0. && lon < 30.0 && lat > 30.0 && lat < 60.0)
+//            //{
+//            totnbrofpoints++;
+//            //drawPoint(lon * PI / 180, lat * PI/ 180);
+//            //}
+
+//        }
+
+//        max_east = 180000000;	// Only Eurasia needs 270
+//        n_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
+//        nFeatures++;
+//    }
+
+//    fclose (fp);
+
+
+//    qDebug() << QString("total nbr of points = %1 total selected = %2").arg(totnbrofpoints).arg(nbrofpointsselected);
+//}
 
 SegmentListGeostationary *AVHRRSatellite::getActiveSegmentList()
 {

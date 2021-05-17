@@ -5,7 +5,7 @@
 #-------------------------------------------------
 QT       += core gui network widgets printsupport
 QT       += concurrent xml
-unix:TARGET = ../EUMETCastView
+unix:TARGET = ../../deployEUMETCastView/EUMETCastView
 else:win32:TARGET = ../../EUMETCastView
 TEMPLATE = app
 CONFIG += static

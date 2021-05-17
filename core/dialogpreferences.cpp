@@ -179,6 +179,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     htmlstring = "When checked the created SLSTR directories will be removed";
     ui->rdbRemoveSLSTRDirs->setWhatsThis(htmlstring);
 
+
 }
 
 DialogPreferences::~DialogPreferences()
@@ -553,7 +554,7 @@ void DialogPreferences::dialogaccept()
         {
             opts.texture_changed = true;
             opts.backgroundimage3D = ui->edtBackImage3D->text();
-            QImage qim(opts.backgroundimage3D);
+            QImage qim(opts.appdir_env == "" ? opts.backgroundimage3D : opts.appdir_env + "/" + opts.backgroundimage3D);
             delete imageptrs->pmOriginal;
             delete imageptrs->pmOut;
             imageptrs->pmOriginal = new QPixmap(QPixmap::fromImage(qim));
@@ -565,7 +566,7 @@ void DialogPreferences::dialogaccept()
         if(opts.graytextureOn != ui->chkGray->isChecked())
         {
             opts.texture_changed = true;
-            QImage qim(opts.backgroundimage3D);
+            QImage qim(opts.appdir_env == "" ? opts.backgroundimage3D : opts.appdir_env + "/" + opts.backgroundimage3D);
             delete imageptrs->pmOriginal;
             delete imageptrs->pmOut;
             imageptrs->pmOriginal = new QPixmap(qim.width(), qim.height());

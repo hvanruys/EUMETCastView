@@ -105,7 +105,6 @@ private slots:
 //    void SLSTRfileDownloaded(QString instrumentshortname);
 //    void XMLfileDownloaded();
 
-    void on_actionXml_triggered();
 
 public slots:
     void updateStatusBarIndicator(const QString &text);

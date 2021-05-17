@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1402</width>
-    <height>688</height>
+    <width>1424</width>
+    <height>675</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -226,7 +226,13 @@
               </widget>
              </item>
              <item>
-              <widget class="QCalendarWidget" name="calendar"/>
+              <widget class="QCalendarWidget" name="calendar">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QPushButton" name="btnReload">

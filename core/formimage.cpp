@@ -1787,11 +1787,6 @@ void FormImage::adjustPicSize(bool setwidth)
     //    IMAGE_OLCI_ERR,
     //    IMAGE_EQUIRECTANGLE
 
-    QSize met;
-
-    met.setWidth(imageptrs->ptrimageGeostationary->width());
-    met.setHeight(imageptrs->ptrimageGeostationary->width());
-
     double w,h,mw,mh,rw,rh,g=1;
     if(channelshown >= 1 && channelshown <= 6)
     {
@@ -1849,32 +1844,30 @@ void FormImage::adjustPicSize(bool setwidth)
     rw=mw/w;
     rh=mh/h;
 
-    if(rw<1 && rh>1)
+    if(setwidth) // Fit Window width
     {
         g=rw;
     }
-    if(rw>1 && rh<1)
+    else
     {
-        g=rh;
-    }
-    if(rw<1 && rh<1)
-    {
-        if(setwidth == false)
+        if((rw>1 && rh>1) || (rw<1 && rh<1))
         {
-            if(rw<rh)
-            {
-                g=rw;
-            }
-            if(rh<rw)
-            {
-                g=rh;
-            }
+            if(rw>rh)
+                g = rh;
+            else
+                g = rw;
         }
-        else
+        else if(rw<1 && rh>1)
             g=rw;
+        else if(rw>1 && rh<1)
+            g=rh;
+        else
+            g=1;
+
     }
 
 
+    // qDebug() << QString("AdjustPicSize w = %1 h = %2 mw = %3 mh = %4 rw = %5 rh = %6 g = %7 setwidth = %8").arg(w).arg(h).arg(mw).arg(mh).arg(rw).arg(rh).arg(g).arg(setwidth);
     scaleFactor = g;
     setZoomValue( g*100 );
     this->adjustImage();

@@ -12,6 +12,7 @@ core.depends = QSgp4
 
 DISTFILES += README.md \
                EUMETCastView.desktop \
-                Globe_48x48.png
+                Globe_48x48.png \
+                Globe_256x256.png
 
 

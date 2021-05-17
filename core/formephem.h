@@ -25,7 +25,7 @@ public:
     explicit FormEphem(QWidget *parent = 0, SatelliteList *satlist = 0, AVHRRSatellite *seglist = 0);
     void showAvailSat();
     void showActiveSatellites(void);
-
+    void downloadTLE();
     ~FormEphem();
 
 

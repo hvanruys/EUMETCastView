@@ -59,6 +59,7 @@ struct GeoSatellites
     int indexdatehrv;
     int lengthdatehrv;
     bool color;
+    bool colorhrv;
     int maxsegments;
     int maxsegmentshrv;
     int segmentlength;
@@ -289,6 +290,7 @@ public:
     bool bellipsoid; // for OM projection
 
     QList<GeoSatellites> geosatellites;
+    QString appdir_env;
 
 }; 
 

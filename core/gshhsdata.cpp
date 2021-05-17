@@ -27,7 +27,11 @@ gshhsData::gshhsData()
         vxp_data_overlay[i]->nFeatures = 0;
     }
 
-    Initialize(opts.gshhsglobe1, opts.gshhsglobe2, opts.gshhsglobe3, opts.gshhsoverlay1, opts.gshhsoverlay2, opts.gshhsoverlay3);
+    if(opts.appdir_env == "")
+        Initialize(opts.gshhsglobe1, opts.gshhsglobe2, opts.gshhsglobe3, opts.gshhsoverlay1, opts.gshhsoverlay2, opts.gshhsoverlay3);
+    else
+        Initialize(opts.appdir_env + "/" + opts.gshhsglobe1, opts.appdir_env + "/" + opts.gshhsglobe2, opts.appdir_env + "/" + opts.gshhsglobe3,
+                   opts.appdir_env + "/" + opts.gshhsoverlay1, opts.appdir_env + "/" + opts.gshhsoverlay2, opts.appdir_env + "/" + opts.gshhsoverlay3);
 
 
 }

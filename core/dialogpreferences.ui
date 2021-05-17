@@ -39,7 +39,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/450px-Equirectangular_projection_SW.jpg</normaloff>:/icons/icons/450px-Equirectangular_projection_SW.jpg</iconset>
+          <normaloff>:/icons/450px-Equirectangular_projection_SW.jpg</normaloff>:/icons/450px-Equirectangular_projection_SW.jpg</iconset>
         </property>
        </item>
        <item>
@@ -48,7 +48,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/grid.png</normaloff>:/icons/icons/grid.png</iconset>
+          <normaloff>:/icons/grid.png</normaloff>:/icons/grid.png</iconset>
         </property>
        </item>
        <item>
@@ -60,7 +60,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/Globe_48x48.png</normaloff>:/icons/icons/Globe_48x48.png</iconset>
+          <normaloff>:/icons/300px-Orthographic_projection_SW.png</normaloff>:/icons/300px-Orthographic_projection_SW.png</iconset>
         </property>
        </item>
        <item>
@@ -72,7 +72,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/home-mdk.png</normaloff>:/icons/icons/home-mdk.png</iconset>
+          <normaloff>:/icons/home-mdk.png</normaloff>:/icons/home-mdk.png</iconset>
         </property>
        </item>
        <item>
@@ -84,7 +84,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/cam_unmount.png</normaloff>:/icons/icons/cam_unmount.png</iconset>
+          <normaloff>:/icons/cam_unmount.png</normaloff>:/icons/cam_unmount.png</iconset>
         </property>
        </item>
        <item>
@@ -96,7 +96,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/connect.png</normaloff>:/icons/icons/connect.png</iconset>
+          <normaloff>:/icons/rfbdrake.png</normaloff>:/icons/rfbdrake.png</iconset>
         </property>
        </item>
        <item>
@@ -105,7 +105,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/image.png</normaloff>:/icons/icons/image.png</iconset>
+          <normaloff>:/icons/image.png</normaloff>:/icons/image.png</iconset>
         </property>
        </item>
        <item>
@@ -114,7 +114,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
+          <normaloff>:/icons/satell2.png</normaloff>:/icons/satell2.png</iconset>
         </property>
        </item>
        <item>
@@ -123,7 +123,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
+          <normaloff>:/icons/satellite.jpg</normaloff>:/icons/satellite.jpg</iconset>
         </property>
        </item>
        <item>
@@ -132,7 +132,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
+          <normaloff>:/icons/satellite.jpg</normaloff>:/icons/satellite.jpg</iconset>
         </property>
        </item>
        <item>
@@ -141,7 +141,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
+          <normaloff>:/icons/satellite.jpg</normaloff>:/icons/satellite.jpg</iconset>
         </property>
        </item>
        <item>
@@ -150,7 +150,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
+          <normaloff>:/icons/satellite.jpg</normaloff>:/icons/satellite.jpg</iconset>
         </property>
        </item>
        <item>
@@ -159,7 +159,7 @@
         </property>
         <property name="icon">
          <iconset resource="EUMETCastView.qrc">
-          <normaloff>:/icons/icons/server.png</normaloff>:/icons/icons/server.png</iconset>
+          <normaloff>:/icons/server.png</normaloff>:/icons/server.png</iconset>
         </property>
        </item>
       </widget>
@@ -167,7 +167,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>12</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -189,15 +189,15 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="edtBackImage2D"/>
+           </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Equirectangular Projection :</string>
              </property>
             </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="edtBackImage2D"/>
            </item>
           </layout>
          </item>
@@ -1284,78 +1284,67 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pageConnection">
-        <widget class="QLabel" name="label_2">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>30</y>
-           <width>221</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Local Directory of remote files :</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_6">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>60</y>
-           <width>211</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Directory of remote system : </string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="ledLocalDirRemote">
-         <property name="geometry">
-          <rect>
-           <x>240</x>
-           <y>20</y>
-           <width>331</width>
-           <height>27</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="ledDirRemote">
-         <property name="geometry">
-          <rect>
-           <x>240</x>
-           <y>50</y>
-           <width>331</width>
-           <height>27</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="btnLocalDirRemote">
-         <property name="geometry">
-          <rect>
-           <x>580</x>
-           <y>20</y>
-           <width>51</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>...</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="chkUDPMessages">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>100</y>
-           <width>541</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Enable UDP messages from EumetcastWatcher (the TLE's must be in place)</string>
-         </property>
-        </widget>
+        <layout class="QVBoxLayout" name="verticalLayout_20">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_22">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Local Directory of remote files :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="ledLocalDirRemote"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnLocalDirRemote">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_23">
+           <item>
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Directory of remote system : </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="ledDirRemote"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_24">
+           <item>
+            <widget class="QCheckBox" name="chkUDPMessages">
+             <property name="text">
+              <string>Enable UDP messages from EumetcastWatcher (the TLE's must be in place)</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="pageProjection">
         <layout class="QVBoxLayout" name="verticalLayout_16">

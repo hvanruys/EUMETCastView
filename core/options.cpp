@@ -4,6 +4,7 @@
 #include <qsettings.h>
 #include <QDebug>
 #include <QFile>
+#include <QProcessEnvironment>
 
 Options::Options() 
 {
@@ -53,7 +54,11 @@ void Options::Initialize(bool recreate_geo_ini)
 
     sattrackinimage=settings.value("/segments/sattrackinimage", false ).toBool();
 
-    tlelist = settings.value("/satellite/tlefiles").value<QStringList>();
+    QStringList strl;
+    strl.append("weather.txt");
+    strl.append("resource.txt");
+    tlelist = settings.value("/satellite/tlefiles", strl).value<QStringList>();
+
     QStringList catnbrlistcop;
     catnbrlistcop = settings.value( "/satellite/catnrs" ).value<QStringList>();
 
@@ -100,11 +105,11 @@ void Options::Initialize(bool recreate_geo_ini)
     backgroundimage3D=settings.value("/window/backgroundimage3D", "images/NE2_50M_SR_W_4096.jpg").value<QString>();
     tlesources=settings.value("/satellite/tlesources").value<QStringList>();
 
-    gshhsglobe1=settings.value("/window/gshhsglobe1", "gshhs2_3_4/gshhs_i.b").value<QString>();
-    gshhsglobe2=settings.value("/window/gshhsglobe2", "gshhs2_3_4/wdb_borders_i.b").value<QString>();
-    gshhsglobe3=settings.value("/window/gshhsglobe3", "gshhs2_3_4/wdb_rivers_i.b").value<QString>();
-    gshhsoverlay1=settings.value("/window/gshhsoverlay1", "gshhs2_3_4/gshhs_i.b").value<QString>();
-    gshhsoverlay2=settings.value("/window/gshhsoverlay2", "gshhs2_3_4/wdb_borders_i.b").value<QString>();
+    gshhsglobe1=settings.value("/window/gshhsglobe1", "gshhs2_3_7/gshhs_i.b").value<QString>();
+    gshhsglobe2=settings.value("/window/gshhsglobe2", "gshhs2_3_7/wdb_borders_i.b").value<QString>();
+    gshhsglobe3=settings.value("/window/gshhsglobe3", "gshhs2_3_7/wdb_rivers_i.b").value<QString>();
+    gshhsoverlay1=settings.value("/window/gshhsoverlay1", "gshhs2_3_7/gshhs_i.b").value<QString>();
+    gshhsoverlay2=settings.value("/window/gshhsoverlay2", "gshhs2_3_7/wdb_borders_i.b").value<QString>();
     gshhsoverlay3=settings.value("/window/gshhsoverlay3", "").value<QString>();
 
     skyboxup=settings.value("/window/skyboxup", "images/ulukai/corona_up.png").value<QString>();
@@ -136,7 +141,7 @@ void Options::Initialize(bool recreate_geo_ini)
     projectionoverlaycolor3=settings.value("/window/projectionoverlaycolor3", "#75749b").value<QString>();
     projectionoverlaylonlatcolor=settings.value("/window/projectionoverlaylonlatcolor", "#b9b9b9").value<QString>();
 
-    smoothprojectiontype = settings.value("/window/smoothprojectiontype", 0 ).toInt();
+    smoothprojectiontype = settings.value("/window/smoothprojectiontype", 2 ).toInt();
     equirectangulardirectory=settings.value("/window/equirectangulardirectory", "").value<QString>();
 
     gridonprojection = settings.value("/window/gridonprojection", true ).toBool();
@@ -267,6 +272,12 @@ void Options::Initialize(bool recreate_geo_ini)
 
     CreateGeoSatelliteIni();
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    if(env.contains("APPDIR"))
+        appdir_env = env.value("APPDIR");
+    else
+        appdir_env = "";
+
 
 //    if(recreate_geo_ini)
 //    {
@@ -313,6 +324,8 @@ void Options::checkStringListValues()
     if(tlesources.count() == 0)
     {
         tlesources << "http://celestrak.com/NORAD/elements/weather.txt";
+        tlesources << "http://celestrak.com/NORAD/elements/resource.txt";
+
     }
 
 
@@ -625,6 +638,7 @@ void Options::InitializeGeo()
         geo.lengthdatehrv = settingsgeo.value("lengthdatehrv").toInt();
 
         geo.color = settingsgeo.value("color").toBool();
+        geo.colorhrv = settingsgeo.value("colorhrv").toBool();
         geo.segmentlength = settingsgeo.value("segmentlength").toInt();
         geo.segmentlengthhrv = settingsgeo.value("segmentlengthhrv").toInt();
         geo.startsegmentnbrtype0 = settingsgeo.value("startsegmenttype0").toInt();
@@ -691,6 +705,7 @@ void Options::SaveGeoIni()
         settingsgeo.setValue("lengthdatehrv", geosatellites.at(i).lengthdatehrv);
 
         settingsgeo.setValue("color", geosatellites.at(i).color);
+        settingsgeo.setValue("colorhrv", geosatellites.at(i).colorhrv);
         settingsgeo.setValue("maxsegments", geosatellites.at(i).maxsegments);
         settingsgeo.setValue("maxsegmentshrv", geosatellites.at(i).maxsegmentshrv);
         settingsgeo.setValue("segmentlength", geosatellites.at(i).segmentlength);
@@ -759,6 +774,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].lengthdatehrv = 12;
 
     geosatellites[0].color = true;
+    geosatellites[0].colorhrv = true;
     geosatellites[0].maxsegments = 8;
     geosatellites[0].maxsegmentshrv = 24;
     geosatellites[0].segmentlength = 464;
@@ -804,6 +820,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[1].lengthdatehrv = 12;
 
     geosatellites[1].color = true;
+    geosatellites[1].colorhrv = true;
     geosatellites[1].maxsegments = 3;
     geosatellites[1].maxsegmentshrv = 9;
     geosatellites[1].segmentlength = 464;
@@ -849,6 +866,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[2].lengthdatehrv = 12;
 
     geosatellites[2].color = true;
+    geosatellites[2].colorhrv = true;
     geosatellites[2].maxsegments = 8;
     geosatellites[2].maxsegmentshrv = 24;
     geosatellites[2].segmentlength = 464;
@@ -894,6 +912,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[3].lengthdatehrv = 12;
 
     geosatellites[3].color = true;
+    geosatellites[3].colorhrv = true;
     geosatellites[3].maxsegments = 8;
     geosatellites[3].maxsegmentshrv = 24;
     geosatellites[3].segmentlength = 464;
@@ -955,7 +974,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[4].indexdatehrv = 0;
     geosatellites[4].lengthdatehrv = 0;
 
-    geosatellites[4].color = false;
+    geosatellites[4].color = true;
+    geosatellites[4].colorhrv = false;
     geosatellites[4].maxsegments = 6;
     geosatellites[4].maxsegmentshrv = 0;
     geosatellites[4].segmentlength = 464;
@@ -1012,7 +1032,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[5].indexdatehrv = 14;
     geosatellites[5].lengthdatehrv = 12;
 
-    geosatellites[5].color = false;
+    geosatellites[5].color = true;
+    geosatellites[5].colorhrv = false;
     geosatellites[5].maxsegments = 1;
     geosatellites[5].maxsegmentshrv = 1;
     geosatellites[5].segmentlength = 2288;
@@ -1071,7 +1092,8 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[6].indexdatehrv = 14;
     geosatellites[6].lengthdatehrv = 12;
 
-    geosatellites[6].color = false;
+    geosatellites[6].color = true;
+    geosatellites[6].colorhrv = false;
     geosatellites[6].maxsegments = 1;
     geosatellites[6].maxsegmentshrv = 1;
     geosatellites[6].segmentlength = 2288;
@@ -1132,6 +1154,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].lengthdatehrv = 0;
 
     geosatellites[7].color = false;
+    geosatellites[7].colorhrv = false;
     geosatellites[7].maxsegments = 7;
     geosatellites[7].maxsegmentshrv = 0;
     geosatellites[7].segmentlength = 464;
@@ -1195,6 +1218,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].lengthdatehrv = 0;
 
     geosatellites[8].color = true;
+    geosatellites[8].colorhrv = false;
     geosatellites[8].maxsegments = 1;
     geosatellites[8].maxsegmentshrv = 0;
     geosatellites[8].segmentlength = 5424;
@@ -1260,6 +1284,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[9].lengthdatehrv = 0;
 
     geosatellites[9].color = true;
+    geosatellites[9].colorhrv = false;
     geosatellites[9].maxsegments = 1;
     geosatellites[9].maxsegmentshrv = 0;
     geosatellites[9].segmentlength = 5424;
@@ -1320,6 +1345,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[10].lengthdatehrv = 0;
 
     geosatellites[10].color = true;
+    geosatellites[10].colorhrv = false;
     geosatellites[10].maxsegments = 10;
     geosatellites[10].maxsegmentshrv = 0;
     geosatellites[10].segmentlength = 550;
@@ -1381,6 +1407,7 @@ void Options::CreateGeoSatelliteIni()
         settingsgeo.setValue("lengthdatehrv", geosatellites.at(i).lengthdatehrv);
 
         settingsgeo.setValue("color", geosatellites.at(i).color);
+        settingsgeo.setValue("colorhrv", geosatellites.at(i).colorhrv);
         settingsgeo.setValue("maxsegments", geosatellites.at(i).maxsegments);
         settingsgeo.setValue("maxsegmentshrv", geosatellites.at(i).maxsegmentshrv);
         settingsgeo.setValue("startsegmenttype0", geosatellites.at(i).startsegmentnbrtype0);

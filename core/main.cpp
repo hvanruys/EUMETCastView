@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 #ifndef QT_NO_OPENGL
 
     MainWindow mw;
-    mw.setWindowIcon(QIcon(":/icons/icons/300px-Orthographic_projection_SW.png"));
+    mw.setWindowIcon(QIcon(":/icons/300px-Orthographic_projection_SW.png"));
     mw.setContentsMargins(0,0,0,0);
 
     mw.show();

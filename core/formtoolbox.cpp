@@ -156,13 +156,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     connect(ui->chkInverseCh4, SIGNAL(stateChanged(int)), this, SLOT(setChannelInverse()));
     connect(ui->chkInverseCh5, SIGNAL(stateChanged(int)), this, SLOT(setChannelInverse()));
 
-    spectrumvector.append("");
-    spectrumvector.append("");
-    spectrumvector.append("");
-
-    inversevector.append(false);
-    inversevector.append(false);
-    inversevector.append(false);
+    for(int i = 0; i < 6; i++)
+    {
+        spectrumvector.append("");
+        inversevector.append(false);
+    }
 
     formimage->channelshown = IMAGE_GEOSTATIONARY;
     qDebug() << QString("Current tabwidget = %1").arg(opts.currenttabwidget);
@@ -327,11 +325,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblGeo14->setText("");
     ui->lblGeo15->setText("");
     ui->lblGeo16->setText("");
-
-    ui->lblUpper->setVisible(false);
-    ui->lblLower->setVisible(false);
-    ui->spbLower->setVisible(false);
-    ui->spbUpper->setVisible(false);
 
     ui->chkShowLambert->setChecked(opts.mapextentlamberton);
     ui->chkShowPerspective->setChecked(opts.mapextentperspectiveon);
@@ -578,7 +571,7 @@ void FormToolbox::setupChannelCombo()
     qDebug() << "FormToolbox::setupChannelCombo()";
 
     QStringList coloritems;
-    coloritems << "-" << "R" << "G" << "B";
+    coloritems << "-" << "R" << "G" << "B"; // << "RG" << "RB" << "GB";
 
     ui->comboCh1->addItems(coloritems);
     ui->comboCh2->addItems(coloritems);
@@ -1580,7 +1573,7 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
     {
         if(rowchosen.at(2).toInt() > 0)
             ui->btnHRV->setEnabled(true);
-        if(opts.geosatellites.at(geoindex).color)
+        if(opts.geosatellites.at(geoindex).colorhrv)
             ui->chkColorHRV->setEnabled(true);
         if(opts.geosatellites.at(geoindex).startsegmentnbrhrvtype1 > 0)
             ui->cmbHRVtype->setEnabled(true);
@@ -1733,11 +1726,9 @@ void FormToolbox::setToolboxButtons(bool state)
     }
 
     if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
-    {
         ui->btnHRV->setEnabled(state);
-        if(opts.geosatellites.at(geoindex).color)
-            ui->chkColorHRV->setEnabled(state);
-    }
+    if(opts.geosatellites.at(geoindex).colorhrv)
+        ui->chkColorHRV->setEnabled(state);
 
     if(opts.geosatellites.at(geoindex).startsegmentnbrtype1 > 0)
         ui->cmbHRVtype->setEnabled(state);
@@ -2218,7 +2209,7 @@ void FormToolbox::on_btnGeoColor_clicked()
     if(!comboColGeoOK())
     {
         QMessageBox msgBox;
-        msgBox.setText("Need color choices for 3 different bands in the Geostationary tab.");
+        msgBox.setText("Need color choices for 3 different bands or a combination of two colors and one color.");
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.setIcon(QMessageBox::Warning);
         int ret = msgBox.exec();
@@ -4181,25 +4172,28 @@ bool FormToolbox::comboColSLSTROK()
 bool FormToolbox::comboColGeoOK()
 {
     int cnt = 0;
+    int cnt1 = 0;
 
-    cnt += ui->comboGeo1->currentIndex();
-    cnt += ui->comboGeo2->currentIndex();
-    cnt += ui->comboGeo3->currentIndex();
-    cnt += ui->comboGeo4->currentIndex();
-    cnt += ui->comboGeo5->currentIndex();
-    cnt += ui->comboGeo6->currentIndex();
-    cnt += ui->comboGeo7->currentIndex();
-    cnt += ui->comboGeo8->currentIndex();
-    cnt += ui->comboGeo9->currentIndex();
-    cnt += ui->comboGeo10->currentIndex();
-    cnt += ui->comboGeo11->currentIndex();
-    cnt += ui->comboGeo12->currentIndex();
-    cnt += ui->comboGeo13->currentIndex();
-    cnt += ui->comboGeo14->currentIndex();
-    cnt += ui->comboGeo15->currentIndex();
-    cnt += ui->comboGeo16->currentIndex();
+    if(ui->comboGeo1->currentIndex() > 0) { cnt += ui->comboGeo1->currentIndex(); cnt1++; }
+    if(ui->comboGeo2->currentIndex() > 0) { cnt += ui->comboGeo2->currentIndex(); cnt1++; }
+    if(ui->comboGeo3->currentIndex() > 0) { cnt += ui->comboGeo3->currentIndex(); cnt1++; }
+    if(ui->comboGeo4->currentIndex() > 0) { cnt += ui->comboGeo4->currentIndex(); cnt1++; }
+    if(ui->comboGeo5->currentIndex() > 0) { cnt += ui->comboGeo5->currentIndex(); cnt1++; }
+    if(ui->comboGeo6->currentIndex() > 0) { cnt += ui->comboGeo6->currentIndex(); cnt1++; }
+    if(ui->comboGeo7->currentIndex() > 0) { cnt += ui->comboGeo7->currentIndex(); cnt1++; }
+    if(ui->comboGeo8->currentIndex() > 0) { cnt += ui->comboGeo8->currentIndex(); cnt1++; }
+    if(ui->comboGeo9->currentIndex() > 0) { cnt += ui->comboGeo9->currentIndex(); cnt1++; }
+    if(ui->comboGeo10->currentIndex() > 0) { cnt += ui->comboGeo10->currentIndex(); cnt1++; }
+    if(ui->comboGeo11->currentIndex() > 0) { cnt += ui->comboGeo11->currentIndex(); cnt1++; }
+    if(ui->comboGeo12->currentIndex() > 0) { cnt += ui->comboGeo12->currentIndex(); cnt1++; }
+    if(ui->comboGeo13->currentIndex() > 0) { cnt += ui->comboGeo13->currentIndex(); cnt1++; }
+    if(ui->comboGeo14->currentIndex() > 0) { cnt += ui->comboGeo14->currentIndex(); cnt1++; }
+    if(ui->comboGeo15->currentIndex() > 0) { cnt += ui->comboGeo15->currentIndex(); cnt1++; }
+    if(ui->comboGeo16->currentIndex() > 0) { cnt += ui->comboGeo16->currentIndex(); cnt1++; }
 
-    if(cnt == 6)
+    if(cnt1 == 3 && cnt == 6)
+        return true;
+    else if(cnt1 == 2 && cnt == 7)
         return true;
     else
         return false;

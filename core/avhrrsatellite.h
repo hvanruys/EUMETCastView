@@ -114,7 +114,7 @@ public:
 
 
 
-    void drawOverlay(char *pFileName );
+    //void drawOverlay(char *pFileName );
     bool getShowAllSegments() { return showallsegments; }
     void setShowAllSegments(bool allseg) { showallsegments = allseg; }
 

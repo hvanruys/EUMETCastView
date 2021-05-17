@@ -73,7 +73,7 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
     if(projtype != PROJ_AVHRR && projtype != PROJ_MERSI && projtype != PROJ_VIIRSM )
     {
         QMessageBox msgBox;
-        msgBox.setText("Only possible for MERSI and VIIRS M projections !");
+        msgBox.setText("Only possible for MERSI and VIIRS M projections ! (Ellipsoid)");
         msgBox.exec();
         return;
     }
@@ -336,7 +336,7 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
     if(projtype != PROJ_AVHRR && projtype != PROJ_MERSI && projtype != PROJ_VIIRSM )
     {
         QMessageBox msgBox;
-        msgBox.setText("Only possible for MERSI and VIIRS M projections !");
+        msgBox.setText("Only possible for MERSI and VIIRS M projections ! (Spherical)");
         msgBox.exec();
         return;
     }

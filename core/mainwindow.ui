@@ -47,7 +47,6 @@
    <addaction name="actionExit"/>
    <addaction name="actionCreatePNG"/>
    <addaction name="actionPreferences"/>
-   <addaction name="actionXml"/>
    <addaction name="actionAbout"/>
    <addaction name="separator"/>
    <addaction name="actionZoomout"/>
@@ -89,7 +88,7 @@
   <action name="actionSatSelection">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/satellite_48x48.png</normaloff>:/icons/icons/satellite_48x48.png</iconset>
+     <normaloff>:/icons/satellite.jpg</normaloff>:/icons/satellite.jpg</iconset>
    </property>
    <property name="text">
     <string>Satellite Setup</string>
@@ -101,7 +100,7 @@
   <action name="actionExit">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/exit.png</normaloff>:/icons/icons/exit.png</iconset>
+     <normaloff>:/icons/exit.png</normaloff>:/icons/exit.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -113,7 +112,7 @@
   <action name="actionCreatePNG">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/camera.png</normaloff>:/icons/icons/camera.png</iconset>
+     <normaloff>:/icons/camera.png</normaloff>:/icons/camera.png</iconset>
    </property>
    <property name="text">
     <string>Create PNG file</string>
@@ -125,7 +124,7 @@
   <action name="actionPreferences">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/Preferences_48x48.png</normaloff>:/icons/icons/Preferences_48x48.png</iconset>
+     <normaloff>:/icons/Preferences_48x48.png</normaloff>:/icons/Preferences_48x48.png</iconset>
    </property>
    <property name="text">
     <string>Preferences</string>
@@ -134,7 +133,7 @@
   <action name="actionCylindricalEquidistant">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/Equi_projection_48x48.png</normaloff>:/icons/icons/Equi_projection_48x48.png</iconset>
+     <normaloff>:/icons/Equi_projection_48x48.png</normaloff>:/icons/Equi_projection_48x48.png</iconset>
    </property>
    <property name="text">
     <string>Cylindrical Equidistant</string>
@@ -146,7 +145,7 @@
   <action name="action3DGlobe">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/Globe_48x48.png</normaloff>:/icons/icons/Globe_48x48.png</iconset>
+     <normaloff>:/icons/300px-Orthographic_projection_SW.png</normaloff>:/icons/300px-Orthographic_projection_SW.png</iconset>
    </property>
    <property name="text">
     <string>3D Globe</string>
@@ -158,7 +157,7 @@
   <action name="actionImage">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/image.png</normaloff>:/icons/icons/image.png</iconset>
+     <normaloff>:/icons/image.png</normaloff>:/icons/image.png</iconset>
    </property>
    <property name="text">
     <string>Image</string>
@@ -170,7 +169,7 @@
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/questionmark.png</normaloff>:/icons/icons/questionmark.png</iconset>
+     <normaloff>:/icons/questionmark.png</normaloff>:/icons/questionmark.png</iconset>
    </property>
    <property name="text">
     <string>About</string>
@@ -182,7 +181,7 @@
   <action name="actionShowToolbox">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/options.png</normaloff>:/icons/icons/options.png</iconset>
+     <normaloff>:/icons/options.png</normaloff>:/icons/options.png</iconset>
    </property>
    <property name="text">
     <string>Show Toolbox</string>
@@ -194,7 +193,7 @@
   <action name="actionMeteosat">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/satell2.png</normaloff>:/icons/icons/satell2.png</iconset>
+     <normaloff>:/icons/satell2.png</normaloff>:/icons/satell2.png</iconset>
    </property>
    <property name="text">
     <string>Meteosat</string>
@@ -206,7 +205,7 @@
   <action name="actionNormalSize">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/oxygen/zoom-original.png</normaloff>:/icons/icons/oxygen/zoom-original.png</iconset>
+     <normaloff>:/icons/zoom-original.png</normaloff>:/icons/zoom-original.png</iconset>
    </property>
    <property name="text">
     <string>Normal Size</string>
@@ -218,7 +217,7 @@
   <action name="actionFitWindow">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/oxygen/zoom-fit-best.png</normaloff>:/icons/icons/oxygen/zoom-fit-best.png</iconset>
+     <normaloff>:/icons/zoom-fit-best.png</normaloff>:/icons/zoom-fit-best.png</iconset>
    </property>
    <property name="text">
     <string>Fit Window</string>
@@ -230,7 +229,7 @@
   <action name="actionZoomin">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/oxygen/zoom-in.png</normaloff>:/icons/icons/oxygen/zoom-in.png</iconset>
+     <normaloff>:/icons/zoom-in.png</normaloff>:/icons/zoom-in.png</iconset>
    </property>
    <property name="text">
     <string>Zoom in</string>
@@ -242,7 +241,7 @@
   <action name="actionZoomout">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/oxygen/zoom-out.png</normaloff>:/icons/icons/oxygen/zoom-out.png</iconset>
+     <normaloff>:/icons/zoom-out.png</normaloff>:/icons/zoom-out.png</iconset>
    </property>
    <property name="text">
     <string>Zoom out</string>
@@ -254,7 +253,7 @@
   <action name="actionFitWindowWidth">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/oxygen/zoom-fit-best-width.png</normaloff>:/icons/icons/oxygen/zoom-fit-best-width.png</iconset>
+     <normaloff>:/icons/zoom-fit-best-width.png</normaloff>:/icons/zoom-fit-best-width.png</iconset>
    </property>
    <property name="text">
     <string>Fit Window Width</string>
@@ -266,19 +265,10 @@
   <action name="actionWhatsthis">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/question-mark-cursor_318-113947.png</normaloff>:/icons/icons/question-mark-cursor_318-113947.png</iconset>
+     <normaloff>:/icons/question-mark-cursor_318-113947.png</normaloff>:/icons/question-mark-cursor_318-113947.png</iconset>
    </property>
    <property name="text">
     <string>Whats this ?</string>
-   </property>
-  </action>
-  <action name="actionXml">
-   <property name="icon">
-    <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/icons/oxygen/tools-wizard.png</normaloff>:/icons/icons/oxygen/tools-wizard.png</iconset>
-   </property>
-   <property name="text">
-    <string>Xml</string>
    </property>
   </action>
  </widget>

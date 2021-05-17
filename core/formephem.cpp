@@ -975,7 +975,7 @@ void FormEphem::showSelectedSegmentList(void)
     ui->selectedsegmentwidget->insertTopLevelItems(0, items);
 }
 
-void FormEphem::on_btnUpdateTLE_clicked()
+void FormEphem::downloadTLE()
 {
     downloadmanager.clearqueue();
 
@@ -987,6 +987,11 @@ void FormEphem::on_btnUpdateTLE_clicked()
     //QObject::connect(&downloadmanager, SIGNAL(progress(QString)), this, SLOT(showprogress(QString)));
     QObject::connect(&downloadmanager, SIGNAL(startnext(QString)), this, SLOT(showprogress(QString)));
 
+}
+
+void FormEphem::on_btnUpdateTLE_clicked()
+{
+    this->downloadTLE();
 }
 
 void FormEphem:: tlefilesread(QString str)

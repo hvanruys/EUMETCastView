@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=EUMETCastView
-Exec=EUMETCastView
-Icon=Globe_48x48.png
+Icon=Globe_48x48
 Categories=Science
 Name[en_US]=EUMETCastView.desktop
+Exec=AppRun %F

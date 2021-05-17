@@ -65,12 +65,12 @@ SkyBox::SkyBox(QOpenGLShaderProgram *prog)
 
 
     QVector<QString> faces;
-    faces.push_back(opts.skyboxright);
-    faces.push_back(opts.skyboxleft);
-    faces.push_back(opts.skyboxup);
-    faces.push_back(opts.skyboxdown);
-    faces.push_back(opts.skyboxback);
-    faces.push_back(opts.skyboxfront);
+    faces.push_back(opts.appdir_env == "" ? opts.skyboxright : opts.appdir_env + "/" + opts.skyboxright);
+    faces.push_back(opts.appdir_env == "" ? opts.skyboxleft  : opts.appdir_env + "/" + opts.skyboxleft);
+    faces.push_back(opts.appdir_env == "" ? opts.skyboxup    : opts.appdir_env + "/" + opts.skyboxup);
+    faces.push_back(opts.appdir_env == "" ? opts.skyboxdown  : opts.appdir_env + "/" + opts.skyboxdown);
+    faces.push_back(opts.appdir_env == "" ? opts.skyboxback  : opts.appdir_env + "/" + opts.skyboxback);
+    faces.push_back(opts.appdir_env == "" ? opts.skyboxfront : opts.appdir_env + "/" + opts.skyboxfront);
 
     loadCubemap(faces);
 
