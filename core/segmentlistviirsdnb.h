@@ -20,6 +20,8 @@ public:
     void sliderCentreBandChanged(int val);
     void spbWindowValueChanged(int spbwindowval, int slcentreband);
     float getMoonIllumination() { return moonillumination; }
+    void GetCentralCoords(double *startcentrallon, double *startcentrallat, double *endcentrallon, double *endcentrallat);
+
     static void doComposeVIIRSDNBImageInThread(SegmentListVIIRSDNB *t);
     QScopedArrayPointer<long> graphvalues;
     QVector<double> xDNBcurve;

@@ -392,7 +392,7 @@ void MainWindow::on_actionAbout_triggered()
     "<center><b>Version " + QApplication::applicationVersion() + "</b></center>"
     "<p>supports the following satellites</p>"
     "<br><b>Polar satellites :</b>"
-    "<br>AVHHR images from Metop-A/-B/-C and NOAA-19"
+    "<br>AVHRR images from Metop-A/-B/-C and NOAA-19"
     "<br>VIIRS images from SUOMI NPP and NOAA-20 (M-Band and Day/Night Band)"
     "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A/-3B"
     "<br>MERSI from FengYun 3D"

@@ -488,8 +488,11 @@ int pixgeoConversion::pixcoord2geocoord(double sub_lon_deg, int column, int row,
 
   sa =  pow(SAT_HEIGHT * cos(x) * cos(y),2 )  - (cos(y)*cos(y) + (double)1.006803 * sin(y)*sin(y)) * (double)1737121856. ;
 
+//  if(row == 1856)
+//      qDebug() << "column = " << column << "  sa = " << sa;
+
   /* produce error values */
-  if ( sa <= 0.0 ) {
+  if ( sa <= 1000000.0 ) {
     *latitude = -999.999;
     *longitude = -999.999;
     return (-1);
@@ -636,7 +639,8 @@ int pixgeoConversion::geocoord2pixcoord(double sub_lon_deg, double latitude, dou
 
   dotprod = r1*(rl * cos(c_lat) * cos(lon - sub_lon)) - r2*r2 - r3*r3*(pow((R_EQ/R_POL),2));
 
-  if (dotprod <= 0 ){
+
+  if (dotprod <= 30000000 ){
     *column = -999;
     *row = -999;
     return (-1);
@@ -662,6 +666,9 @@ int pixgeoConversion::geocoord2pixcoord(double sub_lon_deg, double latitude, dou
 
   *column = ccc;
   *row = lll;
+
+//  if(*row == 1850)
+//       qDebug() << "column = " << *column << "  dotprod = " << dotprod;
 
 
   return (0);

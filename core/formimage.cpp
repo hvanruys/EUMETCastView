@@ -204,6 +204,7 @@ void FormImage::setPixmapToLabel(bool settoolboxbuttons)
     case IMAGE_VIIRSDNB:
         displayVIIRSImageInfo(segmenttype);
         imageLabel->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageViirsDNB)));
+        formtoolbox->setOMimagesize(imageptrs->ptrimageViirsDNB->width(), imageptrs->ptrimageViirsDNB->height());
         break;
     case IMAGE_OLCI:
         displaySentinelImageInfo(SEG_OLCIEFR);

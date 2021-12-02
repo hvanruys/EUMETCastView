@@ -1796,7 +1796,7 @@ qint32 SegmentVIIRSM::Max(const qint32 v11, const qint32 v12, const qint32 v21, 
     return Maximum;
 }
 
-void SegmentVIIRSM::GetCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex)
+void SegmentVIIRSM::getCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex)
 {
     if(geolatitude.isNull())
     {
@@ -1836,7 +1836,7 @@ void SegmentVIIRSM::GetCentralCoords(double *startlon, double *startlat, double 
 
 }
 
-void SegmentVIIRSM::GetStartCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2,
+void SegmentVIIRSM::getStartCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2,
                                         int *Xstartindex1, int *Xstartindex2, int *Ystartindex12)
 {
     if(geolatitude.isNull())
@@ -1881,7 +1881,7 @@ void SegmentVIIRSM::GetStartCornerCoords(double *cornerlon1, double *cornerlat1,
                 " Xstartindex1 = " << *Xstartindex1 << " Xstartindex2 = " << *Xstartindex2 << " Ystartindex12 = " << *Ystartindex12;
 
 }
-void SegmentVIIRSM::GetEndCornerCoords(double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4,
+void SegmentVIIRSM::getEndCornerCoords(double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4,
                                         int *Xstartindex3, int *Xstartindex4, int *Ystartindex34)
 {
     if(geolatitude.isNull())

@@ -12,7 +12,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "1.5.2"
+#define APPVERSION "1.5.3"
 
 
 using namespace std;
@@ -122,7 +122,12 @@ int main(int argc, char *argv[])
     for (int i = 0; i < styles.size(); ++i)
              qInfo() << styles.at(i);
 
-    app.setStyle(QStyleFactory::create("Fusion"));
+    //app.setStyle(QStyleFactory::create("Fusion"));
+    //QFile file("Adaptic.qss"); //("Combinear.qss"); //file("HackBook.qss");
+    //file.open(QFile::ReadOnly);
+    //QString styleSheet { QLatin1String(file.readAll()) };
+    //setup stylesheet
+    //app.setStyleSheet(styleSheet);
 
     if (QCoreApplication::arguments().contains(QStringLiteral("--logging")) ||
         QCoreApplication::arguments().contains(QStringLiteral("-l")) )
@@ -153,7 +158,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("EUMETCastView");
     app.setApplicationVersion(APPVERSION);
 
-//    "QTabWidget::tab:disabled { width: 0; height: 0; margin: 0; padding: 0; border: none; }"
+    //"QTabWidget::tab:disabled { width: 0; height: 0; margin: 0; padding: 0; border: none; }"
 
     app.setStyleSheet(
     "QTabWidget::tab:default {border-color: navy;}"

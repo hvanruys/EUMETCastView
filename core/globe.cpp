@@ -19,7 +19,7 @@ extern gshhsData *gshhsdata;
 
 void Render3DColorTexture(Globe *gl, int geoindex)
 {
-      gl->Render3DGeoSegment( geoindex );
+      gl->Render3DGeoSegmentNew( geoindex );
 }
 
 void Render3DColorFBO(Globe *gl, eGeoSatellite sat)
@@ -1558,6 +1558,23 @@ void Globe::Render3DGeoSegment(int geoindex)
     emit renderingglobefinished(true);
 }
 
+void Globe::Render3DGeoSegmentNew(int geoindex)
+{
+    Equirectangular equirect;
+
+    equirect.Initialize(imageptrs->pmOut->width(), imageptrs->pmOut->height());
+
+
+    for (int i = 0; i < imageptrs->pmOut->height(); i=i+1)
+    {
+        Render3DGeoSegmentLineNew( i, geoindex, &equirect);
+    }
+
+    opts.texture_changed = true;
+    emit renderingglobefinished(true);
+
+
+}
 
 void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
 {
@@ -1566,7 +1583,7 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
     QRgb rgbval;
     double lon_deg, lat_deg;
     int x, y;
-
+    double lon_low, lon_high;
     pixgeoConversion pixconv;
 
     QPainter fb_painter(imageptrs->pmOut);
@@ -1584,7 +1601,24 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
         {
         if(pixconv.pixcoord2geocoord(segs->seglgeo[geoindex]->geosatlon, pix, heightinimage, segs->seglgeo[geoindex]->COFF, segs->seglgeo[geoindex]->LOFF, segs->seglgeo[geoindex]->CFAC, segs->seglgeo[geoindex]->LFAC, &lat_deg, &lon_deg) == 0)
         {
-            if(lon_deg > -65.0 && lon_deg < 65.0 && lat_deg > -65.0 && lat_deg < 65.0)
+            // if(lon_deg > -65.0 && lon_deg < 65.0 && lat_deg > -65.0 && lat_deg < 65.0)
+            if(segs->seglgeo[geoindex]->geosatlon == 0.0)
+            {
+                lon_low = -90.0;
+                lon_high = 20.75;
+            }
+            else if(segs->seglgeo[geoindex]->geosatlon == 104.5)
+            {
+                lon_low = 52.25;
+                lon_high = 194.5;
+            }
+            else if(segs->seglgeo[geoindex]->geosatlon == 41.5)
+            {
+                lon_low = 20.75;
+                lon_high = 131.5;
+            }
+
+            if(lon_deg < lon_high && lon_deg > lon_low)
             {
                 sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 fb_painter.setPen(rgbval);
@@ -1613,6 +1647,52 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
 
     fb_painter.end();
 
+}
+
+void Globe::Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirectangular *equirect)
+{
+    float lon_deg, lat_deg;
+    pixgeoConversion pixconv;
+    int ximage, yimage;
+    QRgb *scanl;
+    QRgb rgbval;
+    double lon_low, lon_high;
+
+
+    QPainter fb_painter(imageptrs->pmOut);
+
+    for (int pix = 0 ; pix < imageptrs->pmOut->width(); pix+=1)
+    {
+        equirect->map_inverse(pix, heightinimage, lon_deg, lat_deg);
+        if(segs->seglgeo[geoindex]->geosatlon == 0.0)
+        {
+            lon_low = -90.0;
+            lon_high = 20.75;
+        }
+        else if(segs->seglgeo[geoindex]->geosatlon == 104.5)
+        {
+            lon_low = 52.25;
+            lon_high = 194.5;
+        }
+        else if(segs->seglgeo[geoindex]->geosatlon == 41.5)
+        {
+            lon_low = 20.75;
+            lon_high = 131.5;
+        }
+
+        //if(lon_deg < lon_high && lon_deg > lon_low)
+        {
+            if(pixconv.geocoord2pixcoord(segs->seglgeo[geoindex]->geosatlon, lat_deg, lon_deg, segs->seglgeo[geoindex]->COFF, segs->seglgeo[geoindex]->LOFF, segs->seglgeo[geoindex]->CFAC, segs->seglgeo[geoindex]->LFAC, &ximage, &yimage) == 0)
+            {
+                scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(yimage);
+                rgbval = scanl[ximage];
+                fb_painter.setPen(rgbval);
+                fb_painter.drawPoint(pix, heightinimage);
+            }
+        }
+    }
+
+    fb_painter.end();
 }
 
 void Globe::Render3DGeoSegmentFBO(eGeoSatellite sat)

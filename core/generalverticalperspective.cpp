@@ -3,7 +3,6 @@
 #include "options.h"
 #include "pixgeoconversion.h"
 #include <QtConcurrent/QtConcurrent>
-#include "equirectangular.h"
 
 #include <QDebug>
 

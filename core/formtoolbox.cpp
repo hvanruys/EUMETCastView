@@ -3524,13 +3524,6 @@ void FormToolbox::on_btnCreateStereo_clicked()
 
 void FormToolbox::on_btnCreateOM_clicked()
 {
-    //    if(!opts.buttonVIIRSM)
-    //    {
-    //        QMessageBox msgBox;
-    //        msgBox.setText("Only possible for VIIRS images.");
-    //        msgBox.exec();
-    //        return;
-    //    }
 
     ui->pbProgress->reset();
 
@@ -3539,6 +3532,14 @@ void FormToolbox::on_btnCreateOM_clicked()
         if(!(opts.buttonVIIRSM || opts.buttonVIIRSMNOAA20) || !segs->SelectedVIIRSMSegments())
         {
             QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
+            return;
+        }
+    }
+    else if(ui->rdbVIIRSDNBin->isChecked())
+    {
+        if(!(opts.buttonVIIRSDNB || opts.buttonVIIRSDNBNOAA20) || !segs->SelectedVIIRSDNBSegments())
+        {
+            QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
             return;
         }
     }
@@ -3569,6 +3570,14 @@ void FormToolbox::on_btnCreateOM_clicked()
             imageptrs->om->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
         else if(opts.buttonVIIRSMNOAA20)
             imageptrs->om->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSMNOAA20, false);
+    }
+    else if(ui->rdbVIIRSDNBin->isChecked())
+    {
+        currentProjectionType = PROJ_VIIRSDNB;
+        if(opts.buttonVIIRSDNB)
+            imageptrs->om->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNB, false);
+        else if(opts.buttonVIIRSDNBNOAA20)
+            imageptrs->om->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSDNBNOAA20, false);
     }
     else if(ui->rdbMERSIin->isChecked())
     {

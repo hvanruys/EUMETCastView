@@ -167,7 +167,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>4</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -317,6 +317,12 @@
           <layout class="QGridLayout" name="gridLayout_5">
            <item row="2" column="3">
             <widget class="QPushButton" name="btnProjectionOverlayColor3">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -344,6 +350,12 @@
            </item>
            <item row="0" column="3">
             <widget class="QPushButton" name="btnProjectionOverlayColor1">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -357,6 +369,12 @@
            </item>
            <item row="1" column="1">
             <widget class="QPushButton" name="btnGeoImageOverlayColor2">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -370,6 +388,12 @@
            </item>
            <item row="0" column="1">
             <widget class="QPushButton" name="btnGeoImageOverlayColor1">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -383,6 +407,12 @@
            </item>
            <item row="2" column="1">
             <widget class="QPushButton" name="btnGeoImageOverlayColor3">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -417,6 +447,12 @@
            </item>
            <item row="3" column="3">
             <widget class="QPushButton" name="btnProjectionOverlayLonLatColor">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -430,6 +466,12 @@
            </item>
            <item row="1" column="3">
             <widget class="QPushButton" name="btnProjectionOverlayColor2">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -457,6 +499,12 @@
            </item>
            <item row="3" column="1">
             <widget class="QPushButton" name="btnOLCIImageOverlayColor">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -625,6 +673,12 @@
            </item>
            <item row="3" column="1">
             <widget class="QPushButton" name="btnGlobeOverlayColor1">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -638,6 +692,12 @@
            </item>
            <item row="4" column="1">
             <widget class="QPushButton" name="btnGlobeOverlayColor2">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -651,6 +711,12 @@
            </item>
            <item row="5" column="1">
             <widget class="QPushButton" name="btnGlobeOverlayColor3">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>50</width>
@@ -668,6 +734,12 @@
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="2" column="3">
             <widget class="QPushButton" name="btnGlobeLonLatColor">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>80</width>
@@ -681,6 +753,12 @@
            </item>
            <item row="1" column="1">
             <widget class="QPushButton" name="btnSatTrackColor">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>80</width>
@@ -694,6 +772,12 @@
            </item>
            <item row="0" column="1">
             <widget class="QPushButton" name="btnSatHorizonColor">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>80</width>
@@ -721,6 +805,12 @@
            </item>
            <item row="0" column="3">
             <widget class="QPushButton" name="btnSatSegmentColor">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>80</width>
@@ -734,6 +824,12 @@
            </item>
            <item row="2" column="1">
             <widget class="QPushButton" name="btnMapLCCExtentColor">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>80</width>
@@ -768,6 +864,12 @@
            </item>
            <item row="1" column="3">
             <widget class="QPushButton" name="btnSatSegmentColorSel">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>80</width>
@@ -781,6 +883,12 @@
            </item>
            <item row="3" column="1">
             <widget class="QPushButton" name="btnMapGVPExtentColor">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>80</width>

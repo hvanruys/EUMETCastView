@@ -42,10 +42,10 @@ public:
     float getBrightnessTemp(int radiance);
     float getRadiance(int lines, int views);
     float getRadiance(int radiance);
-    void GetCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex);
-    void GetStartCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2,
+    void getCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex);
+    void getStartCornerCoords(double *cornerlon1, double *cornerlat1, double *cornerlon2, double *cornerlat2,
                                             int *Xstartindex1, int *Xstartindex2, int *Ystartindex12);
-    void GetEndCornerCoords(double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4,
+    void getEndCornerCoords(double *cornerlon3, double *cornerlat3, double *cornerlon4, double *cornerlat4,
                                             int *Xstartindex3, int *Xstartindex4, int *Ystartindex34);
 
     int stat_max_projection[3];

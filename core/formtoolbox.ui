@@ -7308,14 +7308,14 @@
                </font>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>591</width>
+                 <width>419</width>
                  <height>670</height>
                 </rect>
                </property>
@@ -8869,8 +8869,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>540</width>
-                 <height>255</height>
+                 <width>610</width>
+                 <height>470</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8880,7 +8880,7 @@
                 <item>
                  <widget class="QLabel" name="label_70">
                   <property name="text">
-                   <string>Only possible for AVHRR(Metop), VIIRS M and MERSI images</string>
+                   <string>Only possible for AVHRR(Metop), VIIRS M/DNB and MERSI images</string>
                   </property>
                  </widget>
                 </item>

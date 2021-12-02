@@ -230,6 +230,7 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <kerning>false</kerning>
                 </font>
                </property>
               </widget>

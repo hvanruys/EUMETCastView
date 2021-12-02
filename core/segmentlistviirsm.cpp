@@ -1394,7 +1394,7 @@ void SegmentListVIIRSM::GetCentralCoords(double *startcentrallon, double *startc
     while ( segsel != segsselected.end() )
     {
         SegmentVIIRSM *segm = (SegmentVIIRSM *)(*segsel);
-        segm->GetCentralCoords(&slon, &slat, &elon, &elat, &startindex, &endindex);
+        segm->getCentralCoords(&slon, &slat, &elon, &elat, &startindex, &endindex);
 
         if(abs(slon) <= 180.0 && abs(slat) <= 90.0 && abs(elon) <= 180.0 && abs(elat) <= 90.0)
         {
@@ -1452,7 +1452,7 @@ void SegmentListVIIRSM::GetCornerCoords(double *cornerlon1, double *cornerlat1, 
         count++;
         if(count == 1)
         {
-            segm->GetStartCornerCoords(&save_cornerlon1, &save_cornerlat1, &save_cornerlon2, &save_cornerlat2, &Xcornerindex1, &Xcornerindex2, &Ycornerindex12 );
+            segm->getStartCornerCoords(&save_cornerlon1, &save_cornerlat1, &save_cornerlon2, &save_cornerlat2, &Xcornerindex1, &Xcornerindex2, &Ycornerindex12 );
             if(abs(save_cornerlon1) <= 180.0 && abs(save_cornerlat1) <= 90.0 && abs(save_cornerlon2) <= 180.0 && abs(save_cornerlat2) <= 90.0)
                 break;
         }
@@ -1469,7 +1469,7 @@ void SegmentListVIIRSM::GetCornerCoords(double *cornerlon1, double *cornerlat1, 
 
         if(count == segsselected.size())
         {
-            segm->GetEndCornerCoords(&save_cornerlon3, &save_cornerlat3, &save_cornerlon4, &save_cornerlat4, &Xcornerindex3, &Xcornerindex4, &Ycornerindex34 );
+            segm->getEndCornerCoords(&save_cornerlon3, &save_cornerlat3, &save_cornerlon4, &save_cornerlat4, &Xcornerindex3, &Xcornerindex4, &Ycornerindex34 );
             if(abs(save_cornerlon3) <= 180.0 && abs(save_cornerlat3) <= 90.0 && abs(save_cornerlon4) <= 180.0 && abs(save_cornerlat4) <= 90.0)
                 break;
         }

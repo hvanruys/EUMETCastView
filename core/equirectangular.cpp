@@ -36,7 +36,8 @@ void Equirectangular::Initialize(int imwidth, int imheight)
         lat_array[i] = 90.0 - (i + 0.5) * lat_del;
 
 
-            initializeProjectionCoord();
+
+    //initializeProjectionCoord();
 
 }
 

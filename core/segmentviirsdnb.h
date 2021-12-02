@@ -23,11 +23,13 @@ public:
     void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentOMProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeProjection(eProjections proj, int histogrammethod, bool normalized);
     void ComposeSegmentImageWindow(float lowerlimit, float upperlimit);
     void ComposeSegmentImageWindowFromCurve(QVector<double> *x, QVector<double> *y);
 
     void CalcGraph(QScopedArrayPointer<long> *graph);
+    void getCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat, int *startindex, int *endindex);
 
     int threshold[3];
     float stat_max;

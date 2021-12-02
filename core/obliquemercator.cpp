@@ -31,6 +31,8 @@ ObliqueMercator::~ObliqueMercator()
 
 void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType projtype, int imgwidth, int imgheight)
 {
+    qDebug() << "ObliqueMercator::Initialize";
+
     if(opts.bellipsoid)
     {
         this->ellipsoid = true;
@@ -70,20 +72,19 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
 
     qDebug() << "ObliqueMercator::Initialize input image = " << projtype;
 
-    if(projtype != PROJ_AVHRR && projtype != PROJ_MERSI && projtype != PROJ_VIIRSM )
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Only possible for MERSI and VIIRS M projections ! (Ellipsoid)");
-        msgBox.exec();
-        return;
-    }
-
     if(projtype == PROJ_VIIRSM)
     {
         if(opts.buttonVIIRSM)
             segs->seglviirsm->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
         else if(opts.buttonVIIRSMNOAA20)
             segs->seglviirsmnoaa20->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+    }
+    else if(projtype == PROJ_VIIRSDNB)
+    {
+        if(opts.buttonVIIRSDNB)
+            segs->seglviirsdnb->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+        else if(opts.buttonVIIRSDNBNOAA20)
+            segs->seglviirsdnbnoaa20->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
     }
     else if(projtype == PROJ_MERSI)
     {
@@ -94,6 +95,8 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
         if(opts.buttonMetop)
             segs->seglmetop->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
     }
+    else
+        return;
 
     qDebug() << "lon1_d = " << lon1_d << " lat1_d = " << lat1_d << " lon2_d = " << lon2_d << " lat2_d = " << lat2_d;
     lon1_r = deg2rad(lon1_d);
@@ -132,6 +135,12 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
     {
         image_width = imgwidth; //imageptrs->ptrimageViirsM->width();
         image_height = imgheight; //imageptrs->ptrimageViirsM->height();
+
+    }
+    else if(projtype == PROJ_VIIRSDNB)
+    {
+        image_width = imgwidth; //imageptrs->ptrimageViirsDNB->width();
+        image_height = imgheight; //imageptrs->ptrimageViirsDNB->height();
 
     }
     else if(projtype == PROJ_MERSI)
@@ -283,7 +292,15 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
             GetMinMaxXBoundingBox(SEG_VIIRSM, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
         else if(opts.buttonVIIRSMNOAA20)
             GetMinMaxXBoundingBox(SEG_VIIRSMNOAA20, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
-    } else if(projtype == PROJ_MERSI)
+    }
+    else if(projtype == PROJ_VIIRSDNB)
+    {
+        if(opts.buttonVIIRSDNB)
+            GetMinMaxXBoundingBox(SEG_VIIRSDNB, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+        else if(opts.buttonVIIRSDNBNOAA20)
+            GetMinMaxXBoundingBox(SEG_VIIRSDNBNOAA20, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+    }
+    else if(projtype == PROJ_MERSI)
     {
         GetMinMaxXBoundingBox(SEG_MERSI, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
     }
@@ -493,9 +510,17 @@ void ObliqueMercator::GetMinMaxXBoundingBox(eSegmentType type, double *boundingb
     {
         seglist = (SegmentList *)segs->seglviirsm;
     }
+    else if(type == SEG_VIIRSDNB)
+    {
+        seglist = (SegmentList *)segs->seglviirsdnb;
+    }
     else if( type == SEG_VIIRSMNOAA20)
     {
         seglist = (SegmentList *)segs->seglviirsmnoaa20;
+    }
+    else if( type == SEG_VIIRSDNBNOAA20)
+    {
+        seglist = (SegmentList *)segs->seglviirsdnbnoaa20;
     }
     else if( type == SEG_MERSI)
     {
@@ -503,6 +528,7 @@ void ObliqueMercator::GetMinMaxXBoundingBox(eSegmentType type, double *boundingb
     }
     else
         seglist = NULL;
+
 
     QList<Segment *>::iterator segsel;
     segsel = seglist->GetSegsSelectedptr()->begin();
@@ -783,6 +809,10 @@ void ObliqueMercator::CreateMapFromVIIRS(eSegmentType type, bool combine)
         segs->seglviirsm->ComposeOMProjection(0);
     else if( type == SEG_VIIRSMNOAA20)
         segs->seglviirsmnoaa20->ComposeOMProjection(0);
+    else if (type == SEG_VIIRSDNB)
+        segs->seglviirsdnb->ComposeOMProjection(0);
+    else if( type == SEG_VIIRSDNBNOAA20)
+        segs->seglviirsdnbnoaa20->ComposeOMProjection(0);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
@@ -795,6 +825,14 @@ void ObliqueMercator::CreateMapFromVIIRS(eSegmentType type, bool combine)
         else if (type == SEG_VIIRSMNOAA20)
         {
             segs->seglviirsmnoaa20->SmoothVIIRSImage(combine);
+        }
+        else if (type == SEG_VIIRSDNB)
+        {
+            segs->seglviirsdnb->SmoothVIIRSImage(combine);
+        }
+        else if (type == SEG_VIIRSDNBNOAA20)
+        {
+            segs->seglviirsdnbnoaa20->SmoothVIIRSImage(combine);
         }
     }
 

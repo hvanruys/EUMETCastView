@@ -34,6 +34,7 @@
 #include "octahedron.h"
 #include "projextentsgl.h"
 #include "texturewriter.h"
+#include "equirectangular.h"
 
 #ifdef OPENGL30
 class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_0
@@ -54,6 +55,7 @@ class Globe  : public QOpenGLWidget, protected QOpenGLFunctions
 public:
     Globe(QWidget *parent = NULL, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
     void Render3DGeoSegment(int geoindex);
+    void Render3DGeoSegmentNew(int geoindex);
     void Render3DGeoSegmentFBO(eGeoSatellite sat);
     void drawSatelliteNames(QPainter *painter, QMatrix4x4 modelview);
     void drawStationNames(QPainter *painter, QMatrix4x4 modelview);
@@ -109,6 +111,7 @@ private:
     //void RenderAllScanAreaGL();
     void TestForSegmentGL( int x, int realy, float distance, const QMatrix4x4 &m);
     void Render3DGeoSegmentLine(int heightinimage, int geoindex);
+    void Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirectangular *equirect);
     void Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo);
 
 
