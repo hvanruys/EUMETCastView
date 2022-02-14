@@ -459,7 +459,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     int filesequence;
     QString filespectrum;
 
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    //QApplication::setOverrideCursor(Qt::WaitCursor);
     int geoindex = sl->getGeoSatelliteIndex();
 
     filetiming = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2) + tex.mid(13, 2) + tex.mid(16, 2);
@@ -569,6 +569,16 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
                 qDebug() << QString("Reading epilogue file = %1").arg(epiloguefile);
 
+                if(epiloguefile == "")
+                {
+                    QApplication::restoreOverrideCursor();
+                    QMessageBox msgBox;
+                    msgBox.setText("There is no epilogue file.");
+                    msgBox.exec();
+
+
+                    return;
+                }
                 try
                 {
                     da.read_file(epiloguefile, epiheader, epidata);

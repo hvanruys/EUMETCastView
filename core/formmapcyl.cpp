@@ -1916,6 +1916,10 @@ void FormMapCyl::SearchForFreeManager()
         hub = HUBEUMETSAT;
 
     qDebug() <<  "FormMapCyl::SearchForFreeManager()";
+    for(int i = 0; i < todownloadlist.count() ; i++)
+    {
+        qDebug() << "status = " << todownloadlist.at(i).status;
+    }
 
     for(int i = 0; i < todownloadlist.count() ; i++)
     {

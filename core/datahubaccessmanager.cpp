@@ -268,7 +268,6 @@ bool DatahubAccessManager::appendToOutDocument()
         qDebug() << "!!!!!!!!!!!!! document wrong ! " << errortext << " linenbr = " << errorline ;
         //qDebug() << "m_pBuffer = " << *m_pBuffer;
 
-        QString title = QString("Error Message");
         QTextDocument textdoc(*m_pBuffer);
         QString strdoc = textdoc.toPlainText();
         if( strdoc.mid(0, 15) == "<!DOCTYPE html>")
@@ -403,7 +402,7 @@ void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int inde
             strurl = QString("https://scihub.copernicus.eu/dhus/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
         else
             strurl = QString("https://scihub.copernicus.eu/dhus/odata/v1/Products('%1')/Nodes('%2')/Nodes('%3')/$value")
-                    .arg(uuid).arg(completebasename).arg(band_or_quicklook);
+                    .arg(uuid, completebasename, band_or_quicklook);
     }
     else
     {
@@ -413,7 +412,7 @@ void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int inde
             strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
         else
             strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/Nodes('%2')/Nodes('%3')/$value")
-                    .arg(uuid).arg(completebasename).arg(band_or_quicklook);
+                    .arg(uuid, completebasename, band_or_quicklook);
     }
 
     qDebug() << strurl;
