@@ -8,6 +8,7 @@
 #include "formmapcyl.h"
 #include "formgeostationary.h"
 #include "forminfrascales.h"
+#include "formmovie.h"
 
 namespace Ui {
     class FormToolbox;
@@ -16,6 +17,7 @@ namespace Ui {
 class FormImage;
 class FormGeostationary;
 class FormInfraScales;
+class FormMovie;
 
 class FormToolbox : public QWidget
 {
@@ -46,6 +48,17 @@ public:
     QList<int> getMERSIColorList();
     QList<bool> getMERSIInvertList();
 
+    int getGVPMapWidth();
+    int getGVPMapHeight();
+    float getGVPLat();
+    float getGVPLon();
+    float getGVPScale();
+    int getGVPHeight();
+    bool getGVPGridOnProj();
+    int getGVPFalseEasting();
+    int getGVPFalseNorthing();
+
+
     eSLSTRImageView getSLSTRImageView();
 
     void setTabWidgetIndex(int index);
@@ -70,6 +83,7 @@ public:
     void setMERSIConfigsettings();
     void setComboGeo(int geoindex);
     void setValuePrgBar(int val);
+    void setFormMovie(FormMovie *formmovie);
 
 
     eProjectionType currentProjectionType;
@@ -82,6 +96,7 @@ private:
     FormImage *formimage;
     FormInfraScales *forminfrascales;
     FormGeostationary *formgeostationary;
+    FormMovie *formmovie;
     QCPColorMap *colorMap;
 
     void setupChannelCombo();
@@ -199,6 +214,9 @@ private slots:
     void on_spbGVPlat_valueChanged(double arg1);
     void on_spbGVPlon_valueChanged(double arg1);
     void on_spbGVPheight_valueChanged(int arg1);
+//    void on_spbGVPFalseEasting_valueChanged(int arg1);
+//    void on_spbGVPFalseNorthing_valueChanged(int arg1);
+
     void on_spbGVPscale_valueChanged(double arg1);
     void on_btnOverlayProjectionGVP_clicked();
     void on_btnOverlayProjectionLCC_clicked();
@@ -315,6 +333,8 @@ private slots:
     void on_chkOMGridOnProj_clicked();
     void on_spbOMwidth_valueChanged(int arg1);
     void on_spbOMheight_valueChanged(int arg1);
+    void on_spbGVPFalseNorthing_valueChanged(double arg1);
+    void on_spbGVPFalseEasting_valueChanged(double arg1);
 };
 
 

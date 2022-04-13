@@ -252,9 +252,9 @@ void Options::Initialize(bool recreate_geo_ini)
     gridonolciimage = false;
 
     datahubuser = settings.value("/datahub/datahubuser", "").value<QString>();
-//    esapassword = settings.value("/datahub/esapassword", "").value<QString>();
-//    eumetsatuser = settings.value("/datahub/eumetsatuser", "").value<QString>();
-//    eumetsatpassword = settings.value("/datahub/eumetsatpassword", "").value<QString>();
+    //    esapassword = settings.value("/datahub/esapassword", "").value<QString>();
+    //    eumetsatuser = settings.value("/datahub/eumetsatuser", "").value<QString>();
+    //    eumetsatpassword = settings.value("/datahub/eumetsatpassword", "").value<QString>();
     productdirectory = settings.value("/datahub/productdirectory", "").value<QString>();
     provideresaoreumetsat = settings.value("/datahub/provideresaoreumetsat", false).toBool();
     downloadxmlolciefr = settings.value("/datahub/downloadxmlolciefr", false).toBool();
@@ -271,6 +271,7 @@ void Options::Initialize(bool recreate_geo_ini)
     bellipsoid = true; // elipsoid or spherical Oblique Mercator
 
     CreateGeoSatelliteIni();
+    CreateGeoSatelliteJson();
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     if(env.contains("APPDIR"))
@@ -278,18 +279,82 @@ void Options::Initialize(bool recreate_geo_ini)
     else
         appdir_env = "";
 
+    threadcount = settings.value("/video/threadcount", 8).toInt();
+    pathlist = settings.value("/video/pathlist").value<QStringList>();
+    pattern = settings.value("/video/pattern", "H-000-MSG3__-MSG3_????___-??????___-??????___-????????????-?_").value<QString>();
+    singleimage = settings.value("/video/singleimage").value<QString>();
+    satname = settings.value("/video/satname", "MET_10").value<QString>();
+    videogamma = settings.value("/video/videogamma", 1.0).toDouble();
+    rss = settings.value("/video/rss", 1).toBool();
+    videogshhsoverlayfile1 = settings.value("/video/videogshhsoverlayfile1", "gshhs2_3_7/gshhs_h.b").value<QString>();
+    videogshhsoverlayfile2 = settings.value("/video/videogshhsoverlayfile2", "gshhs2_3_7/wdb_borders_i.b").value<QString>();
+    videogshhsoverlayfile3 = settings.value("/video/videogshhsoverlayfile3", "gshhs2_3_7/wdb_rivers_i.b").value<QString>();
+    videogshhsglobe1On = settings.value("/video/videogshhsglobe1On", 1).toBool();
+    videogshhsglobe2On = settings.value("/video/videogshhsglobe2On", 1).toBool();
+    videogshhsglobe3On = settings.value("/video/videogshhsglobe3On", 0).toBool();
+    videoresolutionheight = settings.value("/video/videoresolutionheight", 1080).toInt();
+    videoresolutionwidth = settings.value("/video/videoresolutionwidth", 1920).toInt();
+    dayred = settings.value("/video/dayred", "IR_016").value<QString>();
+    daygreen = settings.value("/video/daygreen", "VIS008").value<QString>();
+    dayblue = settings.value("/video/dayblue", "VIS006").value<QString>();
+    dayredinverse = settings.value("/video/dayredinverse", 0).toBool();
+    daygreeninverse = settings.value("/video/daygreeninverse", 0).toBool();
+    dayblueinverse = settings.value("/video/dayblueinverse", 0).toBool();
+    dayhrv = settings.value("/video/dayhrv", 0).toBool();
+    nightred = settings.value("/video/nightred", "IR_087").value<QString>();
+    nightgreen = settings.value("/video/nightgreen", "").value<QString>();
+    nightblue = settings.value("/video/nightblue", "").value<QString>();
+    nightredinverse = settings.value("/video/nightredinverse", 1).toBool();
+    nightgreeninverse = settings.value("/video/nightgreeninverse", 0).toBool();
+    nightblueinverse = settings.value("/video/nightblueinverse", 0).toBool();
+    videocoff = settings.value("/video/coff", 1856).toInt();
+    videoloff = settings.value("/video/loff", 1856).toInt();
+    videocfac = settings.value("/video/cfac", 781648343.0).toDouble();
+    videolfac = settings.value("/video/lfac", 781648343.0).toDouble();
+    videocoffhrv = settings.value("/video/coffhrv", 5566).toInt();
+    videoloffhrv = settings.value("/video/loffhrv", 5566).toInt();
+    videocfachrv = settings.value("/video/cfachrv", 2344944937.0).toDouble();
+    videolfachrv = settings.value("/video/lfachrv", 2344944937.0).toDouble();
+    videosatlon = settings.value("/video/satlon", 9.5).toDouble();
+    videohomelon = settings.value("/video/homelon", 3.5537).toDouble();
+    videohomelat = settings.value("/video/homelat", 50.8330).toDouble();
+    videooverlaycolor1 = settings.value("/video/overlaycolor1", "#afaf47").value<QString>();
+    videooverlaycolor2 = settings.value("/video/overlaycolor2", "#898969").value<QString>();
+    videooverlaycolor3 = settings.value("/video/overlaycolor3", "#54686d").value<QString>();
+    videooverlaygridcolor = settings.value("/video/overlaygridcolor", "#8f8f8f").value<QString>();
+    videooverlayborder = settings.value("/video/overlayborder", 1).toBool();
+    videooverlaydate = settings.value("/video/overlaydate", 1).toBool();
+    videooverlaydatefontsize = settings.value("/video/overlaydatefontsize", 20).toInt();
+    videoprojectiontype = settings.value("/video/projectiontype", "GVP").value<QString>();
+    gvplatitude = settings.value("/video/gvplatitude", 49.0).toDouble();
+    gvplongitude = settings.value("/video/gvplongitude", 12.67).toDouble();
+    gvpscale = settings.value("/video/gvpscale", 0.26).toDouble();
+    gvpheight = settings.value("/video/gvpheight", 36000).toInt();
+    gvpgridonprojection = settings.value("/video/gvpgridonprojection", 1).toBool();
+    gvpfalseeasting = settings.value("/video/gvpfalseeasting", 0.0).toDouble();
+    gvpfalsenorthing = settings.value("/video/gvpfalsenorthing", 0.0).toDouble();
+    videooutputname = settings.value("/video/videooutputname", "PROJ").value<QString>();
 
-//    if(recreate_geo_ini)
-//    {
-//        QFile file("GeoSatellites.ini");
-//        if (!file.open(QIODevice::ReadOnly))
-//        {
-//            CreateGeoSatelliteIni();
-//            file.close();
-//        }
-//    }
-//    else
-//        InitializeGeo();
+
+
+
+
+
+
+
+
+
+    //    if(recreate_geo_ini)
+    //    {
+    //        QFile file("GeoSatellites.ini");
+    //        if (!file.open(QIODevice::ReadOnly))
+    //        {
+    //            CreateGeoSatelliteIni();
+    //            file.close();
+    //        }
+    //    }
+    //    else
+    //        InitializeGeo();
 
 
 
@@ -315,7 +380,7 @@ void Options::checkStringListValues()
                            "Monterey" << "Kangerlussuaq" << "Lannion" << "Saint-Denis (La Reunion)" <<
                            "Moscow" << "Muscat" << "Tromso" << "Ewa Beach" << "Miami" << "Pine Island Glacier" << "Athens";
         stationlistlon << "166.666" << "-15.63" << "15.23" << "-113.5" << "-54.57" << "-147.40" << "-121.55" << "-50.67" <<
-                           "-3.5" << "55.50" << "37.569" << "58.29" << "18.933" << "-158.07" << "-80.16" << "-100.0" << "23.769";
+                          "-3.5" << "55.50" << "37.569" << "58.29" << "18.933" << "-158.07" << "-80.16" << "-100.0" << "23.769";
         stationlistlat << "-77.85" << "27.78" << "78.13" << "53.33" << "48.95" << "64.97" << "36.35" << "66.98" << "48.75" <<
                           "-20.91" << "55.759" << "23.59" << "69.65" << "21.33" << "25.74" << "-75.166667" << "37.815";
     }
@@ -553,9 +618,9 @@ void Options::Save()
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
 
     settings.setValue("/datahub/datahubuser", datahubuser);
-//    settings.setValue("/datahub/esapassword", esapassword);
-//    settings.setValue("/datahub/eumetsatuser", eumetsatuser);
-//    settings.setValue("/datahub/eumetsatpassword", eumetsatpassword);
+    //    settings.setValue("/datahub/esapassword", esapassword);
+    //    settings.setValue("/datahub/eumetsatuser", eumetsatuser);
+    //    settings.setValue("/datahub/eumetsatpassword", eumetsatpassword);
     settings.setValue("/datahub/productdirectory", productdirectory);
     settings.setValue("/datahub/provideresaoreumetsat", provideresaoreumetsat);
 
@@ -568,6 +633,62 @@ void Options::Save()
     settings.setValue("/window/mainwindowstate", mainwindowstate);
     settings.setValue("/window/toolboxwidth", toolboxwidth);
 
+    settings.setValue("/video/threadcount", threadcount);
+    settings.setValue("/video/pathlist", pathlist);
+    settings.setValue("/video/pattern", pattern);
+    settings.setValue("/video/singleimage", singleimage);
+    settings.setValue("/video/satname", satname);
+    settings.setValue("/video/videogamma", videogamma);
+    settings.setValue("/video/rss", rss);
+    settings.setValue("/video/videogshhsoverlayfile1", videogshhsoverlayfile1);
+    settings.setValue("/video/videogshhsoverlayfile2", videogshhsoverlayfile2);
+    settings.setValue("/video/videogshhsoverlayfile3", videogshhsoverlayfile3);
+    settings.setValue("/video/videogshhsglobe1On", videogshhsglobe1On);
+    settings.setValue("/video/videogshhsglobe2On", videogshhsglobe2On);
+    settings.setValue("/video/videogshhsglobe3On", videogshhsglobe3On);
+    settings.setValue("/video/videoresolutionheight", videoresolutionheight);
+    settings.setValue("/video/videoresolutionwidth", videoresolutionwidth);
+    settings.setValue("/video/dayred", dayred);
+    settings.setValue("/video/daygreen", daygreen);
+    settings.setValue("/video/dayblue", dayblue);
+    settings.setValue("/video/dayredinverse", dayredinverse);
+    settings.setValue("/video/daygreeninverse", daygreeninverse);
+    settings.setValue("/video/dayblueinverse", dayblueinverse);
+    settings.setValue("/video/dayhrv", dayhrv);
+    settings.setValue("/video/nightred", nightred);
+    settings.setValue("/video/nightgreen", nightgreen);
+    settings.setValue("/video/nightblue", nightblue);
+    settings.setValue("/video/nightredinverse", nightredinverse);
+    settings.setValue("/video/nightgreeninverse", nightgreeninverse);
+    settings.setValue("/video/nightblueinverse", nightblueinverse);
+    settings.setValue("/video/coff", videocoff);
+    settings.setValue("/video/loff", videoloff);
+    settings.setValue("/video/cfac", videocfac);
+    settings.setValue("/video/lfac", videolfac);
+    settings.setValue("/video/coffhrv", videocoffhrv);
+    settings.setValue("/video/loffhrv", videoloffhrv);
+    settings.setValue("/video/cfachrv", videocfachrv);
+    settings.setValue("/video/lfachrv", videolfachrv);
+    settings.setValue("/video/satlon", videosatlon);
+    settings.setValue("/video/homelon", videohomelon);
+    settings.setValue("/video/homelat", videohomelat);
+    settings.setValue("/video/overlaycolor1", videooverlaycolor1);
+    settings.setValue("/video/overlaycolor2", videooverlaycolor2);
+    settings.setValue("/video/overlaycolor3", videooverlaycolor3);
+    settings.setValue("/video/overlaygridcolor", videooverlaygridcolor);
+    settings.setValue("/video/overlayborder", videooverlayborder);
+    settings.setValue("/video/overlaydate", videooverlaydate);
+    settings.setValue("/video/overlaydatefontsize", videooverlaydatefontsize);
+    settings.setValue("/video/projectiontype", videoprojectiontype);
+    settings.setValue("/video/gvplatitude", gvplatitude);
+    settings.setValue("/video/gvplongitude", gvplongitude);
+    settings.setValue("/video/gvpscale", gvpscale);
+    settings.setValue("/video/gvpheight", gvpheight);
+    settings.setValue("/video/gvpgridonprtojection", gvpgridonprojection);
+    settings.setValue("/video/gvpfalseeasting", gvpfalseeasting);
+    settings.setValue("/video/gvpfalsenorthing", gvpfalsenorthing);
+    settings.setValue("/video/videooutputname", videooutputname);
+
     SaveGeoIni();
 }
 
@@ -576,7 +697,7 @@ void Options::InitializeGeo()
     qDebug() << "Options::InitializeGeo()";
 
     QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
-//    obslon = settings.value("/observer/longitude", 0.0 ).toDouble();
+    //    obslon = settings.value("/observer/longitude", 0.0 ).toDouble();
     int size = settingsgeo.beginReadArray("geos");
     for (int i = 0; i < size; ++i)
     {
@@ -787,7 +908,7 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[0].epilogfile = true;
 
 
-    //Data Channel 15
+    //Data Channel 5
     geosatellites[1].fullname = "Meteosat-10";
     geosatellites[1].shortname = "MET_10";
     geosatellites[1].longitude = 9.5;
@@ -1430,50 +1551,238 @@ void Options::CreateGeoSatelliteIni()
     settingsgeo.endArray();
 }
 
+void Options::CreateGeoSatelliteJson()
+{
+    QJsonObject root;
+    root["NbrofSatellies"] = 11;
+
+    QJsonArray geosats;
+
+    QJsonObject object = getJsonDataMet_11();
+    geosats.push_back(object);
+
+    object = getJsonDataMet_10();
+    geosats.push_back(object);
+
+
+
+
+    root["geosats"] = geosats;
+
+    // `ba` contains JSON
+    QByteArray ba = QJsonDocument(root).toJson(QJsonDocument::Indented);
+    QTextStream ts(stdout);
+    ts << "rendered JSON" << Qt::endl;
+    ts << ba;
+    {
+        QFile fout("test.json");
+        fout.open(QIODevice::WriteOnly);
+        fout.write(ba);
+    }
+
+    // 2. Now read it back in
+//    QJsonParseError parseError;
+//    QJsonDocument doc2;
+//    {
+//        QFile fin("test.json");
+//        fin.open(QIODevice::ReadOnly);
+//        QByteArray ba2 = fin.readAll();
+//        doc2 = QJsonDocument::fromJson(ba2, &parseError);
+//    }
+
+//    if (parseError.error != QJsonParseError::NoError) {
+//        qWarning() << "Parse error at" << parseError.offset << ":" << parseError.errorString();
+//    } else {
+//        ts << "parsed JSON" << endl;
+//        ts << doc2.toJson(QJsonDocument::Compact);
+//        //or QJsonDocument::Indented for a JsonFormat
+//    }
+
+}
+
+QJsonObject Options::getJsonDataMet_11()
+{
+    QJsonObject sat;
+
+    sat["fullname"] = "Meteosat-11";
+    sat["shortname"] = "MET_11";
+    sat["longitude"] = 0.0;
+    sat["longitudelimit1"] = -75.0;
+    sat["longitudelimit2"] = +75.0;
+    sat["protocol"] = "XRIT";
+    sat["rss"] = false;
+    sat["searchstring"] = "H-000-MSG4__-MSG4";
+    sat["indexsearchstring"] = 0;
+    sat["filepattern"] = "H-000-MSG4??-?????????___-?????????-0?????___-%1-C_";
+    sat["imagewidth"] = 3712;
+    sat["imageheight"] = 3712;
+    sat["imagewidthhrv0"] = 5568;
+    sat["imageheighthrv0"] = 2320;
+    sat["imagewidthhrv1"] = 5568;
+    sat["imageheighthrv1"] = 11136;
+
+    sat["indexspectrum"] = 26;
+    sat["indexfilenbr"] = 36;
+    sat["lengthfilenbr"] = 6;
+    sat["indexdate"] = 46;
+    sat["lengthdate"] = 12;
+
+    sat["spectrumhrv"] = "HRV";
+    sat["spectrumvaluehrv"] = "HRV";
+    sat["indexspectrumhrv"] = 26;
+    sat["indexfilenbrhrv"] = 36;
+    sat["lengthfilenbrhrv"] = 6;
+    sat["indexdatehrv"] = 46;
+    sat["lengthdatehrv"] = 12;
+
+    sat["color"] = true;
+    sat["colorhrv"] = true;
+    sat["maxsegments"] = 8;
+    sat["maxsegmentshrv"] = 24;
+    sat["segmentlength"] = 464;
+    sat["segmentlengthhrv"] = 464;
+    sat["startsegmentnbrtype0"] = 5;
+    sat["startsegmentnbrhrvtype0"] = 19;
+    sat["startsegmentnbrtype1"] = 1;
+    sat["startsegmentnbrhrvtype1"] = 1;
+    sat["prologfile"] = true;
+    sat["epilogfile"] = true;
+
+    QJsonArray spectrumlist;
+    spectrumlist << "VIS006" << "VIS008" << "IR_016" << "IR_039" << "WV_062" << "WV_073" << "IR_087" << "IR_097" << "IR_108" << "IR_120" << "IR_134";
+    QJsonArray spectrumvalueslist;
+    spectrumvalueslist << "0.635" << "0.81" << "1.64" << "3.90" << "6.25" << "7.35" << "8.70" << "9.66" << "10.80" << "12.00" << "13.40";
+
+    sat["spectrumlist"] = spectrumlist;
+    sat["spectrumvalueslist"] = spectrumvalueslist;
+    sat["coff"] = 1856;
+    sat["loff"] = 1856;
+    sat["cfac"] = 781648343.;
+    sat["lfac"] = 781648343.;
+    sat["coffhrv"] = 5566;
+    sat["loffhrv"] = 5566;
+    sat["cfachrv"] = 2344944937.; //2344945030.;
+    sat["lfachrv"] = 2344944937.; //2344945030.;
+    sat["clahecontextregionx"] = 16;
+    sat["clahecontextregiony"] = 16;
+
+    return sat;
+
+}
+
+QJsonObject Options::getJsonDataMet_10()
+{
+    QJsonObject sat;
+    sat["fullname"] = "Meteosat-10";
+    sat["shortname"] = "MET_10";
+    sat["longitude"] = 9.5;
+    sat["longitudelimit1"] = -30.0;
+    sat["longitudelimit2"] = 20.0;
+    sat["protocol"] = "XRIT";
+    sat["rss"] = true;
+    sat["searchstring"] = "H-000-MSG3__-MSG3";
+    sat["indexsearchstring"] = 0;
+    sat["filepattern"] = "H-000-MSG3??-????????????-?????????-0?????___-%1-C_";
+    sat["imagewidth"] = 3712;
+    sat["imageheight"] = 1392;
+    sat["imagewidthhrv0"] = 5568;
+    sat["imageheighthrv0"] = 2320;
+    sat["imagewidthhrv1"] = 5568;
+    sat["imageheighthrv1"] = 11136;
+
+    sat["indexspectrum"] = 26;
+    sat["indexfilenbr"] = 36;
+    sat["lengthfilenbr"] = 6;
+    sat["indexdate"] = 46;
+    sat["lengthdate"] = 12;
+
+    sat["spectrumhrv"] = "HRV";
+    sat["spectrumvaluehrv"] = "HRV";
+    sat["indexspectrumhrv"] = 26;
+    sat["indexfilenbrhrv"] = 36;
+    sat["lengthfilenbrhrv"] = 6;
+    sat["indexdatehrv"] = 46;
+    sat["lengthdatehrv"] = 12;
+
+    sat["color"] = true;
+    sat["colorhrv"] = true;
+    sat["maxsegments"] = 3;
+    sat["maxsegmentshrv"] = 9;
+    sat["segmentlength"] = 464;
+    sat["segmentlengthhrv"] = 464;
+    sat["startsegmentnbrtype0"] = 5;
+    sat["startsegmentnbrhrvtype0"] = 19;
+    sat["startsegmentnbrtype1"] = 1;
+    sat["startsegmentnbrhrvtype1"] = 1;
+    sat["prologfile"] = true;
+    sat["epilogfile"] = true;
+
+    QJsonArray spectrumlist;
+    spectrumlist << "VIS006" << "VIS008" << "IR_016" << "IR_039" << "WV_062" << "WV_073" << "IR_087" << "IR_097" << "IR_108" << "IR_120" << "IR_134";
+    QJsonArray spectrumvalueslist;
+    spectrumvalueslist << "0.635" << "0.81" << "1.64" << "3.90" << "6.25" << "7.35" << "8.70" << "9.66" << "10.80" << "12.00" << "13.40";
+
+    sat["spectrumlist"] = spectrumlist;
+    sat["spectrumvalueslist"] = spectrumvalueslist;
+    sat["coff"] = 1856;
+    sat["loff"] = 1856;
+    sat["cfac"] = 781648343.;
+    sat["lfac"] = 781648343.;
+    sat["coffhrv"] = 5566;
+    sat["loffhrv"] = 5566;
+    sat["cfachrv"] = 2344944937.; //2344945030.;
+    sat["lfachrv"] = 2344944937.; //2344945030.;
+    sat["clahecontextregionx"] = 16;
+    sat["clahecontextregiony"] = 16;
+
+    return sat;
+
+}
+
 void Options::deleteTleFile( QString sel )
 {
 
-  QStringList::Iterator its = tlelist.begin();
-  QStringList strlistout;
-  
-  while( its != tlelist.end() )
-  {
-    if (*its != sel)
-      strlistout << *its;
-    ++its;
-  }
-  tlelist = strlistout;
-  
+    QStringList::Iterator its = tlelist.begin();
+    QStringList strlistout;
+
+    while( its != tlelist.end() )
+    {
+        if (*its != sel)
+            strlistout << *its;
+        ++its;
+    }
+    tlelist = strlistout;
+
 }  
 
 bool Options::addTleFile( QString sel )
 {
-  QStringList::Iterator its = tlelist.begin();
-  bool thesame = false;
-  while( its != tlelist.end() )
-  {
-    if (*its  == sel)
-      thesame = true;
-    ++its;
-  }
-  if(!thesame)
-      tlelist << sel;
-  return (!thesame);
+    QStringList::Iterator its = tlelist.begin();
+    bool thesame = false;
+    while( its != tlelist.end() )
+    {
+        if (*its  == sel)
+            thesame = true;
+        ++its;
+    }
+    if(!thesame)
+        tlelist << sel;
+    return (!thesame);
 
 }
 
 void Options::deleteSegmentDirectory( QString sel )
 {
-  QStringList::Iterator its = segmentdirectorylist.begin();
-  QStringList strlistout;
+    QStringList::Iterator its = segmentdirectorylist.begin();
+    QStringList strlistout;
 
-  while( its != segmentdirectorylist.end() )
-  {
-    if (*its != sel)
-      strlistout << *its;
-    ++its;
-  }
-  segmentdirectorylist = strlistout;
+    while( its != segmentdirectorylist.end() )
+    {
+        if (*its != sel)
+            strlistout << *its;
+        ++its;
+    }
+    segmentdirectorylist = strlistout;
 
 }
 

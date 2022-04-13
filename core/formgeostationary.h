@@ -10,22 +10,6 @@
 #include "formtoolbox.h"
 #include "formimage.h"
 
-//typedef struct {
-//    int listindex;
-//    int spectral_channel_nbr;
-//    QString directory;
-//    QString productid1;
-//    QString productid2;
-//    QString timing;
-//    double day_of_year;
-//    float min;
-//    float max;
-//    float *data;
-//    seviri_units units;
-//    double slope;
-//    double offset;
-//} bandstorage;
-
 class FormImage;
 
 namespace Ui {

@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     imagescrollarea->setWidget(formimage);
 
     formgeostationary->SetFormImage(formimage);
-    connect(formimage, SIGNAL(moveImage(QPoint, QPoint)), this, SLOT(moveImage(QPoint, QPoint)));
+    connect(formimage, SIGNAL(moveImage(QPoint,QPoint)), this, SLOT(moveImage(QPoint,QPoint)));
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
         connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString)), formimage, SLOT(slotcomposefinished(QString)));
@@ -108,6 +108,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->stackedWidget->addWidget(formglobecyl);  // index 2
 
     ui->stackedWidget->addWidget(imagescrollarea);  // index 3
+
+    formmovie = new FormMovie(this);
+    formmovie->SetFormToolbox(formtoolbox);
+    formtoolbox->setFormMovie(formmovie);
+
+    ui->stackedWidget->addWidget(formmovie); // index 4
+
     ui->stackedWidget->setCurrentIndex(0);
 
     connect(seglist->seglmetop, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
@@ -286,6 +293,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     delete cylequidist;
     delete satlist;
     delete seglist;
+    delete formmovie;
 
     opts.Save();
     poi.Save();
@@ -484,6 +492,13 @@ void MainWindow::on_action3DGlobe_triggered()
 
 }
 
+void MainWindow::on_actionSettingsMovie_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(4);
+    formmovie->getProjectionData();
+
+}
+
 void MainWindow::on_actionImage_triggered()
 {
     ui->stackedWidget->setCurrentIndex(3);
@@ -540,9 +555,6 @@ void MainWindow::on_actionImage_triggered()
     ui->actionMeteosat->setChecked(false);
     ui->actionCylindricalEquidistant->setChecked(false);
     ui->action3DGlobe->setChecked(false);
-
-    qDebug() << " MainWindow::on_actionImage_triggered() einde";
-
 
 }
 

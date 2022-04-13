@@ -21,6 +21,8 @@ public:
     QStringList strlGVPGridOnProj;
     QStringList strlGVPMapHeight;
     QStringList strlGVPMapWidth;
+    QStringList strlGVPFalseEasting;
+    QStringList strlGVPFalseNorthing;
 
     QStringList strlLCCName;
     QStringList strlLCCParallel1;

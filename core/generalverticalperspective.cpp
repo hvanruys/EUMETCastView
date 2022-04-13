@@ -18,14 +18,15 @@ GeneralVerticalPerspective::GeneralVerticalPerspective(QObject *parent, AVHRRSat
     image_width = 0;
     image_height = 0;
 
-    Initialize(opts.mapgvplon, opts.mapgvplat, opts.mapgvpheight, opts.mapgvpscale, opts.mapwidth, opts.mapheight);
+    Initialize(opts.mapgvplon, opts.mapgvplat, opts.mapgvpheight, opts.mapgvpscale, opts.mapgvpeasting, opts.mapgvpnorthing, opts.mapwidth, opts.mapheight);
 }
 
 GeneralVerticalPerspective::~GeneralVerticalPerspective()
 {
 }
 
-double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg, double heightmapkm, double scaling, int imagewidth, int imageheight)
+double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg, double heightmapkm, double scaling,
+                                              double easting, double northing, int imagewidth, int imageheight)
 {
 
     if (imagewidth != imageptrs->ptrimageProjection->width() || imageheight != imageptrs->ptrimageProjection->height())
@@ -79,8 +80,8 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
 
     map_width = mapwh;
     map_height = mapwh;
-    false_easting =  0.0;
-    false_northing = 0.0;
+    false_easting = easting * 1000.0;
+    false_northing = northing * 1000.0;
     map_radius = R*sqrt((p-1)/(p+1));
     scale = scaling;
 

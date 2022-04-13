@@ -7,6 +7,9 @@
 #include <qstringlist.h>
 #include <QColor>
 #include <QRect>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 #define TAB_AVHRR 0
 #define TAB_VIIRS 1
@@ -94,6 +97,8 @@ public:
 	void Save();
     void SaveGeoIni();
     void CreateGeoSatelliteIni();
+    void CreateGeoSatelliteJson();
+
 
 /* Calendar date and time (UTC) */
 	struct tm utc;
@@ -232,6 +237,8 @@ public:
     double mapgvplat;
     int mapgvpheight;
     double mapgvpscale;
+    double mapgvpeasting;
+    double mapgvpnorthing;
     double maplccscalex;
     double maplccscaley;
     double mapsglat;
@@ -286,13 +293,73 @@ public:
     bool downloadxmlolcierr;
     bool downloadxmlslstr;
     bool xmllogging;
-
     bool bellipsoid; // for OM projection
-
     QList<GeoSatellites> geosatellites;
     QString appdir_env;
 
-}; 
+    //  Video form
+    int threadcount;
+    QStringList pathlist;
+    QString pattern;
+    QString singleimage;
+    QString satname;
+    double videogamma;
+    bool rss;
+    QString videogshhsoverlayfile1;
+    QString videogshhsoverlayfile2;
+    QString videogshhsoverlayfile3;
+    bool videogshhsglobe1On;
+    bool videogshhsglobe2On;
+    bool videogshhsglobe3On;
+    int videoresolutionheight;
+    int videoresolutionwidth;
+    QString dayred;
+    QString daygreen;
+    QString dayblue;
+    bool dayredinverse;
+    bool daygreeninverse;
+    bool dayblueinverse;
+    bool dayhrv;
+    QString nightred;
+    QString nightgreen;
+    QString nightblue;
+    bool nightredinverse;
+    bool nightgreeninverse;
+    bool nightblueinverse;
+    int videocoff;
+    int videoloff;
+    double videocfac;
+    double videolfac;
+    int videocoffhrv;
+    int videoloffhrv;
+    double videocfachrv;
+    double videolfachrv;
+    double videosatlon;
+    double videohomelon;
+    double videohomelat;
+    QString videooverlaycolor1;
+    QString videooverlaycolor2;
+    QString videooverlaycolor3;
+    QString videooverlaygridcolor;
+    bool videooverlayborder;
+    bool videooverlaydate;
+    int videooverlaydatefontsize;
+    QString videoprojectiontype;
+    double gvplatitude;
+    double gvplongitude;
+    double gvpscale;
+    int gvpheight;
+    bool gvpgridonprojection;
+    double gvpfalseeasting;
+    double gvpfalsenorthing;
+    QString videooutputname;
+
+
+private:
+    QJsonObject getJsonDataMet_11();
+    QJsonObject getJsonDataMet_10();
+
+};
 
 //Met-10, 0, XRIT, H-???-??????-?????????___-?????????-0?????___-, 12, HRV, 0.6, 0.8, 1.6, 3.9, 6.2, 7.3, 8.7, 9.7, 10.8, 12.8, 13.4
 //Met-9, 9.2, XRIT, H-???-??????-?????????___-?????????-0?????___-, 12, HRV, 0.6, 0.8, 1.6, 3.9, 6.2, 7.3, 8.7, 9.7, 10.8, 12.8, 13.4

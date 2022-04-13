@@ -74,7 +74,13 @@ private slots:
 
     void on_calendar_selectionChanged();
 
-    void on_chkSelectAllDir_toggled(bool checked);
+    void on_chkSelectBas_toggled(bool checked);
+
+    void on_chkSelectHvs1_toggled(bool checked);
+
+    void on_chkSelectHvs2_toggled(bool checked);
+
+    void on_chkSelectHvs3_toggled(bool checked);
 
 public slots:
     void showSegmentsAdded();

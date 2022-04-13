@@ -30,6 +30,8 @@ void Poi::Initialize()
         strlGVPMapWidth << "800" << "2000" << "800";
         strlGVPMapHeight << "600" << "2000" << "600";
         strlGVPGridOnProj << "0" << "1" << "0";
+        strlGVPFalseEasting << "0.0" << "0.0" << "0.0";
+        strlGVPFalseNorthing << "0.0" << "0.0" << "0.0";
     }
     else
     {
@@ -40,6 +42,8 @@ void Poi::Initialize()
         strlGVPMapWidth = POIsettings.value("/GVP/strlmapwidth").value<QStringList>();
         strlGVPMapHeight = POIsettings.value("/GVP/strlmapheight").value<QStringList>();
         strlGVPGridOnProj = POIsettings.value("/GVP/strlgridonproj").value<QStringList>();
+        strlGVPFalseEasting = POIsettings.value("/GVP/strlfalseeasting").value<QStringList>();
+        strlGVPFalseNorthing = POIsettings.value("/GVP/strlfalsenorthing").value<QStringList>();
     }
 
 
@@ -542,6 +546,8 @@ void Poi::Save()
     POIsettings.setValue("/GVP/strlmapwidth", strlGVPMapWidth);
     POIsettings.setValue("/GVP/strlmapheight", strlGVPMapHeight);
     POIsettings.setValue("/GVP/strlgridonproj", strlGVPGridOnProj);
+    POIsettings.setValue("/GVP/strlfalseeasting", strlGVPFalseEasting);
+    POIsettings.setValue("/GVP/strlfalsenorthing", strlGVPFalseNorthing);
 
     POIsettings.setValue("/LCC/strlName", strlLCCName);
     POIsettings.setValue("/LCC/strlParallel1", strlLCCParallel1);

@@ -13,9 +13,8 @@ CONFIG += c++11
 DEFINES += LIBARCHIVE_STATIC
 DEFINES += HDF5_DISABLE_VERSION_CHECK=1
 DEFINES += OPENGL30
-
-
 SOURCES += main.cpp \
+    formmovie.cpp \
     mainwindow.cpp \
     obliquemercator.cpp \
     options.cpp \
@@ -94,6 +93,7 @@ SOURCES += main.cpp \
     nav_util.cpp
 
 HEADERS  += mainwindow.h \
+    formmovie.h \
     obliquemercator.h \
     options.h \
     segmentimage.h \
@@ -173,10 +173,11 @@ HEADERS  += mainwindow.h \
     misc_util.h \
     gshhs.h
 
-FORMS    += mainwindow.ui \
+FORMS += mainwindow.ui \
     dialogpreferences.ui \
     formephem.ui \
     formmapcyl.ui \
+    formmovie.ui \
     formtoolbox.ui \
     formgeostationary.ui
 

@@ -530,8 +530,8 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     QString filedate;
     this->getFilenameParameters(fileinfo, filespectrum, filedate, filesequence);
 
-    qDebug() << QString("-------> SegmentListGeostationary::ComposeSegmentImageXRIT() filespectrum = %1 filedate = %2 filesequence = %3")
-                .arg(filespectrum).arg(filedate).arg(filesequence);
+    qDebug() << QString("-------> SegmentListGeostationary::ComposeSegmentImageXRIT() filespectrum = %1 filedate = %2 filesequence = %3 filepath = %4")
+                .arg(filespectrum).arg(filedate).arg(filesequence).arg(filepath);
 
     //QByteArray ba = filepath.toLatin1();
     //const char *c_segname = ba.data();
@@ -1957,7 +1957,7 @@ void SegmentListGeostationary::CalculateLUTGeo(int colorindex, quint16 *ptr, qui
 
 
 
-    // float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
+    //double newscale = 256.0 / (3712*3712);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
     double newscale = (double)(1024.0 / this->active_pixels[colorindex]);
 
     qDebug() << QString("newscale = %1 active pixels = %2").arg(newscale).arg(this->active_pixels[colorindex]);
@@ -2351,6 +2351,7 @@ void SegmentListGeostationary::ComposeHRV()
         }
     }
 
+    // Bottom of earth
 //    if(kindofimage == "HRV Color")
 //    {
 //        QImage testimage(3712, 3*464, QImage::Format_ARGB32);
@@ -2372,12 +2373,34 @@ void SegmentListGeostationary::ComposeHRV()
 
 
 
+
+
     if(kindofimage == "HRV Color")
     {
         imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, 4);
         imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 1023, 16, 16, 256, 4);
         imageptrs->CLAHE(pixelsBlue, 3712, 3712, 0, 1023, 16, 16, 256, 4);
     }
+
+    // top of the world
+//    if(kindofimage == "HRV Color")
+//    {
+//        QImage testimage(3712, 3*464, QImage::Format_ARGB32);
+//        for(int y = 3*464-1; y >= 0; y--)
+//        {
+//            row_col = (QRgb*)testimage.scanLine(3*464-1-y);
+
+//            for(int x = 0; x < 3712; x++)
+//            {
+//                cred = *(pixelsRed + (8-3)*464*3712 + y*3712 + x);
+//                cgreen = *(pixelsGreen + (8-3)*464*3712 + y*3712 + x);
+//                cblue = *(pixelsBlue + (8-3)*464*3712 + y*3712 + x);
+//                row_col[3712 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cgreen), ContrastStretch(cblue));
+//            }
+//        }
+
+//        testimage.save("testimage1.png");
+//    }
 
     if(opts.geosatellites.at(geoindex).rss)
         imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, 4);
@@ -2402,10 +2425,10 @@ void SegmentListGeostationary::ComposeHRV()
             {
                 if(opts.geosatellites.at(geoindex).rss)
                 {
-
-                    cred = *(pixelsRed + (19*464 + line)/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
-                    cgreen = *(pixelsGreen + (19*464 + line)/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
-                    cblue = *(pixelsBlue + (19*464 + line)/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
+                    int diff = (19*464 + line)/3 * 3712 + LowerEastColumnActual/3 + pixelx/3;
+                    cred = *(pixelsRed + diff);
+                    cgreen = *(pixelsGreen + diff);
+                    cblue = *(pixelsBlue + diff);
                     clum = (cred+cgreen+cblue)/3;
                     if( clum == 0)
                         clum = 1;

@@ -7308,7 +7308,7 @@
                </font>
               </property>
               <property name="currentIndex">
-               <number>3</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
@@ -8132,8 +8132,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>402</width>
-                 <height>335</height>
+                 <width>610</width>
+                 <height>470</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8351,6 +8351,82 @@
                      </item>
                      <item>
                       <spacer name="horizontalSpacer_186">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_82">
+                     <item>
+                      <widget class="QLabel" name="label_9">
+                       <property name="text">
+                        <string>False Easting: </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QDoubleSpinBox" name="spbGVPFalseEasting">
+                       <property name="decimals">
+                        <number>1</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-5000.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>5000.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>100.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_196">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_48">
+                       <property name="text">
+                        <string>False Northing:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QDoubleSpinBox" name="spbGVPFalseNorthing">
+                       <property name="decimals">
+                        <number>1</number>
+                       </property>
+                       <property name="minimum">
+                        <double>-5000.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>5000.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>100.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_197">
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>
                        </property>
@@ -8869,8 +8945,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>610</width>
-                 <height>470</height>
+                 <width>587</width>
+                 <height>255</height>
                 </rect>
                </property>
                <attribute name="label">

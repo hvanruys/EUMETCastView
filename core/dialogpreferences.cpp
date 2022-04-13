@@ -1625,7 +1625,7 @@ int POIGVPModel::rowCount(const QModelIndex & /*parent*/) const
 
 int POIGVPModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    return 8;
+    return 10;
 }
 
 QVariant POIGVPModel::data(const QModelIndex &index, int role) const
@@ -1658,6 +1658,12 @@ QVariant POIGVPModel::data(const QModelIndex &index, int role) const
             break;
         case 7:
             return poi.strlGVPGridOnProj.at(index.row());
+            break;
+        case 8:
+            return poi.strlGVPFalseEasting.at(index.row());
+            break;
+        case 9:
+            return poi.strlGVPFalseNorthing.at(index.row());
             break;
         }
     }
@@ -1698,6 +1704,12 @@ bool POIGVPModel::setData(const QModelIndex & index, const QVariant & value, int
         case 7:
             poi.strlGVPGridOnProj.replace(index.row(), value.toString());
             break;
+        case 8:
+            poi.strlGVPFalseEasting.replace(index.row(), value.toString());
+            break;
+        case 9:
+            poi.strlGVPFalseNorthing.replace(index.row(), value.toString());
+            break;
         }
 
         emit editCompleted();
@@ -1737,6 +1749,12 @@ QVariant POIGVPModel::headerData(int section, Qt::Orientation orientation, int r
         case 7:
             return tr("Grid on Proj");
 
+        case 8:
+            return tr("False Easting");
+
+        case 9:
+            return tr("False Northing");
+
         default:
             return QVariant();
         }
@@ -1757,6 +1775,8 @@ bool POIGVPModel::insertRows(int position, int rows, const QModelIndex &index)
     poi.strlGVPHeight.append( " " );
     poi.strlGVPScale.append( " " );
     poi.strlGVPGridOnProj.append( " " );
+    poi.strlGVPFalseEasting.append( " " );
+    poi.strlGVPFalseNorthing.append( " " );
 
     endInsertRows();
     return true;
@@ -1776,6 +1796,8 @@ bool POIGVPModel::removeRows(int position, int rows, const QModelIndex &index)
     poi.strlGVPHeight.removeAt(position);
     poi.strlGVPScale.removeAt(position);
     poi.strlGVPGridOnProj.removeAt(position);
+    poi.strlGVPFalseEasting.removeAt(position);
+    poi.strlGVPFalseNorthing.removeAt(position);
 
     endRemoveRows();
     return true;

@@ -83,6 +83,8 @@
    <addaction name="actionCylindricalEquidistant"/>
    <addaction name="action3DGlobe"/>
    <addaction name="actionImage"/>
+   <addaction name="actionSettingsMovie"/>
+   <addaction name="separator"/>
    <addaction name="actionShowToolbox"/>
   </widget>
   <action name="actionSatSelection">
@@ -269,6 +271,18 @@
    </property>
    <property name="text">
     <string>Whats this ?</string>
+   </property>
+  </action>
+  <action name="actionSettingsMovie">
+   <property name="icon">
+    <iconset resource="EUMETCastView.qrc">
+     <normaloff>:/icons/movie.png</normaloff>:/icons/movie.png</iconset>
+   </property>
+   <property name="text">
+    <string>Settings Movie</string>
+   </property>
+   <property name="toolTip">
+    <string>Settings movie XML file</string>
    </property>
   </action>
  </widget>

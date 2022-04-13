@@ -42,6 +42,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     formimage = p_formimage;
     formgeostationary = p_formgeostationary;
     forminfrascales = p_forminfrascales;
+    formmovie = NULL;
     segs = seglist;
     filenamecreated = "";
     geoindex = 0;
@@ -411,6 +412,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         QListWidgetItem* item = new QListWidgetItem(imageptrs->rgbrecipes.at(i).Name, ui->lstRGB);
     }
 
+}
+
+void FormToolbox::setFormMovie(FormMovie *formmovie)
+{
+    this->formmovie = formmovie;
 }
 
 void FormToolbox::blockSignalscomboGeo(bool state)
@@ -1163,6 +1169,8 @@ FormToolbox::~FormToolbox()
     poi.strlGVPMapHeight.replace(0, QString("%1").arg(ui->spbGVPMapHeight->value()));
     poi.strlGVPMapWidth.replace(0, QString("%1").arg(ui->spbGVPMapWidth->value()));
     poi.strlGVPGridOnProj.replace(0, QString("%1").arg(ui->chkGVPGridOnProj->isChecked()));
+    poi.strlGVPFalseEasting.replace(0, QString("%1").arg(ui->spbGVPFalseEasting->value(), 0, 'f', 1));
+    poi.strlGVPFalseNorthing.replace(0, QString("%1").arg(ui->spbGVPFalseNorthing->value(), 0, 'f', 1));
 
 
     poi.strlSGLat.replace(0, QString("%1").arg(ui->spbSGlat->value(), 0, 'f', 2));
@@ -1635,6 +1643,7 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
 
 void FormToolbox::on_btnCLAHEGeostationary_clicked()
 {
+    qDebug() << "FormToolbox::on_btnCLAHEGeostationary_clicked()";
 
     if(formimage->channelshown == IMAGE_GEOSTATIONARY)
     {
@@ -2833,7 +2842,8 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
             imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
                                        ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
         else if( ui->toolBox->currentIndex() == 1)
-            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(),
+                                       ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
         else if( ui->toolBox->currentIndex() == 2)
             imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
         else
@@ -2904,11 +2914,13 @@ void FormToolbox::on_spbLCCMapHeight_valueChanged(int arg1)
 void FormToolbox::on_spbGVPMapWidth_valueChanged(int arg1)
 {
     opts.mapwidth = arg1;
+    formmovie->setGVPMapWidth(arg1);
 }
 
 void FormToolbox::on_spbGVPMapHeight_valueChanged(int arg1)
 {
     opts.mapheight = arg1;
+    formmovie->setGVPMapHeight(arg1);
 }
 void FormToolbox::on_spbSGMapWidth_valueChanged(int arg1)
 {
@@ -2950,8 +2962,9 @@ void FormToolbox::on_spbGVPlat_valueChanged(double arg1)
     opts.mapgvplat = arg1;
     if(imageptrs->ptrimageProjection->width() > 0)
     {
-        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(),imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
         formimage->UpdateProjection();
+        formmovie->setGVPlat(arg1);
     }
 
 }
@@ -2961,8 +2974,9 @@ void FormToolbox::on_spbGVPlon_valueChanged(double arg1)
     opts.mapgvplon = arg1;
     if(imageptrs->ptrimageProjection->width() > 0)
     {
-        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(),imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
         formimage->UpdateProjection();
+        formmovie->setGVPlon(arg1);
     }
 
 }
@@ -2972,8 +2986,35 @@ void FormToolbox::on_spbGVPheight_valueChanged(int arg1)
     opts.mapgvpheight = arg1;
     if(imageptrs->ptrimageProjection->width() > 0)
     {
-        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(),imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
         formimage->UpdateProjection();
+        formmovie->setGVPheight(arg1);
+    }
+
+}
+
+void FormToolbox::on_spbGVPFalseEasting_valueChanged(double arg1)
+{
+    qDebug() << "FormToolbox::on_spbGVPFalseEasting_valueChanged arg1 = " << arg1;
+    opts.mapgvpeasting = arg1;
+    if(imageptrs->ptrimageProjection->width() > 0)
+    {
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
+        formimage->UpdateProjection();
+        formmovie->setGVPFalseEasting(arg1);
+    }
+
+}
+
+void FormToolbox::on_spbGVPFalseNorthing_valueChanged(double arg1)
+{
+    qDebug() << "FormToolbox::on_spbGVPFalseNorthing_valueChanged arg1 = " << arg1;
+    opts.mapgvpnorthing = arg1;
+    if(imageptrs->ptrimageProjection->width() > 0)
+    {
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(),imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
+        formimage->UpdateProjection();
+        formmovie->setGVPFalseNorthing(arg1);
     }
 
 }
@@ -2985,8 +3026,9 @@ void FormToolbox::on_spbGVPscale_valueChanged(double arg1)
         opts.mapgvpscale = arg1;
         if(imageptrs->ptrimageProjection->width() > 0)
         {
-            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
+            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(),imageptrs->ptrimageProjection->width(), imageptrs->ptrimageProjection->height());
             formimage->UpdateProjection();
+            formmovie->setGVPscale(arg1);
         }
     }
 
@@ -3074,7 +3116,8 @@ void FormToolbox::on_btnCreatePerspective_clicked()
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
-    imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+    imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(),
+                               ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
 
     int width = imageptrs->ptrimageProjection->width();
     int height = imageptrs->ptrimageProjection->height();
@@ -3808,7 +3851,8 @@ void FormToolbox::on_toolBox_currentChanged(int index)
         ui->comboPOI->addItems(poi.strlGVPName);
         //        on_comboPOI_currentIndexChanged(0);
         ui->cbProjResolutions->setCurrentIndex(searchResolution(ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value()));
-        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(),
+                                   ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
     }
     else if(index == 2)
     {
@@ -4480,7 +4524,10 @@ void FormToolbox::on_cbProjResolutions_currentIndexChanged(int index)
         {
             ui->spbGVPMapWidth->setValue(resolutionX.at(index-1));
             ui->spbGVPMapHeight->setValue(resolutionY.at(index-1));
-            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+            imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(),
+                                       ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+            formmovie->setGVPMapWidth(ui->spbGVPMapWidth->value());
+            formmovie->setGVPMapHeight(ui->spbGVPMapHeight->value());
             formimage->UpdateProjection();
         }
         else if(ui->toolBox->currentIndex() == 2)
@@ -4603,6 +4650,9 @@ void FormToolbox::setGVPParameters(int strlindex)
     ui->spbGVPMapHeight->blockSignals(true);
     ui->cbProjResolutions->blockSignals(true);
     ui->chkGVPGridOnProj->blockSignals(true);
+    ui->spbGVPFalseEasting->blockSignals(true);
+    ui->spbGVPFalseNorthing->blockSignals(true);
+
 
     ui->spbGVPlat->setValue(poi.strlGVPLat.at(strlindex).toDouble());
     ui->spbGVPlon->setValue(poi.strlGVPLon.at(strlindex).toDouble());
@@ -4611,6 +4661,9 @@ void FormToolbox::setGVPParameters(int strlindex)
     ui->spbGVPMapWidth->setValue(poi.strlGVPMapWidth.at(strlindex).toInt());
     ui->spbGVPMapHeight->setValue(poi.strlGVPMapHeight.at(strlindex).toInt());
     ui->chkGVPGridOnProj->setChecked(poi.strlGVPGridOnProj.at(strlindex).toInt());
+    ui->spbGVPFalseEasting->setValue(poi.strlGVPFalseEasting.at(strlindex).toDouble());
+    ui->spbGVPFalseNorthing->setValue(poi.strlGVPFalseNorthing.at(strlindex).toDouble());
+
 
     ui->cbProjResolutions->setCurrentIndex(searchResolution(poi.strlGVPMapWidth.at(strlindex).toInt(), poi.strlGVPMapHeight.at(strlindex).toInt()));
 
@@ -4622,9 +4675,12 @@ void FormToolbox::setGVPParameters(int strlindex)
     ui->spbGVPMapHeight->blockSignals(false);
     ui->cbProjResolutions->blockSignals(false);
     ui->chkGVPGridOnProj->blockSignals(false);
+    ui->spbGVPFalseEasting->blockSignals(false);
+    ui->spbGVPFalseNorthing->blockSignals(false);
 
     opts.mapgvplat = poi.strlGVPLat.at(strlindex).toDouble();
     opts.mapgvplon = poi.strlGVPLon.at(strlindex).toDouble();
+
 
 
 }
@@ -5166,8 +5222,21 @@ void FormToolbox::on_comboPOI_currentIndexChanged(int index)
     else if(ui->toolBox->currentIndex() == 1) // GVP
     {
         setGVPParameters(index);
-        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(),
+                                   ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
         formimage->UpdateProjection();
+        if(formmovie)
+        {
+            formmovie->setGVPlat(ui->spbGVPlat->value());
+            formmovie->setGVPlon(ui->spbGVPlon->value());
+            formmovie->setGVPscale(ui->spbGVPscale->value());
+            formmovie->setGVPheight(ui->spbGVPheight->value());
+            formmovie->setGVPDisplayGrid(ui->chkGVPGridOnProj->isChecked());
+            formmovie->setGVPFalseEasting(ui->spbGVPFalseEasting->value());
+            formmovie->setGVPFalseNorthing(ui->spbGVPFalseNorthing->value());
+            formmovie->setGVPMapWidth(ui->spbGVPMapWidth->value());
+            formmovie->setGVPMapHeight(ui->spbGVPMapHeight->value());
+        }
     }
     else if(ui->toolBox->currentIndex() == 2) // SG
     {
@@ -5185,6 +5254,7 @@ void FormToolbox::on_chkLCCGridOnProj_clicked()
 
 void FormToolbox::on_chkGVPGridOnProj_clicked()
 {
+    formmovie->setGVPDisplayGrid(ui->chkGVPGridOnProj->isChecked());
     formimage->UpdateProjection();
 }
 
@@ -5242,6 +5312,8 @@ void FormToolbox::on_btnAddPOI_clicked()
         poi.strlGVPMapHeight.append(QString("%1").arg(ui->spbGVPMapHeight->value()));
         poi.strlGVPMapWidth.append(QString("%1").arg(ui->spbGVPMapWidth->value()));
         poi.strlGVPGridOnProj.append(QString("%1").arg(ui->chkGVPGridOnProj->isChecked()));
+        poi.strlGVPFalseEasting.append(QString("%1").arg(ui->spbGVPFalseEasting->value(), 0, 'f', 1));
+        poi.strlGVPFalseNorthing.append(QString("%1").arg(ui->spbGVPFalseNorthing->value(), 0, 'f', 1));
 
         ui->comboPOI->clear();
         ui->comboPOI->addItems(poi.strlGVPName);
@@ -6204,3 +6276,49 @@ void FormToolbox::on_spbOMheight_valueChanged(int arg1)
     imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
     formimage->UpdateProjection();
 }
+
+int FormToolbox::getGVPMapWidth()
+{
+    return ui->spbGVPMapWidth->value();
+}
+
+int FormToolbox::getGVPMapHeight()
+{
+    return ui->spbGVPMapHeight->value();
+}
+
+float FormToolbox::getGVPLat()
+{
+    return ui->spbGVPlat->value();
+}
+
+float FormToolbox::getGVPLon()
+{
+    return ui->spbGVPlon->value();
+}
+
+float FormToolbox::getGVPScale()
+{
+    return ui->spbGVPscale->value();
+}
+
+int FormToolbox::getGVPHeight()
+{
+    return ui->spbGVPheight->value();
+}
+
+bool FormToolbox::getGVPGridOnProj()
+{
+    return ui->chkGVPGridOnProj->isChecked();
+}
+
+int FormToolbox::getGVPFalseEasting()
+{
+    return ui->spbGVPFalseEasting->value();
+}
+
+int FormToolbox::getGVPFalseNorthing()
+{
+    return ui->spbGVPFalseNorthing->value();
+}
+

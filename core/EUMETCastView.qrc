@@ -25,5 +25,6 @@
         <file>icons/rfbdrake.png</file>
         <file>icons/server.png</file>
         <file>icons/Globe_256x256.png</file>
+        <file>icons/movie.png</file>
     </qresource>
 </RCC>

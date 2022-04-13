@@ -16,6 +16,7 @@
 #include "satellite.h"
 #include "formgeostationary.h"
 #include "forminfrascales.h"
+#include "formmovie.h"
 
 #include "mapcyl.h"
 #include "globe.h"
@@ -60,6 +61,7 @@ private:
     QDockWidget *dockwidget;
     FormToolbox *formtoolbox;
     FormGeostationary *formgeostationary;
+    FormMovie *formmovie;
 
     CylEquiDist *cylequidist;
     MapFieldCyl *mapcyl;
@@ -88,6 +90,7 @@ private slots:
     void on_actionShowToolbox_triggered();
 
     void on_actionCreatePNG_triggered();
+    void on_actionSettingsMovie_triggered();
 
     void on_actionMeteosat_triggered();
     void on_actionNormalSize_triggered();

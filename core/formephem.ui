@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1424</width>
-    <height>675</height>
+    <width>2643</width>
+    <height>1182</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -281,22 +281,30 @@
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_8">
                <item>
-                <widget class="QCheckBox" name="chkSelectAllDir">
-                 <property name="maximumSize">
-                  <size>
-                   <width>20</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
+                <widget class="QCheckBox" name="chkSelectBas">
                  <property name="text">
-                  <string/>
+                  <string>Basic</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label_3">
+                <widget class="QCheckBox" name="chkSelectHvs1">
                  <property name="text">
-                  <string>Select/Deselect all</string>
+                  <string>Hvs1</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="chkSelectHvs2">
+                 <property name="text">
+                  <string>Hvs2</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="chkSelectHvs3">
+                 <property name="text">
+                  <string>Hvs3</string>
                  </property>
                 </widget>
                </item>

@@ -8,7 +8,6 @@
 
 #define EPSLN	1.0e-3
 class AVHRRSatellite;
-class GenVertNSP;
 
 class GeneralVerticalPerspective : public QObject
 {
@@ -18,7 +17,7 @@ public:
     explicit GeneralVerticalPerspective(QObject *parent = 0, AVHRRSatellite *seglist = 0);
     ~GeneralVerticalPerspective();
 
-    double Initialize(double lonmapdeg, double latmapdeg, double heightmapkm, double scaling, int imagewidth, int imageheight);
+    double Initialize(double lonmapdeg, double latmapdeg, double heightmapkm, double scaling, double easting, double northing, int imagewidth, int imageheight);
 
     void CreateMapFromAVHRR(int inputchannel, eSegmentType type);
     void CreateMapFromVIIRS(eSegmentType type, bool combine);

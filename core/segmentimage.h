@@ -60,22 +60,6 @@ struct RGBRecipe {
   QVector<RGBRecipeColor> Colorvector;
 };
 
-//typedef struct {
-//    int listindex;
-//    int spectral_channel_nbr;
-//    QString directory;
-//    QString productid1;
-//    QString productid2;
-//    QString timing;
-//    double day_of_year;
-//    float min;
-//    float max;
-//    float *data;
-//    seviriunits units;
-//    double slope;
-//    double offset;
-//} bandstorage;
-
 enum MapReturn
 {
     MAPOK = 0,
