@@ -152,7 +152,7 @@ void FormMovie::setupSpectrum()
 void FormMovie::setupSatname()
 {
     QStringList satnames;
-    satnames << "MET_11" << "MET_10" << "MET_8";
+    satnames << "MET_11" << "MET_10" << "MET_9" << "MET_8";
     ui->cmbSatname->addItems(satnames);
     ui->cmbSatname->setCurrentText(opts.satname);
 
@@ -275,6 +275,19 @@ void FormMovie::on_btnCreateXML_clicked()
         tag = doc.createElement("rss");
         root.appendChild(tag);
         t = doc.createTextNode("1");
+        tag.appendChild(t);
+
+    }
+    else if(ui->cmbSatname->currentText() == "MET_9")
+    {
+        tag = doc.createElement("pattern");
+        root.appendChild(tag);
+        t = doc.createTextNode("H-000-MSG2__-MSG2_????___-??????___-??????___-????????????-?_");
+        tag.appendChild(t);
+
+        tag = doc.createElement("rss");
+        root.appendChild(tag);
+        t = doc.createTextNode("0");
         tag.appendChild(t);
 
     }
@@ -480,7 +493,14 @@ void FormMovie::on_btnCreateXML_clicked()
         t = doc.createTextNode("9.5");
         tag.appendChild(t);
     }
-    if(ui->cmbSatname->currentText() == "MET_8")
+    else if(ui->cmbSatname->currentText() == "MET_9")
+    {
+        tag = doc.createElement("satlon");
+        tagroot.appendChild(tag);
+        t = doc.createTextNode("45.5");
+        tag.appendChild(t);
+    }
+    else if(ui->cmbSatname->currentText() == "MET_8")
     {
         tag = doc.createElement("satlon");
         tagroot.appendChild(tag);
@@ -605,6 +625,7 @@ void FormMovie::on_btnCreateXML_clicked()
     QTextStream out(&file);
     out << xmlstring;
     file.close();
+    ui->lwTraffic->addItem("EUMETCastVideo.xml is created !");
 
     QProcess process;
     process.setProgram("EUMETCastVideo");
@@ -620,6 +641,10 @@ void FormMovie::on_btnCreateXML_clicked()
         msgBox.setText("The process 'EUMETCastVideo' is not started !");
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
+    }
+    else
+    {
+        ui->lwTraffic->addItem("The process 'EUMETCastVideo' is started !");
     }
 }
 

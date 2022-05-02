@@ -954,10 +954,10 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[1].epilogfile = true;
 
 
-    //Data Channel 5
+    // E1B-MSG-PAR
     geosatellites[2].fullname = "Meteosat-9";
     geosatellites[2].shortname = "MET_9";
-    geosatellites[2].longitude = 0.0;
+    geosatellites[2].longitude = 45.5;
     geosatellites[2].longitudelimit1 = 0.0;
     geosatellites[2].longitudelimit2 = 0.0;
     geosatellites[2].protocol = "XRIT";
