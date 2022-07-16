@@ -77,9 +77,9 @@ enum class eGeoSatellite {
     GOMS3 = 4,
     FY2H = 5,
     FY2G = 6,
-    GOES_15 = 7,
-    GOES_16 = 8,
-    GOES_17 = 9,
+    GOES_16 = 7,
+    GOES_17 = 8,
+    GOES_18 = 9,
     H8 = 10,
     NOGEO = 11
 };

@@ -11,7 +11,7 @@ Options::Options()
     qDebug() << "Initializing options";
 }
 
-void Options::Initialize(bool recreate_geo_ini)
+void Options::Initialize()
 {
     qDebug() << "Options::Initialize()";
 
@@ -270,8 +270,8 @@ void Options::Initialize(bool recreate_geo_ini)
 
     bellipsoid = true; // elipsoid or spherical Oblique Mercator
 
-    CreateGeoSatelliteIni();
-    CreateGeoSatelliteJson();
+//    CreateGeoSatelliteIni();
+//    CreateGeoSatelliteJson();
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     if(env.contains("APPDIR"))
@@ -336,25 +336,14 @@ void Options::Initialize(bool recreate_geo_ini)
     videooutputname = settings.value("/video/videooutputname", "PROJ").value<QString>();
 
 
-
-
-
-
-
-
-
-
-    //    if(recreate_geo_ini)
-    //    {
-    //        QFile file("GeoSatellites.ini");
-    //        if (!file.open(QIODevice::ReadOnly))
-    //        {
-    //            CreateGeoSatelliteIni();
-    //            file.close();
-    //        }
-    //    }
-    //    else
-    //        InitializeGeo();
+    QFile file("GeoSatellites.ini");
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        CreateGeoSatelliteIni();
+    }
+    else
+        InitializeGeo();
+    file.close();
 
 
 
@@ -1243,28 +1232,92 @@ void Options::CreateGeoSatelliteIni()
 
     // Data Channel 3 & 4
     //L-000-MSG4__-GOES15______-00_7_128W-000007___-201811061600-__
-    geosatellites[7].fullname = "GOES 15";
-    geosatellites[7].shortname = "GOES_15";
-    geosatellites[7].longitude = -128.0;
-    geosatellites[7].longitudelimit1 = 0.0;
-    geosatellites[7].longitudelimit2 = 0.0;
-    geosatellites[7].protocol = "XRIT";
+    //    geosatellites[7].fullname = "GOES 15";
+    //    geosatellites[7].shortname = "GOES_15";
+    //    geosatellites[7].longitude = -128.0;
+    //    geosatellites[7].longitudelimit1 = 0.0;
+    //    geosatellites[7].longitudelimit2 = 0.0;
+    //    geosatellites[7].protocol = "XRIT";
+    //    geosatellites[7].rss = false;
+    //    geosatellites[7].searchstring = "L-000-MSG4__-GOES15";
+    //    geosatellites[7].indexsearchstring = 0;
+    //    geosatellites[7].filepattern =  "L-???-??????-GOES15______-?????????-00000?___-%1-__";
+    //    geosatellites[7].imagewidth = 2816;
+    //    geosatellites[7].imageheight = 3248;
+    //    geosatellites[7].imagewidthhrv0 = 0;
+    //    geosatellites[7].imageheighthrv0 = 0;
+    //    geosatellites[7].imagewidthhrv1 = 0;
+    //    geosatellites[7].imageheighthrv1 = 0;
+
+    //    geosatellites[7].indexspectrum = 26;
+    //    geosatellites[7].indexfilenbr = 36;
+    //    geosatellites[7].lengthfilenbr = 6;
+    //    geosatellites[7].indexdate = 46;
+    //    geosatellites[7].lengthdate = 12; //YYYYMMDDHHmm
+
+    //    geosatellites[7].spectrumhrv = "";
+    //    geosatellites[7].spectrumvaluehrv = "";
+    //    geosatellites[7].indexspectrumhrv = 0;
+    //    geosatellites[7].indexfilenbrhrv = 0;
+    //    geosatellites[7].lengthfilenbrhrv = 0;
+    //    geosatellites[7].indexdatehrv = 0;
+    //    geosatellites[7].lengthdatehrv = 0;
+
+    //    geosatellites[7].color = false;
+    //    geosatellites[7].colorhrv = false;
+    //    geosatellites[7].maxsegments = 7;
+    //    geosatellites[7].maxsegmentshrv = 0;
+    //    geosatellites[7].segmentlength = 464;
+    //    geosatellites[7].segmentlengthhrv = 0;
+    //    geosatellites[7].startsegmentnbrtype0 = 1;
+    //    geosatellites[7].startsegmentnbrhrvtype0 = 1;
+    //    geosatellites[7].startsegmentnbrtype1 = 1;
+    //    geosatellites[7].startsegmentnbrhrvtype1 = 1;
+    //    geosatellites[7].clahecontextregionx = 16;
+    //    geosatellites[7].clahecontextregiony = 16;
+
+    //    geosatellites[7].prologfile = true;
+    //    geosatellites[7].epilogfile = false;
+    //    geosatellites[7].coff = 1408;
+    //    geosatellites[7].loff = 1408;
+    //    geosatellites[7].cfac = 585352820.;
+    //    geosatellites[7].lfac = 585352820.;
+    //    geosatellites[7].coffhrv = 0;
+    //    geosatellites[7].loffhrv = 0;
+    //    geosatellites[7].cfachrv = 0.;
+    //    geosatellites[7].lfachrv = 0.;
+
+
+    //    geosatellites[7].spectrumlist << "00_7" << "03_9" << "06_6" << "10_7";
+    //    geosatellites[7].spectrumvalueslist << "VIS 0.7" << "IR 3.9" << "IR 6.6" << "IR 10.7";
+
+    //
+    geosatellites[7].fullname = "GOES 16";
+    geosatellites[7].shortname = "GOES_16";
+    geosatellites[7].longitude = -75.0;
+    geosatellites[7].longitudelimit1 = 0;
+    geosatellites[7].longitudelimit2 = 0;
+    geosatellites[7].protocol = "netCDF";
     geosatellites[7].rss = false;
-    geosatellites[7].searchstring = "L-000-MSG4__-GOES15";
-    geosatellites[7].indexsearchstring = 0;
-    geosatellites[7].filepattern =  "L-???-??????-GOES15______-?????????-00000?___-%1-__";
-    geosatellites[7].imagewidth = 2816;
-    geosatellites[7].imageheight = 3248;
+    geosatellites[7].searchstring = "_G16_";
+    geosatellites[7].indexsearchstring = 21;
+    geosatellites[7].filepattern =  "";
+
+    geosatellites[7].imagewidth = 5424;
+    geosatellites[7].imageheight = 5424;
     geosatellites[7].imagewidthhrv0 = 0;
     geosatellites[7].imageheighthrv0 = 0;
     geosatellites[7].imagewidthhrv1 = 0;
     geosatellites[7].imageheighthrv1 = 0;
 
-    geosatellites[7].indexspectrum = 26;
-    geosatellites[7].indexfilenbr = 36;
-    geosatellites[7].lengthfilenbr = 6;
-    geosatellites[7].indexdate = 46;
-    geosatellites[7].lengthdate = 12; //YYYYMMDDHHmm
+    //0123456789012345678901234567890123456789012345678901234567890123456789012
+    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+
+    geosatellites[7].indexspectrum = 18;
+    geosatellites[7].indexfilenbr = 0;
+    geosatellites[7].lengthfilenbr = 0;
+    geosatellites[7].indexdate = 27;
+    geosatellites[7].lengthdate = 11; //YYYYDDDHHmm
 
     geosatellites[7].spectrumhrv = "";
     geosatellites[7].spectrumvaluehrv = "";
@@ -1274,11 +1327,11 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].indexdatehrv = 0;
     geosatellites[7].lengthdatehrv = 0;
 
-    geosatellites[7].color = false;
+    geosatellites[7].color = true;
     geosatellites[7].colorhrv = false;
-    geosatellites[7].maxsegments = 7;
+    geosatellites[7].maxsegments = 1;
     geosatellites[7].maxsegmentshrv = 0;
-    geosatellites[7].segmentlength = 464;
+    geosatellites[7].segmentlength = 5424;
     geosatellites[7].segmentlengthhrv = 0;
     geosatellites[7].startsegmentnbrtype0 = 1;
     geosatellites[7].startsegmentnbrhrvtype0 = 1;
@@ -1287,30 +1340,32 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[7].clahecontextregionx = 16;
     geosatellites[7].clahecontextregiony = 16;
 
-    geosatellites[7].prologfile = true;
+    geosatellites[7].prologfile = false;
     geosatellites[7].epilogfile = false;
-    geosatellites[7].coff = 1408;
-    geosatellites[7].loff = 1408;
-    geosatellites[7].cfac = 585352820.;
-    geosatellites[7].lfac = 585352820.;
+    geosatellites[7].coff = 2712;
+    geosatellites[7].loff = 2712;
+    geosatellites[7].cfac = 1170000000.;
+    geosatellites[7].lfac = 1170000000.;
     geosatellites[7].coffhrv = 0;
     geosatellites[7].loffhrv = 0;
     geosatellites[7].cfachrv = 0.;
     geosatellites[7].lfachrv = 0.;
 
 
-    geosatellites[7].spectrumlist << "00_7" << "03_9" << "06_6" << "10_7";
-    geosatellites[7].spectrumvalueslist << "VIS 0.7" << "IR 3.9" << "IR 6.6" << "IR 10.7";
+    geosatellites[7].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
+    geosatellites[7].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
+                                        << "12.3" << "13.3";
+
 
     //
-    geosatellites[8].fullname = "GOES 16";
-    geosatellites[8].shortname = "GOES_16";
-    geosatellites[8].longitude = -75.0;
+    geosatellites[8].fullname = "GOES 17";
+    geosatellites[8].shortname = "GOES_17";
+    geosatellites[8].longitude = -137.0;
     geosatellites[8].longitudelimit1 = 0;
     geosatellites[8].longitudelimit2 = 0;
     geosatellites[8].protocol = "netCDF";
     geosatellites[8].rss = false;
-    geosatellites[8].searchstring = "_G16_";
+    geosatellites[8].searchstring = "_G17_";
     geosatellites[8].indexsearchstring = 21;
     geosatellites[8].filepattern =  "";
 
@@ -1367,16 +1422,15 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[8].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
                                         << "12.3" << "13.3";
 
-
     //
-    geosatellites[9].fullname = "GOES 17";
-    geosatellites[9].shortname = "GOES_17";
+    geosatellites[9].fullname = "GOES 18";
+    geosatellites[9].shortname = "GOES_18";
     geosatellites[9].longitude = -137.0;
     geosatellites[9].longitudelimit1 = 0;
     geosatellites[9].longitudelimit2 = 0;
     geosatellites[9].protocol = "netCDF";
     geosatellites[9].rss = false;
-    geosatellites[9].searchstring = "_G17_";
+    geosatellites[9].searchstring = "_G18_";
     geosatellites[9].indexsearchstring = 21;
     geosatellites[9].filepattern =  "";
 
@@ -1581,22 +1635,22 @@ void Options::CreateGeoSatelliteJson()
     }
 
     // 2. Now read it back in
-//    QJsonParseError parseError;
-//    QJsonDocument doc2;
-//    {
-//        QFile fin("test.json");
-//        fin.open(QIODevice::ReadOnly);
-//        QByteArray ba2 = fin.readAll();
-//        doc2 = QJsonDocument::fromJson(ba2, &parseError);
-//    }
+    //    QJsonParseError parseError;
+    //    QJsonDocument doc2;
+    //    {
+    //        QFile fin("test.json");
+    //        fin.open(QIODevice::ReadOnly);
+    //        QByteArray ba2 = fin.readAll();
+    //        doc2 = QJsonDocument::fromJson(ba2, &parseError);
+    //    }
 
-//    if (parseError.error != QJsonParseError::NoError) {
-//        qWarning() << "Parse error at" << parseError.offset << ":" << parseError.errorString();
-//    } else {
-//        ts << "parsed JSON" << endl;
-//        ts << doc2.toJson(QJsonDocument::Compact);
-//        //or QJsonDocument::Indented for a JsonFormat
-//    }
+    //    if (parseError.error != QJsonParseError::NoError) {
+    //        qWarning() << "Parse error at" << parseError.offset << ":" << parseError.errorString();
+    //    } else {
+    //        ts << "parsed JSON" << endl;
+    //        ts << doc2.toJson(QJsonDocument::Compact);
+    //        //or QJsonDocument::Indented for a JsonFormat
+    //    }
 
 }
 

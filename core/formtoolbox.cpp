@@ -2246,7 +2246,7 @@ void FormToolbox::on_btnGeoColor_clicked()
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::H8)
         ui->pbProgress->setMaximum(10+10+10);
-    else if(geoindex == (int)eGeoSatellite::GOES_16 || geoindex == (int)eGeoSatellite::GOES_17)
+    else if(geoindex == (int)eGeoSatellite::GOES_16 || geoindex == (int)eGeoSatellite::GOES_17 || geoindex == (int)eGeoSatellite::GOES_18)
         ui->pbProgress->setMaximum(100);
 
     onButtonColorHRV("VIS_IR Color");
@@ -2623,7 +2623,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo16->currentIndex()-1] = ui->chkInverseGeo16->isChecked();
         }
     }
-    else if(geoindex == (int)eGeoSatellite::GOES_16 || geoindex == (int)eGeoSatellite::GOES_17 )
+    else if(geoindex == (int)eGeoSatellite::GOES_16 || geoindex == (int)eGeoSatellite::GOES_17 || geoindex == (int)eGeoSatellite::GOES_18 )
     {
         if(ui->rdbPseudoColor->isChecked())
         {

@@ -106,7 +106,6 @@ int main(int argc, char *argv[])
 
     doLogging = true;
     ptrimagebusy = false;
-    bool recreate_geo_ini = false;
 
     QByteArray val("1");
     qputenv("HDF5_DISABLE_VERSION_CHECK", val);
@@ -132,8 +131,6 @@ int main(int argc, char *argv[])
     if (QCoreApplication::arguments().contains(QStringLiteral("--logging")) ||
         QCoreApplication::arguments().contains(QStringLiteral("-l")) )
         doLogging = true;
-    if (QCoreApplication::arguments().contains(QStringLiteral("-recreate_geo_ini")))
-        recreate_geo_ini = true;
 
     if(doLogging)
     {
@@ -142,7 +139,7 @@ int main(int argc, char *argv[])
             return 0;
     }
 
-    opts.Initialize(recreate_geo_ini);
+    opts.Initialize();
     poi.Initialize();
 
     imageptrs = new SegmentImage();

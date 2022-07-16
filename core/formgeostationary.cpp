@@ -832,6 +832,8 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
         filepattern = QString("OR_ABI-L1b-RadF-M????_G16_s") + filetiming + QString("*.nc");
     else if((whichgeo == eGeoSatellite::GOES_17) && (type == "VIS_IR" || type == "VIS_IR Color"))
         filepattern = QString("OR_ABI-L1b-RadF-M????_G17_s") + filetiming + QString("*.nc");
+    else if((whichgeo == eGeoSatellite::GOES_18) && (type == "VIS_IR" || type == "VIS_IR Color"))
+        filepattern = QString("OR_ABI-L1b-RadF-M????_G18_s") + filetiming + QString("*.nc");
     else
         return;
 

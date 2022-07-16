@@ -1798,19 +1798,6 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
                 rainbow.append(qBlue(rgbval));
             }
         }
-        else if(geo == eGeoSatellite::GOES_15)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[(int)eGeoSatellite::GOES_15]->geosatlon, pix, heightinimage, COFF_NONHRV_GOES, LOFF_NONHRV_GOES, CFAC_NONHRV_GOES, LFAC_NONHRV_GOES, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
-                positions.append((float)(y / (imageptrs->pmOriginal->height()/2) - 1));
-                texpositions.append((float)(pix /imageptrs->pmOriginal->width()));
-                rainbow.append(qRed(rgbval));
-                rainbow.append(qGreen(rgbval));
-                rainbow.append(qBlue(rgbval));
-            }
-        }
 
     }
 

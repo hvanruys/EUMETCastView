@@ -380,7 +380,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
 
                     }
                 }
-                else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17)
+                else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17 || sl->getGeoSatellite() == eGeoSatellite::GOES_18)
                 {
                     lon_deg = lon_rad * 180.0 / PI;
                     lat_deg = lat_rad * 180.0 / PI;

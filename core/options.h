@@ -91,7 +91,7 @@ class Options
 {
 public:
 	Options();
-    void Initialize(bool recreate_geo_ini);
+    void Initialize();
     void InitializeGeo();
     void checkStringListValues();
 	void Save();

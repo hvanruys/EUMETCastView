@@ -514,7 +514,7 @@ void AVHRRSatellite::getFilenameParameters(int geosatindex, QString filename,  Q
                     filenbr = filename.mid(opts.geosatellites.at(geosatindex).indexfilenbr, opts.geosatellites.at(geosatindex).lengthfilenbr).toInt();
                     strdate = filename.mid(opts.geosatellites.at(geosatindex).indexdate, opts.geosatellites.at(geosatindex).lengthdate);
 
-                    if( opts.geosatellites.at(geosatindex).shortname == "GOES_16" || opts.geosatellites.at(geosatindex).shortname == "GOES_17" ) //convert YYYYDDDHHmm to YYYYMMDDHHmm
+                    if( opts.geosatellites.at(geosatindex).shortname == "GOES_16" || opts.geosatellites.at(geosatindex).shortname == "GOES_17" || opts.geosatellites.at(geosatindex).shortname == "GOES_18" ) //convert YYYYDDDHHmm to YYYYMMDDHHmm
                     {
                         QDate fdate = QDate(strdate.mid(0, 4).toInt(), 1, 1).addDays(strdate.mid(4, 3).toInt() - 1);
                         strdate = fdate.toString("yyyyMMdd") + strdate.mid(7, 4);
