@@ -984,7 +984,7 @@ void SegmentList::ComposeOMProjection(int inputchannel)
     QList<Segment*>::iterator segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
-        (*segit)->ComposeSegmentOMProjection(inputchannel, 0, false);
+        (*segit)->ComposeSegmentOMProjection(inputchannel, this->histogrammethod, false);
         emit segmentprojectionfinished(false);
         ++segit;
     }
@@ -1130,9 +1130,9 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
             y22 = segm->getProjectionY(line+1, pixelx+1);
 
             if(x11 < 65528 && x12 < 65528 && x21 < 65528 && x22 < 65528
-                    && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528)
-                // && x11 > -50 && x12 > -50 && x21 > -50 && x22 > -50
-                // && y11 > -50 && y12 > -50 && y21 > -50 && y22 > -50 )
+                    && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528 )
+                 //&& x11 > -50 && x12 > -50 && x21 > -50 && x22 > -50
+                 //&& y11 > -50 && y12 > -50 && y21 > -50 && y22 > -50 )
             {
                 minx = Min(x11, x12, x21, x22);
                 miny = Min(y11, y12, y21, y22);
@@ -1481,7 +1481,7 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext,
                 && y11 < 65528 && y12 < 65528 && y21 < 65528 && y22 < 65528
                 //&& x11 >= -20 && x12 >= -20 && x21 >= -20 && x22 >= -20
                 //&& y11 >= -20 && y12 >= -20 && y21 >= -20 && y22 >= -20
-                && abs(x11 - x21) < 100)
+                && abs(x11 - x21) < 100 && abs(y11 - y21) < 100)
         {
 
             minx = Min(x11, x12, x21, x22);

@@ -28,7 +28,7 @@ public:
     bool ShowOLCIefrImage(int histogrammethod, bool normalized);
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
     bool ShowSLSTRImage(int histogrammethod);
-    bool ShowMERSIImage();
+    bool ShowMERSIImage(int histogrammethod, bool normalized);
     QSize getPictureSize() const;
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHE1(QVector<QString> spectrumvector, QVector<bool> inversevector);

@@ -30,7 +30,7 @@ bool SegmentListSLSTR::ComposeSLSTRImage(QList<bool> bandlist, QList<int> colorl
 
     this->bandlist = bandlist;
     this->colorlist = colorlist;
-    this->inverselist = invertlist;
+    this->invertlist = invertlist;
 
     slstrview = view;
 

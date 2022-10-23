@@ -383,7 +383,7 @@ void DialogPreferences::setupDatahubConfig()
     if(opts.provideresaoreumetsat)
         ui->rdbUseScihub->setChecked(true);
     else
-        ui->rdbUseCoda->setChecked(true);
+        ui->rdbUseEumetsat->setChecked(true);
     ui->rdbXMLlogging->setChecked(opts.xmllogging);
 }
 

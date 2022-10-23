@@ -40,7 +40,7 @@ bool SegmentListVIIRSM::ComposeVIIRSImage(QList<bool> bandlist, QList<int> color
 
     this->bandlist = bandlist;
     this->colorlist = colorlist;
-    this->inverselist = invertlist;
+    this->invertlist = invertlist;
 
     ptrimagebusy = true;
 

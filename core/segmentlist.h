@@ -120,7 +120,7 @@ protected:
 
     QList<bool> bandlist;
     QList<int> colorlist;
-    QList<bool> inverselist;
+    QList<bool> invertlist;
 
     int histogrammethod;
 

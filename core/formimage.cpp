@@ -786,6 +786,9 @@ void FormImage::MakeImage()
         colorlist = formtoolbox->getOLCIColorList();
         invertlist = formtoolbox->getOLCIInvertList();
 
+        int histogrammethod = formtoolbox->getOLCIHistogrammethod();
+        bool normalized = formtoolbox->getOLCINormalized();
+
         QStringList missing;
 
         if(segs->seglolciefr->CheckForOLCIFiles(bandlist, colorlist, missing) == false)
@@ -816,7 +819,7 @@ void FormImage::MakeImage()
         }
         else
         { //          in Workerthread
-            segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
+            segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, true, histogrammethod, normalized);
         }
     }
     else if(olcierrcount > 0 && opts.buttonOLCIerr)
@@ -849,6 +852,10 @@ void FormImage::MakeImage()
         colorlist = formtoolbox->getOLCIColorList();
         invertlist = formtoolbox->getOLCIInvertList();
 
+        int histogrammethod = formtoolbox->getOLCIHistogrammethod();
+        bool normalized = formtoolbox->getOLCINormalized();
+
+
         QStringList missing;
 
         if(segs->seglolcierr->CheckForOLCIFiles(bandlist, colorlist, missing) == false)
@@ -877,7 +884,7 @@ void FormImage::MakeImage()
             return;
         }
         else     //          in Workerthread
-            segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, true);
+            segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, true, histogrammethod, normalized);
     }
     else if(slstrcount > 0 && opts.buttonSLSTR)
     {
@@ -970,8 +977,11 @@ void FormImage::MakeImage()
         colorlist = formtoolbox->getMERSIColorList();
         invertlist = formtoolbox->getMERSIInvertList();
 
-        //          in Workerthread
-        segs->seglmersi->ComposeMERSIImage(bandlist, colorlist, invertlist, false);
+        int histogrammethod = formtoolbox->getMERSIHistogrammethod();
+        bool normalized = false;
+
+         //          in Workerthread
+        segs->seglmersi->ComposeMERSIImage(bandlist, colorlist, invertlist, false, histogrammethod, normalized);
     }
     else
         return;
@@ -1073,7 +1083,7 @@ bool FormImage::ShowOLCIefrImage(int histogrammethod, bool normalized)
             return false;
         }
         else
-            segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, false);
+            segs->seglolciefr->ComposeOLCIImage(bandlist, colorlist, invertlist, false, histogrammethod, normalized);
 
     }
     else
@@ -1138,7 +1148,7 @@ bool FormImage::ShowOLCIerrImage(int histogrammethod, bool normalized)
             return false;
         }
         else
-            segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, false);
+            segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, false, histogrammethod, normalized);
 
     }
     else
@@ -1242,7 +1252,7 @@ bool FormImage::ShowVIIRSDNBImage()
 
 }
 
-bool FormImage::ShowMERSIImage()
+bool FormImage::ShowMERSIImage(int histogrammethod, bool normalized)
 {
     bool ret = false;
 
@@ -1280,8 +1290,8 @@ bool FormImage::ShowMERSIImage()
         //            qDebug() << colorlist.at(i);
         //        }
 
-        //segs->seglmersi->setHistogramMethod(histogrammethod);
-        segs->seglmersi->ComposeMERSIImage(bandlist, colorlist, invertlist, false);
+        segs->seglmersi->setHistogramMethod(histogrammethod, normalized);
+        segs->seglmersi->ComposeMERSIImage(bandlist, colorlist, invertlist, false, histogrammethod, normalized);
     }
     else
         ret = false;

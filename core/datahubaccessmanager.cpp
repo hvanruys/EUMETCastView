@@ -46,7 +46,7 @@ void DatahubAccessManager::DownloadXML(int nbrofpages, eDatahub hub)
     if(this->hub == HUBESA)
         strurl = QString("https://scihub.copernicus.eu/dhus/search?q=*&start=%1&rows=100").arg(0);
     else
-        strurl = QString("https://coda.eumetsat.int/search?q=*&start=%1&rows=100").arg(0);
+        strurl = QString("https://data.eumetsat.int/search?q=*&start=%1&rows=100").arg(0);
 
     qDebug() << strurl;
 
@@ -72,7 +72,7 @@ void DatahubAccessManager::DownloadXML(int nbrofpages, eDatahub hub)
 }
 
 // https://scihub.copernicus.eu/s3/odata/v1/Products?$select=Id&$filter=substringof('S3A_OL_1_EFR____20170309T',Name)
-// https://coda.eumetsat.int/odata/v1/Products?$select=Id&$filter=substringof('S3A_OL_1_EFR____20170309T',Name)
+// https://data.eumetsat.int/odata/v1/Products?$select=Id&$filter=substringof('S3A_OL_1_EFR____20170309T',Name)
 // S3A_OL_1_EFR____20170212T100905_20170212T101205_20170212T120355_0179_014_179_2159_SVL_O_NR_002
 
 void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub, QString type)
@@ -106,12 +106,12 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub, QString t
     this->selectdate = strselectdate;
     this->hub = hub;
 
-    //QUrl url = QUrl("https://coda.eumetsat.int/search?q=instrumentshortname:SLSTR");
-    //QUrl url = QUrl("https://coda.eumetsat.int/odata/v1/Products('52e48b83-c717-484a-a33a-f4ebc941dd84')/$value");
+    //QUrl url = QUrl("https://data.eumetsat.int/search?q=instrumentshortname:SLSTR");
+    //QUrl url = QUrl("https://data.eumetsat.int/odata/v1/Products('52e48b83-c717-484a-a33a-f4ebc941dd84')/$value");
     //QUrl url = QUrl("https://scihub.copernicus.eu/s3/odata/v1/Products");
-    //QUrl url = QUrl("https://coda.eumetsat.int/odata/v1/Products?$select=Id&$filter=substringof(%2720170131T185414%27,Name)");
+    //QUrl url = QUrl("https://data.eumetsat.int/odata/v1/Products?$select=Id&$filter=substringof(%2720170131T185414%27,Name)");
     //https://scihub.copernicus.eu/s3/odata/v1/Products?$filter=substringof(%27S3A_OL_1_EFR____20170131T%27,Name)&$skip=400&$top=100
-    //https://coda.eumetsat.int/odata/v1/Products('6b0ab72a-858f-41a0-862d-549dfdd15b59')/Products('Quicklook')/$value
+    //https://data.eumetsat.int/odata/v1/Products('6b0ab72a-858f-41a0-862d-549dfdd15b59')/Products('Quicklook')/$value
 
     QDomElement root = docout.createElement("Segments");
     docout.appendChild(root);
@@ -123,7 +123,7 @@ void DatahubAccessManager::DownloadXML(QDate selectdate, eDatahub hub, QString t
     if(this->hub == HUBESA)
         strurl = "https://scihub.copernicus.eu/dhus/search?q=" + resourcepath;
     else
-        strurl = "https://coda.eumetsat.int/search?q=" + resourcepath;
+        strurl = "https://data.eumetsat.int/search?q=" + resourcepath;
 
     qDebug() << strurl;
 
@@ -195,7 +195,7 @@ void DatahubAccessManager::slotFinishedXML()
         if(this->hub == HUBESA)
             strurl = "https://scihub.copernicus.eu/dhus/search?q=" + getresourcepath(this->selectdate, nbrofpagescounter - 1, typetodownload);
         else
-            strurl = "https://coda.eumetsat.int/search?q=" + getresourcepath(this->selectdate, nbrofpagescounter - 1, typetodownload);
+            strurl = "https://data.eumetsat.int/search?q=" + getresourcepath(this->selectdate, nbrofpagescounter - 1, typetodownload);
 
         QUrl url = QUrl(strurl);
         qDebug() << strurl;
@@ -407,11 +407,11 @@ void DatahubAccessManager::DownloadProduct(QList<ProductList> prodlist, int inde
     else
     {
         if(band_or_quicklook == "quicklook")
-            strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/Products('Quicklook')/$value").arg(uuid);
+            strurl = QString("https://data.eumetsat.int/odata/v1/Products('%1')/Products('Quicklook')/$value").arg(uuid);
         else if(band_or_quicklook == "complete")
-            strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
+            strurl = QString("https://data.eumetsat.int/odata/v1/Products('%1')/$value").arg(prodlist.at(index).uuid);
         else
-            strurl = QString("https://coda.eumetsat.int/odata/v1/Products('%1')/Nodes('%2')/Nodes('%3')/$value")
+            strurl = QString("https://data.eumetsat.int/odata/v1/Products('%1')/Nodes('%2')/Nodes('%3')/$value")
                     .arg(uuid, completebasename, band_or_quicklook);
     }
 

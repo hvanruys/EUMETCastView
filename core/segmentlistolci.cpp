@@ -37,6 +37,8 @@ bool SegmentListOLCI::CheckForOLCIFiles(QList<bool> bandlist, QList<int> colorli
     bool btiegeo = true;
     bool bquality = true;
 
+
+
     QList<Segment*>::iterator segit = segmentlist.begin();
     while ( segit != segmentlist.end() )
     {
@@ -114,13 +116,16 @@ bool SegmentListOLCI::CheckForOLCIFiles(QList<bool> bandlist, QList<int> colorli
 
 }
 
-bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles)
+bool SegmentListOLCI::ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles, int histogrammethod, bool normalized)
 {
     qDebug() << QString("SegmentListOLCI::ComposeOLCIImage");
 
     this->bandlist = bandlist;
     this->colorlist = colorlist;
-    this->inverselist = invertlist;
+    this->invertlist = invertlist;
+    this->histogrammethod = histogrammethod;
+    this->normalized = normalized;
+
 
     ptrimagebusy = true;
     QApplication::setOverrideCursor(( Qt::WaitCursor));
@@ -351,6 +356,7 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     this->totalnbroflines = 0;
+
 
     emit progressCounter(10);
 

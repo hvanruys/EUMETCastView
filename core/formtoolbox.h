@@ -38,15 +38,21 @@ public:
     QList<bool> getVIIRSMBandList();
     QList<int> getVIIRSMColorList();
     QList<bool> getVIIRSMInvertList();
+
     QList<bool> getOLCIBandList();
     QList<int> getOLCIColorList();
     QList<bool> getOLCIInvertList();
+    int getOLCIHistogrammethod();
+    bool getOLCINormalized();
+
     QList<bool> getSLSTRBandList();
     QList<int> getSLSTRColorList();
     QList<bool> getSLSTRInvertList();
+
     QList<bool> getMERSIBandList();
     QList<int> getMERSIColorList();
     QList<bool> getMERSIInvertList();
+    int getMERSIHistogrammethod();
 
     int getGVPMapWidth();
     int getGVPMapHeight();

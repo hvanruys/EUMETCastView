@@ -17,9 +17,11 @@ class SegmentListMERSI : public SegmentList
 public:
     explicit SegmentListMERSI(SatelliteList *satl = 0, QObject *parent = 0);
     bool ComposeMERSIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles);
-    bool ComposeMERSIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles);
+    bool ComposeMERSIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles, int histogrammethod, bool normalized);
 //    void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     void SmoothMERSIImage(bool combine);
+    void setHistogramMethod(int histo, bool normal) { histogrammethod = histo; normalized = normal;}
+    void CalculateLUTFull();
 
     void ComposeGVProjection(int inputchannel);
     void ComposeLCCProjection(int inputchannel);
@@ -43,10 +45,12 @@ private:
     int bandindex;
 
     SatelliteList *satlist;
-    bool normalized;
     QList<bool> bandlist;
     QList<int> colorlist;
     QList<bool> invertlist;
+
+    int histogrammethod;
+    bool normalized;
 
 
 };

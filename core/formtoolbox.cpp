@@ -390,14 +390,16 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     QStringList lsthistogram;
     lsthistogram << "None 95%" << "None 100%" << "Equalize";
-    ui->cmbHistogram->addItems(lsthistogram);
-    ui->cmbHistogram->setCurrentIndex(CMB_HISTO_NONE_95);
+    ui->cmbHistogramOLCI->addItems(lsthistogram);
+    ui->cmbHistogramOLCI->setCurrentIndex(CMB_HISTO_NONE_95);
     ui->cmbHistogramSLSTR->addItems(lsthistogram);
     ui->cmbHistogramSLSTR->setCurrentIndex(CMB_HISTO_NONE_95);
     ui->cmbHistogramGeo->addItems(lsthistogram);
     ui->cmbHistogramGeo->setCurrentIndex(CMB_HISTO_NONE_95);
     ui->cmbHistogramAVHRR->addItems(lsthistogram);
     ui->cmbHistogramAVHRR->setCurrentIndex(CMB_HISTO_NONE_95);
+    ui->cmbHistogramMERSI->addItems(lsthistogram);
+    ui->cmbHistogramMERSI->setCurrentIndex(CMB_HISTO_NONE_95);
 
     lsthistogram.clear();
     lsthistogram << "None 95%" << "None 100%" << "Equalize" << "Equalize Projection";
@@ -819,6 +821,16 @@ QList<bool> FormToolbox::getOLCIInvertList()
     return(olcilist);
 }
 
+int FormToolbox::getOLCIHistogrammethod()
+{
+    return ui->cmbHistogramOLCI->currentIndex();
+}
+
+bool FormToolbox::getOLCINormalized()
+{
+    return ui->rdbOLCINormalized;
+}
+
 QList<bool> FormToolbox::getSLSTRBandList()
 {
     QList<bool> slstrlist;
@@ -902,6 +914,10 @@ QList<bool> FormToolbox::getMERSIInvertList()
     return(mersilist);
 }
 
+int FormToolbox::getMERSIHistogrammethod()
+{
+    return ui->cmbHistogramMERSI->currentIndex();
+}
 
 int FormToolbox::searchResolution(int mapwidth, int mapheight)
 {
@@ -4345,7 +4361,7 @@ void FormToolbox::on_btnUpdateOLCIImage_clicked()
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            formimage->ShowOLCIefrImage(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized);
+            formimage->ShowOLCIefrImage(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized);
         }
     }
     else if(opts.buttonOLCIerr)
@@ -4358,7 +4374,7 @@ void FormToolbox::on_btnUpdateOLCIImage_clicked()
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            formimage->ShowOLCIerrImage(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized);
+            formimage->ShowOLCIerrImage(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized);
         }
     }
 }
@@ -4393,7 +4409,7 @@ void FormToolbox::on_btnUpdateSLSTRImage_clicked()
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            formimage->ShowSLSTRImage(ui->cmbHistogram->currentIndex());
+            formimage->ShowSLSTRImage(ui->cmbHistogramSLSTR->currentIndex());
         }
     }
 }
@@ -4428,7 +4444,7 @@ void FormToolbox::on_btnUpdateMERSIImage_clicked()
         ui->btnLCCFalseColor->setChecked(false);
 
         ui->pbProgress->reset();
-        formimage->ShowMERSIImage();
+        formimage->ShowMERSIImage(ui->cmbHistogramMERSI->currentIndex(), false);
     }
 
 }
@@ -4526,8 +4542,11 @@ void FormToolbox::on_cbProjResolutions_currentIndexChanged(int index)
             ui->spbGVPMapHeight->setValue(resolutionY.at(index-1));
             imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(),
                                        ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
-            formmovie->setGVPMapWidth(ui->spbGVPMapWidth->value());
-            formmovie->setGVPMapHeight(ui->spbGVPMapHeight->value());
+            if(formmovie)
+            {
+                formmovie->setGVPMapWidth(ui->spbGVPMapWidth->value());
+                formmovie->setGVPMapHeight(ui->spbGVPMapHeight->value());
+            }
             formimage->UpdateProjection();
         }
         else if(ui->toolBox->currentIndex() == 2)
@@ -5755,15 +5774,15 @@ void FormToolbox::fitCurve()
 
 void FormToolbox::on_rdbOLCINormalized_toggled(bool checked)
 {
-    segs->seglolciefr->setHistogramMethod(ui->cmbHistogram->currentIndex(), checked);
-    segs->seglolcierr->setHistogramMethod(ui->cmbHistogram->currentIndex(), checked);
+    segs->seglolciefr->setHistogramMethod(ui->cmbHistogramOLCI->currentIndex(), checked);
+    segs->seglolcierr->setHistogramMethod(ui->cmbHistogramOLCI->currentIndex(), checked);
 
 }
 
 void FormToolbox::on_cmbHistogram_activated(int index)
 {
-    segs->seglolciefr->setHistogramMethod(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
-    segs->seglolcierr->setHistogramMethod(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+    segs->seglolciefr->setHistogramMethod(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
+    segs->seglolcierr->setHistogramMethod(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
 
 
     if(opts.buttonOLCIefr)
@@ -5776,7 +5795,7 @@ void FormToolbox::on_cmbHistogram_activated(int index)
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            formimage->ShowHistogramImageOLCI(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+            formimage->ShowHistogramImageOLCI(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
         }
     }
     else if(opts.buttonOLCIerr)
@@ -5789,7 +5808,7 @@ void FormToolbox::on_cmbHistogram_activated(int index)
             ui->btnLCCFalseColor->setChecked(false);
 
             ui->pbProgress->reset();
-            formimage->ShowHistogramImageOLCI(ui->cmbHistogram->currentIndex(), ui->rdbOLCINormalized->isChecked());
+            formimage->ShowHistogramImageOLCI(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
         }
     }
 
@@ -5846,7 +5865,7 @@ void FormToolbox::setAllWhatsThis()
 
 
     ui->cmbHistogramProj->setWhatsThis(htmlText1);
-    ui->cmbHistogram->setWhatsThis(htmlText1);
+    ui->cmbHistogramOLCI->setWhatsThis(htmlText1);
 
     const QString htmlText2 =
             "<b>Normalized</b><br>"

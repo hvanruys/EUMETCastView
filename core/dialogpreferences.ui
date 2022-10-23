@@ -167,7 +167,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>12</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -2161,9 +2161,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rdbUseCoda">
+             <widget class="QRadioButton" name="rdbUseEumetsat">
               <property name="text">
-               <string>Use CODA (coda.eumetsat.int)</string>
+               <string>Use EUMETSAT data service(data.eumetsat.int)</string>
               </property>
              </widget>
             </item>

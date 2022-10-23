@@ -1997,6 +1997,8 @@ void SegmentListGeostationary::ComposeVISIR()
     quint16 r,g, b;
     quint16 indexoutrc, indexoutgc, indexoutbc;
 
+    qDebug() << "==========start ComposeVISIR ==================";
+
     int width = opts.geosatellites[geoindex].imagewidth;
     int height = opts.geosatellites[geoindex].imageheight;
     size_t nbrpix = width*height;

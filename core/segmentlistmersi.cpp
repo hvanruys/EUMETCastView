@@ -25,13 +25,15 @@ SegmentListMERSI::SegmentListMERSI(SatelliteList *satl, QObject *parent) :
 }
 
 
-bool SegmentListMERSI::ComposeMERSIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles)
+bool SegmentListMERSI::ComposeMERSIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles, int histogrammethod, bool normalized)
 {
     qDebug() << QString("SegmentListMERSI::ComposeMERSIImage");
 
     this->bandlist = bandlist;
     this->colorlist = colorlist;
-    this->inverselist = invertlist;
+    this->invertlist = invertlist;
+    this->histogrammethod = histogrammethod;
+    this->normalized = normalized;
 
     ptrimagebusy = true;
     QApplication::setOverrideCursor(( Qt::WaitCursor));
@@ -60,10 +62,6 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
     this->totalnbroflines = 0;
 
     emit progressCounter(10);
-
-    this->bandlist = bandlist;
-    this->colorlist = colorlist;
-    this->invertlist = invertlist;
 
     for (int i=0; i < 3; i++)
     {
@@ -154,11 +152,25 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
         bandindex = 0;
     }
 
+    if(this->histogrammethod == CMB_HISTO_NONE_95)
+    {
+        qDebug() << "ComposeMERSIImageInThread : CMB_HISTO_NONE_95";
+    }
+    else if(this->histogrammethod == CMB_HISTO_NONE_100)
+    {
+        qDebug() << "ComposeMERSIImageInThread : CMB_HISTO_NONE_100";
+    }
+    else if(this->histogrammethod == CMB_HISTO_EQUALIZE)
+    {
+        qDebug() << "ComposeMERSIImageInThread : CMB_HISTO_EQUALIZE";
+    }
+
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
     {
         SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
         segm->setBandandColor(bandlist, colorlist, invertlist);
+        segm->setHistogrammethod(this->histogrammethod);
         segm->initializeMemory();
         segm->ReadSegmentInMemory(bandindex, colorarrayindex);
 
@@ -248,7 +260,7 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
 
 
     //CalculateLUTAlt();
-    //CalculateLUTFull();
+    CalculateLUTFull();
 
     segsel = segsselected.begin();
     while ( segsel != segsselected.end() )
@@ -268,6 +280,112 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
     emit segmentlistfinished(true);
     emit progressCounter(100);
     return true;
+}
+
+void SegmentListMERSI::CalculateLUTFull()
+{
+    qDebug() << "start SegmentListMERSI::CalculateLUTFull()";
+    int earth_views = this->earth_views_per_scanline;
+    long stats_ch[3][1024];
+
+    for(int k = 0; k < 3; k++)
+    {
+        for (int j = 0; j < 1024; j++)
+        {
+            stats_ch[k][j] = 0;
+        }
+    }
+
+    bool composecolor;
+    int oneblock = 400 * 2048;
+
+    QList<Segment *>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
+        composecolor = segm->composeColorImage();
+
+        for(int k = 0; k < (composecolor ? 3 : 1); k++)
+        {
+            for (int line = 0; line < segm->NbrOfLines; line++)
+            {
+                for (int pixelx = 0; pixelx < earth_views; pixelx++)
+                {
+//                    quint16 pixel = *(segm->ptrbaMERSI[k].data() + line * earth_views + pixelx) ;
+                    quint16 pixel = *(segm->ptrbaMERSI.data() + this->colorarrayindex[k] * oneblock + line * earth_views + pixelx) ;
+                    quint16 indexout = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel - imageptrs->stat_min_ch[k])/(float)(imageptrs->stat_max_ch[k] - imageptrs->stat_min_ch[k])), 0), 1023);
+                    stats_ch[k][indexout]++;
+                }
+            }
+        }
+        ++segsel;
+    }
+
+
+    // float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
+    double newscale = (double)(1024.0 / imageptrs->active_pixels);
+
+    qDebug() << QString("newscale = %1 active pixels = %2").arg(newscale).arg(imageptrs->active_pixels);
+
+    unsigned long long sum_ch[3];
+    unsigned long long sum_norm_ch[3];
+
+    for (int i=0; i < 3; i++)
+    {
+        sum_ch[i] = 0;
+        sum_norm_ch[i] = 0;
+    }
+
+
+    bool okmin[3], okmax[3];
+
+    for(int k = 0; k < (composecolor ? 3 : 1); k++)
+    {
+        okmin[k] = false;
+        okmax[k] = false;
+    }
+
+    // min/maxRadianceIndex = index of 95% ( 2.5% of 1024 = 25, 97.5% of 1024 = 997 )
+    for( int i = 0; i < 1024; i++)
+    {
+        for(int k = 0; k < (composecolor ? 3 : 1); k++)
+        {
+            sum_ch[k] += stats_ch[k][i];
+            imageptrs->lut_ch[k][i] = (quint16)((double)sum_ch[k] * newscale);
+            imageptrs->lut_ch[k][i] = ( imageptrs->lut_ch[k][i] > 1023 ? 1023 : imageptrs->lut_ch[k][i]);
+            if(imageptrs->lut_ch[k][i] > 25 && okmin[k] == false)
+            {
+                okmin[k] = true;
+                imageptrs->minRadianceIndex[k] = i;
+            }
+            if(imageptrs->lut_ch[k][i] > 997 && okmax[k] == false)
+            {
+                okmax[k] = true;
+                imageptrs->maxRadianceIndex[k] = i;
+            }
+        }
+    }
+
+    for(int k = 0; k < (composecolor ? 3 : 1); k++)
+    {
+        okmin[k] = false;
+        okmax[k] = false;
+    }
+
+
+
+    for(int k = 0; k < (composecolor ? 3 : 1); k++)
+    {
+        qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4").arg(k).arg(imageptrs->minRadianceIndex[k]).arg(k).arg(imageptrs->maxRadianceIndex[k]);
+    }
+    qDebug() << QString("imageptrs stat_min_ch[0] = %1 stat_max_ch[0] = %2").arg(imageptrs->stat_min_ch[0]).arg(imageptrs->stat_max_ch[0]);
+    if(composecolor)
+    {
+        qDebug() << QString("imageptrs stat_min_ch[1] = %1 stat_max_ch[1] = %2").arg(imageptrs->stat_min_ch[1]).arg(imageptrs->stat_max_ch[1]);
+        qDebug() << QString("imageptrs stat_min_ch[2] = %1 stat_max_ch[2] = %2").arg(imageptrs->stat_min_ch[2]).arg(imageptrs->stat_max_ch[2]);
+    }
+
+
 }
 
 void SegmentListMERSI::finishedmersi()
