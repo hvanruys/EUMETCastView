@@ -664,6 +664,17 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     bool sentinel3Tle = false;
     bool fy3dTle = false;
 
+//    QStorageInfo storage = QStorageInfo::root();
+
+//    qDebug() << storage.rootPath();
+//    if (storage.isReadOnly())
+//        qDebug() << "isReadOnly:" << storage.isReadOnly();
+
+//    qDebug() << "name:" << storage.name();
+//    qDebug() << "fileSystemType:" << storage.fileSystemType();
+//    qDebug() << "size:" << storage.bytesTotal()/1024/1024 << "MB";
+//    qDebug() << "availableSize:" << storage.bytesAvailable()/1024/1024 << "MB";
+
     this->ReadXMLfiles();
 
     if (opts.segmentdirectorylist.count() > 0)
@@ -686,6 +697,17 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                 }
                 else
                 {
+                    QStorageInfo storage(segmentdir);
+
+                    qDebug() << storage.rootPath();
+                    if (storage.isReadOnly())
+                        qDebug() << "isReadOnly:" << storage.isReadOnly();
+
+                    qDebug() << "name:" << storage.name();
+                    qDebug() << "fileSystemType:" << storage.fileSystemType();
+                    qDebug() << "total size:" << storage.bytesTotal()/1024/1024 << "MB";
+                    qDebug() << "availableSize:" << storage.bytesAvailable()/1024/1024 << "MB";
+
 
                     segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
                     segmentdir.setSorting(QDir::Name);

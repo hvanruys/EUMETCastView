@@ -5,8 +5,10 @@
 #-------------------------------------------------
 QT       += core gui network widgets printsupport
 QT       += concurrent xml
+
 unix:TARGET = ../../deployEUMETCastView/EUMETCastView
-else:win32:TARGET = ../../EUMETCastView
+win32:TARGET = ../../needed/EUMETCastView
+
 TEMPLATE = app
 CONFIG += static
 CONFIG += c++11
@@ -192,10 +194,10 @@ unix:QMAKE_LFLAGS += -no-pie
 
 
 unix:INCLUDEPATH += /usr/include/GL /usr/include/freetype2 /usr/local/hdf5/include ../bz2 ../zlib128-dll/include ../meteosatlib  ../QSgp4
-win32:INCLUDEPATH += "D:/msys64/mingw64/include" ../bz2 ../meteosatlib ../QSgp4
+win32:INCLUDEPATH += ../bz2 ../meteosatlib ../QSgp4 D:\msys64\ucrt64\include
 
 
-CONFIG(release, debug|release) {
+#CONFIG(release, debug|release) {
 #This is a release build
 unix:LIBS += -lpthread -lz -lfreeimage
 unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/release -lmeteosat -lqsgp4 -lbz2 -lhdf5_serial -larchive
@@ -205,23 +207,23 @@ unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/JPEG/Src -lJ
 unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/WT/Src -lWT
 unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/T4/Src -lT4
 unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/Src -lCOMP
-win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDOSE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
-win32:LIBS += -L"D:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
-}
-else
-{
+win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDISE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
+win32:LIBS += -L"D:/msys64/ucrt64/lib/" -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
+#}
+#else
+#{
 #This is a debug build
-unix:LIBS += -lpthread -lz -lfreeimage
-unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lqsgp4 -lbz2 -lhdf5_serial -larchive
-unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/DISE -lDISE
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/JPEG/Src -lJPEG
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/WT/Src -lWT
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/T4/Src -lT4
-unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/Src -lCOMP
-win32:LIBS += -L$$PWD/../../libs/win64_mingw64/debug -lmeteosat -lDOSE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
-win32:LIBS += -L"D:/msys64/mingw64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
-}
+#unix:LIBS += -lpthread -lz -lfreeimage
+#unix:LIBS += -L$$_PRO_FILE_PWD_/../libs/linux_gplusplus/debug -lmeteosat -lqsgp4 -lbz2 -lhdf5_serial -larchive
+#unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
+#unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/DISE -lDISE
+#unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/JPEG/Src -lJPEG
+#unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/WT/Src -lWT
+#unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/T4/Src -lT4
+#unix:LIBS += -L$$_PRO_FILE_PWD_/../PublicDecompWT_2.7.2-master/COMP/Src -lCOMP
+#win32:LIBS += -L$$PWD/../../libs/win64_mingw64/release -lmeteosat -lDISE -lWT -lT4 -lJPEG -lCOMP -lqsgp4 -lbz2
+#win32:LIBS += -L"D:/msys64/ucrt64/lib/" -lszip -lz -lhdf5.dll -lnetcdf.dll -larchive.dll -lfreeimage.dll
+#}
 
 CONFIG(release, debug|release): DEFINES += NDEBUG
 

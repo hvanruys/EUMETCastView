@@ -38,27 +38,36 @@ FormMovie::FormMovie(QWidget *parent) :
     ui->spbGamma->setValue(opts.videogamma);
     //ui->cmbRss->set
 
-    QColor color;
+    QColor color(opts.videooverlaycolor1);
+
+//    QPalette palette = ui->lblOverlayColor1->palette();
+//     palette.setColor(ui->lblOverlayColor1->backgroundRole(), Qt::yellow);
+//     palette.setColor(ui->lblOverlayColor1->foregroundRole(), Qt::yellow);
+//     ui->lblOverlayColor1->setPalette(palette);
 
     ui->btnOverlayColor1->setText(opts.videooverlaycolor1);
-    color.setNamedColor(opts.videooverlaycolor1);
-    ui->lblOverlayColor1->setPalette(QPalette(color));
-    ui->lblOverlayColor1->setAutoFillBackground(true);
+//    color.setNamedColor(opts.videooverlaycolor1);
+//    ui->lblOverlayColor1->setPalette(QPalette(color));
+//    ui->lblOverlayColor1->setAutoFillBackground(true);
+    ui->lblOverlayColor1->setStyleSheet("QLabel { background-color : " + QString(opts.videooverlaycolor1) + "; color : black; }");
 
     ui->btnOverlayColor2->setText(opts.videooverlaycolor2);
-    color.setNamedColor(opts.videooverlaycolor2);
-    ui->lblOverlayColor2->setPalette(QPalette(color));
-    ui->lblOverlayColor2->setAutoFillBackground(true);
+//    color.setNamedColor(opts.videooverlaycolor2);
+//    ui->lblOverlayColor2->setPalette(QPalette(color));
+//    ui->lblOverlayColor2->setAutoFillBackground(true);
+    ui->lblOverlayColor2->setStyleSheet("QLabel { background-color : " + QString(opts.videooverlaycolor2) + "; color : black; }");
 
     ui->btnOverlayColor3->setText(opts.videooverlaycolor3);
-    color.setNamedColor(opts.videooverlaycolor3);
-    ui->lblOverlayColor3->setPalette(QPalette(color));
-    ui->lblOverlayColor3->setAutoFillBackground(true);
+//    color.setNamedColor(opts.videooverlaycolor3);
+//    ui->lblOverlayColor3->setPalette(QPalette(color));
+//    ui->lblOverlayColor3->setAutoFillBackground(true);
+    ui->lblOverlayColor3->setStyleSheet("QLabel { background-color : " + QString(opts.videooverlaycolor3) + "; color : black; }");
 
     ui->btnOverlayGridColor->setText(opts.videooverlaygridcolor);
-    color.setNamedColor(opts.videooverlaygridcolor);
-    ui->lblOverlayGridColor->setPalette(QPalette(color));
-    ui->lblOverlayGridColor->setAutoFillBackground(true);
+//    color.setNamedColor(opts.videooverlaygridcolor);
+//    ui->lblOverlayGridColor->setPalette(QPalette(color));
+//    ui->lblOverlayGridColor->setAutoFillBackground(true);
+    ui->lblOverlayGridColor->setStyleSheet("QLabel { background-color : " + QString(opts.videooverlaygridcolor) + "; color : black; }");
 
     ui->spbFontSize->setValue(opts.videooverlaydatefontsize);
 
@@ -666,8 +675,10 @@ void FormMovie::on_btnOverlayColor1_clicked()
     if (color.isValid())
     {
         ui->btnOverlayColor1->setText(color.name());
-        ui->lblOverlayColor1->setPalette(QPalette(color));
-        ui->lblOverlayColor1->setAutoFillBackground(true);
+        ui->lblOverlayColor1->setStyleSheet("QLabel { background-color : " + QString(color.name()) + "; color : black; }");
+
+        //ui->lblOverlayColor1->setPalette(QPalette(color));
+        //ui->lblOverlayColor1->setAutoFillBackground(true);
         opts.videooverlaycolor1 = ui->btnOverlayColor1->text();
 
     }
@@ -681,8 +692,10 @@ void FormMovie::on_btnOverlayColor2_clicked()
     if (color.isValid())
     {
         ui->btnOverlayColor2->setText(color.name());
-        ui->lblOverlayColor2->setPalette(QPalette(color));
-        ui->lblOverlayColor2->setAutoFillBackground(true);
+        ui->lblOverlayColor2->setStyleSheet("QLabel { background-color : " + QString(color.name()) + "; color : black; }");
+
+//        ui->lblOverlayColor2->setPalette(QPalette(color));
+//        ui->lblOverlayColor2->setAutoFillBackground(true);
         opts.videooverlaycolor2 = ui->btnOverlayColor2->text();
 
     }
@@ -697,8 +710,10 @@ void FormMovie::on_btnOverlayColor3_clicked()
     if (color.isValid())
     {
         ui->btnOverlayColor3->setText(color.name());
-        ui->lblOverlayColor3->setPalette(QPalette(color));
-        ui->lblOverlayColor3->setAutoFillBackground(true);
+        ui->lblOverlayColor3->setStyleSheet("QLabel { background-color : " + QString(color.name()) + "; color : black; }");
+
+//        ui->lblOverlayColor3->setPalette(QPalette(color));
+//        ui->lblOverlayColor3->setAutoFillBackground(true);
         opts.videooverlaycolor3 = ui->btnOverlayColor3->text();
 
     }
@@ -713,8 +728,10 @@ void FormMovie::on_btnOverlayGridColor_clicked()
     if (color.isValid())
     {
         ui->btnOverlayGridColor->setText(color.name());
-        ui->lblOverlayGridColor->setPalette(QPalette(color));
-        ui->lblOverlayGridColor->setAutoFillBackground(true);
+        ui->lblOverlayGridColor->setStyleSheet("QLabel { background-color : " + QString(color.name()) + "; color : black; }");
+
+//        ui->lblOverlayGridColor->setPalette(QPalette(color));
+//        ui->lblOverlayGridColor->setAutoFillBackground(true);
         opts.videooverlaygridcolor = ui->btnOverlayGridColor->text();
 
     }
