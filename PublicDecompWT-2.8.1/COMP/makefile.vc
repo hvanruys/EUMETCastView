@@ -1,0 +1,56 @@
+# Copyright 2021, European Organisation for the Exploitation of Meteorological Satellites (EUMETSAT)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+_src: _jpeg
+    cd Src
+    nmake /f makefile.vc
+    cd ..
+
+_jpeg: _wt
+    cd JPEG\Src
+    nmake /f makefile.vc
+    cd ..\..
+
+_wt: _t4
+    cd WT\Src
+    nmake /f makefile.vc
+    cd ..\..
+
+_t4: 
+    cd T4\Src
+    nmake /f makefile.vc
+    cd ..\..
+
+clean_src: clean_jpeg
+    cd Src
+    nmake /f makefile.vc clean
+    cd ..
+
+clean_jpeg: clean_wt
+    cd JPEG\Src
+    nmake /f makefile.vc clean
+    cd ..\..
+
+clean_wt: clean_t4
+    cd WT\Src
+    nmake /f makefile.vc clean
+    cd ..\..
+
+clean_t4: 
+    cd T4\Src
+    nmake /f makefile.vc clean
+    cd ..\..
+
+clean: clean_src
+	-del *.obj

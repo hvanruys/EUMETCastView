@@ -1,0 +1,31 @@
+package:
+  name: public-decomp-wt 
+  version: 2.8.1
+
+source:
+  - path: ../
+
+build:
+  number: 1
+
+requirements:
+  build:
+    - cmake  # [win]
+    - make  # [not win]
+    - pkg-config >=0.21  # [not win]
+    - {{ compiler('c') }}  # [not win] 
+    - {{ compiler('cxx') }}  # [not win]
+    - vc  # [win]
+    - vs2015_runtime=14.16  # [win]
+  host:
+  
+  run:
+
+about:
+  home: http://www.eumetsat.int/
+  license: Apache License 2.0
+  license_family: APACHE
+  license_file: {{SRC_DIR}}/LICENSE
+  summary: The PublicDecompWT tool can be build in Windows, Linux and Solaris. Note that it only decompresses compressed XRIT files. It includes a decoder for JPEG, WT and T4. 
+  description: The PublicDecompWT tool source code can be build in Windows, Linux and Solaris; however the conda package public-decomp-wt is only for Linux and Windows. Note that it only decompresses compressed XRIT files. It includes a decoder for JPEG, WT and T4. 
+

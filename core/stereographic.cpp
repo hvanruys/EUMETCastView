@@ -522,7 +522,7 @@ bool StereoGraphic::inverse(double x, double y, double &lon_rad, double &lat_rad
     rh = sqrt(x * x + y * y);
     z = 2.0 * atan(rh / (2.0 * r_major));
 
-#ifdef WIN32 && __GNUC__
+#ifdef WIN32 // && __GNUC__)
     sinz = sin(z);
     cosz = cos(z);
 #else

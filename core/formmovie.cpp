@@ -643,7 +643,7 @@ void FormMovie::on_btnCreateXML_clicked()
     process.setStandardOutputFile(QProcess::nullDevice());
     process.setStandardErrorFile(QProcess::nullDevice());
     qint64 pid;
-    bool isstarted = process.startDetached(&pid);
+    bool isstarted = process.startDetached(NULL);
     if(!isstarted)
     {
         QMessageBox msgBox;

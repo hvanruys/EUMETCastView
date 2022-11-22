@@ -1,0 +1,65 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: JPEG - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\dahl\LOCALS~1\Temp\RSP6E6.tmp" with contents
+[
+/nologo /MLd /W3 /GR /GX /ZI /Od /I ".\inc" /I "..\Inc" /I "..\..\DISE" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D _WIN32_WINNT=0x0400 /Fp"Debug/JPEG.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CHcodec.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CHOptim.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CHufftables.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CJBlock.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CJPEGDecoder.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CJPEGLossLessCoder.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CJPEGLossyCoder.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CompressJPEG.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\JPEG\Src\CQuantizationTable.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\dahl\LOCALS~1\Temp\RSP6E6.tmp" 
+Creating temporary file "C:\DOCUME~1\dahl\LOCALS~1\Temp\RSP6E7.tmp" with contents
+[
+/nologo /out:"Debug\JPEG.lib" 
+.\Debug\CHcodec.obj
+.\Debug\CHOptim.obj
+.\Debug\CHufftables.obj
+.\Debug\CJBlock.obj
+.\Debug\CJPEGDecoder.obj
+.\Debug\CJPEGLossLessCoder.obj
+.\Debug\CJPEGLossyCoder.obj
+.\Debug\CompressJPEG.obj
+.\Debug\CQuantizationTable.obj
+]
+Creating command line "link.exe -lib @C:\DOCUME~1\dahl\LOCALS~1\Temp\RSP6E7.tmp"
+<h3>Output Window</h3>
+Compiling...
+CHcodec.cpp
+WINDOWS BUILD
+CHOptim.cpp
+WINDOWS BUILD
+CHufftables.cpp
+WINDOWS BUILD
+CJBlock.cpp
+WINDOWS BUILD
+CJPEGDecoder.cpp
+WINDOWS BUILD
+CJPEGLossLessCoder.cpp
+WINDOWS BUILD
+CJPEGLossyCoder.cpp
+WINDOWS BUILD
+CompressJPEG.cpp
+WINDOWS BUILD
+CQuantizationTable.cpp
+WINDOWS BUILD
+Creating library...
+
+
+
+<h3>Results</h3>
+JPEG.lib - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

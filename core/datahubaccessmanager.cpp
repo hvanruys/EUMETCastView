@@ -8,6 +8,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QTextDocument>
+#include <QCoreApplication>
 
 extern QNetworkAccessManager networkaccessmanager;
 extern Options opts;

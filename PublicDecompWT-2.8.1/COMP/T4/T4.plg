@@ -1,0 +1,55 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: T4 - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\dahl\LOCALS~1\Temp\RSP5B8.tmp" with contents
+[
+/nologo /MLd /W3 /GR /GX /ZI /Od /I ".\inc" /I "..\Inc" /I "..\..\DISE" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D _WIN32_WINNT=0x0400 /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"E:\TESTCODE\XRitDecomp\COMP\T4\Src\CBitBuffer.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\T4\Src\CompressT4.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\T4\Src\T4Coder.cpp"
+"E:\TESTCODE\XRitDecomp\COMP\T4\Src\T4Decoder.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\dahl\LOCALS~1\Temp\RSP5B8.tmp" 
+Creating command line "link.exe -lib /nologo /out:"Debug\T4.lib"  .\Debug\CBitBuffer.obj .\Debug\CompressT4.obj .\Debug\T4Coder.obj .\Debug\T4Codes.obj .\Debug\T4Decoder.obj "
+<h3>Output Window</h3>
+Compiling...
+CBitBuffer.cpp
+WINDOWS BUILD DATAFIELD
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2632: 'long' followed by 'long' is illegal
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2146: syntax error : missing ',' before identifier 'U_LONG64'
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2065: 'U_LONG64' : undeclared identifier
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2144: syntax error : missing ',' before type 'char'
+e:\testcode\xritdecomp\dise\cdatafield.h(76) : fatal error C1903: unable to recover from previous error(s); stopping compilation
+CompressT4.cpp
+WINDOWS BUILD DATAFIELD
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2146: syntax error : missing ',' before identifier 'U_LONG64'
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2065: 'U_LONG64' : undeclared identifier
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2144: syntax error : missing ',' before type 'char'
+e:\testcode\xritdecomp\dise\cdatafield.h(76) : fatal error C1903: unable to recover from previous error(s); stopping compilation
+T4Coder.cpp
+WINDOWS BUILD DATAFIELD
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2146: syntax error : missing ',' before identifier 'U_LONG64'
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2065: 'U_LONG64' : undeclared identifier
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2144: syntax error : missing ',' before type 'char'
+e:\testcode\xritdecomp\dise\cdatafield.h(76) : fatal error C1903: unable to recover from previous error(s); stopping compilation
+T4Decoder.cpp
+WINDOWS BUILD DATAFIELD
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2146: syntax error : missing ',' before identifier 'U_LONG64'
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2065: 'U_LONG64' : undeclared identifier
+e:\testcode\xritdecomp\dise\cdatafield.h(75) : error C2144: syntax error : missing ',' before type 'char'
+e:\testcode\xritdecomp\dise\cdatafield.h(76) : fatal error C1903: unable to recover from previous error(s); stopping compilation
+Generating Code...
+Error executing cl.exe.
+
+
+
+<h3>Results</h3>
+T4.lib - 17 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

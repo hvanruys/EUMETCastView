@@ -309,7 +309,7 @@ double QTle::MeanAnomaly(QSgp4Date gmt)
 //      
 bool QTle::IsValidLine(QString str, eTleLine line)
 {
-   str.trimmed();
+   str = str.trimmed();
    
    int nLen = str.length();
    

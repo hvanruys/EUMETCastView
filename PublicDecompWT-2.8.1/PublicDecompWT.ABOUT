@@ -1,0 +1,33 @@
+name: PublicDecompWT
+description: Decompress XRIT files
+license_spdx: Apache-2.0	
+copyright: EUMETSAT
+
+version: 2.8.1
+home_url: http://www.eumetsat.int/website/home/Data/DataDelivery/SupportSoftwareandTools/index.html
+
+# Whenever the EUMETSAT copyright and license is not specified inside 
+# the respective source code header, we include the following list of
+# file types as belonging to this software product:
+about_resource: ./README.md
+
+# Compile artefacts and do not contain license headers
+about_resource: ./COMP/COMP.dsp
+about_resource: ./COMP/COMP.plg
+about_resource: ./COMP/JPEG/JPEG.dsp
+about_resource: ./COMP/JPEG/Src/Makefile
+about_resource: ./COMP/JPEG/JPEG.plg
+about_resource: ./COMP/Inc/vssver.scc
+about_resource: ./COMP/Makefile
+about_resource: ./COMP/T4/T4.plg
+about_resource: ./COMP/T4/T4.dsp
+about_resource: ./COMP/T4/Src/Makefile
+about_resource: ./COMP/Src/Makefile
+about_resource: ./COMP/WT/WT.plg
+about_resource: ./COMP/WT/WT.dsp
+about_resource: ./COMP/WT/Src/Makefile
+about_resource: ./DISE/DISE.dsp
+about_resource: ./DISE/DISE.plg
+about_resource: ./DISE/Makefile
+about_resource: ./DISE/DISE.opt
+about_resource: ./xRITDecompress/Makefile

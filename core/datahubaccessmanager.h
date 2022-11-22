@@ -3,8 +3,11 @@
 
 #include <QObject>
 #include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QtXml>
+#include <qnetworkrequest.h>
+#include "qtxmlglobal.h"
+#include "qdom.h"
+#include "qxml.h"
+#include "qtxmlversion.h"
 #include "productlist.h"
 
 

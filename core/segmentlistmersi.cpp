@@ -1,3 +1,4 @@
+#include <QtConcurrent>
 #include "segmentlistmersi.h"
 #include "options.h"
 #include "segmentimage.h"
@@ -526,15 +527,19 @@ int SegmentListMERSI::getIndexFromColor(int colorindex)
 
     Q_ASSERT(colorindex > 0 && colorindex < 4); // R = 1, G = 2, B = 3
 
+    int ret = 0;
+
     for(int i = 0; i < 15; i++)
     {
         if(colorlist.at(i) == colorindex)
         {
             invertarrayindex[colorindex-1] = invertlist.at(i);
             colorarrayindex[colorindex - 1] = i;
-            return i;
+            ret = i;
         }
     }
+
+    return ret;
 
 }
 

@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QMessageBox>
-#include <QtXml>
+//#include <QtXml>
 
 #include "satellite.h"
 #include "segmentmetop.h"

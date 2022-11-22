@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += gui
+QT       += core
 
 TARGET = QSgp4
 TEMPLATE = lib

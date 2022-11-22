@@ -188,23 +188,23 @@ CylEquiDist::DrawGridsRes(QPixmap *pm)
   pen.setColor( QColor(255,255,255) );
   painter.setPen( pen );
 
-  line1.sprintf( "0" );
+  line1.asprintf( "0" );
   painter.drawText( 5, toty/2+3, line1 );
   painter.drawText( totx-15, toty/2+3,line1 );
 
-  line1.sprintf( "+60" );
+  line1.asprintf( "+60" );
   painter.drawText( 5, toty/6+3, line1 );
   painter.drawText( totx-25, toty/6+3,line1 );
 
-  line1.sprintf( "+30" );
+  line1.asprintf( "+30" );
   painter.drawText( 5, toty/3+3, line1 );
   painter.drawText( totx-25, toty/3+3,line1 );
 
-  line1.sprintf( "-30" );
+  line1.asprintf( "-30" );
   painter.drawText( 5, 2*toty/3+3, line1 );
   painter.drawText( totx-25, 2*toty/3+3,line1 );
 
-  line1.sprintf( "-60" );
+  line1.asprintf( "-60" );
   painter.drawText( 5, 5*toty/6+3, line1 );
   painter.drawText( totx-25, 5*toty/6+3,line1 );
 

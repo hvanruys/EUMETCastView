@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QFutureWatcher>
-#include <QtConcurrent>
+//#include <QtConcurrent>
 
 #include "segment.h"
 #include "archive.h"

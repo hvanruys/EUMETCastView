@@ -61,7 +61,9 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         out.flush();
     }
 
-    fprintf(stderr, strout.toStdString().c_str());
+    const std::string std_str = strout.toStdString();
+
+    fprintf(stderr, std_str.c_str());
 
 #else
   // debug mode code
