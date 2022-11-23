@@ -4,15 +4,10 @@ project(EUMETCastView VERSION 1.5.5 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#set(CMAKE_AUTOUIC ON)
-#set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTORCC ON)
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-#find_package(Qt5 COMPONENTS Widgets REQUIRED)
+set(CMAKE_PREFIX_PATH /home/hugo/Qt/5.15.2/gcc_64)
 
 add_library(my_compiler_flags_1 INTERFACE)
 target_compile_features(my_compiler_flags_1 INTERFACE cxx_std_11)

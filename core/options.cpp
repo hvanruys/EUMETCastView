@@ -1626,7 +1626,7 @@ void Options::CreateGeoSatelliteJson()
     // `ba` contains JSON
     QByteArray ba = QJsonDocument(root).toJson(QJsonDocument::Indented);
     QTextStream ts(stdout);
-    ts << "rendered JSON" << Qt::endl;
+    ts << "rendered JSON\n";
     ts << ba;
     {
         QFile fout("test.json");
