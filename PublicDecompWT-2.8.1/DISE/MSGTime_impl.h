@@ -17,6 +17,8 @@
 #ifndef _CMSG_TIME_IMPL_HEADER_
 #define _CMSG_TIME_IMPL_HEADER_
 
+#include <iostream>
+
 /////////////////////////////////////////////////////////////
 //
 //	ClassName:		CMSGTime
