@@ -20,7 +20,7 @@
 #include "string.h"
 
 
-#ifdef SUN
+#ifdef __MINGW32__
 struct tm *localtime_r(const time_t *timep, struct tm *result)
 {
   struct tm *tmp = localtime( timep );
@@ -108,10 +108,10 @@ unsigned long Util::CUTCTime :: GetDayOfWeek() const
 {
     try
     {
-        #ifdef __GNUC__
-            const long int sec =  m_Time/Util::CTimeSpan::Second();
+        #ifdef __MINGW32__
+            const long long int sec =  m_Time/Util::CTimeSpan::Second();
         #else
-            long long int sec = m_Time/Util::CTimeSpan::Second();
+            const long int sec = m_Time/Util::CTimeSpan::Second();
         #endif
         tm* t_Time = localtime( &sec );
         unsigned long l_Time =  t_Time->tm_wday;
@@ -127,10 +127,10 @@ unsigned long Util::CUTCTime :: GetDayOfMonth() const
 {
     try
     {
-        #ifdef __GNUC__
-            const long int sec =  m_Time/Util::CTimeSpan::Second();
+        #ifdef __MINGW32__
+            const long long int sec =  m_Time/Util::CTimeSpan::Second();
         #else
-            long long int sec =  m_Time/Util::CTimeSpan::Second();
+            const long int sec =  m_Time/Util::CTimeSpan::Second();
         #endif
         tm* t_Time = localtime(&sec);
         unsigned long l_Time =  t_Time->tm_mday;
@@ -149,10 +149,10 @@ unsigned long Util::CUTCTime :: GetDayOfYear() const
     {
         unsigned long l_Time;
         tm *t_Time;
-        #ifdef __GNUC__
-            const long int sec =  m_Time/Util::CTimeSpan::Second();
+        #ifdef __MINGW32__
+            const long long int sec =  m_Time/Util::CTimeSpan::Second();
         #else
-            long long int sec =  m_Time/Util::CTimeSpan::Second();
+            const long int sec =  m_Time/Util::CTimeSpan::Second();
         #endif
         t_Time = localtime(&sec);
         l_Time =  t_Time->tm_yday;
@@ -172,10 +172,10 @@ unsigned long Util::CUTCTime :: GetMonth() const
     {
         unsigned long l_Time;
         tm *t_Time;
-        #ifdef __GNUC__
-            const long int sec =  m_Time/Util::CTimeSpan::Second();
+        #ifdef __MINGW32__
+            const long long int sec =  m_Time/Util::CTimeSpan::Second();
         #else
-            long long int sec =  m_Time/Util::CTimeSpan::Second();
+            const long int sec =  m_Time/Util::CTimeSpan::Second();
         #endif
          t_Time = localtime(&sec);
         l_Time =  t_Time->tm_mon+1;
@@ -196,10 +196,10 @@ unsigned long Util::CUTCTime :: GetYear() const
     {
         unsigned long l_Time;
         tm *t_Time;
-        #ifdef __GNUC__
-            const long int sec =  m_Time/Util::CTimeSpan::Second();
+        #ifdef __MINGW32__
+            const long long int sec =  m_Time/Util::CTimeSpan::Second();
         #else
-            long long int sec =  m_Time/Util::CTimeSpan::Second();
+            const long int sec =  m_Time/Util::CTimeSpan::Second();
         #endif
         t_Time = localtime(&sec);
         l_Time =  t_Time->tm_year + 1900;
@@ -291,10 +291,10 @@ std::string Util::CUTCTime::Format(const std::string& Spec)
 	char tmp[64];
 	memset( tmp, '0', 64 );
     struct tm tm;
-    #ifdef __GNUC__
-        const long int sec =  m_Time/Util::CTimeSpan::Second();
+    #ifdef __MINGW32__
+        const long long int sec =  m_Time/Util::CTimeSpan::Second();
     #else
-        long long int sec =  m_Time/Util::CTimeSpan::Second();
+        const long int sec =  m_Time/Util::CTimeSpan::Second();
     #endif
     
     ::localtime_r(&sec, &tm);
