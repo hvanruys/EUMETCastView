@@ -14,4 +14,14 @@ The Open Source program **EUMETCastView** allows you to view
 More details are found on http://hvanruys.github.io
 
 Compile in Linux :
+- mkdir build
+- cd build
+- cmake ..
+- cmake --build .
 
+Compile in Windows :
+- Install msys2
+- mkdir build
+- cd build
+- cmake -G "MinGW Makefile" ..
+- cmake --build .
