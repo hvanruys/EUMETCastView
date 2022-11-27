@@ -1,7 +1,8 @@
 TARGET = EUMETCastView
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = bz2 \
+SUBDIRS = PublicDecompWT-2.8.1 \
+        bz2 \
 	meteosatlib \
 	QSgp4 \
         core

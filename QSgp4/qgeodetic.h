@@ -42,6 +42,14 @@ public:
         return *this;
     }
 
+    void SetLocation( double lat, double lon, double alt)
+    {
+        latitude = lat;
+        longitude = lon;
+        altitude = alt;
+    }
+
+
     bool operator==(const QGeodetic& geo) const
     {
         return IsEqual(geo);

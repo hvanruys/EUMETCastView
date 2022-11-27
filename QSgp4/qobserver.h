@@ -30,6 +30,11 @@ class QObserver
 {
 public:
 
+    QObserver()
+    {
+
+    }
+
     QObserver(const double latitude,
             const double longitude,
             const double altitude)
@@ -51,6 +56,14 @@ public:
     void SetLocation(const QGeodetic& geo)
     {
         m_geo = geo;
+        m_eci.Update(m_geo, m_eci.GetDate());
+    }
+
+    void SetLocation(const double latitude,
+                     const double longitude,
+                     const double altitude)
+    {
+        m_geo.SetLocation(Util::DegreesToRadians(latitude), Util::DegreesToRadians(longitude), altitude);
         m_eci.Update(m_geo, m_eci.GetDate());
     }
 

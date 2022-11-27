@@ -16,7 +16,7 @@ set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 
 target_compile_options(my_compiler_flags_1 INTERFACE
-  "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-O2;-Wno-conversion-null;-Wno-pragmas;-Wno-trigraphs;-no-pie;-Wformat-security;>>"
+  "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-O2;-Wno-conversion-null;-Wno-pragmas;-Wno-trigraphs;-no-pie;-Wformat;-Wformat-security;>>"
   "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>"
 )
 
@@ -25,4 +25,5 @@ add_subdirectory(PublicDecompWT-2.8.1)
 add_subdirectory(meteosatlib)
 add_subdirectory(QSgp4)
 add_subdirectory(core)
+add_subdirectory(video)
 

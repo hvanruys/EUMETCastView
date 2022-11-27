@@ -8,6 +8,9 @@ set(PROJECT_SOURCES_CPP
 	qobserver.cpp
 	qsgp4date.cpp
 	qtle.cpp
+        qsun.cpp
+        sgp_math.cpp
+        sgp_time.cpp
 	Matrices.cpp
 )
 
@@ -24,6 +27,8 @@ add_library(
     ${PROJECT_SOURCES_CPP}
 )
 
-target_include_directories(QSgp4 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/core")
+
 target_link_libraries(QSgp4 my_compiler_flags_1 Qt5::Gui)
 
