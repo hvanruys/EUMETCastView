@@ -13,3 +13,5 @@ The Open Source program **EUMETCastView** allows you to view
 
 More details are found on http://hvanruys.github.io
 
+Compile in Linux :
+
