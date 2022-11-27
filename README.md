@@ -23,5 +23,5 @@ Compile in Windows :
 - Install msys2
 - mkdir build
 - cd build
-- cmake -G "MinGW Makefile" ..
+- cmake -G "MinGW Makefiles" ..
 - cmake --build .
