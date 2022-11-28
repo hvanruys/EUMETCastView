@@ -81,6 +81,13 @@ set(PROJECT_SOURCES_CPP
     internal.cpp
     misc_util.cpp
     nav_util.cpp
+    mainwindow.ui
+    dialogpreferences.ui
+    formephem.ui
+    formmapcyl.ui
+    formmovie.ui
+    formtoolbox.ui
+    formgeostationary.ui
 )
 
 set(CMAKE_CXX_STANDARD 11)
