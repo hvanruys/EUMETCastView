@@ -72,6 +72,7 @@ public:
     bool gvpgridonproj;
     double gvpfalseeasting;
     double gvpfalsenorthing;
+    QString ffmpegparameters;
 
 
 

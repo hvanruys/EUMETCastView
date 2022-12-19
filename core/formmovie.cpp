@@ -1,6 +1,7 @@
 #include "formmovie.h"
 #include "poi.h"
 #include "ui_formmovie.h"
+#include "options.h"
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -40,33 +41,33 @@ FormMovie::FormMovie(QWidget *parent) :
 
     QColor color(opts.videooverlaycolor1);
 
-//    QPalette palette = ui->lblOverlayColor1->palette();
-//     palette.setColor(ui->lblOverlayColor1->backgroundRole(), Qt::yellow);
-//     palette.setColor(ui->lblOverlayColor1->foregroundRole(), Qt::yellow);
-//     ui->lblOverlayColor1->setPalette(palette);
+    //    QPalette palette = ui->lblOverlayColor1->palette();
+    //     palette.setColor(ui->lblOverlayColor1->backgroundRole(), Qt::yellow);
+    //     palette.setColor(ui->lblOverlayColor1->foregroundRole(), Qt::yellow);
+    //     ui->lblOverlayColor1->setPalette(palette);
 
     ui->btnOverlayColor1->setText(opts.videooverlaycolor1);
-//    color.setNamedColor(opts.videooverlaycolor1);
-//    ui->lblOverlayColor1->setPalette(QPalette(color));
-//    ui->lblOverlayColor1->setAutoFillBackground(true);
+    //    color.setNamedColor(opts.videooverlaycolor1);
+    //    ui->lblOverlayColor1->setPalette(QPalette(color));
+    //    ui->lblOverlayColor1->setAutoFillBackground(true);
     ui->lblOverlayColor1->setStyleSheet("QLabel { background-color : " + QString(opts.videooverlaycolor1) + "; color : black; }");
 
     ui->btnOverlayColor2->setText(opts.videooverlaycolor2);
-//    color.setNamedColor(opts.videooverlaycolor2);
-//    ui->lblOverlayColor2->setPalette(QPalette(color));
-//    ui->lblOverlayColor2->setAutoFillBackground(true);
+    //    color.setNamedColor(opts.videooverlaycolor2);
+    //    ui->lblOverlayColor2->setPalette(QPalette(color));
+    //    ui->lblOverlayColor2->setAutoFillBackground(true);
     ui->lblOverlayColor2->setStyleSheet("QLabel { background-color : " + QString(opts.videooverlaycolor2) + "; color : black; }");
 
     ui->btnOverlayColor3->setText(opts.videooverlaycolor3);
-//    color.setNamedColor(opts.videooverlaycolor3);
-//    ui->lblOverlayColor3->setPalette(QPalette(color));
-//    ui->lblOverlayColor3->setAutoFillBackground(true);
+    //    color.setNamedColor(opts.videooverlaycolor3);
+    //    ui->lblOverlayColor3->setPalette(QPalette(color));
+    //    ui->lblOverlayColor3->setAutoFillBackground(true);
     ui->lblOverlayColor3->setStyleSheet("QLabel { background-color : " + QString(opts.videooverlaycolor3) + "; color : black; }");
 
     ui->btnOverlayGridColor->setText(opts.videooverlaygridcolor);
-//    color.setNamedColor(opts.videooverlaygridcolor);
-//    ui->lblOverlayGridColor->setPalette(QPalette(color));
-//    ui->lblOverlayGridColor->setAutoFillBackground(true);
+    //    color.setNamedColor(opts.videooverlaygridcolor);
+    //    ui->lblOverlayGridColor->setPalette(QPalette(color));
+    //    ui->lblOverlayGridColor->setAutoFillBackground(true);
     ui->lblOverlayGridColor->setStyleSheet("QLabel { background-color : " + QString(opts.videooverlaygridcolor) + "; color : black; }");
 
     ui->spbFontSize->setValue(opts.videooverlaydatefontsize);
@@ -90,18 +91,26 @@ FormMovie::FormMovie(QWidget *parent) :
 
     connect(udpSocket, &QUdpSocket::readyRead, this, &FormMovie::readPendingDatagrams);
 
+    for(int i = 0; i < opts.ffmpeg_options.count() ; i++)
+    {
+        ui->lwffmpeg->addItem(opts.ffmpeg_options.at(i));
+    }
 
-
+    if(ui->lwffmpeg->count() > 0)
+    {
+        ui->lwffmpeg->setCurrentRow(0);
+        ui->leffmpegoptions->setText(ui->lwffmpeg->currentItem()->text());
+    }
 }
 
 void FormMovie::readPendingDatagrams()
-    {
-        while (udpSocket->hasPendingDatagrams()) {
-            QNetworkDatagram datagram = udpSocket->receiveDatagram();
-            QString replyData = QString(datagram.data());
-            writeTolistwidget(replyData);
-        }
+{
+    while (udpSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = udpSocket->receiveDatagram();
+        QString replyData = QString(datagram.data());
+        writeTolistwidget(replyData);
     }
+}
 
 void FormMovie::saveOverlayColorsToOptions()
 {
@@ -519,12 +528,12 @@ void FormMovie::on_btnCreateXML_clicked()
 
     tag = doc.createElement("homelon");
     tagroot.appendChild(tag);
-    t = doc.createTextNode("3.5537");
+    t = doc.createTextNode(QString("%1").arg(opts.obslon));
     tag.appendChild(t);
 
     tag = doc.createElement("homelat");
     tagroot.appendChild(tag);
-    t = doc.createTextNode("50.8330");
+    t = doc.createTextNode(QString("%1").arg(opts.obslat));
     tag.appendChild(t);
 
     tag = doc.createElement("projectionoverlaycolor1");
@@ -609,21 +618,44 @@ void FormMovie::on_btnCreateXML_clicked()
     {
         tagroot = doc.createElement("videooutputname");
         root.appendChild(tagroot);
-        t = doc.createTextNode("PROJHRV");
+        t = doc.createTextNode("PROJHRV_" + ui->cmbSatname->currentText() + "_");
         tagroot.appendChild(t);
     }
     else
     {
         tagroot = doc.createElement("videooutputname");
         root.appendChild(tagroot);
-        t = doc.createTextNode("PROJ");
+        t = doc.createTextNode("PROJ_" + ui->cmbSatname->currentText() + "_");
         tagroot.appendChild(t);
     }
 
+    // ffmpeg parameters
+    QString inputimagename = QString("tempvideo/%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_" + ui->cmbSatname->currentText() + "_%04d.png" : "PROJ_" + ui->cmbSatname->currentText() + "_%04d.png");
+    QString outputvideoname = QString("%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_"  + ui->cmbSatname->currentText() : "PROJ_" + ui->cmbSatname->currentText()) + ".mp4";
+
+    QStringList mylistin = opts.ffmpeg_options;
+    QStringList mylistout;
+    mylistin.replaceInStrings(QString("INPUTFILES"), inputimagename);
+    mylistin.replaceInStrings("OUPUTFILE", outputvideoname);
+
+    for(int i = 0; i < mylistin.count(); i++)
+    {
+        QStringList list = mylistin.at(i).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+        mylistout.append(list);
+    }
 
 
+    ui->lwTraffic->addItem(QString("=== Start creation video %1 ! ===").arg(outputvideoname));
 
-
+    tag = doc.createElement("ffmpegparameters");
+    root.appendChild(tag);
+    QString myopt;
+    for(int i = 0; i < mylistout.count(); i++)
+    {
+        myopt.append(mylistout.at(i) + (i == mylistout.count() - 1 ? "" : ","));
+    }
+    t = doc.createTextNode(myopt);
+    tag.appendChild(t);
 
 
     QString xmlstring = doc.toString();
@@ -638,8 +670,6 @@ void FormMovie::on_btnCreateXML_clicked()
 
     QProcess process;
     process.setProgram("EUMETCastVideo");
-    //process.setArguments({"Jeopardy_Theme.mp3"});
-    //process.setWorkingDirectory(musicDirPath);
     process.setStandardOutputFile(QProcess::nullDevice());
     process.setStandardErrorFile(QProcess::nullDevice());
     qint64 pid;
@@ -694,8 +724,8 @@ void FormMovie::on_btnOverlayColor2_clicked()
         ui->btnOverlayColor2->setText(color.name());
         ui->lblOverlayColor2->setStyleSheet("QLabel { background-color : " + QString(color.name()) + "; color : black; }");
 
-//        ui->lblOverlayColor2->setPalette(QPalette(color));
-//        ui->lblOverlayColor2->setAutoFillBackground(true);
+        //        ui->lblOverlayColor2->setPalette(QPalette(color));
+        //        ui->lblOverlayColor2->setAutoFillBackground(true);
         opts.videooverlaycolor2 = ui->btnOverlayColor2->text();
 
     }
@@ -712,8 +742,8 @@ void FormMovie::on_btnOverlayColor3_clicked()
         ui->btnOverlayColor3->setText(color.name());
         ui->lblOverlayColor3->setStyleSheet("QLabel { background-color : " + QString(color.name()) + "; color : black; }");
 
-//        ui->lblOverlayColor3->setPalette(QPalette(color));
-//        ui->lblOverlayColor3->setAutoFillBackground(true);
+        //        ui->lblOverlayColor3->setPalette(QPalette(color));
+        //        ui->lblOverlayColor3->setAutoFillBackground(true);
         opts.videooverlaycolor3 = ui->btnOverlayColor3->text();
 
     }
@@ -730,8 +760,8 @@ void FormMovie::on_btnOverlayGridColor_clicked()
         ui->btnOverlayGridColor->setText(color.name());
         ui->lblOverlayGridColor->setStyleSheet("QLabel { background-color : " + QString(color.name()) + "; color : black; }");
 
-//        ui->lblOverlayGridColor->setPalette(QPalette(color));
-//        ui->lblOverlayGridColor->setAutoFillBackground(true);
+        //        ui->lblOverlayGridColor->setPalette(QPalette(color));
+        //        ui->lblOverlayGridColor->setAutoFillBackground(true);
         opts.videooverlaygridcolor = ui->btnOverlayGridColor->text();
 
     }
@@ -795,4 +825,145 @@ void FormMovie::setGVPDisplayGrid(bool grid)
 {
     ui->chkDisplayGrid->setChecked(grid);
 }
+
+
+void FormMovie::on_btnClear_clicked()
+{
+    ui->lwTraffic->clear();
+}
+
+void FormMovie::on_btnffmpeg_clicked()
+{
+    QProcess process;
+    process.setProgram("ffmpeg");
+
+    QString inputimagename = QString("tempvideo/%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_" + ui->cmbSatname->currentText() + "_%04d.png" : "PROJ_" + ui->cmbSatname->currentText() + "_%04d.png");
+    QString outputvideoname = QString("%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_"  + ui->cmbSatname->currentText() : "PROJ_" + ui->cmbSatname->currentText()) + ".mp4";
+
+    QStringList mylistin = opts.ffmpeg_options;
+    QStringList mylistout;
+    mylistin.replaceInStrings(QString("INPUTFILES"), inputimagename);
+    mylistin.replaceInStrings("OUPUTFILE", outputvideoname);
+
+    for(int i = 0; i < mylistin.count(); i++)
+    {
+        QStringList list = mylistin.at(i).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+        mylistout.append(list);
+    }
+
+
+    ui->lwTraffic->addItem(QString("=== Start creation video %1 ! ===").arg(outputvideoname));
+    process.setArguments(mylistout);
+
+    process.setStandardOutputFile("ffmpegouput.txt");
+    process.setStandardErrorFile("ffmpegoutputerror.txt"); //QProcess::nullDevice());
+    process.start();
+    process.waitForFinished(-1);
+    ui->lwTraffic->addItem(QString("=== The video %1 is created ! ===").arg(outputvideoname));
+
+}
+
+
+void FormMovie::on_lwffmpeg_itemSelectionChanged()
+{
+    // Get the pointer to the currently selected item.
+    item = ui->lwffmpeg->currentItem();
+
+    // Set the text color and its background color using the pointer to the item.
+    //    item->setForeground(Qt::white);
+    //    item->setBackground(Qt::blue);
+    ui->leffmpegoptions->clear();
+    ui->leffmpegoptions->insert(item->text());
+
+}
+
+
+void FormMovie::on_leffmpegoptions_textEdited(const QString &arg1)
+{
+    if(item != NULL)
+    {
+        item->setText(arg1);
+        opts.ffmpeg_options.clear();
+        for(int i = 0; i < ui->lwffmpeg->count(); i++)
+        {
+            if(!ui->lwffmpeg->item(i)->text().isEmpty())
+                opts.ffmpeg_options.append(ui->lwffmpeg->item(i)->text());
+        }
+
+    }
+}
+
+
+void FormMovie::on_btnAdd_clicked()
+{
+    ui->lwffmpeg->addItem("");
+    ui->lwffmpeg->setCurrentRow(ui->lwffmpeg->count()-1);
+
+}
+
+
+void FormMovie::on_btnDelete_clicked()
+{
+    if(ui->lwffmpeg->currentRow() > 0)
+    {
+        QListWidgetItem *item = ui->lwffmpeg->takeItem(ui->lwffmpeg->currentRow());
+        delete item;
+    }
+}
+
+
+void FormMovie::on_btnUp_clicked()
+{
+    if(ui->lwffmpeg->count() < 2)
+        return;
+    if(ui->lwffmpeg->currentRow() == 0)
+        return;
+    int row = ui->lwffmpeg->currentRow();
+    QString text_before = ui->lwffmpeg->item(ui->lwffmpeg->currentRow() - 1)->text();
+    QString text_current = ui->lwffmpeg->item(ui->lwffmpeg->currentRow())->text();
+    ui->lwffmpeg->item(ui->lwffmpeg->currentRow() - 1)->setText(text_current);
+    ui->lwffmpeg->item(ui->lwffmpeg->currentRow())->setText(text_before);
+    ui->lwffmpeg->setCurrentRow(row - 1);
+}
+
+
+void FormMovie::on_btnDown_clicked()
+{
+    if(ui->lwffmpeg->count() < 2)
+        return;
+    if(ui->lwffmpeg->currentRow() == ui->lwffmpeg->count() - 1)
+        return;
+    int row = ui->lwffmpeg->currentRow();
+    QString text_after = ui->lwffmpeg->item(ui->lwffmpeg->currentRow() + 1)->text();
+    QString text_current = ui->lwffmpeg->item(ui->lwffmpeg->currentRow())->text();
+    ui->lwffmpeg->item(ui->lwffmpeg->currentRow() + 1)->setText(text_current);
+    ui->lwffmpeg->item(ui->lwffmpeg->currentRow())->setText(text_after);
+    ui->lwffmpeg->setCurrentRow(row + 1);
+
+}
+
+
+void FormMovie::on_btnDefault_clicked()
+{
+    opts.ffmpeg_options.clear();
+    opts.ffmpeg_options << "-framerate 5" << "-i INPUTFILES" << "-vf minterpolate=fps=60:mi_mode=blend";
+    opts.ffmpeg_options << "-c:v libx264" << "-pix_fmt yuv420p" << "-y OUPUTFILE";
+
+    qDebug() << opts.ffmpeg_options;
+    qDebug() << "ffmpeg_options.count = " << opts.ffmpeg_options.count();
+
+    ui->lwffmpeg->blockSignals(true);
+    ui->lwffmpeg->clear();
+
+    for(int i = 0; i < opts.ffmpeg_options.count() ; i++)
+    {
+        qDebug() << "adding " << i << " " << opts.ffmpeg_options.at(i);
+        ui->lwffmpeg->addItem(opts.ffmpeg_options.at(i));
+        ui->lwffmpeg->setCurrentRow(0);
+    }
+    ui->lwffmpeg->blockSignals(false);
+
+
+}
+
 

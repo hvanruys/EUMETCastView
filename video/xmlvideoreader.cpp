@@ -76,6 +76,8 @@ void XMLVideoReader::readVideoParameters()
             this->projectiontype = reader.readElementText();
         else if(reader.name() == "gvpprojectionparameters")
             readGVPParameters();
+        else if(reader.name() == "ffmpegparameters")
+            this->ffmpegparameters = reader.readElementText();
         else if(reader.name() == "videooutputname")
             this->videooutputname = reader.readElementText();
 

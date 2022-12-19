@@ -5,7 +5,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QUdpSocket>
 #include "rssvideo.h"
-//#include "QSgp4/qsun.h"
+#include "qsun.h"
 #include "qeci.h"
 #include "qobserver.h"
 
@@ -29,7 +29,6 @@ void RenamePNGFiles()
     }
 
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -70,15 +69,15 @@ int main(int argc, char *argv[])
     }
 
 
-//    if(video.reader->daykindofimage.length() == 0)
-//    {
-//        video.sendMessages("Wrong parameters !");
-//        return 1;
-//    }
+    //    if(video.reader->daykindofimage.length() == 0)
+    //    {
+    //        video.sendMessages("Wrong parameters !");
+    //        return 1;
+    //    }
 
     if(video.reader->singleimage.length() == 0)
     {
-        video.sendMessages("Start creating the video ...");
+        video.sendMessages("Start creating the video frames ...");
     }
     else
     {
@@ -87,10 +86,10 @@ int main(int argc, char *argv[])
 
     video.getDatePathVectorFromDir(&datelist, &pathlist);
 
-////        for(int i = 0; i < datelist.count(); i++)
-////        {
-////            qDebug() << datelist.at(i) << pathlist.at(i);
-////        }
+    ////        for(int i = 0; i < datelist.count(); i++)
+    ////        {
+    ////            qDebug() << datelist.at(i) << pathlist.at(i);
+    ////        }
 
 
     int threadcount = QThread::idealThreadCount();
@@ -107,6 +106,7 @@ int main(int argc, char *argv[])
     if(datelist.count() == 0)
     {
         video.sendMessages("Warning : No segments found !");
+        printf("Warning : No segments found !\n");
         return 0;
     }
 
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         if(!videofound)
             video.sendMessages(QString("--- singleimage %1 not found ! ---").arg(video.reader->singleimage));
         else
-            video.sendMessages(QString("=== Image %1 created ===").arg(video.reader->singleimage));
+            video.sendMessages(QString("=== Image %1 %2 created ===").arg(video.reader->satname).arg(video.reader->singleimage));
 
     }
     else
@@ -145,23 +145,24 @@ int main(int argc, char *argv[])
 
         QString datestr = datelist.at(0).mid(0, 8);
 
+        QStringList list = video.reader->ffmpegparameters.split(QLatin1Char(','), Qt::SkipEmptyParts);
+
+        video.sendMessages(QString("start ffmpeg with parameters %1").arg(video.reader->ffmpegparameters));
+
+
         QProcess process;
         process.setProgram("ffmpeg");
-        QString res = QString("%1x%2").arg(video.reader->videowidth).arg(video.reader->videoheight);
-        //QString videooutput = video.reader->videooutputname + ".mp4";
-        QString inputimagename = QString("tempvideo/%1%2").arg(video.reader->bhrv ? "PROJHRV" : "PROJ").arg("%04d.png");
-        QString outputvideoname = QString("%1%2%3").arg(video.reader->bhrv ? "PROJHRV" : "PROJ").arg(datestr).arg(video.reader->satname) + ".mp4";
-        //process.setArguments({"-r", "10", "-f", "image2", "-i", inputimagename, "-s" , res, "-vcodec", "libx264", "-crf", "10", "-pix_fmt", "yuv420p", "-y", outputvideoname});
-        process.setArguments({"-r", "10", "-f", "image2", "-i", inputimagename, "-filter", "minterpolate='mi_mode=blend'", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-y", outputvideoname});
+        process.setArguments(list);
         process.setStandardOutputFile("ffmpegouput.txt");
         process.setStandardErrorFile("ffmpegoutputerror.txt"); //QProcess::nullDevice());
         process.start();
         process.waitForFinished(-1);
         video.sendMessages(QString("=== The video is created ! ==="));
-
     }
 
-    qDebug() << "==============einde==================== ";
+    video.sendMessages("==============einde==================== ");
     return 0; //a.exec();
 }
+
+
 

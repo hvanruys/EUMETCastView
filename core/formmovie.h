@@ -55,6 +55,25 @@ private slots:
 
     void readPendingDatagrams();
 
+    void on_btnClear_clicked();
+
+    void on_btnffmpeg_clicked();
+
+    void on_lwffmpeg_itemSelectionChanged();
+
+    void on_leffmpegoptions_textEdited(const QString &arg1);
+
+    void on_btnAdd_clicked();
+
+    void on_btnDelete_clicked();
+
+    void on_btnUp_clicked();
+
+    void on_btnDown_clicked();
+
+    void on_btnDefault_clicked();
+
+
 private:
     void setupSpectrum();
     void setupSatname();
@@ -66,6 +85,7 @@ private:
     Ui::FormMovie *ui;
     FormToolbox *formtoolbox;
     QUdpSocket *udpSocket;
+    QListWidgetItem *item;
 
 };
 

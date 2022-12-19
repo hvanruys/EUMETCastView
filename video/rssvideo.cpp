@@ -3,7 +3,6 @@
 #include <QDir>
 #include <QImage>
 #include <QPainter>
-#include <QTime>
 #include "rssvideo.h"
 #include "qsun.h"
 #include "qeci.h"
@@ -136,13 +135,15 @@ void RSSVideo::getDatePathVectorFromDir( QStringList *datelist, QStringList *pat
         segmentdir.setSorting(QDir::Name);
         fileinfolist = segmentdir.entryInfoList();
 
-        //                for(int i = 0; i < fileinfolist.count(); i++)
-        //                {
-        //                    if(rx.exactMatch(fileinfolist.at(i).fileName()))
-        //                    {
-        //                        qDebug() << fileinfolist.at(i).absoluteFilePath() ;
-        //                    }
-        //                }
+        //        qDebug() << "nbr fileinfolist = " << fileinfolist.count();
+
+        //        for(int i = 0; i < fileinfolist.count(); i++)
+        //        {
+        //            //if(rx.exactMatch(fileinfolist.at(i).fileName()))
+        //            {
+        //                qDebug() << fileinfolist.at(i).absoluteFilePath() ;
+        //            }
+        //        }
 
 
         foreach (const QFileInfo &fileInfo, fileinfolist)
@@ -263,60 +264,46 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
 
     //sendMessages(QString("Start compileImage nbr %1").arg(imagenbr));
 
+    qDebug() << "daykindofimage = " << reader->daykindofimage;
+    qDebug() << "nightkindofimage = " << reader->nightkindofimage;
+
     if(reader->daykindofimage == "VIS_IR")
     {
-        ptrDayRed = new quint16[3712 * (reader->brss ? 1392 : 3712)];
-        memset(ptrDayRed, 0, 3712 * (reader->brss ? 1392 : 3712) * sizeof(quint16));
+        ptrDayRed = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
+        memset(ptrDayRed, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
     }
 
     if(reader->daykindofimage == "VIS_IR Color" || reader->daykindofimage == "HRV Color")
     {
-        ptrDayRed = new quint16[3712 * (reader->brss ? 1392 : 3712)];
-        memset(ptrDayRed, 0, 3712 * (reader->brss ? 1392 : 3712) * sizeof(quint16));
-        ptrDayGreen = new quint16[3712 * (reader->brss ? 1392 : 3712)];
-        memset(ptrDayGreen, 0, 3712 * (reader->brss ? 1392 : 3712) * sizeof(quint16));
-        ptrDayBlue = new quint16[3712 * (reader->brss ? 1392 : 3712)];
-        memset(ptrDayBlue, 0, 3712 * (reader->brss ? 1392 : 3712) * sizeof(quint16));
+        ptrDayRed = new quint16[3712 * (reader->brss ? 1392 : (reader->bhrv ? 2*464 : 8*464))];
+        memset(ptrDayRed, 0, 3712 * (reader->brss ? 1392 : (reader->bhrv ? 2*464 : 8*464)) * sizeof(quint16));
+        ptrDayGreen = new quint16[3712 * (reader->brss ? 1392 : (reader->bhrv ? 2*464 : 8*464))];
+        memset(ptrDayGreen, 0, 3712 * (reader->brss ? 1392 : (reader->bhrv ? 2*464 : 8*464)) * sizeof(quint16));
+        ptrDayBlue = new quint16[3712 * (reader->brss ? 1392 : (reader->bhrv ? 2*464 : 8*464))];
+        memset(ptrDayBlue, 0, 3712 * (reader->brss ? 1392 : (reader->bhrv ? 2*464 : 8*464)) * sizeof(quint16));
     }
 
     if(reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color")
     {
-        if(reader->brss)
-        {
-            ptrHRV = new quint16[5568 * 9 * 464];
-            memset(ptrHRV, 0, 5568 * 9 * 464 * sizeof(quint16));
-            qDebug() << "ptrHRV = 9 * 464";
-        }
-        else
-        {
-            ptrHRV = new quint16[5568 * 24 * 464];
-            memset(ptrHRV, 0, 5568 * 24 * 464 * sizeof(quint16));
-            qDebug() << "ptrHRV = 24 * 464";
-        }
+        ptrHRV = new quint16[5568 * (reader->brss ? 9*464 : 6*464)];
+        memset(ptrHRV, 0, 5568 * (reader->brss ? 9*464 : 6*464) * sizeof(quint16));
+        qDebug() << "ptrHRV = " << (reader->brss ? "9 * 464" : "6 * 464");
     }
-
-    if(reader->daykindofimage == "HRVFull" || reader->daykindofimage == "HRVFull Color")
-    {
-        ptrHRV = new quint16[11136 * 11136];
-        memset(ptrHRV, 0, 11136 * 11136 * sizeof(quint16));
-    }
-
-
 
     if(reader->nightkindofimage == "VIS_IR")
     {
-        ptrNightRed = new quint16[3712 * (reader->brss ? 1392 : 3712)];
-        memset(ptrNightRed, 0, 3712 * (reader->brss ? 1392 : 3712) * sizeof(quint16));
+        ptrNightRed = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
+        memset(ptrNightRed, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
     }
 
     if(reader->nightkindofimage == "VIS_IR Color")
     {
-        ptrNightRed = new quint16[3712 * (reader->brss ? 1392 : 3712)];
-        memset(ptrNightRed, 0, 3712 * (reader->brss ? 1392 : 3712) * sizeof(quint16));
-        ptrNightGreen = new quint16[3712 * (reader->brss ? 1392 : 3712)];
-        memset(ptrNightGreen, 0, 3712 * (reader->brss ? 1392 : 3712) * sizeof(quint16));
-        ptrNightBlue = new quint16[3712 * (reader->brss ? 1392 : 3712)];
-        memset(ptrNightBlue, 0, 3712 * (reader->brss ? 1392 : 3712) * sizeof(quint16));
+        ptrNightRed = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
+        memset(ptrNightRed, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
+        ptrNightGreen = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
+        memset(ptrNightGreen, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
+        ptrNightBlue = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
+        memset(ptrNightBlue, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
     }
 
     QString fpattern = reader->filepattern.replace(46, 12, date);
@@ -340,15 +327,14 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
         }
     }
 
-//    for(int i = 0; i < llVIS_IR.count(); i++)
-//    {
-//        qDebug() << "after checkavailableSegments " << llVIS_IR.at(i);
-//    }
+    for(int i = 0; i < llVIS_IR.count(); i++)
+    {
+        qDebug() << "after checkavailableSegments " << llVIS_IR.at(i);
+    }
 
     llVIS_IR.sort();
 
-    if(reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color" ||
-            reader->daykindofimage == "HRVFull" || reader->daykindofimage == "HRVFull Color")
+    if(reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color")
     {
         llHRV = getGeostationarySegments("HRV", path, reader->spectrum, fpattern);
         if(llHRV.count() == 0)
@@ -363,6 +349,11 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
             epiloguefile = faHRV.epilogueFile();
         }
     }
+    for(int i = 0; i < llHRV.count(); i++)
+    {
+        qDebug() << llHRV.at(i);
+    }
+
     // Read prologue
     if (prologuefile.length() > 0)
     {
@@ -396,45 +387,94 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
         USLA = cov.UpperSouthLineActual;
         UWCA = cov.UpperWestColumnActual;
         UNLA = cov.UpperNorthLineActual;
-        //        qDebug() << "Lower West : " << LWCA << " East : " << LECA << " North : " << LNLA << " South : " << LSLA;
-        //        qDebug() << "Upper West : " << UWCA << " East : " << UECA << " North : " << UNLA << " South : " << USLA;
+                qDebug() << "Lower West : " << LWCA << " East : " << LECA << " North : " << LNLA << " South : " << LSLA;
+                qDebug() << "Upper West : " << UWCA << " East : " << UECA << " North : " << UNLA << " South : " << USLA;
     }
-
 
     QString filespectrum;
     QString filedate;
     int filesequence;
 
 
+    if(llVIS_IR.count() > 0)
+        qDebug() << "getSegmentSamples for VIS_IR";
+
+    qDebug()  << "0 " << reader->spectrum.at(0);
+    qDebug()  << "1 " << reader->spectrum.at(1);
+    qDebug()  << "2 " << reader->spectrum.at(2);
+    qDebug()  << "3 " << reader->spectrum.at(3);
+    qDebug()  << "4 " << reader->spectrum.at(4);
+    qDebug()  << "5 " << reader->spectrum.at(5);
+
     for(int i = 0; i < llVIS_IR.count(); i++)
     {
         getFilenameParameters(llVIS_IR.at(i), filespectrum, filedate, filesequence);
-        if(filespectrum == reader->spectrum.at(0))
-            getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrDayRed, filesequence, "VIS_IR");
-        else if(filespectrum == reader->spectrum.at(1))
-            getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrDayGreen, filesequence, "VIS_IR");
-        else if(filespectrum == reader->spectrum.at(2))
-            getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrDayBlue, filesequence, "VIS_IR");
-        else if(filespectrum == reader->spectrum.at(3))
-            getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightRed, filesequence, "VIS_IR");
-        else if(filespectrum == reader->spectrum.at(4))
-            getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightGreen, filesequence, "VIS_IR");
-        else if(filespectrum == reader->spectrum.at(5))
-            getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightBlue, filesequence, "VIS_IR");
+        qDebug() << "filespectrum " << filespectrum << " filedate " << filedate << " sequence " << filesequence;
+        bool sampleok = false;
+        if(reader->brss)
+        {
+            if(filesequence >= 5)
+                sampleok = true;
+
+        }
+        else
+        {
+            if(reader->bhrv)
+            {
+                if(filesequence >= 6)
+                    sampleok = true;
+            }
+            else
+            {
+                sampleok = true;
+            }
+
+        }
+        if(sampleok == true)
+        {
+            if(filespectrum == reader->spectrum.at(0))
+                getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrDayRed, filesequence, "VISIRList");
+            else if(filespectrum == reader->spectrum.at(1))
+                getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrDayGreen, filesequence, "VISIRList");
+            else if(filespectrum == reader->spectrum.at(2))
+                getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrDayBlue, filesequence, "VISIRList");
+            else if(filespectrum == reader->spectrum.at(3))
+                getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightRed, filesequence, "VISIRList");
+            else if(filespectrum == reader->spectrum.at(4))
+                getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightGreen, filesequence, "VISIRList");
+            else if(filespectrum == reader->spectrum.at(5))
+                getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightBlue, filesequence, "VISIRList");
+        }
 
     }
+
+    if(llHRV.count() > 0)
+        qDebug() << "getSegmentSamples for HRV";
 
     for(int i = 0; i < llHRV.count(); i++)
     {
         getFilenameParameters(llHRV.at(i), filespectrum, filedate, filesequence);
-        if(filespectrum == "HRV")
+        bool sampleok = false;
+        if(reader->brss)
         {
-            if(reader->brss == true && filesequence >= 15)
-                getSegmentSamples(path + "/" + llHRV.at(i), ptrHRV, filesequence, "HRV");
-            else if(reader->brss == false && (reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color") && filesequence >= 0)
-                getSegmentSamples(path + "/" + llHRV.at(i), ptrHRV, filesequence, "HRV");
-            else if(reader->brss == false && (reader->daykindofimage == "HRVFull" || reader->daykindofimage == "HRVFull Color") && filesequence >= 0)
-                getSegmentSamples(path + "/" + llHRV.at(i), ptrHRV, filesequence, "HRV");
+            if(filesequence >= 15)
+                sampleok = true;
+        }
+        else
+        {
+            if(filesequence >= 18)
+                sampleok = true;
+
+        }
+        if(sampleok == true)
+        {
+            if(filespectrum == "HRV")
+            {
+                if((reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color") && filesequence >= 15 && reader->brss == true)
+                    getSegmentSamples(path + "/" + llHRV.at(i), ptrHRV, filesequence, "HRVList");
+                else if((reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color") && filesequence >= 18 && reader->brss == false)
+                    getSegmentSamples(path + "/" + llHRV.at(i), ptrHRV, filesequence, "HRVList");
+            }
         }
     }
 
@@ -446,13 +486,14 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
         this->ComposeHRV(ptrHRV, ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, ptrNightGreen, ptrNightBlue, imagehrv, date,
                          LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA, imagenbr);
         imageGeostationary = imagehrv;
+
         if(reader->projectiontype.length() == 0)
         {
             if(reader->boverlayborder)
                 this->OverlayGeostationary(&imagehrv, true, LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA);
             if(reader->boverlaydate)
                 this->OverlayDate(&imagehrv, date);
-            imagehrv.save(QString("hrv%1.png").arg(imagenbr, 4, 10, QChar('0')));
+            //imagehrv.save(QString("hrv%1.png").arg(imagenbr, 4, 10, QChar('0')));
         }
 
     }
@@ -461,13 +502,14 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
         {
             this->ComposeVISIR(ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, ptrNightGreen, ptrNightBlue, imagevisir, date, imagenbr);
             imageGeostationary = imagevisir;
+
             if(reader->projectiontype.length() == 0)
             {
                 if(reader->boverlayborder)
                     this->OverlayGeostationary(&imagevisir, false, LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA);
                 if(reader->boverlaydate)
                     this->OverlayDate(&imagevisir, date);
-                imagevisir.save(QString("visir%1.png").arg(imagenbr, 4, 10, QChar('0')));
+                //imagevisir.save(QString("visir%1.png").arg(imagenbr, 4, 10, QChar('0')));
             }
         }
 
@@ -493,7 +535,7 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
             QString hour = date.mid(8, 2);
             QString minute = date.mid(10, 2);
 
-            painter.drawText(20, gvp->imageProjection->height() - 20, QString("%1-%2-%3 %4:%5").arg(year).arg(month).arg(day).arg(hour).arg(minute));
+            painter.drawText(20, gvp->imageProjection->height() - 20, QString("%1 %2-%3-%4 %5:%6").arg(reader->satname).arg(year).arg(month).arg(day).arg(hour).arg(minute));
         }
 
 
@@ -661,10 +703,8 @@ bool RSSVideo::isSegmentAvailable(QString segmentstr, QStringList *segs, QTime t
 
         QString newsegmentstr = segmentstr.replace(54, 4, newtime.toString("HHmm"));
         segs->append(newsegmentstr);
-
         return true;
     }
-
     return false;
 }
 
@@ -684,8 +724,6 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
     quint16 valgamma;
     quint8 valcontrast;
 
-    size_t npix = 3712*3712;
-    size_t npixHRV = 5568*9*464;
     long delta = 0;
 
     pixgeoConversion pixconv;
@@ -716,88 +754,90 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
     minutes = date.mid(10, 2).toInt();
 
 
-    imhrv = QImage(5568, (reader->brss ? 9*464 : 24*464), QImage::Format_ARGB32);
+    imhrv = QImage(5568, (reader->brss ? 9*464 : 6*464), QImage::Format_ARGB32);
     imhrv.fill(Qt::black);
 
 
-    this->CLAHE(ptrHRV, 5568, (reader->brss ? 9*464 : 24*464), 0, 1023, 16, 16, 256, 6);
+    this->CLAHE(ptrHRV, 5568, (reader->brss ? 9*464 : 6*464), 0, 1023, 16, 16, 256, 6);
 
 
     if(reader->nightkindofimage == "VIS_IR" || reader->nightkindofimage == "VIS_IR Color")
-        this->CLAHE(ptrNightRed, 3712, (reader->brss ? 1392 : 3712), 0, 1023, 16, 16, 256, 6);
+        this->CLAHE(ptrNightRed, 3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), 0, 1023, 16, 16, 256, 6);
 
     if(reader->daykindofimage == "HRV Color")
     {
-        this->CLAHE(ptrDayRed, 3712, (reader->brss ? 1392 : 3712), 0, 1023, 16, 16, 256, 6);
-        this->CLAHE(ptrDayGreen, 3712, (reader->brss ? 1392 : 3712), 0, 1023, 16, 16, 256, 6);
-        this->CLAHE(ptrDayBlue, 3712, (reader->brss ? 1392 : 3712), 0, 1023, 16, 16, 256, 6);
+        this->CLAHE(ptrDayRed, 3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), 0, 1023, 16, 16, 256, 6);
+        this->CLAHE(ptrDayGreen, 3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), 0, 1023, 16, 16, 256, 6);
+        this->CLAHE(ptrDayBlue, 3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), 0, 1023, 16, 16, 256, 6);
     }
 
     // test images
-    //    if(reader->daykindofimage == "HRV Color")
-    //    {
-    //        QImage testimage(3712, (reader->brss ? 3*464 : 8*464), QImage::Format_ARGB32);
-    //        for(int y = (reader->brss ? 3*464 : 8*464)-1; y >= 0; y--)
-    //        {
-    //            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : 8*464)-1-y);
+//    if(reader->daykindofimage == "HRV Color")
+//    {
+//        QImage testimage(3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), QImage::Format_ARGB32);
+//        for(int y = (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1; y >= 0; y--)
+//        {
+//            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1-y);
 
-    //            for(int x = 0; x < 3712; x++)
-    //            {
-    //                cred = *(ptrDayRed + y*3712 + x);
-    //                cgreen = *(ptrDayGreen + y*3712 + x);
-    //                cblue = *(ptrDayBlue + y*3712 + x);
-    //                row_col[3712 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cgreen), ContrastStretch(cblue));
-    //            }
-    //        }
+//            for(int x = 0; x < 3712; x++)
+//            {
+//                cred = *(ptrDayRed + y*3712 + x);
+//                cgreen = *(ptrDayGreen + y*3712 + x);
+//                cblue = *(ptrDayBlue + y*3712 + x);
+//                row_col[3712 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cgreen), ContrastStretch(cblue));
+//            }
+//        }
 
-    //        testimage.save("ptrDayVIS.png");
-    //    }
+//        testimage.save("ptrDayVIS.png");
+//    }
 
-    //    if(reader->nightkindofimage == "VIS_IR")
-    //    {
-    //        QImage testimage(3712, (reader->brss ? 3*464 : 8*464), QImage::Format_ARGB32);
-    //        for(int y = (reader->brss ? 3*464 : 8*464)-1; y >= 0; y--)
-    //        {
-    //            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : 8*464)-1-y);
+//    if(reader->nightkindofimage == "VIS_IR")
+//    {
+//        QImage testimage(3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), QImage::Format_ARGB32);
+//        for(int y = (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1; y >= 0; y--)
+//        {
+//            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1-y);
 
-    //            for(int x = 0; x < 3712; x++)
-    //            {
-    //                cred = *(ptrNightRed + y*3712 + x);
-    //                quint16 c = ContrastStretch(cred);
-    //                row_col[3712 - x - 1] = qRgb(c, c, c);
-    //            }
-    //        }
+//            for(int x = 0; x < 3712; x++)
+//            {
+//                cred = *(ptrNightRed + y*3712 + x);
+//                quint16 c = ContrastStretch(cred);
+//                row_col[3712 - x - 1] = qRgb(c, c, c);
+//            }
+//        }
 
-    //        testimage.save("ptrNightIR.png");
-    //    }
+//        //this->OverlayGeostationary(&testimage, false, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
+
+//        testimage.save("ptrNightIR.png");
+//    }
+
+//    if(reader->bhrv)
+//    {
+//        QImage testimage(5568, (reader->brss ? 9*464 : 6*464), QImage::Format_ARGB32);
+//        for(int y = (reader->brss ? 9*464 : 6*464)-1; y >= 0; y--)
+//        {
+//            row_col = (QRgb*)testimage.scanLine((reader->brss ? 9*464 : 6*464)-1-y);
+
+//            for(int x = 0; x < 5568; x++)
+//            {
+//                cred = *(ptrHRV + y*5568 + x);
+//                row_col[5568 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cred), ContrastStretch(cred));
+//            }
+//        }
+//        //this->OverlayGeostationary(&testimage, true, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
+
+//        testimage.save("ptrHRV.png");
+//    }
 
 
-    //    {
-    //        QImage testimage(5568, (reader->brss ? 9*464 : 24*464), QImage::Format_ARGB32);
-    //        for(int y = (reader->brss ? 9*464 : 24*464)-1; y >= 0; y--)
-    //        {
-    //            row_col = (QRgb*)testimage.scanLine((reader->brss ? 9*464 : 24*464)-1-y);
-
-    //            for(int x = 0; x < 5568; x++)
-    //            {
-    //                cred = *(ptrHRV + y*5568 + x);
-    //                row_col[5568 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cred), ContrastStretch(cred));
-    //            }
-    //        }
-    //        this->OverlayGeostationary(&testimage, true, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
-
-    //        testimage.save("ptrHRV.png");
-    //    }
-
-
-    for (int line = (reader->brss ? 9 : 24) * 464 - 1; line >= 0; line--)
+    for (int line = (reader->brss ? 9*464 : 6*464) - 1; line >= 0; line--)
     {
-        row_col = (QRgb*)imhrv.scanLine((reader->brss ? 9 : 24)*464 - 1 - line);
+        row_col = (QRgb*)imhrv.scanLine((reader->brss ? 9*464 : 6*464) - 1 - line);
 
         for (int pixelx = 0; pixelx < 5568; pixelx++)
         {
             c = *(ptrHRV + line * 5568 + pixelx);
-            if(line < lnla)
+            if(reader->brss)
                 delta = line/3 * 3712 + leca/3 + pixelx/3;
             else
                 delta = line/3 * 3712 + ueca/3 + pixelx/3;
@@ -861,15 +901,15 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
 
                 if(reader->brss)
                 {
-                    ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx +  leca, ((reader->brss ? 9 : 24)*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
+                    ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx +  leca, (9*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
                 }
                 else
                 {
                     ret = 0;
-                    //                    if(line < lnla)
-                    //                        ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx + leca, ((reader->brss ? 9 : 24)*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
-                    //                    else
-                    //                        ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx +  ueca, ((reader->brss ? 9 : 24)*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
+                    //if(line < lnla)
+                    //    ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx + leca, (6*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
+                    //else
+                        ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx +  ueca, (6*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
 
 
                 }
@@ -1162,7 +1202,7 @@ void RSSVideo::ComposeHRVFull(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrD
 }
 
 
-void RSSVideo::getSegmentSamples(QString filepath, quint16 *ptr, int filesequence, QString type)
+void RSSVideo::getSegmentSamples(QString filepath, quint16 *ptr, int filesequence, QString typelist)
 {
     MSG_header *header;
     MSG_data *msgdat;
@@ -1171,6 +1211,7 @@ void RSSVideo::getSegmentSamples(QString filepath, quint16 *ptr, int filesequenc
     msgdat = new MSG_data();
 
 
+    qDebug() << "getSegmentSamples " << filepath << " seq " << filesequence << " type " << typelist;
     std::ifstream hrit(filepath.toStdString(), (std::ios::binary | std::ios::in) );
     if (hrit.fail())
     {
@@ -1199,8 +1240,7 @@ void RSSVideo::getSegmentSamples(QString filepath, quint16 *ptr, int filesequenc
     int npix = header->image_structure->number_of_columns;
     int nlin = header->image_structure->number_of_lines;
 
-    //qDebug() << "getSegmentSamples npix = " << npix << " nlin = " << nlin;
-    //qDebug() << "getSegmentsSamples fileseuence = " << filesequence << "planned end = " << planned_end_segment;
+    qDebug() << "getSegmentSamples npix = " << npix << " nlin = " << nlin << "planned end = " << planned_end_segment;
 
     size_t npixperseg = npix * nlin;
 
@@ -1216,10 +1256,10 @@ void RSSVideo::getSegmentSamples(QString filepath, quint16 *ptr, int filesequenc
         for (int pixelx = 0 ; pixelx < npix; pixelx++)
         {
             c = *(pixels + line * npix + pixelx);
-            if(reader->brss)
-                *(ptr + (filesequence - (type == "HRV" ? 15 : 5)) * npix * nlin + line * npix + pixelx) = c;
+            if(reader->brss )
+                *(ptr + (filesequence - (typelist == "HRVList" ? 15 : 5)) * npix * nlin + line * npix + pixelx) = c;
             else
-                *(ptr + (filesequence - (type == "HRV" ? 0 : 0)) * npix * nlin + line * npix + pixelx) = c;
+                *(ptr + (filesequence - (typelist == "HRVList" ? 18 : (reader->bhrv ? 6 : 0))) * npix * nlin + line * npix + pixelx) = c;
 
         }
     }
@@ -1908,10 +1948,10 @@ QStringList RSSVideo::getGeostationarySegments(const QString imagetype, QString 
     }
 
 
-//    for (int j = 0; j < strlistout.size(); ++j)
-//    {
-//        qDebug() << QString("getGeostationarySegments out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
-//    }
+    //    for (int j = 0; j < strlistout.size(); ++j)
+    //    {
+    //        qDebug() << QString("getGeostationarySegments out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
+    //    }
 
     return strlistout;
 }
@@ -1921,19 +1961,19 @@ int  RSSVideo::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned int 
                       unsigned short Min, unsigned short Max, unsigned int uiNrX, unsigned int uiNrY,
                       unsigned int uiNrBins, float fCliplimit)
 /*   pImage - Pointer to the input/output image
-         *   uiXRes - Image resolution in the X direction
-         *   uiYRes - Image resolution in the Y direction
-         *   Min - Minimum greyvalue of input image (also becomes minimum of output image)
-         *   Max - Maximum greyvalue of input image (also becomes maximum of output image)
-         *   uiNrX - Number of contextial regions in the X direction (min 2, max uiMAX_REG_X)
-         *   uiNrY - Number of contextial regions in the Y direction (min 2, max uiMAX_REG_Y)
-         *   uiNrBins - Number of greybins for histogram ("dynamic range")
-         *   float fCliplimit - Normalized cliplimit (higher values give more contrast)
-         * The number of "effective" greylevels in the output image is set by uiNrBins; selecting
-         * a small value (eg. 128) speeds up processing and still produce an output image of
-         * good quality. The output image will have the same minimum and maximum value as the input
-         * image. A clip limit smaller than 1 results in standard (non-contrast limited) AHE.
-         */
+                 *   uiXRes - Image resolution in the X direction
+                 *   uiYRes - Image resolution in the Y direction
+                 *   Min - Minimum greyvalue of input image (also becomes minimum of output image)
+                 *   Max - Maximum greyvalue of input image (also becomes maximum of output image)
+                 *   uiNrX - Number of contextial regions in the X direction (min 2, max uiMAX_REG_X)
+                 *   uiNrY - Number of contextial regions in the Y direction (min 2, max uiMAX_REG_Y)
+                 *   uiNrBins - Number of greybins for histogram ("dynamic range")
+                 *   float fCliplimit - Normalized cliplimit (higher values give more contrast)
+                 * The number of "effective" greylevels in the output image is set by uiNrBins; selecting
+                 * a small value (eg. 128) speeds up processing and still produce an output image of
+                 * good quality. The output image will have the same minimum and maximum value as the input
+                 * image. A clip limit smaller than 1 results in standard (non-contrast limited) AHE.
+                 */
 {
 
     //qDebug() << "int  SegmentImage::CLAHE (unsigned short ............";
@@ -2036,10 +2076,10 @@ int  RSSVideo::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned int 
 void  RSSVideo::ClipHistogram (unsigned long* pulHistogram, unsigned int
                                uiNrGreylevels, unsigned long ulClipLimit)
 /* This function performs clipping of the histogram and redistribution of bins.
-         * The histogram is clipped and the number of excess pixels is counted. Afterwards
-         * the excess pixels are equally redistributed across the whole histogram (providing
-         * the bin count is smaller than the cliplimit).
-         */
+                 * The histogram is clipped and the number of excess pixels is counted. Afterwards
+                 * the excess pixels are equally redistributed across the whole histogram (providing
+                 * the bin count is smaller than the cliplimit).
+                 */
 {
     unsigned long* pulBinPointer, *pulEndPointer, *pulHisto;
     unsigned long ulNrExcess, ulUpper, ulBinIncr, ulStepSize, i;
@@ -2096,10 +2136,10 @@ void  RSSVideo::MakeHistogram (unsigned short* pImage, unsigned int uiXRes,
                                unsigned long* pulHistogram,
                                unsigned int uiNrGreylevels, unsigned short* pLookupTable)
 /* This function classifies the greylevels present in the array image into
-         * a greylevel histogram. The pLookupTable specifies the relationship
-         * between the greyvalue of the pixel (typically between 0 and 4095) and
-         * the corresponding bin in the histogram (usually containing only 128 bins).
-         */
+                 * a greylevel histogram. The pLookupTable specifies the relationship
+                 * between the greyvalue of the pixel (typically between 0 and 4095) and
+                 * the corresponding bin in the histogram (usually containing only 128 bins).
+                 */
 {
     unsigned short* pImagePointer;
     unsigned int i;
@@ -2118,8 +2158,8 @@ void  RSSVideo::MakeHistogram (unsigned short* pImage, unsigned int uiXRes,
 void  RSSVideo::MapHistogram (unsigned long* pulHistogram, unsigned short Min, unsigned short Max,
                               unsigned int uiNrGreylevels, unsigned long ulNrOfPixels)
 /* This function calculates the equalized lookup table (mapping) by
-         * cumulating the input histogram. Note: lookup table is rescaled in range [Min..Max].
-         */
+                 * cumulating the input histogram. Note: lookup table is rescaled in range [Min..Max].
+                 */
 {
     unsigned int i;  unsigned long ulSum = 0;
     const float fScale = ((float)(Max - Min)) / ulNrOfPixels;
@@ -2133,8 +2173,8 @@ void  RSSVideo::MapHistogram (unsigned long* pulHistogram, unsigned short Min, u
 
 void  RSSVideo::MakeLut (unsigned short * pLUT, unsigned short Min, unsigned short Max, unsigned int uiNrBins)
 /* To speed up histogram clipping, the input image [Min,Max] is scaled down to
-         * [0,uiNrBins-1]. This function calculates the LUT.
-         */
+                 * [0,uiNrBins-1]. This function calculates the LUT.
+                 */
 {
     int i;
     const unsigned short BinSize = (unsigned short) (1 + (Max - Min) / uiNrBins);
@@ -2146,17 +2186,17 @@ void  RSSVideo::Interpolate (unsigned short *pImage, int uiXRes, unsigned long *
                              unsigned long * pulMapRU, unsigned long * pulMapLB,  unsigned long * pulMapRB,
                              unsigned int uiXSize, unsigned int uiYSize, unsigned short *pLUT)
 /* pImage      - pointer to input/output image
-         * uiXRes      - resolution of image in x-direction
-         * pulMap*     - mappings of greylevels from histograms
-         * uiXSize     - uiXSize of image submatrix
-         * uiYSize     - uiYSize of image submatrix
-         * pLUT	       - lookup table containing mapping greyvalues to bins
-         * This function calculates the new greylevel assignments of pixels within a submatrix
-         * of the image with size uiXSize and uiYSize. This is done by a bilinear interpolation
-         * between four different mappings in order to eliminate boundary artifacts.
-         * It uses a division; since division is often an expensive operation, I added code to
-         * perform a logical shift instead when feasible.
-         */
+                 * uiXRes      - resolution of image in x-direction
+                 * pulMap*     - mappings of greylevels from histograms
+                 * uiXSize     - uiXSize of image submatrix
+                 * uiYSize     - uiYSize of image submatrix
+                 * pLUT	       - lookup table containing mapping greyvalues to bins
+                 * This function calculates the new greylevel assignments of pixels within a submatrix
+                 * of the image with size uiXSize and uiYSize. This is done by a bilinear interpolation
+                 * between four different mappings in order to eliminate boundary artifacts.
+                 * It uses a division; since division is often an expensive operation, I added code to
+                 * perform a logical shift instead when feasible.
+                 */
 {
     const unsigned int uiIncr = uiXRes-uiXSize; /* Pointer increment after processing row */
     unsigned short GreyValue; unsigned int uiNum = uiXSize*uiYSize; /* Normalization factor */

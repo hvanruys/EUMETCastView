@@ -316,8 +316,8 @@ void Options::Initialize()
     videocfachrv = settings.value("/video/cfachrv", 2344944937.0).toDouble();
     videolfachrv = settings.value("/video/lfachrv", 2344944937.0).toDouble();
     videosatlon = settings.value("/video/satlon", 9.5).toDouble();
-    videohomelon = settings.value("/video/homelon", 3.5537).toDouble();
-    videohomelat = settings.value("/video/homelat", 50.8330).toDouble();
+//    videohomelon = settings.value("/video/homelon", obslon).toDouble();
+//    videohomelat = settings.value("/video/homelat", obslat).toDouble();
     videooverlaycolor1 = settings.value("/video/overlaycolor1", "#afaf47").value<QString>();
     videooverlaycolor2 = settings.value("/video/overlaycolor2", "#898969").value<QString>();
     videooverlaycolor3 = settings.value("/video/overlaycolor3", "#54686d").value<QString>();
@@ -334,7 +334,12 @@ void Options::Initialize()
     gvpfalseeasting = settings.value("/video/gvpfalseeasting", 0.0).toDouble();
     gvpfalsenorthing = settings.value("/video/gvpfalsenorthing", 0.0).toDouble();
     videooutputname = settings.value("/video/videooutputname", "PROJ").value<QString>();
-
+    ffmpeg_options = settings.value("/video/ffmpeg_options").value<QStringList>();
+    if(ffmpeg_options.count() == 0)
+    {
+        ffmpeg_options << "-framerate 5" << "-i INPUTFILES" << "-vf minterpolate=fps=60:mi_mode=blend";
+        ffmpeg_options << "-c:v libx264" << "-pix_fmt yuv420p" << "-y OUPUTFILE";
+    }
 
     QFile file("GeoSatellites.ini");
     if (!file.open(QIODevice::ReadOnly))
@@ -379,8 +384,13 @@ void Options::checkStringListValues()
     {
         tlesources << "http://celestrak.com/NORAD/elements/weather.txt";
         tlesources << "http://celestrak.com/NORAD/elements/resource.txt";
-
     }
+
+//    if(ffmpeg_options.count() == 0)
+//    {
+//        ffmpeg_options << "-framerate 5" << "-i INPUTFILES" << "-vf minterpolate=fps=60:mi_mode=blend";
+//        ffmpeg_options << "-c:v libx264" << "-pix_fmt yuv420p" << "-y OUPUTFILE";
+//    }
 
 
 
@@ -659,8 +669,8 @@ void Options::Save()
     settings.setValue("/video/cfachrv", videocfachrv);
     settings.setValue("/video/lfachrv", videolfachrv);
     settings.setValue("/video/satlon", videosatlon);
-    settings.setValue("/video/homelon", videohomelon);
-    settings.setValue("/video/homelat", videohomelat);
+//    settings.setValue("/video/homelon", videohomelon);
+//    settings.setValue("/video/homelat", videohomelat);
     settings.setValue("/video/overlaycolor1", videooverlaycolor1);
     settings.setValue("/video/overlaycolor2", videooverlaycolor2);
     settings.setValue("/video/overlaycolor3", videooverlaycolor3);
@@ -677,6 +687,7 @@ void Options::Save()
     settings.setValue("/video/gvpfalseeasting", gvpfalseeasting);
     settings.setValue("/video/gvpfalsenorthing", gvpfalsenorthing);
     settings.setValue("/video/videooutputname", videooutputname);
+    settings.setValue("/video/ffmpeg_options", ffmpeg_options);
 
     SaveGeoIni();
 }

@@ -177,7 +177,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, coff, loff, cfac, lfac, &col, &row) == 0)
                     {
-                        if( hrvmap == 0)
+                        if( reader->bhrv == false)
                         {
                             if(row < imageGeostationary->height())
                             {
@@ -193,8 +193,9 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
                             col+=3; //3;
                             picrow = row;
 
-                            if(reader->satname == "MET_10")
+                            if(reader->brss)
                             {
+                                // for RSS images UWCA and UECA are zero
                                 if( row < 9*464)
                                 {
                                     scanl = (QRgb*)imageGeostationary->scanLine(picrow);
@@ -213,13 +214,13 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
                                 }
 
                             }
-//                            else if(reader->satname == "MET_11" || reader->satname == "MET_9" || reader->satname == "MET_8")
-//                            {
-//                                if( picrow < 5*464)
-//                                {
-//                                    scanl = (QRgb*)video->ptrimageGeostationary->scanLine(picrow);
+                            else
+                            {
+                                if( picrow < 6*464)
+                                {
+                                    scanl = (QRgb*)imageGeostationary->scanLine(picrow);
 
-//                                    if (picrow > USLA ) //LOWER
+//                                    if (picrow > usla ) //LOWER
 //                                    {
 //                                        if( col > LWCA && col < LECA)
 //                                            piccol = col - LWCA;
@@ -228,20 +229,20 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
 //                                    }
 //                                    else //UPPER
 //                                    {
-//                                        if( col > UWCA && col < UECA)
-//                                            piccol = col - UWCA;
-//                                        else
-//                                            piccol = 0;
+                                        if( col > UWCAdiff && col < UECAdiff)
+                                            piccol = col - UWCAdiff;
+                                        else
+                                            piccol = 0;
 //                                    }
 
-//                                    if(piccol > 0 && piccol < 5568)
-//                                    {
-//                                        rgbval = scanl[piccol];
-//                                        fb_painter.setPen(rgbval);
-//                                        fb_painter.drawPoint(i,j);
-//                                    }
-//                                }
-//                            }
+                                    if(piccol > 0 && piccol < 5568)
+                                    {
+                                        rgbval = scanl[piccol];
+                                        fb_painter->setPen(rgbval);
+                                        fb_painter->drawPoint(i,j);
+                                    }
+                                }
+                            }
                         }
 
                     }
@@ -273,23 +274,23 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
 //                        }
 //                    }
 //                }
-                else
-                {
-                    if (this->map_inverse(i, j, lon_rad, lat_rad))
-                    {
-                        if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, coff, loff, cfac, lfac, &col, &row) == 0)
-                        {
-                            picrow = row;
-                            if(picrow < imageGeostationary->height())
-                            {
-                                scanl = (QRgb*)imageGeostationary->scanLine(picrow);
-                                rgbval = scanl[col];
-                                fb_painter->setPen(rgbval);
-                                fb_painter->drawPoint(i,j);
-                            }
-                        }
-                    }
-                }
+//                else
+//                {
+//                    if (this->map_inverse(i, j, lon_rad, lat_rad))
+//                    {
+//                        if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, coff, loff, cfac, lfac, &col, &row) == 0)
+//                        {
+//                            picrow = row;
+//                            if(picrow < imageGeostationary->height())
+//                            {
+//                                scanl = (QRgb*)imageGeostationary->scanLine(picrow);
+//                                rgbval = scanl[col];
+//                                fb_painter->setPen(rgbval);
+//                                fb_painter->drawPoint(i,j);
+//                            }
+//                        }
+//                    }
+//                }
             }
         }
     }

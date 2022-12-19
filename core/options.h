@@ -335,8 +335,8 @@ public:
     double videocfachrv;
     double videolfachrv;
     double videosatlon;
-    double videohomelon;
-    double videohomelat;
+//    double videohomelon;
+//    double videohomelat;
     QString videooverlaycolor1;
     QString videooverlaycolor2;
     QString videooverlaycolor3;
@@ -353,6 +353,7 @@ public:
     double gvpfalseeasting;
     double gvpfalsenorthing;
     QString videooutputname;
+    QStringList ffmpeg_options;
 
 
 private:
