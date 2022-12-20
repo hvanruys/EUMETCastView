@@ -851,12 +851,12 @@ void FormMovie::on_btnffmpeg_clicked()
             qDebug() << "The directory 'tempvideo' doesn't contains any files !";
             return;
         }
-        std::cout << "     Bytes Filename" << std::endl;
-        for (int i = 0; i < list.size(); ++i) {
-            QFileInfo fileInfo = list.at(i);
-            std::cout << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10).arg(fileInfo.fileName()));
-            std::cout << std::endl;
-        }
+//        std::cout << "     Bytes Filename" << std::endl;
+//        for (int i = 0; i < list.size(); ++i) {
+//            QFileInfo fileInfo = list.at(i);
+//            std::cout << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10).arg(fileInfo.fileName()));
+//            std::cout << std::endl;
+//        }
     }
 
     QStringList mylistin = opts.ffmpeg_options;
