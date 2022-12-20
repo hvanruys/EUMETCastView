@@ -51,9 +51,6 @@ private:
     int mapdeltax;
     int mapdeltay;
 
-    QPixmap pmGeneral;
-    QPixmap pmScaled_res;
-
     int map_width;
     int map_height;
     int image_width;

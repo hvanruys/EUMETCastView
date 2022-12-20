@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1747</width>
-    <height>1474</height>
+    <width>2148</width>
+    <height>1595</height>
    </rect>
   </property>
   <property name="font">
@@ -1469,7 +1469,7 @@
              <item>
               <widget class="QPushButton" name="btnffmpeg">
                <property name="text">
-                <string> FFmpeg </string>
+                <string>Run only  'FFmpeg' </string>
                </property>
               </widget>
              </item>

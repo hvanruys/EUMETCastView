@@ -68,9 +68,6 @@ private:
     double sinazimuth, cosazimuth;
     double lon_ori;
 
-    QPixmap pmGeneral;
-    QPixmap pmScaled_res;
-
     int map_width;
     int map_height;
     int image_width;

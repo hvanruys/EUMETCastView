@@ -840,6 +840,25 @@ void FormMovie::on_btnffmpeg_clicked()
     QString inputimagename = QString("tempvideo/%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_" + ui->cmbSatname->currentText() + "_%04d.png" : "PROJ_" + ui->cmbSatname->currentText() + "_%04d.png");
     QString outputvideoname = QString("%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_"  + ui->cmbSatname->currentText() : "PROJ_" + ui->cmbSatname->currentText()) + ".mp4";
 
+    if(opts.ffmpeg_options.contains("-i INPUTFILES"))
+    {
+        QDir dir("tempvideo");
+        dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+
+        QFileInfoList list = dir.entryInfoList();
+        if(list.size() == 0)
+        {
+            qDebug() << "The directory 'tempvideo' doesn't contains any files !";
+            return;
+        }
+        std::cout << "     Bytes Filename" << std::endl;
+        for (int i = 0; i < list.size(); ++i) {
+            QFileInfo fileInfo = list.at(i);
+            std::cout << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10).arg(fileInfo.fileName()));
+            std::cout << std::endl;
+        }
+    }
+
     QStringList mylistin = opts.ffmpeg_options;
     QStringList mylistout;
     mylistin.replaceInStrings(QString("INPUTFILES"), inputimagename);
@@ -855,8 +874,8 @@ void FormMovie::on_btnffmpeg_clicked()
     ui->lwTraffic->addItem(QString("=== Start creation video %1 ! ===").arg(outputvideoname));
     process.setArguments(mylistout);
 
-    process.setStandardOutputFile("ffmpegouput.txt");
-    process.setStandardErrorFile("ffmpegoutputerror.txt"); //QProcess::nullDevice());
+    //process.setStandardOutputFile("ffmpegouput.txt");
+    //process.setStandardErrorFile("ffmpegoutputerror.txt"); //QProcess::nullDevice());
     process.start();
     process.waitForFinished(-1);
     ui->lwTraffic->addItem(QString("=== The video %1 is created ! ===").arg(outputvideoname));

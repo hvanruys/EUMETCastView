@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
         video.sendMessages(QString("=== The video is created ! ==="));
     }
 
-    video.sendMessages("==============einde==================== ");
+    video.sendMessages("========== Pocessing ended ============== ");
     return 0; //a.exec();
 }
 
