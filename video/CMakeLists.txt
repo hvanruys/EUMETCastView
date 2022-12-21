@@ -26,7 +26,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 REQUIRED Core Gui Widgets Xml Concurrent Network PrintSupport)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+if(UNIX)
+    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+elseif(WIN32)
+    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES})
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/QSgp4")

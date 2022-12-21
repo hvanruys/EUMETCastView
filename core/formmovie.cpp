@@ -644,9 +644,6 @@ void FormMovie::on_btnCreateXML_clicked()
         mylistout.append(list);
     }
 
-
-    ui->lwTraffic->addItem(QString("=== Start creation video %1 ! ===").arg(outputvideoname));
-
     tag = doc.createElement("ffmpegparameters");
     root.appendChild(tag);
     QString myopt;

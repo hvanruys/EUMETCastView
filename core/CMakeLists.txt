@@ -112,7 +112,12 @@ cmake_print_variables(UI_RESOURCES_RCC)
 cmake_print_properties(TARGETS Qt5::Widgets PROPERTIES LOCATION)
 cmake_print_properties(TARGETS Qt5::Xml PROPERTIES LOCATION)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
+if(UNIX)
+    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
+elseif(WIN32)
+    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
+endif()
+
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30)

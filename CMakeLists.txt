@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(EUMETCastView VERSION 1.5.5 LANGUAGES CXX)
+project(EUMETCastView VERSION 1.5.6 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_PREFIX_PATH /home/hugo/Qt/5.15.2/gcc_64)
+if(UNIX)
+    set(CMAKE_PREFIX_PATH /home/hugo/Qt/5.15.2/gcc_64)
+endif()
 
 add_library(my_compiler_flags_1 INTERFACE)
 target_compile_features(my_compiler_flags_1 INTERFACE cxx_std_11)
