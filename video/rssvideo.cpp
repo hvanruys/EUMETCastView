@@ -1452,7 +1452,8 @@ void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *p
                     if( cblue != 65535) indexoutbc = (quint16)qMin(qMax(qRound((float)lut_ch_day[2][cblue]), 0), 1023);
                 }
 
-                if( (cred == 65535) || (cgreen == 65535) || (cblue == 65535))
+//                if( (cred == 65535) || (cgreen == 65535) || (cblue == 65535))
+                if( (cred == 0) || (cgreen == 0) || (cblue == 0))
                 {
                     //row_col_day = (QRgb*)imvisir.scanLine((reader->brss ? 1392 - 1 : 3712 - 1) - line);
 
@@ -1486,7 +1487,8 @@ void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *p
                     if( cred != 65535) indexoutrc = (quint16)qMin(qMax(qRound((float)lut_ch_day[0][cred]), 0), 1023);
                 }
 
-                if( cred == 65535)
+//                if( cred == 65535)
+                if( cred == 0)
                 {
                     rday = 0;
                     gday = 0;

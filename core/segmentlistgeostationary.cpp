@@ -25,7 +25,7 @@
 #ifdef _WIN32
 #include <hdf5.h>
 #else
-#include <hdf5/serial/hdf5.h>
+#include <hdf5.h>
 #endif
 #include <netcdf.h>
 
@@ -2050,6 +2050,8 @@ void SegmentListGeostationary::ComposeVISIR()
         CalculateLUTGeo(2, pixelsBlue, 0);
     }
 
+    long count_cred = 0;
+
     for (int line = opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1; line >= 0; line--)
     {
         if(m_GeoSatellite == eGeoSatellite::GOMS3)
@@ -2091,7 +2093,8 @@ void SegmentListGeostationary::ComposeVISIR()
                     if( cblue != 65535) indexoutbc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[2][cblue]), 0), 1023);
                 }
 
-                if( (cred == 65535) || (cgreen == 65535) || (cblue == 65535))
+//                if( (cred == 65535) || (cgreen == 65535) || (cblue == 65535))
+                if( (cred == 0) || (cgreen == 0) || (cblue == 0))
                 {
                     r = 0;
                     g = 0;
@@ -2108,6 +2111,9 @@ void SegmentListGeostationary::ComposeVISIR()
             {
                 cred = *(pixelsRed + line * opts.geosatellites[geoindex].imagewidth + pixelx);
 
+                if(cred == 65535)
+                    count_cred++;
+
                 if(this->histogrammethod == CMB_HISTO_NONE_95)
                 {
                     if(cred != 65535)
@@ -2123,7 +2129,8 @@ void SegmentListGeostationary::ComposeVISIR()
                     if( cred != 65535) indexoutrc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[0][cred]), 0), 1023);
                 }
 
-                if( cred == 65535)
+//                if( cred == 65535)
+                if( cred == 0)
                 {
                     r = 0;
                     g = 0;
@@ -2143,6 +2150,8 @@ void SegmentListGeostationary::ComposeVISIR()
 
         }
     }
+
+    qDebug() << "count_cred = " << count_cred;
 
     delete [] pixelsRed;
     if(kindofimage == "VIS_IR Color")
@@ -2833,6 +2842,10 @@ void SegmentListGeostationary::CalculateMinMax(int colorindex, int width, int he
         for (int i = 0; i < width; i++)
         {
             quint16 val = ptr[j * width + i];
+
+            if(colorindex == 0 && j == 0 && i < 100)
+                qDebug() << val;
+
             if(val != fillvalue)
             {
                 if(val >= this->stat_max[colorindex])

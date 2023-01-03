@@ -98,8 +98,28 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(PkgConfig REQUIRED)
+
+#INCLUDE_DIRECTORIES (/HDF_Group/HDF5/1.14.0/include)
+#set(ENV{PKG_CONFIG_PATH} "/HDF_Group/HDF5/1.14.0/lib/pkgconfig")
+
+set (FIND_HDF_COMPONENTS CXX C shared)
+find_package (HDF5 NAMES "hdf5" COMPONENTS ${FIND_HDF_COMPONENTS})
+if (HDF5_FOUND)
+  if (HDF5_shared_C_FOUND)
+    set (HDF5_LINK_LIBRARIES ${HDF5_LINK_LIBRARIES} ${HDF5_C_SHARED_LIBRARY})
+  endif ()
+  if (HDF5_shared_CXX_FOUND)
+    set (HDF5_LINK_LIBRARIES ${HDF5_LINK_LIBRARIES} ${HDF5_CXX_SHARED_LIBRARY})
+  endif ()
+else ()
+  message (FATAL_ERROR " HDF5 is Required")
+endif ()
+INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIR})
+
+
+#pkg_check_modules(HDF5 REQUIRED hdf5)
 pkg_check_modules(NETCDF REQUIRED netcdf)
-pkg_check_modules(HDF5 REQUIRED hdf5)
+
 
 find_package(Qt5 REQUIRED Core Gui Widgets Xml Concurrent Network PrintSupport)
 
@@ -107,10 +127,12 @@ include(CMakePrintHelpers)
 cmake_print_variables(PROJECT_SOURCE_DIR)
 cmake_print_variables(CMAKE_C_COMPILER Qt5Widgets_VERSION_STRING)
 cmake_print_variables(CMAKE_PREFIX_PATH)
-cmake_print_variables(UI_RESOURCES_RCC)
+cmake_print_variables(HDF5_LINK_LIBRARIES)
+cmake_print_variables(NETCDF_LINK_LIBRARIES)
+cmake_print_variables(HDF5_INCLUDE_DIR)
 
-cmake_print_properties(TARGETS Qt5::Widgets PROPERTIES LOCATION)
-cmake_print_properties(TARGETS Qt5::Xml PROPERTIES LOCATION)
+#cmake_print_properties(TARGETS Qt5::Widgets PROPERTIES LOCATION)
+#cmake_print_properties(TARGETS Qt5::Xml PROPERTIES LOCATION)
 
 if(UNIX)
     add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
