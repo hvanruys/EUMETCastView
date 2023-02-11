@@ -30,46 +30,56 @@ FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AV
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
-        QWidget *mywidget = new QWidget();
-        ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(i).fullname + " : " + QString("%1").arg(opts.geosatellites.at(i).longitude) + "°");
-        QTreeWidget *treeWidget = new QTreeWidget;
-
-        geotreewidgetlist.append(treeWidget);
-        treeWidget->setRootIsDecorated(false);
-        treeWidget->header()->setStretchLastSection(true);
-        treeWidget->setColumnCount(opts.geosatellites.at(i).spectrumlist.count() + 2);
-        QStringList header;
-        int columnsheader;
-        if(opts.geosatellites.at(i).spectrumhrv.length() == 0)
+        if(opts.geosatellites.at(i).shortname != "MTG-I1")
         {
-            header << opts.geosatellites.at(i).spectrumvalueslist;
-            columnsheader = opts.geosatellites.at(i).spectrumlist.count() + 2;
+            QWidget *mywidget = new QWidget();
+            ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(i).fullname + " : " + QString("%1").arg(opts.geosatellites.at(i).longitude) + "°");
+            QTreeWidget *treeWidget = new QTreeWidget;
+
+            geotreewidgetlist.append(treeWidget);
+            treeWidget->setRootIsDecorated(false);
+            treeWidget->header()->setStretchLastSection(true);
+            treeWidget->setColumnCount(opts.geosatellites.at(i).spectrumlist.count() + 2);
+            QStringList header;
+            int columnsheader;
+            if(opts.geosatellites.at(i).spectrumhrv.length() == 0)
+            {
+                header << opts.geosatellites.at(i).spectrumvalueslist;
+                columnsheader = opts.geosatellites.at(i).spectrumlist.count() + 2;
+            }
+            else
+            {
+                header << opts.geosatellites.at(i).spectrumhrv << opts.geosatellites.at(i).spectrumvalueslist;
+                columnsheader = opts.geosatellites.at(i).spectrumlist.count() + 3;
+            }
+
+            treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header );
+            treeWidget->setColumnWidth(0, 150);
+            treeWidget->setColumnWidth(1, 150);
+
+            for(int i = 2; i < columnsheader; i++)
+            {
+                treeWidget->setColumnWidth(i, 40);
+            }
+
+            for(int i = 0; i < columnsheader; i++)
+            {
+                treeWidget->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
+            }
+
+
+            connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(ontreeWidgetitemClicked(QTreeWidgetItem *, int)));
+            QVBoxLayout *mylayout = new QVBoxLayout;
+            mylayout->addWidget(treeWidget);
+            mywidget->setLayout(mylayout);
         }
         else
         {
-            header << opts.geosatellites.at(i).spectrumhrv << opts.geosatellites.at(i).spectrumvalueslist;
-            columnsheader = opts.geosatellites.at(i).spectrumlist.count() + 3;
+            QWidget *mywidget = new QWidget();
+            ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(i).fullname + " : " + QString("%1").arg(opts.geosatellites.at(i).longitude) + "°");
+            //QTableWidget *tableWidget  = new QTableWidget(4, 6);
+
         }
-
-        treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header );
-        treeWidget->setColumnWidth(0, 150);
-        treeWidget->setColumnWidth(1, 150);
-
-        for(int i = 2; i < columnsheader; i++)
-        {
-            treeWidget->setColumnWidth(i, 40);
-        }
-
-        for(int i = 0; i < columnsheader; i++)
-        {
-            treeWidget->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
-        }
-
-
-        connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(ontreeWidgetitemClicked(QTreeWidgetItem *, int)));
-        QVBoxLayout *mylayout = new QVBoxLayout;
-        mylayout->addWidget(treeWidget);
-        mywidget->setLayout(mylayout);
     }
 
     if(opts.geosatellites.count() > 0)
@@ -151,36 +161,36 @@ QStringList FormGeostationary::globit(const QString filepath, const QString file
 
 int FormGeostationary::wildcmp(const char *wild, const char *string)
 {
-  const char *cp = NULL, *mp = NULL;
+    const char *cp = NULL, *mp = NULL;
 
-  while ((*string) && (*wild != '*')) {
-    if ((*wild != *string) && (*wild != '?')) {
-      return 0;
+    while ((*string) && (*wild != '*')) {
+        if ((*wild != *string) && (*wild != '?')) {
+            return 0;
+        }
+        wild++;
+        string++;
     }
-    wild++;
-    string++;
-  }
 
-  while (*string) {
-    if (*wild == '*') {
-      if (!*++wild) {
-        return 1;
-      }
-      mp = wild;
-      cp = string+1;
-    } else if ((*wild == *string) || (*wild == '?')) {
-      wild++;
-      string++;
-    } else {
-      wild = mp;
-      string = cp++;
+    while (*string) {
+        if (*wild == '*') {
+            if (!*++wild) {
+                return 1;
+            }
+            mp = wild;
+            cp = string+1;
+        } else if ((*wild == *string) || (*wild == '?')) {
+            wild++;
+            string++;
+        } else {
+            wild = mp;
+            string = cp++;
+        }
     }
-  }
 
-  while (*wild == '*') {
-    wild++;
-  }
-  return !*wild;
+    while (*wild == '*') {
+        wild++;
+    }
+    return !*wild;
 }
 
 void FormGeostationary::PopulateTree()
@@ -189,7 +199,23 @@ void FormGeostationary::PopulateTree()
     qDebug() << "FormGeostationary::PopulateTree()";
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
-        PopulateTreeGeo(i);
+    {
+        if(opts.geosatellites.at(i).shortname != "MTG-I1")
+            PopulateTreeGeo(i);
+        else if(opts.geosatellites.at(i).shortname == "MTG-I1")
+            PopulateTreeGeoMTGI1();
+    }
+
+}
+
+void FormGeostationary::PopulateTreeGeoMTGI1()
+{
+
+    QMap<QString, QMap<int, QMap< int, QFileInfo > > > mapmtgi1;
+    mapmtgi1 = segs->segmentlistmapgeomtgi1;
+
+    QTableWidget *widget;
+
 
 }
 
@@ -197,7 +223,10 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
 {
 
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > map;
+    QMap<QString, QMap<int, QMap< int, QFileInfo > > > mapmtgi1;
     map = segs->segmentlistmapgeo.at(geoindex);
+    mapmtgi1 = segs->segmentlistmapgeomtgi1;
+
     QTreeWidget *widget;
     widget = geotreewidgetlist.at(geoindex);
 
@@ -223,9 +252,8 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
 
     while (citdate != map.constEnd())
     {
-         for(int i = 0; i < nbr_spectrum; i++)
-             cnt_spectrum[i] = 0;
-
+        for(int i = 0; i < nbr_spectrum; i++)
+            cnt_spectrum[i] = 0;
 
         strlist.clear();
         strspectrumlist.clear();
@@ -254,7 +282,7 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
                         cnt_spectrum[0]++;
                     for(int i = 1; i < nbr_spectrum ; i++)
                     {
-                         if(strspectrum == opts.geosatellites.at(geoindex).spectrumlist.at(i-1))
+                        if(strspectrum == opts.geosatellites.at(geoindex).spectrumlist.at(i-1))
                             cnt_spectrum[i]++;
                     }
                 }
@@ -280,7 +308,7 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
         for(int i = 0; i < nbr_spectrum; i++)
         {
             strlist << QString("%1").arg(cnt_spectrum.at(i));
-            //qDebug() << "cnt_spectrum " << i << " " << strlist;
+            //            qDebug() << "cnt_spectrum " << i << " " << strlist;
         }
 
         newitem = new QTreeWidgetItem( widget, strlist, 0  );
@@ -514,196 +542,196 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
 
 #if 0
-        for (int j = 0; j < llVIS_IR.size(); ++j)
-        {
-            qDebug() << QString("VIS_IR ======= %1    %2").arg(j).arg(llVIS_IR.at(j));
-        }
-        for (int j = 0; j < llHRV.size(); ++j)
-        {
-            qDebug() << QString("HRV ======= %1    %2").arg(j).arg(llHRV.at(j));
-        }
+    for (int j = 0; j < llVIS_IR.size(); ++j)
+    {
+        qDebug() << QString("VIS_IR ======= %1    %2").arg(j).arg(llVIS_IR.at(j));
+    }
+    for (int j = 0; j < llHRV.size(); ++j)
+    {
+        qDebug() << QString("HRV ======= %1    %2").arg(j).arg(llHRV.at(j));
+    }
 
 #endif
 
-        MsgDataAccess da;
+    MsgDataAccess da;
 
-        MSG_data prodata;
-        MSG_data epidata;
-        MsgFileAccess fa;
-        QString prologuefile;
-        QString epiloguefile;
-        MSG_header epiheader;
-        MSG_header proheader;
-        MSG_header header;
+    MSG_data prodata;
+    MSG_data epidata;
+    MsgFileAccess fa;
+    QString prologuefile;
+    QString epiloguefile;
+    MSG_header epiheader;
+    MSG_header proheader;
+    MSG_header header;
 
-        if(sl->getGeoSatellite() != eGeoSatellite::H8)
+    if(sl->getGeoSatellite() != eGeoSatellite::H8)
+    {
+        if(opts.geosatellites.at(geoindex).prologfile)
         {
-            if(opts.geosatellites.at(geoindex).prologfile)
+            fa = (type == "VIS_IR" || type == "VIS_IR Color" ? faVIS_IR : faHRV);
+
+            // Read prologue
+
+            prologuefile = fa.prologueFile();
+
+            qDebug() << QString("Reading prologue file = %1").arg(prologuefile);
+
+            if (prologuefile.length() > 0)
             {
-                fa = (type == "VIS_IR" || type == "VIS_IR Color" ? faVIS_IR : faHRV);
-
-                // Read prologue
-
-                prologuefile = fa.prologueFile();
-
-                qDebug() << QString("Reading prologue file = %1").arg(prologuefile);
-
-                if (prologuefile.length() > 0)
-                {
-                    try
-                    {
-                        da.read_file(prologuefile, proheader, prodata);
-                    }
-                    catch( std::runtime_error &run )
-                    {
-                        qDebug() << QString("Error : runtime error in reading prologue file : %1").arg(run.what());
-                    }
-                }
-            }
-
-            if(opts.geosatellites.at(geoindex).epilogfile)
-            {
-                // Read epilogue
-
-                epiloguefile = fa.epilogueFile();
-
-                qDebug() << QString("Reading epilogue file = %1").arg(epiloguefile);
-
-                if(epiloguefile == "")
-                {
-                    QApplication::restoreOverrideCursor();
-                    QMessageBox msgBox;
-                    msgBox.setText("There is no epilogue file.");
-                    msgBox.exec();
-
-
-                    return;
-                }
                 try
                 {
-                    da.read_file(epiloguefile, epiheader, epidata);
-                    if (type == "HRV" || type == "HRV Color")
-                    {
-                        MSG_ActualL15CoverageHRV& cov = epidata.epilogue->product_stats.ActualL15CoverageHRV;
-                        sl->LowerEastColumnActual = cov.LowerEastColumnActual;
-                        sl->LowerNorthLineActual = cov.LowerNorthLineActual;
-                        sl->LowerWestColumnActual = cov.LowerWestColumnActual;
-                        sl->LowerSouthLineActual = cov.LowerSouthLineActual;
-                        sl->UpperEastColumnActual = cov.UpperEastColumnActual;
-                        sl->UpperSouthLineActual = cov.UpperSouthLineActual;
-                        sl->UpperWestColumnActual = cov.UpperWestColumnActual;
-                        sl->UpperNorthLineActual = cov.UpperNorthLineActual;
-
-                        qDebug() << QString("sl->LowerEastColumnActual = %1").arg(sl->LowerEastColumnActual);
-                        qDebug() << QString("sl->LowerNorthLineActual = %1").arg(sl->LowerNorthLineActual);
-                        qDebug() << QString("sl->LowerWestColumnActual = %1").arg(sl->LowerWestColumnActual);
-                        qDebug() << QString("sl->LowerSouthLineActual = %1").arg(sl->LowerSouthLineActual);
-                        qDebug() << QString("sl->UpperEastColumnActual = %1").arg(sl->UpperEastColumnActual);
-                        qDebug() << QString("sl->UpperSouthLineActual = %1").arg(sl->UpperSouthLineActual);
-                        qDebug() << QString("sl->UpperWestColumnActual = %1").arg(sl->UpperWestColumnActual);
-                        qDebug() << QString("sl->UpperNorthLineActual = %1").arg(sl->UpperNorthLineActual);
-                    }
-                    else
-                    {
-                        sl->WestColumnActual = 1;
-                        sl->SouthLineActual = 1;
-                    }
+                    da.read_file(prologuefile, proheader, prodata);
                 }
                 catch( std::runtime_error &run )
                 {
-                    qDebug() << QString("Error : runtime error in reading epilogue file : %1").arg(run.what());
-                    sl->LowerEastColumnActual = 0;
-                    sl->LowerNorthLineActual = 0;
-                    sl->LowerWestColumnActual = 0;
-                    sl->LowerSouthLineActual = 0;
-                    sl->UpperEastColumnActual = 0;
-                    sl->UpperSouthLineActual = 0;
-                    sl->UpperWestColumnActual = 0;
-                    sl->UpperNorthLineActual = 0;
+                    qDebug() << QString("Error : runtime error in reading prologue file : %1").arg(run.what());
                 }
             }
         }
 
-
-        if(sl->getGeoSatellite() == eGeoSatellite::MET_11)
+        if(opts.geosatellites.at(geoindex).epilogfile)
         {
-            qDebug() << "ForwardScanStart = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
-            //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanStart;
-            qDebug() << "ForwardScanEnd = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_timestring().c_str();
-            //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd;
+            // Read epilogue
 
-            da.scan(fa, header);
+            epiloguefile = fa.epilogueFile();
 
-            qDebug() << "COFF = " << header.image_navigation->COFF;
-            qDebug() << "LOFF = " << header.image_navigation->LOFF;
-            qDebug() << "CFAC = " << header.image_navigation->CFAC;
-            qDebug() << "LFAC = " << header.image_navigation->LFAC;
+            qDebug() << QString("Reading epilogue file = %1").arg(epiloguefile);
 
-            qDebug() << QString("column scaling factor = %1").arg(header.image_navigation->column_scaling_factor); //, 16, 'f', 2);
-            qDebug() << QString("line scaling factor = %1").arg(header.image_navigation->line_scaling_factor); //, 16, 'f', 2);
-            qDebug() << QString("column offset = %1").arg(header.image_navigation->column_offset); //, 16, 'f', 2);
-            qDebug() << QString("line offset = %1").arg(header.image_navigation->line_offset); //, 16, 'f', 2);
-
-
-        }
-        //epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_unixtime().get_timestruct()
-
-        if(type == "HRV" || type == "HRV Color")
-        {
-            sl->COFF = opts.geosatellites.at(geoindex).coffhrv;
-            sl->LOFF = opts.geosatellites.at(geoindex).loffhrv;
-            sl->CFAC = opts.geosatellites.at(geoindex).cfachrv;
-            sl->LFAC = opts.geosatellites.at(geoindex).lfachrv;
-        }
-        else
-        {
-            sl->COFF = opts.geosatellites.at(geoindex).coff;
-            sl->LOFF = opts.geosatellites.at(geoindex).loff;
-            sl->CFAC = opts.geosatellites.at(geoindex).cfac;
-            sl->LFAC = opts.geosatellites.at(geoindex).lfac;
-        }
-
-
-        if(type == "VIS_IR" || type == "VIS_IR Color" || type == "HRV Color")
-        {
-            for (int j =  0; j < llVIS_IR.size(); ++j)
+            if(epiloguefile == "")
             {
-                QFile file(sl->getImagePath() + "/" + llVIS_IR.at(j));
-                QFileInfo fileinfo(file);
-                filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbr, opts.geosatellites.at(geoindex).lengthfilenbr).toInt()-1;
-                filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length());
-                filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdate, opts.geosatellites.at(geoindex).lengthdate);
-                filedate.leftJustified(12, '0');
+                QApplication::restoreOverrideCursor();
+                QMessageBox msgBox;
+                msgBox.setText("There is no epilogue file.");
+                msgBox.exec();
 
-                sl->InsertPresent( spectrumvector, filespectrum, filesequence);
 
+                return;
+            }
+            try
+            {
+                da.read_file(epiloguefile, epiheader, epidata);
+                if (type == "HRV" || type == "HRV Color")
+                {
+                    MSG_ActualL15CoverageHRV& cov = epidata.epilogue->product_stats.ActualL15CoverageHRV;
+                    sl->LowerEastColumnActual = cov.LowerEastColumnActual;
+                    sl->LowerNorthLineActual = cov.LowerNorthLineActual;
+                    sl->LowerWestColumnActual = cov.LowerWestColumnActual;
+                    sl->LowerSouthLineActual = cov.LowerSouthLineActual;
+                    sl->UpperEastColumnActual = cov.UpperEastColumnActual;
+                    sl->UpperSouthLineActual = cov.UpperSouthLineActual;
+                    sl->UpperWestColumnActual = cov.UpperWestColumnActual;
+                    sl->UpperNorthLineActual = cov.UpperNorthLineActual;
+
+                    qDebug() << QString("sl->LowerEastColumnActual = %1").arg(sl->LowerEastColumnActual);
+                    qDebug() << QString("sl->LowerNorthLineActual = %1").arg(sl->LowerNorthLineActual);
+                    qDebug() << QString("sl->LowerWestColumnActual = %1").arg(sl->LowerWestColumnActual);
+                    qDebug() << QString("sl->LowerSouthLineActual = %1").arg(sl->LowerSouthLineActual);
+                    qDebug() << QString("sl->UpperEastColumnActual = %1").arg(sl->UpperEastColumnActual);
+                    qDebug() << QString("sl->UpperSouthLineActual = %1").arg(sl->UpperSouthLineActual);
+                    qDebug() << QString("sl->UpperWestColumnActual = %1").arg(sl->UpperWestColumnActual);
+                    qDebug() << QString("sl->UpperNorthLineActual = %1").arg(sl->UpperNorthLineActual);
+                }
+                else
+                {
+                    sl->WestColumnActual = 1;
+                    sl->SouthLineActual = 1;
+                }
+            }
+            catch( std::runtime_error &run )
+            {
+                qDebug() << QString("Error : runtime error in reading epilogue file : %1").arg(run.what());
+                sl->LowerEastColumnActual = 0;
+                sl->LowerNorthLineActual = 0;
+                sl->LowerWestColumnActual = 0;
+                sl->LowerSouthLineActual = 0;
+                sl->UpperEastColumnActual = 0;
+                sl->UpperSouthLineActual = 0;
+                sl->UpperWestColumnActual = 0;
+                sl->UpperNorthLineActual = 0;
+            }
+        }
+    }
+
+
+    if(sl->getGeoSatellite() == eGeoSatellite::MET_11)
+    {
+        qDebug() << "ForwardScanStart = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanStart.get_timestring().c_str();
+        //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanStart;
+        qDebug() << "ForwardScanEnd = " << epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_timestring().c_str();
+        //    cout << epi.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd;
+
+        da.scan(fa, header);
+
+        qDebug() << "COFF = " << header.image_navigation->COFF;
+        qDebug() << "LOFF = " << header.image_navigation->LOFF;
+        qDebug() << "CFAC = " << header.image_navigation->CFAC;
+        qDebug() << "LFAC = " << header.image_navigation->LFAC;
+
+        qDebug() << QString("column scaling factor = %1").arg(header.image_navigation->column_scaling_factor); //, 16, 'f', 2);
+        qDebug() << QString("line scaling factor = %1").arg(header.image_navigation->line_scaling_factor); //, 16, 'f', 2);
+        qDebug() << QString("column offset = %1").arg(header.image_navigation->column_offset); //, 16, 'f', 2);
+        qDebug() << QString("line offset = %1").arg(header.image_navigation->line_offset); //, 16, 'f', 2);
+
+
+    }
+    //epidata.epilogue->product_stats.ActualScanningSummary.ForwardScanEnd.get_unixtime().get_timestruct()
+
+    if(type == "HRV" || type == "HRV Color")
+    {
+        sl->COFF = opts.geosatellites.at(geoindex).coffhrv;
+        sl->LOFF = opts.geosatellites.at(geoindex).loffhrv;
+        sl->CFAC = opts.geosatellites.at(geoindex).cfachrv;
+        sl->LFAC = opts.geosatellites.at(geoindex).lfachrv;
+    }
+    else
+    {
+        sl->COFF = opts.geosatellites.at(geoindex).coff;
+        sl->LOFF = opts.geosatellites.at(geoindex).loff;
+        sl->CFAC = opts.geosatellites.at(geoindex).cfac;
+        sl->LFAC = opts.geosatellites.at(geoindex).lfac;
+    }
+
+
+    if(type == "VIS_IR" || type == "VIS_IR Color" || type == "HRV Color")
+    {
+        for (int j =  0; j < llVIS_IR.size(); ++j)
+        {
+            QFile file(sl->getImagePath() + "/" + llVIS_IR.at(j));
+            QFileInfo fileinfo(file);
+            filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbr, opts.geosatellites.at(geoindex).lengthfilenbr).toInt()-1;
+            filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length());
+            filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdate, opts.geosatellites.at(geoindex).lengthdate);
+            filedate.leftJustified(12, '0');
+
+            sl->InsertPresent( spectrumvector, filespectrum, filesequence);
+
+            sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
+
+            qDebug() << QString("CreateGeoImageXRIT VIS_IR || VIS_IR Color || HRV Color ----> %1 filesequence = %2").arg(fileinfo.filePath()).arg(filesequence);
+        }
+    }
+
+    if( type == "HRV" || type == "HRV Color")
+    {
+        for (int j = 0; j < llHRV.size(); ++j)
+        {
+            QFile file(sl->getImagePath() + "/" + llHRV.at(j));
+            QFileInfo fileinfo(file);
+            filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbrhrv, opts.geosatellites.at(geoindex).lengthfilenbrhrv).toInt()-1;
+            filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrumhrv, opts.geosatellites.at(geoindex).spectrumhrv.length());
+            filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdatehrv, opts.geosatellites.at(geoindex).lengthdatehrv);
+            filedate.leftJustified(12, '0');
+
+            sl->InsertPresent( spectrumvector, filespectrum, filesequence);
+
+            if(sl->areatype == 1)
+                sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
+            else if(filesequence >= opts.geosatellites.at(geoindex).startsegmentnbrhrvtype0)
                 sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
 
-                qDebug() << QString("CreateGeoImageXRIT VIS_IR || VIS_IR Color || HRV Color ----> %1 filesequence = %2").arg(fileinfo.filePath()).arg(filesequence);
-            }
+            qDebug() << QString("CreateGeoImageXRIT HRV || HRV Color ----> %1").arg(fileinfo.filePath());
         }
-
-        if( type == "HRV" || type == "HRV Color")
-        {
-            for (int j = 0; j < llHRV.size(); ++j)
-            {
-                QFile file(sl->getImagePath() + "/" + llHRV.at(j));
-                QFileInfo fileinfo(file);
-                filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbrhrv, opts.geosatellites.at(geoindex).lengthfilenbrhrv).toInt()-1;
-                filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrumhrv, opts.geosatellites.at(geoindex).spectrumhrv.length());
-                filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdatehrv, opts.geosatellites.at(geoindex).lengthdatehrv);
-                filedate.leftJustified(12, '0');
-
-                sl->InsertPresent( spectrumvector, filespectrum, filesequence);
-
-                if(sl->areatype == 1)
-                    sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
-                else if(filesequence >= opts.geosatellites.at(geoindex).startsegmentnbrhrvtype0)
-                    sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
-
-                qDebug() << QString("CreateGeoImageXRIT HRV || HRV Color ----> %1").arg(fileinfo.filePath());
-            }
-        }
+    }
 }
 
 void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector)
@@ -734,7 +762,7 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
         sl->LOFF = opts.geosatellites.at(geoindex).loff;
         sl->CFAC = opts.geosatellites.at(geoindex).cfac;
         sl->LFAC = opts.geosatellites.at(geoindex).lfac;
-     }
+    }
 
     filetiming = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2) + tex.mid(13, 2) + tex.mid(16, 2) + "00";
     filedate = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2);
@@ -808,7 +836,8 @@ void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString 
 void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor)
 {
 
-    QString filetiming;
+    QString filetiming_goes;
+    QString filetiming_mtg;
     QStringList llVIS_IR;
     QString filepattern;
 
@@ -824,16 +853,25 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     //"2017-08-10   19:45"
     QDate now(tex.mid(0, 4).toInt(), tex.mid(5, 2).toInt(), tex.mid(8, 2).toInt());
     int DDD = now.dayOfYear();
-    filetiming = tex.mid(0, 4) + QString("%1").arg(DDD).rightJustified(3, '0') + tex.mid(13, 2) + tex.mid(16, 2);
+    filetiming_goes = tex.mid(0, 4) + QString("%1").arg(DDD).rightJustified(3, '0') + tex.mid(13, 2) + tex.mid(16, 2);
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
 
     //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
     //01234567890123456789012345678901234567890123456789
     if((whichgeo == eGeoSatellite::GOES_16) && (type == "VIS_IR" || type == "VIS_IR Color"))
-        filepattern = QString("OR_ABI-L1b-RadF-M????_G16_s") + filetiming + QString("*.nc");
+        filepattern = QString("OR_ABI-L1b-RadF-M????_G16_s") + filetiming_goes + QString("*.nc");
     else if((whichgeo == eGeoSatellite::GOES_17) && (type == "VIS_IR" || type == "VIS_IR Color"))
-        filepattern = QString("OR_ABI-L1b-RadF-M????_G17_s") + filetiming + QString("*.nc");
+        filepattern = QString("OR_ABI-L1b-RadF-M????_G17_s") + filetiming_goes + QString("*.nc");
     else if((whichgeo == eGeoSatellite::GOES_18) && (type == "VIS_IR" || type == "VIS_IR Color"))
-        filepattern = QString("OR_ABI-L1b-RadF-M????_G18_s") + filetiming + QString("*.nc");
+        filepattern = QString("OR_ABI-L1b-RadF-M????_G18_s") + filetiming_goes + QString("*.nc");
+    else if(whichgeo == eGeoSatellite::MTG_I1)
+        filepattern = QString("W_XX") + filetiming_mtg + QString("*.nc");
     else
         return;
 
@@ -853,8 +891,10 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
             return;
         }
         else
+        {
             sl->setThreadParameters(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
             sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+        }
     }
 }
 
@@ -874,10 +914,13 @@ void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item,
 {
 
     if ( !item )
-          return;
+        return;
+
+    qDebug() << "FormGeostationary::SelectGeoWidgetItem";
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
-        setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
+        if(opts.geosatellites.at(i).shortname != "MTG-I1")
+            setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
 
     qDebug() << opts.geosatellites.at(geoindex).shortname + " " + (*item).text(0);
 
@@ -904,8 +947,8 @@ void FormGeostationary::ontreeWidgetitemClicked(QTreeWidgetItem *item, int colum
 
 void FormGeostationary::on_tabGeostationary_tabBarClicked(int index)
 {
-//    int activeindex = this->getActiveSegmentList()->getGeoSatelliteIndex();
-//    formimage->setupGeoOverlay(index);
+    //    int activeindex = this->getActiveSegmentList()->getGeoSatelliteIndex();
+    //    formimage->setupGeoOverlay(index);
 
     emit setbuttonlabels(index, false);
 }

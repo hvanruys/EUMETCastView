@@ -81,7 +81,8 @@ enum class eGeoSatellite {
     GOES_17 = 8,
     GOES_18 = 9,
     H8 = 10,
-    NOGEO = 11
+    MTG_I1 = 11,
+    NOGEO = 12
 };
 
 enum class ePolarSatellite {

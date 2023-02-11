@@ -147,6 +147,7 @@ public:
 
     QList<SegmentListGeostationary *> seglgeo;
     QList<QMap<QString, QMap<QString, QMap< int, QFileInfo > > > > segmentlistmapgeo;
+    QMap<QString, QMap<int, QMap< int, QFileInfo > > > segmentlistmapgeomtgi1;
 
 
 private:
@@ -156,6 +157,7 @@ private:
     void RemoveFromList(QList<Segment*> *sl);
     void CreateListfromXML(QDomDocument document);
     void getFilenameParameters(int geosatindex, QString filename, QString &strspectrum, QString &strdate, int &filenbr);
+    void getFilenameParametersMTGI1(QString filename, QString &strdate, int &filenbr, int &seqnbr);
 
     DatahubAccessManager hubmanager;
     QDate xmlselectdate;

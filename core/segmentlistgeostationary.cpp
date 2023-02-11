@@ -173,6 +173,8 @@ eGeoSatellite SegmentListGeostationary::getGeoSatellite()
         return eGeoSatellite::GOES_17;
     else if(str_GeoSatellite == "H8")
         return eGeoSatellite::H8;
+    else if(str_GeoSatellite == "MTG_I1")
+        return eGeoSatellite::MTG_I1;
     else
         return eGeoSatellite::NOGEO;
 }

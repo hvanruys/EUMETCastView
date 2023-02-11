@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QDate>
 #include <QApplication>
+#include<QStringRef>
 
 template <typename T>
 struct PtrLess // public std::binary_function<bool, const T*, const T*>
@@ -437,13 +438,42 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         //nnnn : ‘_001’-‘_010’ for segmented full earth’s disk image data files
         //Sequence number is set only for dissemination of the segment files.
 
+        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
 
         for(int i = 0; i < opts.geosatellites.count(); i++)
         {
-            //seglgeo.at(i)->setImagePath("");
-
             //qDebug() << fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length() ) << "???" << opts.geosatellites.at(i).searchstring;
-            if (fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == opts.geosatellites.at(i).searchstring && fileInfo.isFile())
+            //qDebug() << opts.geosatellites.at(i).fullname;
+            if(opts.geosatellites.at(i).shortname == "MTG-I1")
+            {
+                QString strdate;
+                int filenbr, seqnbr;
+
+                getFilenameParametersMTGI1(fileInfo.fileName(), strdate, filenbr, seqnbr);
+
+                seglgeo.at(i)->setImagePath(fileInfo.absolutePath());
+
+                QMap<int, QFileInfo> hashseqnbr;
+                QMap<int, QMap<int, QFileInfo> > hashfilenbr;
+
+                if (segmentlistmapgeomtgi1.contains(strdate))
+                {
+                    hashfilenbr = segmentlistmapgeomtgi1.value(strdate);
+                    if(hashfilenbr.contains(filenbr))
+                        hashseqnbr = hashfilenbr.value(filenbr);
+                }
+                hashseqnbr.insert( seqnbr, fileInfo );
+                hashfilenbr.insert(filenbr, hashseqnbr);
+                segmentlistmapgeomtgi1.insert( strdate, hashfilenbr );
+
+
+            }
+            else if (fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == opts.geosatellites.at(i).searchstring && fileInfo.isFile())
             {
                 //int filenbr = fileInfo.fileName().mid(opts.geosatellites.at(i).indexfilenbrstring, opts.geosatellites.at(i).lengthfilenbrstring).toInt();
                 //QString strspectrum = fileInfo.fileName().mid(opts.geosatellites.at(i).indexspectrumstring, opts.geosatellites.at(i).lengthspectrumstring);
@@ -483,6 +513,30 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 
         emit signalProgress(i);
         QApplication::processEvents();
+    }
+}
+
+void AVHRRSatellite::getFilenameParametersMTGI1(QString filename, QString &strdate, int &filenbr, int &seqnbr)
+{
+    //MTG-I1
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
+
+    if(filename.contains("BODY", Qt::CaseSensitive))
+    {
+        strdate = filename.mid(82, 6);
+        filenbr = filename.mid(140, 4).toInt();
+        seqnbr = filename.mid(145, 4).toInt();
+    }
+    else if(filename.contains("TRAIL", Qt::CaseSensitive))
+    {
+        strdate = filename.mid(83, 6);
+        filenbr = filename.mid(141, 4).toInt();
+        seqnbr = filename.mid(146, 4).toInt();
     }
 }
 
@@ -664,16 +718,16 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     bool sentinel3Tle = false;
     bool fy3dTle = false;
 
-//    QStorageInfo storage = QStorageInfo::root();
+    //    QStorageInfo storage = QStorageInfo::root();
 
-//    qDebug() << storage.rootPath();
-//    if (storage.isReadOnly())
-//        qDebug() << "isReadOnly:" << storage.isReadOnly();
+    //    qDebug() << storage.rootPath();
+    //    if (storage.isReadOnly())
+    //        qDebug() << "isReadOnly:" << storage.isReadOnly();
 
-//    qDebug() << "name:" << storage.name();
-//    qDebug() << "fileSystemType:" << storage.fileSystemType();
-//    qDebug() << "size:" << storage.bytesTotal()/1024/1024 << "MB";
-//    qDebug() << "availableSize:" << storage.bytesAvailable()/1024/1024 << "MB";
+    //    qDebug() << "name:" << storage.name();
+    //    qDebug() << "fileSystemType:" << storage.fileSystemType();
+    //    qDebug() << "size:" << storage.bytesTotal()/1024/1024 << "MB";
+    //    qDebug() << "availableSize:" << storage.bytesAvailable()/1024/1024 << "MB";
 
     this->ReadXMLfiles();
 
@@ -735,8 +789,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
                     }
 
-                    //                    for(int i= 0; i < fileinfolist.size(); i++)
-                    //                        qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
+                    //for(int i= 0; i < fileinfolist.size(); i++)
+                    //    qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
 
                     QMap<QString, QFileInfo> map;
 
@@ -846,8 +900,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
 
                     fileinfolist = map.values();
-                    //                    for(int i = 0; i < fileinfolist.count(); i++)
-                    //                        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
+                    //for(int i = 0; i < fileinfolist.count(); i++)
+                    //    qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
                     emit signalResetProgressbar(fileinfolist.size(), (*its));
 
@@ -895,12 +949,14 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString("Count segmentlistdatahubslstr = %1").arg(sldatahubslstr->count());
 
     for(int i = 0; i < opts.geosatellites.length(); i++)
-        qDebug() << QString( "Nbr of items in segmentlist %1 = %2").arg(opts.geosatellites.at(i).shortname).arg(segmentlistmapgeo[0].size());
+        if(opts.geosatellites.at(i).shortname != "MTG-I1")
+            qDebug() << QString( "Nbr of items in segmentlistmapgeo %1 = %2").arg(opts.geosatellites.at(i).shortname).arg(segmentlistmapgeo[0].size());
+    qDebug() << QString( "Nbr of items in segmentlistmapgeomtgi1 MTG-I1 = %1").arg(segmentlistmapgeomtgi1.size());
 
     int totgeosegments = 0;
     for(int i = 0; i < opts.geosatellites.length(); i++)
         totgeosegments += segmentlistmapgeo.at(i).size();
-
+    totgeosegments += segmentlistmapgeomtgi1.size();
     QString strtot = QString("Total segments = %1").arg(slmetop->count()+slnoaa->count()+slgac->count()+slhrp->count()+slviirsm->count()
                                                         +slolciefr->count()+slolcierr->count()+slslstr->count()+slmersi->count() + totgeosegments);
     emit signalResetProgressbar(1, strtot);
@@ -961,8 +1017,8 @@ void AVHRRSatellite::ReadDirectoriesDatahub(QDate seldate)
 
 
     fileinfolist = map.values();
-//    for(int i = 0; i < fileinfolist.count(); i++)
-//        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
+    //    for(int i = 0; i < fileinfolist.count(); i++)
+    //        qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
     emit signalResetProgressbar(fileinfolist.size(), opts.productdirectory);
 
@@ -1477,6 +1533,44 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             }
             else if(t.hour() >= 24 - hoursbefore)
                 fileok = true;
+        }
+        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
+        else if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.isFile())
+        {
+            if(fileinfo.fileName().contains("BODY", Qt::CaseInsensitive))
+            {
+                QDate d(fileinfo.fileName().mid( 82, 4).toInt(), fileinfo.fileName().mid( 86, 2).toInt(), fileinfo.fileName().mid( 88, 2).toInt());
+                //filedate.setDate(d);
+                QTime t(fileinfo.fileName().mid( 90, 2).toInt(), fileinfo.fileName().mid( 92, 2).toInt(), 0);
+                //filedate.setTime(t);
+                if(hoursbefore == 0)
+                {
+                    if(d == seldate)
+                        fileok = true;
+                }
+                else if(t.hour() >= 24 - hoursbefore)
+                    fileok = true;
+            }
+            else if(fileinfo.fileName().contains("TRAIL", Qt::CaseInsensitive))
+            {
+                QDate d(fileinfo.fileName().mid( 83, 4).toInt(), fileinfo.fileName().mid( 87, 2).toInt(), fileinfo.fileName().mid( 89, 2).toInt());
+                //filedate.setDate(d);
+                QTime t(fileinfo.fileName().mid( 91, 2).toInt(), fileinfo.fileName().mid( 93, 2).toInt(), 0);
+                //filedate.setTime(t);
+                if(hoursbefore == 0)
+                {
+                    if(d == seldate)
+                        fileok = true;
+                }
+                else if(t.hour() >= 24 - hoursbefore)
+                    fileok = true;
+
+            }
         }
 
         if(fileok)
