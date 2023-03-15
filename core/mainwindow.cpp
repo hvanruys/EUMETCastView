@@ -581,7 +581,6 @@ void MainWindow::on_actionShowToolbox_triggered()
 
 void MainWindow::on_actionCreatePNG_triggered()
 {
-    const QPixmap *pm;
     QString filestr;
 
     filestr.append("./");
@@ -604,13 +603,14 @@ void MainWindow::on_actionCreatePNG_triggered()
         if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
                 fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
             fileName.append(".jpg");
-        pm = formimage->returnimageLabelptr()->pixmap();
+        //pm = formimage->returnimageLabelptr()->pixmap();
+        QPixmap pixmapVal = formimage->returnimageLabelptr()->pixmap(Qt::ReturnByValue);
 
         if(!forminfrascales->isHidden())
         {
-            QImage imresult(pm->width(), pm->height() + 80, QImage::Format_RGB32);
+            QImage imresult(pixmapVal.width(), pixmapVal.height() + 80, QImage::Format_RGB32);
 
-            QImage im = pm->toImage();
+            QImage im = pixmapVal.toImage();
             QPainter painter(&imresult);
 
             QImage scales = forminfrascales->getScalesImage(im.width());
@@ -625,7 +625,7 @@ void MainWindow::on_actionCreatePNG_triggered()
         }
         else
         {
-            pm->save(fileName);
+            pixmapVal.save(fileName);
         }
         QApplication::restoreOverrideCursor();
 

@@ -202,6 +202,7 @@ public:
     void setFormImagePtr(FormImage *ptr) { formimage = ptr; }
     void resize(const QSize&);
     QPoint getMousePosition() { return mousepos; }
+    QSize getPixmapSize() { return scaledpixmapsize; }
 
 public slots:
     void setPixmap ( const QPixmap & );

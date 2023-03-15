@@ -283,7 +283,7 @@ void FormImage::displayImage(eImageType channel)
             break;
 
         case IMAGE_AVHRR_CH1:
-            if(imageptrs->ptrimagecomp_ch[0]->byteCount() == 0)
+            if(imageptrs->ptrimagecomp_ch[0]->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No AVHRR image");
                 imageLabel->setPixmap(pm);
@@ -295,7 +295,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_AVHRR_CH2:
-            if(imageptrs->ptrimagecomp_ch[1]->byteCount() == 0)
+            if(imageptrs->ptrimagecomp_ch[1]->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No AVHRR image");
                 imageLabel->setPixmap(pm);
@@ -307,7 +307,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_AVHRR_CH3:
-            if(imageptrs->ptrimagecomp_ch[2]->byteCount() == 0)
+            if(imageptrs->ptrimagecomp_ch[2]->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No AVHRR image");
                 imageLabel->setPixmap(pm);
@@ -319,7 +319,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_AVHRR_CH4:
-            if(imageptrs->ptrimagecomp_ch[3]->byteCount() == 0)
+            if(imageptrs->ptrimagecomp_ch[3]->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No AVHRR image");
                 imageLabel->setPixmap(pm);
@@ -331,7 +331,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_AVHRR_CH5:
-            if(imageptrs->ptrimagecomp_ch[4]->byteCount() == 0)
+            if(imageptrs->ptrimagecomp_ch[4]->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No AVHRR image");
                 imageLabel->setPixmap(pm);
@@ -343,7 +343,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_AVHRR_COL:
-            if(imageptrs->ptrimagecomp_col->byteCount() == 0)
+            if(imageptrs->ptrimagecomp_col->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No AVHRR image");
                 imageLabel->setPixmap(pm);
@@ -355,7 +355,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_AVHRR_EXPAND:
-            if(imageptrs->ptrexpand_col->byteCount() == 0)
+            if(imageptrs->ptrexpand_col->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No AVHRR image");
                 imageLabel->setPixmap(pm);
@@ -367,7 +367,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_GEOSTATIONARY:
-            if(imageptrs->ptrimageGeostationary->byteCount() == 0)
+            if(imageptrs->ptrimageGeostationary->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No geostationary image");
                 imageLabel->setPixmap(pm);
@@ -379,7 +379,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_PROJECTION:
-            if(imageptrs->ptrimageProjection->byteCount() == 0)
+            if(imageptrs->ptrimageProjection->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No Projection image");
                 imageLabel->setPixmap(pm);
@@ -391,7 +391,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_VIIRSM:
-            if(imageptrs->ptrimageViirsM->byteCount() == 0)
+            if(imageptrs->ptrimageViirsM->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No VIIRS M image");
                 imageLabel->setPixmap(pm);
@@ -406,7 +406,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_VIIRSDNB:
-            if(imageptrs->ptrimageViirsDNB->byteCount() == 0)
+            if(imageptrs->ptrimageViirsDNB->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No VIIRS DNB image");
                 imageLabel->setPixmap(pm);
@@ -421,7 +421,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_OLCI:
-            if(imageptrs->ptrimageOLCI->byteCount() == 0)
+            if(imageptrs->ptrimageOLCI->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No OLCI image");
                 imageLabel->setPixmap(pm);
@@ -433,7 +433,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_SLSTR:
-            if(imageptrs->ptrimageSLSTR->byteCount() == 0)
+            if(imageptrs->ptrimageSLSTR->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No SLSTR image");
                 imageLabel->setPixmap(pm);
@@ -445,7 +445,7 @@ void FormImage::displayImage(eImageType channel)
             }
             break;
         case IMAGE_MERSI:
-            if(imageptrs->ptrimageMERSI->byteCount() == 0)
+            if(imageptrs->ptrimageMERSI->sizeInBytes() == 0)
             {
                 painter.drawText(10, 100, "No MERSI image");
                 imageLabel->setPixmap(pm);
@@ -1325,13 +1325,12 @@ void FormImage::wheelEvent(QWheelEvent *event)
 {
 
     //QTimer::singleShot(5100, this, SLOT(zoomOverlaySwitch()));
-    int numDegrees = event->delta() / 8;
-    int numSteps = numDegrees / 15;
-    if(numSteps > 0)
+    QPoint numDegrees = event->angleDelta() / 8;
+    QPoint numSteps = numDegrees / 15;
+    if(numSteps.y() > 0)
         formwheelZoom(1);
-    if(numSteps < 0)
+    if(numSteps.y() < 0)
         formwheelZoom(-1);
-
 }
 
 void FormImage::formwheelZoom(int d)
@@ -1352,7 +1351,7 @@ void FormImage::makeZoom(double f)
     {
         setZoomValue(f);
         scaleFactor = f/100;
-        this->adjustImage();
+        //this->adjustImage();
 
         QString windowTitleFormat = QString("EUMETCastView zoomLevel");
         windowTitleFormat.replace("zoomLevel", QString("%1%").arg((int)(f)));
@@ -1449,20 +1448,95 @@ void FormImage::zoomOverlaySwitch()
 }
 */
 
+//void FormImage::paintEvent( QPaintEvent *event )
+//{
+
+//    if (imageLabel->pixmap() == 0)
+//        return;
+
+//    QPixmap *pix;
+//    pix=(QPixmap *)imageLabel->pixmap();
+
+//    if(pix->height() == 0)
+//        return;
+
+//    if (imageLabel->pixmap() == 0)
+//        return;
+
+////    QPixmap pixval;
+////    pixval = imageLabel->pixmap(Qt::ReturnByValue);
+
+////    if(pixval.height() == 0)
+////        return;
+
+
+//    //pix=imageLabel->pixmap();
+//    //pix=QPixmap::fromImage(*(imageptrs->ptrimageMeteosat));
+//    QPainter painter(pix);
+
+////    qDebug() << "FormImage::paintEvent( QPaintEvent * )";
+
+////        if(channelshown >= 1 && channelshown <= 8)
+////        {
+////            QFont f("Courier", 40, QFont::Bold);
+////            painter.setFont(f);
+////            painter.setPen(Qt::yellow);
+////            painter.drawText(10, 50, QString("%1 %2").arg(mousepoint.x()).arg(mousepoint.y()));
+////        }
+
+
+//    SegmentListGeostationary *slgeo = NULL;
+
+//    slgeo = segs->getActiveSegmentList();
+
+//    if(channelshown == IMAGE_GEOSTATIONARY)
+//        displayGeoImageInfo();
+
+
+//    if (channelshown == IMAGE_GEOSTATIONARY && overlaymeteosat && refreshoverlay)
+//    {
+//        if(slgeo != NULL)
+//        {
+//            this->OverlayGeostationary(&painter, slgeo);
+//            refreshoverlay = false;
+//        }
+//    }
+//    if(channelshown == IMAGE_PROJECTION && overlayprojection && refreshoverlay)
+//    {
+//        this->OverlayProjection(&painter);
+//        refreshoverlay = false;
+//    }
+
+//    if(channelshown == IMAGE_OLCI && overlayolci && refreshoverlay)
+//    {
+//        this->OverlayOLCI(&painter);
+//        refreshoverlay = false;
+//    }
+
+//    if(channelshown == IMAGE_PROJECTION && changeinfraprojection)
+//    {
+//        changeinfraprojection = false;
+//    }
+
+//    this->adjustImage();
+
+
+//}
+
 void FormImage::paintEvent( QPaintEvent *event )
 {
-    if (imageLabel->pixmap() == 0)
+
+
+    QPixmap pixval;
+    pixval = imageLabel->pixmap(Qt::ReturnByValue);
+
+    if(pixval.height() == 0)
         return;
 
-    QPixmap *pix;
-    pix=(QPixmap *)imageLabel->pixmap();
-
-    if(pix->height() == 0)
-        return;
 
     //pix=imageLabel->pixmap();
     //pix=QPixmap::fromImage(*(imageptrs->ptrimageMeteosat));
-    QPainter painter(pix);
+    QPainter painter(&pixval);
 
 //    qDebug() << "FormImage::paintEvent( QPaintEvent * )";
 
@@ -1507,6 +1581,8 @@ void FormImage::paintEvent( QPaintEvent *event )
     {
         changeinfraprojection = false;
     }
+
+    imageLabel->setPixmap(pixval);
 
     this->adjustImage();
 
@@ -1886,19 +1962,41 @@ void FormImage::adjustPicSize(bool setwidth)
 
 }
 
+//void FormImage::adjustImage()
+//{
+
+//    scaleFactor = (double)getZoomValue()/100;
+//    if(scaleFactor==1)
+//    {
+//        imageLabel->resize(imageLabel->pixmap()->size());
+//        this->adjustSize();
+//    }
+//    else
+//    {
+//        imageLabel->resize(imageLabel->pixmap()->size() * scaleFactor);
+//        this->resize(imageLabel->pixmap()->size() * scaleFactor);
+//    }
+
+//    QString windowTitleFormat = QString("EUMETCastView zoomLevel");
+//    windowTitleFormat.replace("zoomLevel", QString("%1%").arg((int)(getZoomValue())));
+//    this->topLevelWidget()->setWindowTitle(windowTitleFormat);
+
+//}
+
 void FormImage::adjustImage()
 {
 
+    QSize pixmapsize = imageLabel->getPixmapSize();
     scaleFactor = (double)getZoomValue()/100;
     if(scaleFactor==1)
     {
-        imageLabel->resize(imageLabel->pixmap()->size());
+        imageLabel->resize(pixmapsize);
         this->adjustSize();
     }
     else
     {
-        imageLabel->resize(imageLabel->pixmap()->size() * scaleFactor);
-        this->resize(imageLabel->pixmap()->size() * scaleFactor);
+        imageLabel->resize(pixmapsize * scaleFactor);
+        this->resize(pixmapsize * scaleFactor);
     }
 
     QString windowTitleFormat = QString("EUMETCastView zoomLevel");
@@ -1906,7 +2004,6 @@ void FormImage::adjustImage()
     this->topLevelWidget()->setWindowTitle(windowTitleFormat);
 
 }
-
 void FormImage::slotUpdateGeosat()
 {
 

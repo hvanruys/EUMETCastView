@@ -30,7 +30,9 @@ QNetworkAccessManager networkaccessmanager;
 bool doLogging;
 bool ptrimagebusy;
 
-// Every now and then a masterpiece like this comes out, and the world is gifted with a few hours of  hope for the human race, before dropping back into it's usual chaos.
+// Every now and then a masterpiece like this comes out, and the world is gifted with a few hours of hope for the human race,
+// before dropping back into it's usual chaos.
+
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
 
@@ -60,11 +62,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         out << strout;
         out.flush();
     }
-
-    const std::string std_str = strout.toStdString();
-
-    fprintf(stderr, std_str.c_str());
-
+    fprintf(stderr, "%s", strout.toStdString().c_str());
 #else
   // debug mode code
     QString strout;
@@ -84,7 +82,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     case QtFatalMsg:
         strout = "Debug Fatal: " + msg + "\n";
         out << strout;
-        fprintf(stderr, strout.toStdString().c_str());
+        fprintf(stderr, "%s", strout.toStdString().c_str());
         abort();
     }
 
@@ -94,8 +92,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         out.flush();
     }
 
-    fprintf(stderr, strout.toStdString().c_str());
-
+    fprintf(stderr, "%s", strout.toStdString().c_str());
 
 #endif
 

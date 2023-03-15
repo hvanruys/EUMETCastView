@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.19)
 
 project(EUMETCastView VERSION 1.5.6 LANGUAGES C CXX)
 
@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(UNIX)
-    set(CMAKE_PREFIX_PATH /home/hugo/Qt/5.15.2/gcc_64)
+    set(CMAKE_PREFIX_PATH /media/hugo/Data-Linux/Qt/5.15.2/gcc_64)
 
 endif()
 
