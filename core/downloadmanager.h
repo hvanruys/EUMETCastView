@@ -44,7 +44,7 @@
 #include <QFile>
 #include <QObject>
 #include <QQueue>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QUrl>
 #include <QNetworkAccessManager>
 //#include "options.h"
@@ -76,7 +76,7 @@ private:
     QQueue<QUrl> downloadQueue;
     QNetworkReply *currentDownload;
     QFile output;
-    QTime downloadTime;
+    QElapsedTimer downloadTime;
 
 
     int downloadedCount;

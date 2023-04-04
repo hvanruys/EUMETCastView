@@ -863,16 +863,16 @@ void Options::CreateGeoSatelliteIni()
         geosatellites.append(sat);
 
     //Data Channel 2
-    geosatellites[0].fullname = "Meteosat-11";
-    geosatellites[0].shortname = "MET_11";
+    geosatellites[0].fullname = "Meteosat-10";
+    geosatellites[0].shortname = "MET_10";
     geosatellites[0].longitude = 0.0;
     geosatellites[0].longitudelimit1 = -75.0;
     geosatellites[0].longitudelimit2 = +75.0;
     geosatellites[0].protocol = "XRIT";
     geosatellites[0].rss = false;
-    geosatellites[0].searchstring = "H-000-MSG4__-MSG4";
+    geosatellites[0].searchstring = "H-000-MSG3__-MSG3";
     geosatellites[0].indexsearchstring = 0;
-    geosatellites[0].filepattern = "H-000-MSG4??-?????????___-?????????-0?????___-%1-C_";
+    geosatellites[0].filepattern = "H-000-MSG3??-?????????___-?????????-0?????___-%1-C_";
     geosatellites[0].imagewidth = 3712;
     geosatellites[0].imageheight = 3712;
     geosatellites[0].imagewidthhrv0 = 5568;
@@ -909,16 +909,16 @@ void Options::CreateGeoSatelliteIni()
 
 
     //Data Channel 5
-    geosatellites[1].fullname = "Meteosat-10";
-    geosatellites[1].shortname = "MET_10";
+    geosatellites[1].fullname = "Meteosat-11";
+    geosatellites[1].shortname = "MET_11";
     geosatellites[1].longitude = 9.5;
     geosatellites[1].longitudelimit1 = -30.0;
     geosatellites[1].longitudelimit2 = 20.0;
     geosatellites[1].protocol = "XRIT";
     geosatellites[1].rss = true;
-    geosatellites[1].searchstring = "H-000-MSG3__-MSG3";
+    geosatellites[1].searchstring = "H-000-MSG4__-MSG4";
     geosatellites[1].indexsearchstring = 0;
-    geosatellites[1].filepattern = "H-000-MSG3??-????????????-?????????-0?????___-%1-C_";
+    geosatellites[1].filepattern = "H-000-MSG4??-????????????-?????????-0?????___-%1-C_";
     geosatellites[1].imagewidth = 3712;
     geosatellites[1].imageheight = 1392;
     geosatellites[1].imagewidthhrv0 = 5568;

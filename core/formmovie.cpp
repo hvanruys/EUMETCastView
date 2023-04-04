@@ -501,14 +501,14 @@ void FormMovie::on_btnCreateXML_clicked()
     {
         tag = doc.createElement("satlon");
         tagroot.appendChild(tag);
-        t = doc.createTextNode("0.0");
+        t = doc.createTextNode("9.5");
         tag.appendChild(t);
     }
     else if(ui->cmbSatname->currentText() == "MET_10")
     {
         tag = doc.createElement("satlon");
         tagroot.appendChild(tag);
-        t = doc.createTextNode("9.5");
+        t = doc.createTextNode("0.0");
         tag.appendChild(t);
     }
     else if(ui->cmbSatname->currentText() == "MET_9")
