@@ -279,7 +279,7 @@ void FormMovie::on_btnCreateXML_clicked()
 
         tag = doc.createElement("rss");
         root.appendChild(tag);
-        t = doc.createTextNode("0");
+        t = doc.createTextNode("1");
         tag.appendChild(t);
 
     }
@@ -292,7 +292,7 @@ void FormMovie::on_btnCreateXML_clicked()
 
         tag = doc.createElement("rss");
         root.appendChild(tag);
-        t = doc.createTextNode("1");
+        t = doc.createTextNode("0");
         tag.appendChild(t);
 
     }

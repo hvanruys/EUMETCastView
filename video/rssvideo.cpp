@@ -49,6 +49,7 @@ void RSSVideo::sendMessages(QString txt)
 
     QByteArray ba = txt.toLocal8Bit();
     this->udpSocket->writeDatagram(ba, QHostAddress::LocalHost, 7755);
+    qDebug() << txt;
 
 }
 

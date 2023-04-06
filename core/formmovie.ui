@@ -12,7 +12,6 @@
   </property>
   <property name="font">
    <font>
-    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -33,7 +32,6 @@
              <property name="font">
               <font>
                <pointsize>8</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -89,7 +87,6 @@
                <property name="font">
                 <font>
                  <pointsize>8</pointsize>
-                 <weight>75</weight>
                  <italic>false</italic>
                  <bold>true</bold>
                 </font>
@@ -105,7 +102,6 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
-                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -135,7 +131,6 @@
                     <property name="font">
                      <font>
                       <pointsize>10</pointsize>
-                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -153,7 +148,6 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
-                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -190,7 +184,6 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
-                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -217,7 +210,6 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
-                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -241,7 +233,6 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
-                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -337,7 +328,6 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
-                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -389,7 +379,6 @@
               <widget class="QGroupBox" name="groupBox_5">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -479,7 +468,6 @@
               <widget class="QGroupBox" name="groupBox_2">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -643,7 +631,6 @@
           <widget class="QGroupBox" name="groupBox_4">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -659,7 +646,6 @@
                  <widget class="QLabel" name="label_3">
                   <property name="font">
                    <font>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -672,7 +658,6 @@
                  <widget class="QLabel" name="label_13">
                   <property name="font">
                    <font>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -685,7 +670,6 @@
                  <widget class="QLabel" name="label_14">
                   <property name="font">
                    <font>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -715,7 +699,6 @@
                  <widget class="QLabel" name="label_29">
                   <property name="font">
                    <font>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -728,12 +711,11 @@
                  <widget class="QLabel" name="label_30">
                   <property name="font">
                    <font>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
                   <property name="text">
-                   <string>: E1B-GEO-5</string>
+                   <string>: E1B-GEO-3</string>
                   </property>
                  </widget>
                 </item>
@@ -741,12 +723,11 @@
                  <widget class="QLabel" name="label_31">
                   <property name="font">
                    <font>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
                   <property name="text">
-                   <string>: E1B-GEO-3</string>
+                   <string>: E1B-GEO-5</string>
                   </property>
                  </widget>
                 </item>
@@ -774,7 +755,6 @@
           <widget class="QGroupBox" name="groupBox_6">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -1011,7 +991,6 @@
           <widget class="QGroupBox" name="groupBox_7">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -1025,7 +1004,6 @@
                <widget class="QListWidget" name="lwffmpeg">
                 <property name="font">
                  <font>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1103,7 +1081,6 @@
           <widget class="QGroupBox" name="groupBox_3">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -1481,7 +1458,6 @@
           <widget class="QLabel" name="label_6">
            <property name="font">
             <font>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
