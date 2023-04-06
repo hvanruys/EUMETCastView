@@ -209,7 +209,7 @@ void StereoGraphic::CreateMapFromGeostationary()
 
                             picrow = row;
 
-                            if(sl->getGeoSatellite() == eGeoSatellite::MET_10)
+                            if(sl->bisRSS)
                             {
                                 if( picrow >= 0 && picrow < 5*464)
                                 {

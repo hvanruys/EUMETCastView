@@ -405,7 +405,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
                             col+=3;
                             picrow = row;
 
-                            if(sl->getGeoSatellite() == eGeoSatellite::MET_10)
+                            if(sl->bisRSS)
                             {
                                 if( picrow >= 0 && picrow < 5*464)
                                 {
@@ -429,7 +429,6 @@ void LambertConformalConic::CreateMapFromGeostationary()
                             }
                             else
                             {
-
                                 if( picrow < (sl->areatype == 0 ? 5*464 : 11136))
                                 {
                                     scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);

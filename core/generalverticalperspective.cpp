@@ -327,7 +327,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                             col+=3; //3;
                             picrow = row;
 
-                            if(sl->getGeoSatellite() == eGeoSatellite::MET_10)
+                            if( sl->bisRSS)
                             {
                                 if( row < 5*464)
                                 {
@@ -347,7 +347,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                                 }
 
                             }
-                            else if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
+                            else  //if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
                             {
                                 if( picrow < (sl->areatype == 0 ? 5*464 : 11136))
                                 {

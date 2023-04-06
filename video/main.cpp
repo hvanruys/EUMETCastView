@@ -5,9 +5,8 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QUdpSocket>
 #include "rssvideo.h"
-#include "qsun.h"
-#include "qeci.h"
-#include "qobserver.h"
+//#include "qsun.h"
+//#include "qobserver.h"
 
 void RenamePNGFiles()
 {
