@@ -405,6 +405,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br>MERSI from FengYun 3D"
     "<br><br><b>Geostationary satellites :</b>"
     "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-8"
+    "<br>FCI from MTG-I1"
     "<br>Electro L3, FengYun 2H, FengYun 2G"
     "<br>GOES-16, GOES-17 and Himawari-8"
     "<ul>"
