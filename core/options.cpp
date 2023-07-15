@@ -1562,9 +1562,14 @@ void Options::CreateGeoSatelliteIni()
     //MTG-I1
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
     //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
-    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
 
     geosatellites[11].fullname = "Meteosat Third Gen";
@@ -1576,13 +1581,13 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[11].rss = false;
     geosatellites[11].searchstring = "W_XX";
     geosatellites[11].indexsearchstring = 0;
-    geosatellites[11].filepattern = "W_XX-EUMETSAT-Darmstadt*";
-    geosatellites[11].imagewidth = 5500;
-    geosatellites[11].imageheight = 5500;
-    geosatellites[11].imagewidthhrv0 = 0;
-    geosatellites[11].imageheighthrv0 = 0;
-    geosatellites[11].imagewidthhrv1 = 0;
-    geosatellites[11].imageheighthrv1 = 0;
+    geosatellites[11].filepattern = "W_XX-EUMETSAT*";
+    geosatellites[11].imagewidth = 5568;
+    geosatellites[11].imageheight = 5568;
+    geosatellites[11].imagewidthhrv0 = 11136;
+    geosatellites[11].imageheighthrv0 = 11136;
+    geosatellites[11].imagewidthhrv1 = 22272;
+    geosatellites[11].imageheighthrv1 = 22272;
 
     geosatellites[11].indexspectrum = 0;
     geosatellites[11].indexfilenbr = 0;
@@ -1613,18 +1618,20 @@ void Options::CreateGeoSatelliteIni()
 
     geosatellites[11].prologfile = false;
     geosatellites[11].epilogfile = false;
-    geosatellites[11].coff = 2750;
-    geosatellites[11].loff = 2750;
-    geosatellites[11].cfac = 1172050000.;
-    geosatellites[11].lfac = 1172050000.;
+    geosatellites[11].coff = 5568;
+    geosatellites[11].loff = 5568;
+    geosatellites[11].cfac = 1172050000. * 2;
+    geosatellites[11].lfac = 1172050000. * 2;
     geosatellites[11].coffhrv = 0;
     geosatellites[11].loffhrv = 0;
     geosatellites[11].cfachrv = 0.;
     geosatellites[11].lfachrv = 0.;
 
 
-    geosatellites[11].spectrumlist << "VIS 0.4" << "VIS 0.5" << "VIS 0.6" << "VIS 0.8" << "VIS 0.9" << "NIR 1.3" << "NIR 1.6" << "NIR 2.2" << "IR 3.8" << "WV 6.3" << "WV 7.3" << "IR 8.7" << "IR 9.7" << "IR 10.5" << "IR 12.3" << "IR 13.3";
-    geosatellites[11].spectrumvalueslist << "0.44" << "0.51" << "0.64" << "0.86" << "0.91" << "1.38" << "1.61" << "2.25" << "3.80" << "6.30" << "7.35" << "8.70" << "9.66" << "10.5" << "12.3" << "13.3";
+    geosatellites[11].spectrumlist << "vis_04" << "vis_05" << "vis_06" << "vis_08" << "vis_09" << "nir_13" << "nir_16"
+                                   << "nir_22" << "ir_38" << "wv_63" << "wv_73" << "ir_87" << "ir_97" << "ir_105" << "ir_123" << "ir_133";
+    geosatellites[11].spectrumvalueslist << "0.44" << "0.51" << "0.64" << "0.86" << "0.91" << "1.38" << "1.61"
+                                         << "2.25" << "3.80" << "6.30" << "7.35" << "8.70" << "9.66" << "10.5" << "12.3" << "13.3";
 
     settingsgeo.beginWriteArray("geos");
     for (int i = 0; i < this->geosatellites.size(); ++i) {

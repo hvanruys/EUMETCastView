@@ -62,9 +62,6 @@ set(PROJECT_SOURCES_CPP
     segmentlistviirsm.cpp
     poi.cpp
     equirectangular.cpp
-    infrascales.cpp
-    infrawidget.cpp
-    forminfrascales.cpp
     qcustomplot.cpp
     segmentlistolci.cpp
     segmentolci.cpp

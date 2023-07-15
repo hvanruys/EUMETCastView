@@ -3,14 +3,16 @@
 
 #include <QWidget>
 #include <QTreeWidget>
+#include "formmapcyl.h"
 #include "satellite.h"
 #include "avhrrsatellite.h"
-#include "msgfileaccess.h"
-#include "msgdataaccess.h"
-#include "formtoolbox.h"
+//#include "msgfileaccess.h"
+//#include "msgdataaccess.h"
 #include "formimage.h"
+//#include "formtoolbox.h"
 
 class FormImage;
+class FormToolbox;
 
 namespace Ui {
 class FormGeostationary;
@@ -32,19 +34,21 @@ public:
     SegmentListGeostationary *setActiveSegmentList(int geoindex);
     SegmentListGeostationary *getActiveSegmentList();
     int getTabWidgetGeoIndex();
-    //void ComposeGeoRGBRecipe(bandstorage &bs);
-
+    void getTimeFromFilenbr(int filenbr, QString *strtime);
     ~FormGeostationary();
 
 private:
     QStringList getGeostationarySegments(int geoindex, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
+    QStringList getGeostationarySegmentsMTG(int geoindex, const QString imagetype, const QString filepath, int filenbr);
     void PopulateTreeGeo(int geoindex);
-    void PopulateTreeGeoMTGI1();
+    void PopulateTreeGeoMTGI1(int geoindex);
 
     void CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     void CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     void CreateGeoImagenetCDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
-
+    void CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
+    void CreateGeoImageMSG(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor, QString tex, int geoindex);
+    void CreateGeoImageMTG(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector,int histogrammethod, bool pseudocolor, QString tex, int geoindex);
     Ui::FormGeostationary *ui;
     AVHRRSatellite *segs;
     SatelliteList *sats;

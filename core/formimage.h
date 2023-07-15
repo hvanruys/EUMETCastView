@@ -1,82 +1,115 @@
 #ifndef FORMIMAGE_H
 #define FORMIMAGE_H
 
-#include <QWidget>
-#include <QHBoxLayout>
-
-#include "satellite.h"
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QPixmap>
+#include <QGraphicsPixmapItem>
+#include <QImage>
+#include <QPrinter>
 #include "avhrrsatellite.h"
-#include "generalverticalperspective.h"
 #include "formtoolbox.h"
-#include "forminfrascales.h"
 
 class FormToolbox;
-class FormInfraScales;
-class ImageLabel;
-class AspectRatioPixmapLabel;
 
-class FormImage : public QWidget
+class FormImage : public QGraphicsView
 {
     Q_OBJECT
 
+
 public:
     explicit FormImage(QWidget *parent = 0, SatelliteList *satlist=0, AVHRRSatellite *seglist=0);
-    QLabel *returnimageLabelptr();
+
     void MakeImage();
+
+    void resetView();
+    void fitWindow();
+    void originalSize();
+    void rotateView(const int nVal);
+    void printView();
+    bool saveViewToDisk(QString &strError);
+    inline bool isModified() { return m_rotateAngle!=0; }
+    inline int getRotateAngle(){ return m_rotateAngle; }
+    QString getImageFormat(QString strFileName);
+    QPixmap *getPixmap() { return &m_pixmap; }
+    QGraphicsScene *getScene() { return m_scene; }
+    QGraphicsPixmapItem *getPixmapItem() { return m_pixmapItem; }
+    void setFormImagePtr(FormImage *ptr) { formimage = ptr; }
+    //QSize getPixmapSize() { return scaledpixmapsize; }
+    void SetFormToolbox(FormToolbox *ptr) { formtoolbox = ptr; }
+    void setKindOfImage(QString koi) { kindofimage = koi; }
+    void setChannelShown(eImageType channel) { channelshown = channel; }
+    QString getKindOfImage() { return kindofimage; }
+    void displayImage(eImageType channel, bool resize);
+    void setupGeoOverlay(int geoindex);
+    void setupGshhs(int geoindex, int k);
+    void setWindowTitle();
+    void setSegmentType(eSegmentType st) { segmenttype = st; }
+    eSegmentType getSegmentType() { return segmenttype; }
+    void drawOverlays(QPainter *painter);
+    void savePNGImage(QString fileName);
+    void zoomIn();
+    void zoomOut();
+
+    bool toggleOverlayMeteosat();
+    bool toggleOverlayProjection();
+    bool toggleOverlayOLCI();
+    bool toggleOverlayGridOnOLCI();
+
     bool ShowVIIRSMImage();
     bool ShowVIIRSDNBImage();
     bool ShowOLCIefrImage(int histogrammethod, bool normalized);
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
     bool ShowSLSTRImage(int histogrammethod);
     bool ShowMERSIImage(int histogrammethod, bool normalized);
-    QSize getPictureSize() const;
+
+    void CLAHERGBRecipe(float cliplimit);
+
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
-    void recalculateCLAHE1(QVector<QString> spectrumvector, QVector<bool> inversevector);
-    void recalculateCLAHEAvhrr(QVector<QString> spectrumvector, QVector<bool> inversevector);
-    void recalculateCLAHEOLCI(QVector<QString> spectrumvector, QVector<bool> inversevector);
-    void CLAHEprojection();
+
+    void setViewInitialized(bool init) { qDebug() << "setViewInitialized = " << init; this->m_ViewInitialized = init; }
+
+    eImageType channelshown; // which button channel
+
+    QString txtInfo;
+
+private:
+
+    void displayGeoImageInfo();
+    void displayGeoImageInformation(QString satname);
+
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationary *sl, int geoindex);
+    void OverlayGeostationaryHRV1(QPainter *paint, SegmentListGeostationary *sl, int geoindex);
     void OverlayProjection(QPainter *paint);
     void OverlayOLCI(QPainter *paint);
-    void ToInfraColorProjection();
-    void FromInfraColorProjection();
 
-    bool getOverlayMeteosat() { return overlaymeteosat; }
-    bool getOverlayProjection() { return overlayprojection; }
-    bool getOverlayOLCI() { return overlayolci; }
-    bool toggleOverlayMeteosat();
-    bool toggleOverlayProjection();
-    bool toggleOverlayOLCI();
-    bool toggleOverlayGridOnOLCI();
-    void SetFormToolbox(FormToolbox *ptr) { formtoolbox = ptr; }
-    void SetDockWidgetInfraScales(FormInfraScales *ptr) { dockinfrascales = ptr; }
-    void showInfraScales() { changeinfraprojection = true; }
 
-    void displayImage(eImageType channel);
-    void test();
-    void setKindOfImage(QString koi) { kindofimage = koi; }
-    QString getKindOfImage() { return kindofimage; }
+    void displayAVHRRImageInfo();
+    void displayVIIRSImageInfo(eSegmentType type);
+    void displaySentinelImageInfo(eSegmentType type);
+    void displayMERSIImageInfo(eSegmentType type);
 
-    void setSegmentType(eSegmentType st) { segmenttype = st; }
-    eSegmentType getSegmentType() { return segmenttype; }
+    mutable QImage *m_image;
+    //QImage *m_image;
+    QPixmap m_pixmap;
+    QGraphicsPixmapItem *m_pixmapItem;
+    QGraphicsScene *m_scene;
+    int m_rotateAngle;
+    bool m_ViewInitialized;
+    QString m_fileName;
+    FormImage *formimage;
+    FormToolbox *formtoolbox;
 
-    void setZoomValue(int z);
-    int getZoomValue();
-    void makeZoom(double f);
-    inline void zoomIn(){makeZoom(getZoomValue() + zoomIncrement);}
-    inline void zoomOut(){makeZoom(getZoomValue() - zoomIncrement);}
-    inline void normalSize(){makeZoom(100);}
+    QString kindofimage;
+    eSegmentType segmenttype;
+    SatelliteList *sats;
+    AVHRRSatellite *segs;
 
-    void adjustImage();
-    void adjustPicSize(bool setwidth);
-    bool ShowHistogramImageOLCI(int histogrammethod, bool normalized);
-    bool ShowHistogramImageSLSTR(int histogrammethod);
+    bool overlaymeteosat;
+    bool overlayprojection;
+    bool overlayolci;
 
-    void UpdateProjection();
-    bool SaveAsPNG48bits(bool mapto65535);
-    void setupGeoOverlay(int geoindex);
-    void CLAHERGBRecipe(float cliplimit);
 
     int metopcount;
     int noaacount;
@@ -98,126 +131,34 @@ public:
     int slstrcount;
     int mersicount;
 
-    QVector<QVector2D> geooverlay;
+    QVector<QVector2D> geooverlay[3];
 
 
-    eImageType channelshown; // which button channel
-    QString txtInfo;
-    bool refreshoverlay;
-    ImageLabel *imageLabel;
 
-    ~FormImage();
-
-private:
-
-    void displayAVHRRImageInfo();
-    void displayVIIRSImageInfo(eSegmentType type);
-    void displaySentinelImageInfo(eSegmentType type);
-    void displayGeoImageInfo();
-    void displayGeoImageInformation(QString satname);
-    void displayMERSIImageInfo(eSegmentType type);
-    void EnhanceDarkSpace(int geoindex);
-    void calchimawari(QRgb rgb, int &minred, int &maxred, int &mingreen, int &maxgreen, int &minblue, int &maxblue);
-    QRgb ContrastStretch(QRgb val);
-    void SetupContrastStretch(quint16 x1r, quint16 y1r, quint16 x2r, quint16 y2r, quint16 x1g, quint16 y1g, quint16 x2g, quint16 y2g, quint16 x1b, quint16 y1b, quint16 x2b, quint16 y2b);
-
-    SatelliteList *sats;
-    AVHRRSatellite *segs;
-    FormToolbox *formtoolbox;
-    FormInfraScales *dockinfrascales;
-
-    //double metop_gamma_ch[5], noaa_gamma_ch[5], gac_gamma_ch[5], hrp_gamma_ch[5];
-    //double metop_gammaEqual_ch[5], noaa_gammaEqual_ch[5], gac_gammaEqual_ch[5], hrp_gammaEqual_ch[5];
-    bool metop_inverse_ch[5], noaa_inverse_ch[5], gac_inverse_ch[5], hrp_inverse_ch[5];
-    //bool metop_inverseEqual_ch[5], noaa_inverseEqual_ch[5], gac_inverseEqual_ch[5], hrp_inverseEqual_ch[5];
-
-    //AspectRatioPixmapLabel *imageLabel;
-
-    QVBoxLayout *mainLayout;
-
-    double scaleFactor;
-
-    bool overlaymeteosat;
-    bool overlayprojection;
-    bool overlayolci;
-    bool changeinfraprojection;
-
-    QString kindofimage;
-    eSegmentType segmenttype;
-
-    int zoomValueavhrr;
-    int zoomValuemeteosat;
-    int zoomValueprojection;
-    int zoomValueviirs;
-    int zoomValueolci;
-    int zoomValueslstr;
-    int zoomValuemersi;
-    int zoomIncrement;
-    int maxZoomValue;
-    int minZoomValue;
-
-    void fillptrimage(quint16 *pix);
-    void fillptrimageHRV(quint16 *pixHRV);
-    void formwheelZoom(int d);
-
-    int currentgeooverlay;
-    double A1red, B1red;
-    double A1green, B1green;
-    double A1blue, B1blue;
-    QPoint mousepoint;
-
-signals:
-    void moveImage(QPoint, QPoint);
-    void picSizeChanged();
-    void pixmapChanged();
-    void wheelZoom(int);
-    void render3dgeo(int geoindex);
-    void allsegmentsreceivedbuttons(bool);
-    void setmapcylbuttons(bool stat);
+#ifndef QT_NO_PRINTER
+    QPrinter printer;
+#endif
 
 public slots:
     void slotMakeImage();
-
-    void setPixmapToLabel(bool settoolboxbuttons);
-    void setPixmapToLabelDNB(bool settoolboxbuttons);
+    void slotcomposefinished(QString kindofimage, int index);
+    void setPixmapToScene(bool settoolboxbuttons);
     void slotUpdateGeosat();
-    void slotcomposefinished(QString kindofimage);
-    void slotRefreshOverlay();
-    void slotRepaintProjectionImage();
+
+
 
 protected:
-    void paintEvent(QPaintEvent *);
-    void wheelEvent(QWheelEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-
-};
-
-class ImageLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    explicit ImageLabel(QWidget *parent=0, AVHRRSatellite *seglist=0);
-    void setFormImagePtr(FormImage *ptr) { formimage = ptr; }
-    void resize(const QSize&);
-    QPoint getMousePosition() { return mousepos; }
-    QSize getPixmapSize() { return scaledpixmapsize; }
-
-public slots:
-    void setPixmap ( const QPixmap & );
-protected:
-    void mouseMoveEvent(QMouseEvent *);
-private:
-    QSize originalpixmapsize;
-    QSize scaledpixmapsize;
-    FormImage *formimage;
-    AVHRRSatellite *segs;
-    QPoint mousepos;
+    virtual void wheelEvent(QWheelEvent * event);
+    virtual void resizeEvent(QResizeEvent * event);
+    virtual void drawForeground(QPainter *painter, const QRectF &rect);
 
 signals:
-    void coordinateChanged(QString str);
+    void render3dgeo(int geoindex);
+    void allsegmentsreceivedbuttons(bool);
+    void setmapcylbuttons(bool stat);
+    void signalMainWindowTitleChanged(QString);
 
 };
+
 
 #endif // FORMIMAGE_H

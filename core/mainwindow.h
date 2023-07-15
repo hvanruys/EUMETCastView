@@ -21,7 +21,7 @@
 #include "mapcyl.h"
 #include "globe.h"
 #include "formimage.h"
-#include "imagescrollarea.h"
+//#include "imagescrollarea.h"
 #include "segmentimage.h"
 #include "segmentlistgeostationary.h"
 
@@ -31,7 +31,6 @@
 namespace Ui {
 class MainWindow;
 }
-class InfraScales;
 
 class MainWindow : public QMainWindow
 {
@@ -43,6 +42,7 @@ public:
     SatelliteList *satlist;
     AVHRRSatellite *seglist;
     //void LoadXMLfromDatahub();
+    void setMainWindowTitle(QString title) { setWindowTitle(title); };
 
     ~MainWindow();
     
@@ -57,7 +57,7 @@ private:
     FormEphem *formephem;
     FormMapCyl *formglobecyl;
     FormImage *formimage;
-    ImageScrollArea *imagescrollarea;
+//    ImageScrollArea *imagescrollarea;
     QDockWidget *dockwidget;
     FormToolbox *formtoolbox;
     FormGeostationary *formgeostationary;
@@ -66,8 +66,6 @@ private:
     CylEquiDist *cylequidist;
     MapFieldCyl *mapcyl;
     Globe *globe;
-
-    FormInfraScales *forminfrascales;
 
     QTimer *timer;
     QLabel *timeLabel;
@@ -95,10 +93,9 @@ private slots:
     void on_actionMeteosat_triggered();
     void on_actionNormalSize_triggered();
     void on_actionFitWindow_triggered();
-    void on_actionFitWindowWidth_triggered();
     void on_actionZoomin_triggered();
     void on_actionZoomout_triggered();
-    void moveImage(QPoint, QPoint);
+    //void moveImage(QPoint, QPoint);
     void slotSwitchStackedWindow(int);
     void slotPreferencesFinished(int result);
 
@@ -107,6 +104,7 @@ private slots:
 //    void OLCIfileDownloaded(QString instrumentshortname);
 //    void SLSTRfileDownloaded(QString instrumentshortname);
 //    void XMLfileDownloaded();
+    void slotMainWindowTitleChanged(QString title) { setWindowTitle(title); }
 
 
 public slots:

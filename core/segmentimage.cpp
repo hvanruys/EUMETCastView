@@ -17,7 +17,7 @@ SegmentImage::SegmentImage()
 
     ptrimagecomp_col = new QImage();
     ptrexpand_col = new QImage();
-    ptrimageGeostationary = new QImage(3712, 3712, QImage::Format_ARGB32);
+    ptrimageGeostationary = new QImage(); //3712, 3712, QImage::Format_ARGB32);
     ptrimageGeostationary->fill(Qt::black);
     ptrimageProjection = new QImage();
     ptrimageProjectionCopy = new QImage();
@@ -41,6 +41,14 @@ SegmentImage::SegmentImage()
         ptrRed[i] = NULL;
         ptrGreen[i] = NULL;
         ptrBlue[i] = NULL;
+    }
+
+    for( int i = 0; i < 3; i++)
+    {
+        for( int j = 0; j < 40; j++)
+        {
+            ptrMTG[i][j] = NULL;
+        }
     }
 
     for( int i = 0; i < 24; i++)
@@ -75,6 +83,7 @@ SegmentImage::SegmentImage()
 //            << "Night Microphysics RGB";
 
 //}
+
 void SegmentImage::SetupRGBrecipes()
 {
  //0 "Airmass RGB"

@@ -58,21 +58,26 @@ int snu_line_column_to_lat_lon(unsigned int line, unsigned int column, float *la
      cos_y2 = cos_y * cos_y;
      sin_y2 = sin_y * sin_y;
 
+//     s_d  = pow(42164. * cos_x * cos_y, 2) -
+//           (cos_y2 + 1.006803 * sin_y2) * 1737121856.;
+
      s_d  = pow(42164. * cos_x * cos_y, 2) -
-           (cos_y2 + 1.006803 * sin_y2) * 1737121856.;
+           (cos_y2 + 1.006739501 * sin_y2) * 1737122264.;
 
      if (s_d < 0.)
           return -1;
 
      s_d  = sqrt(s_d);
 
-     s_n  = (42164. * cos_x * cos_y - s_d) / (cos_y2 + 1.006803 * sin_y2);
+//     s_n  = (42164. * cos_x * cos_y - s_d) / (cos_y2 + 1.006803 * sin_y2);
+     s_n  = (42164. * cos_x * cos_y - s_d) / (cos_y2 + 1.006739501 * sin_y2);
      s_1  =  42164. - s_n * cos_x * cos_y;
      s_2  =  s_n * sin_x * cos_y;
      s_3  = -s_n * sin_y;
      s_xy = sqrt(s_1 * s_1 + s_2 * s_2);
 
-     *lat = atan(1.006803 * s_3 / s_xy);
+//     *lat = atan(1.006803 * s_3 / s_xy);
+     *lat = atan(1.006739501 * s_3 / s_xy);
      *lon = atan(s_2 / s_1) + lon0*D2R;
 
      *lat *= R2D;

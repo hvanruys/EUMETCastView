@@ -42,15 +42,10 @@ MainWindow::MainWindow(QWidget *parent) :
     globe = new Globe(this, satlist, seglist);
 
     formimage = new FormImage(this, satlist, seglist);
-    imagescrollarea = new  ImageScrollArea();
-    imagescrollarea->setBackgroundRole(QPalette::Dark);
-    imagescrollarea->setWidget(formimage);
-
     formgeostationary->SetFormImage(formimage);
-    connect(formimage, SIGNAL(moveImage(QPoint,QPoint)), this, SLOT(moveImage(QPoint,QPoint)));
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
-        connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString)), formimage, SLOT(slotcomposefinished(QString)));
+        connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString, int)), formimage, SLOT(slotcomposefinished(QString, int)));
 
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
     imageptrs->lcc = new LambertConformalConic(this, seglist);
@@ -62,8 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    forminfrascales = new FormInfraScales();
-    formtoolbox = new FormToolbox(this, formimage, formgeostationary, forminfrascales, seglist);
+    formtoolbox = new FormToolbox(this, formimage, formgeostationary, seglist);
 
     formimage->SetFormToolbox(formtoolbox);
     formgeostationary->SetFormToolBox(formtoolbox);
@@ -99,16 +93,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     createDockWidget();
 
-    forminfrascales->setFormImage(formimage);
-
-    addDockWidget(Qt::BottomDockWidgetArea, forminfrascales);
-    forminfrascales->hide();
-
-    formimage->SetDockWidgetInfraScales(forminfrascales);
 
     ui->stackedWidget->addWidget(formglobecyl);  // index 2
 
-    ui->stackedWidget->addWidget(imagescrollarea);  // index 3
+    ui->stackedWidget->addWidget(formimage); //imagescrollarea);  // index 3
 
     formmovie = new FormMovie(this);
     formmovie->SetFormToolbox(formtoolbox);
@@ -118,44 +106,44 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->stackedWidget->setCurrentIndex(0);
 
-    connect(seglist->seglmetop, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglnoaa, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglhrp, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglgac, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglmetop, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglnoaa, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglhrp, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglgac, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
-    connect(seglist->seglmetopAhrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglmetopBhrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglnoaa19hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglM01hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglM02hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglmetopAhrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglmetopBhrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglnoaa19hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglM01hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglM02hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
-    connect(seglist->seglviirsm, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglviirsmnoaa20, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglviirsdnbnoaa20, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglslstr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglmersi, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsm, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsmnoaa20, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsdnbnoaa20, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglslstr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglmersi, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
-    connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglhrp, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglgac, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglhrp, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglgac, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
-    connect(seglist->seglmetopAhrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglmetopBhrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglnoaa19hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglM01hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglM02hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglmetopAhrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglmetopBhrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglnoaa19hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglM01hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglM02hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
-    connect(seglist->seglviirsm, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglviirsdnb, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglviirsmnoaa20, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglviirsdnbnoaa20, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
-    connect(seglist->seglmersi, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToLabel(bool)));
+    connect(seglist->seglviirsm, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsdnb, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsmnoaa20, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsdnbnoaa20, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglmersi, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
     connect(seglist, SIGNAL(signalXMLProgress(QString, int, bool)), formglobecyl, SLOT(slotShowXMLProgress(QString, int, bool)));
 
@@ -177,7 +165,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formimage, SIGNAL(render3dgeo(int)), globe, SLOT(Render3DGeo(int)));
     connect( formimage, SIGNAL(allsegmentsreceivedbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
     connect( formimage, SIGNAL(setmapcylbuttons(bool)), formglobecyl, SLOT(slotSetMapCylButtons(bool)));
-    connect( formimage->imageLabel, SIGNAL(coordinateChanged(QString)), this, SLOT(updateStatusBarCoordinate(QString)));
+    //connect( formimage, SIGNAL(coordinateChanged(QString)), this, SLOT(updateStatusBarCoordinate(QString)));
 
     connect( globe, SIGNAL(renderingglobefinished(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 
@@ -191,6 +179,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formgeostationary, SIGNAL(enabletoolboxbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 
     connect( imageptrs->om, SIGNAL(aspectratioChanged(QPoint)), formtoolbox, SLOT(slotChangeAspectRatio(QPoint)));
+
+    connect( formimage, SIGNAL(signalMainWindowTitleChanged(QString)), this, SLOT(slotMainWindowTitleChanged(QString)));
 
     formtoolbox->setChannelIndex();
 
@@ -208,6 +198,16 @@ MainWindow::MainWindow(QWidget *parent) :
     h5_status = H5get_libversion(&majnum, &minnum, &relnum);
 
     qDebug() << QString("HDF5 library %1.%2.%3").arg(majnum).arg(minnum).arg(relnum);
+
+    char envvar[] = "HDF5_PLUGIN_PATH";
+
+    // Make sure envar actually exists
+    if(!getenv(envvar)){
+        fprintf(stderr, "The environment variable %s was not found.\n", envvar);
+        fprintf(stderr, "setting environment variable.\n");
+        setenv(envvar, ".", 1);
+    }
+
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
@@ -284,8 +284,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     opts.toolboxwidth = formtoolbox->width();
 
     qDebug() << "Width of toolbox = " << formtoolbox->width();
-
-    //forminfrascales->close();
 
     delete timer;
     delete formtoolbox;
@@ -381,7 +379,7 @@ void MainWindow::on_actionPreferences_triggered()
     DialogPreferences *pref=new DialogPreferences(this);
     pref->setAttribute(Qt::WA_DeleteOnClose);
     pref->show();
-    connect(pref,SIGNAL(finished(int)), formimage, SLOT(slotRefreshOverlay()));
+    //connect(pref,SIGNAL(finished(int)), formimage, SLOT(slotRefreshOverlay()));
     connect(pref,SIGNAL(finished(int)), this, SLOT(slotPreferencesFinished(int)));
 }
 
@@ -419,7 +417,7 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionNormalSize_triggered()
 {
-       formimage->normalSize();
+    formimage->originalSize();
 }
 
 void MainWindow::on_actionZoomin_triggered()
@@ -439,15 +437,10 @@ void MainWindow::on_actionWhatsthis_triggered()
 
 void MainWindow::on_actionFitWindow_triggered()
 {
-    formimage->adjustPicSize(false);
+    formimage->fitWindow();
     qDebug() << QString("mainwindow x = %1 y = %2").arg(this->width()).arg(this->height());
     qDebug() << QString("formtoolbox x = %1 y = %2").arg(formtoolbox->width()).arg(formtoolbox->height());
     qDebug() << QString("=======> totaal x = %1 y = %2").arg(this->width() - formtoolbox->width()).arg(this->height());
-}
-
-void MainWindow::on_actionFitWindowWidth_triggered()
-{
-    formimage->adjustPicSize(true);
 }
 
 void MainWindow::setupStatusBar()
@@ -515,29 +508,29 @@ void MainWindow::on_actionImage_triggered()
 
     if(index == -1 || index == TAB_AVHRR)
     {
-        formimage->displayImage(IMAGE_AVHRR_COL);
+        formimage->displayImage(IMAGE_AVHRR_COL, true);
     }
     else if(index == TAB_VIIRS)
     {
         if(indexviirs == 0)
-            formimage->displayImage(IMAGE_VIIRSM); //VIIRSM image
+            formimage->displayImage(IMAGE_VIIRSM, true); //VIIRSM image
         else
-            formimage->displayImage(IMAGE_VIIRSDNB); //VIIRSDNB image
+            formimage->displayImage(IMAGE_VIIRSDNB, true); //VIIRSDNB image
     }
     else if(index == TAB_SENTINEL)
     {
         if(indexsentinel == 0)
-            formimage->displayImage(IMAGE_OLCI); //OLCI image
+            formimage->displayImage(IMAGE_OLCI, true); //OLCI image
         else
-            formimage->displayImage(IMAGE_SLSTR); //SLSTR image
+            formimage->displayImage(IMAGE_SLSTR, true); //SLSTR image
     }
     else if(index == TAB_MERSI)
     {
-        formimage->displayImage(IMAGE_MERSI); //MERSI image
+        formimage->displayImage(IMAGE_MERSI, true); //MERSI image
     }
     else if(index == TAB_GEOSTATIONARY)
     {
-        formimage->displayImage(IMAGE_GEOSTATIONARY); //Geostationary image
+        formimage->displayImage(IMAGE_GEOSTATIONARY, true); //Geostationary image
     }
     else if(index == TAB_PROJECTION)
     {
@@ -547,7 +540,7 @@ void MainWindow::on_actionImage_triggered()
             formtoolbox->getOMimagesize(&w, &h);
             imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, formtoolbox->getCurrentProjectionType(), w, h);
         }
-        formimage->UpdateProjection();
+//        formimage->UpdateProjection();
 
        // formimage->displayImage(IMAGE_PROJECTION); //Projection image
     }
@@ -581,14 +574,14 @@ void MainWindow::on_actionShowToolbox_triggered()
 
 void MainWindow::on_actionCreatePNG_triggered()
 {
-    QString filestr;
+    QString filestr = "";
 
     filestr.append("./");
 
 
     if (formimage->channelshown == IMAGE_GEOSTATIONARY)
     {
-        filestr += formtoolbox->returnFilenamestring();
+        filestr += formtoolbox->returnImageFilenamestring();
     }
 
 
@@ -603,66 +596,65 @@ void MainWindow::on_actionCreatePNG_triggered()
         if(fileName.mid(fileName.length()-4) != ".jpg" && fileName.mid(fileName.length()-4) != ".jpg" &&
                 fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
             fileName.append(".jpg");
-        //pm = formimage->returnimageLabelptr()->pixmap();
-        QPixmap pixmapVal = formimage->returnimageLabelptr()->pixmap(Qt::ReturnByValue);
 
-        if(!forminfrascales->isHidden())
-        {
-            QImage imresult(pixmapVal.width(), pixmapVal.height() + 80, QImage::Format_RGB32);
+//        QPixmap *pixmapVal = formimage->getPixmap();
+//        pixmapVal->save(fileName);
 
-            QImage im = pixmapVal.toImage();
-            QPainter painter(&imresult);
+//        QImage im(3712, 3712, QImage::Format_ARGB32);
+//        QPainter painter(&im);
+//        painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
-            QImage scales = forminfrascales->getScalesImage(im.width());
-            //QImage scales(im.width(), 80, im.format());
-            //scales.fill(Qt::blue);
 
-            painter.drawImage(0, 0, im);
-            painter.drawImage(0, imresult.height()-80, scales);
+//        painter.begin(&im);
+//        formimage->getScene()->render(&painter, im.rect() ); //, rectbuffer());
+//        formimage->drawOverlays(&painter);
+//        painter.end();
 
-            painter.end();
-            imresult.save(fileName);
-        }
-        else
-        {
-            pixmapVal.save(fileName);
-        }
+//        im.save(fileName);
+
+//        QGraphicsView* view = new QGraphicsView(formimage->getScene(),this);
+//        QString fileName = "file_name.png";
+//        QPixmap pixMap = view->grab(view->sceneRect().toRect());
+//        pixMap.save(fileName);
+        //Uses QWidget::grab function to create a pixmap and paints the QGraphicsView inside it.
+
+        formimage->savePNGImage(fileName);
         QApplication::restoreOverrideCursor();
 
     }
 }
 
-void MainWindow::moveImage(QPoint d, QPoint e)
-{
-    int width = imagescrollarea->width();
-    int height = imagescrollarea->height();
+//void MainWindow::moveImage(QPoint d, QPoint e)
+//{
+//    int width = imagescrollarea->width();
+//    int height = imagescrollarea->height();
 
-    QPoint mousePos = d;
+//    QPoint mousePos = d;
 
-    int deltaX = e.x() - mousePos.x();
-    int deltaY = e.y() - mousePos.y();
+//    int deltaX = e.x() - mousePos.x();
+//    int deltaY = e.y() - mousePos.y();
 
 
-    if (mousePos.y() <= 4 && imagescrollarea->verticalScrollBar()->value() < imagescrollarea->verticalScrollBar()->maximum() - 10) {
-            // wrap mouse from top to bottom
-            mousePos.setY(height - 5);
-    } else if (mousePos.y() >= height - 4 && imagescrollarea->verticalScrollBar()->value() > 10) {
-            // wrap mouse from bottom to top
-            mousePos.setY(5);
-    }
+//    if (mousePos.y() <= 4 && imagescrollarea->verticalScrollBar()->value() < imagescrollarea->verticalScrollBar()->maximum() - 10) {
+//            // wrap mouse from top to bottom
+//            mousePos.setY(height - 5);
+//    } else if (mousePos.y() >= height - 4 && imagescrollarea->verticalScrollBar()->value() > 10) {
+//            // wrap mouse from bottom to top
+//            mousePos.setY(5);
+//    }
 
-    if (mousePos.x() <= 4 && imagescrollarea->horizontalScrollBar()->value() < imagescrollarea->horizontalScrollBar()->maximum() - 10) {
-            // wrap mouse from left to right
-            mousePos.setX(width - 5);
-    } else if (mousePos.x() >= width - 4 && imagescrollarea->horizontalScrollBar()->value() > 10) {
-            // wrap mouse from right to left
-            mousePos.setX(5);
-    }
+//    if (mousePos.x() <= 4 && imagescrollarea->horizontalScrollBar()->value() < imagescrollarea->horizontalScrollBar()->maximum() - 10) {
+//            // wrap mouse from left to right
+//            mousePos.setX(width - 5);
+//    } else if (mousePos.x() >= width - 4 && imagescrollarea->horizontalScrollBar()->value() > 10) {
+//            // wrap mouse from right to left
+//            mousePos.setX(5);
+//    }
 
-    imagescrollarea->horizontalScrollBar()->setValue(imagescrollarea->horizontalScrollBar()->value() + deltaX);
-    imagescrollarea->verticalScrollBar()->setValue(imagescrollarea->verticalScrollBar()->value() + deltaY);
+//    imagescrollarea->horizontalScrollBar()->setValue(imagescrollarea->horizontalScrollBar()->value() + deltaX);
+//    imagescrollarea->verticalScrollBar()->setValue(imagescrollarea->verticalScrollBar()->value() + deltaY);
 
-}
+//}
 
 void MainWindow::updateWindowTitle()
 {
@@ -670,7 +662,7 @@ void MainWindow::updateWindowTitle()
         //windowTitleFormat.replace("imageName", fileUtils->getFileName());
         //windowTitleFormat.replace("pos", QString("%1").arg(fileUtils->getCurrentPosition()+1));
         //windowTitleFormat.replace("amount", QString("%1").arg(fileUtils->getFilesAmount()));
-        windowTitleFormat.replace("zoomLevel", QString("%1%").arg(formimage->getZoomValue()));
+//        windowTitleFormat.replace("zoomLevel", QString("%1%").arg(formimage->getZoomValue()));
         this->setWindowTitle(windowTitleFormat);
 }
 

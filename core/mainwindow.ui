@@ -53,7 +53,6 @@
    <addaction name="actionZoomin"/>
    <addaction name="actionNormalSize"/>
    <addaction name="actionFitWindow"/>
-   <addaction name="actionFitWindowWidth"/>
    <addaction name="separator"/>
    <addaction name="actionWhatsthis"/>
    <addaction name="separator"/>
@@ -250,18 +249,6 @@
    </property>
    <property name="toolTip">
     <string>Zoom out</string>
-   </property>
-  </action>
-  <action name="actionFitWindowWidth">
-   <property name="icon">
-    <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/zoom-fit-best-width.png</normaloff>:/icons/zoom-fit-best-width.png</iconset>
-   </property>
-   <property name="text">
-    <string>Fit Window Width</string>
-   </property>
-   <property name="toolTip">
-    <string>Fit Window Width</string>
    </property>
   </action>
   <action name="actionWhatsthis">

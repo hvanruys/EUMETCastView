@@ -38,12 +38,13 @@ public:
     //bool ComposeImageHDFSerial(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
     bool ComposeImageHDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector);
     bool ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
+    bool ComposeImagenetCDFMTGInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
 
     void displayMinMax();
     void CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
     void CalculateMinMax(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue);
     void CalculateMinMaxHimawari(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max);
-    void normalizeMinMaxGOES16(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, int &fillvalue, int maxvalue);
+    void normalizeMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max, int &fillvalue, int maxvalue);
 
     QString getKindofImage() { return kindofimage; }
     QString getImagePath() { return imagepath; }
@@ -58,6 +59,8 @@ public:
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImagenetCDFInThread();
+    void ComposeSegmentImagenetCDFMTGInThread();
+    void ComposeSegmentImagenetCDFMTGInThreadConcurrent();
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2);
     quint16 ContrastStretch(quint16 val);
     void InsertPresent( QVector<QString> spectrumvector, QString filespectrum, int filesequence);
@@ -71,6 +74,14 @@ public:
     void setGeoSatellite(int geoindex, QString strgeo);
     void CalculateLUTGeo(int colorindex);
     void CalculateLUTGeo(int colorindex, quint16 *ptr, quint16 fillvalue);
+    void CalculateLUTGeoMTG(int colorindex);
+    void CalculateLUTGeoMTG256(int colorindex);
+
+    void CalculateMinMaxMTG(int colorindex, int index);
+    void CalculateLUTGeoMTGConcurrent(int colorindex, int index);
+    void CalculateImageMTGConcurrent(int index);
+
+
 
     void ComposeGeoRGBRecipe(int recipe, QString tex);
     void ComposeGeoRGBRecipeInThread(int recipe);
@@ -78,6 +89,7 @@ public:
     static void doComposeGeostationaryXRITHimawari(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector);
     static void doComposeGeostationaryHDFInThread(SegmentListGeostationary *sm, QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector);
     static void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm);
+    static void doComposeGeostationarynetCDFMTGInThread(SegmentListGeostationary *sm);
     static void doComposeGeoRGBRecipe(SegmentListGeostationary *sm, int recipe);
     void CalculateGeoRadiances(bandstorage &bs);
     void setThreadParameters(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
@@ -122,6 +134,7 @@ private:
 
     void ComposeHRV();
     void ComposeVISIR();
+    void ComposeVISIR_Alt();
     void ComposeVISIRHimawari();
     void getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
     void Printbands();
@@ -129,6 +142,14 @@ private:
     void PrintResults(float *ptr, QString title);
     void GetRadBT(int unit, int channel, bandstorage &bs, float *container);
     QString getSeviribandfromChannel(int channel);
+
+    void CalcImage();
+    static int concurrentMinMax(SegmentListGeostationary *sm, const int &index);
+    static int concurrentLUTGeoMTG(SegmentListGeostationary *sm, const int &index);
+    static int concurrentImageMTG(SegmentListGeostationary *sm, const int &index);
+
+    void CalculateLonLat();
+    QImage *CalculateBitMap();
 
     quint16 stat_min[3];
     quint16 stat_max[3];
@@ -158,19 +179,31 @@ private:
     float *lat;
     float *lon;
 
+    double lon0;
+
     float *sza;		/* image of solar zenith angle (degrees: 0.0 -- 180.0) */
     float *saa;		/* image of solar azimuth angle  (degrees: 0.0 -- 360.0) */
     float *vza;		/* image of viewing zenith angle (degrees: 0.0 -- 180.0) */
     float *vaa;		/* image of viewing azimuth angle  (degrees: 0.0 -- 360.0) */
     QString tex;
     int satid;
+//    quint16 total_number_of_rows[3];
+//    quint16 total_number_of_columns[3];
+
+//    quint16 start_position_row[3][40];
+//    quint16 end_position_row[3][40];
+//    quint16 start_position_column[3][40];
+//    quint16 end_position_column[3][40];
+
+
+
 
 
 
 signals:
 
     void progressCounter(int val);
-    void signalcomposefinished(QString kindofimage);
+    void signalcomposefinished(QString kindofimage, int index);
     
 public slots:
 

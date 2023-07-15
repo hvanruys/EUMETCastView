@@ -652,6 +652,8 @@ bool SegmentList::ComposeAVHRRImage()
 
 bool SegmentList::ComposeAVHRRImageInThread()
 {
+    qDebug() << "SegmentList::ComposeAVHRRImageInThread()";
+
     QApplication::setOverrideCursor( Qt::WaitCursor );  //restore in finished()
 
     emit progressCounter(0);
@@ -941,6 +943,8 @@ void SegmentList::ComposeGVProjection(int inputchannel)
 {
 
     qDebug() << "SegmentList::ComposeGVProjection()";
+    int segsel = NbrOfSegmentsSelected();
+
     QList<Segment*>::iterator segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
@@ -948,6 +952,7 @@ void SegmentList::ComposeGVProjection(int inputchannel)
         emit segmentprojectionfinished(false);
         ++segit;
     }
+    emit progressCounter(100);
 
 }
 
@@ -962,6 +967,7 @@ void SegmentList::ComposeLCCProjection(int inputchannel)
         emit segmentprojectionfinished(false);
         ++segit;
     }
+    emit progressCounter(100);
 
 }
 
@@ -975,6 +981,7 @@ void SegmentList::ComposeSGProjection(int inputchannel)
         emit segmentprojectionfinished(false);
         ++segit;
     }
+    emit progressCounter(100);
 
 }
 
@@ -988,6 +995,7 @@ void SegmentList::ComposeOMProjection(int inputchannel)
         emit segmentprojectionfinished(false);
         ++segit;
     }
+    emit progressCounter(100);
 
 }
 

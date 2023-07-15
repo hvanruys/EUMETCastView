@@ -10,6 +10,7 @@
 #include "internal.h"
 #include "nav_util.h"
 #include "qsgp4date.h"
+#include <cmath>
 
 #define REDCHANNEL 0
 #define GREENCHANNEL 1
@@ -67,7 +68,6 @@ FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AV
                 treeWidget->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
             }
 
-
             connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(ontreeWidgetitemClicked(QTreeWidgetItem *, int)));
             QVBoxLayout *mylayout = new QVBoxLayout;
             mylayout->addWidget(treeWidget);
@@ -77,13 +77,37 @@ FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AV
         {
             QWidget *mywidget = new QWidget();
             ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(i).fullname + " : " + QString("%1").arg(opts.geosatellites.at(i).longitude) + "°");
-            //QTableWidget *tableWidget  = new QTableWidget(4, 6);
+                QTreeWidget *treeWidget = new QTreeWidget;
 
+            geotreewidgetlist.append(treeWidget);
+            treeWidget->setRootIsDecorated(false);
+            treeWidget->header()->setStretchLastSection(false);
+            treeWidget->setColumnCount(41 + 2);
+            QStringList header;
+
+            for(int i = 1; i < 42; i++)
+            {
+                QString tel = QString("%1").arg(i, 3, 10);
+                header.append(tel);
+            }
+
+            treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Seq." << header );
+
+            treeWidget->header()->setMinimumSectionSize(5);
+            treeWidget->header()->resizeSections(QHeaderView::ResizeToContents);
+            treeWidget->setColumnWidth(0, 250);
+
+            connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(ontreeWidgetitemClicked(QTreeWidgetItem *, int)));
+            QVBoxLayout *mylayout = new QVBoxLayout;
+            mylayout->addWidget(treeWidget);
+            mywidget->setLayout(mylayout);
         }
     }
 
     if(opts.geosatellites.count() > 0)
+    {
         ui->tabGeostationary->setCurrentIndex(0);
+    }
 
 }
 
@@ -107,7 +131,7 @@ QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QStr
         {
             QString st = *itc;
             if(meteosatdir.match(filepattern, *itc) &&
-                    st.mid(opts.geosatellites.at(geoindex).indexspectrumhrv, opts.geosatellites.at(geoindex).spectrumhrv.length()) == opts.geosatellites.at(geoindex).spectrumhrv)
+                st.mid(opts.geosatellites.at(geoindex).indexspectrumhrv, opts.geosatellites.at(geoindex).spectrumhrv.length()) == opts.geosatellites.at(geoindex).spectrumhrv)
                 strlistout.append(*itc);
             itc++;
         }
@@ -119,7 +143,7 @@ QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QStr
             QString st = *itc;
             QString filespectrum = st.mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length());
             if(meteosatdir.match(filepattern, *itc) &&
-                    (filespectrum == spectrumvector.at(0) || filespectrum == spectrumvector.at(1) || filespectrum == spectrumvector.at(2)))
+                (filespectrum == spectrumvector.at(0) || filespectrum == spectrumvector.at(1) || filespectrum == spectrumvector.at(2)))
                 strlistout.append(*itc);
             itc++;
         }
@@ -129,6 +153,52 @@ QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QStr
     {
         qDebug() << QString("getGeostationarySegments out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
     }
+
+    return strlistout;
+}
+
+QStringList FormGeostationary::getGeostationarySegmentsMTG(int geoindex, const QString imagetype, const QString filepath, int filenbr)
+{
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
+
+    qDebug() << QString("getGeostationarySegments type = %1  Filepath = %2 filenbr = %3").arg(imagetype).arg(filepath).arg(filenbr);
+
+    QDir meteosatdir(filepath);
+    meteosatdir.setFilter(QDir::Files | QDir::NoSymLinks);
+    meteosatdir.setSorting(QDir::Name);
+
+    QStringList strlist = meteosatdir.entryList();
+    QStringList strlistout;
+
+    QStringList::Iterator itc = strlist.begin();
+
+    while( itc != strlist.end() )
+    {
+        QString st = *itc;
+        if((st.contains("BODY") && st.mid(135, 5) == "N_JLS" && st.mid(143, 4).toInt() == filenbr) ||
+            (st.contains("BODY") && st.mid(135, 3) == "N__" && st.mid(140, 4).toInt() == filenbr) ||
+            (st.contains("TRAIL") && st.mid(136, 5) == "N_JLS" && st.mid(144, 4).toInt() == filenbr) ||
+            (st.contains("TRAIL") && st.mid(136, 3) == "N__" && st.mid(141, 4).toInt() == filenbr))
+        {
+            strlistout.append(*itc);
+        }
+        itc++;
+    }
+
+//    for (int j = 0; j < strlistout.size(); ++j)
+//    {
+//        qDebug() << QString("getGeostationarySegmentsMTG out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
+//    }
 
     return strlistout;
 }
@@ -203,29 +273,111 @@ void FormGeostationary::PopulateTree()
         if(opts.geosatellites.at(i).shortname != "MTG-I1")
             PopulateTreeGeo(i);
         else if(opts.geosatellites.at(i).shortname == "MTG-I1")
-            PopulateTreeGeoMTGI1();
+            PopulateTreeGeoMTGI1(i);
     }
 
 }
 
-void FormGeostationary::PopulateTreeGeoMTGI1()
+void FormGeostationary::PopulateTreeGeoMTGI1(int geoindex)
 {
 
-    QMap<QString, QMap<int, QMap< int, QFileInfo > > > mapmtgi1;
+    int filenbr;// 1 --> 144
+    int seqnbr; // 1 --> 41
+    QStringList strlist;
+    int seqarray[41];
+    QTreeWidgetItem *newitem;
+    QColor col;
+    bool seqok;
+
+    QMap<int, QMap< int, QFileInfo > > mapmtgi1;
     mapmtgi1 = segs->segmentlistmapgeomtgi1;
 
-    QTableWidget *widget;
+    QTreeWidget *widget;
+    widget = geotreewidgetlist.at(geoindex);
+    widget->clear();
+
+    QMap<int, QMap< int, QFileInfo > >::const_iterator citfilenbr = mapmtgi1.constBegin();
+
+    while (citfilenbr != mapmtgi1.constEnd())
+    {
+        filenbr = citfilenbr.key();
+        //qDebug() << filenbr;
+
+        for(int i = 0; i < 41; i++)
+            seqarray[i] = 0;
+        seqok = true;
+
+        QMap<int, QFileInfo> mapseqnbr;
+        mapseqnbr = mapmtgi1.value(filenbr);
+        QMap< int, QFileInfo >::const_iterator citseqnbr = mapseqnbr.constBegin();
+        while (citseqnbr != mapseqnbr.constEnd())
+        {
+            seqnbr = citseqnbr.key();
+            seqarray[seqnbr-1] = 1;
+            QFileInfo fileinfo = citseqnbr.value();
+            //qDebug() << fileinfo.absoluteFilePath();
+            ++citseqnbr;
+        }
+
+        for(int i = 0; i < 41; i++)
+        {
+            if(seqarray[i] == 0)
+            {
+                seqok = false;
+                break;
+            }
+        }
+
+        strlist.clear();
+        QString strtime;
+        getTimeFromFilenbr(filenbr, &strtime);
+
+        strlist << strtime << QString("%1").arg(filenbr);
+
+        for(int i = 0; i < 41; i++)
+        {
+            strlist << QString("%1").arg(seqarray[i]);
+        }
+
+        newitem = new QTreeWidgetItem( widget, strlist, 0  );
+
+        if(seqok)
+            col.setRgb(174, 225, 184);
+        else
+            col.setRgb(225, 171, 196);
 
 
+        for(int i = 0; i < 43; i++)
+            newitem->setBackground( i, QBrush(col) );
+
+        ++citfilenbr;
+    }
+}
+
+void FormGeostationary::getTimeFromFilenbr(int filenbr, QString *strtime)
+{
+    double intpart;
+    double hrs = filenbr/6.0;
+    int hour;
+    double fractpart = modf(hrs, &intpart);
+
+    QDate mydate = segs->selectiondate;
+    QString yeardir = mydate.toString("yyyyMMdd").mid(0, 4);
+    QString monthdir = mydate.toString("yyyyMMdd").mid(4, 2);
+    QString daydir = mydate.toString("yyyyMMdd").mid(6, 2);
+
+    hour = (int)intpart;
+    double dmin = fractpart * 60.0;
+    int min = round(dmin);
+
+    *strtime = QString("%1-%2-%3 %4:%5").arg(yeardir).arg(monthdir).arg(daydir).arg(hour, 2, 10, QChar('0')).arg(min, 2, 10, QChar('0'));
 }
 
 void FormGeostationary::PopulateTreeGeo(int geoindex)
 {
 
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > map;
-    QMap<QString, QMap<int, QMap< int, QFileInfo > > > mapmtgi1;
     map = segs->segmentlistmapgeo.at(geoindex);
-    mapmtgi1 = segs->segmentlistmapgeomtgi1;
 
     QTreeWidget *widget;
     widget = geotreewidgetlist.at(geoindex);
@@ -351,7 +503,7 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
 
 
         for(int i = 0; i < 18; i++)
-            newitem->setBackgroundColor( i, col );
+            newitem->setBackground( i, QBrush(col) );
 
         ++citdate;
     }
@@ -376,6 +528,7 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
     // LUMlo=IR_016 + VIS008 + VIS006
 
     QString tex;
+    QString tex1;
 
     SegmentListGeostationary *sl;
 
@@ -387,12 +540,30 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
             sl = setActiveSegmentList(i);
             QTreeWidgetItem *it = treewidgetselected.at(0);
             tex = it->text(0);
+            tex1 = it->text(1);
             break;
         }
     }
 
     int geoindex = sl->getGeoSatelliteIndex();
-    formtoolbox->createFilenamestring(opts.geosatellites.at(geoindex).shortname, tex, spectrumvector);
+
+    if(opts.geosatellites.at(geoindex).shortname == "MTG-I1") {
+        CreateGeoImageMTG(type, spectrumvector, inversevector, histogrammethod, pseudocolor, tex + ";" + tex1, geoindex);
+    }
+    else {
+        CreateGeoImageMSG(type, spectrumvector, inversevector, histogrammethod, pseudocolor, tex, geoindex);
+    }
+
+
+}
+
+void FormGeostationary::CreateGeoImageMSG(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor, QString tex, int geoindex)
+{
+
+    SegmentListGeostationary *sl;
+    sl = setActiveSegmentList(geoindex);
+
+    formtoolbox->createImageFilenamestring(opts.geosatellites.at(geoindex).shortname, tex, spectrumvector);
     sl->ResetSegments();
     imageptrs->ResetPtrImage();
 
@@ -429,9 +600,6 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
             return;
     }
 
-    formimage->displayImage(IMAGE_GEOSTATIONARY);
-    formimage->adjustPicSize(false);
-
     qDebug() << QString("FormGeostationary::CreateGeoImage kind = %1 areatype = %2").arg(type).arg(sl->areatype);
 
     if(opts.geosatellites.at(geoindex).protocol == "HDF" )
@@ -440,6 +608,20 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
         CreateGeoImagenetCDF(sl, type, tex, spectrumvector, inversevector, histogrammethod, pseudocolor);
     else
         CreateGeoImageXRIT(sl, type, tex, spectrumvector, inversevector, histogrammethod);
+
+}
+
+void FormGeostationary::CreateGeoImageMTG(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor, QString tex, int geoindex)
+{
+    SegmentListGeostationary *sl;
+    sl = setActiveSegmentList(geoindex);
+
+    sl->setSpectrumVector(spectrumvector);
+
+    imageptrs->ResetPtrImage();
+
+    CreateGeoImagenetCDFMTG(sl, type, tex, spectrumvector, inversevector, histogrammethod, pseudocolor);
+
 
 }
 
@@ -563,6 +745,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     MSG_header epiheader;
     MSG_header proheader;
     MSG_header header;
+    float subsatpoint;
 
     if(sl->getGeoSatellite() != eGeoSatellite::H8)
     {
@@ -581,6 +764,10 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
                 try
                 {
                     da.read_file(prologuefile, proheader, prodata);
+                    //subsatpoint = proheader.image_navigation->subsatellite_longitude;
+                    //qDebug() << "------> subsatpoint = " << subsatpoint;
+                    //qDebug() << "reading prologue";
+                    //qDebug() << proheader.;
                 }
                 catch( std::runtime_error &run )
                 {
@@ -701,7 +888,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbr, opts.geosatellites.at(geoindex).lengthfilenbr).toInt()-1;
             filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length());
             filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdate, opts.geosatellites.at(geoindex).lengthdate);
-            filedate.leftJustified(12, '0');
+            filedate = filedate.leftJustified(12, '0');
 
             sl->InsertPresent( spectrumvector, filespectrum, filesequence);
 
@@ -720,7 +907,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbrhrv, opts.geosatellites.at(geoindex).lengthfilenbrhrv).toInt()-1;
             filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrumhrv, opts.geosatellites.at(geoindex).spectrumhrv.length());
             filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdatehrv, opts.geosatellites.at(geoindex).lengthdatehrv);
-            filedate.leftJustified(12, '0');
+            filedate = filedate.leftJustified(12, '0');
 
             sl->InsertPresent( spectrumvector, filespectrum, filesequence);
 
@@ -857,13 +1044,19 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
 
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
     //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
 
     //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
     //01234567890123456789012345678901234567890123456789
+
     if((whichgeo == eGeoSatellite::GOES_16) && (type == "VIS_IR" || type == "VIS_IR Color"))
         filepattern = QString("OR_ABI-L1b-RadF-M????_G16_s") + filetiming_goes + QString("*.nc");
     else if((whichgeo == eGeoSatellite::GOES_17) && (type == "VIS_IR" || type == "VIS_IR Color"))
@@ -910,6 +1103,58 @@ void FormGeostationary::setTreeWidget(QTreeWidget *widget, bool state)
     }
 }
 
+void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor)
+{
+
+    QString filetiming_mtg;
+    QStringList llVIS_IR;
+
+    eGeoSatellite whichgeo = sl->getGeoSatellite();
+    int geoindex = sl->getGeoSatelliteIndex();
+
+    formtoolbox->setProgressMaximum(100);
+
+    qDebug() << "====> tex = " << tex;
+    //"2017-08-10   19:45"
+    //              012345678901234567890
+    //====> tex =  "2017-09-20 11:00;66"
+    QDate now(tex.mid(0, 4).toInt(), tex.mid(5, 2).toInt(), tex.mid(8, 2).toInt());
+    int filenbr = tex.mid(17, 2).toInt();
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
+
+
+    if(type == "VIS_IR" || type == "VIS_IR Color")
+    {
+        llVIS_IR = this->getGeostationarySegmentsMTG(geoindex, type, sl->getImagePath(), filenbr);
+        qDebug() << QString("llVIS_IR count = %1").arg(llVIS_IR.count());
+        if(llVIS_IR.count() == 0)
+        {
+            QApplication::restoreOverrideCursor();
+            QMessageBox msgBox;
+            msgBox.setText("No segments found !");
+            msgBox.exec();
+            emit enabletoolboxbuttons(true);
+            return;
+        }
+        else
+        {
+            sl->setThreadParameters(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+            sl->ComposeImagenetCDFMTGInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+        }
+    }
+}
+
 void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item, int column )
 {
 
@@ -925,7 +1170,6 @@ void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item,
     qDebug() << opts.geosatellites.at(geoindex).shortname + " " + (*item).text(0);
 
     imageptrs->ptrimageGeostationary->fill(Qt::black);
-    formimage->setupGeoOverlay(geoindex);
 
     //012345678901234567
     //2017-07-04   08:00
@@ -947,8 +1191,9 @@ void FormGeostationary::ontreeWidgetitemClicked(QTreeWidgetItem *item, int colum
 
 void FormGeostationary::on_tabGeostationary_tabBarClicked(int index)
 {
-    //    int activeindex = this->getActiveSegmentList()->getGeoSatelliteIndex();
-    //    formimage->setupGeoOverlay(index);
+    qDebug() << "FormGeostationary::on_tabGeostationary_tabBarClicked(int index) index = " << index;
+
+    formimage->setupGeoOverlay(index);
 
     emit setbuttonlabels(index, false);
 }

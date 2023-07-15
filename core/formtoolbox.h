@@ -5,9 +5,8 @@
 #include <QDockWidget>
 #include <QFileSystemModel>
 #include "formimage.h"
-#include "formmapcyl.h"
+//#include "formmapcyl.h"
 #include "formgeostationary.h"
-#include "forminfrascales.h"
 #include "formmovie.h"
 
 namespace Ui {
@@ -16,7 +15,6 @@ namespace Ui {
 
 class FormImage;
 class FormGeostationary;
-class FormInfraScales;
 class FormMovie;
 
 class FormToolbox : public QWidget
@@ -24,7 +22,7 @@ class FormToolbox : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, FormInfraScales *p_forminfrascales = 0, AVHRRSatellite *seglist = 0);
+    explicit FormToolbox(QWidget *parent = 0, FormImage *p_formimage = 0, FormGeostationary *p_formgeostationary = 0, AVHRRSatellite *seglist = 0);
     int getTabWidgetIndex();
     int getToolboxIndex();
     int getTabWidgetVIIRSIndex();
@@ -34,6 +32,9 @@ public:
     void setGeoIndex(int geo) { this->geoindex = geo; }
     void getOMimagesize(int *width, int *height );
     void setOMimagesize(int width, int height);
+    QVector<QString> getSpectrumVector() { return spectrumvector; };
+    QVector<bool> getInverseVector() { return inversevector; };
+
 
     QList<bool> getVIIRSMBandList();
     QList<int> getVIIRSMColorList();
@@ -54,6 +55,8 @@ public:
     QList<bool> getMERSIInvertList();
     int getMERSIHistogrammethod();
 
+
+
     int getGVPMapWidth();
     int getGVPMapHeight();
     float getGVPLat();
@@ -71,8 +74,8 @@ public:
     void setTabWidgetVIIRSIndex(int index);
     void setTabWidgetSentinelIndex(int index);
     void writeInfoToTextEdit(QString info);
-    void createFilenamestring(QString sat, QString d, QVector<QString> spectrum);
-    QString returnFilenamestring() { return filenamecreated; }
+    void createImageFilenamestring(QString sat, QString d, QVector<QString> spectrum);
+    QString returnImageFilenamestring() { return filenamecreated; }
     bool comboColVIIRSOK();
     bool comboColOLCIOK();
     bool comboColSLSTROK();
@@ -88,10 +91,9 @@ public:
     void setSLSTRConfigsettings();
     void setMERSIConfigsettings();
     void setComboGeo(int geoindex);
-    void setValuePrgBar(int val);
     void setFormMovie(FormMovie *formmovie);
-
-
+    void setProgressMaximum(int max);
+    QStringList getRowchosen() { return rowchosen; }
     eProjectionType currentProjectionType;
 
 
@@ -100,7 +102,6 @@ public:
 private:
     Ui::FormToolbox *ui;
     FormImage *formimage;
-    FormInfraScales *forminfrascales;
     FormGeostationary *formgeostationary;
     FormMovie *formmovie;
     QCPColorMap *colorMap;
@@ -126,7 +127,6 @@ private:
     void setRadioButtonsSLSTRToFalse();
     void copyProjectionImage();
     bool checkSegmentDateTime();
-    void initializeScales();
     void setLogValue(int deg, double rad);
     void fitCurve();
     void setAllWhatsThis();
@@ -155,7 +155,7 @@ public slots:
     void setButtons(int geoindex, bool state);
 
     void slotDisplayDNBGraph();
-        void slotChangeAspectRatio(QPoint);
+    void slotChangeAspectRatio(QPoint);
 
 signals:
     void getgeosatchannel(QString, QVector<QString>, QVector<bool>, int, bool);
@@ -289,9 +289,9 @@ private slots:
     void on_tabWidgetVIIRS_currentChanged(int index);
     void on_tabWidgetSentinel_currentChanged(int index);
 
-    void on_btnGVPFalseColor_clicked();
-    void on_btnLCCFalseColor_clicked();
-    void on_btnSGFalseColor_clicked();
+//    void on_btnGVPFalseColor_clicked();
+//    void on_btnLCCFalseColor_clicked();
+//    void on_btnSGFalseColor_clicked();
 
     void on_rdbOLCINormalized_toggled(bool checked);
     void on_cmbHistogram_activated(int index);
@@ -341,6 +341,7 @@ private slots:
     void on_spbOMheight_valueChanged(int arg1);
     void on_spbGVPFalseNorthing_valueChanged(double arg1);
     void on_spbGVPFalseEasting_valueChanged(double arg1);
+    void on_cbProjResolutions_activated(int index);
 };
 
 

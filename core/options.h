@@ -83,8 +83,6 @@ struct GeoSatellites
     qlonglong loffhrv;
     double cfachrv;
     double lfachrv;
-
-
 };
 
 class Options 

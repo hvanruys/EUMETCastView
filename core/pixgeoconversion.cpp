@@ -492,7 +492,7 @@ int pixgeoConversion::pixcoord2geocoord(double sub_lon_deg, int column, int row,
 //      qDebug() << "column = " << column << "  sa = " << sa;
 
   /* produce error values */
-  if ( sa <= 1000000.0 ) {
+  if ( sa <= 400000.0 ) {
     *latitude = -999.999;
     *longitude = -999.999;
     return (-1);

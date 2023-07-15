@@ -109,6 +109,7 @@ public:
     QImage *ptrimageMERSI;
     eSegmentType olcitype;
 
+    QImage *ptrimagebitmap;
 
     QImage *ptrimageGeostationary;
     QImage *ptrimageProjection;
@@ -160,10 +161,32 @@ public:
     int maxRadianceIndex[5];
     int minRadianceIndexNormalized[3];
     int maxRadianceIndexNormalized[3];
+    int minRadianceIndexMTG[3][40];
+    int maxRadianceIndexMTG[3][40];
+
 
     quint16 *ptrRed[10];
     quint16 *ptrGreen[10];
     quint16 *ptrBlue[10];
+
+    quint16 *ptrMTG[3][40];
+    int mtg_start_position_row[3][40];
+    int mtg_end_position_row[3][40];
+    int mtg_start_position_column[3][40];
+    int mtg_end_position_column[3][40];
+
+    int mtg_nbr_of_rows[3][40];
+    int mtg_nbr_of_columns[3][40];
+
+    quint16 mtg_stat_min[3][40];
+    quint16 mtg_stat_max[3][40];
+    long mtg_active_pixels[3][40];
+
+    quint16 mtg_total_number_of_rows[3];
+    quint16 mtg_total_number_of_columns[3];
+
+    quint16 mtg_histogram[3][40][4096];
+
 
     quint16 *ptrHRV[24];
     qint8 *ptrDQF[3];

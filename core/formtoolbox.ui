@@ -49,7 +49,7 @@
       <enum>QTabWidget::West</enum>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>4</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideNone</enum>
@@ -1119,7 +1119,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidgetVIIRS">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabVIIRSM">
           <attribute name="title">
@@ -7431,14 +7431,14 @@
                </font>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>373</width>
+                 <width>557</width>
                  <height>592</height>
                 </rect>
                </property>
@@ -8122,16 +8122,6 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnLCCFalseColor">
-                    <property name="text">
-                     <string>False Color</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <spacer name="horizontalSpacer_45">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -8255,8 +8245,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>574</width>
-                 <height>428</height>
+                 <width>486</width>
+                 <height>336</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8583,16 +8573,6 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnGVPFalseColor">
-                    <property name="text">
-                     <string>False Color</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <widget class="QPushButton" name="btnGVPHome">
                     <property name="text">
                      <string>Home</string>
@@ -8900,16 +8880,6 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnSGFalseColor">
-                    <property name="text">
-                     <string>False Color</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <spacer name="horizontalSpacer_62">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -9068,8 +9038,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>574</width>
-                 <height>428</height>
+                 <width>467</width>
+                 <height>229</height>
                 </rect>
                </property>
                <attribute name="label">
