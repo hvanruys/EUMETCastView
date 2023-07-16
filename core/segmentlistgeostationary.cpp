@@ -2742,7 +2742,7 @@ int SegmentListGeostationary::concurrentMinMax(SegmentListGeostationary *sm, con
         sm->CalculateMinMaxMTG(j, index);
     }
 
-    qDebug() << "de nbr is " << index << " " << imageptrs->mtg_stat_min[0][index] << " " << imageptrs->mtg_stat_max[0][index];
+    //qDebug() << "de nbr is " << index << " " << imageptrs->mtg_stat_min[0][index] << " " << imageptrs->mtg_stat_max[0][index];
 
     return(index);
 

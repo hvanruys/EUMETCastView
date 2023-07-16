@@ -199,15 +199,28 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qDebug() << QString("HDF5 library %1.%2.%3").arg(majnum).arg(minnum).arg(relnum);
 
-    char envvar[] = "HDF5_PLUGIN_PATH";
+    //char envvar[] = "HDF5_PLUGIN_PATH";
+    char envvar[] = "HDF5_PLUGIN_PATH=./";
 
-    // Make sure envar actually exists
-    if(!getenv(envvar)){
-        fprintf(stderr, "The environment variable %s was not found.\n", envvar);
+    // Make sure envvar actually exists
+    if(!getenv("HDF5_PLUGIN_PATH")){
+        fprintf(stderr, "The environment variable HDF5_PLUGIN_PATH was not found.\n");
         fprintf(stderr, "setting environment variable.\n");
-        setenv(envvar, ".", 1);
+        //setenv(envvar, ".", 1);
+        putenv(envvar);
     }
 
+    char *myptr = getenv("HDF5_PLUGIN_PATH");
+    QString str = QString::fromLocal8Bit(myptr);
+
+    qDebug() << QString("getenv = %1").arg(str);
+
+    int avail = H5Zfilter_avail(32018);
+    if (avail == 0) {
+        qDebug() << "FCIDECOMP filter is not available.";
+    }
+    else
+        qDebug() << "FCIDECOMP filter is available.";
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
