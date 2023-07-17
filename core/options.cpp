@@ -341,6 +341,8 @@ void Options::Initialize()
         ffmpeg_options << "-c:v libx264" << "-pix_fmt yuv420p" << "-y OUPUTFILE";
     }
 
+    bFciDecomp = false;
+
     QFile file("GeoSatellites.ini");
     if (!file.open(QIODevice::ReadOnly))
     {

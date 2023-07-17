@@ -178,6 +178,16 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->rdbRemoveOLCIDirs->setWhatsThis(htmlstring);
     htmlstring = "When checked the created SLSTR directories will be removed";
     ui->rdbRemoveSLSTRDirs->setWhatsThis(htmlstring);
+    if (opts.bFciDecomp == true)
+    {
+        ui->lblFciDecomp->setText("The FCIDECOMP plugin was found.");
+        ui->lblFciDecomp->setStyleSheet("QLabel { color: green; }");
+    }
+    else
+    {
+        ui->lblFciDecomp->setText("The FCIDECOMP plugin was NOT found.");
+        ui->lblFciDecomp->setStyleSheet("QLabel { color: red; }");
+    }
 
 
 }
@@ -308,8 +318,8 @@ void DialogPreferences::setupGeoConfigTable()
     //hheader->setMinimumSectionSize(-1);
     //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
 
-    connect(ui->btnAddGeoConfig, SIGNAL(clicked()), this, SLOT(addGeoConfigRow()));
-    connect(ui->btnDeleteGeoConfig, SIGNAL(clicked()), this, SLOT(deleteGeoConfigRow()));
+//    connect(ui->btnAddGeoConfig, SIGNAL(clicked()), this, SLOT(addGeoConfigRow()));
+//    connect(ui->btnDeleteGeoConfig, SIGNAL(clicked()), this, SLOT(deleteGeoConfigRow()));
 
 }
 
@@ -3271,4 +3281,5 @@ void DialogPreferences::on_btnSearchProductDirectory_clicked()
     }
 
 }
+
 

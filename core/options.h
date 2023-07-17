@@ -353,6 +353,8 @@ public:
     QString videooutputname;
     QStringList ffmpeg_options;
 
+    bool bFciDecomp;
+
 
 private:
     QJsonObject getJsonDataMet_11();

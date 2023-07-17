@@ -12,20 +12,20 @@
 #include "formmapcyl.h"
 #include "formtoolbox.h"
 #include "dialogpreferences.h"
-#include "dialogsaveimage.h"
+//#include "dialogsaveimage.h"
 #include "satellite.h"
 #include "formgeostationary.h"
-#include "forminfrascales.h"
+//#include "forminfrascales.h"
 #include "formmovie.h"
 
 #include "mapcyl.h"
 #include "globe.h"
 #include "formimage.h"
 //#include "imagescrollarea.h"
-#include "segmentimage.h"
-#include "segmentlistgeostationary.h"
+//#include "segmentimage.h"
+//#include "segmentlistgeostationary.h"
 
-#include "options.h"
+//#include "options.h"
 #include "poi.h"
 
 namespace Ui {

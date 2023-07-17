@@ -218,9 +218,13 @@ MainWindow::MainWindow(QWidget *parent) :
     int avail = H5Zfilter_avail(32018);
     if (avail == 0) {
         qDebug() << "FCIDECOMP filter is not available.";
+        opts.bFciDecomp = false;
     }
     else
+    {
         qDebug() << "FCIDECOMP filter is available.";
+        opts.bFciDecomp = true;
+    }
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
