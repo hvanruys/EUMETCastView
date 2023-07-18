@@ -199,6 +199,38 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qDebug() << QString("HDF5 library %1.%2.%3").arg(majnum).arg(minnum).arg(relnum);
 
+    {
+        unsigned size, mask;
+        char     buf[255];
+        int ret_val;
+
+        // retrieve the number of entries in the plugin path list
+        if (H5PLsize(&size) < 0) {
+            ret_val = EXIT_FAILURE;
+            goto fail_read;
+        }
+        printf("Number of stored plugin paths: %d\n", size);
+
+        // check the plugin state mask
+        if (H5PLget_loading_state(&mask) < 0) {
+            ret_val = EXIT_FAILURE;
+            goto fail_read;
+        }
+        fprintf(stderr, "Filter plugins %s be loaded.\n", (mask & H5PL_FILTER_PLUGIN) == 1 ? "can" : "can't");
+        //fprintf(stderr, "VOL plugins %s be loaded.\n", (mask & H5PL_VOL_PLUGIN) == 2 ? "can" : "can't");
+
+        // print the paths in the plugin path list
+        for (unsigned i = 0; i < size; ++i) {
+            if (H5PLget(i, buf, 255) < 0) {
+                ret_val = EXIT_FAILURE;
+                break;
+            }
+            fprintf(stderr, "%s\n", buf);
+        }
+
+    fail_read:;
+    }
+
     //char envvar[] = "HDF5_PLUGIN_PATH";
     char envvar[] = "HDF5_PLUGIN_PATH=./";
 
@@ -228,6 +260,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
+
+
     //QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
     bool restored = QMainWindow::restoreDockWidget(dockwidget);
     qDebug() << "restoredockwidget = " << restored << " width of toolbox = " << formtoolbox->width();
@@ -248,6 +282,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if(!QFile::exists("weather.txt"))
         formephem->downloadTLE();
+
+    ui->toolBar->setVisible(true);
+    ui->mainToolBar->setVisible(true);
+    dockwidget->setVisible(true);
+
 
 }
 
