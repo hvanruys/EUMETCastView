@@ -202,30 +202,32 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         unsigned size, mask;
         char     buf[255];
-        int ret_val;
 
         // retrieve the number of entries in the plugin path list
         if (H5PLsize(&size) < 0) {
-            ret_val = EXIT_FAILURE;
+            qDebug() << "error retrieve the number of entries in the plugin path list";
             goto fail_read;
         }
-        printf("Number of stored plugin paths: %d\n", size);
+        else
+            qDebug() << "Number of stored plugin paths: " << size;
 
         // check the plugin state mask
         if (H5PLget_loading_state(&mask) < 0) {
-            ret_val = EXIT_FAILURE;
+            qDebug() << "error check the plugin state mask";
             goto fail_read;
         }
-        fprintf(stderr, "Filter plugins %s be loaded.\n", (mask & H5PL_FILTER_PLUGIN) == 1 ? "can" : "can't");
-        //fprintf(stderr, "VOL plugins %s be loaded.\n", (mask & H5PL_VOL_PLUGIN) == 2 ? "can" : "can't");
+        else
+        {
+            QString canit = (mask & H5PL_FILTER_PLUGIN) == 1 ? "can" : "can't";
+            qDebug() << "Filter plugins " << canit << " be loaded.";
 
-        // print the paths in the plugin path list
-        for (unsigned i = 0; i < size; ++i) {
-            if (H5PLget(i, buf, 255) < 0) {
-                ret_val = EXIT_FAILURE;
-                break;
+            // print the paths in the plugin path list
+            for (unsigned i = 0; i < size; ++i) {
+                if (H5PLget(i, buf, 255) < 0) {
+                    break;
+                }
+                qDebug() << "the plugin path list = " << buf;
             }
-            fprintf(stderr, "%s\n", buf);
         }
 
     fail_read:;
