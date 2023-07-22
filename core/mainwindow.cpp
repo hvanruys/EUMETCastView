@@ -14,7 +14,7 @@ extern Options opts;
 extern Poi poi;
 extern SegmentImage *imageptrs;
 extern QFile loggingFile;
-
+extern QTextStream outlogging;
 class SegmentListGeostationary;
 
 
@@ -258,13 +258,18 @@ MainWindow::MainWindow(QWidget *parent) :
         opts.bFciDecomp = true;
     }
 
+
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
 
+    ui->toolBar->setVisible(true);
+    ui->mainToolBar->setVisible(true);
+    //    dockwidget->setVisible(true);
 
-    //QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
-    bool restored = QMainWindow::restoreDockWidget(dockwidget);
-    qDebug() << "restoredockwidget = " << restored << " width of toolbox = " << formtoolbox->width();
+
+    QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
+    //bool restored = QMainWindow::restoreDockWidget(dockwidget);
+    //qDebug() << "restoredockwidget = " << restored << " width of toolbox = " << formtoolbox->width();
 
 
     seglist->ReadXMLfiles();
@@ -283,9 +288,6 @@ MainWindow::MainWindow(QWidget *parent) :
     if(!QFile::exists("weather.txt"))
         formephem->downloadTLE();
 
-    ui->toolBar->setVisible(true);
-    ui->mainToolBar->setVisible(true);
-    dockwidget->setVisible(true);
 
 
 }
@@ -346,7 +348,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     delete formephem;
     delete formglobecyl;
     delete cylequidist;
-    delete satlist;
     delete seglist;
     delete formmovie;
 
@@ -421,6 +422,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     for(int i = 0; i < mainwindowthreadslist.count(); i++)
         qDebug() << mainwindowthreadslist.at(i)->currentThread()->currentThreadId();
 
+
     QMainWindow::closeEvent(event);
 
 }
@@ -428,6 +430,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 MainWindow::~MainWindow()
 {
     qDebug() << "================closing MainWindow================";
+    outlogging.flush();
+    loggingFile.close();
+
 }
 
 void MainWindow::on_actionPreferences_triggered()

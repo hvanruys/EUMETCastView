@@ -525,11 +525,27 @@ SatelliteList::SatelliteList( void )
 
 SatelliteList::~SatelliteList()
 {
+  const Satellite *thesat;
+
+  for ( int i = 0; i < satlist.count(); i++)
+  {
+        thesat = &satlist.at(i);
+        delete thesat;
+  }
+  satlist.clear();
 
 }
 
 void SatelliteList::ReloadList(void)
 {
+  const Satellite *thesat;
+
+  for ( int i = 0; i < satlist.count(); i++)
+  {
+        thesat = &satlist.at(i);
+        delete thesat;
+  }
+
   satlist.clear();
   ReReadTle();
 }

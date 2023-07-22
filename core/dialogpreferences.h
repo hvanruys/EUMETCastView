@@ -119,6 +119,8 @@ private slots:
     void on_btnSearchProductDirectory_clicked();
 
 
+    void on_rdbDoLogging_toggled(bool checked);
+
 private:
     Ui::DialogPreferences *ui;
     QAbstractTableModel *myStationModel;

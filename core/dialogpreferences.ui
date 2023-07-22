@@ -167,7 +167,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>7</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -1312,6 +1312,13 @@
                 </widget>
                </item>
               </layout>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="rdbDoLogging">
+               <property name="text">
+                <string>Create logging file 'logging.txt'</string>
+               </property>
+              </widget>
              </item>
              <item>
               <spacer name="verticalSpacer_3">

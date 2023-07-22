@@ -352,8 +352,7 @@ void Options::Initialize()
         InitializeGeo();
     file.close();
 
-
-
+    doLogging = settings.value("/debugging/dologging", false).toBool();
 
 }
 
@@ -690,6 +689,8 @@ void Options::Save()
     settings.setValue("/video/gvpfalsenorthing", gvpfalsenorthing);
     settings.setValue("/video/videooutputname", videooutputname);
     settings.setValue("/video/ffmpeg_options", ffmpeg_options);
+
+    settings.setValue("/debugging/dologging", doLogging);
 
     SaveGeoIni();
 }

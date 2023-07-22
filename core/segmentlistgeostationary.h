@@ -54,6 +54,7 @@ public:
     void setKindofImage( QString ip) { kindofimage = ip; }
 
     void ComposeSegmentImageXRIT(QString filepath, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
+
     void ComposeSegmentImageXRITHimawari( QString filepath, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
 
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
@@ -136,7 +137,7 @@ private:
     void ComposeVISIR();
     void ComposeVISIR_Alt();
     void ComposeVISIRHimawari();
-    void getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
+    static void getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
     void Printbands();
     void PrintResults();
     void PrintResults(float *ptr, QString title);

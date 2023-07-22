@@ -24,10 +24,9 @@ Poi poi;
 SegmentImage *imageptrs;
 gshhsData *gshhsdata;
 QFile loggingFile;
-QTextStream out(&loggingFile);
+QTextStream outlogging(&loggingFile);
 QNetworkAccessManager networkaccessmanager;
 
-bool doLogging;
 bool ptrimagebusy;
 
 // Every now and then a masterpiece like this comes out, and the world is gifted with a few hours of hope for the human race,
@@ -36,80 +35,44 @@ bool ptrimagebusy;
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
 
-#ifdef NDEBUG
-   // release mode code
-    QString strout;
+    QString strout = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ");
     switch (type) {
     case QtDebugMsg:
-        strout = "Release Debug: " + msg + "\n";
+        strout += "Debug: " + msg + "\n";
         break;
     case QtInfoMsg:
-        strout = "Release Info: " + msg + "\n";
+        strout += "Info: " + msg + "\n";
         break;
     case QtWarningMsg:
-        strout = "Release Warning: " + msg + "\n";
+        strout += "Warning: " + msg + "\n";
         break;
     case QtCriticalMsg:
-        strout = "Release Critical: " + msg + "\n";
+        strout += "Critical: " + msg + "\n";
         break;
     case QtFatalMsg:
-        strout = "Release Fatal: " + msg + "\n";
-        abort();
-    }
-
-    if(doLogging)
-    {
-        out << strout;
-        out.flush();
-    }
-    fprintf(stderr, "%s", strout.toStdString().c_str());
-#else
-  // debug mode code
-    QString strout;
-    switch (type) {
-    case QtDebugMsg:
-        strout = "Debug Debug: " + msg + "\n";
-        break;
-    case QtInfoMsg:
-        strout = "Debug Info: " + msg + "\n";
-        break;
-    case QtWarningMsg:
-        strout = "Debug Warning: " + msg + "\n";
-        break;
-    case QtCriticalMsg:
-        strout = "Debug Critical: " + msg + "\n";
-        break;
-    case QtFatalMsg:
-        strout = "Debug Fatal: " + msg + "\n";
-        out << strout;
+        strout += "Fatal: " + msg + "\n";
+        outlogging << strout;
         fprintf(stderr, "%s", strout.toStdString().c_str());
         abort();
     }
 
-    if(doLogging)
+    if(opts.doLogging)
     {
-        out << strout;
-        out.flush();
+        outlogging << strout;
+        outlogging.flush();
     }
 
     fprintf(stderr, "%s", strout.toStdString().c_str());
-
-#endif
 
 }
 
 
 int main(int argc, char *argv[])
 {
-    qDebug() << "Start program";
-
-    doLogging = true;
     ptrimagebusy = false;
 
     QByteArray val("1");
     qputenv("HDF5_DISABLE_VERSION_CHECK", val);
-
-    qInstallMessageHandler(myMessageOutput);
 
     QCoreApplication::addLibraryPath(".");
 
@@ -127,19 +90,20 @@ int main(int argc, char *argv[])
     //setup stylesheet
     //app.setStyleSheet(styleSheet);
 
+    opts.Initialize();
+    poi.Initialize();
+
     if (QCoreApplication::arguments().contains(QStringLiteral("--logging")) ||
         QCoreApplication::arguments().contains(QStringLiteral("-l")) )
-        doLogging = true;
+        opts.doLogging = true;
 
-    if(doLogging)
+    if(opts.doLogging)
     {
         loggingFile.setFileName("logging.txt");
         if (!loggingFile.open(QIODevice::WriteOnly | QIODevice::Text))
             return 0;
+        qInstallMessageHandler(myMessageOutput);
     }
-
-    opts.Initialize();
-    poi.Initialize();
 
     imageptrs = new SegmentImage();
     gshhsdata = new gshhsData();

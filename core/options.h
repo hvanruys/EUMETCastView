@@ -99,6 +99,7 @@ public:
 
 
 /* Calendar date and time (UTC) */
+    bool doLogging;
 	struct tm utc;
 	QStringList tlelist;
 	QStringList catnbrlist;

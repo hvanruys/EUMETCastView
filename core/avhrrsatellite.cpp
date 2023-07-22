@@ -93,6 +93,43 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
 
 }
 
+AVHRRSatellite::~AVHRRSatellite()
+{
+    qDebug() << "destuctor AVHRRSatellite";
+    delete seglmetop;
+    delete seglnoaa;
+    delete seglhrp;
+    delete seglgac;
+    delete seglviirsm;
+    delete seglviirsdnb;
+    delete seglviirsmnoaa20;
+    delete seglviirsdnbnoaa20;
+    delete seglolciefr;
+    delete seglolcierr;
+    delete seglslstr;
+    delete seglmersi;
+
+    delete seglmetopAhrpt;
+    delete seglmetopBhrpt;
+    delete seglnoaa19hrpt;
+    delete seglM01hrpt;
+    delete seglM02hrpt;
+
+    delete segldatahubolciefr;
+    delete segldatahubolcierr;
+    delete segldatahubslstr;
+
+    for(int i = 0; i < opts.geosatellites.count(); i++)
+    {
+        SegmentListGeostationary *seglistgeo;
+        seglistgeo = seglgeo.at(i);
+        delete seglistgeo;
+    }
+
+    //delete satlist;
+
+}
+
 void AVHRRSatellite::emitProgressCounter(int counter)
 {
     emit progressCounter(counter);

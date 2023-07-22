@@ -90,6 +90,8 @@ extern gshhsData *gshhsdata;
 // Electro_n1
 // Height = 2784 / 6 = 464 Width = 2784
 
+static int staticgeoindex;
+
 void SegmentListGeostationary::doComposeGeostationaryXRIT(SegmentListGeostationary *sm, QString segment_path, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
     sm->ComposeSegmentImageXRIT(segment_path, channelindex, spectrumvector, inversevector);
@@ -307,25 +309,25 @@ void SegmentListGeostationary::getFilenameParameters(QFileInfo fileinfo, QString
 
     qDebug() << "SegmentListGeostationary::getFilenameParameters";
 
-    int index = opts.geosatellites.at(this->geoindex).indexspectrumhrv;
-    int length = opts.geosatellites.at(this->geoindex).spectrumhrv.length();
+    int index = opts.geosatellites.at(staticgeoindex).indexspectrumhrv;
+    int length = opts.geosatellites.at(staticgeoindex).spectrumhrv.length();
     QString spectrum = fileinfo.fileName().mid(index, length);
-    if(spectrum.length() > 0 && spectrum == opts.geosatellites.at(geoindex).spectrumhrv)
+    if(spectrum.length() > 0 && spectrum == opts.geosatellites.at(staticgeoindex).spectrumhrv)
     {
         filespectrum = spectrum;
-        filedate = fileinfo.fileName().mid(opts.geosatellites.at(this->geoindex).indexdatehrv, opts.geosatellites.at(this->geoindex).lengthdatehrv);
-        filesequence = fileinfo.fileName().mid(opts.geosatellites.at(this->geoindex).indexfilenbrhrv, opts.geosatellites.at(this->geoindex).lengthfilenbrhrv).toInt()-1;
+        filedate = fileinfo.fileName().mid(opts.geosatellites.at(staticgeoindex).indexdatehrv, opts.geosatellites.at(staticgeoindex).lengthdatehrv);
+        filesequence = fileinfo.fileName().mid(opts.geosatellites.at(staticgeoindex).indexfilenbrhrv, opts.geosatellites.at(staticgeoindex).lengthfilenbrhrv).toInt()-1;
     }
     else
     {
-        for(int i = 0; i < opts.geosatellites.at(this->geoindex).spectrumlist.count(); i++)
+        for(int i = 0; i < opts.geosatellites.at(staticgeoindex).spectrumlist.count(); i++)
         {
-            spectrum = fileinfo.fileName().mid(opts.geosatellites.at(this->geoindex).indexspectrum, opts.geosatellites.at(this->geoindex).spectrumlist.at(i).length());
-            if(spectrum.length() > 0 && spectrum == opts.geosatellites.at(geoindex).spectrumlist.at(i))
+            spectrum = fileinfo.fileName().mid(opts.geosatellites.at(staticgeoindex).indexspectrum, opts.geosatellites.at(staticgeoindex).spectrumlist.at(i).length());
+            if(spectrum.length() > 0 && spectrum == opts.geosatellites.at(staticgeoindex).spectrumlist.at(i))
             {
                 filespectrum = spectrum;
-                filedate = fileinfo.fileName().mid(opts.geosatellites.at(this->geoindex).indexdate, opts.geosatellites.at(this->geoindex).lengthdate);
-                filesequence = fileinfo.fileName().mid(opts.geosatellites.at(this->geoindex).indexfilenbr, opts.geosatellites.at(this->geoindex).lengthfilenbr).toInt()-1;
+                filedate = fileinfo.fileName().mid(opts.geosatellites.at(staticgeoindex).indexdate, opts.geosatellites.at(staticgeoindex).lengthdate);
+                filesequence = fileinfo.fileName().mid(opts.geosatellites.at(staticgeoindex).indexfilenbr, opts.geosatellites.at(staticgeoindex).lengthfilenbr).toInt()-1;
                 break;
             }
         }
@@ -349,6 +351,7 @@ bool SegmentListGeostationary::ComposeImageXRIT(QFileInfo fileinfo, QVector<QStr
     QString filespectrum = fileinfo.fileName().mid(26, 6);
     QString filedate = fileinfo.fileName().mid(46, 12);
 
+    staticgeoindex = geoindex;
     getFilenameParameters(fileinfo, filespectrum, filedate, filesequence);
 
     qDebug() << QString("SegmentListGeostationary::ComposeImageXRIT filePath = %1 filespectrum = %2").arg(fileinfo.filePath()).arg(filespectrum);
@@ -548,6 +551,16 @@ void SegmentListGeostationary::ComposeSegmentImageXRIT( QString filepath, int ch
     int filesequence;
     QString filespectrum;
     QString filedate;
+
+//    QFile filein(filepath);
+//    QFileInfo fileinfo(filein);
+//    QString basename = fileinfo.baseName();
+
+
+//    int filesequence = fileinfo.fileName().mid(25, 3).toInt()-1;
+//    QString filespectrum = fileinfo.fileName().mid(8, 3);
+//    QString filedate = fileinfo.fileName().mid(12, 11) + "0";
+
     this->getFilenameParameters(fileinfo, filespectrum, filedate, filesequence);
 
     qDebug() << QString("-------> SegmentListGeostationary::ComposeSegmentImageXRIT() filespectrum = %1 filedate = %2 filesequence = %3 filepath = %4")
@@ -6004,13 +6017,6 @@ QImage *SegmentListGeostationary::CalculateBitMap()
         //painter.setPen(QPen(QColor(1,1,1)));
         painter.setBrush(QColor(1,1,1));
         painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
-
-        QRgb *row;
-        row = (QRgb *)imageptrs->ptrimagebitmap->scanLine(200);
-        for(int x = 0; x < 3712; x++)
-        {
-            qDebug() << QString("val = %1").arg(qRed(row[x]));
-        }
 
         return(imageptrs->ptrimagebitmap);
 }

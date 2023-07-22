@@ -56,6 +56,8 @@ class AVHRRSatellite  : public QObject
 
 public:
     AVHRRSatellite(QObject *parent = 0, SatelliteList *lst = 0);
+    ~AVHRRSatellite();
+
     void ReadDirectories(QDate seldate, int hoursbefore);
     void ReadDirectoriesDatahub(QDate seldate);
 

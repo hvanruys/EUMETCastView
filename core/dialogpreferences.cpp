@@ -189,6 +189,8 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
         ui->lblFciDecomp->setStyleSheet("QLabel { color: red; }");
     }
 
+    ui->rdbDoLogging->setChecked(opts.doLogging);
+
 
 }
 
@@ -3282,4 +3284,10 @@ void DialogPreferences::on_btnSearchProductDirectory_clicked()
 
 }
 
+
+
+void DialogPreferences::on_rdbDoLogging_toggled(bool checked)
+{
+    opts.doLogging = checked;
+}
 
