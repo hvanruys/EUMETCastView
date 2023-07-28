@@ -2,10 +2,10 @@
 #include "options.h"
 
 extern Options opts;
+extern SatelliteList satellitelist;
 
-SatGL::SatGL(QOpenGLShaderProgram *prog, SatelliteList *satlist, AVHRRSatellite *seglist)
+SatGL::SatGL(QOpenGLShaderProgram *prog, AVHRRSatellite *seglist)
 {
-    sats = satlist;
     segs = seglist;
 
     tdiff = 0;
@@ -80,7 +80,7 @@ void SatGL::render(QMatrix4x4 projection, float distance, QQuaternion quat )
 
     QVector<GLfloat> positions;
 
-    QList<Satellite>::iterator sat = sats->GetSatlist()->begin();
+    QList<Satellite*>::iterator sat = satellitelist.GetSatlist()->begin();
 
     int nbrSats = 0;
     int nbrVertices;
@@ -88,12 +88,12 @@ void SatGL::render(QMatrix4x4 projection, float distance, QQuaternion quat )
     QMatrix4x4 modelocta;
     QColor col(255, 0, 0);
     float alt;
-    while ( sat != sats->GetSatlist()->end() )
+    while ( sat != satellitelist.GetSatlist()->end() )
     {
-        if( (*sat).active  == true)
+        if( (*sat)->active  == true)
         {
             QVector3D pos, posnorm;
-            (*sat).GetSatellitePosition(pos, posnorm, alt);
+            (*sat)->GetSatellitePosition(pos, posnorm, alt);
             positions.append(0.0f);
             positions.append(0.0f);
             positions.append(0.0f);
@@ -145,15 +145,15 @@ void SatGL::render(QMatrix4x4 projection, float distance, QQuaternion quat )
 
     glDrawArrays(GL_LINES, 0, nbrVertices);
 
-    sat = sats->GetSatlist()->begin();
-    while ( sat != sats->GetSatlist()->end() )
+    sat = satellitelist.GetSatlist()->begin();
+    while ( sat != satellitelist.GetSatlist()->end() )
     {
-        if( (*sat).active  == true)
+        if( (*sat)->active  == true)
         {
-            if( (*sat).GetCatalogueNbr() == sats->GetSelectedSat() )
-                RenderTrail(&(*sat), projection, distance, quat, true);
+            if( (*sat)->GetCatalogueNbr() == satellitelist.GetSelectedSat() )
+                RenderTrail((*sat), projection, distance, quat, true);
             else
-                RenderTrail(&(*sat), projection, distance, quat, false);
+                RenderTrail((*sat), projection, distance, quat, false);
         }
         ++sat;
     }

@@ -2,11 +2,10 @@
 #include "options.h"
 
 extern Options opts;
+extern SatelliteList satellitelist;
 
-SegmentGL::SegmentGL(QOpenGLShaderProgram *prog, SatelliteList *satlist, AVHRRSatellite *seglist )
+SegmentGL::SegmentGL(QOpenGLShaderProgram *prog, AVHRRSatellite *seglist )
 {
-
-    sats = satlist;
     segs = seglist;
 
     program = prog;

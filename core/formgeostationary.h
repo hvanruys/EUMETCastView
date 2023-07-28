@@ -24,7 +24,7 @@ class FormGeostationary : public QWidget
     
 public:
 
-    explicit FormGeostationary(QWidget *parent = 0, SatelliteList *satlist = 0, AVHRRSatellite *seglist = 0);
+    explicit FormGeostationary(QWidget *parent = 0, AVHRRSatellite *seglist = 0);
     QStringList globit(const QString filepath, const QString filepattern);
     void SetFormToolBox(FormToolbox *p_formtoolbox) { formtoolbox = p_formtoolbox; }
     int wildcmp(const char *wild, const char *string);
@@ -51,7 +51,6 @@ private:
     void CreateGeoImageMTG(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector,int histogrammethod, bool pseudocolor, QString tex, int geoindex);
     Ui::FormGeostationary *ui;
     AVHRRSatellite *segs;
-    SatelliteList *sats;
     FormToolbox *formtoolbox;
     FormImage *formimage;
     QList<QTreeWidget *> geotreewidgetlist;

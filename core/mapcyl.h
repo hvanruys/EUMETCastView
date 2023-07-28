@@ -11,7 +11,7 @@ class MapFieldCyl : public QWidget
   Q_OBJECT
 
 public:
-  MapFieldCyl( QWidget *parent=0, CylEquiDist *meqdis=0 , SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
+  MapFieldCyl( QWidget *parent=0, CylEquiDist *meqdis=0 , AVHRRSatellite *seglist=0 );
   ~MapFieldCyl();
   void setGrid(bool grid);
   QRect tip( const QPoint & );
@@ -46,7 +46,6 @@ private:
   bool down;
   double map_lon, map_lat;
   int map_x, map_y;
-  SatelliteList *sats;
   CylEquiDist *med;
   AVHRRSatellite *segs;
 

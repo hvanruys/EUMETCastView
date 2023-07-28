@@ -8,11 +8,13 @@
 #include "options.h"
 #include "poi.h"
 #include "gshhsdata.h"
+#include "satellite.h"
+
 #include <stdexcept>
 
 #include <QMutex>
 
-#define APPVERSION "2.0.0"
+#define APPVERSION "2.0.1"
 
 
 using namespace std;
@@ -26,6 +28,7 @@ gshhsData *gshhsdata;
 QFile loggingFile;
 QTextStream outlogging(&loggingFile);
 QNetworkAccessManager networkaccessmanager;
+SatelliteList satellitelist;
 
 bool ptrimagebusy;
 
@@ -104,6 +107,8 @@ int main(int argc, char *argv[])
             return 0;
         qInstallMessageHandler(myMessageOutput);
     }
+
+    satellitelist.Initialize();
 
     imageptrs = new SegmentImage();
     gshhsdata = new gshhsData();

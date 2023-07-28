@@ -5598,30 +5598,30 @@ void FormToolbox::on_rdbOLCINormalized_toggled(bool checked)
 
 }
 
-void FormToolbox::on_cmbHistogram_activated(int index)
-{
-    segs->seglolciefr->setHistogramMethod(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
-    segs->seglolcierr->setHistogramMethod(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
+//void FormToolbox::on_cmbHistogram_activated(int index)
+//{
+//    segs->seglolciefr->setHistogramMethod(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
+//    segs->seglolcierr->setHistogramMethod(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
 
 
-    if(opts.buttonOLCIefr)
-    {
-        if(segs->seglolciefr->NbrOfSegmentsSelected() > 0)
-        {
-            ui->pbProgress->reset();
-//            formimage->ShowHistogramImageOLCI(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
-        }
-    }
-    else if(opts.buttonOLCIerr)
-    {
-        if(segs->seglolcierr->NbrOfSegmentsSelected() > 0)
-        {
-            ui->pbProgress->reset();
-//            formimage->ShowHistogramImageOLCI(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
-        }
-    }
+//    if(opts.buttonOLCIefr)
+//    {
+//        if(segs->seglolciefr->NbrOfSegmentsSelected() > 0)
+//        {
+//            ui->pbProgress->reset();
+////            formimage->ShowHistogramImageOLCI(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
+//        }
+//    }
+//    else if(opts.buttonOLCIerr)
+//    {
+//        if(segs->seglolcierr->NbrOfSegmentsSelected() > 0)
+//        {
+//            ui->pbProgress->reset();
+////            formimage->ShowHistogramImageOLCI(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized->isChecked());
+//        }
+//    }
 
-}
+//}
 
 
 void FormToolbox::on_cmbHistogramAVHRR_activated(int index)

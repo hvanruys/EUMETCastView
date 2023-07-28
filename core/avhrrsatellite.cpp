@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QDate>
 #include <QApplication>
-#include<QStringRef>
+#include <QStringRef>
 
 template <typename T>
 struct PtrLess // public std::binary_function<bool, const T*, const T*>
@@ -17,37 +17,37 @@ struct PtrLess // public std::binary_function<bool, const T*, const T*>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern SatelliteList satellitelist;
 
 bool LessThan(const QFileInfo &s1, const QFileInfo &s2)
 {
     return s1.fileName().mid(46, 12) + s1.fileName().mid(26, 6) + s1.fileName().mid(36, 6) < s2.fileName().mid(46, 12) + s2.fileName().mid(26, 6) + s2.fileName().mid(36, 6);
 }
 
-AVHRRSatellite::AVHRRSatellite(QObject *parent, SatelliteList *satl) :
+AVHRRSatellite::AVHRRSatellite(QObject *parent) :
     QObject(parent)
 {
     qDebug() << QString("constructor AVHRRSatellite");
 
-    satlist = satl;
 
     seglmetop = new SegmentListMetop();
-    seglnoaa = new SegmentListNoaa(satlist);
+    seglnoaa = new SegmentListNoaa();
     seglhrp = new SegmentListHRP();
     seglgac = new SegmentListGAC();
-    seglviirsm = new SegmentListVIIRSM(satlist, eSegmentType::SEG_VIIRSM);
-    seglviirsdnb = new SegmentListVIIRSDNB(satlist, eSegmentType::SEG_VIIRSDNB);
-    seglviirsmnoaa20 = new SegmentListVIIRSM(satlist, eSegmentType::SEG_VIIRSMNOAA20);
-    seglviirsdnbnoaa20 = new SegmentListVIIRSDNB(satlist, eSegmentType::SEG_VIIRSDNBNOAA20);
+    seglviirsm = new SegmentListVIIRSM(eSegmentType::SEG_VIIRSM);
+    seglviirsdnb = new SegmentListVIIRSDNB(eSegmentType::SEG_VIIRSDNB);
+    seglviirsmnoaa20 = new SegmentListVIIRSM(eSegmentType::SEG_VIIRSMNOAA20);
+    seglviirsdnbnoaa20 = new SegmentListVIIRSDNB(eSegmentType::SEG_VIIRSDNBNOAA20);
     seglolciefr = new SegmentListOLCI(SEG_OLCIEFR);
     seglolcierr = new SegmentListOLCI(SEG_OLCIERR);
     seglslstr = new SegmentListSLSTR();
     seglmersi = new SegmentListMERSI();
 
-    seglmetopAhrpt = new SegmentListHRPT(SEG_HRPT_METOPA, satlist);
-    seglmetopBhrpt = new SegmentListHRPT(SEG_HRPT_METOPB, satlist);
-    seglnoaa19hrpt = new SegmentListHRPT(SEG_HRPT_NOAA19, satlist);
-    seglM01hrpt = new SegmentListHRPT(SEG_HRPT_M01, satlist);
-    seglM02hrpt = new SegmentListHRPT(SEG_HRPT_M02, satlist);
+    seglmetopAhrpt = new SegmentListHRPT(SEG_HRPT_METOPA);
+    seglmetopBhrpt = new SegmentListHRPT(SEG_HRPT_METOPB);
+    seglnoaa19hrpt = new SegmentListHRPT(SEG_HRPT_NOAA19);
+    seglM01hrpt = new SegmentListHRPT(SEG_HRPT_M01);
+    seglM02hrpt = new SegmentListHRPT(SEG_HRPT_M02);
 
     segldatahubolciefr = new SegmentListDatahub();
     segldatahubolcierr = new SegmentListDatahub();
@@ -126,8 +126,6 @@ AVHRRSatellite::~AVHRRSatellite()
         delete seglistgeo;
     }
 
-    //delete satlist;
-
 }
 
 void AVHRRSatellite::emitProgressCounter(int counter)
@@ -196,7 +194,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             seglmetop->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            segmetop = new SegmentMetop(&file,satlist);
+            segmetop = new SegmentMetop(&file);
             if(segmetop->segmentok == true)
             {
                 slmetop->append(segmetop);
@@ -207,10 +205,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         } else if (fileInfo.fileName().mid( 0, 6) == "avhrr_" && fileInfo.fileName().mid( 22, 6) == "noaa19" && fileInfo.isFile())  // Data Channel 1
         {
             seglnoaa->SetDirectoryName(fileInfo.absolutePath());
-            if (satlist->SatExistInList(33591) )
+            if (satellitelist.SatExistInList(33591) )
             {
                 QFile file( fileInfo.absoluteFilePath());
-                segnoaa = new SegmentNoaa(&file, satlist);
+                segnoaa = new SegmentNoaa(&file);
                 if(segnoaa->segmentok == true)
                 {
                     slnoaa->append(segnoaa);
@@ -223,7 +221,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             seglhrp->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            seghrp = new SegmentHRP(&file,satlist);
+            seghrp = new SegmentHRP(&file);
             if(seghrp->segmentok == true)
             {
                 slhrp->append(seghrp);
@@ -236,7 +234,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             seglgac->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            seggac = new SegmentGAC(&file, satlist);
+            seggac = new SegmentGAC(&file);
             if(seggac->segmentok == true)
             {
                 slgac->append(seggac);
@@ -247,10 +245,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         } else if (fileInfo.fileName().mid( 16, 6) == "MetopA" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglmetopAhrpt->SetDirectoryName(fileInfo.absolutePath());
-            if (satlist->SatExistInList(29499) )
+            if (satellitelist.SatExistInList(29499) )
             {
                 QFile file( fileInfo.absoluteFilePath());
-                segmetopAhrpt = new SegmentHRPT(SEG_HRPT_METOPA, &file, satlist);
+                segmetopAhrpt = new SegmentHRPT(SEG_HRPT_METOPA, &file);
                 if(segmetopAhrpt->segmentok == true)
                 {
                     slmetopAhrpt->append(segmetopAhrpt);
@@ -262,10 +260,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         } else if (fileInfo.fileName().mid( 16, 6) == "MetopB" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglmetopBhrpt->SetDirectoryName(fileInfo.absolutePath());
-            if (satlist->SatExistInList(38771) )
+            if (satellitelist.SatExistInList(38771) )
             {
                 QFile file( fileInfo.absoluteFilePath());
-                segmetopBhrpt = new SegmentHRPT(SEG_HRPT_METOPB, &file, satlist);
+                segmetopBhrpt = new SegmentHRPT(SEG_HRPT_METOPB, &file);
                 if(segmetopBhrpt->segmentok == true)
                 {
                     slmetopBhrpt->append(segmetopBhrpt);
@@ -277,10 +275,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         } else if (fileInfo.fileName().mid( 16, 6) == "NOAA19" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglnoaa19hrpt->SetDirectoryName(fileInfo.absolutePath());
-            if (satlist->SatExistInList(33591) )
+            if (satellitelist.SatExistInList(33591) )
             {
                 QFile file( fileInfo.absoluteFilePath());
-                segnoaa19hrpt = new SegmentHRPT(SEG_HRPT_NOAA19, &file, satlist);
+                segnoaa19hrpt = new SegmentHRPT(SEG_HRPT_NOAA19, &file);
                 if(segnoaa19hrpt->segmentok == true)
                 {
                     slnoaa19hrpt->append(segnoaa19hrpt);
@@ -292,10 +290,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         } else if (fileInfo.fileName().mid( 16, 3) == "M01" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglM01hrpt->SetDirectoryName(fileInfo.absolutePath());
-            if (satlist->SatExistInList(38771) )
+            if (satellitelist.SatExistInList(38771) )
             {
                 QFile file( fileInfo.absoluteFilePath());
-                segM01hrpt = new SegmentHRPT(SEG_HRPT_M01, &file, satlist);
+                segM01hrpt = new SegmentHRPT(SEG_HRPT_M01, &file);
                 if(segM01hrpt->segmentok == true)
                 {
                     slM01hrpt->append(segM01hrpt);
@@ -307,10 +305,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         } else if (fileInfo.fileName().mid( 16, 3) == "M02" && fileInfo.completeSuffix() == "hpt" && fileInfo.isFile())
         {
             seglM02hrpt->SetDirectoryName(fileInfo.absolutePath());
-            if (satlist->SatExistInList(29499) )
+            if (satellitelist.SatExistInList(29499) )
             {
                 QFile file( fileInfo.absoluteFilePath());
-                segM02hrpt = new SegmentHRPT(SEG_HRPT_M02, &file, satlist);
+                segM02hrpt = new SegmentHRPT(SEG_HRPT_M02, &file);
                 if(segM02hrpt->segmentok == true)
                 {
                     slM02hrpt->append(segM02hrpt);
@@ -323,7 +321,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             seglviirsm->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            segviirsm = new SegmentVIIRSM(&file, satlist, eSegmentType::SEG_VIIRSM);
+            segviirsm = new SegmentVIIRSM(&file, eSegmentType::SEG_VIIRSM);
             if(segviirsm->segmentok == true)
             {
                 slviirsm->append(segviirsm);
@@ -337,7 +335,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901
             seglviirsdnb->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            segviirsdnb = new SegmentVIIRSDNB(&file, satlist, eSegmentType::SEG_VIIRSDNB);
+            segviirsdnb = new SegmentVIIRSDNB(&file, eSegmentType::SEG_VIIRSDNB);
             if(segviirsdnb->segmentok == true)
             {
                 slviirsdnb->append(segviirsdnb);
@@ -349,7 +347,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             seglviirsmnoaa20->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            segviirsmnoaa20 = new SegmentVIIRSM(&file, satlist, eSegmentType::SEG_VIIRSMNOAA20);
+            segviirsmnoaa20 = new SegmentVIIRSM(&file, eSegmentType::SEG_VIIRSMNOAA20);
             if(segviirsmnoaa20->segmentok == true)
             {
                 slviirsmnoaa20->append(segviirsmnoaa20);
@@ -361,7 +359,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             seglviirsdnbnoaa20->SetDirectoryName(fileInfo.absolutePath());
             QFile file( fileInfo.absoluteFilePath());
-            segviirsdnbnoaa20 = new SegmentVIIRSDNB(&file, satlist, eSegmentType::SEG_VIIRSDNBNOAA20);
+            segviirsdnbnoaa20 = new SegmentVIIRSDNB(&file, eSegmentType::SEG_VIIRSDNBNOAA20);
             if(segviirsdnbnoaa20->segmentok == true)
             {
                 slviirsdnbnoaa20->append(segviirsdnbnoaa20);
@@ -376,7 +374,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0         1         2         3         4         5         6         7         8         9         10
             seglolciefr->SetDirectoryName(fileInfo.absolutePath());
             //QFile file( fileInfo.absoluteFilePath());
-            segolciefr = new SegmentOLCI(SEG_OLCIEFR, fileInfo, satlist);
+            segolciefr = new SegmentOLCI(SEG_OLCIEFR, fileInfo);
             if(segolciefr->segmentok == true)
             {
                 qDebug() << "==> " << fileInfo.absoluteFilePath() << " isFile = " << fileInfo.isFile();
@@ -392,7 +390,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0         1         2         3         4         5         6         7         8         9         10
 
             seglolcierr->SetDirectoryName(fileInfo.absolutePath());
-            segolcierr = new SegmentOLCI(SEG_OLCIERR, fileInfo, satlist);
+            segolcierr = new SegmentOLCI(SEG_OLCIERR, fileInfo);
             if(segolcierr->segmentok == true)
             {
                 qDebug() << "==> " << fileInfo.absoluteFilePath() << " isFile = " << fileInfo.isFile();
@@ -408,7 +406,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //0         1         2         3         4         5         6         7         8         9         10
 
             seglslstr->SetDirectoryName(fileInfo.absolutePath());
-            segslstr = new SegmentSLSTR(fileInfo, satlist);
+            segslstr = new SegmentSLSTR(fileInfo);
             if(segslstr->segmentok == true)
             {
                 qDebug() << "==> " << fileInfo.absoluteFilePath() << " isFile = " << fileInfo.isFile();
@@ -425,7 +423,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             //FY3D_20200113_113000_113100_11206_MERSI_GEO1K_L1B.HDF
             //FY3D_20191007_193900_194000_9821_MERSI_1000M_L1B.HDF
             seglmersi->SetDirectoryName(fileInfo.absolutePath());
-            segmersi = new SegmentMERSI(fileInfo, satlist);
+            segmersi = new SegmentMERSI(fileInfo);
             if(segmersi->segmentok == true)
             {
                 slmersi->append(segmersi);
@@ -865,10 +863,10 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     if(metopTle)
                     {
                         bool ok1 = false, ok2 = false, ok3 = false;
-                        Satellite metop_sat;
-                        //ok1 = satlist->GetSatellite(29499, &metop_sat);
-                        ok2 = satlist->GetSatellite(38771, &metop_sat);
-                        ok3 = satlist->GetSatellite(43689, &metop_sat);
+                        Satellite *metop_sat;
+                        //ok1 = satellitelist.GetSatellite(29499, &metop_sat);
+                        metop_sat = satellitelist.GetSatellite(38771, &ok2);
+                        metop_sat = satellitelist.GetSatellite(43689, &ok3);
                         if (ok2 == false || ok3 == false)
                         {
                             QApplication::restoreOverrideCursor();
@@ -883,8 +881,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     if(nppTle)
                     {
                         bool ok = false;
-                        Satellite nppsat;
-                        ok = satlist->GetSatellite(37849, &nppsat);
+                        Satellite *nppsat;
+                        nppsat = satellitelist.GetSatellite(37849, &ok);
                         if (ok == false)
                         {
                             QApplication::restoreOverrideCursor();
@@ -899,8 +897,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     if(noaa19Tle)
                     {
                         bool ok = false;
-                        Satellite noaasat;
-                        ok = satlist->GetSatellite(33591, &noaasat);
+                        Satellite *noaasat;
+                        noaasat = satellitelist.GetSatellite(33591, &ok);
                         if (ok == false)
                         {
                             QApplication::restoreOverrideCursor();
@@ -915,8 +913,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     if(sentinel3Tle)
                     {
                         bool ok = false;
-                        Satellite sentinelsat;
-                        ok = satlist->GetSatellite(41335, &sentinelsat);
+                        Satellite *sentinelsat;
+                        sentinelsat = satellitelist.GetSatellite(41335, &ok);
                         if (ok == false)
                         {
                             QApplication::restoreOverrideCursor();
@@ -931,8 +929,8 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     if(fy3dTle)
                     {
                         bool ok = false;
-                        Satellite fy3dsat;
-                        ok = satlist->GetSatellite(43010, &fy3dsat);
+                        Satellite *fy3dsat;
+                        fy3dsat = satellitelist.GetSatellite(43010, &ok);
                         if (ok == false)
                         {
                             QApplication::restoreOverrideCursor();
@@ -1142,8 +1140,8 @@ void AVHRRSatellite::ReadXMLfiles()
         return;
 
     bool ok = false;
-    Satellite sentinelsat;
-    ok = satlist->GetSatellite(41335, &sentinelsat);
+    Satellite *sentinelsat;
+    sentinelsat = satellitelist.GetSatellite(41335, &ok);
     if (ok == false)
     {
         QApplication::restoreOverrideCursor();
@@ -1207,7 +1205,7 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
 
             if(segment.attribute("Name").mid(3, 9) == "_OL_1_EFR") // && selstring == segment.attribute("Name").mid(16, 8))
             {
-                segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIEFR, segment.attribute("Name"), this->satlist);
+                segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIEFR, segment.attribute("Name"));
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_OLCIEFR;
                 segdatahub->setSize(segment.attribute("size"));
@@ -1218,7 +1216,7 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
             }
             else if(segment.attribute("Name").mid(3, 9) == "_OL_1_ERR") // && selstring == segment.attribute("Name").mid(16, 8))
             {
-                segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIERR, segment.attribute("Name"), this->satlist);
+                segdatahub = new SegmentDatahub(SEG_DATAHUB_OLCIERR, segment.attribute("Name"));
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_OLCIERR;
                 segdatahub->setSize(segment.attribute("size"));
@@ -1228,7 +1226,7 @@ void AVHRRSatellite::CreateListfromXML(QDomDocument document)
             }
             else if(segment.attribute("Name").mid(3, 9) == "_SL_1_RBT") // && selstring == segment.attribute("Name").mid(16, 8))
             {
-                segdatahub = new SegmentDatahub(SEG_DATAHUB_SLSTR, segment.attribute("Name"), this->satlist);
+                segdatahub = new SegmentDatahub(SEG_DATAHUB_SLSTR, segment.attribute("Name"));
                 segdatahub->setUUID(segment.attribute("uuid"));
                 segdatahub->segtype = SEG_DATAHUB_SLSTR;
                 segdatahub->setSize(segment.attribute("size"));
@@ -1697,7 +1695,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
 
                         qDebug() << "from UDP segment Metop added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
-                        segmetop = new SegmentMetop(&file,satlist);
+                        segmetop = new SegmentMetop(&file);
                         if(segmetop->segmentok)
                         {
                             segmetop->segmentshow = true;
@@ -1713,7 +1711,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     {
                         qDebug() << "from UDP segment Noaa19 added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
-                        segnoaa = new SegmentNoaa(&file,satlist);
+                        segnoaa = new SegmentNoaa(&file);
                         if(segnoaa->segmentok)
                         {
                             segnoaa->segmentshow = true;
@@ -1729,7 +1727,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     {
                         qDebug() << "from UDP segment HRP added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
-                        seghrp = new SegmentHRP(&file,satlist);
+                        seghrp = new SegmentHRP(&file);
                         if(seghrp->segmentok)
                         {
                             seghrp->segmentshow = true;
@@ -1745,7 +1743,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     {
                         qDebug() << "from UDP segment GAC added filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
-                        seggac = new SegmentGAC(&file,satlist);
+                        seggac = new SegmentGAC(&file);
                         if(seggac->segmentok)
                         {
                             seggac->segmentshow = true;
@@ -1761,7 +1759,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     {
                         qDebug() << "from UDP segment NPP M added filename filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
-                        segviirsm = new SegmentVIIRSM(&file,satlist);
+                        segviirsm = new SegmentVIIRSM(&file);
                         if(segviirsm->segmentok)
                         {
                             segviirsm->segmentshow = true;
@@ -1777,7 +1775,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     {
                         qDebug() << "from UDP segment NPP DNB added filename filename  = " << fileinfo.fileName();
                         QFile file(thefilepath);
-                        segviirsdnb = new SegmentVIIRSDNB(&file,satlist);
+                        segviirsdnb = new SegmentVIIRSDNB(&file);
                         if(segviirsdnb->segmentok)
                         {
                             segviirsdnb->segmentshow = true;
@@ -1792,7 +1790,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_EFR")
                     {
                         qDebug() << "from UDP segment S3A EFR added filename filename  = " << fileinfo.fileName();
-                        segolciefr = new SegmentOLCI(SEG_OLCIEFR, fileinfo, satlist);
+                        segolciefr = new SegmentOLCI(SEG_OLCIEFR, fileinfo);
                         if(segolciefr->segmentok == true)
                         {
                             segolciefr->segmentshow = true;
@@ -1807,7 +1805,7 @@ void AVHRRSatellite::AddSegmentsToListFromUdp(QByteArray thefilepath)
                     else if (fileinfo.fileName().mid( 0, 12) == "S3A_OL_1_ERR")
                     {
                         qDebug() << "from UDP segment S3A ERR added filename filename  = " << fileinfo.fileName();
-                        segolcierr = new SegmentOLCI(SEG_OLCIERR, fileinfo, satlist);
+                        segolcierr = new SegmentOLCI(SEG_OLCIERR, fileinfo);
                         if(segolcierr->segmentok == true)
                         {
                             segolcierr->segmentshow = true;

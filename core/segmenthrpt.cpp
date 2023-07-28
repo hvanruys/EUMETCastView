@@ -8,10 +8,9 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-SegmentHRPT::SegmentHRPT(eSegmentType type, QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentHRPT::SegmentHRPT(eSegmentType type, QFile *filesegment, QObject *parent) :
     Segment(parent)
 {
-    satlist = satl;
     fileInfo.setFile(*filesegment);
     segtype = type;
     this->earth_views_per_scanline = 2048;
@@ -37,18 +36,18 @@ SegmentHRPT::SegmentHRPT(eSegmentType type, QFile *filesegment, SatelliteList *s
     julian_sensing_start = qsensingstart.Julian();
     julian_sensing_end = qsensingend.Julian();
 
-    Satellite sat;
+    Satellite *sat;
     bool ok;
 
     if(segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_M02)      // Metop-A
-        ok = satlist->GetSatellite(29499, &sat);
+        sat = satellitelist.GetSatellite(29499, &ok);
     else if(segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01) // Metop-B
-        ok = satlist->GetSatellite(38771, &sat);
+        sat = satellitelist.GetSatellite(38771, &ok);
     else if(segtype == SEG_HRPT_NOAA19)                            // Noaa19
-        ok = satlist->GetSatellite(33591, &sat);
+        sat = satellitelist.GetSatellite(33591, &ok);
 
-    line1 = sat.line1;
-    line2 = sat.line2;
+    line1 = sat->line1;
+    line2 = sat->line2;
 
     qtle.reset(new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));

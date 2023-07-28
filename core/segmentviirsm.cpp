@@ -1,20 +1,17 @@
 #include "segmentviirsm.h"
 #include "segmentimage.h"
 
-
-
 #include <QDebug>
+#include <QMutex>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
-#include <QMutex>
+extern SatelliteList satellitelist;
 
-SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, eSegmentType type, QObject *parent) :
+SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, eSegmentType type, QObject *parent) :
     Segment(parent)
 {
     bool ok;
-
-    satlist = satl;
 
     fileInfo.setFile(*filesegment);
     switch (type) {
@@ -58,27 +55,27 @@ SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, SatelliteList *satl, eSegmentTy
     this->earth_views_per_scanline = 3200;
     this->NbrOfLines = 768;
 
-    Satellite viirssat;
+    Satellite *viirssat;
     if(type == eSegmentType::SEG_VIIRSM)
     {
-        viirssat.sat_name = "NPP";
-        ok = satlist->GetSatellite(37849, &viirssat);
+        //viirssat.sat_name = "NPP";
+        viirssat = satellitelist.GetSatellite(37849, &ok);
     }
     else if(type == eSegmentType::SEG_VIIRSMNOAA20)
     {
-        viirssat.sat_name = "NOAA-20";
-        ok = satlist->GetSatellite(43013, &viirssat);
+        //viirssat.sat_name = "NOAA-20";
+        viirssat = satellitelist.GetSatellite(43013, &ok);
     }
 
-    line1 = viirssat.line1;
-    line2 = viirssat.line2;
+    line1 = viirssat->line1;
+    line2 = viirssat->line2;
 
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
     double epoch = line1.mid(18,14).toDouble(&ok);
     julian_state_vector = Julian_Date_of_Epoch(epoch);
 
-    qtle.reset(new QTle(viirssat.sat_name, line1, line2, QTle::wgs72));
+    qtle.reset(new QTle(viirssat->sat_name, line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));
 
 

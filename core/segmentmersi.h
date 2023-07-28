@@ -11,7 +11,7 @@ class SegmentMERSI : public Segment
 
 public:
 
-    explicit SegmentMERSI(QFileInfo fileinfo, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentMERSI(QFileInfo fileinfo, QObject *parent = 0);
     void ComposeSegmentImage(int bandindex, int colorarrayindex[], bool invertarrayindex[], int histogrammethod, bool normalized, int totallines);
     Segment *ReadSegmentInMemory(int bandindex, int colorarrayindex[]);
     void RenderSegmentlineInTextureMERSI(int nbrLine, QRgb *row );

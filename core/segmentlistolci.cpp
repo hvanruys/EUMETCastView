@@ -6,6 +6,7 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern bool ptrimagebusy;
+extern SatelliteList satellitelist;
 
 void doComposeOLCIImageInThread(SegmentListOLCI *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles)
 {
@@ -13,13 +14,12 @@ void doComposeOLCIImageInThread(SegmentListOLCI *t, QList<bool> bandlist, QList<
 }
 
 
-SegmentListOLCI::SegmentListOLCI(eSegmentType type, SatelliteList *satl, QObject *parent) :
+SegmentListOLCI::SegmentListOLCI(eSegmentType type, QObject *parent) :
     SegmentList(parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListOLCI");
 
-    satlist = satl;
     seglisttype = type;
     histogrammethod = 0; // 0 none , 1 equalize
     normalized = false;

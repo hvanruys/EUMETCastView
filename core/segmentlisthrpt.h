@@ -11,10 +11,9 @@ class SegmentListHRPT : public SegmentList
     Q_OBJECT
 
 public:
-    SegmentListHRPT(eSegmentType type = SEG_HRPT_M01, SatelliteList *satl = 0, QObject *parent = 0);
+    SegmentListHRPT(eSegmentType type = SEG_HRPT_M01, QObject *parent = 0);
 
 private:
-    SatelliteList *satlist;
 
 };
 

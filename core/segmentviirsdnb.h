@@ -10,7 +10,7 @@ class SegmentVIIRSDNB : public Segment
     Q_OBJECT
 
 public:
-    explicit SegmentVIIRSDNB(QFile *filesegment = 0, SatelliteList *satl = 0, eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
+    explicit SegmentVIIRSDNB(QFile *filesegment = 0, eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
     ~SegmentVIIRSDNB();
 
     void initializeMemory();

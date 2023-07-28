@@ -55,7 +55,7 @@ class AVHRRSatellite  : public QObject
     Q_OBJECT
 
 public:
-    AVHRRSatellite(QObject *parent = 0, SatelliteList *lst = 0);
+    AVHRRSatellite(QObject *parent = 0);
     ~AVHRRSatellite();
 
     void ReadDirectories(QDate seldate, int hoursbefore);
@@ -164,7 +164,6 @@ private:
 
     DatahubAccessManager hubmanager;
     QDate xmlselectdate;
-    SatelliteList *satlist;
     long nbrofpointsselected;
     long countmetop;
     long countnoaa;

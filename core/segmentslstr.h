@@ -10,7 +10,7 @@ class SegmentSLSTR : public Segment
     Q_OBJECT
 
 public:
-    explicit SegmentSLSTR(QFileInfo fileinfo, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentSLSTR(QFileInfo fileinfo, QObject *parent = 0);
     Segment *ReadSegmentInMemory();
     void ComposeSegmentImage(int histogrammethod);
     int getEarthViewsPerScanline() { return this->earth_views_per_scanline; }

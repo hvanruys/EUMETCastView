@@ -1104,8 +1104,6 @@ void SegmentListGeostationary::ComposeSegmentImageHDF( QFileInfo fileinfo, int c
         npix = 9152;
     }
 
-    qDebug() << "====================start";
-
     for(int line = 0; line < nlin; line++)
     {
 
@@ -1179,7 +1177,6 @@ void SegmentListGeostationary::ComposeSegmentImageHDF( QFileInfo fileinfo, int c
         }
     }
 
-    qDebug() << "==============================end";
 
     if(m_GeoSatellite == FY2E || m_GeoSatellite == FY2G)
     {
@@ -1366,8 +1363,6 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
         deltaprogress = 9152/70;
     }
 
-    qDebug() << "====================start";
-
     emit this->progressCounter(30);
 
     for(int line = 0; line < nlin; line++)
@@ -1469,8 +1464,6 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
             }
         }
     }
-
-    qDebug() << "==============================end";
 
     this->issegmentcomposedRed[0] = true;
 
@@ -5293,11 +5286,11 @@ void SegmentListGeostationary::GetRadBT(int unit, int channel, bandstorage &bs, 
 
     for (size_t j = 0; j < da.segnames.size(); ++j)
     {
-        cout << "Segment " << j << ": ";
+        std::cout << "Segment " << j << ": ";
         MSG_data* d = da.segment(j);
         if (!d)
         {
-            cout << "missing.\n";
+            std::cout << "missing.\n";
             continue;
         } else {
             for (size_t k = 0; k < da.npixperseg; ++k)
@@ -5307,7 +5300,7 @@ void SegmentListGeostationary::GetRadBT(int unit, int channel, bandstorage &bs, 
                     container[j*da.npixperseg + k] = d->image->data[k];
                 }
             }
-            cout << std::flush;
+            std::cout << std::flush;
         }
     }
 
@@ -5702,30 +5695,30 @@ void SegmentListGeostationary::Printbands()
 {
     for(int k = 0; k < bands.length(); k++)
     {
-        cout << "band " << k << " " << bands[k].productid2.toStdString() << endl;
+        std::cout << "band " << k << " " << bands[k].productid2.toStdString() << std::endl;
         for (int i = 1000; i < 1000 + 10; ++i)
         {
             for (int j = 1856; j < 1856 + 10; ++j)
             {
                 int i_image = i * 3712 + j;
 
-                cout << bands[k].data[i_image] << " ";
+                std::cout << bands[k].data[i_image] << " ";
             }
-            cout << endl;
+            std::cout << std::endl;
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
-    //    cout << "sza " << endl;
+    //    std::cout << "sza " << std::endl;
     //    for (int i = 1000; i < 1000 + 10; ++i)
     //    {
     //        for (int j = 1856; j < 1856 + 10; ++j)
     //        {
     //            int i_image = i * 3712 + j;
 
-    //            cout << sza[i_image] << " ";
+    //            std::cout << sza[i_image] << " ";
     //        }
-    //        cout << endl;
+    //        std::cout << std::endl;
     //    }
 
 }
@@ -5734,18 +5727,18 @@ void SegmentListGeostationary::PrintResults()
 {
     for(int k = 0; k < 3; k++)
     {
-        cout << "color " << k << endl;
+        std::cout << "color " << k << std::endl;
         for (int i = 1000; i < 1000 + 10; ++i)
         {
             for (int j = 1856; j < 1856 + 10; ++j)
             {
                 int i_image = i * 3712 + j;
 
-                cout << result[k][i_image] << " ";
+                std::cout << result[k][i_image] << " ";
             }
-            cout << endl;
+            std::cout << std::endl;
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 }
 
@@ -5754,18 +5747,18 @@ void SegmentListGeostationary::PrintResults(float *ptr, QString title)
 
     int fromY = 1856;
     int fromX = 20;
-    cout << title.toStdString() << endl;
+    std::cout << title.toStdString() << std::endl;
     for (int y = fromY; y < fromY + 10; ++y)
     {
         for (int x = fromX; x < fromX + 30; ++x)
         {
             int i_image = y * 3712 + x;
 
-            cout << ptr[i_image] << " ";
+            std::cout << ptr[i_image] << " ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
-    cout << endl << std::flush;
+    std::cout << std::endl << std::flush;
 
 }
 
@@ -5781,12 +5774,12 @@ void SegmentListGeostationary::CalculateGeoRadiances(bandstorage &bs)
     MSG_SAMPLE compmin = 0xffff, compmax = 0;
     for (size_t j = 0; j < da.segnames.size(); ++j)
     {
-        cout << "Segment " << j << ": ";
+        std::cout << "Segment " << j << ": ";
         MSG_data* d = da.segment(j);
         MSG_SAMPLE min = 0xffff, max = 0;
         if (!d)
         {
-            cout << "missing.\n";
+            std::cout << "missing.\n";
             continue;
         } else {
             for (size_t k = 0; k < da.npixperseg; ++k)
@@ -5798,12 +5791,12 @@ void SegmentListGeostationary::CalculateGeoRadiances(bandstorage &bs)
                     if (d->image->data[k] > max) max = d->image->data[k];
                 }
             }
-            cout << "min " << min << " max " << max << endl;
+            std::cout << "min " << min << " max " << max << std::endl;
         }
         if (min < compmin) compmin = min;
         if (max > compmax) compmax = max;
     }
-    cout << "compmin = " << compmin << " compmax = " << compmax << endl;
+    std::cout << "compmin = " << compmin << " compmax = " << compmax << std::endl;
     bands[bs.listindex].min = (float)compmin;
     bands[bs.listindex].max = (float)compmax;
 

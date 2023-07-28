@@ -12,7 +12,7 @@ class SegmentListVIIRSDNB  : public SegmentList
         Q_OBJECT
 
 public:
-    SegmentListVIIRSDNB(SatelliteList *satl = 0, eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
+    SegmentListVIIRSDNB(eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
     bool ComposeVIIRSImageInThread();
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
     void ShowImageSerial();
@@ -33,7 +33,6 @@ private:
     void printData(SegmentVIIRSDNB *segm, int linesfrom, int viewsfrom);
     void fitDNBCurve();
 
-    SatelliteList *satlist;
     int lut[256];
     int earthviews;
     float stat_max_dnb;

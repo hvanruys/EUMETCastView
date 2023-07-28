@@ -14,7 +14,7 @@ class SegmentListOLCI : public SegmentList
     Q_OBJECT
 
 public:
-    SegmentListOLCI(eSegmentType type = SEG_OLCIEFR, SatelliteList *satl = 0, QObject *parent = 0);
+    SegmentListOLCI(eSegmentType type = SEG_OLCIEFR, QObject *parent = 0);
     bool ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles);
     bool ComposeOLCIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles, int histogrammethod, bool normalized);
 
@@ -50,7 +50,6 @@ private:
     void CalculateLUTAlt();
     void CalculateLUTFull();
     void CalculateProjectionLUT();
-    SatelliteList *satlist;
 
     int histogrammethod;
     bool normalized;

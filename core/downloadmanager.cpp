@@ -116,12 +116,9 @@ void DownloadManager::startNextDownload()
 
     QNetworkRequest request(url);
     currentDownload = networkaccessmanager.get(request);
-    connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)),
-            SLOT(downloadProgress(qint64,qint64)));
-    connect(currentDownload, SIGNAL(finished()),
-            SLOT(downloadFinished()));
-    connect(currentDownload, SIGNAL(readyRead()),
-            SLOT(downloadReadyRead()));
+    connect(currentDownload, SIGNAL(downloadProgress(qint64,qint64)), SLOT(downloadProgress(qint64,qint64)));
+    connect(currentDownload, SIGNAL(finished()), SLOT(downloadFinished()));
+    connect(currentDownload, SIGNAL(readyRead()), SLOT(downloadReadyRead()));
 
     // prepare the output
     emit startnext(QString("Downloading %1...\n").arg(url.toEncoded().constData()));

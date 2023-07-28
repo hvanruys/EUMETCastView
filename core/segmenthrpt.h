@@ -7,12 +7,14 @@
 
 #include "segment.h"
 
+extern SatelliteList satellitelist;
+
 class SegmentHRPT : public Segment
 {
     Q_OBJECT
 
 public:
-    explicit SegmentHRPT(eSegmentType type, QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentHRPT(eSegmentType type, QFile *filesegment = 0, QObject *parent = 0);
     void ComposeProjection(int inputchannel, eProjections proj);
     void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);

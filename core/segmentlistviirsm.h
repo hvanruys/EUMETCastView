@@ -11,7 +11,7 @@ class SegmentListVIIRSM  : public SegmentList
         Q_OBJECT
 
 public:
-    SegmentListVIIRSM(SatelliteList *satl = 0, eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
+    SegmentListVIIRSM(eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
     bool ComposeVIIRSImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);
 
     void ShowImageSerial(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist);

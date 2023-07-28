@@ -12,7 +12,7 @@ class SegmentNoaa : public Segment
     Q_OBJECT
 
 public:
-    explicit SegmentNoaa(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentNoaa(QFile *filesegment = 0, QObject *parent = 0);
     ~SegmentNoaa();
 
     Segment *ReadSegmentInMemory();

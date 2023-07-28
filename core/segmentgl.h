@@ -13,7 +13,7 @@
 class SegmentGL  : protected QOpenGLFunctions
 {
 public:
-    SegmentGL(QOpenGLShaderProgram *prog, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
+    SegmentGL(QOpenGLShaderProgram *prog, AVHRRSatellite *seglist=0 );
     void render(QMatrix4x4 projection, float dist, QQuaternion quat, int width, int height);
 
     ~SegmentGL();
@@ -28,7 +28,6 @@ private:
 
     QVector2D glhProjectf(QVector3D obj, float *modelview, float *projection, int width, int height);
 
-    SatelliteList *sats;
     AVHRRSatellite *segs;
     GLuint vertexPosition;
     QOpenGLShaderProgram *program;

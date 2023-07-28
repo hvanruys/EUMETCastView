@@ -18,14 +18,14 @@
 
 extern SegmentImage *imageptrs;
 extern Options opts;
+extern SatelliteList satellitelist;
 
-FormGeostationary::FormGeostationary(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *seglist) :
+FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
     QWidget(parent),
     ui(new Ui::FormGeostationary)
 {
     ui->setupUi(this);
     segs = seglist;
-    sats = satlist;
 
     qDebug() << "in constructor FormGeostationary opts.geosatellites.count() = " << opts.geosatellites.count();
 

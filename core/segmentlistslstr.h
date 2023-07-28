@@ -11,7 +11,7 @@ class SegmentListSLSTR : public SegmentList
     Q_OBJECT
 
 public:
-    SegmentListSLSTR(SatelliteList *satl = 0, QObject *parent = 0);
+    SegmentListSLSTR(QObject *parent = 0);
     bool ComposeSLSTRImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles, eSLSTRImageView view);
     bool ComposeSLSTRImageInThread(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, bool decompressfiles);
     void setHistogramMethod(int histo) { histogrammethod = histo;}

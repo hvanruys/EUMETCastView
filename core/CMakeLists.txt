@@ -130,6 +130,7 @@ cmake_print_variables(HDF5_LINK_LIBRARIES)
 cmake_print_variables(NETCDF_LINK_LIBRARIES)
 cmake_print_variables(HDF5_INCLUDE_DIRS)
 cmake_print_variables(NETCDF_INCLUDE_DIRS)
+cmake_print_variables(CMAKE_CURRENT_SOURCE_DIR)
 
 #cmake_print_properties(TARGETS Qt5::Widgets PROPERTIES LOCATION)
 #cmake_print_properties(TARGETS Qt5::Xml PROPERTIES LOCATION)

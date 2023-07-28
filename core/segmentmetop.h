@@ -11,7 +11,7 @@ class SegmentMetop : public Segment
     Q_OBJECT
 
 public:
-    explicit SegmentMetop(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentMetop(QFile *filesegment = 0, QObject *parent = 0);
     ~SegmentMetop();
 
     void SegmentMetopBz2(QFile&);

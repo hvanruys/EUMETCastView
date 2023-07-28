@@ -1177,9 +1177,9 @@ void SegmentList::BilinearInterpolation(Segment *segm, bool combine)
                         try
                         {
                             canvas = new QRgb[dimx * dimy];
-                        } catch(exception& e)
+                        } catch(...)  //exception& e)
                         {
-                            qDebug() << "BilineairInterpolation " << QString::fromUtf8(e.what()) << " dimx = " << dimx << " dimy = " << dimy << '\n';
+                            qDebug() << "BilineairInterpolation new QRgb"; // << QString::fromUtf8(e.what()) << " dimx = " << dimx << " dimy = " << dimy << '\n';
                             throw;
                         }
 
@@ -1526,9 +1526,9 @@ void SegmentList::BilinearBetweenSegments(Segment *segmfirst, Segment *segmnext,
                     try
                     {
                         canvas = new QRgb[dimx * dimy];
-                    } catch(exception& e)
+                    } catch(...)
                     {
-                        qDebug() << "BilineairBetweenSegments " << QString::fromUtf8(e.what()) << " dimx = " << dimx << " dimy = " << dimy << '\n';
+                        qDebug() << "BilineairBetweenSegments new QRgb"; // << QString::fromUtf8(e.what()) << " dimx = " << dimx << " dimy = " << dimy << '\n';
                         throw;
                     }
 

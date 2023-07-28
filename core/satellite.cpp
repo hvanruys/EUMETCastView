@@ -7,7 +7,7 @@
 #include <QDebug>
 #include <QVector3D>
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "satellite.h"
 
 #include "globals.h"
@@ -22,6 +22,8 @@ Satellite::Satellite( QString satname, QString l1, QString l2, const QColor & co
 
 Satellite::~Satellite()
 {
+    delete qtle;
+    delete qsgp4;
 }
 
 void Satellite::initSatellite(QString satname, QString l1, QString l2, const QColor & color)
@@ -91,12 +93,12 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
     //
     //
     double
-            tsince,            /* Time since epoch (in minutes) */
-            tsince1,
-            jul_epoch,         /* Julian date of epoch          */
-            jul_utc,           /* Julian UTC date               */
-            jul_utc1,
-            save_lon;
+        tsince,            /* Time since epoch (in minutes) */
+        tsince1,
+        jul_epoch,         /* Julian date of epoch          */
+        jul_utc,           /* Julian UTC date               */
+        jul_utc1,
+        save_lon;
     //
     // // double az, el, range, rate;
     //
@@ -158,8 +160,8 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
 
 
             if (((save_posx >= devwidth*0.9) && (posx < devwidth*0.1)) ||
-                    ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
-                    (posy <= devheight*0.02) || (posy >= devheight*0.98) )
+                ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
+                (posy <= devheight*0.02) || (posy >= devheight*0.98) )
             {
                 if (bSmallscreen == false)
                     painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
@@ -202,8 +204,8 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
             posy = (int)(devheight * ( PIO2 - qgeo.latitude ) / PI);
 
             if (((save_posx >= devwidth*0.9) && (posx < devwidth*0.1)) ||
-                    ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
-                    (posy <= devheight*0.02) || (posy >= devheight*0.98) )
+                ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
+                (posy <= devheight*0.02) || (posy >= devheight*0.98) )
             {
                 if (bSmallscreen == false)
                     painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
@@ -365,35 +367,35 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
 
 
 
-void Satellite::GetSatelliteEphem( QGeodetic &qgeo, QTopocentric &qtopo )
+const void Satellite::GetSatelliteEphem( QGeodetic &qgeo, QTopocentric &qtopo )
 {
 
-  struct tm utc;
+    struct tm utc;
 
-  double
-    tsince,            /* Time since epoch (in minutes) */
-    jul_epoch,         /* Julian date of epoch          */
-    jul_utc;           /* Julian UTC date               */
-
-
-  /* Get UTC calendar and convert to Julian */
-  UTC_Calendar_Now(&utc);
-  jul_utc = Julian_Date(&utc);
-  /* Convert satellite's epoch time to Julian  */
-  /* and calculate time since epoch in minutes */
-  jul_epoch = Julian_Date_of_Epoch(epoch);
-  tsince = (jul_utc - jul_epoch) * MIN_PER_DAY; // in minuten
-
-  QEci qeci;
-  qsgp4->getPosition(tsince, qeci);
-  qgeo = qeci.ToGeo();
+    double
+        tsince,            /* Time since epoch (in minutes) */
+        jul_epoch,         /* Julian date of epoch          */
+        jul_utc;           /* Julian UTC date               */
 
 
-  QObserver siteEquator(opts.getObsLat(), opts.getObsLon(), opts.getObsAlt()); // 0.00 N, 100.00 W, 0 km altitude
+    /* Get UTC calendar and convert to Julian */
+    UTC_Calendar_Now(&utc);
+    jul_utc = Julian_Date(&utc);
+    /* Convert satellite's epoch time to Julian  */
+    /* and calculate time since epoch in minutes */
+    jul_epoch = Julian_Date_of_Epoch(epoch);
+    tsince = (jul_utc - jul_epoch) * MIN_PER_DAY; // in minuten
 
-  qtopo = siteEquator.GetLookAngle(qeci);
+    QEci qeci;
+    qsgp4->getPosition(tsince, qeci);
+    qgeo = qeci.ToGeo();
 
-  //qDebug() << siteEquator.toString().c_str();
+
+    QObserver siteEquator(opts.getObsLat(), opts.getObsLon(), opts.getObsAlt()); // 0.00 N, 100.00 W, 0 km altitude
+
+    qtopo = siteEquator.GetLookAngle(qeci);
+
+    //qDebug() << siteEquator.toString().c_str();
 
 }
 
@@ -403,9 +405,9 @@ void Satellite::GetSatellitePosition(QVector3D &position, QVector3D &positionnor
     QVector3D pos;
 
     double
-      tsince,            /* Time since epoch (in minutes) */
-      jul_epoch,         /* Julian date of epoch          */
-      jul_utc;           /* Julian UTC date               */
+        tsince,            /* Time since epoch (in minutes) */
+        jul_epoch,         /* Julian date of epoch          */
+        jul_utc;           /* Julian UTC date               */
 
 
     /* Get UTC calendar and convert to Julian */
@@ -513,48 +515,41 @@ void Satellite::showSatHorizon(double lon, double lat, double geo_alt, QPainter 
 ///////////////////////////////////////////////////////////////////////////////////
 //
 ///////////////////////////////////////////////////////////////////////////////////
-SatelliteList::SatelliteList( void )
-
+SatelliteList::SatelliteList()
 {
-  selectedsat = 0;
-  selectedsat_alt = 830.0;
-  qDebug() << "creator satelliteList";
 
-  ReReadTle();
+}
+
+void SatelliteList::Initialize( void )
+{
+    selectedsat = 0;
+    selectedsat_alt = 830.0;
+    qDebug() << "creator satelliteList";
+
+    ReReadTle();
 }
 
 SatelliteList::~SatelliteList()
 {
-  const Satellite *thesat;
+    qDebug() << "destructor SatelliteList nbr of elements = " << satlist.count();
 
-  for ( int i = 0; i < satlist.count(); i++)
-  {
-        thesat = &satlist.at(i);
-        delete thesat;
-  }
-  satlist.clear();
-
+    qDeleteAll(satlist.begin(), satlist.end());
+    satlist.clear();
 }
 
 void SatelliteList::ReloadList(void)
 {
-  const Satellite *thesat;
+    qDeleteAll(satlist.begin(), satlist.end());
+    satlist.clear();
 
-  for ( int i = 0; i < satlist.count(); i++)
-  {
-        thesat = &satlist.at(i);
-        delete thesat;
-  }
-
-  satlist.clear();
-  ReReadTle();
+    ReReadTle();
 }
 
 
 void SatelliteList::SetSelectedSat(const int catnr)
 {
-  selectedsat = catnr;
-  selectedsat_alt = GetSatAlt(catnr);
+    selectedsat = catnr;
+    selectedsat_alt = GetSatAlt(catnr);
 }
 
 /*
@@ -571,151 +566,208 @@ inline double SatelliteList::GetSelectedSatAlt(void)
 
 void SatelliteList::ReReadTle(void)
 {
-  QString lleft;
-  QStringList tleList;
+    QString lleft;
+    QStringList tleList;
 
 
-  QString line, line1, line2;
-  Satellite *thesat;
-  bool ok;
+    QString line, line1, line2;
+    Satellite *thesat;
+    bool ok;
 
-  qDebug() << "ReReadTle : lengte satlist = "  << satlist.size();
+    satlist.clear();
 
-  qDebug() << "voor iterator ReReadTle";
+    qDebug() << "ReReadTle : lengte satlist = "  << satlist.size() << " before iterator";
 
-  for ( QStringList::Iterator it = opts.tlelist.begin(); it != opts.tlelist.end(); ++it )
-  {
-    QFile file( *it );
-    if (file.open(QIODevice::ReadOnly))
+    for ( QStringList::Iterator it = opts.tlelist.begin(); it != opts.tlelist.end(); ++it )
     {
-      qDebug() << "file open : " + *it;
-
-      QTextStream stream( &file );
-      while (!stream.atEnd())
-      {
-        line = stream.readLine(); // line of text excluding '\n'
-        lleft = line.left(1);
-        if ((lleft!=QString("1")) && (lleft!=QString("2")))
+        QFile file( *it );
+        if (file.open(QIODevice::ReadOnly))
         {
-          line1 = stream.readLine();
-          lleft = line1.left(1);
-          if (lleft!=QString("1")) break;
-          line2 = stream.readLine();
-          lleft = line2.left(1);
-          if (lleft!=QString("2")) break;
+            qDebug() << "file open : " + *it;
 
-          thesat = new Satellite(line.trimmed(), line1, line2, Qt::yellow );
-          thesat->active = false;
-
-          for ( QStringList::Iterator itc = opts.catnbrlist.begin(); itc != opts.catnbrlist.end(); ++itc )
-          {
-            if ( (*itc).toInt( &ok, 10) == line1.mid(2, 5).toInt( &ok, 10 ) )
+            QTextStream stream( &file );
+            while (!stream.atEnd())
             {
-              thesat->active = true;
-              break;
+                line = stream.readLine(); // line of text excluding '\n'
+                lleft = line.left(1);
+                if ((lleft!=QString("1")) && (lleft!=QString("2")))
+                {
+                    line1 = stream.readLine();
+                    lleft = line1.left(1);
+                    if (lleft!=QString("1")) break;
+                    line2 = stream.readLine();
+                    lleft = line2.left(1);
+                    if (lleft!=QString("2")) break;
+
+                    thesat = new Satellite(line.trimmed(), line1, line2, Qt::yellow );
+                    thesat->active = false;
+
+                    for ( QStringList::Iterator itc = opts.catnbrlist.begin(); itc != opts.catnbrlist.end(); ++itc )
+                    {
+                        if ( (*itc).toInt( &ok, 10) == line1.mid(2, 5).toInt( &ok, 10 ) )
+                        {
+                            thesat->active = true;
+                            break;
+                        }
+                    }
+
+                    satlist.append( thesat );
+                }
             }
-          }
-
-          satlist.append( *thesat );
+            file.close();
         }
-      }
-      file.close();
     }
-  }
 
-  qDebug() << "ReReadTle : lengte satlist = "  << satlist.size();
+    qDebug() << "ReReadTle : lengte satlist = "  << satlist.size() << " after iterator";
 
 }
 
 QStringList SatelliteList::GetCatnrList(void)
 {
-  QStringList b;
+    QStringList b;
 
-  for (int i = 0; i < satlist.size(); ++i)
-  {
-     if ( satlist.at(i).active == true )
-     {
-          QString nr;
-          nr.setNum(satlist.at(i).catnr, 10);
-          b.append(nr);
-     }
+    for (int i = 0; i < satlist.size(); ++i)
+    {
+        if ( satlist.at(i)->active == true )
+        {
+            QString nr;
+            nr.setNum(satlist.at(i)->catnr, 10);
+            b.append(nr);
+        }
 
- }
+    }
 
-//  Satellite *sat;
-//
-//  for ( sat=satlist.begin(); sat != satlist.end(); ++sat )
-//  {
-//    if (sat->active)
-//    {
-//      QString nr;
-//      nr.setNum(sat->catnr, 10);
-//      b.append(nr);
-//    }
-//  }
+    //  Satellite *sat;
+    //
+    //  for ( sat=satlist.begin(); sat != satlist.end(); ++sat )
+    //  {
+    //    if (sat->active)
+    //    {
+    //      QString nr;
+    //      nr.setNum(sat->catnr, 10);
+    //      b.append(nr);
+    //    }
+    //  }
 
 
-//    QList<Satellite>::iterator sat = satlist.begin();
-//    while (sat != satlist.end()) {
-//        if ( sat->active)
-//        {
-//            QString nr;
-//            nr.setNum(sat->catnr, 10);
-//            b.append(nr);
-//        }
-//        ++sat;
-//    }
+    //    QList<Satellite>::iterator sat = satlist.begin();
+    //    while (sat != satlist.end()) {
+    //        if ( sat->active)
+    //        {
+    //            QString nr;
+    //            nr.setNum(sat->catnr, 10);
+    //            b.append(nr);
+    //        }
+    //        ++sat;
+    //    }
 
-  return b;
+    return b;
 }
 
 QStringList SatelliteList::GetActiveSatList(void)
 {
-  QStringList b;
-  QString temp;
-  QString nr;
-  QString daysold;
-  QString strlon, strlat, stralt;
+    QStringList b;
+    QString temp;
+    QString nr;
+    QString daysold;
+    QString strlon, strlat, stralt;
+    Satellite *sat;
 
-  QList<Satellite>::iterator sat = satlist.begin();
-
-  QGeodetic geo;
-  QTopocentric topo;
-  while ( sat != satlist.end() )
+    if(this->satlist.count() == 0)
     {
-        if((*sat).active)
+        b << "no sats";
+        return b;
+    }
+
+
+    QGeodetic geo;
+    QTopocentric topo;
+
+
+    for(int i = 0; i < satlist.count(); i++)
+    {
+        sat = satlist.at(i);
+        if(sat->active)
         {
+            QString satn = sat->sat_name;
+            nr.setNum(sat->catnr, 10);
+            daysold.setNum(sat->DaysOld, 10);
+            sat->GetSatelliteEphem( geo, topo );
 
-          nr.setNum((*sat).catnr, 10);
-          daysold.setNum((*sat).DaysOld, 10);
-          (*sat).GetSatelliteEphem( geo, topo );
+            strlon.setNum( rad2deg(geo.longitude), 'f', 1);
+            strlat.setNum( rad2deg(geo.latitude), 'f', 1);
+            stralt.setNum( geo.altitude, 'f', 1);
 
-          strlon.setNum( rad2deg(geo.longitude), 'f', 1);
-          strlat.setNum( rad2deg(geo.latitude), 'f', 1);
-          stralt.setNum( geo.altitude, 'f', 1);
+            temp = sat->sat_name + "," + nr + "," + daysold + "," + strlon + "," + strlat + "," + stralt;
+            b.append(temp);
+        }
+    }
 
-          temp = (*sat).sat_name + "," + nr + "," + daysold + "," + strlon + "," + strlat + "," + stralt; ;
-          b.append(temp);
-      }
-      ++sat;
-  }
-
-  return b;
+    return b;
 }
+
+//QStringList SatelliteList::GetActiveSatList(void)
+//{
+//    QStringList b;
+//    QString temp;
+//    QString nr;
+//    QString daysold;
+//    QString strlon, strlat, stralt;
+
+//    if(satlist.count() == 0)
+//    {
+//        b << "no sats";
+//        return b;
+//    }
+
+//    QList<Satellite>::iterator sat = satlist.begin();
+
+//    while ( sat != satlist.end() )
+//    {
+//        qDebug() << (*sat).sat_name;
+//        ++sat;
+//    }
+
+//    sat = satlist.begin();
+
+//    QGeodetic geo;
+//    QTopocentric topo;
+//    while ( sat != satlist.end() )
+//    {
+//        if((*sat).active)
+//        {
+//            QString satn = (*sat).sat_name;
+//            nr.setNum((*sat).catnr, 10);
+//            daysold.setNum((*sat).DaysOld, 10);
+//            (*sat).GetSatelliteEphem( geo, topo );
+
+//            strlon.setNum( rad2deg(geo.longitude), 'f', 1);
+//            strlat.setNum( rad2deg(geo.latitude), 'f', 1);
+//            stralt.setNum( geo.altitude, 'f', 1);
+//            qDebug() << satn << " " << nr << " " << daysold << " " << strlon << " " << strlat << " " << stralt;
+
+//            temp = (*sat).sat_name + "," + nr + "," + daysold + "," + strlon + "," + strlat + "," + stralt;
+//            b.append(temp);
+//        }
+//        ++sat;
+//    }
+
+//    return b;
+//}
 
 void SatelliteList::ClearActive(void)
 {
-  //QStringList b;
+    //QStringList b;
 
-  //for (int i = 0; i < satlist.size(); ++i) {
-   //  satlist.at(i).SetActive(FALSE);
-  //}
+    //for (int i = 0; i < satlist.size(); ++i) {
+    //  satlist.at(i).SetActive(FALSE);
+    //}
 
-  QList<Satellite>::iterator sat = satlist.begin();
+    QList<Satellite*>::iterator sat = satlist.begin();
 
     while( sat != satlist.end() )
     {
-        (*sat).SetActive(false);
+        (*sat)->SetActive(false);
 
         ++sat;
     }
@@ -728,16 +780,16 @@ void SatelliteList::RenderAllSatellites(QPainter *painter)
 
     // qDebug() << "renderallsatellites " << satlist.size();
 
-    QList<Satellite>::iterator sat = satlist.begin();
+    QList<Satellite*>::iterator sat = satlist.begin();
 
     while ( sat != satlist.end() )
     {
-        if((*sat).active == true)
+        if((*sat)->active == true)
         {
-            if( (*sat).catnr==selectedsat )
-                (*sat).RenderSatellite(painter, true);
+            if( (*sat)->catnr==selectedsat )
+                (*sat)->RenderSatellite(painter, true);
             else
-                (*sat).RenderSatellite(painter, false);
+                (*sat)->RenderSatellite(painter, false);
 
         }
         ++sat;
@@ -833,21 +885,21 @@ void SatelliteList::TestForSat(int x, int y)
 {
     for (int i = 0; i < satlist.size(); ++i)
     {
-        if ( satlist.at(i).active == true )
+        if ( satlist.at(i)->active == true )
         {
-            if ( (fabs( satlist.at(i).equidistposition.x() - x ) < 10) && (fabs( satlist.at(i).equidistposition.y() - y) < 10) )
+            if ( (fabs( satlist.at(i)->equidistposition.x() - x ) < 10) && (fabs( satlist.at(i)->equidistposition.y() - y) < 10) )
             {
-                if(selectedsat == satlist.at(i).catnr)
+                if(selectedsat == satlist.at(i)->catnr)
                 {
                     selectedsat = 0;
                     selectedsat_alt = 830.0;
                 } else
                 {
-                    selectedsat = satlist.at(i).catnr;
-                    selectedsat_alt = satlist.at(i).current_alt;
+                    selectedsat = satlist.at(i)->catnr;
+                    selectedsat_alt = satlist.at(i)->current_alt;
                 }
                 break;
-             }
+            }
         }
     }
 }
@@ -856,18 +908,18 @@ void SatelliteList::TestForSatGL(int x, int y)
 {
     for (int i = 0; i < satlist.size(); ++i)
     {
-        if ( satlist.at(i).active == true )
+        if ( satlist.at(i)->active == true )
         {
-            if ( (fabs( satlist.at(i).winsatpos.x() - x ) < 10) && (fabs( satlist.at(i).winsatpos.y() - y) < 10) )
+            if ( (fabs( satlist.at(i)->winsatpos.x() - x ) < 10) && (fabs( satlist.at(i)->winsatpos.y() - y) < 10) )
             {
-                if(selectedsat == satlist.at(i).catnr)
+                if(selectedsat == satlist.at(i)->catnr)
                 {
                     selectedsat = 0;
                     selectedsat_alt = 830.0;
                 } else
                 {
-                    selectedsat = satlist.at(i).catnr;
-                    selectedsat_alt = satlist.at(i).current_alt;
+                    selectedsat = satlist.at(i)->catnr;
+                    selectedsat_alt = satlist.at(i)->current_alt;
                 }
                 break;
             }
@@ -878,86 +930,85 @@ void SatelliteList::TestForSatGL(int x, int y)
 void SatelliteList::GetSatelliteEphem(const int catnbr, double *deg_lon, double *deg_lat, double *alt, double *az, double *el, double *range, double *rate)
 {
 
-    QList<Satellite>::iterator sat = satlist.begin();
+    QList<Satellite*>::iterator sat = satlist.begin();
     QGeodetic geo;
     QTopocentric topo;
 
     while ( sat != satlist.end() )
     {
-        if((*sat).catnr == catnbr)
+        if((*sat)->catnr == catnbr)
         {
-            (*sat).GetSatelliteEphem( geo, topo );
-            (*sat).current_lon = *deg_lon = rad2deg( geo.longitude);
-            (*sat).current_lat = *deg_lat = rad2deg( geo.latitude);
-            (*sat).current_alt = *alt = geo.altitude;
-            (*sat).current_az = *az = rad2deg(topo.azimuth);
-            (*sat).current_el = *el = rad2deg(topo.elevation);
-            (*sat).current_range = *range = topo.range;
-            (*sat).current_rate = *rate = topo.range_rate;
+            (*sat)->GetSatelliteEphem( geo, topo );
+            (*sat)->current_lon = *deg_lon = rad2deg( geo.longitude);
+            (*sat)->current_lat = *deg_lat = rad2deg( geo.latitude);
+            (*sat)->current_alt = *alt = geo.altitude;
+            (*sat)->current_az = *az = rad2deg(topo.azimuth);
+            (*sat)->current_el = *el = rad2deg(topo.elevation);
+            (*sat)->current_range = *range = topo.range;
+            (*sat)->current_rate = *rate = topo.range_rate;
             return;
         }
         ++sat;
     }
 }
 
-//Satellite SatelliteList::GetSatellite(const int catnbr, bool *ok)
-//{
-
-//    *ok = false;
-
-//    if (satlist.count() > 0)
-//    {
-//        QList<Satellite>::iterator sat = satlist.begin();
-
-//        while ( sat != satlist.end() )
-//        {
-//            if((*sat).catnr == catnbr)
-//            {
-//                *ok = true;
-//                return (*sat);
-//            }
-//            ++sat;
-//        }
-//    }
-
-//}
-
-bool SatelliteList::GetSatellite(const int catnbr, Satellite *sat)
+Satellite *SatelliteList::GetSatellite(const int catnbr, bool *ok)
 {
 
+    *ok = false;
 
     if (satlist.count() > 0)
     {
-        QList<Satellite>::iterator itsat = satlist.begin();
+        QList<Satellite*>::iterator sat = satlist.begin();
 
-        while ( itsat != satlist.end() )
+        while ( sat != satlist.end() )
         {
-            if((*itsat).catnr == catnbr)
+            if((*sat)->catnr == catnbr)
             {
-                *sat = *itsat;
-                return true;
+                *ok = true;
+                return (*sat);
             }
-            ++itsat;
+            ++sat;
         }
     }
-
-    return false;
+    return nullptr;
 }
+
+//bool SatelliteList::GetSatellite(const int catnbr, Satellite *sat)
+//{
+
+//    if (satlist.count() > 0)
+//    {
+//        QList<Satellite*>::iterator itsat = satlist.begin();
+
+//        while ( itsat != satlist.end() )
+//        {
+//            if((*itsat)->catnr == catnbr)
+//            {
+//                *sat = **itsat;
+//                return true;
+//            }
+//            ++itsat;
+//        }
+//    }
+
+//    return false;
+//}
 
 bool SatelliteList::SatExistInList(const int catnr)
 {
-    QList<Satellite>::iterator sat = satlist.begin();
+    QList<Satellite*>::iterator sat = satlist.begin();
 
     bool ret  = false;
 
     while ( sat != satlist.end() )
     {
-      if((*sat).catnr == catnr)
-      {
-        ret = true;
-        break;
-      }
-      ++sat;
+        if((*sat)->catnr == catnr)
+        {
+            ret = true;
+            break;
+        }
+        ++sat;
     }
 
     return ret;
@@ -968,28 +1019,28 @@ bool SatelliteList::SatExistInList(const int catnr)
 void SatelliteList::SetActive(const int catnr)
 {
 
-  QList<Satellite>::iterator sat = satlist.begin();
+    QList<Satellite*>::iterator sat = satlist.begin();
 
-  while ( sat != satlist.end() )
-  {
-    if((*sat).catnr == catnr)
+    while ( sat != satlist.end() )
     {
-      (*sat).active = true;
-      return;
+        if((*sat)->catnr == catnr)
+        {
+            (*sat)->active = true;
+            return;
+        }
+        ++sat;
     }
-    ++sat;
-  }
 
 }
 
 double SatelliteList::GetSatAlt(const int catnr)
 {
-    QList<Satellite>::iterator sat = satlist.begin();
+    QList<Satellite*>::iterator sat = satlist.begin();
 
     while( sat != satlist.end() )
     {
-        if((*sat).catnr == catnr)
-            return((*sat).current_alt);
+        if((*sat)->catnr == catnr)
+            return((*sat)->current_alt);
         ++sat;
     }
     return(0);

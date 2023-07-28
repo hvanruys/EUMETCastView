@@ -16,7 +16,7 @@ class SegmentVIIRSM : public Segment
     Q_OBJECT
 
 public:
-    explicit SegmentVIIRSM(QFile *filesegment = 0, SatelliteList *satl = 0, eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
+    explicit SegmentVIIRSM(QFile *filesegment = 0, eSegmentType type = eSegmentType::SEG_NONE, QObject *parent = 0);
     ~SegmentVIIRSM();
 
     void initializeMemory();

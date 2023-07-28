@@ -60,11 +60,10 @@ BilinearInterpolation(float q10, float q00, float q11, float q01, float x0, floa
 }
 
 
-SegmentMERSI::SegmentMERSI(QFileInfo fileinfo, SatelliteList *satl, QObject *parent) :
+SegmentMERSI::SegmentMERSI(QFileInfo fileinfo, QObject *parent) :
     Segment(parent)
 {
     bool ok;
-    satlist = satl;
     this->fileInfo = fileinfo;
 
     this->satname = fileInfo.baseName().mid(0, 4);
@@ -95,10 +94,10 @@ SegmentMERSI::SegmentMERSI(QFileInfo fileinfo, SatelliteList *satl, QObject *par
     julian_sensing_start = qsensingstart.Julian();
     julian_sensing_end = qsensingend.Julian();
 
-    Satellite fy3d_sat;
+    Satellite *fy3d_sat;
 
     if(fileInfo.fileName().mid(0,4) == "FY3D")
-        ok = satlist->GetSatellite(43010, &fy3d_sat);
+        fy3d_sat = satellitelist.GetSatellite(43010, &ok);
 
     if(!ok)
     {
@@ -106,8 +105,8 @@ SegmentMERSI::SegmentMERSI(QFileInfo fileinfo, SatelliteList *satl, QObject *par
         return;
     }
 
-    line1 = fy3d_sat.line1;
-    line2 = fy3d_sat.line2;
+    line1 = fy3d_sat->line1;
+    line2 = fy3d_sat->line2;
 
     qtle.reset(new QTle(fileInfo.fileName().mid(0,4), line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));

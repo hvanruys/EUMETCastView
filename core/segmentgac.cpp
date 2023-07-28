@@ -19,12 +19,12 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern SatelliteList satellitelist;
 
-SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentGAC::SegmentGAC(QFile *filesegment, QObject *parent) :
     Segment(parent)
 {
     bool ok;
-    satlist = satl;
     fileInfo.setFile(*filesegment);
     segment_type = "GAC";
     segtype = eSegmentType::SEG_GAC;
@@ -53,17 +53,17 @@ SegmentGAC::SegmentGAC(QFile *filesegment, SatelliteList *satl, QObject *parent)
     this->earth_views_per_scanline = 409;
 
 
-    Satellite noaa19;
-    ok = satlist->GetSatellite(33591, &noaa19);
+    Satellite *noaa19;
+    noaa19 = satellitelist.GetSatellite(33591, &ok);
 
-    line1 = noaa19.line1;
-    line2 = noaa19.line2;
+    line1 = noaa19->line1;
+    line2 = noaa19->line2;
             //"1 NNNNNC NNNNNAAA NNNNN.NNNNNNNN +.NNNNNNNN +NNNNN-N +NNNNN-N N NNNNN"
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
             //"2 NNNNN NNN.NNNN NNN.NNNN NNNNNNN NNN.NNNN NNN.NNNN NN.NNNNNNNNNNNNNN"
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
 
-    qtle.reset(new QTle(noaa19.sat_name, line1, line2, QTle::wgs84));
+    qtle.reset(new QTle(noaa19->sat_name, line1, line2, QTle::wgs84));
     qsgp4.reset(new QSgp4( *qtle ));
 
     julian_state_vector = qtle->Epoch();

@@ -14,6 +14,7 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern gshhsData *gshhsdata;
+extern SatelliteList satellitelist;
 
 #include <QMutex>
 
@@ -28,7 +29,7 @@ void Render3DColorFBO(Globe *gl, eGeoSatellite sat)
 }
 
 
-Globe::Globe(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *seglist ):QOpenGLWidget(parent)
+Globe::Globe(QWidget *parent, AVHRRSatellite *seglist ):QOpenGLWidget(parent)
 {
 
     scaleAll = 1;
@@ -38,7 +39,6 @@ Globe::Globe(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *seglist ):
     bSatellites = true;
     bSegmentNames = true;
 
-    sats = satlist;
     segs = seglist;
 
     QImage qim(opts.appdir_env == "" ? opts.backgroundimage3D : opts.appdir_env + "/" + opts.backgroundimage3D);
@@ -82,8 +82,8 @@ void Globe::initializeGL()
     gshhsdata->initializegshhsData(&programgshhs);
     skybox = new SkyBox(&programskybox);
     soc = new Soc(&programdraw);
-    satgl = new SatGL(&programsatgl, sats, segs);
-    segmentgl = new SegmentGL(&programdraw, sats, segs);
+    satgl = new SatGL(&programsatgl, segs);
+    segmentgl = new SegmentGL(&programdraw, segs);
     octa = new Octahedron(&programdraw);
     sun = new GeometryEngine(&programdraw);
     sun->initSphereGeometry(1.0f, 32, 16);
@@ -289,7 +289,7 @@ void Globe::mouseDownAction(int x, int y)
         segmentnameselected = segname;
     }
     else
-        sats->TestForSatGL(x, y);
+        satellitelist.TestForSatGL(x, y);
 }
 
 void Globe::mouseMoveEvent(QMouseEvent *event)
@@ -1082,19 +1082,19 @@ void Globe::drawSatelliteNames(QPainter *painter, QMatrix4x4 modelview)
     for(int i = 0; i < 16; i++)
         projmatrix[i] = *(ptr + i);
 
-    QList<Satellite>::iterator sat = sats->GetSatlist()->begin();
+    QList<Satellite*>::iterator sat = satellitelist.GetSatlist()->begin();
 
-    while ( sat != sats->GetSatlist()->end() )
+    while ( sat != satellitelist.GetSatlist()->end() )
     {
-        if( (*sat).active  == true)
+        if( (*sat)->active  == true)
         {
-            QVector3D pos = (*sat).position.normalized();
+            QVector3D pos = (*sat)->position.normalized();
 
             win = glhProjectf( pos, mvmatrix, projmatrix, this->width(), this->height());
 
-            vector(0, 0) = (*sat).position.x();
-            vector(1, 0) = (*sat).position.y();
-            vector(2, 0) = (*sat).position.z();
+            vector(0, 0) = (*sat)->position.x();
+            vector(1, 0) = (*sat)->position.y();
+            vector(2, 0) = (*sat)->position.z();
 
             Normal = norm * vector;
             QVector3D vecnormal;
@@ -1108,12 +1108,12 @@ void Globe::drawSatelliteNames(QPainter *painter, QMatrix4x4 modelview)
             // qDebug() << "angle = " << angle;
             if(result > angle)
             {
-                (*sat).winsatpos.setX(win.x());
-                (*sat).winsatpos.setY(this->height() - win.y());
-                painter->drawText(win.x(), this->height() - win.y(), (*sat).sat_name);
+                (*sat)->winsatpos.setX(win.x());
+                (*sat)->winsatpos.setY(this->height() - win.y());
+                painter->drawText(win.x(), this->height() - win.y(), (*sat)->sat_name);
             }
             else
-                (*sat).winsatpos = QVector2D(9999.0,9999.0);
+                (*sat)->winsatpos = QVector2D(9999.0,9999.0);
         }
         ++sat;
     }

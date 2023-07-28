@@ -24,7 +24,7 @@ class FormMapCyl : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormMapCyl(QWidget *parent = 0, MapFieldCyl *p_mapcyl = 0, Globe *p_globe = 0, FormToolbox *p_formtoolbox = 0, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
+    explicit FormMapCyl(QWidget *parent = 0, MapFieldCyl *p_mapcyl = 0, Globe *p_globe = 0, FormToolbox *p_formtoolbox = 0, AVHRRSatellite *seglist=0 );
 
     int ExtractSegment(QString ArchivePath, QString DestinationPath);
     bool AreThereSelectedSegments();
@@ -33,7 +33,6 @@ public:
 
 private:
     Ui::FormMapCyl *ui;
-    SatelliteList *sats;
     AVHRRSatellite *segs;
 
     MapFieldCyl *mapcyl;

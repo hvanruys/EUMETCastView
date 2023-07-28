@@ -10,15 +10,14 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern SatelliteList satellitelist;
 #include <QMutex>
 
 
-SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, SatelliteList *satl, eSegmentType type, QObject *parent) :
+SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, eSegmentType type, QObject *parent) :
     Segment(parent)
 {
     bool ok;
-
-    satlist = satl;
 
     fileInfo.setFile(*filesegment);
     switch (type) {
@@ -62,29 +61,29 @@ SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, SatelliteList *satl, eSegme
     this->earth_views_per_scanline = 4064;
     this->NbrOfLines = 768;
 
-    Satellite viirssat;
+    Satellite *viirssat;
     if(type == eSegmentType::SEG_VIIRSDNB)
     {
-        viirssat.sat_name = "NPP";
-        ok = satlist->GetSatellite(37849, &viirssat);
+        //viirssat.sat_name = "NPP";
+        viirssat = satellitelist.GetSatellite(37849, &ok);
     }
     else if(type == eSegmentType::SEG_VIIRSDNBNOAA20)
     {
-        viirssat.sat_name = "NOAA-20";
-        ok = satlist->GetSatellite(43013, &viirssat);
+        //viirssat.sat_name = "NOAA-20";
+        viirssat = satellitelist.GetSatellite(43013, &ok);
     }
     if(!ok)
         qDebug() << "Sat not found!";
 
-    line1 = viirssat.line1;
-    line2 = viirssat.line2;
+    line1 = viirssat->line1;
+    line2 = viirssat->line2;
 
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
     double epoch = line1.mid(18,14).toDouble(&ok);
     julian_state_vector = Julian_Date_of_Epoch(epoch);
 
-    qtle.reset(new QTle(viirssat.sat_name, line1, line2, QTle::wgs72));
+    qtle.reset(new QTle(viirssat->sat_name, line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));
 
 
@@ -880,15 +879,15 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
     /*
     for (j = 0; j < 4; j++) {
         for (i = 0; i < 6; i++)
-           cout << " " <<  ptrbaVIIRSDNB[j * earth_views_per_scanline + i];
-        cout << endl;
+           std::cout << " " <<  ptrbaVIIRSDNB[j * earth_views_per_scanline + i];
+        std::cout << std::endl;
     }
 */
-    /*    cout  << "tie point latitude : " << endl;
+    /*    std::cout  << "tie point latitude : " << std::endl;
     for (j = 0; j < 2; j++) {
         for (i = 100; i < 102; i++)
-           cout << " " <<  tiepoints_lat[j * 201 + i];
-        cout << endl;
+           std::cout << " " <<  tiepoints_lat[j * 201 + i];
+        std::cout << std::endl;
     }
 
 */
@@ -944,32 +943,32 @@ Segment *SegmentVIIRSDNB::ReadSegmentInMemory()
 
     //this->LonLatMax();
 
-    /*    cout << "alpha voor iscan = 100 :" << endl;
+    /*    std::cout << "alpha voor iscan = 100 :" << std::endl;
     for (j = 0; j < 16; j++) {
         for (i = 0; i < 16; i++)
-           cout << " " <<  alpha[j][i];
-        cout << endl;
+           std::cout << " " <<  alpha[j][i];
+        std::cout << std::endl;
     }
 
 
-    cout << "geolatitude  :" << endl;
+    std::cout << "geolatitude  :" << std::endl;
     for (j = 0; j < 16; j++) {
         for (i = 1600; i < 1616; i++)
-           cout << " " <<  geolatitude[j * earth_views_per_scanline + i];
-        cout << endl;
+           std::cout << " " <<  geolatitude[j * earth_views_per_scanline + i];
+        std::cout << std::endl;
     }
 
-    cout << "geolatitude  :" << endl;
+    std::cout << "geolatitude  :" << std::endl;
     for (j = 0; j < NbrOfLines; j+=767) {
         for (i = 0; i < earth_views_per_scanline; i+=3199)
-           cout << " " <<  geolatitude[j * earth_views_per_scanline + i];
-        cout << endl;
+           std::cout << " " <<  geolatitude[j * earth_views_per_scanline + i];
+        std::cout << std::endl;
     }
-    cout << "geolongitude  :" << endl;
+    std::cout << "geolongitude  :" << std::endl;
     for (j = 0; j < NbrOfLines; j+=767) {
         for (i = 0; i < earth_views_per_scanline; i+=3199)
-           cout << " " <<  geolongitude[j * earth_views_per_scanline + i];
-        cout << endl;
+           std::cout << " " <<  geolongitude[j * earth_views_per_scanline + i];
+        std::cout << std::endl;
     }
 
 */
@@ -1297,17 +1296,17 @@ void SegmentVIIRSDNB::interpolateLonLatViaVector(int itrack, int indexfrom, int 
 
     //    if( itrack == 0 && igroupscan == 0)
     //    {
-    //        cout << "geolatitude" << endl;
+    //        std::cout << "geolatitude" << std::endl;
     //        for (int relt = 0; relt < 16; relt++) {
     //            for (int rels = 0; rels < zscan; rels++)
-    //               cout << " " <<  geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels];
-    //            cout << endl;
+    //               std::cout << " " <<  geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels];
+    //            std::cout << std::endl;
     //        }
-    //        cout << "geolongitude" << endl;
+    //        std::cout << "geolongitude" << std::endl;
     //        for (int relt = 0; relt < 16; relt++) {
     //            for (int rels = 0; rels < zscan; rels++)
-    //               cout << " " <<  geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels];
-    //            cout << endl;
+    //               std::cout << " " <<  geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * zscan) + rels];
+    //            std::cout << std::endl;
     //        }
     //    }
 
@@ -1461,17 +1460,17 @@ void SegmentVIIRSDNB::interpolateSolarViaVector(int itrack, int indexfrom, int i
 
     //    if( itrack == 0)
     //    {
-    //        cout << "solar_azimuth" << endl;
+    //        std::cout << "solar_azimuth" << std::endl;
     //        for (int relt = 0; relt < 16; relt++) {
     //            for (int rels = 0; rels < zscan; rels++)
-    //                cout << " " <<  solar_azimuth[((itrack * 16) + relt) * earth_views_per_scanline + rels]; // + (iscan * zscan)];
-    //            cout << endl;
+    //                std::cout << " " <<  solar_azimuth[((itrack * 16) + relt) * earth_views_per_scanline + rels]; // + (iscan * zscan)];
+    //            std::cout << std::endl;
     //        }
-    //        cout << "solar_zenith" << endl;
+    //        std::cout << "solar_zenith" << std::endl;
     //        for (int relt = 0; relt < 16; relt++) {
     //            for (int rels = 0; rels < zscan; rels++)
-    //                cout << " " <<  solar_zenith[((itrack * 16) + relt) * earth_views_per_scanline + rels]; // + (iscan * zscan)];
-    //            cout << endl;
+    //                std::cout << " " <<  solar_zenith[((itrack * 16) + relt) * earth_views_per_scanline + rels]; // + (iscan * zscan)];
+    //            std::cout << std::endl;
     //        }
     //    }
 }
@@ -1524,19 +1523,19 @@ void SegmentVIIRSDNB::getCentralCoords(double *startlon, double *startlat, doubl
             break;
     }
 
-    cout << "=================LONGITUDE===========================" << endl;
+    std::cout << "=================LONGITUDE===========================" << std::endl;
     for(int i = 0; i < this->NbrOfLines;i++)
     {
-        cout << geolongitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)] << " ";
+        std::cout << geolongitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)] << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
 
-    cout << "=================LATITUDE===========================" << endl;
+    std::cout << "=================LATITUDE===========================" << std::endl;
     for(int i = 0; i < this->NbrOfLines;i++)
     {
-        cout << geolatitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)] << " ";
+        std::cout << geolatitude[i * earth_views_per_scanline + (int)(earth_views_per_scanline/2)] << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
 
     qDebug() << "SegmentVIIRSDNB::GetCentralCoords startindex = " << *startindex << " endindex = " << *endindex << " slon = " << *startlon <<
                 " slat = " << *startlat << " elon = " << *endlon << " elat = " << *endlat;

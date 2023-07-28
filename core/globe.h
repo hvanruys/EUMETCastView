@@ -53,7 +53,7 @@ class Globe  : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 
 public:
-    Globe(QWidget *parent = NULL, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
+    Globe(QWidget *parent = NULL, AVHRRSatellite *seglist=0 );
     void Render3DGeoSegment(int geoindex);
     void Render3DGeoSegmentNew(int geoindex);
     void Render3DGeoSegmentFBO(eGeoSatellite sat);
@@ -142,7 +142,6 @@ private:
     QList<QList<QVector3D>*> veclist;
 
     int delay;
-    SatelliteList *sats;
     AVHRRSatellite *segs;
     bool lighting;
 

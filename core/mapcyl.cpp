@@ -14,8 +14,9 @@
 #include <QDebug>
 
 extern Options opts;
+extern SatelliteList satellitelist;
 
-MapFieldCyl::MapFieldCyl( QWidget *parent, CylEquiDist *meqdis, SatelliteList *satlist, AVHRRSatellite *seglist )
+MapFieldCyl::MapFieldCyl( QWidget *parent, CylEquiDist *meqdis, AVHRRSatellite *seglist )
         : QWidget( parent )
 {
 
@@ -23,7 +24,6 @@ MapFieldCyl::MapFieldCyl( QWidget *parent, CylEquiDist *meqdis, SatelliteList *s
   setBackgroundRole(QPalette::Dark);
 
   med=meqdis;
-  sats=satlist;
   segs=seglist;
 
   //qDebug() << QString("in creator MapFieldCyl nbr seglist %1 selected %2").arg(segs->segmentlistmetop->NbrOfSegments()).arg(segs->segmentlistmetop->NbrOfSegmentsSelected());
@@ -77,8 +77,8 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
 
     QPainter painter(&pmScaled_res);
     painter.drawPixmap(0, 0, pmScaled);
-    sats->RenderAllSatellites( &painter );
-    sats->showHorizon( deg2rad(opts.getObsLon()), deg2rad(opts.getObsLat()), sats->GetSelectedSatAlt(), &painter);
+    satellitelist.RenderAllSatellites( &painter );
+    satellitelist.showHorizon( deg2rad(opts.getObsLon()), deg2rad(opts.getObsLat()), satellitelist.GetSelectedSatAlt(), &painter);
 
     //qDebug() << QString("in paintevent MapFieldCyl nbr seglist %1 selected %2").arg(segs->segmentlistmetop->NbrOfSegments()).arg(segs->segmentlistmetop->NbrOfSegmentsSelected());
 
@@ -421,7 +421,7 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
     if(isselected)
         emit mapClicked();  // show selected segmentlist in FormEphem
      else
-        sats->TestForSat(e->x(), e->y());
+        satellitelist.TestForSat(e->x(), e->y());
 
     update();
 

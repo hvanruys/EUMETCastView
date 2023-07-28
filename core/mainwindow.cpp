@@ -15,6 +15,7 @@ extern Poi poi;
 extern SegmentImage *imageptrs;
 extern QFile loggingFile;
 extern QTextStream outlogging;
+extern SatelliteList satellitelist;
 class SegmentListGeostationary;
 
 
@@ -26,22 +27,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupStatusBar();
 
-    satlist = new SatelliteList();
-    seglist = new AVHRRSatellite(this, satlist);
+    seglist = new AVHRRSatellite(this);
 
-    formephem = new FormEphem(this, satlist, seglist);
+    formephem = new FormEphem(this, seglist);
     ui->stackedWidget->addWidget(formephem); // index 0
 
     //formtoolbox = NULL;
 
-    formgeostationary = new FormGeostationary(this, satlist, seglist);
+    formgeostationary = new FormGeostationary(this, seglist);
     ui->stackedWidget->addWidget(formgeostationary); // index 1
 
     cylequidist = new CylEquiDist( opts.appdir_env == "" ? opts.backgroundimage2D : opts.appdir_env + "/" + opts.backgroundimage2D );
-    mapcyl = new MapFieldCyl(this, cylequidist, satlist, seglist);
-    globe = new Globe(this, satlist, seglist);
+    mapcyl = new MapFieldCyl(this, cylequidist, seglist);
+    globe = new Globe(this, seglist);
 
-    formimage = new FormImage(this, satlist, seglist);
+    formimage = new FormImage(this, seglist);
     formgeostationary->SetFormImage(formimage);
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
@@ -87,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglviirsdnbnoaa20, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
 
 
-    formglobecyl = new FormMapCyl( this, mapcyl, globe, formtoolbox, satlist, seglist);
+    formglobecyl = new FormMapCyl( this, mapcyl, globe, formtoolbox, seglist);
 
     connect(seglist, SIGNAL(signalShowSegmentCount()), formglobecyl, SLOT(slotShowSegmentCount()));
 
@@ -234,7 +234,11 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     //char envvar[] = "HDF5_PLUGIN_PATH";
+#ifdef WIN32
+    char envvar[] = "HDF5_PLUGIN_PATH=.\\";
+#else
     char envvar[] = "HDF5_PLUGIN_PATH=./";
+#endif
 
     // Make sure envvar actually exists
     if(!getenv("HDF5_PLUGIN_PATH")){
@@ -434,6 +438,7 @@ MainWindow::~MainWindow()
     qDebug() << "================closing MainWindow================";
     outlogging.flush();
     loggingFile.close();
+    qInstallMessageHandler(nullptr);
 
 }
 

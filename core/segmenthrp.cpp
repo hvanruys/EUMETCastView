@@ -19,12 +19,12 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern SatelliteList satellitelist;
 
-SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentHRP::SegmentHRP(QFile *filesegment, QObject *parent) :
     Segment(parent)
 {
     bool ok;
-    satlist = satl;
     fileInfo.setFile(*filesegment);
     segtype = eSegmentType::SEG_HRP;
     segment_type = "HRP";
@@ -52,17 +52,17 @@ SegmentHRP::SegmentHRP(QFile *filesegment, SatelliteList *satl, QObject *parent)
     julian_sensing_start = qsensingstart.Julian();
     julian_sensing_end = qsensingend.Julian();
 
-    Satellite sat;
+    Satellite *sat;
 
     if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M02")  // Metop-A
-        ok = satlist->GetSatellite(29499, &sat);
+        sat = satellitelist.GetSatellite(29499, &ok);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M01") // Metop-B
-        ok = satlist->GetSatellite(38771, &sat);
+        sat = satellitelist.GetSatellite(38771, &ok);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M03") // Metop-C
-        ok = satlist->GetSatellite(43689, &sat);
+        sat = satellitelist.GetSatellite(43689, &ok);
 
-    line1 = sat.line1;
-    line2 = sat.line2;
+    line1 = sat->line1;
+    line2 = sat->line2;
 
     qtle.reset(new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));
@@ -337,19 +337,19 @@ bool SegmentHRP::inspectMPHRrecord(QByteArray mphr_record)
     qsensingstart = QSgp4Date(sensing_start_year, sensing_start_month, sensing_start_day, sensing_start_hour, sensing_start_minute, sensing_start_second);
     qsensingend = QSgp4Date(sensing_end_year, sensing_end_month, sensing_end_day, sensing_end_hour, sensing_end_minute, sensing_end_second);
 
-    Satellite metop_sat;
+    Satellite *metop_sat;
 
     if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M02")  // Metop-A
-        ok = satlist->GetSatellite(29499, &metop_sat);
+        metop_sat = satellitelist.GetSatellite(29499, &ok);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M01") // Metop-B
-        ok = satlist->GetSatellite(38771, &metop_sat);
+        metop_sat = satellitelist.GetSatellite(38771, &ok);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_HRP_00_M03") // Metop-C
-        ok = satlist->GetSatellite(43689, &metop_sat);
+        metop_sat = satellitelist.GetSatellite(43689, &ok);
 
     this->earth_views_per_scanline = 2048;
 
-    line1 = metop_sat.line1;
-    line2 = metop_sat.line2;
+    line1 = metop_sat->line1;
+    line2 = metop_sat->line2;
 
     qtle.reset(new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));

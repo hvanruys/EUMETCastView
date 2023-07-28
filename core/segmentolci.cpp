@@ -15,13 +15,12 @@ extern SegmentImage *imageptrs;
 //}
 
 
-SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *satl, QObject *parent) :
+SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
   Segment(parent)
 {
 
     bool ok;
 
-    satlist = satl;
     this->fileInfo = fileinfo;
 
     if(type == SEG_OLCIEFR)
@@ -78,12 +77,12 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *s
     this->NbrOfLines = 4091;
 
 
-    Satellite s3_sat;
+    Satellite *s3_sat;
 
     if(fileInfo.fileName().mid(0,8) == "S3A_OL_1")  // S3A
-        ok = satlist->GetSatellite(41335, &s3_sat);
+        s3_sat = satellitelist.GetSatellite(41335, &ok);
     else if(fileInfo.fileName().mid(0,8) == "S3B_OL_1") // S3B
-        ok = satlist->GetSatellite(43437, &s3_sat);
+        s3_sat = satellitelist.GetSatellite(43437, &ok);
 
     if(!ok)
     {
@@ -91,15 +90,15 @@ SegmentOLCI::SegmentOLCI(eSegmentType type, QFileInfo fileinfo, SatelliteList *s
         return;
     }
 
-    line1 = s3_sat.line1;
-    line2 = s3_sat.line2;
+    line1 = s3_sat->line1;
+    line2 = s3_sat->line2;
 
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
     double epoch = line1.mid(18,14).toDouble(&ok);
     julian_state_vector = Julian_Date_of_Epoch(epoch);
 
-    qtle.reset(new QTle(s3_sat.sat_name, line1, line2, QTle::wgs72));
+    qtle.reset(new QTle(s3_sat->sat_name, line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));
 
 

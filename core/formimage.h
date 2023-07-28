@@ -18,7 +18,7 @@ class FormImage : public QGraphicsView
 
 
 public:
-    explicit FormImage(QWidget *parent = 0, SatelliteList *satlist=0, AVHRRSatellite *seglist=0);
+    explicit FormImage(QWidget *parent = 0, AVHRRSatellite *seglist=0);
 
     void MakeImage();
 
@@ -103,7 +103,6 @@ private:
 
     QString kindofimage;
     eSegmentType segmenttype;
-    SatelliteList *sats;
     AVHRRSatellite *segs;
 
     bool overlaymeteosat;

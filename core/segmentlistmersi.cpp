@@ -19,7 +19,6 @@ SegmentListMERSI::SegmentListMERSI(SatelliteList *satl, QObject *parent) :
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListMERSI");
 
-    satlist = satl;
     seglisttype = eSegmentType::SEG_MERSI;
     histogrammethod = 0; // 0 none , 1 equalize
     normalized = false;

@@ -15,7 +15,7 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern bool ptrimagebusy;
-
+extern SatelliteList satellitelist;
 
 
 void SegmentListVIIRSM::doComposeVIIRSMImageInThread(SegmentListVIIRSM *t, QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist)
@@ -24,12 +24,11 @@ void SegmentListVIIRSM::doComposeVIIRSMImageInThread(SegmentListVIIRSM *t, QList
 }
 
 
-SegmentListVIIRSM::SegmentListVIIRSM(SatelliteList *satl, eSegmentType type, QObject *parent)
+SegmentListVIIRSM::SegmentListVIIRSM(eSegmentType type, QObject *parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListVIIRSM");
 
-    satlist = satl;
     seglisttype = type;
     earthviews = 3200;
 }

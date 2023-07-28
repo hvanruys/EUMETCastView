@@ -14,7 +14,7 @@
 class SatGL  : protected QOpenGLFunctions
 {
 public:
-    SatGL(QOpenGLShaderProgram *prog, SatelliteList *satlist=0, AVHRRSatellite *seglist=0 );
+    SatGL(QOpenGLShaderProgram *prog, AVHRRSatellite *seglist=0 );
     void render(QMatrix4x4 projection, float dist, QQuaternion quat);
 
     ~SatGL();
@@ -24,7 +24,6 @@ private:
     void showSatHorizon(Satellite *sat, QMatrix4x4 projection, float distance, QQuaternion quat);
     void drawCircle(float cx, float cy, float r, int num_segments);
 
-    SatelliteList *sats;
     AVHRRSatellite *segs;
     GLuint vertexPosition;
     QOpenGLShaderProgram *program;

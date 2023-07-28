@@ -3,14 +3,15 @@
 #include "formmapcyl.h"
 #include "ui_formmapcyl.h"
 #include "dialogpreferences.h"
+#include "satellite.h"
 
 #include <netcdf.h>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern SatelliteList satellitelist;
 
-
-FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, FormToolbox *p_formtoolbox, SatelliteList *satlist, AVHRRSatellite *seglist ) :
+FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, FormToolbox *p_formtoolbox, AVHRRSatellite *seglist ) :
     QWidget(parent),
     ui(new Ui::FormMapCyl)
 {
@@ -18,7 +19,6 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 
     qDebug() << "constructor formmapcyl";
 
-    sats = satlist;
     segs = seglist;
     mapcyl = p_mapcyl;
     globe = p_globe;

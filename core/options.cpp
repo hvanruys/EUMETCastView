@@ -1,5 +1,4 @@
 #include "options.h"
-//#include "sgp4sdp4.h"
 
 #include <qsettings.h>
 #include <QDebug>

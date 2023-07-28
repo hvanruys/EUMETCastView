@@ -12,7 +12,7 @@ class SegmentGAC : public Segment
     Q_OBJECT
 
 public:
-    explicit SegmentGAC(QFile *filesegment = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentGAC(QFile *filesegment = 0, QObject *parent = 0);
     ~SegmentGAC();
 
     bool inspectMPHRrecord(QByteArray mphr_record);

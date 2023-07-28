@@ -12,11 +12,8 @@ class SegmentListNoaa : public SegmentList
     Q_OBJECT
 
 public:
-    explicit SegmentListNoaa(SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentListNoaa(QObject *parent = 0);
 private:
-
-    SatelliteList *satlist;
-
 
 };
 

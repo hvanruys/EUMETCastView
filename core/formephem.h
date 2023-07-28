@@ -22,7 +22,7 @@ class FormEphem : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormEphem(QWidget *parent = 0, SatelliteList *satlist = 0, AVHRRSatellite *seglist = 0);
+    explicit FormEphem(QWidget *parent = 0, AVHRRSatellite *seglist = 0);
     void showAvailSat();
     void showActiveSatellites(void);
     void downloadTLE();
@@ -46,15 +46,13 @@ private:
     DownloadManager downloadmanager;
     QUdpSocket *udpSocket;
 
-
-
 private slots:
     void timerDone();
     void on_btnAdd_clicked();
     void on_btnDel_clicked();
     void on_btnUpdateTLE_clicked();
     void on_tletreewidget_itemChanged(QTreeWidgetItem *item, int column);
-    void itemSelectedtreewidget( QTreeWidgetItem* );
+    void itemSelectedtreewidget(QTreeWidgetItem* , int test);
     void itemSelectedsegmentdirectory( QTreeWidgetItem *item);
     void tlefilesread(QString str);
     void showprogress(QString str);
@@ -90,8 +88,7 @@ signals:
     void signalDirectoriesRead();
     void signalDatagram(QByteArray);
 
-protected:
-    SatelliteList *sats;
+
 
 
 

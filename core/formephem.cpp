@@ -4,7 +4,7 @@
 #include <QDebug>
 
 extern Options opts;
-
+extern SatelliteList satellitelist;
 
 QTreeWidgetItem *item(QString name, QTreeWidgetItem* parent=0) {
     QTreeWidgetItem *retval = new QTreeWidgetItem(parent);
@@ -15,7 +15,7 @@ QTreeWidgetItem *item(QString name, QTreeWidgetItem* parent=0) {
     return retval;
 }
 
-FormEphem::FormEphem(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *seglist):
+FormEphem::FormEphem(QWidget *parent, AVHRRSatellite *seglist):
     QWidget(parent),
     ui(new Ui::FormEphem)
 {
@@ -27,7 +27,6 @@ FormEphem::FormEphem(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
         qDebug() << "splitter not ok";
 
 
-    sats = satlist;
     segs = seglist;
     segs->setXMLDate(ui->calendar->selectedDate());
 
@@ -116,7 +115,7 @@ FormEphem::FormEphem(QWidget *parent, SatelliteList *satlist, AVHRRSatellite *se
 
     connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
-    connect(ui->satlisttreewidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), this,SLOT(itemSelectedtreewidget(QTreeWidgetItem*)));
+    connect(ui->satlisttreewidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), this,SLOT(itemSelectedtreewidget(QTreeWidgetItem*, int)));
     connect(ui->segmentdirectorywidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemSelectedsegmentdirectory(QTreeWidgetItem*)));
 
     connect( segs, SIGNAL(signalProgress(int)), this, SLOT(setProgressBar(int)));
@@ -167,7 +166,7 @@ void FormEphem::on_btnAdd_clicked()
     {
         if(opts.addTleFile(fn))
         {
-            sats->ReloadList();
+            satellitelist.ReloadList();
             showAvailSat();
         }
     }
@@ -200,7 +199,7 @@ void FormEphem::on_btnDel_clicked()
     }
 
     opts.deleteTleFile( sel);
-    sats->ReloadList();
+    satellitelist.ReloadList();
     showAvailSat();
 }
 
@@ -305,6 +304,7 @@ void FormEphem::showAvailSat()
     QString lleft;
     QStringList catout;
 
+    qDebug() << "showAvailSat()";
     ui->tletreewidget->clear();
     ui->satlisttreewidget->clear();
 
@@ -328,7 +328,7 @@ void FormEphem::showAvailSat()
     while( its != opts.tlelist.end() )
     {
         tleItemList.append( item(*its) );
-        qDebug() << "showavailsat : " << *its;
+        qDebug() << "showAvailSat : " << *its;
         ++its;
     }
 
@@ -557,7 +557,7 @@ void FormEphem::on_chkSelectHvs3_toggled(bool checked)
 void FormEphem::showActiveSatellites(void)
 {
 
-    QStringList tlelist = sats->GetActiveSatList();
+    QStringList tlelist = satellitelist.GetActiveSatList();
     QStringList::Iterator it2 = tlelist.begin();
     QString str1, str2, str3, str4, str5, str6;
     int nRes, st;
@@ -592,7 +592,7 @@ void FormEphem::showActiveSatellites(void)
         actsat << str1.toLatin1() << str2.toLatin1() << str3.toLatin1() << str4.toLatin1() << str5.toLatin1() << str6.toLatin1();
         item = new QTreeWidgetItem( ui->satlisttreewidget, actsat, 0  );
 
-        if(str2.toInt(&ok, 10) == sats->GetSelectedSat())
+        if(str2.toInt(&ok, 10) == satellitelist.GetSelectedSat())
             item->setSelected(true);
         else
             item->setSelected(false);
@@ -616,7 +616,7 @@ void FormEphem::updateSatelliteEphem(void)
 
     while (*it2)
     {
-        sats->GetSatelliteEphem(((*it2)->text(1)).toInt(), &lon, &lat, &alt, &azimuth, &elevatie, &range, &rate);
+        satellitelist.GetSatelliteEphem(((*it2)->text(1)).toInt(), &lon, &lat, &alt, &azimuth, &elevatie, &range, &rate);
         (*it2)->setText(3, strlon.setNum(lon, 'f', 1));
         (*it2)->setText(4, strlat.setNum(lat, 'f', 1));
         (*it2)->setText(5, stralt.setNum(alt, 'f', 1));
@@ -626,7 +626,7 @@ void FormEphem::updateSatelliteEphem(void)
         (*it2)->setText(8, strrange.setNum(range, 'f', 1));
         (*it2)->setText(9, strrate.setNum(rate, 'f', 1));
 
-        if ((*it2)->text(1).toInt()==sats->GetSelectedSat())
+        if ((*it2)->text(1).toInt() == satellitelist.GetSelectedSat())
             (*it2)->setSelected(true);
         else
             (*it2)->setSelected(false);
@@ -640,7 +640,7 @@ void FormEphem::on_tletreewidget_itemChanged(QTreeWidgetItem *item, int column)
     bool ok;
 
     ui->satlisttreewidget->clear();
-    sats->ClearActive();
+    satellitelist.ClearActive();
 
     QStringList fcatnbrs;
     QTreeWidgetItemIterator it1( ui->tletreewidget );
@@ -650,7 +650,7 @@ void FormEphem::on_tletreewidget_itemChanged(QTreeWidgetItem *item, int column)
 
         if ( (*it1)->checkState(0) == Qt::Checked )
         {
-            sats->SetActive(((*it1)->text(0)).mid(0,5).toInt(&ok,10));
+            satellitelist.SetActive(((*it1)->text(0)).mid(0,5).toInt(&ok,10));
             fcatnbrs << ((*it1)->text(0)).mid(0,5);
             qDebug() << ((*it1)->text(0)).mid(0,5);
         }
@@ -664,7 +664,7 @@ void FormEphem::on_tletreewidget_itemChanged(QTreeWidgetItem *item, int column)
     showActiveSatellites();
 }
 
-void FormEphem::itemSelectedtreewidget( QTreeWidgetItem *item )
+void FormEphem::itemSelectedtreewidget( QTreeWidgetItem *item, int test)
 {
     if ( !item )
         return;
@@ -672,15 +672,14 @@ void FormEphem::itemSelectedtreewidget( QTreeWidgetItem *item )
     bool ok;
 
     qDebug() << "itemselected = " << (*item).text(0) << "  " << (*item).text(1) << item->text(1).toInt(&ok, 10);
-    sats->SetSelectedSat( item->text(1).toInt(&ok, 10));
+    satellitelist.SetSelectedSat( item->text(1).toInt(&ok, 10));
 
 }
 
 
 void FormEphem::on_btnAddsegmentdir_clicked()
 {
-    QString directory = QFileDialog::getExistingDirectory(this,
-                                                          tr("Find Files"), QDir::currentPath());
+    QString directory = QFileDialog::getExistingDirectory(this, tr("Find Files"), QDir::currentPath());
 
     if (!directory.isEmpty()) {
         qDebug() << QString("directory = %1").arg(directory);
@@ -1114,7 +1113,7 @@ void FormEphem:: tlefilesread(QString str)
 
 
     ui->edtUpdateTLE->setPlainText(ui->edtUpdateTLE->toPlainText() + "\n" + str);
-    sats->ReloadList();
+    satellitelist.ReloadList();
     showAvailSat();
 
 }
@@ -1126,9 +1125,12 @@ void FormEphem:: showprogress(QString str)
 
 void FormEphem::processPendingDatagrams()
 {
-    Satellite sat;
-    bool weatherok = sats->GetSatellite(29499, &sat);
-    bool resourceok = sats->GetSatellite(41335, &sat);
+    Satellite *sat;
+    bool weatherok;
+    bool resourceok;
+
+    sat = satellitelist.GetSatellite(29499, &weatherok);
+    sat = satellitelist.GetSatellite(41335, &resourceok);
     while (udpSocket->hasPendingDatagrams())
     {
         QByteArray datagram;
@@ -1140,7 +1142,6 @@ void FormEphem::processPendingDatagrams()
         }
     }
 }
-
 
 void FormEphem::on_btnReload_clicked()
 {

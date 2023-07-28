@@ -29,11 +29,10 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 
-SegmentNoaa::SegmentNoaa(QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentNoaa::SegmentNoaa(QFile *filesegment, QObject *parent) :
     Segment(parent)
 {
     bool ok;
-    satlist = satl;
     fileInfo.setFile(*filesegment);
     segment_type = "Noaa";
     segtype = eSegmentType::SEG_NOAA19;
@@ -57,15 +56,15 @@ SegmentNoaa::SegmentNoaa(QFile *filesegment, SatelliteList *satl, QObject *paren
 
     this->earth_views_per_scanline = 2048;
 
-    Satellite noaa19;
-    ok = satlist->GetSatellite(33591, &noaa19);
-    line1 = noaa19.line1;
-    line2 = noaa19.line2;
+    Satellite *noaa19;
+    noaa19 = satellitelist.GetSatellite(33591, &ok);
+    line1 = noaa19->line1;
+    line2 = noaa19->line2;
 
     //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
     //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
 
-    qtle.reset(new QTle(noaa19.sat_name, line1, line2, QTle::wgs72));
+    qtle.reset(new QTle(noaa19->sat_name, line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));
 
     julian_state_vector = qtle->Epoch();

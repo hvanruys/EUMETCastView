@@ -1,6 +1,7 @@
 #include "formimage.h"
 #include "pixgeoconversion.h"
 #include "gshhsdata.h"
+#include "satellite.h"
 
 #include <QDebug>
 #include <QMessageBox>
@@ -14,8 +15,9 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 extern gshhsData *gshhsdata;
 extern bool ptrimagebusy;
+extern SatelliteList SatelliteList;
 
-FormImage::FormImage(QWidget *parent, SatelliteList *satlist,  AVHRRSatellite *seglist) :
+FormImage::FormImage(QWidget *parent, AVHRRSatellite *seglist) :
     QGraphicsView(parent), m_rotateAngle(0), m_ViewInitialized(false)
 {
     m_scene = new QGraphicsScene(this);
@@ -23,7 +25,6 @@ FormImage::FormImage(QWidget *parent, SatelliteList *satlist,  AVHRRSatellite *s
     this->setBackgroundBrush(QBrush(QColor(38,38,38,255),Qt::SolidPattern));
     this->setDragMode(NoDrag);
 
-    sats = satlist;
     segs = seglist;
     channelshown = IMAGE_GEOSTATIONARY;
     m_image = NULL;

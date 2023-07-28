@@ -294,7 +294,7 @@ private slots:
 //    void on_btnSGFalseColor_clicked();
 
     void on_rdbOLCINormalized_toggled(bool checked);
-    void on_cmbHistogram_activated(int index);
+    //void on_cmbHistogram_activated(int index);
     void on_cmbHistogramSLSTR_activated(int index);
     void on_btnSaveAsPNG48bits_clicked();
     void on_btnOverlayOLCI_clicked();

@@ -13,7 +13,7 @@ class SegmentDatahub : public Segment
 {
     Q_OBJECT
 public:
-    explicit SegmentDatahub(eSegmentType type = SEG_NONE, QString name = 0, SatelliteList *satl = 0, QObject *parent = 0);
+    explicit SegmentDatahub(eSegmentType type = SEG_NONE, QString name = 0, QObject *parent = 0);
     void setName(QString name) { this->name = name; }
     void setUUID(QString uuid) { this->uuid = uuid; }
     void setSize(QString size) { this->size = size; }
@@ -35,10 +35,6 @@ private:
     QString uuid;
     QString size;
     QString footprint;
-
-
-protected:
-    SatelliteList *satlist;
 
 };
 

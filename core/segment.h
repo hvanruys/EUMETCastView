@@ -223,10 +223,6 @@ protected:
     quint32 cnt_mdr;
     quint32 cnt_unknown;
 
-
-    SatelliteList *satlist;
-
-
     qint32 earth_location_lon_first[2];
     qint32 earth_location_lat_first[2];
     qint32 earth_location_lon_last[2];

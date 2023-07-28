@@ -2,7 +2,7 @@
 #define SATELLITE_H
 
 #include "sgp4sdp4.h"
-#include "stdafx.h"
+//#include "stdafx.h"
 
 #include "qtle.h"
 #include "qsgp4.h"
@@ -33,7 +33,7 @@ public:
     void RenderSatellite( QPainter *painter, bool trackon);
     void showSatHorizon(double lon, double lat, double geo_alt, QPainter *painter, const QColor & color);
 
-    void GetSatelliteEphem(QGeodetic &qgeo, QTopocentric &qtopo );
+    void const GetSatelliteEphem(QGeodetic &qgeo, QTopocentric &qtopo );
     void GetSatellitePosition(QVector3D &position, QVector3D &positionnorm, float &alt);
     int GetCatalogueNbr() { return catnr; }
     double GetEpoch() { return epoch; }
@@ -78,6 +78,7 @@ class SatelliteList
 public:
     SatelliteList(void);
     ~SatelliteList();
+    void Initialize();
     QStringList GetCatnrList(void);
     QStringList GetActiveSatList(void);
     //  bool IsActive(const int catnr);
@@ -94,14 +95,14 @@ public:
     void TestForSat(int x, int y);
     void TestForSatGL(int x, int y);
 
-    //Satellite GetSatellite(const int catnr, bool *ok);
-    bool GetSatellite(const int catnr, Satellite *sat);
+    Satellite* GetSatellite(const int catnr, bool *ok);
+    //bool GetSatellite(const int catnr, Satellite *sat);
     bool SatExistInList(const int catnr);
-    QList<Satellite>  *GetSatlist(void) { return(& satlist); }
+    QList<Satellite *>  *GetSatlist(void) { return(& satlist); }
 
 private:
 
-    QList<Satellite> satlist;
+    QList<Satellite *> satlist;
     void ReReadTle(void);
     int selectedsat;
     double selectedsat_alt;

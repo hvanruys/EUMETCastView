@@ -6,6 +6,7 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern bool ptrimagebusy;
+extern SatelliteList satellitelist;
 
 eSLSTRImageView slstrview;
 
@@ -14,12 +15,11 @@ void doComposeSLSTRImageInThread(SegmentListSLSTR *t, QList<bool> bandlist, QLis
     t->ComposeSLSTRImageInThread(bandlist, colorlist, invertlist, decompressfiles);
 }
 
-SegmentListSLSTR::SegmentListSLSTR(SatelliteList *satl, QObject *parent)
+SegmentListSLSTR::SegmentListSLSTR(QObject *parent)
 {
     nbrofvisiblesegments = opts.nbrofvisiblesegments;
     qDebug() << QString("in constructor SegmentListSLSTR");
 
-    satlist = satl;
     seglisttype = eSegmentType::SEG_SLSTR;
     histogrammethod = 0; // 0 none , 1 equalize
 }

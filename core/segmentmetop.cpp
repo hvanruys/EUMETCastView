@@ -21,13 +21,14 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern SatelliteList satellitelist;
+
 #include <QMutex>
 
-SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *parent) :
+SegmentMetop::SegmentMetop(QFile *filesegment, QObject *parent) :
     Segment(parent)
 {
     bool ok;
-    satlist = satl;
     fileInfo.setFile(*filesegment);
 
     this->satname = fileInfo.baseName().mid(12, 3);
@@ -55,14 +56,14 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
     julian_sensing_start = qsensingstart.Julian();
     julian_sensing_end = qsensingend.Julian();
 
-    Satellite metop_sat;
+    Satellite *metop_sat;
 
     if(fileInfo.fileName().mid(0,15) == "AVHR_xxx_1B_M02")  // Metop-A
-        ok = satlist->GetSatellite(29499, &metop_sat);
+        metop_sat = satellitelist.GetSatellite(29499, &ok);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_xxx_1B_M01") // Metop-B
-        ok = satlist->GetSatellite(38771, &metop_sat);
+        metop_sat = satellitelist.GetSatellite(38771, &ok);
     else if(fileInfo.fileName().mid(0,15) == "AVHR_xxx_1B_M03") // Metop-C
-        ok = satlist->GetSatellite(43689, &metop_sat);
+        metop_sat = satellitelist.GetSatellite(43689, &ok);
 
     if(!ok)
     {
@@ -70,8 +71,8 @@ SegmentMetop::SegmentMetop(QFile *filesegment, SatelliteList *satl, QObject *par
         return;
     }
 
-    line1 = metop_sat.line1;
-    line2 = metop_sat.line2;
+    line1 = metop_sat->line1;
+    line2 = metop_sat->line2;
 
     qtle.reset(new QTle(fileInfo.fileName().mid(0,15), line1, line2, QTle::wgs72));
     qsgp4.reset(new QSgp4( *qtle ));
