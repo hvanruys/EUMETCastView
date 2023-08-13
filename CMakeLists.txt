@@ -8,8 +8,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(UNIX)
-    set(CMAKE_PREFIX_PATH /media/hugo/Data-Linux/Qt/5.15.2/gcc_64)
-
+    set(CMAKE_PREFIX_PATH /home/hugo/Qt5.12.12/5.12.12/gcc_64)
+elseif(WIN32)
+    set(CMAKE_PREFIX_PATH /home/hugo/Data-Linux/Qt/5.15.2/gcc_64)
 endif()
 
 add_library(my_compiler_flags_1 INTERFACE)

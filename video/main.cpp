@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 
         QString datestr = datelist.at(0).mid(0, 8);
 
-        QStringList list = video.reader->ffmpegparameters.split(QLatin1Char(','), Qt::SkipEmptyParts);
+        QStringList list = video.reader->ffmpegparameters.split(QLatin1Char(',')); //, Qt::SkipEmptyParts);
 
         video.sendMessages(QString("start ffmpeg with parameters %1").arg(video.reader->ffmpegparameters));
 

@@ -100,6 +100,7 @@ public:
 
 /* Calendar date and time (UTC) */
     bool doLogging;
+    bool doOpenGL;
 	struct tm utc;
 	QStringList tlelist;
 	QStringList catnbrlist;

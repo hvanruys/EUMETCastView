@@ -640,7 +640,7 @@ void FormMovie::on_btnCreateXML_clicked()
 
     for(int i = 0; i < mylistin.count(); i++)
     {
-        QStringList list = mylistin.at(i).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+        QStringList list = mylistin.at(i).split(QLatin1Char(' ')); //, Qt::SkipEmptyParts);
         mylistout.append(list);
     }
 
@@ -863,7 +863,7 @@ void FormMovie::on_btnffmpeg_clicked()
 
     for(int i = 0; i < mylistin.count(); i++)
     {
-        QStringList list = mylistin.at(i).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+        QStringList list = mylistin.at(i).split(QLatin1Char(' ')); //, Qt::SkipEmptyParts);
         mylistout.append(list);
     }
 

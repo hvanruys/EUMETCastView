@@ -2443,6 +2443,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
 
     // in include file we have the following definition : quint 16 imageptrs->ptrRed[10];
     // ptrBlue and ptrGreen are not used
+    // the reading of the netcdf files is sequential
     for(int j = 0; j < this->segmentfilelist.size(); j++)
     {
         if(this->segmentfilelist.at(j).contains("TRAIL"))

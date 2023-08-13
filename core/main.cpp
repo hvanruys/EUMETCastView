@@ -108,6 +108,12 @@ int main(int argc, char *argv[])
         qInstallMessageHandler(myMessageOutput);
     }
 
+    if (QCoreApplication::arguments().contains(QStringLiteral("--noopengl")) ||
+        QCoreApplication::arguments().contains(QStringLiteral("-nogl")) )
+        opts.doOpenGL = false;
+    else
+        opts.doOpenGL = true;
+
     satellitelist.Initialize();
 
     imageptrs = new SegmentImage();
