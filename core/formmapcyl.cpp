@@ -25,7 +25,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     formtoolbox = p_formtoolbox;
 
     ui->stackedWidget->addWidget(mapcyl);
-    ui->stackedWidget->addWidget(globe);
+    if(opts.doOpenGL)
+        ui->stackedWidget->addWidget(globe);
 
     ui->stackedWidget->setCurrentIndex(0);
     ui->tabWidget->setCurrentIndex(0);
@@ -231,7 +232,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     //connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(showSegmentList(int)));
     connect(mapcyl, SIGNAL(wheelChange(int)), this, SLOT(changeScrollBar(int)));
     connect(mapcyl, SIGNAL(mapClicked()), this, SLOT(showSegmentCount()));
-    connect(globe, SIGNAL(mapClicked()), this, SLOT(showSegmentCount()));
+
+    if(opts.doOpenGL)
+        connect(globe, SIGNAL(mapClicked()), this, SLOT(showSegmentCount()));
 
     segs->setShowAllSegments(ui->btnAllSegments->isChecked());
 

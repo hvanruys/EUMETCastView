@@ -39,7 +39,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     cylequidist = new CylEquiDist( opts.appdir_env == "" ? opts.backgroundimage2D : opts.appdir_env + "/" + opts.backgroundimage2D );
     mapcyl = new MapFieldCyl(this, cylequidist, seglist);
-    globe = new Globe(this, seglist);
+    if(opts.doOpenGL)
+        globe = new Globe(this, seglist);
+    else
+        globe = NULL;
 
     formimage = new FormImage(this, seglist);
     formgeostationary->SetFormImage(formimage);
@@ -156,18 +159,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formephem,SIGNAL(signalDirectoriesRead()), formglobecyl, SLOT(setScrollBarMaximum()));
     connect( formglobecyl, SIGNAL(signalMakeImage()), formimage, SLOT(slotMakeImage()));
 
-    connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
-    connect( globe , SIGNAL(mapClicked()), formglobecyl, SLOT(createSelectedSegmentToDownloadList()));
+    if(opts.doOpenGL)
+    {
+        connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
+        connect( globe , SIGNAL(mapClicked()), formglobecyl, SLOT(createSelectedSegmentToDownloadList()));
+        connect( formimage, SIGNAL(render3dgeo(int)), globe, SLOT(Render3DGeo(int)));
+        connect( globe, SIGNAL(renderingglobefinished(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
+    }
+
     connect( mapcyl , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
 
     connect( formephem, SIGNAL(signalDatagram(QByteArray)), seglist, SLOT(AddSegmentsToListFromUdp(QByteArray)));
 
-    connect( formimage, SIGNAL(render3dgeo(int)), globe, SLOT(Render3DGeo(int)));
     connect( formimage, SIGNAL(allsegmentsreceivedbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
     connect( formimage, SIGNAL(setmapcylbuttons(bool)), formglobecyl, SLOT(slotSetMapCylButtons(bool)));
     //connect( formimage, SIGNAL(coordinateChanged(QString)), this, SLOT(updateStatusBarCoordinate(QString)));
 
-    connect( globe, SIGNAL(renderingglobefinished(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 
     connect( formgeostationary, SIGNAL(geostationarysegmentschosen(int, QStringList)), formtoolbox, SLOT(geostationarysegmentsChosen(int, QStringList)));
     connect( formgeostationary, SIGNAL(setbuttonlabels(int, bool)), formtoolbox, SLOT(setButtons(int, bool)));
@@ -550,8 +557,15 @@ void MainWindow::on_actionCylindricalEquidistant_triggered()
 
 void MainWindow::on_action3DGlobe_triggered()
 {
-    ui->stackedWidget->setCurrentIndex(2);
-    formglobecyl->setCylOrGlobe(1);
+    if(opts.doOpenGL)
+    {
+        ui->stackedWidget->setCurrentIndex(2);
+        formglobecyl->setCylOrGlobe(1);
+    }
+    else
+    {
+        QMessageBox::about(this, "No OpenGL", "OpenGL > 3.0 is needed !");
+    }
 
 }
 
