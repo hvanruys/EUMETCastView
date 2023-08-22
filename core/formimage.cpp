@@ -2242,8 +2242,8 @@ void FormImage::OverlayProjection(QPainter *paint)
 
     bool first = true;
 
-    if(opts.gshhsglobe1On)
-    {
+//    if(opts.gshhsglobe1On)
+//    {
         for (int i=0; i<gshhsdata->vxp_data_overlay[0]->nFeatures; i++)
         {
             for (int j=0; j<gshhsdata->vxp_data_overlay[0]->pFeatures[i].nVerts; j++)
@@ -2288,12 +2288,12 @@ void FormImage::OverlayProjection(QPainter *paint)
             }
             first = true;
         }
-    }
+//    }
 
     first = true;
 
-    if(opts.gshhsglobe2On)
-    {
+//    if(opts.gshhsglobe2On)
+//    {
         for (int i=0; i<gshhsdata->vxp_data_overlay[1]->nFeatures; i++)
         {
             for (int j=0; j<gshhsdata->vxp_data_overlay[1]->pFeatures[i].nVerts; j++)
@@ -2338,12 +2338,12 @@ void FormImage::OverlayProjection(QPainter *paint)
             }
             first = true;
         }
-    }
+//    }
 
     first = true;
 
-    if(opts.gshhsglobe3On)
-    {
+//    if(opts.gshhsglobe3On)
+//    {
         for (int i=0; i<gshhsdata->vxp_data_overlay[2]->nFeatures; i++)
         {
             for (int j=0; j<gshhsdata->vxp_data_overlay[2]->pFeatures[i].nVerts; j++)
@@ -2388,7 +2388,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             }
             first = true;
         }
-    }
+//    }
 
     if (opts.currenttoolbox == 0 && formtoolbox->GridOnProjLCC()) // LLC
     {

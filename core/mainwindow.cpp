@@ -456,6 +456,9 @@ void MainWindow::on_actionPreferences_triggered()
     pref->show();
     //connect(pref,SIGNAL(finished(int)), formimage, SLOT(slotRefreshOverlay()));
     connect(pref,SIGNAL(finished(int)), this, SLOT(slotPreferencesFinished(int)));
+
+//    DialogPreferences pref(this);
+//    pref.exec();
 }
 
 void MainWindow::slotPreferencesFinished(int result)
