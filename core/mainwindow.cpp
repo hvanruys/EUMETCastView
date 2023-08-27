@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     formgeostationary->SetFormImage(formimage);
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
-        connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString, int)), formimage, SLOT(slotcomposefinished(QString, int)));
+        connect(seglist->seglgeo[i], SIGNAL(signalcomposefinished(QString,int)), formimage, SLOT(slotcomposefinished(QString,int)));
 
     imageptrs->gvp = new GeneralVerticalPerspective(this, seglist);
     imageptrs->lcc = new LambertConformalConic(this, seglist);
@@ -95,6 +95,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist, SIGNAL(signalShowSegmentCount()), formglobecyl, SLOT(slotShowSegmentCount()));
 
     createDockWidget();
+    resizeDocks({dockwidget}, {500}, Qt::Horizontal);
 
 
     ui->stackedWidget->addWidget(formglobecyl);  // index 2
@@ -176,10 +177,10 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect( formimage, SIGNAL(coordinateChanged(QString)), this, SLOT(updateStatusBarCoordinate(QString)));
 
 
-    connect( formgeostationary, SIGNAL(geostationarysegmentschosen(int, QStringList)), formtoolbox, SLOT(geostationarysegmentsChosen(int, QStringList)));
-    connect( formgeostationary, SIGNAL(setbuttonlabels(int, bool)), formtoolbox, SLOT(setButtons(int, bool)));
+    connect( formgeostationary, SIGNAL(geostationarysegmentschosen(int,QStringList)), formtoolbox, SLOT(geostationarysegmentsChosen(int,QStringList)));
+    connect( formgeostationary, SIGNAL(setbuttonlabels(int,bool)), formtoolbox, SLOT(setButtons(int,bool)));
 
-    connect( formtoolbox, SIGNAL(getgeosatchannel(QString, QVector<QString>, QVector<bool>, int, bool)), formgeostationary, SLOT(slotCreateGeoImage(QString, QVector<QString>, QVector<bool>, int, bool)));
+    connect( formtoolbox, SIGNAL(getgeosatchannel(QString,QVector<QString>,QVector<bool>,int,bool)), formgeostationary, SLOT(slotCreateGeoImage(QString,QVector<QString>,QVector<bool>,int,bool)));
     connect( formtoolbox, SIGNAL(switchstackedwidget(int)), this, SLOT(slotSwitchStackedWindow(int)));
     connect( formtoolbox, SIGNAL(creatergbrecipe(int)), formgeostationary, SLOT(slotCreateRGBrecipe(int)));
 
@@ -274,13 +275,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
+    restoreDockWidget(dockwidget);
 
     ui->toolBar->setVisible(true);
     ui->mainToolBar->setVisible(true);
     //    dockwidget->setVisible(true);
 
 
-    QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
+    //QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
     //bool restored = QMainWindow::restoreDockWidget(dockwidget);
     //qDebug() << "restoredockwidget = " << restored << " width of toolbox = " << formtoolbox->width();
 
@@ -321,9 +323,9 @@ void MainWindow::createDockWidget()
     QScrollArea * scrollArea = new QScrollArea;
     scrollArea->setWidget(formtoolbox);
     scrollArea->setWidgetResizable(true);
-    scrollArea->resize(700, MainWindow::height());
+    //scrollArea->resize(700, MainWindow::height());
     dockwidget->setWidget(scrollArea);
-    dockwidget->resize(700, MainWindow::height());
+    //dockwidget->resize(700, MainWindow::height());
     addDockWidget(Qt::LeftDockWidgetArea,dockwidget);
 //    QMainWindow::resizeDocks({dockwidget}, {opts.toolboxwidth}, Qt::Horizontal);
     //QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);

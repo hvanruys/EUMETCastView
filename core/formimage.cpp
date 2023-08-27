@@ -1435,13 +1435,9 @@ void FormImage::setupGeoOverlay(int geoindex)
     for(int i = 0; i < 3; i++)
         this->geooverlay[i].clear();
 
-
-    if(opts.gshhsglobe1On)
-        setupGshhs(geoindex, 0);
-    if(opts.gshhsglobe2On)
-        setupGshhs(geoindex, 1);
-    if(opts.gshhsglobe3On)
-        setupGshhs(geoindex, 2);
+      setupGshhs(geoindex, 0);
+      setupGshhs(geoindex, 1);
+      setupGshhs(geoindex, 2);
 
 }
 
