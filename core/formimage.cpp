@@ -84,7 +84,7 @@ bool FormImage::toggleOverlayGridOnOLCI()
 
 bool FormImage::toggleOverlayProjection()
 {
-     if(overlayprojection)
+    if(overlayprojection)
         overlayprojection = false;
     else
         overlayprojection = true;
@@ -151,7 +151,7 @@ void FormImage::fitWindow()
     if(!m_ViewInitialized)
         return;
 
-     if(m_image == NULL)
+    if(m_image == NULL)
         return;
 
     this->resetTransform();
@@ -235,10 +235,10 @@ bool FormImage::saveViewToDisk(QString &strError)
     // Output file dialog
     QString fileFormat = getImageFormat(m_fileName);
     QString strFilePath = QFileDialog::getSaveFileName(
-        this,
-        tr("Save File"),
-        QDir::homePath(),
-        fileFormat);
+                this,
+                tr("Save File"),
+                QDir::homePath(),
+                fileFormat);
 
 
     // If Cancel is pressed, getSaveFileName() returns a null string.
@@ -459,7 +459,7 @@ void FormImage::MakeImage()
     qDebug() << QString("in FormImage::ComposeImage nbr of mersi segments selected = %1").arg(mersicount);
 
     if(opts.buttonMetop || opts.buttonNoaa || opts.buttonGAC || opts.buttonHRP ||
-        opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt || opts.buttonM01hrpt || opts.buttonM02hrpt )
+            opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt || opts.buttonM01hrpt || opts.buttonM02hrpt )
     {
         if (metopcount + noaacount + hrpcount + gaccount + metopAhrptcount + metopBhrptcount + noaa19hrptcount + M01hrptcount + M02hrptcount > 0)
         {
@@ -1239,7 +1239,7 @@ void FormImage::displayImage(eImageType channel, bool resize)
                 int pixelsWide = fm.horizontalAdvance(str);
                 painter.drawText((pm.width() - pixelsWide)/2, pm.height()/2, str);
                 m_pixmap = pm;
-             }
+            }
             else
             {
                 m_image = imageptrs->ptrimageMERSI;
@@ -1435,9 +1435,9 @@ void FormImage::setupGeoOverlay(int geoindex)
     for(int i = 0; i < 3; i++)
         this->geooverlay[i].clear();
 
-      setupGshhs(geoindex, 0);
-      setupGshhs(geoindex, 1);
-      setupGshhs(geoindex, 2);
+    setupGshhs(geoindex, 0);
+    setupGshhs(geoindex, 1);
+    setupGshhs(geoindex, 2);
 
 }
 
@@ -1462,7 +1462,7 @@ void FormImage::setupGshhs(int geoindex, int k)
     sub_lon = opts.geosatellites.at(geoindex).longitude;
 
     if(!(opts.geosatellites.at(geoindex).shortname == "GOES_16" || opts.geosatellites.at(geoindex).shortname == "GOES_17" ||
-          opts.geosatellites.at(geoindex).shortname == "FY2H" || opts.geosatellites.at(geoindex).shortname == "FY2G"))
+         opts.geosatellites.at(geoindex).shortname == "FY2H" || opts.geosatellites.at(geoindex).shortname == "FY2G"))
         geoindex = 11;
 
     for (int i=0; i<gshhsdata->vxp_data_overlay[k]->nFeatures; i++)
@@ -1535,19 +1535,19 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 
     drawOverlays(painter);
 
-//    painter->translate(m_image->width()/2, m_image->height()/2);
+    //    painter->translate(m_image->width()/2, m_image->height()/2);
 
-//    int diameter = 3580;
-//    painter->setPen(QPen(QColor(255, 0, 0), 1));
-//    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    //    int diameter = 3580;
+    //    painter->setPen(QPen(QColor(255, 0, 0), 1));
+    //    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
-//    diameter = 3650;
-//    painter->setPen(QPen(QColor(0, 255, 255), 1));
-//    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    //    diameter = 3650;
+    //    painter->setPen(QPen(QColor(0, 255, 255), 1));
+    //    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
-//    diameter = 3615;
-//    painter->setPen(QPen(QColor(0, 0, 255), 30));
-//    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    //    diameter = 3615;
+    //    painter->setPen(QPen(QColor(0, 0, 255), 30));
+    //    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
 
     qDebug() << "AFTER FormImage::drawForeground";
@@ -1610,9 +1610,9 @@ void FormImage::drawOverlays(QPainter *painter)
             QStringList rowchosen = formtoolbox->getRowchosen();
             QVector<QString> spectrumvector = formtoolbox->getSpectrumVector();
             QVector<bool> inversevector = formtoolbox->getInverseVector();
-//            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), font.pixelSize(), spectrumvector.at(0));
-//            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), 2 * font.pixelSize(), spectrumvector.at(1));
-//            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), 3 * font.pixelSize(), spectrumvector.at(2));
+            //            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), font.pixelSize(), spectrumvector.at(0));
+            //            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), 2 * font.pixelSize(), spectrumvector.at(1));
+            //            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), 3 * font.pixelSize(), spectrumvector.at(2));
 
             QFontMetrics fm(font);
             int pixelsWide = fm.horizontalAdvance(spectrumvector.at(0));
@@ -1628,7 +1628,10 @@ void FormImage::drawOverlays(QPainter *painter)
                 painter->drawText(0, 2 * font.pixelSize(), rowchosen[0] );
             }
 
-            this->OverlayGeostationary(painter, slgeo);
+            if(slgeo->getGeoSatellite() == eGeoSatellite::H8)
+                this->OverlayGeostationaryH8(painter, slgeo);
+            else
+                this->OverlayGeostationary(painter, slgeo);
         }
     }
 
@@ -1682,21 +1685,16 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         else
             hrvimage = false;
 
-        //        if(sl->getGeoSatellite() == eGeoSatellite::H8)
-        //        {
-        //            QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
-        //            paint->setPen(qRgb(0, 0, 255));
-        //            paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
-        //        }
+        //                if(sl->getGeoSatellite() == eGeoSatellite::H8)
+        //                {
+        //                    QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
+        //                    paint->setPen(qRgb(0, 0, 255));
+        //                    paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
+        //                }
     }
     else
         return;
 
-    double sub_lon = sl->geosatlon;
-    lat_deg = opts.obslat;
-    lon_deg = opts.obslon;
-    if (lon_deg > 180.0)
-        lon_deg -= 360.0;
 
     coff = hrvimage ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
     loff = hrvimage ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
@@ -1707,14 +1705,18 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
     {
         if(m_image->width() == 5568)
         {
-            coff = coff/2;
+            coff = coff/2.0;
             loff = coff;
             cfac = cfac/2.0;
             lfac = cfac;
-            qDebug() << "coff = " << coff << " cfac = " << cfac;
         }
     }
 
+    double sub_lon = sl->geosatlon;
+    lat_deg = opts.obslat;
+    lon_deg = opts.obslon;
+    if (lon_deg > 180.0)
+        lon_deg -= 360.0;
 
     ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
     if(ret == 0)
@@ -1852,6 +1854,9 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         factor = 0.25;
     else if(m_image->width() == 2784) // Electro
         factor = 4.0;
+    else if(m_image->width() == 5500) // Himawari-8
+        factor = 1.975574713;
+
 
     if(!hrvimage || (sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G))
     {
@@ -1888,6 +1893,150 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
     }
     else
         OverlayGeostationaryHRV1(paint, sl, geoindex);
+}
+
+void FormImage::DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int coff, int loff, double cfac, double lfac, bool hrvimage)
+{
+    int col, save_col;
+    int row, save_row;
+    bool first = true;
+
+    double lat_deg;
+    double lon_deg;
+    int ret;
+
+    pixgeoConversion pixconv;
+
+    double sub_lon = sl->geosatlon;
+    lat_deg = opts.obslat;
+    lon_deg = opts.obslon;
+    if (lon_deg > 180.0)
+        lon_deg -= 360.0;
+
+    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
+    if(ret == 0)
+    {
+        if(hrvimage)
+        {
+            if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
+            {
+                col = col - (11136 - sl->LowerWestColumnActual);
+            }
+            else //UPPER
+            {
+                col = col - (11136 - sl->UpperWestColumnActual - 1);
+            }
+        }
+
+        QPoint pt(col, row);
+        QPoint ptleft(col-5, row);
+        QPoint ptright(col+5, row);
+        QPoint ptup(col, row-5);
+        QPoint ptdown(col, row+5);
+
+        paint->setPen(qRgb(255, 0, 0));
+        paint->drawLine(ptleft,ptright);
+        paint->drawLine(ptup,ptdown);
+        paint->drawEllipse(pt, 12, 12);
+    }
+
+    paint->setPen(QColor(opts.projectionoverlaylonlatcolor));
+
+    for(double lon = -180.0; lon < 180.0; lon+=10.0)
+    {
+        first = true;
+        {
+            for(double lat = -90.0; lat < 90.0; lat+=0.5)
+            {
+                ret =pixconv.geocoord2pixcoord(sub_lon, lat, lon, coff, loff, cfac, lfac, &col, &row);
+                if(hrvimage && sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
+                {
+                    if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
+                    {
+                        if( save_row <= 11136 - sl->LowerNorthLineActual )
+                            first = true;
+                        col = col - (11136 - sl->LowerWestColumnActual);
+                    }
+                    else //UPPER
+                    {
+                        if( save_row > 11136 - sl->LowerNorthLineActual )
+                            first = true;
+                        col = col - (11136 - sl->UpperWestColumnActual - 1);
+                    }
+                }
+
+
+                if(ret == 0)
+                {
+                    if (first)
+                    {
+                        first = false;
+                        save_col = col;
+                        save_row = row;
+                    }
+                    else
+                    {
+                        if(row < m_image->height() && col < m_image->width() && row > -1 && col > -1)
+                            paint->drawLine(save_col, save_row, col, row);
+                        save_col = col;
+                        save_row = row;
+                    }
+                }
+                else
+                    first = true;
+
+            }
+        }
+    }
+
+    for(double lat = -80.0; lat < 81.0; lat+=10.0)
+    {
+        first = true;
+        {
+            for(double lon = -180.0; lon < 180.0; lon+=1.0)
+            {
+                ret =pixconv.geocoord2pixcoord(sub_lon, lat, lon, coff, loff, cfac, lfac, &col, &row);
+                if(hrvimage && sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
+                {
+                    if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
+                    {
+                        if( save_row <= 11136 - sl->LowerNorthLineActual )
+                            first = true;
+                        col = col - (11136 - sl->LowerWestColumnActual);
+                    }
+                    else //UPPER
+                    {
+                        if( save_row > 11136 - sl->LowerNorthLineActual )
+                            first = true;
+                        col = col - (11136 - sl->UpperWestColumnActual - 1);
+                    }
+                }
+
+
+                if(ret == 0)
+                {
+                    if (first)
+                    {
+                        first = false;
+                        save_col = col;
+                        save_row = row;
+                    }
+                    else
+                    {
+                        if(row < m_image->height() && col < m_image->width() && row > -1 && col > -1)
+                            paint->drawLine(save_col, save_row, col, row);
+                        save_col = col;
+                        save_row = row;
+                    }
+                }
+                else
+                    first = true;
+
+            }
+        }
+    }
+
+
 }
 
 void FormImage::OverlayGeostationaryHRV1(QPainter *paint, SegmentListGeostationary *sl, int geoindex)
@@ -2049,7 +2198,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
                         {
                             paint->setPen(opts.geoimageoverlaycolor1);
                             if(col < imageptrs->ptrimageGeostationary->width() && row < imageptrs->ptrimageGeostationary->height() &&
-                                col >= 0 && row >= 0)
+                                    col >= 0 && row >= 0)
                                 paint->drawLine(save_col, save_row, col, row);
                             save_col = col;
                             save_row = row;
@@ -2110,7 +2259,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
                         {
                             paint->setPen(opts.geoimageoverlaycolor2);
                             if(col < imageptrs->ptrimageGeostationary->width() && row < imageptrs->ptrimageGeostationary->height() &&
-                                col >= 0 && row >= 0)
+                                    col >= 0 && row >= 0)
                                 paint->drawLine(save_col, save_row, col, row);
                             save_col = col;
                             save_row = row;
@@ -2172,7 +2321,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
                         {
                             paint->setPen(opts.geoimageoverlaycolor3);
                             if(col < imageptrs->ptrimageGeostationary->width() && row < imageptrs->ptrimageGeostationary->height() &&
-                                col >= 0 && row >= 0)
+                                    col >= 0 && row >= 0)
                                 paint->drawLine(save_col, save_row, col, row);
                             save_col = col;
                             save_row = row;
@@ -2185,6 +2334,176 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
             first = true;
         }
     }
+
+    //this->update();
+}
+
+void FormImage::OverlayGeostationaryH8(QPainter *paint, SegmentListGeostationary *sl)
+{
+
+    long coff;
+    long loff;
+    double cfac;
+    double lfac;
+
+    int col, save_col;
+    int row, save_row;
+    bool first = true;
+
+    double lat_deg;
+    double lon_deg;
+    int ret;
+
+    qDebug() << "FormImage::OverlayGeostationaryH8";
+
+    int geoindex = sl->getGeoSatelliteIndex();
+    pixgeoConversion pixconv;
+
+    //if(sl->LowerNorthLineActual == 0)
+    //    return;
+
+    coff = opts.geosatellites.at(geoindex).coff;
+    loff = opts.geosatellites.at(geoindex).loff;
+    cfac = opts.geosatellites.at(geoindex).cfac;
+    lfac = opts.geosatellites.at(geoindex).lfac;
+
+
+    double sub_lon = sl->geosatlon;
+
+    this->DrawLongLat(paint, sl, coff, loff, cfac, lfac, false);
+
+    first = true;
+
+    for (int i=0; i<gshhsdata->vxp_data_overlay[0]->nFeatures; i++)
+    {
+        for (int j=0; j<gshhsdata->vxp_data_overlay[0]->pFeatures[i].nVerts; j++)
+        {
+            lat_deg = gshhsdata->vxp_data_overlay[0]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
+            lon_deg = gshhsdata->vxp_data_overlay[0]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
+            if (lon_deg > 180.0)
+                lon_deg -= 360.0;
+
+            if((lon_deg < 90.0 || lon_deg > -90.0))
+            {
+                ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
+                //                    row+=5; //3;
+                //                    col+=3; //2;
+
+                if(ret == 0)
+                {
+
+                    if (first)
+                    {
+                        first = false;
+                        save_col = col;
+                        save_row = row;
+                    }
+                    else
+                    {
+                        paint->setPen(opts.geoimageoverlaycolor1);
+                        if(col < imageptrs->ptrimageGeostationary->width() && row < imageptrs->ptrimageGeostationary->height() &&
+                                col >= 0 && row >= 0)
+                            paint->drawLine(save_col, save_row, col, row);
+                        save_col = col;
+                        save_row = row;
+                    }
+                }
+                else
+                    first = true;
+            }
+        }
+        first = true;
+    }
+
+
+    first = true;
+
+    for (int i=0; i<gshhsdata->vxp_data_overlay[1]->nFeatures; i++)
+    {
+        for (int j=0; j<gshhsdata->vxp_data_overlay[1]->pFeatures[i].nVerts; j++)
+        {
+            lat_deg = gshhsdata->vxp_data_overlay[1]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
+            lon_deg = gshhsdata->vxp_data_overlay[1]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
+            if (lon_deg > 180.0)
+                lon_deg -= 360.0;
+
+            if(lon_deg < 90.0 || lon_deg > -90.0)
+            {
+                ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
+                //                    row+=5; //3;
+                //                    col+=3; //2;
+
+                if(ret == 0)
+                {
+
+                    if (first)
+                    {
+                        first = false;
+                        save_col = col;
+                        save_row = row;
+                    }
+                    else
+                    {
+                        paint->setPen(opts.geoimageoverlaycolor2);
+                        if(col < imageptrs->ptrimageGeostationary->width() && row < imageptrs->ptrimageGeostationary->height() &&
+                                col >= 0 && row >= 0)
+                            paint->drawLine(save_col, save_row, col, row);
+                        save_col = col;
+                        save_row = row;
+                    }
+                }
+                else
+                    first = true;
+            }
+        }
+        first = true;
+    }
+
+
+    first = true;
+
+    for (int i=0; i<gshhsdata->vxp_data_overlay[2]->nFeatures; i++)
+    {
+        for (int j=0; j<gshhsdata->vxp_data_overlay[2]->pFeatures[i].nVerts; j++)
+        {
+            lat_deg = gshhsdata->vxp_data_overlay[2]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
+            lon_deg = gshhsdata->vxp_data_overlay[2]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
+            if (lon_deg > 180.0)
+                lon_deg -= 360.0;
+
+            if(lon_deg < 90.0 || lon_deg > -90.0)
+            {
+
+                ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
+                //                    row+=5; //3;
+                //                    col+=3; //2;
+
+                if(ret == 0)
+                {
+
+                    if (first)
+                    {
+                        first = false;
+                        save_col = col;
+                        save_row = row;
+                    }
+                    else
+                    {
+                        paint->setPen(opts.geoimageoverlaycolor3);
+                        if(col < imageptrs->ptrimageGeostationary->width() && row < imageptrs->ptrimageGeostationary->height() &&
+                                col >= 0 && row >= 0)
+                            paint->drawLine(save_col, save_row, col, row);
+                        save_col = col;
+                        save_row = row;
+                    }
+                }
+                else
+                    first = true;
+            }
+        }
+        first = true;
+    }
+
 
     //this->update();
 }
@@ -2238,153 +2557,153 @@ void FormImage::OverlayProjection(QPainter *paint)
 
     bool first = true;
 
-//    if(opts.gshhsglobe1On)
-//    {
-        for (int i=0; i<gshhsdata->vxp_data_overlay[0]->nFeatures; i++)
+    //    if(opts.gshhsglobe1On)
+    //    {
+    for (int i=0; i<gshhsdata->vxp_data_overlay[0]->nFeatures; i++)
+    {
+        for (int j=0; j<gshhsdata->vxp_data_overlay[0]->pFeatures[i].nVerts; j++)
         {
-            for (int j=0; j<gshhsdata->vxp_data_overlay[0]->pFeatures[i].nVerts; j++)
+            lat_deg = gshhsdata->vxp_data_overlay[0]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
+            lon_deg = gshhsdata->vxp_data_overlay[0]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
+            if (lon_deg > 180.0)
+                lon_deg -= 360.0;
+
+            if (opts.currenttoolbox == 0)       //LCC
+                bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+            else if (opts.currenttoolbox == 1)  //GVP
+                bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+            else if (opts.currenttoolbox == 2)  //SG
+                bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+            else if (opts.currenttoolbox == 3)  //OM
+                bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+            else
+                bret = false;
+
+            if(bret)
             {
-                lat_deg = gshhsdata->vxp_data_overlay[0]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
-                lon_deg = gshhsdata->vxp_data_overlay[0]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
-                if (lon_deg > 180.0)
-                    lon_deg -= 360.0;
-
-                if (opts.currenttoolbox == 0)       //LCC
-                    bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
-                else if (opts.currenttoolbox == 1)  //GVP
-                    bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
-                else if (opts.currenttoolbox == 2)  //SG
-                    bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
-                else if (opts.currenttoolbox == 3)  //OM
-                    bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
-                else
-                    bret = false;
-
-                if(bret)
+                if (first)
                 {
-                    if (first)
-                    {
-                        first = false;
-                        save_map_x = map_x;
-                        save_map_y = map_y;
-                    }
-                    else
-                    {
-                        if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
-                        {
-                            paint->setPen(QColor(opts.projectionoverlaycolor1));
-                            paint->drawLine(save_map_x, save_map_y, map_x, map_y);
-                        }
-                        save_map_x = map_x;
-                        save_map_y = map_y;
-                    }
+                    first = false;
+                    save_map_x = map_x;
+                    save_map_y = map_y;
                 }
                 else
-                    first = true;
+                {
+                    if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
+                    {
+                        paint->setPen(QColor(opts.projectionoverlaycolor1));
+                        paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                    }
+                    save_map_x = map_x;
+                    save_map_y = map_y;
+                }
             }
-            first = true;
+            else
+                first = true;
         }
-//    }
+        first = true;
+    }
+    //    }
 
     first = true;
 
-//    if(opts.gshhsglobe2On)
-//    {
-        for (int i=0; i<gshhsdata->vxp_data_overlay[1]->nFeatures; i++)
+    //    if(opts.gshhsglobe2On)
+    //    {
+    for (int i=0; i<gshhsdata->vxp_data_overlay[1]->nFeatures; i++)
+    {
+        for (int j=0; j<gshhsdata->vxp_data_overlay[1]->pFeatures[i].nVerts; j++)
         {
-            for (int j=0; j<gshhsdata->vxp_data_overlay[1]->pFeatures[i].nVerts; j++)
+            lat_deg = gshhsdata->vxp_data_overlay[1]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
+            lon_deg = gshhsdata->vxp_data_overlay[1]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
+            if (lon_deg > 180.0)
+                lon_deg -= 360.0;
+
+            if (opts.currenttoolbox == 0)       //LCC
+                bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+            else if (opts.currenttoolbox == 1)  //GVP
+                bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+            else if (opts.currenttoolbox == 2)  //SG
+                bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+            else if (opts.currenttoolbox == 3)  //OM
+                bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+            else
+                bret = false;
+
+            if(bret)
             {
-                lat_deg = gshhsdata->vxp_data_overlay[1]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
-                lon_deg = gshhsdata->vxp_data_overlay[1]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
-                if (lon_deg > 180.0)
-                    lon_deg -= 360.0;
-
-                if (opts.currenttoolbox == 0)       //LCC
-                    bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
-                else if (opts.currenttoolbox == 1)  //GVP
-                    bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-                else if (opts.currenttoolbox == 2)  //SG
-                    bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-                else if (opts.currenttoolbox == 3)  //OM
-                    bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-                else
-                    bret = false;
-
-                if(bret)
+                if (first)
                 {
-                    if (first)
-                    {
-                        first = false;
-                        save_map_x = map_x;
-                        save_map_y = map_y;
-                    }
-                    else
-                    {
-                        if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
-                        {
-                            paint->setPen(QColor(opts.projectionoverlaycolor2));
-                            paint->drawLine(save_map_x, save_map_y, map_x, map_y);
-                        }
-                        save_map_x = map_x;
-                        save_map_y = map_y;
-                    }
+                    first = false;
+                    save_map_x = map_x;
+                    save_map_y = map_y;
                 }
                 else
-                    first = true;
+                {
+                    if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
+                    {
+                        paint->setPen(QColor(opts.projectionoverlaycolor2));
+                        paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                    }
+                    save_map_x = map_x;
+                    save_map_y = map_y;
+                }
             }
-            first = true;
+            else
+                first = true;
         }
-//    }
+        first = true;
+    }
+    //    }
 
     first = true;
 
-//    if(opts.gshhsglobe3On)
-//    {
-        for (int i=0; i<gshhsdata->vxp_data_overlay[2]->nFeatures; i++)
+    //    if(opts.gshhsglobe3On)
+    //    {
+    for (int i=0; i<gshhsdata->vxp_data_overlay[2]->nFeatures; i++)
+    {
+        for (int j=0; j<gshhsdata->vxp_data_overlay[2]->pFeatures[i].nVerts; j++)
         {
-            for (int j=0; j<gshhsdata->vxp_data_overlay[2]->pFeatures[i].nVerts; j++)
+            lat_deg = gshhsdata->vxp_data_overlay[2]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
+            lon_deg = gshhsdata->vxp_data_overlay[2]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
+            if (lon_deg > 180.0)
+                lon_deg -= 360.0;
+
+            if (opts.currenttoolbox == 0)       //LCC
+                bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+            else if (opts.currenttoolbox == 1)  //GVP
+                bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+            else if (opts.currenttoolbox == 2)  //SG
+                bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+            else if (opts.currenttoolbox == 3)  //OM
+                bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+            else
+                bret = false;
+
+            if(bret)
             {
-                lat_deg = gshhsdata->vxp_data_overlay[2]->pFeatures[i].pLonLat[j].latmicro*1.0e-6;
-                lon_deg = gshhsdata->vxp_data_overlay[2]->pFeatures[i].pLonLat[j].lonmicro*1.0e-6;
-                if (lon_deg > 180.0)
-                    lon_deg -= 360.0;
-
-                if (opts.currenttoolbox == 0)       //LCC
-                    bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
-                else if (opts.currenttoolbox == 1)  //GVP
-                    bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-                else if (opts.currenttoolbox == 2)  //SG
-                    bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-                else if (opts.currenttoolbox == 3)  //OM
-                    bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
-                else
-                    bret = false;
-
-                if(bret)
+                if (first)
                 {
-                    if (first)
-                    {
-                        first = false;
-                        save_map_x = map_x;
-                        save_map_y = map_y;
-                    }
-                    else
-                    {
-                        if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
-                        {
-                            paint->setPen(QColor(opts.projectionoverlaycolor3));
-                            paint->drawLine(save_map_x, save_map_y, map_x, map_y);
-                        }
-                        save_map_x = map_x;
-                        save_map_y = map_y;
-                    }
+                    first = false;
+                    save_map_x = map_x;
+                    save_map_y = map_y;
                 }
                 else
-                    first = true;
+                {
+                    if(abs(save_map_y - map_y) < 100 && (abs(save_map_x - map_x) < 100))
+                    {
+                        paint->setPen(QColor(opts.projectionoverlaycolor3));
+                        paint->drawLine(save_map_x, save_map_y, map_x, map_y);
+                    }
+                    save_map_x = map_x;
+                    save_map_y = map_y;
+                }
             }
-            first = true;
+            else
+                first = true;
         }
-//    }
+        first = true;
+    }
+    //    }
 
     if (opts.currenttoolbox == 0 && formtoolbox->GridOnProjLCC()) // LLC
     {
@@ -2863,7 +3182,7 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
                               "Image width = %3 height = %4<br>"
                               "Moon illumination = %5 %</p>"
                               "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageViirsDNB->width())
-                          .arg(imageptrs->ptrimageViirsDNB->height()).arg(moonillum, 4, 'f', 2);
+                    .arg(imageptrs->ptrimageViirsDNB->height()).arg(moonillum, 4, 'f', 2);
             formtoolbox->writeInfoToTextEdit(txtInfo);
 
         }
@@ -3258,7 +3577,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
     if(sl->getGeoSatellite() == eGeoSatellite::MTG_I1)
 
-    return;
+        return;
 
     if(imageptrs->ptrRed[0] == NULL)
         return;

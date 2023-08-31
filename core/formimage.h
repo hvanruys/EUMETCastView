@@ -81,8 +81,11 @@ private:
     void OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationary *sl, int geoindex);
     void OverlayGeostationaryHRV1(QPainter *paint, SegmentListGeostationary *sl, int geoindex);
+    void OverlayGeostationaryH8(QPainter *paint, SegmentListGeostationary *sl);
     void OverlayProjection(QPainter *paint);
     void OverlayOLCI(QPainter *paint);
+    void DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int coff, int loff,
+                     double cfac, double lfac, bool hrvimage);
 
 
     void displayAVHRRImageInfo();
