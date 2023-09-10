@@ -382,8 +382,8 @@ void Options::checkStringListValues()
 
     if(tlesources.count() == 0)
     {
-        tlesources << "http://celestrak.com/NORAD/elements/weather.txt";
-        tlesources << "http://celestrak.com/NORAD/elements/resource.txt";
+        tlesources << "http://celestrak.org/NORAD/elements/weather.txt";
+        tlesources << "http://celestrak.org/NORAD/elements/resource.txt";
     }
 
 //    if(ffmpeg_options.count() == 0)
