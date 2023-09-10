@@ -20,6 +20,11 @@ Compile in Linux :
 - cmake ..
 - cmake --build .
 
+for building AppImage
+- cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+- make -j$(nproc)
+- make install DESTDIR=AppDir
+
 Compile in Windows :
 - Install msys2
 - mkdir build

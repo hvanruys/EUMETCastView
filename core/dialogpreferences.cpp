@@ -1327,9 +1327,9 @@ bool TLESourceModel::setData(const QModelIndex & index, const QVariant & value, 
 {
     if (role == Qt::EditRole)
     {
-        // m_gridData[index.row()][index.column()] = value.toString();
         if(index.column() == 0)
             opts.tlesources.replace(index.row(), value.toString());
+//        m_gridData[index.row()][index.column()] = value.toString();
 
         emit editCompleted();
     }
