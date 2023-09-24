@@ -15,6 +15,17 @@ The Open Source program **EUMETCastView** allows you to view
 More details are found on http://hvanruys.github.io
 
 Compile in Linux :
+
+- sudo apt install build-essential
+			libfontconfig1
+			mesa-common-dev
+			libglu1-mesa-dev
+			qt5-default
+			cmake
+			libhdf5-dev
+			libnetcdf-dev
+			libarchive-dev
+			libfreeimage-dev
 - mkdir build
 - cd build
 - cmake ..
