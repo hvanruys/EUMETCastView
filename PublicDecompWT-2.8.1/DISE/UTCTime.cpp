@@ -19,6 +19,7 @@
 #include "ErrorHandling.h"
 #include "string.h"
 
+#include <time.h>
 
 #ifdef __MINGW32__
 struct tm *localtime_r(const time_t *timep, struct tm *result)

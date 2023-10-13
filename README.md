@@ -14,6 +14,8 @@ The Open Source program **EUMETCastView** allows you to view
 
 More details are found on http://hvanruys.github.io
 
+Linux software drivers ( for VM's ) : see https://itsfoss.com/install-mesa-ubuntu/
+
 Compile in Linux :
 
 - sudo apt install build-essential

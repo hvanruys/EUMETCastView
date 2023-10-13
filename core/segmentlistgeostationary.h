@@ -138,6 +138,7 @@ private:
     void ComposeVISIR_Alt();
     void ComposeVISIRHimawari();
     static void getFilenameParameters(QFileInfo fileinfo, QString &filespectrum, QString &filedate, int &filesequence);
+    static void getFilenameParameters2(QFileInfo fileinfo, QString *filespectrum, QString *filedate, int *filesequence);
     void Printbands();
     void PrintResults();
     void PrintResults(float *ptr, QString title);

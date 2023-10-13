@@ -272,6 +272,9 @@ MainWindow::MainWindow(QWidget *parent) :
         opts.bFciDecomp = true;
     }
 
+    QString applicationdirpath = QCoreApplication::applicationDirPath();
+    qDebug() << "applicationdirpath = " << applicationdirpath;
+
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);

@@ -507,7 +507,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                     hashseqnbr.insert( seqnbr, fileInfo );
                     segmentlistmapgeomtgi1.insert(filenbr, hashseqnbr);
                 }
-                //qDebug() << "A" << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " << QString("%1").arg(seqnbr) << QString("%1").arg(filenbr);
+                qDebug() << "A " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " << QString("%1").arg(seqnbr) << QString("%1").arg(filenbr);
             }
             else if((fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length())
                       == opts.geosatellites.at(i).searchstring) && fileInfo.isFile())
@@ -542,7 +542,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                         segmentlistmapgeo[i].insert( strdate, hashspectrum );
                     }
                 }
-                //qDebug() << "B" << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
+                qDebug() << "B " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
             }
         }
 

@@ -1462,6 +1462,7 @@ void FormImage::setupGshhs(int geoindex, int k)
     sub_lon = opts.geosatellites.at(geoindex).longitude;
 
     if(!(opts.geosatellites.at(geoindex).shortname == "GOES_16" || opts.geosatellites.at(geoindex).shortname == "GOES_17" ||
+         opts.geosatellites.at(geoindex).shortname == "GOES_18" ||
          opts.geosatellites.at(geoindex).shortname == "FY2H" || opts.geosatellites.at(geoindex).shortname == "FY2G"))
         geoindex = 11;
 
@@ -1476,7 +1477,7 @@ void FormImage::setupGshhs(int geoindex, int k)
 
             if(lon_deg < 90.0 || lon_deg > -90.0)
             {
-                if(opts.geosatellites.at(geoindex).shortname == "GOES_16" || opts.geosatellites.at(geoindex).shortname == "GOES_17")
+                if(opts.geosatellites.at(geoindex).shortname == "GOES_16" || opts.geosatellites.at(geoindex).shortname == "GOES_17" || opts.geosatellites.at(geoindex).shortname == "GOES_18")
                 {
                     pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
                     if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
@@ -4061,7 +4062,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         }
         else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17 || sl->getGeoSatellite() == eGeoSatellite::GOES_18)
         {
-            qDebug() << "recalculate CLAHE ; VIS_IR and GOES_16/_17 move to ptrImageGeostationary";
+            qDebug() << "recalculate CLAHE ; VIS_IR and GOES_16/_17/_18 move to ptrImageGeostationary";
 
             for (int line = 0; line < 5424; line++)
             {
