@@ -10,6 +10,9 @@
 #include "internal.h"
 #include "nav_util.h"
 #include "qsgp4date.h"
+
+#include <QtConcurrent/QtConcurrent>
+
 #include <cmath>
 
 #define REDCHANNEL 0
@@ -538,6 +541,7 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
         if(treewidgetselected.count() > 0)
         {
             sl = setActiveSegmentList(i);
+            qDebug() << "getGeoSatelliteIndex = " << sl->getGeoSatelliteIndex();
             QTreeWidgetItem *it = treewidgetselected.at(0);
             tex = it->text(0);
             tex1 = it->text(1);
@@ -551,24 +555,25 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
         CreateGeoImageMTG(type, spectrumvector, inversevector, histogrammethod, pseudocolor, tex + ";" + tex1, geoindex);
     }
     else {
-        CreateGeoImageMSG(type, spectrumvector, inversevector, histogrammethod, pseudocolor, tex, geoindex);
+        CreateGeoImages(type, spectrumvector, inversevector, histogrammethod, pseudocolor, tex, geoindex);
     }
 
 
 }
 
-void FormGeostationary::CreateGeoImageMSG(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor, QString tex, int geoindex)
+void FormGeostationary::CreateGeoImages(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor, QString tex, int geoindex)
 {
 
     SegmentListGeostationary *sl;
     sl = setActiveSegmentList(geoindex);
 
+    sl->setKindofImage(type);
+
     formtoolbox->createImageFilenamestring(opts.geosatellites.at(geoindex).shortname, tex, spectrumvector);
-    sl->ResetSegments();
     imageptrs->ResetPtrImage();
 
-    qDebug() << QString(" CreateGeoImage ; kind of image = %1 spectrumvector = %2 ; %3 ; %4").arg(sl->getKindofImage()).arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
-    qDebug() << QString(" CreateGeoImage ; imagecreated = %1").arg(tex);
+    qDebug() << QString(" CreateGeoImages ; kind of image = %1 spectrumvector = %2 ; %3 ; %4").arg(sl->getKindofImage()).arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
+    qDebug() << QString(" CreateGeoImages ; imagecreated = %1").arg(tex);
 
     if (spectrumvector.at(0) == "" &&  spectrumvector.at(1) == "" && spectrumvector.at(1) == "")
         return;
@@ -600,7 +605,7 @@ void FormGeostationary::CreateGeoImageMSG(QString type, QVector<QString> spectru
             return;
     }
 
-    qDebug() << QString("FormGeostationary::CreateGeoImage kind = %1 areatype = %2").arg(type).arg(sl->areatype);
+    qDebug() << QString("FormGeostationary::CreateGeoImages kind = %1 areatype = %2").arg(type).arg(sl->areatype);
 
     if(opts.geosatellites.at(geoindex).protocol == "HDF" )
         CreateGeoImageHDF(sl, type, tex, spectrumvector, inversevector);
@@ -669,7 +674,10 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     int filesequence;
     QString filespectrum;
 
-    //QApplication::setOverrideCursor(Qt::WaitCursor);
+    QApplication::setOverrideCursor(( Qt::WaitCursor));
+
+    formtoolbox->setProgressValue(10);
+
     int geoindex = sl->getGeoSatelliteIndex();
 
     filetiming = tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2) + tex.mid(13, 2) + tex.mid(16, 2);
@@ -879,46 +887,19 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     }
 
 
-    if(type == "VIS_IR" || type == "VIS_IR Color" || type == "HRV Color")
+    if(type == "VIS_IR" || type == "VIS_IR Color")
     {
-        for (int j =  0; j < llVIS_IR.size(); ++j)
-        {
-            QFile file(sl->getImagePath() + "/" + llVIS_IR.at(j));
-            QFileInfo fileinfo(file);
-            filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbr, opts.geosatellites.at(geoindex).lengthfilenbr).toInt()-1;
-            filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length());
-            filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdate, opts.geosatellites.at(geoindex).lengthdate);
-            filedate = filedate.leftJustified(12, '0');
-
-            sl->InsertPresent( spectrumvector, filespectrum, filesequence);
-
-            sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
-
-            qDebug() << QString("CreateGeoImageXRIT VIS_IR || VIS_IR Color || HRV Color ----> %1 filesequence = %2").arg(fileinfo.filePath()).arg(filesequence);
-        }
+        sl->ComposeImageXRITMSGInThread(llVIS_IR, QStringList(), spectrumvector, inversevector, histogrammethod);
+    }
+    else if( type == "HRV Color")
+    {
+        sl->ComposeImageXRITMSGInThread(llVIS_IR, llHRV, spectrumvector, inversevector, histogrammethod);
+    }
+    else if( type == "HRV")
+    {
+        sl->ComposeImageXRITMSGInThread(QStringList(), llHRV, spectrumvector, inversevector, histogrammethod);
     }
 
-    if( type == "HRV" || type == "HRV Color")
-    {
-        for (int j = 0; j < llHRV.size(); ++j)
-        {
-            QFile file(sl->getImagePath() + "/" + llHRV.at(j));
-            QFileInfo fileinfo(file);
-            filesequence = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexfilenbrhrv, opts.geosatellites.at(geoindex).lengthfilenbrhrv).toInt()-1;
-            filespectrum = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexspectrumhrv, opts.geosatellites.at(geoindex).spectrumhrv.length());
-            filedate = fileinfo.fileName().mid(opts.geosatellites.at(geoindex).indexdatehrv, opts.geosatellites.at(geoindex).lengthdatehrv);
-            filedate = filedate.leftJustified(12, '0');
-
-            sl->InsertPresent( spectrumvector, filespectrum, filesequence);
-
-            if(sl->areatype == 1)
-                sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
-            else if(filesequence >= opts.geosatellites.at(geoindex).startsegmentnbrhrvtype0)
-                sl->ComposeImageXRIT(fileinfo.filePath(), spectrumvector, inversevector, histogrammethod);
-
-            qDebug() << QString("CreateGeoImageXRIT HRV || HRV Color ----> %1").arg(fileinfo.filePath());
-        }
-    }
 }
 
 void FormGeostationary::CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector)
@@ -1028,6 +1009,8 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     QStringList llVIS_IR;
     QString filepattern;
 
+    QApplication::setOverrideCursor(( Qt::WaitCursor));
+
     eGeoSatellite whichgeo = sl->getGeoSatellite();
     int geoindex = sl->getGeoSatelliteIndex();
 
@@ -1068,7 +1051,6 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     else
         return;
 
-    //sl->InsertPresent( spectrumvector, "", 0);
 
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {
@@ -1085,7 +1067,7 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
         }
         else
         {
-            sl->setThreadParameters(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+            sl->setThreadParametersnetCDF(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
             sl->ComposeImagenetCDFInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
         }
     }
@@ -1149,7 +1131,7 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
         }
         else
         {
-            sl->setThreadParameters(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+            sl->setThreadParametersnetCDF(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
             sl->ComposeImagenetCDFMTGInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
         }
     }

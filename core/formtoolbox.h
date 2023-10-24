@@ -93,6 +93,7 @@ public:
     void setComboGeo(int geoindex);
     void setFormMovie(FormMovie *formmovie);
     void setProgressMaximum(int max);
+    void setProgressValue(int val);
     QStringList getRowchosen() { return rowchosen; }
     eProjectionType currentProjectionType;
 

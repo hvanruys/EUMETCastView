@@ -2169,6 +2169,11 @@ void FormToolbox::setProgressMaximum(int max)
     ui->pbProgress->setMaximum(max);
 }
 
+void FormToolbox::setProgressValue(int val)
+{
+    ui->pbProgress->setValue(val);
+}
+
 void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 {
     qDebug() << QString("onButtonChannel( QString channel, bool bInverse)  ; channel = %1").arg(channel);
@@ -2228,23 +2233,23 @@ void FormToolbox::on_btnGeoColor_clicked()
         return;
     }
 
-    QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
+    //QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
 
     ui->pbProgress->reset();
     if(geoindex == (int)eGeoSatellite::MET_10 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
-        ui->pbProgress->setMaximum(8+8+8);
+        ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::MET_11)
-        ui->pbProgress->setMaximum(3+3+3);
+        ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::GOMS3)
-        ui->pbProgress->setMaximum(6+6+6);
+        ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::FY2H || geoindex == (int)eGeoSatellite::FY2G )
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::H8)
-        ui->pbProgress->setMaximum(10+10+10);
+        ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::GOES_16 || geoindex == (int)eGeoSatellite::GOES_17 || geoindex == (int)eGeoSatellite::GOES_18)
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::MTG_I1)
-        ui->pbProgress->setMaximum(40 + 40 + 40);
+        ui->pbProgress->setMaximum(100);
 
     onButtonColorHRV("VIS_IR Color");
 
@@ -2285,7 +2290,7 @@ void FormToolbox::on_btnRecipes_clicked()
     formimage->displayImage(IMAGE_GEOSTATIONARY, true);
     setToolboxButtons(true);
 
-    QApplication::restoreOverrideCursor(); // restore in FormImage::slotUpdateGeosat()
+    QApplication::restoreOverrideCursor();
 
 
 }

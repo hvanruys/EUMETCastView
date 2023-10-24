@@ -438,12 +438,12 @@ void FormEphem::on_chkSelectBas_toggled(bool checked)
                 (*it1)->setCheckState(0, Qt::Unchecked);
             }
         }
-        else
-        {
-            opts.segmentdirectorylistinc << "0";
-            (*it1)->setCheckState(0, Qt::Unchecked);
+//        else
+//        {
+//            opts.segmentdirectorylistinc << "0";
+//            (*it1)->setCheckState(0, Qt::Unchecked);
 
-        }
+//        }
         ++it1;
     }
 
@@ -472,12 +472,12 @@ void FormEphem::on_chkSelectHvs1_toggled(bool checked)
                 (*it1)->setCheckState(0, Qt::Unchecked);
             }
         }
-        else
-        {
-            opts.segmentdirectorylistinc << "0";
-            (*it1)->setCheckState(0, Qt::Unchecked);
+//        else
+//        {
+//            opts.segmentdirectorylistinc << "0";
+//            (*it1)->setCheckState(0, Qt::Unchecked);
 
-        }
+//        }
         ++it1;
     }
 
@@ -506,12 +506,12 @@ void FormEphem::on_chkSelectHvs2_toggled(bool checked)
                 (*it1)->setCheckState(0, Qt::Unchecked);
             }
         }
-        else
-        {
-            opts.segmentdirectorylistinc << "0";
-            (*it1)->setCheckState(0, Qt::Unchecked);
+//        else
+//        {
+//            opts.segmentdirectorylistinc << "0";
+//            (*it1)->setCheckState(0, Qt::Unchecked);
 
-        }
+//        }
         ++it1;
     }
 
@@ -540,12 +540,12 @@ void FormEphem::on_chkSelectHvs3_toggled(bool checked)
                 (*it1)->setCheckState(0, Qt::Unchecked);
             }
         }
-        else
-        {
-            opts.segmentdirectorylistinc << "0";
-            (*it1)->setCheckState(0, Qt::Unchecked);
+//        else
+//        {
+//            opts.segmentdirectorylistinc << "0";
+//            (*it1)->setCheckState(0, Qt::Unchecked);
 
-        }
+//        }
         ++it1;
     }
 
@@ -1153,10 +1153,5 @@ void FormEphem::on_calendar_selectionChanged()
     segs->setXMLDate(ui->calendar->selectedDate());
     getSegmentsForCalendar();
 }
-
-
-
-
-
 
 

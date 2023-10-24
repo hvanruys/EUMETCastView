@@ -3600,18 +3600,24 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
         for( int i = (sl->bisRSS ? 5 : 0); i < 8; i++)
         {
-            if(sl->isPresentRed[i])
+            if(imageptrs->ptrRed[i] != NULL)
                 memcpy(pixelsRed + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrRed[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsRed + (sl->bisRSS ? i - 5 : i) * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
         }
         for( int i = (sl ->bisRSS ? 5 : 0); i < 8; i++)
         {
-            if(sl->isPresentGreen[i])
+            if(imageptrs->ptrGreen[i] != NULL)
                 memcpy(pixelsGreen + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrGreen[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsGreen + (sl->bisRSS ? i - 5 : i) * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
         }
         for( int i = (sl ->bisRSS ? 5 : 0); i < 8; i++)
         {
-            if(sl->isPresentBlue[i])
+            if(imageptrs->ptrBlue[i] != NULL)
                 memcpy(pixelsBlue + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrBlue[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsBlue + (sl->bisRSS ? i - 5 : i) * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
         }
     }
 
@@ -3623,18 +3629,24 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
         for( int i = (sl->bisRSS ? 5 : 0); i < 8; i++)
         {
-            if(sl->isPresentRed[i])
+            if(imageptrs->ptrRed[i] != NULL)
                 memcpy(pixelsRed + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrRed[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsRed + (sl->bisRSS ? i - 5 : i) * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
         }
         for( int i = (sl ->bisRSS ? 5 : 0); i < 8; i++)
         {
-            if(sl->isPresentGreen[i])
+            if(imageptrs->ptrGreen[i] != NULL)
                 memcpy(pixelsGreen + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrGreen[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsGreen + (sl->bisRSS ? i - 5 : i) * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
         }
         for( int i = (sl ->bisRSS ? 5 : 0); i < 8; i++)
         {
-            if(sl->isPresentBlue[i])
+            if(imageptrs->ptrBlue[i] != NULL)
                 memcpy(pixelsBlue + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrBlue[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsBlue + (sl->bisRSS ? i - 5 : i) * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
         }
     }
     else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::GOMS3)
@@ -3645,18 +3657,24 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
         for( int i = 0; i < 6; i++)
         {
-            if(sl->isPresentRed[i])
+            if(imageptrs->ptrRed[i] != NULL)
                 memcpy(pixelsRed + i * 464 * 2784, imageptrs->ptrRed[i], 464 * 2784 * sizeof(quint16));
+            else
+                memset(pixelsRed + i * 464 * 2784, 0, 464 * 2784 * sizeof(quint16));
         }
         for( int i = 0; i < 6; i++)
         {
-            if(sl->isPresentGreen[i])
+            if(imageptrs->ptrGreen[i] != NULL)
                 memcpy(pixelsGreen + i * 464 * 2784, imageptrs->ptrGreen[i], 464 * 2784 * sizeof(quint16));
+            else
+                memset(pixelsGreen + i * 464 * 2784, 0, 464 * 2784 * sizeof(quint16));
         }
         for( int i = 0; i < 6; i++)
         {
-            if(sl->isPresentBlue[i])
+            if(imageptrs->ptrBlue[i] != NULL)
                 memcpy(pixelsBlue + i * 464 * 2784, imageptrs->ptrBlue[i], 464 * 2784 * sizeof(quint16));
+            else
+                memset(pixelsBlue + i * 464 * 2784, 0, 464 * 2784 * sizeof(quint16));
         }
     }
     else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8)
@@ -3668,18 +3686,24 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 
         for( int i = 0; i < 10; i++)
         {
-            if(sl->isPresentRed[i])
+            if(imageptrs->ptrRed[i] != NULL)
                 memcpy(pixelsRed + i * 550 * 5500, imageptrs->ptrRed[i], 550 * 5500 * sizeof(quint16));
+            else
+                memset(pixelsRed + i * 550 * 5500, 0, 550 * 5500 * sizeof(quint16));
         }
         for( int i = 0; i < 10; i++)
         {
-            if(sl->isPresentGreen[i])
+            if(imageptrs->ptrGreen[i] != NULL)
                 memcpy(pixelsGreen + i * 550 * 5500, imageptrs->ptrGreen[i], 550 * 5500 * sizeof(quint16));
+            else
+                memset(pixelsGreen + i * 550 * 5500, 0, 550 * 5500 * sizeof(quint16));
         }
         for( int i = 0; i < 10; i++)
         {
-            if(sl->isPresentBlue[i])
+            if(imageptrs->ptrBlue[i] != NULL)
                 memcpy(pixelsBlue + i * 550 * 5500, imageptrs->ptrBlue[i], 550 * 5500 * sizeof(quint16));
+            else
+                memset(pixelsBlue + i * 550 * 5500, 0, 550 * 5500 * sizeof(quint16));
         }
     }
     else if(sl->getKindofImage() == "VIS_IR Color" && (sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17 || sl->getGeoSatellite() == eGeoSatellite::GOES_18))
@@ -3700,12 +3724,12 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 *(pixelsGreen + i) = 0;
             if(*(pixelsBlue+i) == imageptrs->fillvalue[2] )
                 *(pixelsBlue + i) = 0;
-            if(imageptrs->ptrDQF[0][i] == 2)
-            {
-                *(pixelsRed+i) = 1023;
-                *(pixelsGreen+i) = 1023;
-                *(pixelsBlue+i) = 1023;
-            }
+//            if(imageptrs->ptrDQF[0][i] == 2)
+//            {
+//                *(pixelsRed+i) = 1023;
+//                *(pixelsGreen+i) = 1023;
+//                *(pixelsBlue+i) = 1023;
+//            }
         }
 
     }
@@ -3715,10 +3739,10 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         for( int i = 0, k = 0; i < (sl->bisRSS ? 5 : ( sl->areatype == 1 ? 24 : 5)); i++)
         {
             k = (sl->bisRSS ? 19 + i : (sl->areatype == 1 ? i : 19 + i));
-            if(sl->isPresentHRV[k])
-            {
+            if(imageptrs->ptrHRV[k] != NULL)
                 memcpy(pixelsHRV + i * 464 * 5568, imageptrs->ptrHRV[k], 464 * 5568 * sizeof(quint16));
-            }
+            else
+                memset(pixelsHRV + i * 464 * 5568, 0, 464 * 5568 * sizeof(quint16));
         }
     }
     else if(sl->getKindofImage() == "HRV" && (sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
@@ -3731,8 +3755,10 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         pixelsRed = new quint16[npix];
         for( int i = (sl->bisRSS ? 5 : 0); i < 8 ; i++)
         {
-            if(sl->isPresentRed[i])
+            if(imageptrs->ptrRed[i] != NULL)
                 memcpy(pixelsRed + (sl->bisRSS ? i - 5 : i) * 464 * 3712, imageptrs->ptrRed[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsRed + (sl->bisRSS ? i - 5 : i) * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
         }
     }
     else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == eGeoSatellite::GOMS3)
@@ -3740,8 +3766,10 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         pixelsRed = new quint16[npix];
         for( int i = 0; i < 6 ; i++)
         {
-            if(sl->isPresentRed[i])
+            if(imageptrs->ptrRed[i] != NULL)
                 memcpy(pixelsRed + i * 464 * 2784, imageptrs->ptrRed[i], 464 * 2784 * sizeof(quint16));
+            else
+                memset(pixelsRed + i * 464 * 2784, 0, 464 * 2784 * sizeof(quint16));
         }
     }
     else if(sl->getKindofImage() == "VIS_IR" && (sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G ))
@@ -3758,8 +3786,8 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         {
             if(*(pixelsRed+i) == imageptrs->fillvalue[0] )
                 *(pixelsRed + i) = 0;
-            if(imageptrs->ptrDQF[0][i] == 2)
-                *(pixelsRed+i) = 1023;
+//            if(imageptrs->ptrDQF[0][i] == 2)
+//                *(pixelsRed+i) = 1023;
         }
     }
     else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == eGeoSatellite::H8)
@@ -3767,8 +3795,10 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         pixelsRed = new quint16[npix];
         for( int i = 0; i < 10 ; i++)
         {
-            if(sl->isPresentRed[i])
+            if(imageptrs->ptrRed[i] != NULL)
                 memcpy(pixelsRed + i * 550 * 5500, imageptrs->ptrRed[i], 550 * 5500 * sizeof(quint16));
+            else
+                memset(pixelsRed + i * 550 * 5500, 0, 550 * 5500 * sizeof(quint16));
         }
     }
 
