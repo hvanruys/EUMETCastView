@@ -44,6 +44,7 @@ public:
     //void LoadXMLfromDatahub();
     void setMainWindowTitle(QString title) { setWindowTitle(title); };
 
+
     ~MainWindow();
     
 private:

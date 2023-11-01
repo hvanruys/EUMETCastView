@@ -696,7 +696,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             QApplication::restoreOverrideCursor();
             return;
         }
-        if(sl->getGeoSatellite() != eGeoSatellite::H8)
+        if(sl->getGeoSatellite() != eGeoSatellite::H9)
             faVIS_IR.parse(sl->getImagePath() + "/" + llVIS_IR.at(0));
     }
     else if(type == "HRV Color")
@@ -710,7 +710,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             QApplication::restoreOverrideCursor();
             return;
         }
-        if(sl->getGeoSatellite() != eGeoSatellite::H8)
+        if(sl->getGeoSatellite() != eGeoSatellite::H9)
         {
             faVIS_IR.parse(sl->getImagePath() + "/" + llVIS_IR.at(0));
             faHRV.parse(sl->getImagePath() + "/" + llHRV.at(0));
@@ -726,7 +726,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
             QApplication::restoreOverrideCursor();
             return;
         }
-        if(sl->getGeoSatellite() != eGeoSatellite::H8)
+        if(sl->getGeoSatellite() != eGeoSatellite::H9)
             faHRV.parse(sl->getImagePath() + "/" + llHRV.at(0));
     }
 
@@ -755,7 +755,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     MSG_header header;
     float subsatpoint;
 
-    if(sl->getGeoSatellite() != eGeoSatellite::H8)
+    if(sl->getGeoSatellite() != eGeoSatellite::H9)
     {
         if(opts.geosatellites.at(geoindex).prologfile)
         {

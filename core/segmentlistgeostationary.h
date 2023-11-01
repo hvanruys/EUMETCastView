@@ -92,6 +92,7 @@ public:
     void ComposeSnowRGB(bandstorage &bs, double julian_day);
     void ComposeIR_039sunreflected(bandstorage &bs, double julian_day);
 
+
     double COFF;
     double LOFF;
     double CFAC;
@@ -138,6 +139,8 @@ private:
     //static bool concurrentComposeImageXRIT(SegmentListGeostationary *sm, const QStringList files, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     static void concurrentReadFilelist(SegmentListGeostationary *sm, QString llFile);
     static void concurrentReadFilelistHimawari(SegmentListGeostationary *sm, QString llFile);
+    static void concurrentSetRed(SegmentListGeostationary *sm, const int &line, const int &value);
+
     void equalizeHistogram(quint16* pdata, int width, int height, int max_val);
     void equalizeHistogram(quint16* pdata, int width, int height, int colorindex, quint16 fillvalue, int max_val);
 
@@ -201,6 +204,7 @@ signals:
     void signalcomposefinished(QString kindofimage, int index);
     
 public slots:
+//    void setRedValue(int red);
 
 private slots:
 

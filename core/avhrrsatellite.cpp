@@ -800,6 +800,16 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
         QStringList seglist = opts.segmentdirectorylist;
         QStringList seglistinc = opts.segmentdirectorylistinc;
 
+        if(seglist.count() != seglistinc.count())
+        {
+            qDebug() << "ReadDirectories() ; seglist.count() != seglistinc.count()";
+            seglistinc.clear();
+            for(int i = 0; i < seglist.count(); i++)
+            {
+                seglistinc << "0";
+            }
+        }
+
         QStringList::Iterator its = seglist.begin();
         QStringList::Iterator itc = seglistinc.begin(); //segmentdirectory checked
 

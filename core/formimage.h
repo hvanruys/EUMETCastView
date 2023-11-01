@@ -7,6 +7,8 @@
 #include <QGraphicsPixmapItem>
 #include <QImage>
 #include <QPrinter>
+#include <QtConcurrent/QtConcurrent>
+
 #include "avhrrsatellite.h"
 #include "formtoolbox.h"
 
@@ -68,6 +70,8 @@ public:
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
 
     void setViewInitialized(bool init) { qDebug() << "setViewInitialized = " << init; this->m_ViewInitialized = init; }
+
+    static void concurrentSetRed(SegmentListGeostationary *sm, const int &line, const int &value);
 
     eImageType channelshown; // which button channel
 
@@ -146,6 +150,7 @@ public slots:
     void slotcomposefinished(QString kindofimage, int index);
     void setPixmapToScene(bool settoolboxbuttons);
     void slotUpdateGeosat();
+    void slotSetRedValue(int);
 
 
 

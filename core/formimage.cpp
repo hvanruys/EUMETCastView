@@ -17,6 +17,9 @@ extern gshhsData *gshhsdata;
 extern bool ptrimagebusy;
 extern SatelliteList SatelliteList;
 
+//SegmentListGeostationary *sm = seglist->getActiveSegmentList();
+//connect(ui->hslRed, SIGNAL(valueChanged(int)), sm, SLOT(setRedValue(int)));
+
 FormImage::FormImage(QWidget *parent, AVHRRSatellite *seglist) :
     QGraphicsView(parent), m_rotateAngle(0), m_ViewInitialized(false)
 {
@@ -1629,7 +1632,7 @@ void FormImage::drawOverlays(QPainter *painter)
                 painter->drawText(0, 2 * font.pixelSize(), rowchosen[0] );
             }
 
-            if(slgeo->getGeoSatellite() == eGeoSatellite::H8)
+            if(slgeo->getGeoSatellite() == eGeoSatellite::H9)
                 this->OverlayGeostationaryH8(painter, slgeo);
             else
                 this->OverlayGeostationary(painter, slgeo);
@@ -3677,7 +3680,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 memset(pixelsBlue + i * 464 * 2784, 0, 464 * 2784 * sizeof(quint16));
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8)
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H9)
     {
 
         pixelsRed = new quint16[npix];
@@ -3790,7 +3793,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
 //                *(pixelsRed+i) = 1023;
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == eGeoSatellite::H8)
+    else if(sl->getKindofImage() == "VIS_IR" && sl->getGeoSatellite() == eGeoSatellite::H9)
     {
         pixelsRed = new quint16[npix];
         for( int i = 0; i < 10 ; i++)
@@ -3817,7 +3820,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
         imageptrs->CLAHE(pixelsGreen, 2784, 2784, 0, 1023, 16, 16, 256, opts.clahecliplimit);
         imageptrs->CLAHE(pixelsBlue, 2784, 2784, 0, 1023, 16, 16, 256, opts.clahecliplimit);
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8 )
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H9 )
     {
         ret = imageptrs->CLAHE(pixelsRed, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
         imageptrs->CLAHE(pixelsGreen, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
@@ -3867,7 +3870,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             imageptrs->CLAHE(pixelsRed, 2288, 2288, 0, 255, 16, 16, 256, opts.clahecliplimit);
         else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17 || sl->getGeoSatellite() == eGeoSatellite::GOES_18)
             imageptrs->CLAHE(pixelsRed, 5424, 5424, 0, 1023, 16, 16, 256, opts.clahecliplimit);
-        else if(sl->getGeoSatellite() == eGeoSatellite::H8)
+        else if(sl->getGeoSatellite() == eGeoSatellite::H9)
             imageptrs->CLAHE(pixelsRed, 5500, 5500, 0, 1023, 10, 10, 256, opts.clahecliplimit);
     }
 
@@ -3897,7 +3900,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             }
         }
     }
-    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H8)
+    else if(sl->getKindofImage() == "VIS_IR Color" && sl->getGeoSatellite() == eGeoSatellite::H9)
     {
 
         for(int i = 0; i < 10; i++)
@@ -4048,7 +4051,7 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
                 }
             }
         }
-        else if(sl->getGeoSatellite() == eGeoSatellite::H8 )
+        else if(sl->getGeoSatellite() == eGeoSatellite::H9 )
         {
             qDebug() << "in if(sl->getGeoSatellite() == eGeoSatellite::H8 )";
 
@@ -4132,6 +4135,66 @@ void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> 
             emit render3dgeo(sl->getGeoSatelliteIndex());
 
     QApplication::restoreOverrideCursor();
+}
+
+void FormImage::slotSetRedValue(int red)
+{
+    qDebug() << "red value = " << red;
+    SegmentListGeostationary *sm =  segs->getActiveSegmentList();
+    int geoindex = sm->getGeoSatelliteIndex();
+
+    QVector<int> vec;
+
+    for(int i = 0; i < 32; i++)
+    {
+        vec.append(i*116);
+    }
+
+    auto callbackMethod = std::bind(concurrentSetRed, sm, std::placeholders::_1, red);
+    QtConcurrent::blockingMap(vec, callbackMethod);
+
+    this->slotUpdateGeosat();
+
+//    this->scene()->update(this->sceneRect());
+
+//    QWidget* viewport = this->viewport();
+//    viewport->update();
+
+//    QList<QGraphicsItem*> all = scene()->items();
+//    qDebug() << "geoindex = " << geoindex << "nbr of items = " << all.size();
+
+//        for (int i = 0; i < all.size(); i++)
+//        {
+
+//            //VEPointItem *gi = static_cast<VEPointItem*>(all[i]);
+//            all[i]->update();
+//        }
+//    this->invalidateScene(); // updateScene(this->sceneRect());
+
+
+}
+
+void FormImage::concurrentSetRed(SegmentListGeostationary *sm, const int &line, const int &value)
+{
+    QRgb *row_col;
+    quint16 r,g, b;
+
+    int geoindex = sm->getGeoSatelliteIndex();
+
+    float red = 1.0/value;
+
+    for(int i = line; i < line + 116; i++)
+    {
+        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
+        for(int pixelx = 0; pixelx < opts.geosatellites[geoindex].imagewidth; pixelx++)
+        {
+            r = qRound(qRed(row_col[pixelx]) * red);
+            g = qGreen(row_col[pixelx]);
+            b = qBlue(row_col[pixelx]);
+            row_col[pixelx] = qRgb(r, g , b);
+        }
+    }
+
 }
 
 void FormImage::slotUpdateGeosat()

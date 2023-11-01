@@ -163,6 +163,7 @@ signals:
     void overlaycorrection(int,int);
     void switchstackedwidget(int);
     void creatergbrecipe(int recipe);
+    void colorValueRed(int red);
 
 
 private slots:
@@ -343,6 +344,7 @@ private slots:
     void on_spbGVPFalseNorthing_valueChanged(double arg1);
     void on_spbGVPFalseEasting_valueChanged(double arg1);
     void on_cbProjResolutions_activated(int index);
+    void on_hslRed_valueChanged(int value);
 };
 
 

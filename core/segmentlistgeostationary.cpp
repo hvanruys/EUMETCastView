@@ -238,7 +238,7 @@ void SegmentListGeostationary::setGeoSatellite(int geoindex)
     }
     else if(str_GeoSatellite == "H8")
     {
-        this->m_GeoSatellite = eGeoSatellite::H8;
+        this->m_GeoSatellite = eGeoSatellite::H9;
     }
     else if(str_GeoSatellite == "MTG-I1")
     {
@@ -2148,7 +2148,7 @@ void SegmentListGeostationary::ComposeSegmentImageXRITMSGInThreadConcurrent()
 
     emit this->progressCounter(20);
 
-    if(m_GeoSatellite == eGeoSatellite::H8)
+    if(m_GeoSatellite == eGeoSatellite::H9)
     {
         if(kindofimage == "VIS_IR" || kindofimage == "VIS_IR Color")
         {
@@ -3016,10 +3016,10 @@ void SegmentListGeostationary::equalizeHistogram(quint16* pdata, int width, int 
 
     qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4").arg(colorindex).arg(imageptrs->minRadianceIndex[colorindex]).arg(colorindex).arg(imageptrs->maxRadianceIndex[colorindex]);
 
-    for(int i = 0; i < 1024; i++)
-    {
-        qDebug() << QString("lut[%1] = %2").arg(i).arg(imageptrs->lut_ch[colorindex][i]);
-    }
+//    for(int i = 0; i < 1024; i++)
+//    {
+//        qDebug() << QString("lut[%1] = %2").arg(i).arg(imageptrs->lut_ch[colorindex][i]);
+//    }
 
 
     // Apply equalization
@@ -3450,6 +3450,17 @@ void SegmentListGeostationary::ComposeVISIR()
 
     computeGeoImage(pixelsRed, pixelsGreen, pixelsBlue);
 
+//    QVector<int> vec;
+
+//    for(int i = 0; i < opts.geosatellites[geoindex].imageheight; i++)
+//    {
+//        vec.append(i);
+//    }
+
+//    auto callbackMethod = std::bind(this->concurrentSetRed, this, std::placeholders::_1, 50);
+//    QtConcurrent::blockingMap(vec, callbackMethod);
+
+
     delete [] pixelsRed;
     if(kindofimage == "VIS_IR Color")
     {
@@ -3457,6 +3468,22 @@ void SegmentListGeostationary::ComposeVISIR()
         delete [] pixelsBlue;
     }
 
+}
+
+void SegmentListGeostationary::concurrentSetRed(SegmentListGeostationary *sm, const int &line, const int &value)
+{
+    QRgb *row_col;
+    quint16 r,g, b;
+
+    float red = 1.0/value;
+    row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
+    for(int pixelx = 0; pixelx < opts.geosatellites[sm->geoindex].imagewidth; pixelx++)
+    {
+        r = qRound(qRed(row_col[pixelx]) * red);
+        g = qGreen(row_col[pixelx]);
+        b = qBlue(row_col[pixelx]);
+        row_col[pixelx] = qRgb(r, g , b);
+    }
 }
 
 void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue)
@@ -3475,20 +3502,20 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
 
     int nbroflinespersegment = opts.geosatellites[geoindex].segmentlength;
 
-    if(m_GeoSatellite != eGeoSatellite::H8)
+    if(m_GeoSatellite != eGeoSatellite::H9)
         im = CalculateBitMap();
 
     unsigned int i_image;
 
-    for (int line = (m_GeoSatellite != eGeoSatellite::H8 ? opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1 : 0);
-         (m_GeoSatellite != eGeoSatellite::H8 ? line >= 0 : line < opts.geosatellites[geoindex].maxsegments*nbroflinespersegment);
-         (m_GeoSatellite != eGeoSatellite::H8 ? line-- : line++))
+    for (int line = (m_GeoSatellite != eGeoSatellite::H9 ? opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1 : 0);
+         (m_GeoSatellite != eGeoSatellite::H9 ? line >= 0 : line < opts.geosatellites[geoindex].maxsegments*nbroflinespersegment);
+         (m_GeoSatellite != eGeoSatellite::H9 ? line-- : line++))
     {
         if(m_GeoSatellite == eGeoSatellite::GOMS3)
             row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
         else
         {
-            if(m_GeoSatellite != eGeoSatellite::H8)
+            if(m_GeoSatellite != eGeoSatellite::H9)
             {
                 row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
                 row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
@@ -3497,9 +3524,9 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                 row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
         }
 
-        for (int pixelx = (m_GeoSatellite != eGeoSatellite::H8 ? opts.geosatellites[geoindex].imagewidth - 1 : 0);
-             (m_GeoSatellite != eGeoSatellite::H8 ? pixelx >= 0 : pixelx < opts.geosatellites[geoindex].imagewidth);
-             (m_GeoSatellite != eGeoSatellite::H8 ?  pixelx-- : pixelx++))
+        for (int pixelx = (m_GeoSatellite != eGeoSatellite::H9 ? opts.geosatellites[geoindex].imagewidth - 1 : 0);
+             (m_GeoSatellite != eGeoSatellite::H9 ? pixelx >= 0 : pixelx < opts.geosatellites[geoindex].imagewidth);
+             (m_GeoSatellite != eGeoSatellite::H9 ?  pixelx-- : pixelx++))
         {
             i_image = line * opts.geosatellites[geoindex].imagewidth + pixelx;
             if(kindofimage == "VIS_IR Color")
@@ -3681,7 +3708,7 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                         g = quint16(this->inversevector[1] ? (255 - g) : g);
                         b = quint16(this->inversevector[2] ? (255 - b) : b);
                     }
-                    if(m_GeoSatellite != eGeoSatellite::H8)
+                    if(m_GeoSatellite != eGeoSatellite::H9)
                         row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r,g,b);
                     else
                         row_col[pixelx] = qRgb(r,g,b);
@@ -3747,7 +3774,7 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                     row_col[pixelx] = qRgb(r,g,b);
                 else
                 {
-                    if(m_GeoSatellite != eGeoSatellite::H8)
+                    if(m_GeoSatellite != eGeoSatellite::H9)
                     {
                         if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
                         {

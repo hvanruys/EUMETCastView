@@ -438,14 +438,19 @@ void FormEphem::on_chkSelectBas_toggled(bool checked)
                 (*it1)->setCheckState(0, Qt::Unchecked);
             }
         }
-//        else
-//        {
-//            opts.segmentdirectorylistinc << "0";
-//            (*it1)->setCheckState(0, Qt::Unchecked);
+        else
+        {
+            if((*it1)->checkState(0) == Qt::Checked)
+                opts.segmentdirectorylistinc << "1";
+            else
+                opts.segmentdirectorylistinc << "0";
 
-//        }
+        }
         ++it1;
     }
+
+//    for(int i = 0; i < opts.segmentdirectorylist.size(); i++)
+//        qDebug() << opts.segmentdirectorylist.at(i) << " " << opts.segmentdirectorylistinc.at((i));
 
     opts.Save();
 }
@@ -472,12 +477,14 @@ void FormEphem::on_chkSelectHvs1_toggled(bool checked)
                 (*it1)->setCheckState(0, Qt::Unchecked);
             }
         }
-//        else
-//        {
-//            opts.segmentdirectorylistinc << "0";
-//            (*it1)->setCheckState(0, Qt::Unchecked);
+        else
+        {
+            if((*it1)->checkState(0) == Qt::Checked)
+                opts.segmentdirectorylistinc << "1";
+            else
+                opts.segmentdirectorylistinc << "0";
 
-//        }
+        }
         ++it1;
     }
 
@@ -506,12 +513,14 @@ void FormEphem::on_chkSelectHvs2_toggled(bool checked)
                 (*it1)->setCheckState(0, Qt::Unchecked);
             }
         }
-//        else
-//        {
-//            opts.segmentdirectorylistinc << "0";
-//            (*it1)->setCheckState(0, Qt::Unchecked);
+        else
+        {
+            if((*it1)->checkState(0) == Qt::Checked)
+                opts.segmentdirectorylistinc << "1";
+            else
+                opts.segmentdirectorylistinc << "0";
 
-//        }
+        }
         ++it1;
     }
 
@@ -540,12 +549,14 @@ void FormEphem::on_chkSelectHvs3_toggled(bool checked)
                 (*it1)->setCheckState(0, Qt::Unchecked);
             }
         }
-//        else
-//        {
-//            opts.segmentdirectorylistinc << "0";
-//            (*it1)->setCheckState(0, Qt::Unchecked);
+        else
+        {
+            if((*it1)->checkState(0) == Qt::Checked)
+                opts.segmentdirectorylistinc << "1";
+            else
+                opts.segmentdirectorylistinc << "0";
 
-//        }
+        }
         ++it1;
     }
 

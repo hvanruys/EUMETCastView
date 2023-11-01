@@ -2,6 +2,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #ifdef _WIN32
 #include <hdf5.h>
 #else
@@ -189,6 +190,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( imageptrs->om, SIGNAL(aspectratioChanged(QPoint)), formtoolbox, SLOT(slotChangeAspectRatio(QPoint)));
 
     connect( formimage, SIGNAL(signalMainWindowTitleChanged(QString)), this, SLOT(slotMainWindowTitleChanged(QString)));
+
+    connect(formtoolbox, SIGNAL(colorValueRed(int)), formimage, SLOT(slotSetRedValue(int)));
+
 
     formtoolbox->setChannelIndex();
 

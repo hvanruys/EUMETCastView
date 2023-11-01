@@ -2,6 +2,7 @@
 #include "ui_formtoolbox.h"
 #include "poi.h"
 #include <cmath>
+#include <QtConcurrent/QtConcurrent>
 
 #include "FreeImage.h"
 
@@ -414,7 +415,30 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     }
 
     rowchosen.clear();
+
+    ui->hslRed->setMaximum(100);
+    ui->hslRed->setMinimum(0);
+    ui->hslRed->setValue(100);
+
+
 }
+
+//void FormToolbox::colorValueRed(int red)
+//{
+//    qDebug() << "red value = " << red;
+////    SegmentListGeostationary *sm =  segs->getActiveSegmentList();
+
+////    QVector<int> vec;
+
+////    for(int i = 0; i < opts.geosatellites[geoindex].imageheight; i++)
+////    {
+////        vec.append(i);
+////    }
+
+////    auto callbackMethod = std::bind(sm->concurrentSetRed, this, std::placeholders::_1);
+////    QtConcurrent::blockingMap(vec, callbackMethod);
+
+//}
 
 void FormToolbox::setFormMovie(FormMovie *formmovie)
 {
@@ -2244,7 +2268,7 @@ void FormToolbox::on_btnGeoColor_clicked()
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::FY2H || geoindex == (int)eGeoSatellite::FY2G )
         ui->pbProgress->setMaximum(100);
-    else if(geoindex == (int)eGeoSatellite::H8)
+    else if(geoindex == (int)eGeoSatellite::H9)
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::GOES_16 || geoindex == (int)eGeoSatellite::GOES_17 || geoindex == (int)eGeoSatellite::GOES_18)
         ui->pbProgress->setMaximum(100);
@@ -2549,7 +2573,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             inversevector[ui->comboGeo6->currentIndex()-1] = ui->chkInverseGeo6->isChecked();
         }
     }
-    else if(geoindex == (int)eGeoSatellite::H8 )
+    else if(geoindex == (int)eGeoSatellite::H9 )
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
@@ -6157,4 +6181,10 @@ void FormToolbox::on_cbProjResolutions_activated(int index)
     formimage->displayImage(IMAGE_PROJECTION, true);
 }
 
+
+
+void FormToolbox::on_hslRed_valueChanged(int value)
+{
+    emit colorValueRed(value);
+}
 
