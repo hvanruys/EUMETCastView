@@ -1231,6 +1231,73 @@ void SegmentImage::showHistogram(QImage *ptr)
 */
 }
 
+/*
+ *
+ *
+Sure, here are the steps to convert from RGB color space to L*a*b* color space:
+
+1. **Normalize RGB values:** Divide each RGB value (red, green, blue) by 255 to normalize them to a range of 0 to 1.
+
+2. **Linear transformation of RGB values:** Apply the following linear transformation to each RGB value:
+
+| Color | Transformation |
+|---|---|
+| Red | R * 0.4124 + G * 0.3576 + B * 0.1805 |
+| Green | R * 0.2126 + G * 0.7152 + B * 0.0722 |
+| Blue | R * 0.0193 + G * 0.1192 + B * 0.9505 |
+
+3. **XYZ to CIE XYZ transformation:** Normalize the XYZ values using the reference white (D65):
+
+| Color | Transformation |
+|---|---|
+| X | X / Xn |
+| Y | Y / Yn |
+| Z | Z / Zn |
+
+where Xn, Yn, and Zn are the CIE XYZ coordinates of the reference white.
+[Xn, Yn, Zn] = [95.047, 100.00, 108.883]
+
+4. **Compute L*, a*, and b* values:**
+
+| Color | Transformation |
+|---|---|
+| L* | 116 * (Y^(1/3)) - 16 |
+| a* | 500 * [(X^(1/3)) - (Y^(1/3))] |
+| b* | 200 * [(Y^(1/3)) - (Z^(1/3))] |
+
+where X, Y, and Z are the normalized XYZ values.
+
+The resulting L*, a*, and b* values represent the color in L*a*b* color space.
+
+
+Converting from L*a*b* color space to RGB color space involves several steps:
+
+1. **Inverse transformation of CIE XYZ coordinates:** Normalize the L*, a*, and b* values:
+
+| Color | Transformation |
+|---|---|
+| X = (L* + 16) / 116 |
+| Y = X - a* / 500 |
+| Z = X - b* / 200 |
+
+2. **XYZ to RGB transformation:** Apply the following matrix multiplication to the normalized XYZ values:
+
+```
+[[ 3.2406 - 1.5372 - 0.4985],
+ [-0.9689 1.8758 0.0415],
+ [0.0557 -0.2040 1.4095]] * [[X], [Y], [Z]]
+```
+
+3. **Gamma correction:** Apply gamma correction to the resulting RGB values to obtain the final RGB values:
+
+```
+R' = 255 * (R^γ)
+G' = 255 * (G^γ)
+B' = 255 * (B^γ)
+```
+
+where R', G', and B' are the gamma-corrected RGB values, R, G, and B are the uncorrected RGB values, and γ is the gamma value (typically 2.2).
+ * */
 // Contrast Limited Adaptive Histogram Equalization
 int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned int uiYRes,
      unsigned short Min, unsigned short Max, unsigned int uiNrX, unsigned int uiNrY,

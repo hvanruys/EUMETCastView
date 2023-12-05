@@ -78,6 +78,8 @@ set(PROJECT_SOURCES_CPP
     internal.cpp
     misc_util.cpp
     nav_util.cpp
+    ColorSpace.cpp
+    Conversion.cpp
     mainwindow.ui
     dialogpreferences.ui
     formephem.ui

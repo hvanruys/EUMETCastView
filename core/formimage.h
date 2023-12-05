@@ -68,6 +68,9 @@ public:
     void CLAHERGBRecipe(float cliplimit);
 
     void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void recalculateCLAHEMeteosat(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void recalculateCLAHEMeteosat1(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void recalculateCLAHEMTG(QVector<QString> spectrumvector, QVector<bool> inversevector);
 
     void setViewInitialized(bool init) { qDebug() << "setViewInitialized = " << init; this->m_ViewInitialized = init; }
 

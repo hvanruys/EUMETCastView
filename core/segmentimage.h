@@ -141,6 +141,8 @@ public:
     quint16 lut_proj_ch[3][1024];
     quint16 lut_sentinel[256];
 
+    quint16 lut_mtg[3][4096];
+
     int stat_max_ch[5];
     int stat_min_ch[5];
     int stat_max_proj_ch[5]; // used in HistEqual of projection

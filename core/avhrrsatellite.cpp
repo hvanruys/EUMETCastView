@@ -479,6 +479,11 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
+        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20231127115648_IDPFI_OPE_20231127115154_20231127115249_N_JLS_C_0072_0012.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20231127112342_IDPFI_OPE_20231127112007_20231127112924_N_JLS_C_0069_0041.nc
 
         for(int i = 0; i < opts.geosatellites.count(); i++)
         {
@@ -510,7 +515,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 //qDebug() << "A " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " << QString("%1").arg(seqnbr) << QString("%1").arg(filenbr);
             }
             else if((fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length())
-                      == opts.geosatellites.at(i).searchstring) && fileInfo.isFile())
+                     == opts.geosatellites.at(i).searchstring) && fileInfo.isFile())
             {
                 //int filenbr = fileInfo.fileName().mid(opts.geosatellites.at(i).indexfilenbrstring, opts.geosatellites.at(i).lengthfilenbrstring).toInt();
                 //QString strspectrum = fileInfo.fileName().mid(opts.geosatellites.at(i).indexspectrumstring, opts.geosatellites.at(i).lengthspectrumstring);
@@ -556,11 +561,20 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
 void AVHRRSatellite::getFilenameParametersMTGI1(QString filename, QString *strdate, int *filenbr, int *seqnbr)
 {
     //MTG-I1
+    // unencrypted ==> no JLS
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
     //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+
+    // encrypted ==> contains JLS
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20231127115648_IDPFI_OPE_20231127115154_20231127115249_N_JLS_C_0072_0012.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20231127112342_IDPFI_OPE_20231127112007_20231127112924_N_JLS_C_0069_0041.nc
 
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
     //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
@@ -570,17 +584,35 @@ void AVHRRSatellite::getFilenameParametersMTGI1(QString filename, QString *strda
 
     if(filename.contains("JLS", Qt::CaseSensitive))
     {
-        if(filename.contains("BODY", Qt::CaseSensitive))
+        if(filename.contains("DIS", Qt::CaseSensitive))
         {
-            *strdate = filename.mid(105, 12);
-            *filenbr = filename.mid(143, 4).toInt();
-            *seqnbr = filename.mid(148, 4).toInt();
+            if(filename.contains("BODY", Qt::CaseSensitive))
+            {
+                *strdate = filename.mid(110, 12);
+                *filenbr = filename.mid(148, 4).toInt();
+                *seqnbr = filename.mid(153, 4).toInt();
+            }
+            else if(filename.contains("TRAIL", Qt::CaseSensitive))
+            {
+                *strdate = filename.mid(111, 12);
+                *filenbr = filename.mid(149, 4).toInt();
+                *seqnbr = filename.mid(154, 4).toInt();
+            }
         }
-        else if(filename.contains("TRAIL", Qt::CaseSensitive))
+        else
         {
-            *strdate = filename.mid(106, 12);
-            *filenbr = filename.mid(144, 4).toInt();
-            *seqnbr = filename.mid(149, 4).toInt();
+            if(filename.contains("BODY", Qt::CaseSensitive))
+            {
+                *strdate = filename.mid(105, 12);
+                *filenbr = filename.mid(143, 4).toInt();
+                *seqnbr = filename.mid(148, 4).toInt();
+            }
+            else if(filename.contains("TRAIL", Qt::CaseSensitive))
+            {
+                *strdate = filename.mid(106, 12);
+                *filenbr = filename.mid(144, 4).toInt();
+                *seqnbr = filename.mid(149, 4).toInt();
+            }
         }
     } else
     {
@@ -958,7 +990,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         datebefore.setDate(datebefore.date().addDays(-1));
 
                         QString pathbefore = (*its) + "/" + datebefore.toString( "yyyyMMdd").mid(0, 4) +
-                                             "/" + datebefore.toString( "yyyyMMdd").mid(4, 2) + "/" + datebefore.toString( "yyyyMMdd").mid(6, 2);
+                                "/" + datebefore.toString( "yyyyMMdd").mid(4, 2) + "/" + datebefore.toString( "yyyyMMdd").mid(6, 2);
                         qDebug() << QString("pathbefore = %1").arg(pathbefore);
 
                         if(segmentdir.cd( pathbefore ))
@@ -986,7 +1018,6 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
             }
             ++its;
             ++itc;
-
         }
     }
     else
@@ -1618,37 +1649,77 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20231127115648_IDPFI_OPE_20231127115154_20231127115249_N_JLS_C_0072_0012.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20231127112342_IDPFI_OPE_20231127112007_20231127112924_N_JLS_C_0069_0041.nc
+
         else if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.isFile())
         {
-            if(fileinfo.fileName().contains("BODY", Qt::CaseInsensitive))
+            if(fileinfo.fileName().contains("DIS", Qt::CaseInsensitive))
             {
-                QDate d(fileinfo.fileName().mid( 105, 4).toInt(), fileinfo.fileName().mid( 109, 2).toInt(), fileinfo.fileName().mid( 111, 2).toInt());
-                //filedate.setDate(d);
-                QTime t(fileinfo.fileName().mid( 113, 2).toInt(), fileinfo.fileName().mid( 115, 2).toInt(), 0);
-                //filedate.setTime(t);
-                if(hoursbefore == 0)
+                if(fileinfo.fileName().contains("BODY", Qt::CaseInsensitive))
                 {
+                    QDate d(fileinfo.fileName().mid( 110, 4).toInt(), fileinfo.fileName().mid( 114, 2).toInt(), fileinfo.fileName().mid( 116, 2).toInt());
+                    QTime t(fileinfo.fileName().mid( 118, 2).toInt(), fileinfo.fileName().mid( 120, 2).toInt(), 0);
                     if(d == seldate)
                         fileok = true;
+
+//                    if(hoursbefore == 0)
+//                    {
+//                        if(d == seldate)
+//                            fileok = true;
+//                    }
+//                    else if(t.hour() >= 24 - hoursbefore)
+//                        fileok = true;
                 }
-                else if(t.hour() >= 24 - hoursbefore)
-                    fileok = true;
-                //qDebug() << fileinfo.fileName() << " ok = " << fileok << " " << "d = " << d << "seldate = " << seldate;
+                else if(fileinfo.fileName().contains("TRAIL", Qt::CaseInsensitive))
+                {
+                    QDate d(fileinfo.fileName().mid( 111, 4).toInt(), fileinfo.fileName().mid( 115, 2).toInt(), fileinfo.fileName().mid( 117, 2).toInt());
+                    QTime t(fileinfo.fileName().mid( 119, 2).toInt(), fileinfo.fileName().mid( 121, 2).toInt(), 0);
+                    if(d == seldate)
+                        fileok = true;
+
+//                    if(hoursbefore == 0)
+//                    {
+//                        if(d == seldate)
+//                            fileok = true;
+//                    }
+//                    else if(t.hour() >= 24 - hoursbefore)
+//                        fileok = true;
+                }
 
             }
-            else if(fileinfo.fileName().contains("TRAIL", Qt::CaseInsensitive))
+            else
             {
-                QDate d(fileinfo.fileName().mid( 106, 4).toInt(), fileinfo.fileName().mid( 110, 2).toInt(), fileinfo.fileName().mid( 112, 2).toInt());
-                //filedate.setDate(d);
-                QTime t(fileinfo.fileName().mid( 114, 2).toInt(), fileinfo.fileName().mid( 116, 2).toInt(), 0);
-                //filedate.setTime(t);
-                if(hoursbefore == 0)
+                if(fileinfo.fileName().contains("BODY", Qt::CaseInsensitive))
                 {
+                    QDate d(fileinfo.fileName().mid( 105, 4).toInt(), fileinfo.fileName().mid( 109, 2).toInt(), fileinfo.fileName().mid( 111, 2).toInt());
+                    QTime t(fileinfo.fileName().mid( 113, 2).toInt(), fileinfo.fileName().mid( 115, 2).toInt(), 0);
                     if(d == seldate)
                         fileok = true;
+
+//                    if(hoursbefore == 0)
+//                    {
+//                        if(d == seldate)
+//                            fileok = true;
+//                    }
+//                    else if(t.hour() >= 24 - hoursbefore)
+//                        fileok = true;
                 }
-                else if(t.hour() >= 24 - hoursbefore)
-                    fileok = true;
+                else if(fileinfo.fileName().contains("TRAIL", Qt::CaseInsensitive))
+                {
+                    QDate d(fileinfo.fileName().mid( 106, 4).toInt(), fileinfo.fileName().mid( 110, 2).toInt(), fileinfo.fileName().mid( 112, 2).toInt());
+                    QTime t(fileinfo.fileName().mid( 114, 2).toInt(), fileinfo.fileName().mid( 116, 2).toInt(), 0);
+                    if(d == seldate)
+                        fileok = true;
+
+//                    if(hoursbefore == 0)
+//                    {
+//                        if(d == seldate)
+//                            fileok = true;
+//                    }
+//                    else if(t.hour() >= 24 - hoursbefore)
+//                        fileok = true;
+                }
 
             }
         }
@@ -2529,16 +2600,16 @@ QString AVHRRSatellite::GetOverviewSegments()
                    "\rSegments in directory = %34\n\rTotal Segments SLSTR = %35\n\rselected = %36 \n"
                    "For %37 \n"
                    "\rSegments in directory = %38\n\rTotal Segments MERSI = %39\n\rselected = %40 \n").
-        arg(seglmetop->GetDirectoryName()).arg(seglmetop->GetTotalSegmentsInDirectory()).arg(nbrsegmmetop).arg(nbrsegmmetopsel).
-        arg(seglnoaa->GetDirectoryName()).arg(seglnoaa->GetTotalSegmentsInDirectory()).arg(nbrsegmnoaa).arg(nbrsegmnoaasel).
-        arg(seglgac->GetDirectoryName()).arg(seglgac->GetTotalSegmentsInDirectory()).arg(nbrsegmgac).arg(nbrsegmgacsel).
-        arg(seglhrp->GetDirectoryName()).arg(seglhrp->GetTotalSegmentsInDirectory()).arg(nbrsegmhrp).arg(nbrsegmhrpsel).
-        arg(seglviirsm->GetDirectoryName()).arg(seglviirsm->GetTotalSegmentsInDirectory()).arg(nbrsegmviirsm).arg(nbrsegmviirsmsel).
-        arg(seglviirsdnb->GetDirectoryName()).arg(seglviirsdnb->GetTotalSegmentsInDirectory()).arg(nbrsegmviirsdnb).arg(nbrsegmviirsdnbsel).
-        arg(seglolciefr->GetDirectoryName()).arg(seglolciefr->GetTotalSegmentsInDirectory()).arg(nbrsegmolciefr).arg(nbrsegmolciefrsel).
-        arg(seglolcierr->GetDirectoryName()).arg(seglolcierr->GetTotalSegmentsInDirectory()).arg(nbrsegmolcierr).arg(nbrsegmolcierrsel).
-        arg(seglslstr->GetDirectoryName()).arg(seglslstr->GetTotalSegmentsInDirectory()).arg(nbrsegmslstr).arg(nbrsegmslstrsel).
-        arg(seglmersi->GetDirectoryName()).arg(seglmersi->GetTotalSegmentsInDirectory()).arg(nbrsegmmersi).arg(nbrsegmmersisel);
+            arg(seglmetop->GetDirectoryName()).arg(seglmetop->GetTotalSegmentsInDirectory()).arg(nbrsegmmetop).arg(nbrsegmmetopsel).
+            arg(seglnoaa->GetDirectoryName()).arg(seglnoaa->GetTotalSegmentsInDirectory()).arg(nbrsegmnoaa).arg(nbrsegmnoaasel).
+            arg(seglgac->GetDirectoryName()).arg(seglgac->GetTotalSegmentsInDirectory()).arg(nbrsegmgac).arg(nbrsegmgacsel).
+            arg(seglhrp->GetDirectoryName()).arg(seglhrp->GetTotalSegmentsInDirectory()).arg(nbrsegmhrp).arg(nbrsegmhrpsel).
+            arg(seglviirsm->GetDirectoryName()).arg(seglviirsm->GetTotalSegmentsInDirectory()).arg(nbrsegmviirsm).arg(nbrsegmviirsmsel).
+            arg(seglviirsdnb->GetDirectoryName()).arg(seglviirsdnb->GetTotalSegmentsInDirectory()).arg(nbrsegmviirsdnb).arg(nbrsegmviirsdnbsel).
+            arg(seglolciefr->GetDirectoryName()).arg(seglolciefr->GetTotalSegmentsInDirectory()).arg(nbrsegmolciefr).arg(nbrsegmolciefrsel).
+            arg(seglolcierr->GetDirectoryName()).arg(seglolcierr->GetTotalSegmentsInDirectory()).arg(nbrsegmolcierr).arg(nbrsegmolcierrsel).
+            arg(seglslstr->GetDirectoryName()).arg(seglslstr->GetTotalSegmentsInDirectory()).arg(nbrsegmslstr).arg(nbrsegmslstrsel).
+            arg(seglmersi->GetDirectoryName()).arg(seglmersi->GetTotalSegmentsInDirectory()).arg(nbrsegmmersi).arg(nbrsegmmersisel);
 
 }
 

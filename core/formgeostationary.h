@@ -40,6 +40,7 @@ public:
 private:
     QStringList getGeostationarySegments(int geoindex, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
     QStringList getGeostationarySegmentsMTG(int geoindex, const QString imagetype, const QString filepath, int filenbr);
+    QStringList getGeostationarySegmentsMTGAlt(int geoindex, const QString imagetype, const QString filepath, int filenbr);
     void PopulateTreeGeo(int geoindex);
     void PopulateTreeGeoMTGI1(int geoindex);
 

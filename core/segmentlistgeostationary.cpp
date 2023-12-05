@@ -406,8 +406,11 @@ bool SegmentListGeostationary::ComposeImagenetCDFMTGInThread(QStringList strlist
 {
     qDebug() << QString("SegmentListGeostationary::ComposeImagenetCDFMTGInThread spectrumvector = %2 %3 %4").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
 
+    for(int i = 0; i < strlist.length(); i++)
+        qDebug() << i << " " << strlist.at(i);
+
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    setThreadParametersnetCDF(strlist, spectrumvector, inversevector, histogrammethod, pseudocolor);
+    //setThreadParametersnetCDF(strlist, spectrumvector, inversevector, histogrammethod, pseudocolor);
     QtConcurrent::run(doComposeGeostationarynetCDFMTGInThread, this);
     return true;
 }
@@ -1245,7 +1248,6 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
 
 void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread() //(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector , int histogrammethod)
 {
-
     QString ncfile[3];
     QByteArray arrayncfile[3];
     const char* pncfile[3];
@@ -1321,7 +1323,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread() //(QStringLis
         retval = nc_get_att_float(ncfileid[j], varid, "add_offset", &add_offset[j]);
         if (retval != NC_NOERR) qDebug() << "error reading add_offset";
         retval = nc_get_att_int(ncfileid[j], varid, "_FillValue", &fillvalue[j]);
-        if (retval != NC_NOERR) qDebug() << "error reading _FillValue";
+        if (retval != NC_NOERR) qDebug() << "error reading _FillValue (1324)";
 
 
         qDebug() << QString("scale_factor = %1").arg(scale_factor[j]);
@@ -1806,7 +1808,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
                 retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
                 if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strmeasured;
                 retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i]);
-                if (retval != NC_NOERR) qDebug() << "error reading _FillValue";
+                if (retval != NC_NOERR) qDebug() << "error reading _FillValue (1809)";
                 imageptrs->fillvalue[i] = fillvalue[i];
                 //qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
 
@@ -1868,7 +1870,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
         qDebug() << QString("stat_min[%1] = %2 stat_max[%3] = %4").arg(i).arg(stat_min[i]).arg(i).arg(stat_max[i]);
     }
 
-    for (int j = 0; j < 4096; j=j+20)
+    for (int j = 0; j < 1024; j=j+20)
     {
         qDebug() << "LUT " << j << " " << imageptrs->lut_ch[0][j];
     }
@@ -1986,8 +1988,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
                 {
                     if( rc != imageptrs->fillvalue[0])
                     {
-                        indexoutrc = (quint16)qMin(qMax(qRound(4095.0 * (float)(rc - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 4095);
-                        indexoutrc = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]/4.0), 0), 1023));
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(rc - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        indexoutrc = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]), 0), 1023));
                         Q_ASSERT(indexoutrc < 1024);
 
                         valgamma = pow( indexoutrc, gamma) * gammafactor;
@@ -2001,8 +2003,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
                     }
                     if( gc != imageptrs->fillvalue[1])
                     {
-                        indexoutgc = (quint16)qMin(qMax(qRound(4095.0 * (float)(gc - this->stat_min[1] ) / (float)(this->stat_max[1] - this->stat_min[1])), 0), 4095);
-                        indexoutgc = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[1][indexoutgc]/4.0), 0), 1023));
+                        indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(gc - this->stat_min[1] ) / (float)(this->stat_max[1] - this->stat_min[1])), 0), 1023);
+                        indexoutgc = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[1][indexoutgc]), 0), 1023));
                         Q_ASSERT(indexoutgc < 1024);
 
                         valgamma = pow( indexoutgc, gamma) * gammafactor;
@@ -2016,8 +2018,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
                     }
                     if( bc != imageptrs->fillvalue[2])
                     {
-                        indexoutbc = (quint16)qMin(qMax(qRound(4095.0 * (float)(bc - this->stat_min[2] ) / (float)(this->stat_max[2] - this->stat_min[2])), 0), 4095);
-                        indexoutbc = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[2][indexoutbc]/4.0), 0), 1023));
+                        indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(bc - this->stat_min[2] ) / (float)(this->stat_max[2] - this->stat_min[2])), 0), 1023);
+                        indexoutbc = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[2][indexoutbc]), 0), 1023));
                         Q_ASSERT(indexoutbc < 1024);
                         valgamma = pow( indexoutbc, gamma) * gammafactor;
                         if (valgamma > 1023)
@@ -2080,8 +2082,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
                 {
                     if( rc != imageptrs->fillvalue[0])
                     {
-                        indexoutrc = (quint16)qMin(qMax(qRound(4095.0 * (float)(rc - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 4095);
-                        indexoutrc = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]/4.0), 0), 1023));
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(rc - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        indexoutrc = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]), 0), 1023));
                         valgamma = pow( indexoutrc, gamma) * gammafactor;
                         if (valgamma > 1023)
                             valgamma = 1023;
@@ -2407,9 +2409,9 @@ void SegmentListGeostationary::concurrentReadFilelistHimawari(SegmentListGeostat
     //    for(int i = 0; i < npixperseg; i++)
     //        pixels[i] = BYTE_SWAP2(pixels[i]);
 
-//    for (int i = 0; i < 10; ++i)
-//        std::cout << std::hex << std::setfill('0') << std::setw(2) << pixels[i] << " ";
-//    std::cout << std::endl;
+    //    for (int i = 0; i < 10; ++i)
+    //        std::cout << std::hex << std::setfill('0') << std::setw(2) << pixels[i] << " ";
+    //    std::cout << std::endl;
 
     quint16 c;
 
@@ -2499,9 +2501,9 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
 
     QStringList spectrumlist = opts.geosatellites.at(geoindex).spectrumlist;
 
-    emit this->progressCounter(0);
+    emit this->progressCounter(progcounter);
 
-    qDebug() << "Start SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadMultiple() size = " << this->segmentfilelist.size();
+    qDebug() << "Start SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent() size = " << this->segmentfilelist.size();
     qDebug() << "Spectrum vector count = " << this->spectrumvector.count() << " kindofimage = " << kindofimage;
     if(this->histogrammethod == CMB_HISTO_NONE_95)
         qDebug() << "histgrammethod = CMB_HISTO_NONE_95";
@@ -2557,6 +2559,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
         }
     }
 
+    progcounter += 10;
     emit this->progressCounter(10);
 
     for(int j = 0; j < this->segmentfilelist.size(); j++)
@@ -2568,7 +2571,6 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
             pncfile = arrayncfile.constData();
 
             //qDebug() << "Starting netCDF file " + ncfile;
-            // Starting netCDF file : /media/hugo/Data-Linux/MTG_examples/compressed_full_TD-360/2017/09/20/W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920120515_GTT_DEV_20170920120008_20170920120015_N_JLS_T_0073_0001.nc
             int ind = ncfile.indexOf(".nc");
             int findex = ncfile.mid(ind - 4, 4).toInt();
 
@@ -2603,15 +2605,20 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
                     ERR(retval);
                 if ((retval = nc_inq_varid(grp_measured, "end_position_column", &varid)))
                     ERR(retval);
+                retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i]);
+                if (retval != NC_NOERR) qDebug() << "error reading _FillValue (2605)";
+                imageptrs->fillvalue[i] = fillvalue[i];
+
+
                 if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_column)))
                     ERR(retval);
-                //                if(retval == 0 && i == 0)
-                //                {
-                //                                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
-                //                                    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
-                //                                    qDebug() << QString("nbr of rows = %1 column = %2").arg(end_position_row - start_position_row + 1).arg(
-                //                                        end_position_column - start_position_column + 1);
-                //                }
+                //if(retval == 0 && i == 0)
+                //{
+                    // qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
+                    // qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
+                    //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
+                    //                end_position_column - start_position_column + 1);
+                //}
 
                 imageptrs->mtg_start_position_row[i][j] = start_position_row;
                 imageptrs->mtg_end_position_row[i][j] = end_position_row;
@@ -2626,14 +2633,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
 
                 retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
                 if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strmeasured;
-                retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i]);
-                if (retval != NC_NOERR) qDebug() << "error reading _FillValue";
-                imageptrs->fillvalue[i] = fillvalue[i];
                 //qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
 
 
                 retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrMTG[i][findex - 1]);
-                if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strmeasured << " findex = " << findex;
+                if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strmeasured << " findex = " << findex << " error = " << retval;
                 //qDebug() << "reading to i = " << i << " findex = " << findex - 1;
 
                 //                if(i == 0)
@@ -2644,11 +2648,12 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
             }
             retval = nc_close(ncfileid);
             if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
+
+            emit this->progressCounter(progcounter += 1);
+
         }
 
     }
-
-    emit this->progressCounter(30);
 
     QVector<int> vec;
 
@@ -2660,7 +2665,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
     auto callbackMethod = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
     QtConcurrent::blockingMap(vec, callbackMethod);
 
-    emit this->progressCounter(40);
+    emit this->progressCounter(progcounter += 10);
 
     for(int i = 0; i < 3; i++)
     {
@@ -2684,13 +2689,16 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
                     stat_max[i] = val;
             }
         }
+        qDebug() << QString("stat_min [%1] = %2 stat_max [%3] = %4")
+                    .arg(i).arg(stat_min[i]).arg(i).arg(stat_max[i]);
+
     }
 
 
     auto callbackMethod1 = std::bind(this->concurrentLUTGeoMTG, this, std::placeholders::_1);
     QtConcurrent::blockingMap(vec, callbackMethod1);
 
-    emit this->progressCounter(50);
+    emit this->progressCounter(progcounter += 10);
 
     for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? 3 : 1); colorindex++) {
         this->active_pixels[colorindex] = 0;
@@ -2698,6 +2706,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
         {
             this->active_pixels[colorindex] += imageptrs->mtg_active_pixels[colorindex][index];
         }
+        qDebug() << QString("active_pixels[%1] = %2").arg(colorindex).arg(this->active_pixels[colorindex]);
     }
 
     //    for(int i = 0; i < (this->kindofimage == "VIS_IR Color" ? 3 : 1); i++)
@@ -2708,32 +2717,41 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
     double newscale;
     long histogram[3][4096];
 
-    for (int i = 0; i < 4096; i++) {
-        for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? 3 : 1); colorindex++) {
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? 3 : 1); colorindex++) {
+        for (int i = 0; i < 4096; i++) {
             histogram[colorindex][i] = 0;
         }
     }
+
+    long long totpixels[3];
+    for(int i = 0; i < 3; i++)
+        totpixels[i] = 0;
 
     for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? 3 : 1); colorindex++) {
         for (int index = 0; index < 40; index++) {
             for (int i = 0; i < 4096; i++) {
                 histogram[colorindex][i] += imageptrs->mtg_histogram[colorindex][index][i];
+                totpixels[colorindex] += imageptrs->mtg_histogram[colorindex][index][i];
             }
         }
+        qDebug() << QString("totpixels[%1] = %2 active_pixels[%3] = %4").arg(colorindex).arg(totpixels[colorindex]).arg(colorindex).arg(this->active_pixels[colorindex]);
     }
 
-    //    for (int j = 0; j < 100; j++)
-    //    {
-    //        qDebug() << "histogram " << j << " " << histogram[0][j];
-    //    }
 
-    emit this->progressCounter(60);
+//    for (int j = 0; j < 4096; j++)
+//    {
+//        qDebug() << "histogram " << j << " " << histogram[0][j];
+//    }
+
+    emit this->progressCounter(progcounter += 10);
+
 
     for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? 3 : 1); colorindex++)
     {
-        newscale = (double)(4096.0 / (double)this->active_pixels[colorindex]);
+//        newscale = (double)(4095.0 / (double)(this->active_pixels[colorindex] - stat_min[colorindex]));
+        newscale = (double)(4095.0 / (double)(totpixels[colorindex] - stat_min[colorindex]));
 
-        qDebug() << QString("newscale = %1 active pixels = %2").arg(newscale).arg(this->active_pixels[colorindex]);
+        qDebug() << QString("newscale = %1 active pixels = %2 11136*11136 = %3").arg(newscale).arg(this->active_pixels[colorindex]).arg(11136*11136);
 
 
         unsigned long long sum_ch = 0;
@@ -2751,25 +2769,28 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
         for( int i = 0; i < 4096; i++)
         {
             sum_ch += histogram[colorindex][i];
-            imageptrs->lut_ch[colorindex][i] = (quint16)((double)sum_ch * newscale);
-            imageptrs->lut_ch[colorindex][i] = (imageptrs->lut_ch[colorindex][i] > 4095 ? 4095 : imageptrs->lut_ch[colorindex][i]);
+            imageptrs->lut_mtg[colorindex][i] = qRound((sum_ch - stat_min[colorindex]) * newscale);
+            imageptrs->lut_mtg[colorindex][i] = (imageptrs->lut_mtg[colorindex][i] > 4095 ? 4095 : imageptrs->lut_mtg[colorindex][i]);
             //        qDebug() << QString("stats_ch[0][%1] = %2 lut_ch[0][%3] = %4").arg(i).arg(stats_ch[0][i]).arg(i).arg(imageptrs->lut_ch[0][i]);
-            if(imageptrs->lut_ch[colorindex][i] > 102 && okmin == false)
+            if(imageptrs->lut_mtg[colorindex][i] > 102 && okmin == false)
             {
                 okmin = true;
                 imageptrs->minRadianceIndex[colorindex] = i;
             }
-            if(imageptrs->lut_ch[colorindex][i] > 3993 && okmax == false)
+            if(imageptrs->lut_mtg[colorindex][i] > 3993 && okmax == false)
             {
                 okmax = true;
                 imageptrs->maxRadianceIndex[colorindex] = i;
             }
         }
 
-        //        for (int j = 0; j < 1024; j++)
-        //        {
-        //            qDebug() << "LUT " << j << " " << imageptrs->lut_ch[colorindex][j];
-        //        }
+
+//        for (int j = 0; j < 4096; j++)
+//        {
+//            qDebug() << QString("histogram[%1][%2] = %3 LUT[%4][%5] = %6").arg(colorindex).arg(j).arg(histogram[colorindex][j])
+//                        .arg(colorindex).arg(j).arg(imageptrs->lut_mtg[colorindex][j]);
+//        }
+
 
         qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4 active_pixels = %5")
                     .arg(colorindex).arg(imageptrs->minRadianceIndex[colorindex]).arg(colorindex).arg(imageptrs->maxRadianceIndex[colorindex])
@@ -2779,14 +2800,14 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
 
     imageptrs->InitializeImageGeostationary(imageptrs->mtg_total_number_of_columns[0], imageptrs->mtg_total_number_of_rows[0]);
 
-    emit this->progressCounter(80);
+    emit this->progressCounter(progcounter += 10);
 
     this->SetupContrastStretch( 0, 0, 1023, 255);
 
     auto callbackMethod2 = std::bind(this->concurrentImageMTG, this, std::placeholders::_1);
     QtConcurrent::blockingMap(vec, callbackMethod2);
 
-    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < (kindofimage == "VIS_IR Color" ? 3 : 1); i++)
     {
         for(int j = 0; j < 40; j++)
         {
@@ -3016,16 +3037,16 @@ void SegmentListGeostationary::equalizeHistogram(quint16* pdata, int width, int 
 
     qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4").arg(colorindex).arg(imageptrs->minRadianceIndex[colorindex]).arg(colorindex).arg(imageptrs->maxRadianceIndex[colorindex]);
 
-//    for(int i = 0; i < 1024; i++)
-//    {
-//        qDebug() << QString("lut[%1] = %2").arg(i).arg(imageptrs->lut_ch[colorindex][i]);
-//    }
+    //    for(int i = 0; i < 1024; i++)
+    //    {
+    //        qDebug() << QString("lut[%1] = %2").arg(i).arg(imageptrs->lut_ch[colorindex][i]);
+    //    }
 
 
     // Apply equalization
-//    for (int i = 0; i < total; ++i) {
-//        pdata[i] = lut[pdata[i]];
-//    }
+    //    for (int i = 0; i < total; ++i) {
+    //        pdata[i] = lut[pdata[i]];
+    //    }
 }
 
 void SegmentListGeostationary::CalculateLUTGeo(int colorindex, quint16 *ptr, quint16 fillvalue)
@@ -3112,9 +3133,9 @@ void SegmentListGeostationary::CalculateLUTGeo(int colorindex, quint16 *ptr, qui
 void SegmentListGeostationary::CalculateLUTGeoMTG(int colorindex)
 {
     qDebug() << "start SegmentListGeostationary::CalculateLUTGeoMTG()";
-    long histogram[4096];
+    long histogram[1024];
 
-    for (int j = 0; j < 4096; j++)
+    for (int j = 0; j < 1024; j++)
     {
         histogram[j] = 0;
     }
@@ -3135,7 +3156,7 @@ void SegmentListGeostationary::CalculateLUTGeoMTG(int colorindex)
 
             if(pixel != imageptrs->fillvalue[colorindex])
             {
-                quint16 indexout = (quint16)qMin(qMax(qRound(4095.0 * (float)(pixel - this->stat_min[colorindex])/(float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 4095);
+                quint16 indexout = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel - this->stat_min[colorindex])/(float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 1023);
                 //quint16 indexout = pixel;
                 histogram[indexout]++;
             }
@@ -3149,7 +3170,7 @@ void SegmentListGeostationary::CalculateLUTGeoMTG(int colorindex)
 
 
     // float scale = 256.0 / (NbrOfSegmentLinesSelected() * earth_views);    // scale factor ,so the values in LUT are from 0 to MAX_VALUE
-    double newscale = (double)(4096.0 / (double)this->active_pixels[colorindex]);
+    double newscale = (double)(1024.0 / (double)this->active_pixels[colorindex]);
 
     qDebug() << QString("newscale = %1 active pixels = %2").arg(newscale).arg(this->active_pixels[colorindex]);
 
@@ -3161,17 +3182,17 @@ void SegmentListGeostationary::CalculateLUTGeoMTG(int colorindex)
 
     // min/maxRadianceIndex = index of 95% ( 2.5% of 1024 = 25, 97.5% of 1024 = 997 )
     // min/maxRadianceIndex = index of 95% ( 2.5% of 4096 = 102, 97.5% of 4096 = 3993 )
-    for( int i = 0; i < 4096; i++)
+    for( int i = 0; i < 1024; i++)
     {
         sum_ch += histogram[i];
         imageptrs->lut_ch[colorindex][i] = (quint16)((double)sum_ch * newscale);
-        imageptrs->lut_ch[colorindex][i] = ( imageptrs->lut_ch[colorindex][i] > 4095 ? 4095 : imageptrs->lut_ch[colorindex][i]);
-        if(imageptrs->lut_ch[colorindex][i] > 102 && okmin == false)
+        imageptrs->lut_ch[colorindex][i] = ( imageptrs->lut_ch[colorindex][i] > 1023 ? 1023 : imageptrs->lut_ch[colorindex][i]);
+        if(imageptrs->lut_ch[colorindex][i] > 25 && okmin == false)
         {
             okmin = true;
             imageptrs->minRadianceIndex[colorindex] = i;
         }
-        if(imageptrs->lut_ch[colorindex][i] > 3993 && okmax == false)
+        if(imageptrs->lut_ch[colorindex][i] > 997 && okmax == false)
         {
             okmax = true;
             imageptrs->maxRadianceIndex[colorindex] = i;
@@ -3205,8 +3226,9 @@ void SegmentListGeostationary::CalculateLUTGeoMTGConcurrent(int colorindex, int 
             pixel = ptr[line * imageptrs->mtg_nbr_of_columns[colorindex][index] + pixelx];
             if(pixel != imageptrs->fillvalue[colorindex])
             {
-                quint16 indexout = (quint16)qMin(qMax(qRound(4095.0 * (float)(pixel - this->stat_min[colorindex]) /
-                                                             (float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 4095);
+                //quint16 indexout = (quint16)qMin(qMax(qRound(4095.0 * (float)(pixel - this->stat_min[colorindex]) /
+                //                      (float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 4095);
+                quint16 indexout = qMin(pixel, (quint16)4095);
                 imageptrs->mtg_histogram[colorindex][index][indexout]++;
             }
         }
@@ -3273,9 +3295,9 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                 {
                     if( pixel[colorindex] != imageptrs->fillvalue[colorindex])
                     {
-                        indexoutpixel[colorindex] = (quint16)qMin(qMax(qRound(4095.0 * (float)(pixel[colorindex] - this->stat_min[colorindex] ) / (float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 4095);
-                        indexoutpixel[colorindex] = (quint16)(qMin(qMax(qRound((float)imageptrs->lut_ch[colorindex][indexoutpixel[colorindex]]/4.0), 0), 1023));
-                        valgamma = pow( indexoutpixel[colorindex], gamma) * gammafactor;
+                        quint16 val = (quint16)qMin(qMax(qRound(4095.0 * (float)(pixel[colorindex] - this->stat_min[colorindex] ) / (float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 1023);
+                        indexoutpixel[colorindex] = (quint16)(qMin(qMax((int)imageptrs->lut_mtg[colorindex][val], 0), 4095));
+                        valgamma = pow( indexoutpixel[colorindex]/4, gamma) * gammafactor;
                         if (valgamma > 1023)
                             valgamma = 1023;
 
@@ -3283,8 +3305,6 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                         pixelout[colorindex] = (valcontrast);
                     }
                 }
-
-
             }
 
             if(this->kindofimage == "VIS_IR")
@@ -3307,7 +3327,6 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                     row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
                 }
             }
-
         }
 
         linelocal++;
@@ -3450,15 +3469,15 @@ void SegmentListGeostationary::ComposeVISIR()
 
     computeGeoImage(pixelsRed, pixelsGreen, pixelsBlue);
 
-//    QVector<int> vec;
+    //    QVector<int> vec;
 
-//    for(int i = 0; i < opts.geosatellites[geoindex].imageheight; i++)
-//    {
-//        vec.append(i);
-//    }
+    //    for(int i = 0; i < opts.geosatellites[geoindex].imageheight; i++)
+    //    {
+    //        vec.append(i);
+    //    }
 
-//    auto callbackMethod = std::bind(this->concurrentSetRed, this, std::placeholders::_1, 50);
-//    QtConcurrent::blockingMap(vec, callbackMethod);
+    //    auto callbackMethod = std::bind(this->concurrentSetRed, this, std::placeholders::_1, 50);
+    //    QtConcurrent::blockingMap(vec, callbackMethod);
 
 
     delete [] pixelsRed;
@@ -4631,6 +4650,8 @@ void SegmentListGeostationary::CalculateMinMaxMTG(int colorindex, int index)
             }
         }
     }
+
+    //qDebug() << QString("imageptrs->mtg_active_pixels[%1][%2] = %3").arg(colorindex).arg(index).arg(imageptrs->mtg_active_pixels[colorindex][index]);
 
 }
 
