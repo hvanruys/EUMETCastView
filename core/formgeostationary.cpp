@@ -1178,6 +1178,10 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
 
+    sl->COFF = opts.geosatellites.at(geoindex).coffhrv;
+    sl->LOFF = opts.geosatellites.at(geoindex).loffhrv;
+    sl->CFAC = opts.geosatellites.at(geoindex).cfachrv;
+    sl->LFAC = opts.geosatellites.at(geoindex).lfachrv;
 
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {

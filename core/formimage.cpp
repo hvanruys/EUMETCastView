@@ -1710,13 +1710,10 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
 
     if(sl->getGeoSatellite() == eGeoSatellite::MTG_I1)
     {
-        if(m_image->width() == 5568)
-        {
-            coff = coff/2.0;
-            loff = coff;
-            cfac = cfac/2.0;
-            lfac = cfac;
-        }
+        coff = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+        loff = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+        cfac = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+        lfac = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
     }
 
     double sub_lon = sl->geosatlon;
@@ -1852,9 +1849,9 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
     if(m_image->width() == 3712)
         factor = 3.0;
     else if(m_image->width() == 5568)
-        factor = 2.0;
-    else if(m_image->width() == 11136)
         factor = 1.0;
+    else if(m_image->width() == 11136)
+        factor = 0.5;
     else if(m_image->width() == 2288) // FY
         factor = 1.0;
     else if(m_image->width() == 9152) // FY - VIS

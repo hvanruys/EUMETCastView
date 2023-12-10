@@ -2254,8 +2254,8 @@ void SegmentListGeostationary::concurrentReadFilelist(SegmentListGeostationary *
 
     size_t npixperseg = npix*nlin;
 
-    qDebug() << QString("[%1] concurrentReadFilelist() planned end = %2 npix = %3 nlin = %4 filesequence = %5")
-                .arg(sm->kindofimage).arg(planned_end_segment).arg(sm->number_of_columns).arg(sm->number_of_lines).arg(filesequence);
+    //qDebug() << QString("[%1] concurrentReadFilelist() planned end = %2 npix = %3 nlin = %4 filesequence = %5")
+    //            .arg(sm->kindofimage).arg(planned_end_segment).arg(sm->number_of_columns).arg(sm->number_of_lines).arg(filesequence);
     qDebug() << QString("[%1] concurrentReadFilelist() file = %1 channelindex = %2 filesequence = %3")
                 .arg(llFile).arg(channelindex).arg(filesequence);
 
@@ -2799,6 +2799,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
     }
 
     imageptrs->InitializeImageGeostationary(imageptrs->mtg_total_number_of_columns[0], imageptrs->mtg_total_number_of_rows[0]);
+
+    this->COFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+    this->LOFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+    this->CFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+    this->LFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
 
     emit this->progressCounter(progcounter += 10);
 

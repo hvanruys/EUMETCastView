@@ -98,6 +98,11 @@ public:
     double CFAC;
     double LFAC;
 
+//    double COFFHRV;
+//    double LOFFHRV;
+//    double CFACHRV;
+//    double LFACHRV;
+
     int LowerEastColumnActual;
     int LowerSouthLineActual;
     int LowerWestColumnActual;

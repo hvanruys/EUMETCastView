@@ -1620,14 +1620,14 @@ void Options::CreateGeoSatelliteIni()
 
     geosatellites[11].prologfile = false;
     geosatellites[11].epilogfile = false;
-    geosatellites[11].coff = 5568;
-    geosatellites[11].loff = 5568;
-    geosatellites[11].cfac = 1172050000. * 2;
-    geosatellites[11].lfac = 1172050000. * 2;
-    geosatellites[11].coffhrv = 0;
-    geosatellites[11].loffhrv = 0;
-    geosatellites[11].cfachrv = 0.;
-    geosatellites[11].lfachrv = 0.;
+    geosatellites[11].coff = 2784;
+    geosatellites[11].loff = 2784;
+    geosatellites[11].cfac = 1172050000.;
+    geosatellites[11].lfac = 1172050000.;
+    geosatellites[11].coffhrv = 5568;
+    geosatellites[11].loffhrv = 5568;
+    geosatellites[11].cfachrv = 1172050000. * 2;
+    geosatellites[11].lfachrv = 1172050000. * 2;
 
 
     geosatellites[11].spectrumlist << "vis_04" << "vis_05" << "vis_06" << "vis_08" << "vis_09" << "nir_13" << "nir_16"

@@ -1562,12 +1562,13 @@ void Globe::Render3DGeoSegmentNew(int geoindex)
 {
     Equirectangular equirect;
 
-    int height = imageptrs->ptrimageGeostationary->height();
-    int width = imageptrs->ptrimageGeostationary->width();
+//    int height = imageptrs->ptrimageGeostationary->height();
+//    int width = imageptrs->ptrimageGeostationary->width();
 
-    height = imageptrs->pmOut->height();
-    width = imageptrs->pmOut->width();
+//    height = imageptrs->pmOut->height();
+//    width = imageptrs->pmOut->width();
 
+//    qDebug() << imageptrs->pmOut->height();
 
     equirect.Initialize(imageptrs->pmOut->width(), imageptrs->pmOut->height());
 
