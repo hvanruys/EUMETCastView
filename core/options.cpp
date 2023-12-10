@@ -342,14 +342,16 @@ void Options::Initialize()
 
     bFciDecomp = false;
 
-    QFile file("GeoSatellites.ini");
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        CreateGeoSatelliteIni();
-    }
-    else
-        InitializeGeo();
-    file.close();
+    CreateGeoSatelliteIni();
+
+//    QFile file("GeoSatellites.ini");
+//    if (!file.open(QIODevice::ReadOnly))
+//    {
+//        CreateGeoSatelliteIni();
+//    }
+//    else
+//        InitializeGeo();
+//    file.close();
 
     doLogging = settings.value("/debugging/dologging", false).toBool();
 

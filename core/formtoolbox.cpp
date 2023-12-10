@@ -603,7 +603,7 @@ void FormToolbox::setupChannelCombo()
     qDebug() << "FormToolbox::setupChannelCombo()";
 
     QStringList coloritems;
-    coloritems << "-" << "R" << "G" << "B"; // << "RG" << "RB" << "GB";
+    coloritems << "-" << "R" << "G" << "B" << "N"; // << "RG" << "RB" << "GB";
 
     ui->comboCh1->addItems(coloritems);
     ui->comboCh2->addItems(coloritems);

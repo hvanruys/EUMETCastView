@@ -1716,6 +1716,8 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         lfac = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
     }
 
+    qDebug() << "coff = " << coff << " loff = " << loff << " cfac = " << cfac << " lfac = " << lfac;
+
     double sub_lon = sl->geosatlon;
     lat_deg = opts.obslat;
     lon_deg = opts.obslon;
@@ -1847,7 +1849,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
 
     float factor = 1.0;
     if(m_image->width() == 3712)
-        factor = 3.0;
+        factor = 1.5; //3.0;
     else if(m_image->width() == 5568)
         factor = 1.0;
     else if(m_image->width() == 11136)
@@ -1857,7 +1859,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
     else if(m_image->width() == 9152) // FY - VIS
         factor = 0.25;
     else if(m_image->width() == 2784) // Electro
-        factor = 4.0;
+        factor = 2.0; //4.0;
     else if(m_image->width() == 5500) // Himawari-8
         factor = 1.975574713;
 
