@@ -650,6 +650,59 @@ bool SegmentList::ComposeAVHRRImage()
 
 }
 
+bool SegmentList::UpdateAVHRRImageInThread()
+{
+    qDebug() << "SegmentList::UpdateAVHRRImageInThread()";
+
+    QApplication::setOverrideCursor( Qt::WaitCursor );  //restore in finished()
+
+    emit progressCounter(0);
+
+    QList<Segment*>::iterator segsel = segsselected.begin();
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        segm->setHistogrammethod(this->histogrammethod);
+        ++segsel;
+    }
+
+
+    ptrimagebusy = true;
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        (*segsel)->ComposeSegmentImage();
+        ++segsel;
+    }
+
+    opts.texture_changed = true;
+    ptrimagebusy = false;
+
+
+    if(opts.imageontextureOnAVHRR)
+    {
+        QList<Segment*>::iterator segit = segsselected.begin();
+        while ( segit != segsselected.end() )
+        {
+            (*segit)->RenderSegmentInTexture();
+            opts.texture_changed = true;
+            ++segit;
+        }
+    }
+
+    opts.texture_changed = true;
+    ptrimagebusy = false;
+
+    emit progressCounter(100);
+    QApplication::restoreOverrideCursor();
+    emit segmentlistfinished(true);
+
+    return true;
+
+}
+
 bool SegmentList::ComposeAVHRRImageInThread()
 {
     qDebug() << "SegmentList::ComposeAVHRRImageInThread()";
@@ -868,9 +921,8 @@ bool SegmentList::ComposeAVHRRImageInThread()
         qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4").arg(k).arg(imageptrs->minRadianceIndex[k]).arg(k).arg(imageptrs->maxRadianceIndex[k]);
     }
 
+
     ptrimagebusy = true;
-
-
     segit = segsselected.begin();
     while ( segit != segsselected.end() )
     {
@@ -907,6 +959,7 @@ bool SegmentList::ComposeAVHRRImageInThread()
 void SegmentList::finishedavhrr()
 {
     qDebug() << "SegmentList::finishedavhrr()";
+
 }
 
 

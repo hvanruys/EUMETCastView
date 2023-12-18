@@ -64,13 +64,15 @@ public:
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
     bool ShowSLSTRImage(int histogrammethod);
     bool ShowMERSIImage(int histogrammethod, bool normalized);
+    bool ShowAVHRRImage(int histogrammethod, bool normalized);
 
     void CLAHERGBRecipe(float cliplimit);
 
-    void recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void recalculateCLAHEGeo(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEMeteosat(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEMeteosat1(QVector<QString> spectrumvector, QVector<bool> inversevector);
     void recalculateCLAHEMTG(QVector<QString> spectrumvector, QVector<bool> inversevector);
+    void recalculateCLAHEAVHRR();
 
     void setViewInitialized(bool init) { qDebug() << "setViewInitialized = " << init; this->m_ViewInitialized = init; }
 

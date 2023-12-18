@@ -235,4 +235,7 @@ double Maxd(const double v11, const double v12, const double v21, const double v
 
 double asinz(double con);
 
+QString ProjectionTypeToString(eProjectionType projtype);
+QString ImageTypeToString( eImageType imtype );
+
 #endif

@@ -32,6 +32,7 @@ public:
     void ClearSegments();
     void ClearSelectedSegments();
 
+
     int NbrOfSegments();
     int NbrOfSegmentsSelected();
     int NbrOfSegmentsSelectedinMemory();
@@ -71,6 +72,7 @@ public:
     void GetContourPolygonAVHRR(QPolygonF *poly);
     void GetTrackPolygon(QPolygonF *poly);
     void GetTrackPolygonAVHRR(QPolygonF *poly);
+    bool UpdateAVHRRImageInThread();
 
 
 

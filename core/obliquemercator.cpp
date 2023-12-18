@@ -70,7 +70,7 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
     lon2_d = 65535.0;
     lat2_d = 65535.0;
 
-    qDebug() << "ObliqueMercator::Initialize input image = " << projtype;
+    qDebug() << "ObliqueMercator::Initialize input image = " << ProjectionTypeToString(projtype);
 
     if(projtype == PROJ_VIIRSM)
     {
@@ -151,7 +151,7 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
     }
     else if(projtype == PROJ_AVHRR)
     {
-        if(opts.buttonMetop)
+        //if(opts.buttonMetop)
         {
             image_width = imgwidth; //imageptrs->ptrimagecomp_ch[0]->width();
             image_height = imgheight; //imageptrs->ptrimagecomp_ch[0]->height();

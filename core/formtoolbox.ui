@@ -49,7 +49,7 @@
       <enum>QTabWidget::West</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideNone</enum>
@@ -513,7 +513,7 @@
           <enum>QFrame::Raised</enum>
          </property>
          <property name="text">
-          <string>AVHHR Images</string>
+          <string>AVHRR Images</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -996,38 +996,37 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnExpandImage">
-           <property name="maximumSize">
-            <size>
-             <width>70</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Expand the image</string>
-           </property>
+          <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Expand</string>
+            <string>Clip limit : </string>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_35">
+          <widget class="QLabel" name="lblCLAHEAVHRR">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="sliCLAHEAVHRR">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
+          </widget>
          </item>
         </layout>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_22">
+         <item>
+          <widget class="QPushButton" name="btnUpdateAVHRRImage">
+           <property name="text">
+            <string>Update AVHRR image</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QPushButton" name="btnTextureAVHRR">
            <property name="toolTip">
@@ -1051,6 +1050,22 @@
            </property>
            <property name="text">
             <string>Rotate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnExpandImage">
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Expand the image</string>
+           </property>
+           <property name="text">
+            <string>Expand</string>
            </property>
           </widget>
          </item>

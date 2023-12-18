@@ -156,10 +156,16 @@ void FormImage::resetView()
 void FormImage::fitWindow()
 {
     if(!m_ViewInitialized)
+    {
+        qDebug() << "FormImage::fitWindow() m_ViewInitialized = false";
         return;
+    }
 
     if(m_image == NULL)
+    {
+        qDebug() << "FormImage::fitWindow() m_image ==NULL";
         return;
+    }
 
     this->resetTransform();
 
@@ -469,6 +475,7 @@ void FormImage::MakeImage()
     {
         if (metopcount + noaacount + hrpcount + gaccount + metopAhrptcount + metopBhrptcount + noaa19hrptcount + M01hrptcount + M02hrptcount > 0)
         {
+            this->channelshown = IMAGE_AVHRR_COL;
             if (metopcount > 0 && opts.buttonMetop)
             {
                 formtoolbox->setToolboxButtons(false);
@@ -566,6 +573,8 @@ void FormImage::MakeImage()
             return;
         }
 
+        this->channelshown = IMAGE_VIIRSM;
+
         formtoolbox->setToolboxButtons(false);
 
         this->displayImage(IMAGE_VIIRSM, true);
@@ -581,6 +590,8 @@ void FormImage::MakeImage()
     }
     else if(viirsdnbcount > 0 && opts.buttonVIIRSDNB)
     {
+        this->channelshown = IMAGE_VIIRSDNB;
+
         formtoolbox->setToolboxButtons(false);
         segs->seglviirsdnb->graphvalues.reset(new long[150 * 180]);
         for(int i = 0; i < 150 * 180; i++)
@@ -617,6 +628,8 @@ void FormImage::MakeImage()
             return;
         }
 
+        this->channelshown = IMAGE_VIIRSM;
+
         formtoolbox->setToolboxButtons(false);
 
         this->displayImage(IMAGE_VIIRSM, true);
@@ -632,6 +645,7 @@ void FormImage::MakeImage()
     }
     else if(viirsdnbcountnoaa20 > 0 && opts.buttonVIIRSDNBNOAA20)
     {
+        this->channelshown = IMAGE_VIIRSDNB;
         formtoolbox->setToolboxButtons(false);
         segs->seglviirsdnbnoaa20->graphvalues.reset(new long[150 * 180]);
         for(int i = 0; i < 150 * 180; i++)
@@ -686,6 +700,7 @@ void FormImage::MakeImage()
 
         }
 
+        this->channelshown = IMAGE_OLCI;
 
         formtoolbox->setToolboxButtons(false);
 
@@ -752,6 +767,8 @@ void FormImage::MakeImage()
             }
             return;
         }
+
+        this->channelshown = IMAGE_OLCI;
 
         formtoolbox->setToolboxButtons(false);
 
@@ -820,6 +837,8 @@ void FormImage::MakeImage()
 
         formtoolbox->setToolboxButtons(false);
 
+        this->channelshown = IMAGE_SLSTR;
+
         this->displayImage(IMAGE_SLSTR, true);
         this->kindofimage = "SLSTR";
         this->setSegmentType(SEG_SLSTR);
@@ -879,6 +898,8 @@ void FormImage::MakeImage()
             return;
         }
 
+        this->channelshown = IMAGE_MERSI;
+
         formtoolbox->setToolboxButtons(false);
 
         this->displayImage(IMAGE_MERSI, true);
@@ -902,7 +923,7 @@ void FormImage::MakeImage()
 void FormImage::setPixmapToScene(bool settoolboxbuttons)
 {
 
-    qDebug() << "FormImage::setPixmapToScene(bool settoolboxbuttons) channelshown = " << channelshown;
+    qDebug() << "FormImage::setPixmapToScene(bool settoolboxbuttons) channelshown = " << ImageTypeToString(channelshown);
 
     resetView();
 
@@ -1001,8 +1022,9 @@ void FormImage::setPixmapToScene(bool settoolboxbuttons)
 void FormImage::displayImage(eImageType channel, bool resize)
 {
 
-    //qDebug() << QString("FormImage::displayImage(eImageType channel) channel = %1").arg(channel);
-    //    qDebug() << QString("FormImage ptrimagecomp[0] bytecount = %1").arg(imageptrs->ptrimagecomp_ch[0]->byteCount());
+    qDebug() << QString("FormImage::displayImage(eImageType channel) channel = %1").arg(ImageTypeToString(channel));
+    qDebug() << QString("FormImage imageptrs->ptrimagecol bytecount = %1").arg(imageptrs->ptrimagecomp_col->byteCount());
+    qDebug() << QString("FormImage imageptrs->ptrimageProjection bytecount = %1").arg(imageptrs->ptrimageProjection->byteCount());
     //    qDebug() << QString("FormImage ptrimageviirsm bytecount = %1").arg(imageptrs->ptrimageViirsM->byteCount());
     //    qDebug() << QString("FormImage ptrimageviirsdnb bytecount = %1").arg(imageptrs->ptrimageViirsDNB->byteCount());
     //    qDebug() << QString("FormImage ptrimageolci bytecount = %1").arg(imageptrs->ptrimageOLCI->byteCount());
@@ -3553,7 +3575,54 @@ bool FormImage::ShowMERSIImage(int histogrammethod, bool normalized)
     return ret;
 }
 
-void FormImage::recalculateCLAHE(QVector<QString> spectrumvector, QVector<bool> inversevector)
+bool FormImage::ShowAVHRRImage(int histogrammethod, bool normalized)
+{
+    bool ret = false;
+
+    this->kindofimage = "AVHRR Color";
+    this->channelshown = IMAGE_AVHRR_COL;
+
+    if(segmenttype == SEG_METOP)
+        metopcount = segs->seglmetop->NbrOfSegmentsSelected();
+    else if(segmenttype == SEG_NOAA19)
+        noaacount = segs->seglnoaa->NbrOfSegmentsSelected();
+    else if(segmenttype == SEG_HRP)
+        hrpcount = segs->seglhrp->NbrOfSegmentsSelected();
+    else if(segmenttype == SEG_GAC)
+        gaccount = segs->seglgac->NbrOfSegmentsSelected();
+
+    if (metopcount > 0 || noaacount > 0 || hrpcount > 0  || gaccount > 0)
+    {
+        ret = true;
+
+        if(segmenttype == SEG_METOP)
+        {
+            segs->seglmetop->setHistogramMethod(histogrammethod);
+            segs->seglmetop->UpdateAVHRRImageInThread();
+        }
+        else if(segmenttype == SEG_NOAA19)
+        {
+            segs->seglnoaa->setHistogramMethod(histogrammethod);
+            segs->seglnoaa->UpdateAVHRRImageInThread();
+        }
+        else if(segmenttype == SEG_HRP)
+        {
+            segs->seglhrp->setHistogramMethod(histogrammethod);
+            segs->seglhrp->UpdateAVHRRImageInThread();
+        }
+        else if(segmenttype == SEG_GAC)
+        {
+            segs->seglgac->setHistogramMethod(histogrammethod);
+            segs->seglgac->UpdateAVHRRImageInThread();
+        }
+    }
+    else
+        ret = false;
+
+    return ret;
+}
+
+void FormImage::recalculateCLAHEGeo(QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
     SegmentListGeostationary *sl;
 
@@ -3714,8 +3783,207 @@ void FormImage::recalculateCLAHEMeteosat1(QVector<QString> spectrumvector, QVect
             emit render3dgeo(sl->getGeoSatelliteIndex());
 
     QApplication::restoreOverrideCursor();
+}
+
+void FormImage::recalculateCLAHEAVHRR()
+{
+    QImage *m_image;
+    int height = 0, width = 0;
+
+    switch(channelshown)
+    {
+    case IMAGE_AVHRR_CH1:
+        m_image = imageptrs->ptrimagecomp_ch[0];
+        break;
+    case IMAGE_AVHRR_CH2:
+        m_image = imageptrs->ptrimagecomp_ch[1];
+        break;
+    case IMAGE_AVHRR_CH3:
+        m_image = imageptrs->ptrimagecomp_ch[2];
+        break;
+    case IMAGE_AVHRR_CH4:
+        m_image = imageptrs->ptrimagecomp_ch[3];
+        break;
+    case IMAGE_AVHRR_CH5:
+        m_image = imageptrs->ptrimagecomp_ch[4];
+        break;
+    case IMAGE_AVHRR_COL:
+        m_image = imageptrs->ptrimagecomp_col;
+        break;
+    default:
+        return;
+    }
+
+    height = m_image->height();
+    width = m_image->width();
+
+    int context_X = 0;
+    int context_Y = 0;
+
+    if(height%16 == 0 && width%16 == 0)
+    {
+       context_X = 16;
+       context_Y = 16;
+    }
+    else if(height%10 == 0 && width%10 == 0)
+    {
+        context_X = 10;
+        context_Y = 10;
+    }
+    else if(height%16 == 0 && width%10 == 0)
+    {
+        context_X = 10;
+        context_Y = 16;
+    }
+    else if(height%10 == 0 && width%16 == 0)
+    {
+        context_X = 16;
+        context_Y = 10;
+    }
+    else
+    {
+        return;
+    }
+
+    qDebug() << "context_X = " << context_X << " context_Y = " << context_Y;
+
+    QRgb *row_col;
+    quint16 cred, cgreen, cblue;
+    QRgb c;
+
+    double *L;
+    double *a;
+    double *b;
+
+    double Lu;
+    double a_lab;
+    double b_lab;
+    size_t npix;
+
+    ushort *pixelsL;
+
+    SegmentListGeostationary *sl;
+
+    sl = segs->getActiveSegmentList();
+
+    QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
+
+    formtoolbox->setProgressValue(10);
+
+    npix = width*height;
+
+    L = new double[width*height];
+    a = new double[width*height];
+    b = new double[width*height];
 
 
+    qDebug() << Q_FUNC_INFO << "image width = " << width << " height = " << height << " npix = " << npix;
+
+    ColorSpace::Rgb srcColor;
+    ColorSpace::Lab dstColor;
+
+
+    for (int line = height - 1; line >= 0; line--)
+    {
+        row_col = (QRgb*)m_image->scanLine(line);
+        for (int pixelx = 0; pixelx < width; pixelx++)
+        {
+            c = row_col[pixelx];
+            srcColor.r = qRed(c);
+            srcColor.g = qGreen(c);
+            srcColor.b = qBlue(c);
+
+            srcColor.To<ColorSpace::Lab>(&dstColor);
+
+            dstColor.l = (dstColor.l < 0.0 ? 0.0 : dstColor.l);
+            dstColor.l = (dstColor.l > 100.0 ? 100.0 : dstColor.l);
+            dstColor.a = (dstColor.a < -128.0 ? -128.0 : dstColor.a);
+            dstColor.a = (dstColor.a > 128.0 ? 128.0 : dstColor.a);
+            dstColor.b = (dstColor.b < -128.0 ? -128.0 : dstColor.b);
+            dstColor.b = (dstColor.b > 128.0 ? 128.0 : dstColor.b);
+            L[line * width + pixelx] = dstColor.l;
+            a[line * width + pixelx] = dstColor.a;
+            b[line * width + pixelx] = dstColor.b;
+
+        }
+    }
+
+    formtoolbox->setProgressValue(30);
+
+    pixelsL = new ushort[npix];
+
+    for (int line = height - 1; line >= 0; line--)
+    {
+        for (int pixelx = 0; pixelx < width; pixelx++)
+        {
+            pixelsL[line * width + pixelx] = (ushort)qRound(L[line * width + pixelx] * 255.0 / 100.0);
+            pixelsL[line * width + pixelx] = (pixelsL[line * width + pixelx] > 255 ? 255 : pixelsL[line * width + pixelx]);
+            pixelsL[line * width + pixelx] = (pixelsL[line * width + pixelx] > 255 ? 255 : pixelsL[line * width + pixelx]);
+
+        }
+    }
+
+    formtoolbox->setProgressValue(60);
+
+    imageptrs->CLAHE(pixelsL, width, height, 0, 255, context_X, context_Y, 256, opts.clahecliplimit);
+
+    for (int line = height - 1; line >= 0; line--)
+    {
+        for (int pixelx = 0; pixelx < width; pixelx++)
+        {
+            L[line * width + pixelx] = (double)(pixelsL[line * width + pixelx] * 100.0 / 255.0);
+            L[line * width + pixelx] = (L[line * width + pixelx] > 100.0 ? 100.0 : L[line * width + pixelx]);
+            L[line * width + pixelx] = (L[line * width + pixelx] < 0.0 ? 0.0 : L[line * width + pixelx]);
+        }
+    }
+
+    formtoolbox->setProgressValue(80);
+
+
+    ColorSpace::Lab srcColor1;
+    ColorSpace::Rgb dstColor1;
+
+    for (int line = height - 1; line >= 0; line--)
+    {
+        row_col = (QRgb*)m_image->scanLine(line);
+        for (int pixelx = 0; pixelx < width; pixelx++)
+        {
+            Lu = L[line * width + pixelx];
+            a_lab = a[line * width + pixelx];
+            b_lab = b[line * width + pixelx];
+            srcColor1.l = Lu;
+            srcColor1.a = a_lab;
+            srcColor1.b = b_lab;
+
+            srcColor1.To<ColorSpace::Rgb>(&dstColor1);
+
+            dstColor1.r = (dstColor1.r > 255.0 ? 255.0 : dstColor1.r);
+            dstColor1.g = (dstColor1.g > 255.0 ? 255.0 : dstColor1.g);
+            dstColor1.b = (dstColor1.b > 255.0 ? 255.0 : dstColor1.b);
+
+            dstColor1.r = (dstColor1.r < 0.0 ? 0.0 : dstColor1.r);
+            dstColor1.g = (dstColor1.g < 0.0 ? 0.0 : dstColor1.g);
+            dstColor1.b = (dstColor1.b < 0.0 ? 0.0 : dstColor1.b);
+
+
+            row_col[pixelx] = qRgb((int)dstColor1.r, (int)dstColor1.g, (int)dstColor1.b);
+        }
+    }
+
+    formtoolbox->setProgressValue(100);
+
+    delete [] pixelsL;
+
+    delete [] L;
+    delete [] a;
+    delete [] b;
+
+    this->displayImage(channelshown, true);
+
+//    if(opts.imageontextureOnAVHRR)
+//        emit render3dgeo(sl->getGeoSatelliteIndex());
+
+    QApplication::restoreOverrideCursor();
 }
 
 void FormImage::recalculateCLAHEMeteosat(QVector<QString> spectrumvector, QVector<bool> inversevector)

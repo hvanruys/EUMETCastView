@@ -449,3 +449,69 @@ double Maxd(const double v11, const double v12, const double v21, const double v
     return Maximum;
 }
 /*------------------------------------------------------------------*/
+
+QString ProjectionTypeToString( eProjectionType projtype )
+{
+    switch(projtype) {
+    case PROJ_NONE:
+        return "PROJ_NONE";
+        break;
+    case PROJ_AVHRR:
+        return "PROJ_AVHRR";
+        break;
+    case PROJ_GEOSTATIONARY:
+        return "PROJ_GEOSTATIONARY";
+        break;
+    case PROJ_VIIRSM:
+        return "PROJ_VIIRSM";
+    case PROJ_VIIRSDNB:
+        return "PROJ_VIIRSDNB";
+    case PROJ_OLCI_EFR:
+        return "PROJ_OLCI_EFR";
+    case PROJ_OLCI_ERR:
+        return "PROJ_OLCI_ERR";
+    case PROJ_SLSTR:
+        return "PROJ_SLSTR";
+    case PROJ_MERSI:
+        return "PROJ_MERSI";
+    default:
+        return "Out of range";
+    }
+
+}
+
+QString ImageTypeToString( eImageType imtype )
+{
+    switch(imtype) {
+    case IMAGE_NONE:
+        return "IMAGE_NONE";
+    case IMAGE_AVHRR_CH1:
+        return "IMAGE_AVHRR_CH1";
+    case IMAGE_AVHRR_CH2:
+        return "IMAGE_AVHRR_CH2";
+    case IMAGE_AVHRR_CH3:
+        return "IMAGE_AVHRR_CH3";
+    case IMAGE_AVHRR_CH4:
+        return "IMAGE_AVHRR_CH4";
+    case IMAGE_AVHRR_CH5:
+        return "IMAGE_AVHRR_CH5";
+    case IMAGE_AVHRR_COL:
+        return "IMAGE_AVHRR_COL";
+    case IMAGE_AVHRR_EXPAND:
+        return "IMAGE_AVHRR_EXPAND";
+    case IMAGE_GEOSTATIONARY:
+        return "IMAGE_GEOSTATIONARY";
+    case IMAGE_PROJECTION:
+        return "IMAGE_PROJECTION";
+    case IMAGE_VIIRSM:
+        return "IMAGE_VIIRSM";
+    case IMAGE_VIIRSDNB:
+        return "IMAGE_VIIRSDNB";
+    case IMAGE_OLCI:
+        return "IMAGE_OLCI";
+    case IMAGE_SLSTR:
+        return "IMAGE_SLSTR";
+    case IMAGE_MERSI:
+        return "IMAGE_MERSI";
+    }
+}

@@ -293,6 +293,9 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHE->setSliderPosition(opts.clahecliplimit * 10);
 
+    ui->lblCLAHEAVHRR->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
+    ui->sliCLAHEAVHRR->setSliderPosition(opts.clahecliplimit * 10);
+
     ui->lblCLAHE_RGBRecipe->setText(QString("%1").arg(1.8, 0, 'f', 1));
     ui->sliCLAHE_RGBRecipe->setSliderPosition(18);
 
@@ -603,7 +606,7 @@ void FormToolbox::setupChannelCombo()
     qDebug() << "FormToolbox::setupChannelCombo()";
 
     QStringList coloritems;
-    coloritems << "-" << "R" << "G" << "B" << "N"; // << "RG" << "RB" << "GB";
+    coloritems << "-" << "R" << "G" << "B"; // << "RG" << "RB" << "GB";
 
     ui->comboCh1->addItems(coloritems);
     ui->comboCh2->addItems(coloritems);
@@ -1689,15 +1692,14 @@ void FormToolbox::on_btnCLAHEGeostationary_clicked()
     {
         this->setToolboxButtons(false);
         QApplication::processEvents();
-        formimage->recalculateCLAHE(spectrumvector, inversevector);
+        formimage->recalculateCLAHEGeo(spectrumvector, inversevector);
         formimage->slotUpdateGeosat();
     }
 }
 
 void FormToolbox::on_btnCLAHEavhhr_clicked()
 {
-//    formimage->recalculateCLAHEAvhrr(spectrumvector, inversevector);
-    qDebug() << "CLAHE";
+    formimage->recalculateCLAHEAVHRR();
 }
 
 void FormToolbox::setTabWidgetIndex(int index)
@@ -1783,6 +1785,7 @@ void FormToolbox::setToolboxButtons(bool state)
 
 
     ui->btnCLAHEavhhr->setEnabled(state);
+    ui->btnUpdateAVHRRImage->setEnabled(state);
     ui->btnCLAHEGeostationary->setEnabled(state);
     ui->btnExpandImage->setEnabled(state);
     ui->btnOverlayMeteosat->setEnabled(true);
@@ -2914,7 +2917,7 @@ void FormToolbox::on_btnTextureSLSTR_clicked()
 
 void FormToolbox::on_tabWidget_currentChanged(int index)
 {
-    qDebug() << "on_tabWidget_currentChanged(int index) index = " << index;
+    qDebug() << "on_tabWidget_currentChanged(int index) index = " << index << " currentAVHHRimage = " << currentAVHRRimage;
 
     this->writeInfoToTextEdit(" ");
 
@@ -4163,6 +4166,21 @@ void FormToolbox::on_spbLCCCorrY_valueChanged(int arg1)
 
 }
 
+bool FormToolbox::comboColAVHRROK()
+{
+    int cnt = 0;
+
+    cnt += ui->comboCh1->currentIndex();
+    cnt += ui->comboCh2->currentIndex();
+    cnt += ui->comboCh3->currentIndex();
+    cnt += ui->comboCh4->currentIndex();
+    cnt += ui->comboCh5->currentIndex();
+
+    if(cnt == 6)
+        return true;
+    else
+        return false;
+}
 
 bool FormToolbox::comboColVIIRSOK()
 {
@@ -4267,10 +4285,10 @@ bool FormToolbox::comboColGeoOK()
     if(ui->comboGeo15->currentIndex() > 0) { cnt += ui->comboGeo15->currentIndex(); cnt1++; }
     if(ui->comboGeo16->currentIndex() > 0) { cnt += ui->comboGeo16->currentIndex(); cnt1++; }
 
-    if(cnt1 == 3 && cnt == 6)
+    if((cnt1 == 3 || cnt1 == 4) && (cnt == 6 || cnt == 10))  // 6 = 1 + 2 + 3 ; 10 = 1 + 2 + 3 + 4
         return true;
-    else if(cnt1 == 2 && cnt == 7)
-        return true;
+    // else if(cnt1 == 2 && cnt == 7)
+    //    return true;
     else
         return false;
 }
@@ -4471,6 +4489,12 @@ void FormToolbox::on_sliCLAHE_sliderMoved(int position)
 {
     opts.clahecliplimit = float(position)/10;
     ui->lblCLAHE->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
+}
+
+void FormToolbox::on_sliCLAHEAVHRR_sliderMoved(int position)
+{
+    opts.clahecliplimit = float(position)/10;
+    ui->lblCLAHEAVHRR->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
 }
 
 void FormToolbox::on_sliCLAHE_RGBRecipe_sliderMoved(int position)
@@ -6186,5 +6210,38 @@ void FormToolbox::on_cbProjResolutions_activated(int index)
 void FormToolbox::on_hslRed_valueChanged(int value)
 {
     emit colorValueRed(value);
+}
+
+
+void FormToolbox::on_btnUpdateAVHRRImage_clicked()
+{
+    if(segs->seglmetop->NbrOfSegmentsSelected() > 0 ||
+            segs->seglnoaa->NbrOfSegmentsSelected() > 0 ||
+            segs->seglhrp->NbrOfSegmentsSelected() > 0 ||
+            segs->seglgac->NbrOfSegmentsSelected() > 0 )
+    {
+        if(!comboColAVHRROK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the AVHRR tab.");
+            //msgBox.setInformativeText("Do you want to save your changes?");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        ui->pbProgress->reset();
+        formimage->ShowAVHRRImage(ui->cmbHistogramAVHRR->currentIndex(), false);
+    }
+
 }
 

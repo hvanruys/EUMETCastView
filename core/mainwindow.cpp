@@ -596,6 +596,8 @@ void MainWindow::on_actionImage_triggered()
     int indexsentinel = formtoolbox->getTabWidgetSentinelIndex();
     int indexgeostationary = formgeostationary->getTabWidgetGeoIndex();
 
+    qDebug() << "MainWindow::on_actionImage_triggered()";
+
     Q_ASSERT(index < 6);
 
     if(index == TAB_HISTOGRAM)
@@ -633,7 +635,8 @@ void MainWindow::on_actionImage_triggered()
         {
             int w, h;
             formtoolbox->getOMimagesize(&w, &h);
-            imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, formtoolbox->getCurrentProjectionType(), w, h);
+            if(w > 0 && h > 0)
+                imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, formtoolbox->getCurrentProjectionType(), w, h);
         }
 //        formimage->UpdateProjection();
 

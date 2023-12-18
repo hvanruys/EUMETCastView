@@ -77,6 +77,7 @@ public:
     void createImageFilenamestring(QString sat, QString d, QVector<QString> spectrum);
     QString returnImageFilenamestring() { return filenamecreated; }
     bool comboColVIIRSOK();
+    bool comboColAVHRROK();
     bool comboColOLCIOK();
     bool comboColSLSTROK();
     bool comboColGeoOK();
@@ -271,6 +272,7 @@ private slots:
     void on_btnTextureOLCI_clicked();
     void on_btnTextureSLSTR_clicked();
     void on_sliCLAHE_sliderMoved(int position);
+    void on_sliCLAHEAVHRR_sliderMoved(int position);
     void on_sliCLAHE_RGBRecipe_sliderMoved(int position);
 
     void on_cbProjResolutions_currentIndexChanged(int index);
@@ -345,6 +347,7 @@ private slots:
     void on_spbGVPFalseEasting_valueChanged(double arg1);
     void on_cbProjResolutions_activated(int index);
     void on_hslRed_valueChanged(int value);
+    void on_btnUpdateAVHRRImage_clicked();
 };
 
 

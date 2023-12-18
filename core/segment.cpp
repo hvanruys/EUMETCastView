@@ -38,15 +38,15 @@ Segment::Segment(QObject *parent) :
         active_pixels[k] = 0;
     }
 
-//    list_stat_3_0_max_ch = 0;
-//    list_stat_3_1_max_ch = 0;
-//    list_stat_3_0_min_ch = 9999999;
-//    list_stat_3_1_min_ch = 9999999;
+    //    list_stat_3_0_max_ch = 0;
+    //    list_stat_3_1_max_ch = 0;
+    //    list_stat_3_0_min_ch = 9999999;
+    //    list_stat_3_1_min_ch = 9999999;
 
-//    stat_3_0_max_ch = 0;
-//    stat_3_1_max_ch = 0;
-//    stat_3_0_min_ch = 9999999;
-//    stat_3_1_min_ch = 9999999;
+    //    stat_3_0_max_ch = 0;
+    //    stat_3_1_max_ch = 0;
+    //    stat_3_0_min_ch = 9999999;
+    //    stat_3_1_min_ch = 9999999;
 
     for (int i=0; i < 5; i++)
     {
@@ -195,7 +195,7 @@ void Segment::CalculateCornerPoints()
     PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
     if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
-                segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || // segtype == SEG_HRPT_NOAA19 ||
+            segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || // segtype == SEG_HRPT_NOAA19 ||
             segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR ) //|| segtype == SEG_MERSI )
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
@@ -411,7 +411,7 @@ void Segment::RenderSatPath(QPainter *painter, QColor color)
 
     QEci qeci;
 
-/*    qsgp4->getPosition(0, qeci);
+    /*    qsgp4->getPosition(0, qeci);
     QGeodetic qgeo = qeci.ToGeo();
 
     sphericalToPixel( qgeo.longitude, qgeo.latitude, posx, posy, devwidth, devheight );
@@ -460,24 +460,24 @@ void Segment::RenderSatPath(QPainter *painter, QColor color)
         sphericalToPixel( qgeo.longitude, qgeo.latitude, posx, posy, devwidth, devheight );
 
         if (((save_posx >= devwidth*0.9) && (posx < devwidth*0.1)) ||
-        ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
-        (posy <= devheight*0.02) || (posy >= devheight*0.98) )
+                ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
+                (posy <= devheight*0.02) || (posy >= devheight*0.98) )
         {
             //painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
             //painter->moveTo( posx, posy );
             posx1=posx;
             posy1=posy;
         }
-       else
-       {
-           //painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
-           //painter->lineTo( posx, posy );
-           painter->drawLine(posx1, posy1, posx, posy);
-           posx1=posx;
-           posy1=posy;
-       }
+        else
+        {
+            //painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
+            //painter->lineTo( posx, posy );
+            painter->drawLine(posx1, posy1, posx, posy);
+            posx1=posx;
+            posy1=posy;
+        }
 
-       save_posx = posx;
+        save_posx = posx;
 
     }
 }
@@ -488,16 +488,16 @@ void Segment::RenderSatPath(QPainter *painter, QColor color)
 void Segment::sphericalToPixel(double lon, double lat, int &x, int &y, int devwidth, int devheight)
 {
 
-  if (lon > PI) lon -= TWOPI;
-  else if (lon < -PI) lon += TWOPI;
+    if (lon > PI) lon -= TWOPI;
+    else if (lon < -PI) lon += TWOPI;
 
-  x = (int) ((lon - (-PI)) * devwidth/TWOPI + 0.5);
+    x = (int) ((lon - (-PI)) * devwidth/TWOPI + 0.5);
 
-  if (x >= devwidth) x -= devwidth;
-  else if (x < 0) x += devwidth;
+    if (x >= devwidth) x -= devwidth;
+    else if (x < 0) x += devwidth;
 
-  y = (int) ((PI/2 - lat) * devheight/PI + 0.5);
-  if (y >= devheight) y = devheight - 1;
+    y = (int) ((PI/2 - lat) * devheight/PI + 0.5);
+    if (y >= devheight) y = devheight - 1;
 
 }
 
@@ -524,29 +524,29 @@ void Segment::drawLineCyl(double lon1, double lat1, double lon2, double lat2, QP
     double a, b, dy0;
     int y0;
 
-   if (abs(x1 - x2 ) <= devwidth*0.4)
+    if (abs(x1 - x2 ) <= devwidth*0.4)
         painter->drawLine( x1, y1, x2, y2);
-   else
-   {
-       //qDebug() << QString("x1 = %1, y1 = %2, x2 = %3, y2 = %4").arg( x1, 0, 10).arg( y1, 0, 10).arg( x2, 0, 10).arg( y2, 0, 10);
-       a = (double)(y2-y1)/(double)(devwidth + x2 - x1);
-       b = y1 - a*x1;
-       dy0 =  a*devwidth + b;
-       //qDebug() << QString("a = %1, b = %2, devwidth = %3").arg( a, 11, 'f', 7).arg( b, 11, 'f', 7).arg( devwidth, 0, 10);
-       //qDebug() << QString("y2 - y1 = %1, devwidth + x2 -x1 = %2").arg( y2 - y1, 0, 10).arg( devwidth + x2 -x1, 0, 10);
-       y0 = (int)( dy0 + 0.5);
+    else
+    {
+        //qDebug() << QString("x1 = %1, y1 = %2, x2 = %3, y2 = %4").arg( x1, 0, 10).arg( y1, 0, 10).arg( x2, 0, 10).arg( y2, 0, 10);
+        a = (double)(y2-y1)/(double)(devwidth + x2 - x1);
+        b = y1 - a*x1;
+        dy0 =  a*devwidth + b;
+        //qDebug() << QString("a = %1, b = %2, devwidth = %3").arg( a, 11, 'f', 7).arg( b, 11, 'f', 7).arg( devwidth, 0, 10);
+        //qDebug() << QString("y2 - y1 = %1, devwidth + x2 -x1 = %2").arg( y2 - y1, 0, 10).arg( devwidth + x2 -x1, 0, 10);
+        y0 = (int)( dy0 + 0.5);
 
-       if (x1 > devwidth/2)
-       {
-           painter->drawLine( x1, y1, devwidth, y0);
-           painter->drawLine( 0, y0, x2, y2);
-       }
-       else
-       {
-           painter->drawLine( x2, y2, devwidth, y0);
-           painter->drawLine( 0, y0, x1, y1);
-       }
-   }
+        if (x1 > devwidth/2)
+        {
+            painter->drawLine( x1, y1, devwidth, y0);
+            painter->drawLine( 0, y0, x2, y2);
+        }
+        else
+        {
+            painter->drawLine( x2, y2, devwidth, y0);
+            painter->drawLine( 0, y0, x1, y1);
+        }
+    }
 }
 
 void Segment::RenderPosition(QPainter *painter)
@@ -568,9 +568,9 @@ void Segment::RenderPosition(QPainter *painter)
     int devheight = (painter->device())->height();
 
     //if (lon_start_rad == 0 && lat_start_rad == 0)
-        sphericalToPixel( lon_1, lat_1, posx1, posy1, devwidth, devheight );
+    sphericalToPixel( lon_1, lat_1, posx1, posy1, devwidth, devheight );
     //else
-        sphericalToPixel( lon_start_rad, lat_start_rad, posx2, posy2, devwidth, devheight );
+    sphericalToPixel( lon_start_rad, lat_start_rad, posx2, posy2, devwidth, devheight );
     if (this->segmentselected)
     {
         painter->setBrush( Qt::blue );
@@ -711,21 +711,17 @@ void Segment::RenderSegmentInTexture()
     {
         for (int line = 0; line < this->NbrOfLines; line++)
         {
-            if(opts.imageontextureOnAVHRR)
+            try
             {
-                try
-                {
-                    this->RenderSegmentlineInTexture( opts.channelontexture, line, this->startLineNbr + line );
-                }
-                catch(...)
-                {
-                    qDebug() << "Catch error in RenderSegmentlineInTexture";
-                }
-                opts.texture_changed = true;
+                this->RenderSegmentlineInTexture( opts.channelontexture, line, this->startLineNbr + line );
             }
+            catch(...)
+            {
+                qDebug() << "Catch error in RenderSegmentlineInTexture";
+            }
+            opts.texture_changed = true;
         }
     }
-
 }
 
 void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotalLine )
@@ -790,7 +786,7 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
     double r = d3pos.length();
     double sindelta = sin(-delta);
     double dd = r * cos(-delta) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
-//    QVector3D d3d = - d3posnorm * cos(-delta) * dd + d3scannorm * sin(-delta) * dd;
+    //    QVector3D d3d = - d3posnorm * cos(-delta) * dd + d3scannorm * sin(-delta) * dd;
     QVector3D d3d = - d3posnorm * cos(-delta) * dd + d3scannorm * sindelta * dd;
 
     //qDebug() << QString("a = %1 b = %2").arg(XKMPER * XKMPER).arg( r * r * sindelta * sindelta);
@@ -801,7 +797,7 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
 
     sindelta = sin(delta);
     dd = r * cos(delta) - sqrt(XKMPER * XKMPER - r * r * sindelta * sindelta);
-//    d3d = - d3posnorm * cos(delta) * dd + d3scannorm * sin(delta) * dd;
+    //    d3d = - d3posnorm * cos(delta) * dd + d3scannorm * sin(delta) * dd;
     d3d = - d3posnorm * cos(delta) * dd + d3scannorm * sindelta * dd;
 
     QVector3D d3earthposlast = d3pos + d3d;
@@ -914,8 +910,8 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
 void Segment::ComposeSegmentImage()
 {
 
-//    qDebug() << QString("start ComposeSegmentImage startLineNbr = %1").arg(this->startLineNbr);
-//    return;
+    //    qDebug() << QString("start ComposeSegmentImage startLineNbr = %1").arg(this->startLineNbr);
+    //    return;
 
     QRgb *row_ch[5];
     QRgb *row_col;
@@ -938,23 +934,23 @@ void Segment::ComposeSegmentImage()
         inverse = opts.metop_invlist;
     }
     else
-    if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
-    {
-        channellist = opts.channellistnoaa;
-        inverse = opts.noaa_invlist;
-    }
-    else
-    if (opts.buttonGAC)
-    {
-        channellist = opts.channellistgac;
-        inverse = opts.gac_invlist;
-    }
-    else
-    if (opts.buttonHRP)
-    {
-        channellist = opts.channellisthrp;
-        inverse = opts.hrp_invlist;
-    }
+        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+        {
+            channellist = opts.channellistnoaa;
+            inverse = opts.noaa_invlist;
+        }
+        else
+            if (opts.buttonGAC)
+            {
+                channellist = opts.channellistgac;
+                inverse = opts.gac_invlist;
+            }
+            else
+                if (opts.buttonHRP)
+                {
+                    channellist = opts.channellisthrp;
+                    inverse = opts.hrp_invlist;
+                }
 
     int half_earth_views = earth_views_per_scanline / 2;
 
@@ -1012,7 +1008,7 @@ void Segment::ComposeSegmentImage()
                         R_value = 255 - (indexout[k]/4);
                     else
                         R_value = indexout[k]/4;
-                     break;
+                    break;
                 case 2:
                     if (inverse.at(k) == "1")
                         G_value = 255 - (indexout[k]/4);
@@ -1031,14 +1027,14 @@ void Segment::ComposeSegmentImage()
 
             if(opts.sattrackinimage)
             {
-               if (pixelx == half_earth_views - 1 || pixelx == half_earth_views)
-               {
-                   row_col[pixelx] = qRgb(255, 0, 0);
-               }
+                if (pixelx == half_earth_views - 1 || pixelx == half_earth_views)
+                {
+                    row_col[pixelx] = qRgb(255, 0, 0);
+                }
                 else
-               {
-                   row_col[pixelx] = qRgb(R_value, G_value, B_value);
-               }
+                {
+                    row_col[pixelx] = qRgb(R_value, G_value, B_value);
+                }
             }
             else
             {
@@ -1047,11 +1043,11 @@ void Segment::ComposeSegmentImage()
 
         }
 
-//        if(opts.imageontextureOnAVHRR)
-//        {
-//            this->RenderSegmentlineInTexture( opts.channelontexture, line, startheight + line );
-//            opts.texture_changed = true;
-//        }
+        //        if(opts.imageontextureOnAVHRR)
+        //        {
+        //            this->RenderSegmentlineInTexture( opts.channelontexture, line, startheight + line );
+        //            opts.texture_changed = true;
+        //        }
     }
 
     qDebug() << QString("--> na ComposeSegmentImage startLineNbr = %1 nbr of lines = %2 segshow = %3").arg(this->startLineNbr).arg(this->NbrOfLines).arg(this->segmentshow);
@@ -1272,11 +1268,11 @@ int Segment::DecompressSegmentToTemp()
         return(1);
     }
 
-//    while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
-//    {
-//      qDebug() << QString("%1").arg(archive_entry_pathname(entry));
-//      archive_read_data_skip(a);  // Note 2
-//    }
+    //    while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
+    //    {
+    //      qDebug() << QString("%1").arg(archive_entry_pathname(entry));
+    //      archive_read_data_skip(a);  // Note 2
+    //    }
 
     int nbrblocks = 1;
 
@@ -1287,9 +1283,9 @@ int Segment::DecompressSegmentToTemp()
             break;
         if (r != ARCHIVE_OK)
             qDebug() << "archive_read_next_header() " << QString(archive_error_string(a));
-//        const char* currentFile = archive_entry_pathname(archiveEntry);
-//            const std::string fullOutputPath = destination + currentFile;
-//            archive_entry_set_pathname(archiveEntry, fullOutputPath.c_str());
+        //        const char* currentFile = archive_entry_pathname(archiveEntry);
+        //            const std::string fullOutputPath = destination + currentFile;
+        //            archive_entry_set_pathname(archiveEntry, fullOutputPath.c_str());
         r = archive_write_header(ext, entry);
         if (r != ARCHIVE_OK)
             qDebug() << "archive_write_header() " << QString(archive_error_string(ext));
@@ -1348,11 +1344,11 @@ float Segment::Minf(const float v11, const float v12, const float v21, const flo
     float Minimum = v11;
 
     if( Minimum > v12 )
-            Minimum = v12;
+        Minimum = v12;
     if( Minimum > v21 )
-            Minimum = v21;
+        Minimum = v21;
     if( Minimum > v22 )
-            Minimum = v22;
+        Minimum = v22;
 
     return Minimum;
 }
@@ -1362,11 +1358,11 @@ float Segment::Maxf(const float v11, const float v12, const float v21, const flo
     int Maximum = v11;
 
     if( Maximum < v12 )
-            Maximum = v12;
+        Maximum = v12;
     if( Maximum < v21 )
-            Maximum = v21;
+        Maximum = v21;
     if( Maximum < v22 )
-            Maximum = v22;
+        Maximum = v22;
 
     return Maximum;
 }
@@ -1376,11 +1372,11 @@ qint32 Segment::Min(const qint32 v11, const qint32 v12, const qint32 v21, const 
     qint32 Minimum = v11;
 
     if( Minimum > v12 )
-            Minimum = v12;
+        Minimum = v12;
     if( Minimum > v21 )
-            Minimum = v21;
+        Minimum = v21;
     if( Minimum > v22 )
-            Minimum = v22;
+        Minimum = v22;
 
     return Minimum;
 }
@@ -1390,11 +1386,11 @@ qint32 Segment::Max(const qint32 v11, const qint32 v12, const qint32 v21, const 
     int Maximum = v11;
 
     if( Maximum < v12 )
-            Maximum = v12;
+        Maximum = v12;
     if( Maximum < v21 )
-            Maximum = v21;
+        Maximum = v21;
     if( Maximum < v22 )
-            Maximum = v22;
+        Maximum = v22;
 
     return Maximum;
 }
