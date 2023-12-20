@@ -47,8 +47,8 @@ const double  LFAC_NONHRV_GOES16   =   1474382050.*1.5;   /* scaling coefficient
 const double  CFAC_NONHRV_MTSAT     =   586315045.;   /* scaling coefficients (see note above)  */
 const double  LFAC_NONHRV_MTSAT     =   586315045.;   /* scaling coefficients (see note above)  */
 
-const double  CFAC_NONHRV_H8     =   1172050000.; //20466275.;   /* scaling coefficients (see note above)  */
-const double  LFAC_NONHRV_H8     =   1172050000.; //20466275.;   /* scaling coefficients (see note above)  */
+const double  CFAC_NONHRV_H9     =   1172050000.; //20466275.;   /* scaling coefficients (see note above)  */
+const double  LFAC_NONHRV_H9     =   1172050000.; //20466275.;   /* scaling coefficients (see note above)  */
 
 const long    COFF_NONHRV  =        1856;      /* scaling coefficients (see note above)  */
 const long    LOFF_NONHRV  =        1856;      /* scaling coefficients (see note above)  */
@@ -74,8 +74,8 @@ const long    LOFF_NONHRV_GOES  =        1408;      /* scaling coefficients (see
 const long    COFF_NONHRV_GOES16 =       5424;      /* scaling coefficients (see note above)  */
 const long    LOFF_NONHRV_GOES16 =       5424;      /* scaling coefficients (see note above)  */
 
-const long    COFF_NONHRV_H8 =        2750;      /* scaling coefficients (see note above)  */
-const long    LOFF_NONHRV_H8 =        2750;      /* scaling coefficients (see note above)  */
+const long    COFF_NONHRV_H9 =        2750;      /* scaling coefficients (see note above)  */
+const long    LOFF_NONHRV_H9 =        2750;      /* scaling coefficients (see note above)  */
 
 enum SCAN_GEOMETRIES {
   GOES,

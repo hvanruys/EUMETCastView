@@ -1658,7 +1658,7 @@ void FormImage::drawOverlays(QPainter *painter)
             }
 
             if(slgeo->getGeoSatellite() == eGeoSatellite::H9)
-                this->OverlayGeostationaryH8(painter, slgeo);
+                this->OverlayGeostationaryH9(painter, slgeo);
             else
                 this->OverlayGeostationary(painter, slgeo);
         }
@@ -2366,7 +2366,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
     //this->update();
 }
 
-void FormImage::OverlayGeostationaryH8(QPainter *paint, SegmentListGeostationary *sl)
+void FormImage::OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary *sl)
 {
 
     long coff;

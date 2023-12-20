@@ -236,7 +236,7 @@ void SegmentListGeostationary::setGeoSatellite(int geoindex)
     {
         this->m_GeoSatellite = eGeoSatellite::GOES_17;
     }
-    else if(str_GeoSatellite == "H8")
+    else if(str_GeoSatellite == "H9")
     {
         this->m_GeoSatellite = eGeoSatellite::H9;
     }
@@ -2154,8 +2154,13 @@ void SegmentListGeostationary::ComposeSegmentImageXRITMSGInThreadConcurrent()
     {
         if(kindofimage == "VIS_IR" || kindofimage == "VIS_IR Color")
         {
-            auto callbackMethod = std::bind(this->concurrentReadFilelistHimawari, this, std::placeholders::_1);
-            QtConcurrent::blockingMap(this->segmentfilelist, callbackMethod);
+            for(int i = 0; i < this->segmentfilelist.size(); i++)
+            {
+                this->concurrentReadFilelistHimawari(this, this->segmentfilelist.at(i));
+            }
+
+//            auto callbackMethod = std::bind(this->concurrentReadFilelistHimawari, this, std::placeholders::_1);
+//            QtConcurrent::blockingMap(this->segmentfilelist, callbackMethod);
 
             emit this->progressCounter(50);
 
@@ -2172,17 +2177,32 @@ void SegmentListGeostationary::ComposeSegmentImageXRITMSGInThreadConcurrent()
     }
     else
     {
-        auto callbackMethod = std::bind(this->concurrentReadFilelist, this, std::placeholders::_1);
-
         if(kindofimage == "VIS_IR" || kindofimage == "VIS_IR Color" || kindofimage == "HRV Color")
         {
-            QtConcurrent::blockingMap(this->segmentfilelist, callbackMethod);
+            for(int i = 0; i < this->segmentfilelist.size(); i++)
+            {
+                this->concurrentReadFilelist(this, this->segmentfilelist.at(i));
+            }
         }
-
         if(kindofimage == "HRV" || kindofimage == "HRV Color")
         {
-            QtConcurrent::blockingMap(this->segmentfilelisthrv, callbackMethod);
+            for(int i = 0; i < this->segmentfilelisthrv.size(); i++)
+            {
+                this->concurrentReadFilelist(this, this->segmentfilelisthrv.at(i));
+            }
         }
+
+//        auto callbackMethod = std::bind(this->concurrentReadFilelist, this, std::placeholders::_1);
+
+//        if(kindofimage == "VIS_IR" || kindofimage == "VIS_IR Color" || kindofimage == "HRV Color")
+//        {
+//            QtConcurrent::blockingMap(this->segmentfilelist, callbackMethod);
+//        }
+
+//        if(kindofimage == "HRV" || kindofimage == "HRV Color")
+//        {
+//            QtConcurrent::blockingMap(this->segmentfilelisthrv, callbackMethod);
+//        }
 
         emit this->progressCounter(50);
 

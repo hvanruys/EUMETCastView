@@ -1503,8 +1503,8 @@ void Options::CreateGeoSatelliteIni()
                                         << "12.3" << "13.3";
 
     //E1B-TPG-1 E1H-TPG-2
-    geosatellites[10].fullname = "Himawari 8";
-    geosatellites[10].shortname = "H8";
+    geosatellites[10].fullname = "Himawari 9";
+    geosatellites[10].shortname = "H9";
     geosatellites[10].longitude = 140.7;
     geosatellites[10].longitudelimit1 = 92.0;
     geosatellites[10].longitudelimit2 = 250.0;
