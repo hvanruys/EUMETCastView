@@ -265,6 +265,11 @@ QStringList FormGeostationary::getGeostationarySegmentsMTGAlt(int geoindex, cons
     QMap<int, QFileInfo>::const_iterator i = mapfilenbr.constBegin();
     while (i != mapfilenbr.constEnd()) {
         outlist << i.value().fileName();
+        if(i.value().fileName().contains("BODY"))
+            qDebug() << "key = " << i.key() << " filename = " << i.value().fileName().midRef(85);
+        else
+            qDebug() << "key = " << i.key() << " filename = " << i.value().fileName().midRef(86);
+
         ++i;
     }
     return outlist;
@@ -1185,7 +1190,7 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
 
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {
-        llVIS_IR = this->getGeostationarySegmentsMTG(geoindex, type, sl->getImagePath(), filenbr);
+        llVIS_IR = this->getGeostationarySegmentsMTGAlt(geoindex, type, sl->getImagePath(), filenbr);
         qDebug() << QString("llVIS_IR count = %1").arg(llVIS_IR.count());
         if(llVIS_IR.count() == 0)
         {

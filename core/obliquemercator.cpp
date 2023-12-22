@@ -251,19 +251,19 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
 
     if (fabs(lat1_r - lat2_r) <= EPSLN)
     {
-        qDebug() << "Input data error","omer-init";
+        qDebug() << "InitializeEllipsoid : Input data error";
         return;
     }
     else
         con = fabs(lat1_r);
     if ((con <= EPSLN) || (fabs(con - HALF_PI) <= EPSLN))
     {
-        qDebug() << "Input data error","omer-init";
+        qDebug() << "InitializeEllipsoid : Input data error";
         return;
     }
     else if (fabs(fabs(lat_origin) - HALF_PI) <= EPSLN)
     {
-        qDebug() << "Input data error","omer-init";
+        qDebug() << "InitializeEllipsoid : Input data error";
         return;
     }
 

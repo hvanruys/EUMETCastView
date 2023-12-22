@@ -1564,19 +1564,22 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 
     drawOverlays(painter);
 
-    //    painter->translate(m_image->width()/2, m_image->height()/2);
+    if(m_image->width() == 3712)
+    {
+        painter->translate(m_image->width()/2, m_image->height()/2);
 
-    //    int diameter = 3580;
-    //    painter->setPen(QPen(QColor(255, 0, 0), 1));
-    //    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+        int diameter = 3608;
+        painter->setPen(QPen(QColor(255, 0, 0), 1));
+        painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    }
 
-    //    diameter = 3650;
-    //    painter->setPen(QPen(QColor(0, 255, 255), 1));
-    //    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    //        diameter = 3650;
+    //        painter->setPen(QPen(QColor(0, 255, 255), 1));
+    //        painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
-    //    diameter = 3615;
-    //    painter->setPen(QPen(QColor(0, 0, 255), 30));
-    //    painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    //        diameter = 3615;
+    //        painter->setPen(QPen(QColor(0, 0, 255), 30));
+    //        painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
 
     //qDebug() << "AFTER FormImage::drawForeground";
@@ -3822,8 +3825,8 @@ void FormImage::recalculateCLAHEAVHRR()
 
     if(height%16 == 0 && width%16 == 0)
     {
-       context_X = 16;
-       context_Y = 16;
+        context_X = 16;
+        context_Y = 16;
     }
     else if(height%10 == 0 && width%10 == 0)
     {
@@ -3980,8 +3983,8 @@ void FormImage::recalculateCLAHEAVHRR()
 
     this->displayImage(channelshown, true);
 
-//    if(opts.imageontextureOnAVHRR)
-//        emit render3dgeo(sl->getGeoSatelliteIndex());
+    //    if(opts.imageontextureOnAVHRR)
+    //        emit render3dgeo(sl->getGeoSatelliteIndex());
 
     QApplication::restoreOverrideCursor();
 }

@@ -16,7 +16,7 @@
 
 #define H_MSG (42164.0)
 #define H_GOESR (42164.16)
-/*#define H (H_GOESR) /* Geostationary Orbit Radius (spacecraft to barycenter distance) (km) */
+/*#define H (H_GOESR) */ // Geostationary Orbit Radius (spacecraft to barycenter distance) (km)
 /*#define D (H*H - R_EQ*R_EQ)*/
 
 /* FUTURE: accept as an input if needed */

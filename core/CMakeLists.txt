@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 
+#SET(CMAKE_CXX_FLAGS_DEBUG "-O0")
+#SET(CMAKE_C_FLAGS_DEBUG "-O0")
+
 project(EUMETCastView)
 
 set(PROJECT_SOURCES_CPP
