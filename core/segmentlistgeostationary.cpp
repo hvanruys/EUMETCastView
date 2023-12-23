@@ -6731,15 +6731,15 @@ QImage *SegmentListGeostationary::CalculateBitMap()
     painter.translate(imageptrs->ptrimageGeostationary->width()/2, imageptrs->ptrimageGeostationary->height()/2);
 
 
-    int diameter = 3630; // 3615;
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(Qt::red);
-    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+//    int diameter = 3630; // 3615;
+//    painter.setPen(Qt::NoPen);
+//    painter.setBrush(Qt::red);
+//    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
-    diameter = 3600; // 3615;
-    //painter.setPen(QPen(QColor(1,1,1)));
-    painter.setBrush(QColor(1,1,1));
-    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+//    diameter = 3600; // 3615;
+//    //painter.setPen(QPen(QColor(1,1,1)));
+//    painter.setBrush(QColor(1,1,1));
+//    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
     return(imageptrs->ptrimagebitmap);
 }
