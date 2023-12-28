@@ -3942,6 +3942,8 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
     quint8 valcontrast;
     QImage *im = NULL;
 
+    qDebug() << "SegmentListGeostationary::computeGeoImage";
+
     int nbroflinespersegment = opts.geosatellites[geoindex].segmentlength;
 
     if(m_GeoSatellite != eGeoSatellite::H9)
@@ -4237,7 +4239,7 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                             b = r;
                         }
 
-                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r,g,b);
+                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] =  qRgb(r,g,b);
                     }
                     else
                     {
@@ -6725,21 +6727,21 @@ void SegmentListGeostationary::CalculateLonLat()
 
 QImage *SegmentListGeostationary::CalculateBitMap()
 {
+    // bitmap created for inverse infrared images
     imageptrs->ptrimagebitmap = new QImage(imageptrs->ptrimageGeostationary->width(), imageptrs->ptrimageGeostationary->height(), QImage::Format_ARGB32);
     QPainter painter(imageptrs->ptrimagebitmap);
 
     painter.translate(imageptrs->ptrimageGeostationary->width()/2, imageptrs->ptrimageGeostationary->height()/2);
 
+    int diameter = 3630; // 3615;
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::red);
+    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
-//    int diameter = 3630; // 3615;
-//    painter.setPen(Qt::NoPen);
-//    painter.setBrush(Qt::red);
-//    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
-
-//    diameter = 3600; // 3615;
-//    //painter.setPen(QPen(QColor(1,1,1)));
-//    painter.setBrush(QColor(1,1,1));
-//    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    diameter = 3600; // 3615;
+    //painter.setPen(QPen(QColor(1,1,1)));
+    painter.setBrush(QColor(1,1,1));
+    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
     return(imageptrs->ptrimagebitmap);
 }

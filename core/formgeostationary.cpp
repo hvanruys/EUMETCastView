@@ -419,8 +419,21 @@ void FormGeostationary::PopulateTreeGeoMTGI1(int geoindex)
 
 
         for(int i = 0; i < 43; i++)
+        {
+            if(i == 1 && !seqok)
+            {
+                col.setRgb(225, 171, 196);
+            }
+            else if(i > 1 && seqarray[i - 2] == 0 )
+            {
+                col.setRgb(225, 171, 196);
+            }
+            else
+            {
+                col.setRgb(174, 225, 184);
+            }
             newitem->setBackground( i, QBrush(col) );
-
+        }
         ++citfilenbr;
     }
 }

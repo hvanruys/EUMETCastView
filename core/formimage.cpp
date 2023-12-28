@@ -350,7 +350,7 @@ void FormImage::zoomOut()
 
 void FormImage::slotcomposefinished(QString kindofimage, int index)
 {
-    qDebug() << "slotcomposefinished " << kindofimage << " index = " << index;
+    qDebug() << "slotcomposefinished " << kindofimage << " index = " << index << " channelshown = " << channelshown ;
 
     this->setPixmapToScene(true);
 
@@ -1564,14 +1564,14 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 
     drawOverlays(painter);
 
-    if(m_image->width() == 3712)
-    {
-        painter->translate(m_image->width()/2, m_image->height()/2);
+//    if(m_image->width() == 3712)
+//    {
+//        painter->translate(m_image->width()/2, m_image->height()/2);
 
-        int diameter = 3608;
-        painter->setPen(QPen(QColor(255, 0, 0), 1));
-        painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
-    }
+//        int diameter = 3608;
+//        painter->setPen(QPen(QColor(255, 0, 0), 1));
+//        painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+//    }
 
     //        diameter = 3650;
     //        painter->setPen(QPen(QColor(0, 255, 255), 1));
@@ -1687,7 +1687,6 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
     }
 
     //qDebug() << "FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl) image width = " << m_image->width();
-    //    "getGeoSatellite = " << sl->getGeoSatellite();
 
     if(sl == NULL)
         return;
@@ -1717,12 +1716,6 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         else
             hrvimage = false;
 
-        //                if(sl->getGeoSatellite() == eGeoSatellite::H8)
-        //                {
-        //                    QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
-        //                    paint->setPen(qRgb(0, 0, 255));
-        //                    paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
-        //                }
     }
     else
         return;
@@ -1741,7 +1734,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         lfac = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
     }
 
-    qDebug() << "coff = " << coff << " loff = " << loff << " cfac = " << cfac << " lfac = " << lfac;
+    //qDebug() << "coff = " << coff << " loff = " << loff << " cfac = " << cfac << " lfac = " << lfac;
 
     double sub_lon = sl->geosatlon;
     lat_deg = opts.obslat;
@@ -1914,7 +1907,13 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                     col = this->geooverlay[k].at(i).x()/factor;
                     row = this->geooverlay[k].at(i).y()/factor;
                     if(row < m_image->height() && col < m_image->width())
-                        paint->drawLine(save_col, save_row, col, row);
+                    {
+                        if(sl->getGeoSatellite() == eGeoSatellite::MTG_I1)
+                            paint->drawLine(save_col, save_row - 3, col, row - 3);
+                        else
+                            paint->drawLine(save_col, save_row, col, row);
+
+                    }
 
                     save_col = (int)this->geooverlay[k].at(i).x()/factor;
                     save_row = (int)this->geooverlay[k].at(i).y()/factor;
@@ -1923,7 +1922,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         }
     }
     else
-        OverlayGeostationaryHRV1(paint, sl, geoindex);
+        OverlayGeostationaryHRV(paint, sl, geoindex);
 }
 
 void FormImage::DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int coff, int loff, double cfac, double lfac, bool hrvimage)
@@ -2181,6 +2180,8 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
 
     double sub_lon = sl->geosatlon;
 
+    qDebug() << "FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationary *sl) image width = " << m_image->width();
+
 
     if(opts.gshhsglobe1On)
     {
@@ -2397,6 +2398,10 @@ void FormImage::OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary
     loff = opts.geosatellites.at(geoindex).loff;
     cfac = opts.geosatellites.at(geoindex).cfac;
     lfac = opts.geosatellites.at(geoindex).lfac;
+
+//        QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
+//        paint->setPen(qRgb(255, 255, 0));
+//        paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
 
 
     double sub_lon = sl->geosatlon;
