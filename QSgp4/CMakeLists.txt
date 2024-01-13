@@ -27,6 +27,9 @@ add_library(
     ${PROJECT_SOURCES_CPP}
 )
 
+include(CMakePrintHelpers)
+cmake_print_variables(PROJECT_SOURCE_DIR)
+
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/core")
 

@@ -51,6 +51,8 @@
 
 #include <stdio.h>
 
+// https://celestrak.org/NORAD/elements/gp.php?GROUP=weather&FORMAT=tle
+
 extern QNetworkAccessManager networkaccessmanager;
 
 DownloadManager::DownloadManager(QObject *parent)

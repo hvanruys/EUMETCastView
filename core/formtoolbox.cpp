@@ -192,11 +192,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     listResolution << "16:9 WQHD  2560x1440";
     listResolution << "16:9 UHD   3840x2160";
 
-    listResolution << "1:1  ---   1000x1000";
-    listResolution << "1:1  ---   2000x2000";
-    listResolution << "1:1  ---   3000x3000";
-    listResolution << "1:1  ---   4000x4000";
-    listResolution << "1:1  ---   5000x5000";
+    listResolution << "1:1  ----  1000x1000";
+    listResolution << "1:1  ----  2000x2000";
+    listResolution << "1:1  ----  3000x3000";
+    listResolution << "1:1  ----  4000x4000";
+    listResolution << "1:1  ----  5000x5000";
 
 
     resolutionX.append(800);
@@ -1548,8 +1548,8 @@ void FormToolbox::on_btnExpandImage_clicked()
 void FormToolbox::on_btnRotate180_clicked()
 {
     imageptrs->RotateImage();
-//    formimage->returnimageGraphicsViewptr()->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_col)));
-//    formimage->adjustImage();
+    //    formimage->returnimageGraphicsViewptr()->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimagecomp_col)));
+    //    formimage->adjustImage();
 }
 
 void FormToolbox::on_btnOverlayMeteosat_clicked()
@@ -2291,7 +2291,7 @@ void FormToolbox::on_btnRecipes_clicked()
         return;
 
     if(!(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_10 ||
-          geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8 || geoindex == (int)eGeoSatellite::MTG_I1))
+         geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8 || geoindex == (int)eGeoSatellite::MTG_I1))
         return;
 
     imageptrs->ResetPtrImage();
@@ -2373,46 +2373,46 @@ void FormToolbox::on_btnHRV_clicked()
 
     ui->pbProgress->reset();
 
-//    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
-//    {
-//        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
-//            ui->pbProgress->setMaximum(5);
-//        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == true)
-//            ui->pbProgress->setMaximum(8+8+8+5);
-//        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == false)
-//            ui->pbProgress->setMaximum(24);
-//        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == true)
-//            ui->pbProgress->setMaximum(8+8+8+24);
-//    }
+    //    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
+    //    {
+    //        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
+    //            ui->pbProgress->setMaximum(5);
+    //        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == true)
+    //            ui->pbProgress->setMaximum(8+8+8+5);
+    //        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == false)
+    //            ui->pbProgress->setMaximum(24);
+    //        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == true)
+    //            ui->pbProgress->setMaximum(8+8+8+24);
+    //    }
 
-//    if(geoindex == (int)eGeoSatellite::MET_10)
-//    {
-//        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
-//            ui->pbProgress->setMaximum(5);
-//        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == true)
-//            ui->pbProgress->setMaximum(3+3+3+5);
-//        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == false)
-//            ui->pbProgress->setMaximum(0);
-//        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == true)
-//            ui->pbProgress->setMaximum(0);
-//    }
+    //    if(geoindex == (int)eGeoSatellite::MET_10)
+    //    {
+    //        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
+    //            ui->pbProgress->setMaximum(5);
+    //        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == true)
+    //            ui->pbProgress->setMaximum(3+3+3+5);
+    //        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == false)
+    //            ui->pbProgress->setMaximum(0);
+    //        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == true)
+    //            ui->pbProgress->setMaximum(0);
+    //    }
 
-//    if(geoindex == (int)eGeoSatellite::GOMS3)
-//    {
-//        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
-//            ui->pbProgress->setMaximum(6);
-//        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == true)
-//            ui->pbProgress->setMaximum(0);
-//        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == false)
-//            ui->pbProgress->setMaximum(0);
-//        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == true)
-//            ui->pbProgress->setMaximum(0);
-//    }
+    //    if(geoindex == (int)eGeoSatellite::GOMS3)
+    //    {
+    //        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == false)
+    //            ui->pbProgress->setMaximum(6);
+    //        if(ui->cmbHRVtype->currentIndex() == 0 && ui->chkColorHRV->isChecked() == true)
+    //            ui->pbProgress->setMaximum(0);
+    //        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == false)
+    //            ui->pbProgress->setMaximum(0);
+    //        if(ui->cmbHRVtype->currentIndex() == 1 && ui->chkColorHRV->isChecked() == true)
+    //            ui->pbProgress->setMaximum(0);
+    //    }
 
-//    if(geoindex == (int)eGeoSatellite::FY2H || geoindex == (int)eGeoSatellite::FY2G)
-//    {
-//        ui->pbProgress->setMaximum(100);
-//    }
+    //    if(geoindex == (int)eGeoSatellite::FY2H || geoindex == (int)eGeoSatellite::FY2G)
+    //    {
+    //        ui->pbProgress->setMaximum(100);
+    //    }
 
     ui->pbProgress->setMaximum(100);
 
@@ -3002,32 +3002,70 @@ void FormToolbox::on_chkShowPerspective_stateChanged(int arg1)
 void FormToolbox::on_spbLCCMapWidth_valueChanged(int arg1)
 {
     opts.mapwidth = arg1;
+    reinitProjectionCanvas();
 }
 
 void FormToolbox::on_spbLCCMapHeight_valueChanged(int arg1)
 {
     opts.mapheight = arg1;
+    reinitProjectionCanvas();
 }
 
 void FormToolbox::on_spbGVPMapWidth_valueChanged(int arg1)
 {
     opts.mapwidth = arg1;
     formmovie->setGVPMapWidth(arg1);
+    reinitProjectionCanvas();
 }
 
 void FormToolbox::on_spbGVPMapHeight_valueChanged(int arg1)
 {
     opts.mapheight = arg1;
     formmovie->setGVPMapHeight(arg1);
+    reinitProjectionCanvas();
 }
+
+void FormToolbox::reinitProjectionCanvas()
+{
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    if(ui->toolBox->currentIndex() == 0)
+    {
+        imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(),  ui->spbCentral->value(), ui->spbLatOrigin->value(),
+                                   ui->spbLCCMapWidth->value(), ui->spbLCCMapHeight->value(), ui->spbLCCCorrX->value(), ui->spbLCCCorrY->value());
+        formimage->displayImage(IMAGE_PROJECTION, true);
+    }
+    else if(ui->toolBox->currentIndex() == 1)
+    {
+        imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(),
+                                   ui->spbGVPFalseEasting->value(), ui->spbGVPFalseNorthing->value(), ui->spbGVPMapWidth->value(), ui->spbGVPMapHeight->value());
+        if(formmovie)
+        {
+            formmovie->setGVPMapWidth(ui->spbGVPMapWidth->value());
+            formmovie->setGVPMapHeight(ui->spbGVPMapHeight->value());
+        }
+        formimage->displayImage(IMAGE_PROJECTION, true);
+    }
+    else if(ui->toolBox->currentIndex() == 2)
+    {
+        imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(),
+                                  ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
+        formimage->displayImage(IMAGE_PROJECTION, true);
+    }
+
+    QApplication::restoreOverrideCursor();
+}
+
 void FormToolbox::on_spbSGMapWidth_valueChanged(int arg1)
 {
     opts.mapwidth = arg1;
+    reinitProjectionCanvas();
 }
 
 void FormToolbox::on_spbSGMapHeight_valueChanged(int arg1)
 {
     opts.mapheight = arg1;
+    reinitProjectionCanvas();
 }
 
 
@@ -3575,7 +3613,7 @@ void FormToolbox::on_btnCreateStereo_clicked()
             imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSM, false);
         else if(opts.buttonVIIRSMNOAA20)
             imageptrs->sg->CreateMapFromVIIRS(eSegmentType::SEG_VIIRSMNOAA20, false);
-     }
+    }
     else if(ui->rdbVIIRSDNBin->isChecked())
     {
         currentProjectionType = PROJ_VIIRSDNB;
@@ -5690,7 +5728,7 @@ void FormToolbox::on_cmbHistogramAVHRR_activated(int index)
     segs->seglM01hrpt->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
     segs->seglM02hrpt->setHistogramMethod(ui->cmbHistogramAVHRR->currentIndex());
 
-//    formimage->MakeImage();
+    //    formimage->MakeImage();
 }
 
 void FormToolbox::on_cmbHistogramSLSTR_activated(int index)
@@ -5702,7 +5740,7 @@ void FormToolbox::on_cmbHistogramSLSTR_activated(int index)
         if(segs->seglslstr->NbrOfSegmentsSelected() > 0)
         {
             ui->pbProgress->reset();
-//            formimage->ShowHistogramImageSLSTR(ui->cmbHistogramSLSTR->currentIndex());
+            //            formimage->ShowHistogramImageSLSTR(ui->cmbHistogramSLSTR->currentIndex());
         }
     }
 }
@@ -5769,11 +5807,11 @@ void FormToolbox::setAllWhatsThis()
 void FormToolbox::on_btnSaveAsPNG48bits_clicked()
 {
 
-//    if(!formimage->SaveAsPNG48bits(ui->rdbMapTo65535->isChecked()))
-//    {
-//        QMessageBox::information( this, "Save 48bit PNG",
-//                                  "There is no input file !" );
-//    }
+    //    if(!formimage->SaveAsPNG48bits(ui->rdbMapTo65535->isChecked()))
+    //    {
+    //        QMessageBox::information( this, "Save 48bit PNG",
+    //                                  "There is no input file !" );
+    //    }
 
 }
 

@@ -133,7 +133,7 @@ private:
     void fitCurve();
     void setAllWhatsThis();
     void blockSignalscomboGeo(bool state);
-
+    void reinitProjectionCanvas();
 
 
     AVHRRSatellite *segs;

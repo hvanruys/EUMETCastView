@@ -7216,6 +7216,15 @@
       <layout class="QVBoxLayout" name="verticalLayout_24">
        <item>
         <widget class="QFrame" name="frameInputImages">
+         <property name="toolTip">
+          <string extracomment="Input Images"/>
+         </property>
+         <property name="whatsThis">
+          <string extracomment="Input Images"/>
+         </property>
+         <property name="accessibleDescription">
+          <string extracomment="input images"/>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -7453,14 +7462,14 @@
                </font>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>472</width>
+                 <width>295</width>
                  <height>514</height>
                 </rect>
                </property>
@@ -8267,8 +8276,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>384</width>
-                 <height>290</height>
+                 <width>486</width>
+                 <height>509</height>
                 </rect>
                </property>
                <attribute name="label">

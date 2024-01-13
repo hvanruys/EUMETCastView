@@ -137,9 +137,6 @@ cmake_print_variables(HDF5_INCLUDE_DIRS)
 cmake_print_variables(NETCDF_INCLUDE_DIRS)
 cmake_print_variables(CMAKE_CURRENT_SOURCE_DIR)
 
-#cmake_print_properties(TARGETS Qt5::Widgets PROPERTIES LOCATION)
-#cmake_print_properties(TARGETS Qt5::Xml PROPERTIES LOCATION)
-
 if(UNIX)
     add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
 elseif(WIN32)
@@ -153,10 +150,10 @@ add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30)
 target_link_libraries(${PROJECT_NAME} z pthread Qt5::Widgets Qt5::Gui Qt5::Core Qt5::Widgets Qt5::Xml Qt5::Concurrent Qt5::Network Qt5::PrintSupport
     my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} archive freeimage)
 
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
+#set_target_properties(${PROJECT_NAME}
+#  PROPERTIES
+#    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+#    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+#    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 

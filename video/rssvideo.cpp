@@ -9,6 +9,7 @@
 #include "qobserver.h"
 
 
+
 #define CMB_HISTO_NONE_95 0
 #define CMB_HISTO_NONE_100 1
 #define CMB_HISTO_EQUALIZE 2
@@ -388,8 +389,8 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
         USLA = cov.UpperSouthLineActual;
         UWCA = cov.UpperWestColumnActual;
         UNLA = cov.UpperNorthLineActual;
-                qDebug() << "Lower West : " << LWCA << " East : " << LECA << " North : " << LNLA << " South : " << LSLA;
-                qDebug() << "Upper West : " << UWCA << " East : " << UECA << " North : " << UNLA << " South : " << USLA;
+        qDebug() << "Lower West : " << LWCA << " East : " << LECA << " North : " << LNLA << " South : " << LSLA;
+        qDebug() << "Upper West : " << UWCA << " East : " << UECA << " North : " << UNLA << " South : " << USLA;
     }
 
     QString filespectrum;
@@ -484,9 +485,10 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
 
     if(reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color")
     {
-        this->ComposeHRV(ptrHRV, ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, ptrNightGreen, ptrNightBlue, imagehrv, date,
-                         LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA, imagenbr);
+        this->ComposeHRV1(ptrHRV, ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, ptrNightGreen, ptrNightBlue, imagehrv, date,
+                          LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA, imagenbr);
         imageGeostationary = imagehrv;
+        imagehrv.save(QString("tempimages/hrv%1.png").arg(imagenbr, 4, 10, QChar('0')));
 
         if(reader->projectiontype.length() == 0)
         {
@@ -494,7 +496,6 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
                 this->OverlayGeostationary(&imagehrv, true, LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA);
             if(reader->boverlaydate)
                 this->OverlayDate(&imagehrv, date);
-            //imagehrv.save(QString("hrv%1.png").arg(imagenbr, 4, 10, QChar('0')));
         }
 
     }
@@ -503,6 +504,7 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
         {
             this->ComposeVISIR(ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, ptrNightGreen, ptrNightBlue, imagevisir, date, imagenbr);
             imageGeostationary = imagevisir;
+            imagevisir.save(QString("tempimages/visir%1.png").arg(imagenbr, 4, 10, QChar('0')));
 
             if(reader->projectiontype.length() == 0)
             {
@@ -510,7 +512,6 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
                     this->OverlayGeostationary(&imagevisir, false, LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA);
                 if(reader->boverlaydate)
                     this->OverlayDate(&imagevisir, date);
-                //imagevisir.save(QString("visir%1.png").arg(imagenbr, 4, 10, QChar('0')));
             }
         }
 
@@ -518,7 +519,6 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
     if(reader->projectiontype == "GVP")
     {
         GeneralVerticalPerspective *gvp = new GeneralVerticalPerspective(reader, this, &imageGeostationary);
-
 
         QPainter painter(gvp->imageProjection);
         gvp->CreateMapFromGeoStationary(&painter, LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA);
@@ -559,8 +559,6 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
         delete gvp;
     }
 
-
-
     if(reader->daykindofimage == "VIS_IR")
     {
         delete ptrDayRed;
@@ -587,6 +585,11 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
         delete ptrNightBlue;
     }
 
+
+}
+
+void RSSVideo::compileImageMTG(QString date, QString path, int imagenbr)
+{
 
 }
 
@@ -717,7 +720,7 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
     QRgb *row_col_day;
     quint16 cred, cgreen, cblue, c, clum;
     quint16 crednight, cgreennight, cbluenight;
-    quint16 r,g, b;
+    quint16 rday, gday, bday;
     quint16 rnight, gnight, bnight;
 
     double gamma = reader->gamma;
@@ -773,62 +776,62 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
     }
 
     // test images
-//    if(reader->daykindofimage == "HRV Color")
-//    {
-//        QImage testimage(3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), QImage::Format_ARGB32);
-//        for(int y = (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1; y >= 0; y--)
-//        {
-//            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1-y);
+    //    if(reader->daykindofimage == "HRV Color")
+    //    {
+    //        QImage testimage(3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), QImage::Format_ARGB32);
+    //        for(int y = (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1; y >= 0; y--)
+    //        {
+    //            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1-y);
 
-//            for(int x = 0; x < 3712; x++)
-//            {
-//                cred = *(ptrDayRed + y*3712 + x);
-//                cgreen = *(ptrDayGreen + y*3712 + x);
-//                cblue = *(ptrDayBlue + y*3712 + x);
-//                row_col[3712 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cgreen), ContrastStretch(cblue));
-//            }
-//        }
+    //            for(int x = 0; x < 3712; x++)
+    //            {
+    //                cred = *(ptrDayRed + y*3712 + x);
+    //                cgreen = *(ptrDayGreen + y*3712 + x);
+    //                cblue = *(ptrDayBlue + y*3712 + x);
+    //                row_col[3712 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cgreen), ContrastStretch(cblue));
+    //            }
+    //        }
 
-//        testimage.save("ptrDayVIS.png");
-//    }
+    //        testimage.save("ptrDayVIS.png");
+    //    }
 
-//    if(reader->nightkindofimage == "VIS_IR")
-//    {
-//        QImage testimage(3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), QImage::Format_ARGB32);
-//        for(int y = (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1; y >= 0; y--)
-//        {
-//            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1-y);
+    //    if(reader->nightkindofimage == "VIS_IR")
+    //    {
+    //        QImage testimage(3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), QImage::Format_ARGB32);
+    //        for(int y = (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1; y >= 0; y--)
+    //        {
+    //            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1-y);
 
-//            for(int x = 0; x < 3712; x++)
-//            {
-//                cred = *(ptrNightRed + y*3712 + x);
-//                quint16 c = ContrastStretch(cred);
-//                row_col[3712 - x - 1] = qRgb(c, c, c);
-//            }
-//        }
+    //            for(int x = 0; x < 3712; x++)
+    //            {
+    //                cred = *(ptrNightRed + y*3712 + x);
+    //                quint16 c = ContrastStretch(cred);
+    //                row_col[3712 - x - 1] = qRgb(c, c, c);
+    //            }
+    //        }
 
-//        //this->OverlayGeostationary(&testimage, false, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
+    //        //this->OverlayGeostationary(&testimage, false, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
 
-//        testimage.save("ptrNightIR.png");
-//    }
+    //        testimage.save("ptrNightIR.png");
+    //    }
 
-//    if(reader->bhrv)
-//    {
-//        QImage testimage(5568, (reader->brss ? 9*464 : 6*464), QImage::Format_ARGB32);
-//        for(int y = (reader->brss ? 9*464 : 6*464)-1; y >= 0; y--)
-//        {
-//            row_col = (QRgb*)testimage.scanLine((reader->brss ? 9*464 : 6*464)-1-y);
+    //    if(reader->bhrv)
+    //    {
+    //        QImage testimage(5568, (reader->brss ? 9*464 : 6*464), QImage::Format_ARGB32);
+    //        for(int y = (reader->brss ? 9*464 : 6*464)-1; y >= 0; y--)
+    //        {
+    //            row_col = (QRgb*)testimage.scanLine((reader->brss ? 9*464 : 6*464)-1-y);
 
-//            for(int x = 0; x < 5568; x++)
-//            {
-//                cred = *(ptrHRV + y*5568 + x);
-//                row_col[5568 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cred), ContrastStretch(cred));
-//            }
-//        }
-//        //this->OverlayGeostationary(&testimage, true, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
+    //            for(int x = 0; x < 5568; x++)
+    //            {
+    //                cred = *(ptrHRV + y*5568 + x);
+    //                row_col[5568 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cred), ContrastStretch(cred));
+    //            }
+    //        }
+    //        //this->OverlayGeostationary(&testimage, true, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
 
-//        testimage.save("ptrHRV.png");
-//    }
+    //        testimage.save("ptrHRV.png");
+    //    }
 
 
     for (int line = (reader->brss ? 9*464 : 6*464) - 1; line >= 0; line--)
@@ -859,27 +862,27 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
                     valgamma = 1023;
 
                 valcontrast = ContrastStretch(valgamma);
-                r = quint8(valcontrast);
-                if (r > 255)
-                    r = 255;
+                rday = quint8(valcontrast);
+                if (rday > 255)
+                    rday = 255;
 
                 valgamma = pow( c*cgreen/clum, gamma) * gammafactor;
                 if (valgamma >= 1024)
                     valgamma = 1023;
 
                 valcontrast = ContrastStretch(valgamma);
-                g = quint8(valcontrast);
-                if (g > 255)
-                    g = 255;
+                gday = quint8(valcontrast);
+                if (gday > 255)
+                    gday = 255;
 
                 valgamma = pow( c*cblue/clum, gamma) * gammafactor;
                 if (valgamma >= 1024)
                     valgamma = 1023;
 
                 valcontrast = ContrastStretch(valgamma);
-                b = quint8(valcontrast);
-                if (b > 255)
-                    b = 255;
+                bday = quint8(valcontrast);
+                if (bday > 255)
+                    bday = 255;
 
                 if(reader->nightkindofimage == "VIS_IR")
                 {
@@ -910,7 +913,7 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
                     //if(line < lnla)
                     //    ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx + leca, (6*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
                     //else
-                        ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx +  ueca, (6*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
+                    ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx +  ueca, (6*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
 
 
                 }
@@ -935,22 +938,22 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
                             int percentday = (int)(100*elev/5);
                             int percentnight = 100 - percentday;
 
-                            int red = (percentday*r + percentnight*rnight)/100;
+                            int red = (percentday*rday + percentnight*rnight)/100;
                             red = (red > 255 ? 255 : red);
 
-                            int green = (percentday*g + percentnight*rnight)/100;
+                            int green = (percentday*gday + percentnight*rnight)/100;
                             green = (green > 255 ? 255 : green);
 
-                            int blue = (percentday*b + percentnight*rnight)/100;
+                            int blue = (percentday*bday + percentnight*rnight)/100;
                             blue = (blue > 255 ? 255 : blue);
                             row_col[5568 - 1 - pixelx] = qRgb(red, green, blue);
                         }
                         else
-                            row_col[5568 - 1 - pixelx] = qRgb(r,g,b);
+                            row_col[5568 - 1 - pixelx] = qRgb(rday,gday,bday);
                     }
                     else
                     {
-                        row_col[5568 - 1 - pixelx] = qRgb(r,g,b);
+                        row_col[5568 - 1 - pixelx] = qRgb(rday,gday,bday);
                     }
                 }
             }
@@ -961,16 +964,292 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
                     valgamma = 1023;
 
                 valcontrast = ContrastStretch(valgamma);
-                r = quint8(valcontrast);
-                if (r > 255)
-                    r = 255;
+                rday = quint8(valcontrast);
+                if (rday > 255)
+                    rday = 255;
 
-                row_col[5568 - 1 - pixelx] = qRgb(r,r,r);
+                row_col[5568 - 1 - pixelx] = qRgb(rday,rday,rday);
 
             }
         }
     }
 
+
+}
+
+void RSSVideo::ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue,
+                           quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
+                           int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr)
+{
+    QRgb *row_col;
+    QRgb *row_col_day;
+    quint16 cred, cgreen, cblue, c, clum;
+    quint16 crednight, cgreennight, cbluenight;
+    quint16 rday, gday, bday;
+    quint16 rnight, gnight, bnight;
+
+    double gamma = reader->gamma;
+    double gammafactor = 1023 / pow(1023, gamma);
+    quint16 valgamma;
+    quint8 valcontrast;
+
+    long delta = 0;
+
+    pixgeoConversion pixconv;
+    double sub_lon = reader->satlon;
+
+
+    long coff = reader->coffhrv;
+    long loff = reader->loffhrv;
+    double cfac = reader->cfachrv;
+    double lfac = reader->lfachrv;
+    double latitude, longitude;
+    int ret;
+
+    Vector3 solar_vector;
+    Vector3 vel;
+    QObserver observer;
+    QSgp4Date dat;
+    QGeodetic qgeo;
+    QTopocentric qtopo;
+
+    double elev;
+
+    int year, month, day, hours, minutes;
+    year = date.mid(0, 4).toInt();
+    month = date.mid(4, 2).toInt();
+    day = date.mid(6, 2).toInt();
+    hours = date.mid(8, 2).toInt();
+    minutes = date.mid(10, 2).toInt();
+
+
+    imhrv = QImage(5568, (reader->brss ? 9*464 : 6*464), QImage::Format_ARGB32);
+    imhrv.fill(Qt::black);
+
+
+    this->CLAHE(ptrHRV, 5568, (reader->brss ? 9*464 : 6*464), 0, 1023, 16, 16, 256, 6);
+
+
+    if(reader->nightkindofimage == "VIS_IR" || reader->nightkindofimage == "VIS_IR Color")
+        this->CLAHE(ptrNightRed, 3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), 0, 1023, 16, 16, 256, 6);
+
+    if(reader->daykindofimage == "HRV Color")
+    {
+        this->CLAHE(ptrDayRed, 3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), 0, 1023, 16, 16, 256, 6);
+        this->CLAHE(ptrDayGreen, 3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), 0, 1023, 16, 16, 256, 6);
+        this->CLAHE(ptrDayBlue, 3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), 0, 1023, 16, 16, 256, 6);
+    }
+
+    // test images
+//#if 0
+    if(reader->daykindofimage == "HRV Color")
+    {
+        QImage testimage(3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), QImage::Format_ARGB32);
+        for(int y = (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1; y >= 0; y--)
+        {
+            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1-y);
+
+            for(int x = 0; x < 3712; x++)
+            {
+                cred = *(ptrDayRed + y*3712 + x);
+                cgreen = *(ptrDayGreen + y*3712 + x);
+                cblue = *(ptrDayBlue + y*3712 + x);
+                row_col[3712 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cgreen), ContrastStretch(cblue));
+            }
+        }
+
+        testimage.save("tempimages/ptrDayVIS.png");
+    }
+
+    if(reader->nightkindofimage == "VIS_IR")
+    {
+        QImage testimage(3712, (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464)), QImage::Format_ARGB32);
+        for(int y = (reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1; y >= 0; y--)
+        {
+            row_col = (QRgb*)testimage.scanLine((reader->brss ? 3*464 : (reader->bhrv ? 2*464 : 8*464))-1-y);
+
+            for(int x = 0; x < 3712; x++)
+            {
+                cred = *(ptrNightRed + y*3712 + x);
+                quint16 c = ContrastStretch(cred);
+                row_col[3712 - x - 1] = qRgb(c, c, c);
+            }
+        }
+
+        this->OverlayGeostationary(&testimage, false, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
+
+        testimage.save("tempimages/ptrNightIR.png");
+    }
+
+    if(reader->bhrv)
+    {
+        QImage testimage(5568, (reader->brss ? 9*464 : 6*464), QImage::Format_ARGB32);
+        for(int y = (reader->brss ? 9*464 : 6*464)-1; y >= 0; y--)
+        {
+            row_col = (QRgb*)testimage.scanLine((reader->brss ? 9*464 : 6*464)-1-y);
+
+            for(int x = 0; x < 5568; x++)
+            {
+                cred = *(ptrHRV + y*5568 + x);
+                row_col[5568 - x - 1] = qRgb(ContrastStretch(cred), ContrastStretch(cred), ContrastStretch(cred));
+            }
+        }
+        this->OverlayGeostationary(&testimage, true, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
+
+        testimage.save("tempimages/ptrHRV.png");
+    }
+//#endif
+
+
+    for (int line = (reader->brss ? 9*464 : 6*464) - 1; line >= 0; line--)
+    {
+        row_col = (QRgb*)imhrv.scanLine((reader->brss ? 9*464 : 6*464) - 1 - line);
+
+        for (int pixelx = 0; pixelx < 5568; pixelx++)
+        {
+            c = *(ptrHRV + line * 5568 + pixelx);
+            if(reader->brss)
+                delta = line/3 * 3712 + leca/3 + pixelx/3;
+            else
+                delta = line/3 * 3712 + ueca/3 + pixelx/3;
+            if(reader->daykindofimage == "HRV Color")
+            {
+                cred = *(ptrDayRed + delta);
+                cgreen = *(ptrDayGreen + delta);
+                cblue = *(ptrDayBlue + delta);
+                if(reader->nightkindofimage == "VIS_IR")
+                    crednight = *(ptrNightRed + delta);
+                clum = (cred+cgreen+cblue)/3;
+                if( clum == 0)
+                    clum = 1;
+
+
+                valgamma = pow( c*cred/clum, gamma) * gammafactor;
+                if (valgamma >= 1024)
+                    valgamma = 1023;
+
+                valcontrast = ContrastStretch(valgamma);
+                rday = quint8(valcontrast);
+                if (rday > 255)
+                    rday = 255;
+
+                valgamma = pow( c*cgreen/clum, gamma) * gammafactor;
+                if (valgamma >= 1024)
+                    valgamma = 1023;
+
+                valcontrast = ContrastStretch(valgamma);
+                gday = quint8(valcontrast);
+                if (gday > 255)
+                    gday = 255;
+
+                valgamma = pow( c*cblue/clum, gamma) * gammafactor;
+                if (valgamma >= 1024)
+                    valgamma = 1023;
+
+                valcontrast = ContrastStretch(valgamma);
+                bday = quint8(valcontrast);
+                if (bday > 255)
+                    bday = 255;
+
+                if(reader->nightkindofimage == "VIS_IR")
+                {
+                    crednight = quint16(reader->inverse.at(3) ? 1023 - crednight : crednight);
+                    valgamma = pow( crednight, gamma) * gammafactor;
+                    if (valgamma >= 1024)
+                        valgamma = 1023;
+
+                    valcontrast = ContrastStretch(valgamma);
+                    rnight = quint8(valcontrast);
+                    if (rnight > 255)
+                        rnight = 255;
+                }
+            }
+            else if(reader->daykindofimage == "HRV")
+            {
+                if(reader->nightkindofimage == "VIS_IR")
+                    crednight = *(ptrNightRed + delta);
+
+                valgamma = pow( c, gamma) * gammafactor;
+                if (valgamma >= 1024)
+                    valgamma = 1023;
+
+                valcontrast = ContrastStretch(valgamma);
+                rday = quint8(valcontrast);
+                if (rday > 255)
+                    rday = 255;
+                gday = rday;
+                bday = rday;
+
+                if(reader->nightkindofimage == "VIS_IR")
+                {
+                    crednight = quint16(reader->inverse.at(3) ? 1023 - crednight : crednight);
+                    valgamma = pow( crednight, gamma) * gammafactor;
+                    if (valgamma >= 1024)
+                        valgamma = 1023;
+
+                    valcontrast = ContrastStretch(valgamma);
+                    rnight = quint8(valcontrast);
+                    if (rnight > 255)
+                        rnight = 255;
+                }
+            }
+
+            if(reader->brss)
+            {
+                ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx +  leca, (9*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
+            }
+            else
+            {
+                ret = 0;
+                //if(line < lnla)
+                //   ret = pixconv.pixcoord2geocoord(sub_lon, (5568 - 1) - pixelx + leca, (6*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
+                //else
+                   ret = pixconv.pixcoord2geocoord(sub_lon, 5567 - pixelx + uwca, (6*464 - 1) - line, coff, loff, cfac, lfac, &latitude, &longitude);
+
+
+            }
+
+            if(ret == -1)
+                row_col[5568 - 1 - pixelx] = qRgb(255, 0, 0);
+                //continue;
+            else
+            {
+                observer.SetLocation(latitude, longitude, 0.0);
+                dat.Set(year, month, day, hours, minutes, 0, true);
+                QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
+                QEci qeci(solar_vector, vel, dat);
+                qtopo = observer.GetLookAngle(qeci);
+                elev = qtopo.elevation * 180.0/PI;
+
+                if(reader->nightkindofimage == "VIS_IR")
+                {
+                    if(elev < 0.0 )
+                        row_col[5568 - 1 - pixelx] = qRgb(rnight, rnight, rnight);
+                    else if(elev < 5.0 && elev >= 0.0)
+                    {
+                        int percentday = (int)(100*elev/5);
+                        int percentnight = 100 - percentday;
+
+                        int red = (percentday*rday + percentnight*rnight)/100;
+                        red = (red > 255 ? 255 : red);
+
+                        int green = (percentday*gday + percentnight*rnight)/100;
+                        green = (green > 255 ? 255 : green);
+
+                        int blue = (percentday*bday + percentnight*rnight)/100;
+                        blue = (blue > 255 ? 255 : blue);
+                        row_col[5568 - 1 - pixelx] = qRgb(red, green, blue);
+                    }
+                    else
+                        row_col[5568 - 1 - pixelx] = qRgb(rday,gday,bday);
+                }
+                else
+                {
+                    row_col[5568 - 1 - pixelx] = qRgb(rday,gday,bday);
+                }
+            }
+        }
+    }
 
 }
 
@@ -1453,7 +1732,7 @@ void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *p
                     if( cblue != 65535) indexoutbc = (quint16)qMin(qMax(qRound((float)lut_ch_day[2][cblue]), 0), 1023);
                 }
 
-//                if( (cred == 65535) || (cgreen == 65535) || (cblue == 65535))
+                //                if( (cred == 65535) || (cgreen == 65535) || (cblue == 65535))
                 if( (cred == 0) || (cgreen == 0) || (cblue == 0))
                 {
                     //row_col_day = (QRgb*)imvisir.scanLine((reader->brss ? 1392 - 1 : 3712 - 1) - line);
@@ -1488,7 +1767,7 @@ void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *p
                     if( cred != 65535) indexoutrc = (quint16)qMin(qMax(qRound((float)lut_ch_day[0][cred]), 0), 1023);
                 }
 
-//                if( cred == 65535)
+                //                if( cred == 65535)
                 if( cred == 0)
                 {
                     rday = 0;

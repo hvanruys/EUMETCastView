@@ -8,6 +8,7 @@
 //#include "qsun.h"
 //#include "qobserver.h"
 
+
 void RenamePNGFiles()
 {
     QDir workingdir(".");
@@ -117,7 +118,10 @@ int main(int argc, char *argv[])
         {
             if(video.reader->singleimage == datelist.at(i))
             {
-                video.compileImage(datelist.at(i), pathlist.at(i), i);
+                if(video.reader->daykindofimage == "MTG")
+                    video.compileImageMTG(datelist.at(i), pathlist.at(i), i);
+                else
+                    video.compileImage(datelist.at(i), pathlist.at(i), i);
                 videofound = true;
                 break;
             }

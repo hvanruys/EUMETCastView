@@ -6,12 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2148</width>
+    <width>1416</width>
     <height>1595</height>
    </rect>
   </property>
   <property name="font">
    <font>
+    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -20,7 +21,7 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
-    <layout class="QGridLayout" name="gridLayout_2" rowstretch="10,5" columnstretch="1,0">
+    <layout class="QGridLayout" name="gridLayout_2" rowstretch="10" columnstretch="1">
      <item row="0" column="0">
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
@@ -32,6 +33,7 @@
              <property name="font">
               <font>
                <pointsize>8</pointsize>
+               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -87,6 +89,7 @@
                <property name="font">
                 <font>
                  <pointsize>8</pointsize>
+                 <weight>75</weight>
                  <italic>false</italic>
                  <bold>true</bold>
                 </font>
@@ -102,6 +105,7 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
+                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -131,6 +135,7 @@
                     <property name="font">
                      <font>
                       <pointsize>10</pointsize>
+                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -148,6 +153,7 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
+                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -184,6 +190,7 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
+                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -210,6 +217,7 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
+                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -233,6 +241,7 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
+                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -328,6 +337,7 @@
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
+                      <weight>75</weight>
                       <italic>false</italic>
                       <bold>true</bold>
                      </font>
@@ -379,6 +389,7 @@
               <widget class="QGroupBox" name="groupBox_5">
                <property name="font">
                 <font>
+                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -468,6 +479,7 @@
               <widget class="QGroupBox" name="groupBox_2">
                <property name="font">
                 <font>
+                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -631,6 +643,7 @@
           <widget class="QGroupBox" name="groupBox_4">
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -646,6 +659,7 @@
                  <widget class="QLabel" name="label_3">
                   <property name="font">
                    <font>
+                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -658,6 +672,7 @@
                  <widget class="QLabel" name="label_13">
                   <property name="font">
                    <font>
+                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -670,6 +685,7 @@
                  <widget class="QLabel" name="label_14">
                   <property name="font">
                    <font>
+                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -699,6 +715,7 @@
                  <widget class="QLabel" name="label_29">
                   <property name="font">
                    <font>
+                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -711,6 +728,7 @@
                  <widget class="QLabel" name="label_30">
                   <property name="font">
                    <font>
+                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -723,6 +741,7 @@
                  <widget class="QLabel" name="label_31">
                   <property name="font">
                    <font>
+                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -755,6 +774,7 @@
           <widget class="QGroupBox" name="groupBox_6">
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -991,6 +1011,7 @@
           <widget class="QGroupBox" name="groupBox_7">
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -1004,6 +1025,7 @@
                <widget class="QListWidget" name="lwffmpeg">
                 <property name="font">
                  <font>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1081,6 +1103,7 @@
           <widget class="QGroupBox" name="groupBox_3">
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -1398,96 +1421,81 @@
         </layout>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QHBoxLayout" name="horizontalLayout_39">
          <item>
-          <widget class="QListWidget" name="lwTraffic"/>
+          <widget class="QPushButton" name="btnCreateXML">
+           <property name="text">
+            <string>Create Video or Single Image (YYYYMMDDHHmm)(*)</string>
+           </property>
+          </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_39">
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
-            <widget class="QPushButton" name="btnCreateXML">
-             <property name="text">
-              <string>Create Video or Single Image (YYYYMMDDHHmm)(*)</string>
+            <widget class="QLineEdit" name="leSingleImage">
+             <property name="statusTip">
+              <string extracomment="When Single file is filled in, only one image will be produced."/>
+             </property>
+             <property name="whatsThis">
+              <string/>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QLineEdit" name="leSingleImage">
-               <property name="statusTip">
-                <string extracomment="When Single file is filled in, only one image will be produced."/>
-               </property>
-               <property name="whatsThis">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnClear">
-               <property name="text">
-                <string>Clear</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_6">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnffmpeg">
-               <property name="text">
-                <string>Run only  'FFmpeg' </string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QPushButton" name="btnClear">
+             <property name="text">
+              <string>Clear</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnffmpeg">
+             <property name="text">
+              <string>Run only  'FFmpeg' </string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>(*)When 'Single image' is filled in, only one image will be produced.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QLabel" name="label_6">
-           <property name="font">
-            <font>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>(*)When 'Single image' is filled in, only one image will be produced.</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
+          <widget class="QListWidget" name="lwTraffic"/>
          </item>
         </layout>
        </item>
       </layout>
-     </item>
-     <item row="1" column="0">
-      <widget class="QWidget" name="widget" native="true"/>
-     </item>
-     <item row="1" column="1">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>

@@ -143,6 +143,12 @@ SegmentListGeostationary::SegmentListGeostationary(QObject *parent, int geoindex
     this->bActiveSegmentList = false;
     this->bisRSS = false;
     this->SetupContrastStretch( 0, 0, 1023, 255);
+
+    nbr_lines_MTG << 278 << 278 << 279 << 278 << 279 << 278 << 278 << 279 << 278 << 279;
+    nbr_lines_MTG << 278 << 278 << 279 << 278 << 279 << 278 << 278 << 279 << 278 << 279;
+    nbr_lines_MTG << 278 << 278 << 279 << 278 << 279 << 298 << 298 << 300 << 277 << 258;
+    nbr_lines_MTG << 258 << 259 << 279 << 278 << 279 << 278 << 278 << 279 << 278 << 279;
+
 }
 
 eGeoSatellite SegmentListGeostationary::getGeoSatellite()
@@ -2471,7 +2477,7 @@ void SegmentListGeostationary::concurrentReadFilelistHimawari(SegmentListGeostat
     delete [] pixels;
 }
 
-//No use of QtConcurrent
+        //No use of QtConcurrent
 void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 {
     QString ncfile;
@@ -2635,13 +2641,13 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
                 if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_column)))
                     ERR(retval);
-                //if(retval == 0 && i == 0)
-                //{
+                if(retval == 0 && i == 0)
+                {
                 // qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
                 // qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
-                //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
-                //                end_position_column - start_position_column + 1);
-                //}
+                qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
+                                end_position_column - start_position_column + 1);
+                }
 
                 imageptrs->mtg_start_position_row[i][findex - 1] = start_position_row;
                 imageptrs->mtg_end_position_row[i][findex - 1] = end_position_row;
@@ -2678,6 +2684,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     }
 
+    for(int i = 0; i < 40 ; i++)
+    {
+       if(nbr_lines_MTG[i] != imageptrs->mtg_nbr_of_rows[0][i])
+           qDebug() << "===> imageptrs->mtg_nbr_of_rows != nbr_linesMTG";
+    }
     //    auto callbackMethod = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
     //    QtConcurrent::blockingMap(vec, callbackMethod);
 

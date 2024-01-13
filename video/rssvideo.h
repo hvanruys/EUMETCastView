@@ -10,6 +10,13 @@
 #include "xmlvideoreader.h"
 #include "generalverticalperspective.h"
 
+#ifdef _WIN32
+#include <hdf5.h>
+#else
+#include <hdf5.h>
+#endif
+#include <netcdf.h>
+
 class GeneralVerticalPerspective;
 
 class RSSVideo : public QObject
@@ -21,6 +28,7 @@ public:
     ~RSSVideo();
     void compileImage(QString date, QString path, int imagenbr);
     void compileImagesInBetween(QStringList datelist, QStringList pathlist);
+    void compileImageMTG(QString date, QString path, int imagenbr);
 
     static void doCompileImage(RSSVideo *rv, QString date, QString path, int i);
     QVector<QString> getDateVectorFromDir();
@@ -42,6 +50,8 @@ private:
     //void ComposeSegmentImageXRIT(QString filepath, quint16 *ptrRed, quint16 *ptrGreen, quint16 *ptrBlue, quint16 *ptrHRV);
     void ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imvisir, QString date, int imagenbr);
     void ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
+                    int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr);
+    void ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
                     int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr);
     void ComposeHRVFull(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
                         int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla);

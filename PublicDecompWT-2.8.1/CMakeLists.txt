@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(xRITDecompressProject VERSION 2.8.1)
 
@@ -12,6 +12,9 @@ target_compile_options(my_compiler_flags INTERFACE
   "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-O2;-Wno-conversion-null;-Wno-pragmas;>>"
   "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>"
 )
+
+include(CMakePrintHelpers)
+cmake_print_variables(PROJECT_SOURCE_DIR)
 
 
 add_subdirectory(DISE)

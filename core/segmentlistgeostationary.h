@@ -191,17 +191,8 @@ private:
     float *vaa;		/* image of viewing azimuth angle  (degrees: 0.0 -- 360.0) */
     QString tex;
     int satid;
-//    quint16 total_number_of_rows[3];
-//    quint16 total_number_of_columns[3];
 
-//    quint16 start_position_row[3][40];
-//    quint16 end_position_row[3][40];
-//    quint16 start_position_column[3][40];
-//    quint16 end_position_column[3][40];
-
-
-
-
+    QVector<int> nbr_lines_MTG;
 
 
 signals:

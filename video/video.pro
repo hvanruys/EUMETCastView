@@ -13,7 +13,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-unix:TARGET = ../deployEUMETCastView/EUMETCastVideo
+#unix:TARGET = ../deployEUMETCastView/EUMETCastVideo
 
 SOURCES += main.cpp \
     generalverticalperspective.cpp \
@@ -45,15 +45,10 @@ HEADERS += \
 
 
 
-unix:INCLUDEPATH += ../EUMETCastView/meteosatlib
+unix:INCLUDEPATH += ../meteosatlib ../QSgp4
 #unix:LIBS += -lpthread -lz -lfreeimage
-unix:LIBS += -L$$_PRO_FILE_PWD_/../EUMETCastView/libs/linux_gplusplus/release -lmeteosat -lbz2 -lhdf5_serial -larchive
+unix:LIBS += -L$$PWD/../libs -lmeteosatlib -lbz2 -lhdf5_serial -larchive -lQSgp4
 #unix:LIBS += -L/usr/lib/x86_64-linux-gnu/ -lnetcdf
-unix:LIBS += -L$$_PRO_FILE_PWD_/../EUMETCastView/PublicDecompWT_2.7.2-master/DISE -lDISE
-unix:LIBS += -L$$_PRO_FILE_PWD_/../EUMETCastView/PublicDecompWT_2.7.2-master/COMP/JPEG/Src -lJPEG
-unix:LIBS += -L$$_PRO_FILE_PWD_/../EUMETCastView/PublicDecompWT_2.7.2-master/COMP/WT/Src -lWT
-unix:LIBS += -L$$_PRO_FILE_PWD_/../EUMETCastView/PublicDecompWT_2.7.2-master/COMP/T4/Src -lT4
-unix:LIBS += -L$$_PRO_FILE_PWD_/../EUMETCastView/PublicDecompWT_2.7.2-master/COMP/Src -lCOMP
+unix:LIBS += -L$$PWD/../libs -lDISE -lJPEG -lWT -lT4 -lCOMP
 
-RESOURCES += \
-    xml.qrc
+

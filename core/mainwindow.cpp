@@ -310,6 +310,12 @@ MainWindow::MainWindow(QWidget *parent) :
     if(!QFile::exists("weather.txt"))
         formephem->downloadTLE();
 
+    qDebug() << "DesktopLoacation     = " << QStandardPaths::standardLocations((QStandardPaths::DesktopLocation));
+    qDebug() << "DocumentsLoacation   = " << QStandardPaths::standardLocations((QStandardPaths::DocumentsLocation));
+    qDebug() << "FontsLocation        = " << QStandardPaths::standardLocations((QStandardPaths::FontsLocation));
+    qDebug() << "ApplicationsLocation = " << QStandardPaths::standardLocations((QStandardPaths::ApplicationsLocation));
+    qDebug() << "RuntimeLocation      = " << QStandardPaths::standardLocations((QStandardPaths::RuntimeLocation));
+
 
 
 }
