@@ -261,7 +261,7 @@ bool QSgp4::sgp4init(const double epoch , QTle::eOperationmode opsmode)
         m_tle.x7thm1  = 7.0 * cosio2 - 1.0;
 
         /* --------------- deep space initialization ------------- */
-        if ((2*PI / m_tle.no) >= 225.0)
+        if ((2*PIE / m_tle.no) >= 225.0)
         {
             m_tle.method = 'd';
             m_tle.isimp  = 1;
@@ -882,7 +882,7 @@ void QSgp4::dpper
             // nodep used without a trigonometric function ahead
             if ((nodep < 0.0) && (m_tle.operationmode == QTle::opsmode_afspc_code))
                 nodep = nodep + TWOPI;
-            if (fabs(xnoh - nodep) > PI)
+            if (fabs(xnoh - nodep) > PIE)
             {
                 if (nodep < xnoh)
                     nodep = nodep + TWOPI;
@@ -1017,7 +1017,7 @@ void QSgp4::dsinit()
      sghs =  ss4 * zns * (sz31 + sz33 - 6.0);
      shs  = -zns * ss2 * (sz21 + sz23);
      // sgp4fix for 180 deg incl
-     if ((inclm < 5.2359877e-2) || (inclm > PI - 5.2359877e-2))
+     if ((inclm < 5.2359877e-2) || (inclm > PIE - 5.2359877e-2))
        shs = 0.0;
      if (sinim != 0.0)
        shs = shs / sinim;
@@ -1030,7 +1030,7 @@ void QSgp4::dsinit()
      sghl = s4 * znl * (z31 + z33 - 6.0);
      shll = -znl * s2 * (z21 + z23);
      // sgp4fix for 180 deg incl
-     if ((inclm < 5.2359877e-2) || (inclm > PI - 5.2359877e-2))
+     if ((inclm < 5.2359877e-2) || (inclm > PIE - 5.2359877e-2))
          shll = 0.0;
      m_tle.domdt = sgs + sghl;
      m_tle.dnodt = shs;
@@ -1408,8 +1408,8 @@ bool QSgp4::getPosition(double tsince, QEci &eci )
          if (xincp < 0.0)
            {
              xincp  = -xincp;
-             nodep = nodep + PI;
-             argpp  = argpp - PI;
+             nodep = nodep + PIE;
+             argpp  = argpp - PIE;
            }
          if ((ep < 0.0 ) || ( ep > 1.0))
            {

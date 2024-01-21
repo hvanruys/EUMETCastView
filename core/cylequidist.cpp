@@ -114,8 +114,8 @@ CylEquiDist::height()
 bool CylEquiDist::sphericalToPixel(double lon, double lat, int &x, int &y)
 {
 
-  if (lon > PI) lon -= TWOPI;
-  else if (lon < -PI) lon += TWOPI;
+  if (lon > PIE) lon -= TWOPI;
+  else if (lon < -PIE) lon += TWOPI;
 
   x = (int) ((lon - start_lon)/del_lon + 0.5);
 

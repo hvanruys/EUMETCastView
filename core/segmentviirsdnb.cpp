@@ -431,14 +431,14 @@ void SegmentVIIRSDNB::ComposeProjection(eProjections proj, int histogrammethod, 
 
                 if(proj == LCC) //Lambert
                 {
-                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y);
                     }
                 }
                 else if(proj == GVP) // General Vertical Perspecitve
                 {
-                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y);
                     }
@@ -446,14 +446,14 @@ void SegmentVIIRSDNB::ComposeProjection(eProjections proj, int histogrammethod, 
                 }
                 else if(proj == SG) // Stereographic
                 {
-                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y);
                     }
                 }
                 else if(proj == OM) // Oblique Mercator
                 {
-                    if(imageptrs->om->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->om->map_forward(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y);
                     }
@@ -520,7 +520,7 @@ void SegmentVIIRSDNB::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 
     for (int pix = 0 ; pix < earthviews; pix+=2)
     {
-        sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, posx, posy, devwidth, devheight );
+        sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + pix] * PIE/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + pix] * PIE/180.0, posx, posy, devwidth, devheight );
         rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
         fb_painter.setPen(rgb);
         fb_painter.drawPoint( posx , posy );
@@ -1236,14 +1236,14 @@ void SegmentVIIRSDNB::interpolateLonLatViaVector(int itrack, int indexfrom, int 
     int zscan = TiePointZoneSizeScan[igroupscan];
     int ptpzscan = Ptpzscan[indexfrom];
 
-    float lat_A_rad = lat_A * PI / 180.0;
-    float lon_A_rad = lon_A * PI / 180.0;
-    float lat_B_rad = lat_B * PI / 180.0;
-    float lon_B_rad = lon_B * PI / 180.0;
-    float lat_C_rad = lat_C * PI / 180.0;
-    float lon_C_rad = lon_C * PI / 180.0;
-    float lat_D_rad = lat_D * PI / 180.0;
-    float lon_D_rad = lon_D * PI / 180.0;
+    float lat_A_rad = lat_A * PIE / 180.0;
+    float lon_A_rad = lon_A * PIE / 180.0;
+    float lat_B_rad = lat_B * PIE / 180.0;
+    float lon_B_rad = lon_B * PIE / 180.0;
+    float lat_C_rad = lat_C * PIE / 180.0;
+    float lon_C_rad = lon_C * PIE / 180.0;
+    float lat_D_rad = lat_D * PIE / 180.0;
+    float lon_D_rad = lon_D * PIE / 180.0;
 
     float x_A_unit = cos(lat_A_rad) * cos(lon_A_rad);
     float y_A_unit = cos(lat_A_rad) * sin(lon_A_rad);
@@ -1286,8 +1286,8 @@ void SegmentVIIRSDNB::interpolateLonLatViaVector(int itrack, int indexfrom, int 
             y = (1 - atrack) * y1 + atrack * y2;
             z = (1 - atrack) * z1 + atrack * z2;
 
-            lon_deg = atan2(y, x) * 180.0/PI;
-            lat_deg = atan2(z, sqrt(x * x + y * y)) * 180.0/PI;
+            lon_deg = atan2(y, x) * 180.0/PIE;
+            lat_deg = atan2(z, sqrt(x * x + y * y)) * 180.0/PIE;
 
             geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = lat_deg;
             geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = lon_deg;
@@ -1323,14 +1323,14 @@ void SegmentVIIRSDNB::interpolateSolarViaVector(int itrack, int indexfrom, int i
     int zscan = TiePointZoneSizeScan[igroupscan];
     int ptpzscan = Ptpzscan[indexfrom];
 
-    float solar_azimuth_A_rad = solar_azimuth_A * PI / 180.0;
-    float solar_zenith_A_rad = solar_zenith_A * PI / 180.0;
-    float solar_azimuth_B_rad = solar_azimuth_B * PI / 180.0;
-    float solar_zenith_B_rad = solar_zenith_B * PI / 180.0;
-    float solar_azimuth_C_rad = solar_azimuth_C * PI / 180.0;
-    float solar_zenith_C_rad = solar_zenith_C * PI / 180.0;
-    float solar_azimuth_D_rad = solar_azimuth_D * PI / 180.0;
-    float solar_zenith_D_rad = solar_zenith_D * PI / 180.0;
+    float solar_azimuth_A_rad = solar_azimuth_A * PIE / 180.0;
+    float solar_zenith_A_rad = solar_zenith_A * PIE / 180.0;
+    float solar_azimuth_B_rad = solar_azimuth_B * PIE / 180.0;
+    float solar_zenith_B_rad = solar_zenith_B * PIE / 180.0;
+    float solar_azimuth_C_rad = solar_azimuth_C * PIE / 180.0;
+    float solar_zenith_C_rad = solar_zenith_C * PIE / 180.0;
+    float solar_azimuth_D_rad = solar_azimuth_D * PIE / 180.0;
+    float solar_zenith_D_rad = solar_zenith_D * PIE / 180.0;
 
     float x_A_unit = sin(solar_zenith_A_rad) * sin(solar_azimuth_A_rad);
     float y_A_unit = sin(solar_zenith_A_rad) * cos(solar_azimuth_A_rad);
@@ -1450,8 +1450,8 @@ void SegmentVIIRSDNB::interpolateSolarViaVector(int itrack, int indexfrom, int i
             float y_pc = m01 * x_ec + m11 * y_ec + m21 * z_ec;
             float z_pc = m02 * x_ec + m12 * y_ec + m22 * z_ec;
 
-            azimuth_deg = atan2(x_pc, y_pc) * 180.0/PI;
-            zenith_deg = (PI/2 - atan2(z_pc, sqrt(x_pc * x_pc + y_pc * y_pc))) * 180.0/PI;
+            azimuth_deg = atan2(x_pc, y_pc) * 180.0/PIE;
+            zenith_deg = (PIE/2 - atan2(z_pc, sqrt(x_pc * x_pc + y_pc * y_pc))) * 180.0/PIE;
 
             solar_azimuth[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = azimuth_deg;
             solar_zenith[((itrack * 16) + relt) * earth_views_per_scanline + ptpzscan + rels] = zenith_deg;

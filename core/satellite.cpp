@@ -131,11 +131,11 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
     //Eci Veci = Vorbit->FindPosition(tsince1-tdiff);
     //Vgeo = Veci.ToGeodetic();
 
-    if (qgeo.longitude < PI)
-        posx = (int)(devwidth * ( qgeo.longitude + PI ) / TWOPI);
+    if (qgeo.longitude < PIE)
+        posx = (int)(devwidth * ( qgeo.longitude + PIE ) / TWOPI);
     else
-        posx = (int)(devwidth * ( qgeo.longitude - PI ) / TWOPI);
-    posy = (int)( devheight * ( PIO2 - qgeo.latitude ) / PI);
+        posx = (int)(devwidth * ( qgeo.longitude - PIE ) / TWOPI);
+    posy = (int)( devheight * ( PIO2 - qgeo.latitude ) / PIE);
     posx1=posx;
     posy1=posy;
     save_posx = posx;
@@ -151,12 +151,12 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
             qsgp4->getPosition(id, qeci);
             qgeo = qeci.ToGeo();
 
-            if (qgeo.longitude < PI)
-                posx = (int)(devwidth * ( qgeo.longitude + PI ) / TWOPI);
+            if (qgeo.longitude < PIE)
+                posx = (int)(devwidth * ( qgeo.longitude + PIE ) / TWOPI);
             else
-                posx = (int)(devwidth * ( qgeo.longitude - PI ) / TWOPI);
+                posx = (int)(devwidth * ( qgeo.longitude - PIE ) / TWOPI);
 
-            posy = (int)(devheight * ( PIO2 - qgeo.latitude ) / PI);
+            posy = (int)(devheight * ( PIO2 - qgeo.latitude ) / PIE);
 
 
             if (((save_posx >= devwidth*0.9) && (posx < devwidth*0.1)) ||
@@ -197,11 +197,11 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
             //orbit->getPosition(id, &eci);
             //geo = eci.toGeo();
 
-            if (qgeo.longitude < PI)
-                posx = (int)(devwidth * ( qgeo.longitude + PI ) / TWOPI);
+            if (qgeo.longitude < PIE)
+                posx = (int)(devwidth * ( qgeo.longitude + PIE ) / TWOPI);
             else
-                posx = (int)(devwidth * ( qgeo.longitude - PI ) / TWOPI);
-            posy = (int)(devheight * ( PIO2 - qgeo.latitude ) / PI);
+                posx = (int)(devwidth * ( qgeo.longitude - PIE ) / TWOPI);
+            posy = (int)(devheight * ( PIO2 - qgeo.latitude ) / PIE);
 
             if (((save_posx >= devwidth*0.9) && (posx < devwidth*0.1)) ||
                 ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
@@ -232,12 +232,12 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
     qsgp4->getPosition(tsince, qeci);
     qgeo = qeci.ToGeo();
 
-    if (qgeo.longitude < PI)
-        posx = (int)(devwidth * ( qgeo.longitude + PI ) / TWOPI);
+    if (qgeo.longitude < PIE)
+        posx = (int)(devwidth * ( qgeo.longitude + PIE ) / TWOPI);
     else
-        posx = (int)(devwidth * ( qgeo.longitude - PI) / TWOPI);
+        posx = (int)(devwidth * ( qgeo.longitude - PIE) / TWOPI);
 
-    posy = (int)( devheight * ( PIO2 - qgeo.latitude ) / PI);
+    posy = (int)( devheight * ( PIO2 - qgeo.latitude ) / PIE);
 
     equidistposition.setX(posx);
     equidistposition.setY(posy);
@@ -263,11 +263,11 @@ void Satellite::RenderSatellite(QPainter *painter, bool trackon)
         //orbit->getPosition(id, &eci);
         //geo = eci.toGeo();
 
-        if (qgeo.longitude < PI)
-            posx = (int)(devwidth * ( qgeo.longitude + PI ) / TWOPI);
+        if (qgeo.longitude < PIE)
+            posx = (int)(devwidth * ( qgeo.longitude + PIE ) / TWOPI);
         else
-            posx = (int)(devwidth * ( qgeo.longitude - PI ) / TWOPI);
-        posy = (int)(devheight * ( PIO2 - qgeo.latitude ) / PI);
+            posx = (int)(devwidth * ( qgeo.longitude - PIE ) / TWOPI);
+        posy = (int)(devheight * ( PIO2 - qgeo.latitude ) / PIE);
         painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
     }
 }
@@ -440,30 +440,30 @@ void Satellite::showSatHorizon(double lon, double lat, double geo_alt, QPainter 
 
     painter->setPen(col);
 
-    if (lon < PI)
-        posx = (int)(devwidth * ( lon + PI) / TWOPI);
+    if (lon < PIE)
+        posx = (int)(devwidth * ( lon + PIE) / TWOPI);
     else
-        posx = (int)(devwidth * ( lon - PI) / TWOPI);
+        posx = (int)(devwidth * ( lon - PIE) / TWOPI);
 
-    posy = (int)( devheight * ( PIO2 - lat ) / PI);
+    posy = (int)( devheight * ( PIO2 - lat ) / PIE);
     painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
 
     double wcirkel = ArcCos( XKMPER / ( XKMPER + geo_alt ));
     //double wcirkel = ((2 * XKMPER * geo_alt  +  geo_alt * geo_alt) / ( XKMPER + geo_alt))/XKMPER;
     //double wcirkel = (XKMPER * sqrt(2 * XKMPER * geo_alt  +  geo_alt * geo_alt) / ( XKMPER + geo_alt))/XKMPER;
 
-    if (lat + wcirkel > PI/2)
+    if (lat + wcirkel > PIE/2)
     {
-        posy = (int)( devheight * (lat + wcirkel - PIO2) / PI);
+        posy = (int)( devheight * (lat + wcirkel - PIO2) / PIE);
         posx = (int)( devwidth * (lon)/TWOPI);
     }
     else
     {
-        posy = (int)( devheight * (PIO2 - (lat + wcirkel)) / PI);
-        if (lon < PI)
-            posx = (int)( devwidth * (lon + PI)/TWOPI);
+        posy = (int)( devheight * (PIO2 - (lat + wcirkel)) / PIE);
+        if (lon < PIE)
+            posx = (int)( devwidth * (lon + PIE)/TWOPI);
         else
-            posx = (int)( devwidth * (lon - PI)/TWOPI);
+            posx = (int)( devwidth * (lon - PIE)/TWOPI);
     }
 
     //		painter->moveTo( posx, posy );
@@ -480,12 +480,12 @@ void Satellite::showSatHorizon(double lon, double lat, double geo_alt, QPainter 
         if (lon + gamma < 0)
             gamma = gamma + TWOPI;
 
-        if (lon + gamma < PI)
-            posx = (int)(devwidth * ( lon + gamma + PI) / TWOPI);
+        if (lon + gamma < PIE)
+            posx = (int)(devwidth * ( lon + gamma + PIE) / TWOPI);
         else
-            posx = (int)(devwidth * ( lon + gamma - PI) / TWOPI);
+            posx = (int)(devwidth * ( lon + gamma - PIE) / TWOPI);
 
-        posy = (int)(devheight * ( aa ) / PI);
+        posy = (int)(devheight * ( aa ) / PIE);
         //			currposx = painter->pos();
 
         if ( abs(posx1 - posx) > devwidth*0.2)
@@ -811,29 +811,29 @@ void SatelliteList::showHorizon(double lon, double lat, double geo_alt, QPainter
     painter->setBrush(Qt::white);
 
 
-    if (lon < PI)
-        posx = (int)(devwidth * ( lon + PI) / TWOPI);
+    if (lon < PIE)
+        posx = (int)(devwidth * ( lon + PIE) / TWOPI);
     else
-        posx = (int)(devwidth * ( lon - PI) / TWOPI);
-    posy = (int)( devheight * ( (PI/2) - lat ) / PI);
+        posx = (int)(devwidth * ( lon - PIE) / TWOPI);
+    posy = (int)( devheight * ( (PIE/2) - lat ) / PIE);
 
     painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
 
     double wcirkel = ArcCos( (EARTH_DIA/2) / ( (EARTH_DIA/2) + geo_alt ));
 
 
-    if (lat + wcirkel > (PI/2))
+    if (lat + wcirkel > (PIE/2))
     {
-        posy = (int)( devheight * (lat + wcirkel - PI/2) / PI);
+        posy = (int)( devheight * (lat + wcirkel - PIE/2) / PIE);
         posx = (int)( devwidth * (lon)/TWOPI);
     }
     else
     {
-        posy = (int)( devheight * (PI/2 - (lat + wcirkel)) / PI);
-        if (lon < PI)
-            posx = (int)( devwidth * (lon + PI)/TWOPI);
+        posy = (int)( devheight * (PIE/2 - (lat + wcirkel)) / PIE);
+        if (lon < PIE)
+            posx = (int)( devwidth * (lon + PIE)/TWOPI);
         else
-            posx = (int)( devwidth * (lon - PI)/TWOPI);
+            posx = (int)( devwidth * (lon - PIE)/TWOPI);
     }
 
     //  painter->moveTo( posx, posy );
@@ -844,13 +844,13 @@ void SatelliteList::showHorizon(double lon, double lat, double geo_alt, QPainter
     double coswcirkel = cos(wcirkel);
     double lat_cirkel, lon_cirkel, dlon;
 
-    for (alpha=0; alpha <= TWOPI + 0.01; alpha += (PI/2)/20)
+    for (alpha=0; alpha <= TWOPI + 0.01; alpha += (PIE/2)/20)
     {
 
         // lat, lon voor een koers vanuit pt 1 ( tclplus ) op een afstand wcirkel
         lat_cirkel = asin(sin(lat)*cos(wcirkel)+cos(lat)*sin(wcirkel)*cos(alpha));
         dlon=atan2(sin(alpha)*sin(wcirkel)*cos(lat), cos(wcirkel)-sin(lat)*sin(lat_cirkel));
-        lon_cirkel=FMod2p(lon-dlon+PI)-PI;
+        lon_cirkel=FMod2p(lon-dlon+PIE)-PIE;
 
         sphericalToPixel( lon_cirkel, lat_cirkel, posx, posy, devwidth, devheight );
         //painter->drawEllipse( posx-2, posy-2, 4, 4 );

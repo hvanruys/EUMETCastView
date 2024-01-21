@@ -823,14 +823,14 @@ void SegmentVIIRSM::interpolateLonLatViaVector(int itrack, int iscan, float lon_
     float lon, lat;
 
     // Earth Centred vectors
-    float lat_A_rad = lat_A * PI / 180.0;
-    float lon_A_rad = lon_A * PI / 180.0;
-    float lat_B_rad = lat_B * PI / 180.0;
-    float lon_B_rad = lon_B * PI / 180.0;
-    float lat_C_rad = lat_C * PI / 180.0;
-    float lon_C_rad = lon_C * PI / 180.0;
-    float lat_D_rad = lat_D * PI / 180.0;
-    float lon_D_rad = lon_D * PI / 180.0;
+    float lat_A_rad = lat_A * PIE / 180.0;
+    float lon_A_rad = lon_A * PIE / 180.0;
+    float lat_B_rad = lat_B * PIE / 180.0;
+    float lon_B_rad = lon_B * PIE / 180.0;
+    float lat_C_rad = lat_C * PIE / 180.0;
+    float lon_C_rad = lon_C * PIE / 180.0;
+    float lat_D_rad = lat_D * PIE / 180.0;
+    float lon_D_rad = lon_D * PIE / 180.0;
 
     float x_A_ec = cos(lat_A_rad) * cos(lon_A_rad);
     float y_A_ec = cos(lat_A_rad) * sin(lon_A_rad);
@@ -873,8 +873,8 @@ void SegmentVIIRSM::interpolateLonLatViaVector(int itrack, int iscan, float lon_
             y = (1 - atrack) * y1 + atrack * y2;
             z = (1 - atrack) * z1 + atrack * z2;
 
-            lon_deg = atan2(y, x) * 180.0/PI;
-            lat_deg = atan2(z, sqrt(x * x + y * y)) * 180.0/PI;
+            lon_deg = atan2(y, x) * 180.0/PIE;
+            lat_deg = atan2(z, sqrt(x * x + y * y)) * 180.0/PIE;
 
             geolatitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lat_deg;
             geolongitude[((itrack * 16) + relt) * earth_views_per_scanline + (iscan * 16) + rels] = lon_deg;
@@ -1129,14 +1129,14 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj, int histogrammethod, bo
 
                 if(proj == LCC) //Lambert
                 {
-                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
                 }
                 else if(proj == GVP) // General Vertical Perspecitve
                 {
-                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
@@ -1144,14 +1144,14 @@ void SegmentVIIRSM::ComposeProjection(eProjections proj, int histogrammethod, bo
                 }
                 else if(proj == SG) // Stereographic
                 {
-                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
                 }
                 else if(proj == OM) // Oblique Mercator
                 {
-                    if(imageptrs->om->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->om->map_forward(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
@@ -1453,7 +1453,7 @@ void SegmentVIIRSM::RenderSegmentlineInTextureVIIRS( int nbrLine, QRgb *row )
 
         if( valok[0] && (color ? valok[1] && valok[2] : true))
         {
-            sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + pix] * PI/180.0, posx, posy, devwidth, devheight );
+            sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + pix] * PIE/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + pix] * PIE/180.0, posx, posy, devwidth, devheight );
             rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
             fb_painter.setPen(rgb);
             fb_painter.drawPoint( posx , posy );

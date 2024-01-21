@@ -22,9 +22,9 @@
 #include <QPixmap>
 #include <QDate>
 
-#define NEW_NOAA_SWATH 55.37 * PI / 180.0
+#define NEW_NOAA_SWATH 55.37 * PIE / 180.0
 //#define FOV_STEP_ANGLE 0.0541 * PI / 180.0
-#define FOV_STEP_ANGLE 0.0505 * PI / 180.0
+#define FOV_STEP_ANGLE 0.0505 * PIE / 180.0
 
 extern Options opts;
 extern SegmentImage *imageptrs;
@@ -79,8 +79,8 @@ SegmentNoaa::SegmentNoaa(QFile *filesegment, QObject *parent) :
 
     lon_start_rad = geo.longitude;
     lat_start_rad = geo.latitude;
-    lon_start_deg = lon_start_rad * 180.0 / PI;
-    lat_start_deg = lat_start_rad * 180.0 /PI;
+    lon_start_deg = lon_start_rad * 180.0 / PIE;
+    lat_start_deg = lat_start_rad * 180.0 /PIE;
 
     NbrOfLines = 360;
 
@@ -352,7 +352,7 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, int nbrLine, 
     double lonpos, latpos, dlon, tc;
     double lonpos1, latpos1, lonpos2, latpos2, dlon1, dlon2;
 
-    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PI);
+    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PIE);
 
     //sindeltax = sin(delta);
     //dx = r * cos(delta) - sqrt( this->qtle->radiusearthkm * this->qtle->radiusearthkm - r * r * sindeltax * sindeltax );
@@ -377,11 +377,11 @@ void SegmentNoaa::RenderSegmentlineInProjectionCirc(QRgb *row_col, int nbrLine, 
 
         latpos1 = asin(sin(lat_first)*cos(psix1)+cos(lat_first)*sin(psix1)*cos(tc));
         dlon1=atan2(sin(tc)*sin(psix1)*cos(lat_first),cos(psix1)-sin(lat_first)*sin(latpos1));
-        lonpos1=fmod( lon_first-dlon1 + PI,2*PI )-PI;
+        lonpos1=fmod( lon_first-dlon1 + PIE,2*PIE )-PIE;
 
         latpos2 = asin(sin(lat_first)*cos(psix2)+cos(lat_first)*sin(psix2)*cos(tc));
         dlon2=atan2(sin(tc)*sin(psix2)*cos(lat_first),cos(psix2)-sin(lat_first)*sin(latpos2));
-        lonpos2=fmod( lon_first-dlon2 + PI,2*PI )-PI;
+        lonpos2=fmod( lon_first-dlon2 + PIE,2*PIE )-PIE;
 
         if(proj == LCC)
         {

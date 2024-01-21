@@ -164,7 +164,7 @@ double snu_solar_distance_factor2(double jday)
 {
      double t;
 
-     t = (2. * PI * jday) / 365.;
+     t = (2. * M_PI * jday) / 365.;
 
      return 1.000110 +
             0.034221*cos(t)    + 0.001280*sin(t) +

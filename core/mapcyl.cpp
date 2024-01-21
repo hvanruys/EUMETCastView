@@ -380,8 +380,8 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
     down = true;
     map_x = e->x();
     map_y = e->y();
-    map_lon = (double)((TWOPI*e->x()-PI*pmScaled_res.width())/pmScaled_res.width());
-    map_lat = (double)(((PI/2)*pmScaled_res.height()-PI*e->y())/pmScaled_res.height());
+    map_lon = (double)((TWOPI*e->x()-PIE*pmScaled_res.width())/pmScaled_res.width());
+    map_lat = (double)(((PIE/2)*pmScaled_res.height()-PIE*e->y())/pmScaled_res.height());
 
     double lon = rad2deg(map_lon);
     double lat = rad2deg(map_lat);
@@ -436,8 +436,8 @@ void MapFieldCyl::mouseReleaseEvent( QMouseEvent * )
 void MapFieldCyl::mouseMoveEvent( QMouseEvent *e )
 {
 
-  map_lon = (double)((TWOPI*e->x()-PI*pmScaled_res.width())/pmScaled_res.width());
-  map_lat = (double)(((PI/2)*pmScaled_res.height()-PI*e->y())/pmScaled_res.height());
+  map_lon = (double)((TWOPI*e->x()-PIE*pmScaled_res.width())/pmScaled_res.width());
+  map_lat = (double)(((PIE/2)*pmScaled_res.height()-PIE*e->y())/pmScaled_res.height());
 
 }
 
@@ -539,40 +539,40 @@ void MapFieldCyl::showTwilight(double sun_lon, double sun_lat, QPainter *painter
   int posx, posy;
   int posx1,posy1;
 
-  Xlon=PI;
+  Xlon=PIE;
 
   if (sun_lat<=0)
-    sunhor = AcTan( sin(sun_lon-(PI/2)-Xlon),1/tan((PI/2)-sun_lat) );
+    sunhor = AcTan( sin(sun_lon-(PIE/2)-Xlon),1/tan((PIE/2)-sun_lat) );
   else
-    sunhor = AcTan( sin(sun_lon-(PI/2)-Xlon),1/tan(sun_lat-(PI/2)) );
+    sunhor = AcTan( sin(sun_lon-(PIE/2)-Xlon),1/tan(sun_lat-(PIE/2)) );
 
-  if (Xlon < PI)
-    posx = (int)(pmScaled_res.width() * ( Xlon + PI) / TWOPI);
+  if (Xlon < PIE)
+    posx = (int)(pmScaled_res.width() * ( Xlon + PIE) / TWOPI);
   else
-    posx = (int)(pmScaled_res.width() * ( Xlon - PI) / TWOPI);
+    posx = (int)(pmScaled_res.width() * ( Xlon - PIE) / TWOPI);
   if (sun_lat<=0)
-    posy = (int)( pmScaled_res.height() * ( 3*(PI/2) - sunhor) / PI);
+    posy = (int)( pmScaled_res.height() * ( 3*(PIE/2) - sunhor) / PIE);
   else
-    posy = (int)( pmScaled_res.height() * ( sunhor - (PI/2) ) / PI);
+    posy = (int)( pmScaled_res.height() * ( sunhor - (PIE/2) ) / PIE);
 
   posx1 = posx;
   posy1 = posy;
 
-  for (Xlon=PI; Xlon < TWOPI; Xlon += (PI/2)/20)
+  for (Xlon=PIE; Xlon < TWOPI; Xlon += (PIE/2)/20)
   {
     if (sun_lat<=0)
-      sunhor = AcTan( sin(sun_lon-(PI/2)-Xlon),1/tan((PI/2)-sun_lat) );
+      sunhor = AcTan( sin(sun_lon-(PIE/2)-Xlon),1/tan((PIE/2)-sun_lat) );
     else
-      sunhor = AcTan( sin(sun_lon-(PI/2)-Xlon),1/tan(sun_lat-(PI/2)) );
+      sunhor = AcTan( sin(sun_lon-(PIE/2)-Xlon),1/tan(sun_lat-(PIE/2)) );
 
-    if (Xlon < PI)
-      posx = (int)(pmScaled_res.width() * ( Xlon + PI) / TWOPI);
+    if (Xlon < PIE)
+      posx = (int)(pmScaled_res.width() * ( Xlon + PIE) / TWOPI);
     else
-      posx = (int)(pmScaled_res.width() * ( Xlon - PI) / TWOPI);
+      posx = (int)(pmScaled_res.width() * ( Xlon - PIE) / TWOPI);
     if (sun_lat<=0)
-      posy = (int)( pmScaled_res.height() * ( 3*(PI/2) - sunhor) / PI);
+      posy = (int)( pmScaled_res.height() * ( 3*(PIE/2) - sunhor) / PIE);
     else
-      posy = (int)( pmScaled_res.height() * ( sunhor -(PI/2)) / PI);
+      posy = (int)( pmScaled_res.height() * ( sunhor -(PIE/2)) / PIE);
 
     painter->drawLine( posx1, posy1, posx, posy );
     posx1 = posx;
@@ -580,21 +580,21 @@ void MapFieldCyl::showTwilight(double sun_lon, double sun_lat, QPainter *painter
 
   }
 
-  for (Xlon=0; Xlon < PI; Xlon += (PI/2)/20)
+  for (Xlon=0; Xlon < PIE; Xlon += (PIE/2)/20)
   {
     if (sun_lat<=0)
-      sunhor = AcTan( sin(sun_lon-(PI/2)-Xlon),1/tan((PI/2)-sun_lat) );
+      sunhor = AcTan( sin(sun_lon-(PIE/2)-Xlon),1/tan((PIE/2)-sun_lat) );
     else
-      sunhor = AcTan( sin(sun_lon-(PI/2)-Xlon),1/tan(sun_lat-(PI/2)) );
+      sunhor = AcTan( sin(sun_lon-(PIE/2)-Xlon),1/tan(sun_lat-(PIE/2)) );
 
-    if (Xlon < PI)
-      posx = (int)(pmScaled_res.width() * ( Xlon + PI) / TWOPI);
+    if (Xlon < PIE)
+      posx = (int)(pmScaled_res.width() * ( Xlon + PIE) / TWOPI);
     else
-      posx = (int)(pmScaled_res.width() * ( Xlon - PI) / TWOPI);
+      posx = (int)(pmScaled_res.width() * ( Xlon - PIE) / TWOPI);
     if (sun_lat<=0)
-      posy = (int)( pmScaled_res.height() * ( 3*(PI/2) - sunhor) / PI);
+      posy = (int)( pmScaled_res.height() * ( 3*(PIE/2) - sunhor) / PIE);
     else
-      posy = (int)( pmScaled_res.height() * ( sunhor-(PI/2)) / PI);
+      posy = (int)( pmScaled_res.height() * ( sunhor-(PIE/2)) / PIE);
 
     painter->drawLine( posx1, posy1, posx, posy );
     posx1 = posx;

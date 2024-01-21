@@ -120,9 +120,9 @@ void Segment::CalculateCornerPoints()
         //qDebug() << QString("minutes_since_state_vector = %1 yaw_steering_angle = %2").arg(minutes_since_state_vector).arg(yaw_steering_angle*180.0/PI);
 
         mat.setToIdentity();
-        mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
-        mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
-        mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+        mat.rotate(yaw_steering_angle * 180/PIE, d3pos);  // yaw
+        mat.rotate(roll_steering_angle * 180/PIE, d3vel); // roll
+        mat.rotate(pitch_steering_angle * 180/PIE, QVector3D::crossProduct(d3pos,d3vel)); // pitch
         d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
     }
     else
@@ -139,13 +139,13 @@ void Segment::CalculateCornerPoints()
 
     if(segtype == SEG_VIIRSM || segtype == SEG_VIIRSDNB || segtype == SEG_VIIRSMNOAA20 || segtype == SEG_VIIRSDNBNOAA20)
     {
-        delta1 = 56.28 * PI / 180.0;  // (in rad) for VIIRS
+        delta1 = 56.28 * PIE / 180.0;  // (in rad) for VIIRS
         delta2 = delta1;
     }
     else if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR || segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR)
     {
-        delta2 = 22.1 * PI / 180.0;  // see page 97 of Sentinel-3 User Handbook
-        delta1 = 46.5 * PI / 180.0;
+        delta2 = 22.1 * PIE / 180.0;  // see page 97 of Sentinel-3 User Handbook
+        delta1 = 46.5 * PIE / 180.0;
     }
     else
     {
@@ -204,9 +204,9 @@ void Segment::CalculateCornerPoints()
         double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
 
         mat.setToIdentity();
-        mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
-        mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
-        mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+        mat.rotate(yaw_steering_angle * 180/PIE, d3pos);  // yaw
+        mat.rotate(roll_steering_angle * 180/PIE, d3vel); // roll
+        mat.rotate(pitch_steering_angle * 180/PIE, QVector3D::crossProduct(d3pos,d3vel)); // pitch
         d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
     }
     else
@@ -294,9 +294,9 @@ void Segment::setupVector(double statevec, QSgp4Date sensing)
     double yaw_steering_angle = 0.068766 * cos(PSO) * (1 - yaw_factor * yaw_factor/3);
 
     mat.setToIdentity();
-    mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
-    mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
-    mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+    mat.rotate(yaw_steering_angle * 180/PIE, d3pos);  // yaw
+    mat.rotate(roll_steering_angle * 180/PIE, d3vel); // roll
+    mat.rotate(pitch_steering_angle * 180/PIE, QVector3D::crossProduct(d3pos,d3vel)); // pitch
     d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
 
     //d3scan = QVector3D::crossProduct(d3pos,d3vel);
@@ -307,13 +307,13 @@ void Segment::setupVector(double statevec, QSgp4Date sensing)
     if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
             segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR)
     {
-        delta2 = 23.0 * PI / 180.0;
-        delta1 = 47.0 * PI / 180.0;
+        delta2 = 23.0 * PIE / 180.0;
+        delta1 = 47.0 * PIE / 180.0;
     }
     else
     {
-        delta2 = 56.0 * PI / 180.0;
-        delta1 = 56.0 * PI / 180.0;
+        delta2 = 56.0 * PIE / 180.0;
+        delta1 = 56.0 * PIE / 180.0;
 
     }
 
@@ -488,15 +488,15 @@ void Segment::RenderSatPath(QPainter *painter, QColor color)
 void Segment::sphericalToPixel(double lon, double lat, int &x, int &y, int devwidth, int devheight)
 {
 
-    if (lon > PI) lon -= TWOPI;
-    else if (lon < -PI) lon += TWOPI;
+    if (lon > PIE) lon -= TWOPI;
+    else if (lon < -PIE) lon += TWOPI;
 
-    x = (int) ((lon - (-PI)) * devwidth/TWOPI + 0.5);
+    x = (int) ((lon - (-PIE)) * devwidth/TWOPI + 0.5);
 
     if (x >= devwidth) x -= devwidth;
     else if (x < 0) x += devwidth;
 
-    y = (int) ((PI/2 - lat) * devheight/PI + 0.5);
+    y = (int) ((PIE/2 - lat) * devheight/PIE + 0.5);
     if (y >= devheight) y = devheight - 1;
 
 }
@@ -508,17 +508,17 @@ void Segment::drawLineCyl(double lon1, double lat1, double lon2, double lat2, QP
     int devwidth = (painter->device())->width();
     int devheight = (painter->device())->height();
 
-    if (lon1 > PI) lon1 -= TWOPI;
-    else if (lon1 < -PI) lon1 += TWOPI;
-    if (lon2 > PI) lon2 -= TWOPI;
-    else if (lon2 < -PI) lon2 += TWOPI;
+    if (lon1 > PIE) lon1 -= TWOPI;
+    else if (lon1 < -PIE) lon1 += TWOPI;
+    if (lon2 > PIE) lon2 -= TWOPI;
+    else if (lon2 < -PIE) lon2 += TWOPI;
 
-    x1 = (int) ((lon1 - (-PI)) * devwidth/TWOPI + 0.5);
-    y1 = (int) ((PI/2 - lat1) * devheight/PI + 0.5);
+    x1 = (int) ((lon1 - (-PIE)) * devwidth/TWOPI + 0.5);
+    y1 = (int) ((PIE/2 - lat1) * devheight/PIE + 0.5);
     if (y1 >= devheight) y1 = devheight - 1;
 
-    x2 = (int) ((lon2 - (-PI)) * devwidth/TWOPI + 0.5);
-    y2 = (int) ((PI/2 - lat2) * devheight/PI + 0.5);
+    x2 = (int) ((lon2 - (-PIE)) * devwidth/TWOPI + 0.5);
+    y2 = (int) ((PIE/2 - lat2) * devheight/PIE + 0.5);
     if (y2 >= devheight) y2 = devheight - 1;
 
     double a, b, dy0;
@@ -771,9 +771,9 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
         //qDebug() << QString("yaw steering angle (degrees) = %1").arg(yaw_steering_angle * 180/PI);
 
         mat.setToIdentity();
-        mat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
-        mat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
-        mat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+        mat.rotate(yaw_steering_angle * 180/PIE, d3pos);  // yaw
+        mat.rotate(roll_steering_angle * 180/PIE, d3vel); // roll
+        mat.rotate(pitch_steering_angle * 180/PIE, QVector3D::crossProduct(d3pos,d3vel)); // pitch
         d3scan = mat * QVector3D::crossProduct(d3pos,d3vel);
     }
     else
@@ -833,7 +833,7 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
     double lonpos, latpos, dlon, tc;
     double lonpos1, latpos1, lonpos2, latpos2, dlon1, dlon2;
 
-    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PI);
+    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PIE);
 
     sindeltax = sin(delta);
     dx = r * cos(delta) - sqrt( XKMPER * XKMPER - r * r * sindeltax * sindeltax );
@@ -885,11 +885,11 @@ void Segment::RenderSegmentlineInTextureRad(int channel, double lat_first, doubl
 
         latpos1 = asin(sin(lat_first)*cos(psix1)+cos(lat_first)*sin(psix1)*cos(tc));
         dlon1=atan2(sin(tc)*sin(psix1)*cos(lat_first),cos(psix1)-sin(lat_first)*sin(latpos1));
-        lonpos1=fmod( lon_first-dlon1 + PI,2*PI )-PI;
+        lonpos1=fmod( lon_first-dlon1 + PIE,2*PIE )-PIE;
 
         latpos2 = asin(sin(lat_first)*cos(psix2)+cos(lat_first)*sin(psix2)*cos(tc));
         dlon2=atan2(sin(tc)*sin(psix2)*cos(lat_first),cos(psix2)-sin(lat_first)*sin(latpos2));
-        lonpos2=fmod( lon_first-dlon2 + PI,2*PI )-PI;
+        lonpos2=fmod( lon_first-dlon2 + PIE,2*PIE )-PIE;
 
         sphericalToPixel( lonpos1, latpos1, posx1, posy1, devwidth, devheight );
         rgb1.setRgb(qRed(row_col[earthviews+pix]), qGreen(row_col[earthviews+pix]), qBlue(row_col[earthviews+pix]));

@@ -50,8 +50,8 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
 
     image_width = imagewidth;
     image_height = imageheight;
-    lon_center = lonmapdeg*PI/180.0;
-    lat_center = latmapdeg*PI/180.0;
+    lon_center = lonmapdeg*PIE/180.0;
+    lat_center = latmapdeg*PIE/180.0;
     R = 6370997.0;
     p = 1.0 + heightmapkm*1000/R;
 
@@ -175,7 +175,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
             {
                 if(reader->satname == "MET_11" || reader->satname == "MET_10" || reader->satname == "MET_9" || reader->satname == "MET_8")
                 {
-                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, coff, loff, cfac, lfac, &col, &row) == 0)
+                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, coff, loff, cfac, lfac, &col, &row) == 0)
                     {
                         if( reader->bhrv == false)
                         {

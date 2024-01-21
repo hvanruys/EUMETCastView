@@ -33,16 +33,16 @@ double AcTan(const double sinx, const double cosx)
     if (cosx == 0.0)
     {
         if (sinx > 0.0)
-            ret = PI / 2.0;
+            ret = PIE / 2.0;
         else
-            ret = 3.0 * PI / 2.0;
+            ret = 3.0 * PIE / 2.0;
     }
     else
     {
         if (cosx > 0.0)
             ret = atan(sinx / cosx);
         else
-            ret = PI + atan(sinx / cosx);
+            ret = PIE + atan(sinx / cosx);
     }
 
     return ret;
@@ -51,14 +51,14 @@ double AcTan(const double sinx, const double cosx)
 //////////////////////////////////////////////////////////////////////////////
 double rad2deg(const double r)
 {
-    const double DEG_PER_RAD = 180.0 / PI;
+    const double DEG_PER_RAD = 180.0 / PIE;
     return r * DEG_PER_RAD;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 double deg2rad(const double d)
 {
-    const double RAD_PER_DEG = PI / 180.0;
+    const double RAD_PER_DEG = PIE / 180.0;
     return d * RAD_PER_DEG;
 }
 
@@ -66,7 +66,7 @@ double deg2rad(const double d)
 double
 ArcCos(double arg)
 {
-    return( (PI/2) - ArcSin(arg) );
+    return( (PIE/2) - ArcSin(arg) );
 } /*Function ArcCos*/
 
 /* Returns sign of a double */
@@ -86,7 +86,7 @@ double
 ArcSin(double arg)
 {
     if( fabs(arg) >= 1 )
-        return( Sign(arg)*(PI/2) );
+        return( Sign(arg)*(PIE/2) );
     else
         return( atan(arg/sqrt(1-arg*arg)) );
 } /*Function ArcSin*/
@@ -95,7 +95,7 @@ float
 ArcSinf(float arg)
 {
     if( fabs(arg) >= 1 )
-        return( Sign(arg)*(PI/2) );
+        return( Sign(arg)*(PIE/2) );
     else
         return( atan(arg/sqrt(1-arg*arg)) );
 } /*Function ArcSinf*/
@@ -139,8 +139,8 @@ LonLat2Point(float lat, float lon, QVector3D *pos, float radius)
 
     float	angX, angY;
 
-    angX = lon * PI / 180.f;
-    angY = lat * PI / 180.f;
+    angX = lon * PIE / 180.f;
+    angY = lat * PIE / 180.f;
 
     /*        pos->x = fabsf(cosf(angY)) * sinf(angX) * radius;
         pos->y = sinf(angY) * radius;
@@ -198,7 +198,7 @@ Pos2LatLonAlt(double *lat_rad, double *lon_rad, double *radius, QVector3D pos)
 
     *radius = XKMPER_WGS72 + r/cos(*lat_rad) - XKMPER_WGS72*c;/*kilometers*/
 
-    if( *lat_rad > PI/2 ) *lat_rad -= TWOPI;
+    if( *lat_rad > PIE/2 ) *lat_rad -= TWOPI;
 
 } /*Procedure Calculate_LatLonAlt*/
 
@@ -210,8 +210,8 @@ LonLat2Vector(float lat, float lon, QVector3D *pos, float radius)
 
     float	angX, angY;
 
-    angX = lon * PI / 180.f;
-    angY = lat * PI / 180.f;
+    angX = lon * PIE / 180.f;
+    angY = lat * PIE / 180.f;
 
     pos->setX(fabsf(cosf(angY)) * sinf(angX) * radius);
     pos->setY(sinf(angY) * radius);
@@ -222,15 +222,15 @@ void
 sphericalToPixel(double lon, double lat, int &x, int &y, int devwidth, int devheight)
 {
 
-    if (lon > PI) lon -= TWOPI;
-    else if (lon < -PI) lon += TWOPI;
+    if (lon > PIE) lon -= TWOPI;
+    else if (lon < -PIE) lon += TWOPI;
 
-    x = (int) ((lon - (-PI)) * devwidth/TWOPI + 0.5);
+    x = (int) ((lon - (-PIE)) * devwidth/TWOPI + 0.5);
 
     if (x >= devwidth) x -= devwidth;
     else if (x < 0) x += devwidth;
 
-    y = (int) ((PI/2 - lat) * devheight/PI + 0.5);
+    y = (int) ((PIE/2 - lat) * devheight/PIE + 0.5);
     if (y >= devheight) y = devheight - 1;
 
 }
@@ -293,7 +293,7 @@ void sortSphericalVectorLon(SphericalVector arr[], int size)
 
 double adjust_lon_rad(double x)
 {
-    if ( fabs(x) < PI )
+    if ( fabs(x) < PIE )
         return x;
     else
     {

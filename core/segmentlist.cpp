@@ -326,7 +326,7 @@ bool SegmentList::TestForSegmentGL(int x, int realy, float distance, const QMatr
             qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
             //qDebug() << QString("angle = %1").arg(angle * 180.0 / PI);
 
-            if (angle < PI/2 + (asin(1/distance)))
+            if (angle < PIE/2 + (asin(1/distance)))
             {
 
                 struct point p00;
@@ -432,7 +432,7 @@ bool SegmentList::TestForSegmentGLextended(int x, int realy, float distance, con
                 qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vecvector.at(i)));
                 //qDebug() << QString("angle = %1").arg(angle * 180.0 / PI);
 
-                if (angle < PI/2 + (asin(1/distance)))
+                if (angle < PIE/2 + (asin(1/distance)))
                 {
 
 
@@ -507,7 +507,7 @@ bool SegmentList::TestForSegmentGLXML(int x, int realy, float distance, const QM
                 qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
                 //            qDebug() << QString("angle = %1").arg(angle * 180.0 / PI);
 
-                if (angle < PI/2 + (asin(1/distance)))
+                if (angle < PIE/2 + (asin(1/distance)))
                 {
                     int result = (*segit)->pnpolyinsegment(x, realy);
 
@@ -574,7 +574,7 @@ void SegmentList::ShowWinvec(QPainter *painter, float distance, const QMatrix4x4
 
             qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vec1));
 
-            if (angle < PI/2 + (asin(1/distance)))
+            if (angle < PIE/2 + (asin(1/distance)))
             {
 
                 painter->drawLine((int)winvec1.x(), (painter->device())->height() - (int)winvec1.y(), (int)winvec2.x(), (painter->device())->height() - (int)winvec2.y() );

@@ -24,7 +24,7 @@ SatHorizon::SatHorizon(QOpenGLShaderProgram *prog)
 void SatHorizon::createCircleBuffer(float r, int num_segments)
 {
 
-    float theta = 2 * PI / float(num_segments);
+    float theta = 2 * PIE / float(num_segments);
     float c = cosf(theta);//precalculate the sine and cosine
     float s = sinf(theta);
     float t;
@@ -59,7 +59,7 @@ void SatHorizon::render(QMatrix4x4 projection, float distance, QQuaternion quat,
     modelview.rotate(quat);
 
     modelview.translate(posnorm * (1/alt) * (alt > 1.5 ? 1.0015 : 1.0001));
-    modelview.rotate(theta * 180.0f/ PI, vecnorm );
+    modelview.rotate(theta * 180.0f/ PIE, vecnorm );
 
     posBuf.bind();
     posBuf.write(0, vertexData, SEGMENTS * sizeof(QVector3D));

@@ -513,10 +513,10 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
 
             for(int k=0; k < factor; k++)
             {
-               secSZA[j*earth_views_per_scanline + i*factor + k] = 1.0/cos(((float)(val1 + diff*k)/1000000.0f)*PI/180.0);
+               secSZA[j*earth_views_per_scanline + i*factor + k] = 1.0/cos(((float)(val1 + diff*k)/1000000.0f)*PIE/180.0);
             }
         }
-        secSZA[j*earth_views_per_scanline + 76*factor] = 1.0/cos(((float)val2/1000000.0f)*PI/180.0);
+        secSZA[j*earth_views_per_scanline + 76*factor] = 1.0/cos(((float)val2/1000000.0f)*PIE/180.0);
     }
 
     float val, valnormalized;
@@ -988,8 +988,8 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
         {
             fflon = (float)(this->longitude[nbrLine * earthviews + pix])/1000000.0;
             fflat = (float)(this->latitude[nbrLine * earthviews + pix])/1000000.0;
-            flon = fflon * PI/180.0;
-            flat = fflat * PI/180.0;
+            flon = fflon * PIE/180.0;
+            flat = fflat * PIE/180.0;
             sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );
             rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
             fb_painter.setPen(rgb);
@@ -1214,14 +1214,14 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
 
                 if(proj == LCC) // Lambert
                 {
-                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
                     }
                 }
                 else if(proj == GVP) // General Vertical Perspecitve
                 {
-                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
                     }
@@ -1229,7 +1229,7 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
                 }
                 else if(proj == SG) // Stereographic
                 {
-                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
                     }

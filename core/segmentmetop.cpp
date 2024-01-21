@@ -89,8 +89,8 @@ SegmentMetop::SegmentMetop(QFile *filesegment, QObject *parent) :
 
     lon_start_rad = geo.longitude;
     lat_start_rad = geo.latitude;
-    lon_start_deg = lon_start_rad * 180.0 / PI;
-    lat_start_deg = lat_start_rad * 180.0 /PI;
+    lon_start_deg = lon_start_rad * 180.0 / PIE;
+    lat_start_deg = lat_start_rad * 180.0 /PIE;
 
     NbrOfLines = 1080;
 
@@ -511,7 +511,7 @@ void SegmentMetop::inspectSolarAngle(QByteArray *mdr_record, int heightinsegment
         {
             for( int intp = 0; intp < 20 && nav*20 + intp + 5 < 2048; intp++ )
             {
-                float val = 1.0f/cos(getSolarZenith(nav, intp, heightinsegment, 5, 20, 2048, 103)*PI/180.0f);
+                float val = 1.0f/cos(getSolarZenith(nav, intp, heightinsegment, 5, 20, 2048, 103)*PIE/180.0f);
                 this->cos_solar_zenith_angle[heightinsegment * 2048 + nav * 20 + intp] = val;
 //                if(nav * 20 + intp == 1000)
 //                    qDebug() << heightinsegment << " " << getSolarZenith(nav, intp, heightinsegment, 5, 20, 2048, 103);
@@ -881,28 +881,28 @@ Segment *SegmentMetop::ReadSegmentInMemory()
                     num32_3 = 0xFF & mdr_record.at(20520);
                     num32_4 = 0xFF & mdr_record.at(20521);
                     qint32 loc_lat_first = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-                    earth_loc_lat_first[heightinsegment] = (double)(loc_lat_first * PI/1800000);
+                    earth_loc_lat_first[heightinsegment] = (double)(loc_lat_first * PIE/1800000);
 
                     num32_1 = 0xFF & mdr_record.at(20522);
                     num32_2 = 0xFF & mdr_record.at(20523);
                     num32_3 = 0xFF & mdr_record.at(20524);
                     num32_4 = 0xFF & mdr_record.at(20525);
                     qint32 loc_lon_first = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-                    earth_loc_lon_first[heightinsegment] = (double)(loc_lon_first * PI/1800000);
+                    earth_loc_lon_first[heightinsegment] = (double)(loc_lon_first * PIE/1800000);
 
                     num32_1 = 0xFF & mdr_record.at(20526);
                     num32_2 = 0xFF & mdr_record.at(20527);
                     num32_3 = 0xFF & mdr_record.at(20528);
                     num32_4 = 0xFF & mdr_record.at(20529);
                     qint32 loc_lat_last = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-                    earth_loc_lat_last[heightinsegment] = (double)(loc_lat_last * PI/1800000);
+                    earth_loc_lat_last[heightinsegment] = (double)(loc_lat_last * PIE/1800000);
 
                     num32_1 = 0xFF & mdr_record.at(20530);
                     num32_2 = 0xFF & mdr_record.at(20531);
                     num32_3 = 0xFF & mdr_record.at(20532);
                     num32_4 = 0xFF & mdr_record.at(20533);
                     qint32 loc_lon_last = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-                    earth_loc_lon_last[heightinsegment] = (double)(loc_lon_last * PI/1800000);
+                    earth_loc_lon_last[heightinsegment] = (double)(loc_lon_last * PIE/1800000);
 
                     heightinsegment++;
                  }
@@ -914,10 +914,10 @@ Segment *SegmentMetop::ReadSegmentInMemory()
 //    for(int j = 0; j < 100; j++)
 //        qDebug() << QString("ptrbaChannel = %1 normalized 1/cos = %2").arg(this->ptrbaChannel[0][j]).arg(this->ptrbaChannelNormalized[0][j]);
 
-    this->cornerpointfirst1 = QGeodetic(earthloc_lat[0]*PI/180.0, earthloc_lon[0]*PI/180.0, 0 );
-    this->cornerpointlast1 = QGeodetic(earthloc_lat[num_navigation_points-1]*PI/180.0, earthloc_lon[num_navigation_points-1]*PI/180.0, 0 );
-    this->cornerpointfirst2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points]*PI/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points]*PI/180.0, 0 );
-    this->cornerpointlast2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PI/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PI/180.0, 0 );
+    this->cornerpointfirst1 = QGeodetic(earthloc_lat[0]*PIE/180.0, earthloc_lon[0]*PIE/180.0, 0 );
+    this->cornerpointlast1 = QGeodetic(earthloc_lat[num_navigation_points-1]*PIE/180.0, earthloc_lon[num_navigation_points-1]*PIE/180.0, 0 );
+    this->cornerpointfirst2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points]*PIE/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points]*PIE/180.0, 0 );
+    this->cornerpointlast2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PIE/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PIE/180.0, 0 );
     this->cornerpointcenter1 = QGeodetic(lat_start_rad, lon_start_rad, 0);
     this->cornerpointcenter2 = QGeodetic(lat_end_rad, lon_end_rad, 0);
 
@@ -1005,10 +1005,10 @@ void SegmentMetop::RenderSegmentlineInGVP(int channel, int nbrLine, int heightin
     {
         for( int nav = 0; nav < num_navigation_points; nav++)
         {
-            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + nav]*PI/180.0 - earthloc_lat[nbrLine*103 + nav+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + nav]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + nav+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + nav]*PI/180.0-earthloc_lon[nbrLine*103 + nav+1]*PI/180.0) / 2), 2)));
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + nav]*PIE/180.0 - earthloc_lat[nbrLine*103 + nav+1]*PIE/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + nav]*PIE/180.0) * cos(earthloc_lat[nbrLine*103 + nav+1]*PIE/180.0) * pow(sin((earthloc_lon[nbrLine*103 + nav]*PIE/180.0-earthloc_lon[nbrLine*103 + nav+1]*PIE/180.0) / 2), 2)));
             for( int intp = 0; intp < 20 && nav*20 + intp + 5 < 2048 ; intp++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*103 + nav]*PI/180.0, earthloc_lon[nbrLine*103 + nav]*PI/180.0, earthloc_lat[nbrLine*103 + nav+1]*PI/180.0, earthloc_lon[nbrLine*103 + nav+1]*PI/180.0, imageptrs->fraction[4 + nav*20 + intp], &latpos1, &lonpos1, dtot);
+                intermediatePoint(earthloc_lat[nbrLine*103 + nav]*PIE/180.0, earthloc_lon[nbrLine*103 + nav]*PIE/180.0, earthloc_lat[nbrLine*103 + nav+1]*PIE/180.0, earthloc_lon[nbrLine*103 + nav+1]*PIE/180.0, imageptrs->fraction[4 + nav*20 + intp], &latpos1, &lonpos1, dtot);
 
                 if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
@@ -1161,10 +1161,10 @@ void SegmentMetop::RenderSegmentlineInSG(int channel, int nbrLine, int heightint
     {
         for( int i = 0; i < num_navigation_points-1; i++)
         {
-            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PI/180.0 - earthloc_lat[nbrLine*103 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PI/180.0-earthloc_lon[nbrLine*103 + i+1]*PI/180.0) / 2), 2)));
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PIE/180.0 - earthloc_lat[nbrLine*103 + i+1]*PIE/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PIE/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PIE/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PIE/180.0-earthloc_lon[nbrLine*103 + i+1]*PIE/180.0) / 2), 2)));
             for( int j = 0; j < 20 ; j++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
+                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PIE/180.0, earthloc_lon[nbrLine*103 + i]*PIE/180.0, earthloc_lat[nbrLine*103 + i+1]*PIE/180.0, earthloc_lon[nbrLine*103 + i+1]*PIE/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->sg->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
@@ -1222,10 +1222,10 @@ void SegmentMetop::RenderSegmentlineInOM(int channel, int nbrLine, int heightint
     {
         for( int i = 0; i < num_navigation_points-1; i++)
         {
-            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PI/180.0 - earthloc_lat[nbrLine*103 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PI/180.0-earthloc_lon[nbrLine*103 + i+1]*PI/180.0) / 2), 2)));
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PIE/180.0 - earthloc_lat[nbrLine*103 + i+1]*PIE/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PIE/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PIE/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PIE/180.0-earthloc_lon[nbrLine*103 + i+1]*PIE/180.0) / 2), 2)));
             for( int j = 0; j < 20 ; j++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
+                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PIE/180.0, earthloc_lon[nbrLine*103 + i]*PIE/180.0, earthloc_lat[nbrLine*103 + i+1]*PIE/180.0, earthloc_lon[nbrLine*103 + i+1]*PIE/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->om->map_forward(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;
@@ -1304,12 +1304,12 @@ void SegmentMetop::RenderSegmentlineInLCC( int channel, int nbrLine, int heighti
     {
         for( int i = 0; i < num_navigation_points-1; i++)
         {
-            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PI/180.0 - earthloc_lat[nbrLine*103 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PI/180.0-earthloc_lon[nbrLine*103 + i+1]*PI/180.0) / 2), 2)));
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*103 + i]*PIE/180.0 - earthloc_lat[nbrLine*103 + i+1]*PIE/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*103 + i]*PIE/180.0) * cos(earthloc_lat[nbrLine*103 + i+1]*PIE/180.0) * pow(sin((earthloc_lon[nbrLine*103 + i]*PIE/180.0-earthloc_lon[nbrLine*103 + i+1]*PIE/180.0) / 2), 2)));
 
             for( int j = 0; j < 20 ; j++ )
             {
                 pointx = 4 + i*20 + j;
-                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PI/180.0, earthloc_lon[nbrLine*103 + i]*PI/180.0, earthloc_lat[nbrLine*103 + i+1]*PI/180.0, earthloc_lon[nbrLine*103 + i+1]*PI/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
+                intermediatePoint(earthloc_lat[nbrLine*103 + i]*PIE/180.0, earthloc_lon[nbrLine*103 + i]*PIE/180.0, earthloc_lat[nbrLine*103 + i+1]*PIE/180.0, earthloc_lon[nbrLine*103 + i+1]*PIE/180.0, imageptrs->fraction[4 + i*20 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->lcc->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 2048 + i * 20 + j + 4] = (int)map_x;

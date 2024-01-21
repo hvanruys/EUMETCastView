@@ -443,7 +443,7 @@ void SegmentGL::RenderContourXML(Segment *seg, QMatrix4x4 projection, QMatrix4x4
 
             LonLat2PointRad((float)seg->getFootprintListptr().at(k).at(i).latitude, (float)seg->getFootprintListptr().at(k).at(i).longitude, &vec, 1.0);
             qreal angle = ArcCos(QVector3D::dotProduct( vecZ, vec));
-            if(angle < PI/2)
+            if(angle < PIE/2)
             {
                 win = glhProjectf (vec, mvmatrix, projmatrix, width, height);
                 seg->winvectorfirst.append(win);
@@ -500,12 +500,12 @@ void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, float lat_f
     double deltax = delta / (nDelta - 1);
     double lonpos, latpos, dlon, tc;
 
-    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PI);
+    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PIE);
     for (int pix = 0 ; pix < nDelta; pix++)
     {
         latpos = asin(sin(lat_first)*cos(deltax * pix)+cos(lat_first)*sin(deltax * pix)*cos(tc));
         dlon=atan2(sin(tc)*sin(deltax * pix)*cos(lat_first),cos(deltax * pix)-sin(lat_first)*sin(latpos));
-        lonpos=fmod( lon_first-dlon + PI,2*PI )-PI;
+        lonpos=fmod( lon_first-dlon + PIE,2*PIE )-PIE;
 
         LonLat2PointRad(latpos, lonpos, &pos, 1.001f);
 
@@ -529,12 +529,12 @@ void SegmentGL::CalculateSegmentContour(QVector<GLfloat> *positions, QGeodetic f
     double deltax = delta / (nDelta - 1);
     double lonpos, latpos, dlon, tc;
 
-    tc = fmod(atan2(sin(first.longitude - last.longitude)*cos(last.latitude), cos(first.latitude)*sin(last.latitude)-sin(first.latitude)*cos(last.latitude)*cos(first.longitude-last.longitude)) , 2 * PI);
+    tc = fmod(atan2(sin(first.longitude - last.longitude)*cos(last.latitude), cos(first.latitude)*sin(last.latitude)-sin(first.latitude)*cos(last.latitude)*cos(first.longitude-last.longitude)) , 2 * PIE);
     for (int pix = 0 ; pix < nDelta; pix++)
     {
         latpos = asin(sin(first.latitude)*cos(deltax * pix)+cos(first.latitude)*sin(deltax * pix)*cos(tc));
         dlon=atan2(sin(tc)*sin(deltax * pix)*cos(first.latitude),cos(deltax * pix)-sin(first.latitude)*sin(latpos));
-        lonpos=fmod( first.longitude-dlon + PI,2*PI )-PI;
+        lonpos=fmod( first.longitude-dlon + PIE,2*PIE )-PIE;
 
         LonLat2PointRad(latpos, lonpos, &pos, 1.001f);
 

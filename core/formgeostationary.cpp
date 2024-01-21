@@ -10,6 +10,7 @@
 #include "internal.h"
 #include "nav_util.h"
 #include "qsgp4date.h"
+#include "AA+.h"
 
 #include <QtConcurrent/QtConcurrent>
 
@@ -1295,3 +1296,129 @@ void FormGeostationary::slotCreateRGBrecipe(int recipe)
 
 }
 
+void FormGeostationary::CalcMoon(QDate selected, int geosatindex)
+{
+    double hours, minutes;
+    int day, year, month;
+    int min = 10;
+
+    year = selected.year();
+    month = selected.month();
+    day = selected.day();
+
+    QBrush moonBrush(Qt::yellow);
+    QPen blackpen(Qt::black);
+    blackpen.setWidth(1);
+
+//    while (!moonlist.isEmpty())
+//        scene->removeItem(moonlist.takeFirst());
+//    moonlist.clear();
+
+//    while (!textlist.isEmpty())
+//        scene->removeItem(textlist.takeFirst());
+//    scene->update();
+//    textlist.clear();
+
+//    qDebug() << QString("Calculating for satellite at %1°").arg(geolonlist.at(geosatindex));
+
+//    ui->listWidget->clear();
+
+    for( int hours = 0; hours < 24; hours++)
+    {
+        for( int minutes = 0; minutes < 60; minutes += min)
+        {
+            double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes)/(24.0*60.0);
+            double JD = CAADate::DateToJD(year, month, dday, true);
+
+            double JDMoon = CAADynamicalTime::UTC2TT(JD);
+            double MoonLong = CAAELP2000::EclipticLongitude(JDMoon);
+            double MoonLat = CAAELP2000::EclipticLatitude(JDMoon);
+
+            int MoonLongdeg, MoonLongmin, MoonLongsec;
+            int MoonLatdeg, MoonLatmin, MoonLatsec;
+            HoursTohms(MoonLong, MoonLongdeg, MoonLongmin, MoonLongsec);
+            HoursTohms(MoonLat, MoonLatdeg, MoonLatmin, MoonLatsec);
+            CAA2DCoordinate Equatorial = CAACoordinateTransformation::Ecliptic2Equatorial(MoonLong, MoonLat, CAANutation::TrueObliquityOfEcliptic(JDMoon));
+            double MoonRad = CAAELP2000::RadiusVector(JDMoon);
+            //MoonRad /= 149597870.691; //Convert KM to AU
+            double AST = CAASidereal::ApparentGreenwichSiderealTime(JDMoon);
+            double LongtitudeAsHourAngle = CAACoordinateTransformation::DegreesToHours( geolonlist.at(geosatindex) );
+            double LocalHourAngle = AST - LongtitudeAsHourAngle - Equatorial.X;
+
+            double LHA = CAACoordinateTransformation::MapTo0To24Range(LocalHourAngle);
+            int LHAhour, LHAmin, LHAsec;
+            HoursTohms(LHA, LHAhour, LHAmin, LHAsec);
+            int DEdeg, DEmin, DEsec;
+            HoursTohms(Equatorial.Y, DEdeg, DEmin, DEsec);
+            int RAhour, RAmin, RAsec;
+            HoursTohms(Equatorial.X, RAhour, RAmin, RAsec);
+            //printf("%d/%d/%d %2d:%02d UTC Ecliptic long = %02d°%02d'%02d\" lat = %02d°%02d'%02d\" RA = %02dh%02dm%02ds localHourAngle = %02dh%02dm%02ds DE = %02d°%02d'%02d\" MoonRad = %f\n",
+            //   year, month, day, hours, minutes, MoonLongdeg, MoonLongmin, MoonLongsec, MoonLatdeg, MoonLatmin, MoonLatsec, RAhour, RAmin, RAsec, LHAhour, LHAmin, LHAsec, DEdeg, DEmin, DEsec, MoonRad);
+
+            double diffangle = 20.0;
+
+            double HourAngleDegrees = MapToMinus180To180Range(CAACoordinateTransformation::HoursToDegrees(LHA));
+            double DecLHA = sqrt(HourAngleDegrees * HourAngleDegrees + Equatorial.Y * Equatorial.Y);
+            double parallax = 5.92 * sin(CAACoordinateTransformation::DegreesToRadians(DecLHA));
+            double deltaY = Equatorial.Y*parallax/DecLHA;
+            double deltaX = HourAngleDegrees*parallax/DecLHA;
+
+            double illuminated_fraction = 0;
+            double position_angle = 0;
+            double phase_angle = 0;
+//            GetMoonIllumination(JD, true, illuminated_fraction, position_angle, phase_angle);
+
+            if(HourAngleDegrees - deltaX > -diffangle && HourAngleDegrees - deltaX < diffangle && Equatorial.Y - deltaY < diffangle && Equatorial.Y - deltaY > -diffangle)
+            {
+
+                printf("==%d/%d/%d %2d:%02d UTC Ecliptic long = %f° lat = %f° RA = %fh DE = %f° localHourAngle = %f° AST = %f MoonRad = %f parallax = %f\n",
+                       year, month, day, hours, minutes, MoonLong, MoonLat, Equatorial.X, Equatorial.Y, HourAngleDegrees, AST, MoonRad, parallax);
+                fflush(stdout);
+
+//                int mooncoordX = (int)((HourAngleDegrees - deltaX) * scale);
+//                int mooncoordY = - (int)((Equatorial.Y - deltaY) * scale);
+
+//                moonlist.append(scene->addEllipse(mooncoordX - 0.25*scale, mooncoordY - 0.25*scale, 0.5*scale, 0.5*scale, blackpen, moonBrush));
+//                QGraphicsTextItem *text = scene->addText(QString("%1:%2").arg(hours, 2, 'f', 0, '0').arg(minutes, 2, 'f', 0, '0'));
+//                textlist.append(text);
+//                text->setPos(mooncoordX-scale, mooncoordY+0.5*scale);
+//                int ilfraction = static_cast<int>((illuminated_fraction * 100) + 0.5);
+
+//                ui->listWidget->addItem(new QListWidgetItem(QString("%1:%2 illumination = %3 ").arg(hours, 2, 'f', 0, '0').arg(minutes, 2, 'f', 0, '0').arg(ilfraction), ui->listWidget));
+
+            }
+//            else
+//            {
+//                printf("%d/%d/%d %2d:%02d UTC Ecliptic long = %f° lat = %f° RA = %fh DE = %f° localHourAngle = %f° AST = %f MoonRad = %f parallax = %f\n",
+//                       year, month, day, hours, minutes, MoonLong, MoonLat, Equatorial.X, Equatorial.Y, HourAngleDegrees, AST, MoonRad, parallax);
+//                fflush(stdout);
+//            }
+
+        }
+    }
+}
+
+//void FormGeostationary::GetMoonIllumination(double JD, bool bHighPrecision, double& illuminated_fraction, double& position_angle, double& phase_angle)
+//{
+//  double moon_alpha{0};
+//  double moon_delta{0};
+//  GetLunarRaDecByJulian(JD, moon_alpha, moon_delta);
+//  double sun_alpha{0};
+//  double sun_delta{0};
+//  GetSolarRaDecByJulian(JD, bHighPrecision, sun_alpha, sun_delta);
+//  const double geo_elongation{CAAMoonIlluminatedFraction::GeocentricElongation(moon_alpha, moon_delta, sun_alpha, sun_delta)};
+
+//  position_angle = CAAMoonIlluminatedFraction::PositionAngle(sun_alpha, sun_delta, moon_alpha, moon_delta);
+//  phase_angle = CAAMoonIlluminatedFraction::PhaseAngle(geo_elongation, 368410.0, 149971520.0);
+//  illuminated_fraction = CAAMoonIlluminatedFraction::IlluminatedFraction(phase_angle);
+//}
+
+inline double FormGeostationary::MapToMinus180To180Range(double Degrees)
+  {
+    double fResult = CAACoordinateTransformation::MapTo0To360Range(Degrees);
+
+    if (fResult > 180)
+      fResult = fResult - 360;
+
+    return fResult;
+  }

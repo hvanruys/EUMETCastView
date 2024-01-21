@@ -123,8 +123,8 @@ SegmentMERSI::SegmentMERSI(QFileInfo fileinfo, QObject *parent) :
 
     lon_start_rad = geo.longitude;
     lat_start_rad = geo.latitude;
-    lon_start_deg = lon_start_rad * 180.0 / PI;
-    lat_start_deg = lat_start_rad * 180.0 /PI;
+    lon_start_deg = lon_start_rad * 180.0 / PIE;
+    lat_start_deg = lat_start_rad * 180.0 /PIE;
 
 
 
@@ -443,7 +443,7 @@ void SegmentMERSI::RenderSegmentlineInTextureMERSI( int nbrLine, QRgb *row )
 
         if( valok[0] && (color ? valok[1] && valok[2] : true))
         {
-            sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + earth_views_per_scanline - 1 - pix] * PI/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + earth_views_per_scanline - 1 - pix] * PI/180.0, posx, posy, devwidth, devheight );
+            sphericalToPixel( this->geolongitude[nbrLine * earth_views_per_scanline + earth_views_per_scanline - 1 - pix] * PIE/180.0, this->geolatitude[nbrLine * earth_views_per_scanline + earth_views_per_scanline - 1 - pix] * PIE/180.0, posx, posy, devwidth, devheight );
             rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
             fb_painter.setPen(rgb);
             fb_painter.drawPoint( posx , posy );
@@ -777,14 +777,14 @@ void SegmentMERSI::ComposeProjection(eProjections proj, int histogrammethod, boo
 
                 if(proj == LCC) //Lambert
                 {
-                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
                 }
                 else if(proj == GVP) // General Vertical Perspecitve
                 {
-                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->gvp->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
@@ -792,14 +792,14 @@ void SegmentMERSI::ComposeProjection(eProjections proj, int histogrammethod, boo
                 }
                 else if(proj == SG) // Stereographic
                 {
-                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }
                 }
                 else if(proj == OM) // Oblique Mercator
                 {
-                    if(imageptrs->om->map_forward(lonpos1 * PI / 180.0, latpos1 * PI / 180.0, map_x, map_y))
+                    if(imageptrs->om->map_forward(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color);
                     }

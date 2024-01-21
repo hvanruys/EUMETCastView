@@ -125,7 +125,7 @@ void ProjExtentsGL::renderGVP(QMatrix4x4 projection, float dist, QQuaternion qua
 {
     QVector3D pos;
 
-    LonLat2PointRad(opts.mapgvplat * PI/180.0, opts.mapgvplon * PI/180.0, &pos, 1.001f);
+    LonLat2PointRad(opts.mapgvplat * PIE/180.0, opts.mapgvplon * PIE/180.0, &pos, 1.001f);
 
     QColor col(opts.mapgvpextentcolor);
 
@@ -139,10 +139,10 @@ void ProjExtentsGL::RenderContour(QMatrix4x4 projection, QMatrix4x4 modelview)
     QVector3D pos;
     QVector<GLfloat> positions;
 
-    this->CalculateGreatCircleArc(&positions, (float)opts.mapextentsouth*PI/180, (float)opts.mapextentwest*PI/180, (float)opts.mapextentnorth*PI/180, (float)opts.mapextentwest*PI/180 );
-    this->CalculateSmallCircleArc(&positions, (float)opts.mapextentwest*PI/180, (float)opts.mapextenteast*PI/180, (float)opts.mapextentnorth*PI/180);
-    this->CalculateGreatCircleArc(&positions, (float)opts.mapextentnorth*PI/180, (float)opts.mapextenteast*PI/180, (float)opts.mapextentsouth*PI/180, (float)opts.mapextenteast*PI/180 );
-    this->CalculateSmallCircleArc(&positions, (float)opts.mapextenteast*PI/180, (float)opts.mapextentwest*PI/180, (float)opts.mapextentsouth*PI/180);
+    this->CalculateGreatCircleArc(&positions, (float)opts.mapextentsouth*PIE/180, (float)opts.mapextentwest*PIE/180, (float)opts.mapextentnorth*PIE/180, (float)opts.mapextentwest*PIE/180 );
+    this->CalculateSmallCircleArc(&positions, (float)opts.mapextentwest*PIE/180, (float)opts.mapextenteast*PIE/180, (float)opts.mapextentnorth*PIE/180);
+    this->CalculateGreatCircleArc(&positions, (float)opts.mapextentnorth*PIE/180, (float)opts.mapextenteast*PIE/180, (float)opts.mapextentsouth*PIE/180, (float)opts.mapextenteast*PIE/180 );
+    this->CalculateSmallCircleArc(&positions, (float)opts.mapextenteast*PIE/180, (float)opts.mapextentwest*PIE/180, (float)opts.mapextentsouth*PIE/180);
 
     positionsBuf.bind();
     positionsBuf.write(0, positions.data(), positions.size() * sizeof(GLfloat));
@@ -176,12 +176,12 @@ void ProjExtentsGL::CalculateGreatCircleArc(QVector<GLfloat> *positions, float l
     double deltax = delta / (nDelta - 1);
     double lonpos, latpos, dlon, tc;
 
-    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PI);
+    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PIE);
     for (int pix = 0 ; pix < nDelta; pix++)
     {
         latpos = asin(sin(lat_first)*cos(deltax * pix)+cos(lat_first)*sin(deltax * pix)*cos(tc));
         dlon=atan2(sin(tc)*sin(deltax * pix)*cos(lat_first),cos(deltax * pix)-sin(lat_first)*sin(latpos));
-        lonpos=fmod( lon_first-dlon + PI,2*PI )-PI;
+        lonpos=fmod( lon_first-dlon + PIE,2*PIE )-PIE;
 
         LonLat2PointRad(latpos, lonpos, &pos, 1.001f);
 
@@ -210,19 +210,19 @@ void ProjExtentsGL::CalculateSmallCircleArc(QVector<GLfloat> *positions, float l
         lon1 = lon_last;
     }
 
-    if (lon2-lon1 > PI)
-        dlon = (2*PI - (lon2-lon1))/(nDelta-1);
+    if (lon2-lon1 > PIE)
+        dlon = (2*PIE - (lon2-lon1))/(nDelta-1);
     else
         dlon = (lon2 - lon1)/(nDelta-1);
 
     for (int pix = 0 ; pix < nDelta; pix++)
     {
-        if (lon2-lon1 > PI)
+        if (lon2-lon1 > PIE)
             lonpos = lon2 + dlon*pix;
         else
             lonpos = lon1 + dlon*pix;
-        if(lonpos > PI)
-            lonpos = - (2*PI - lonpos);
+        if(lonpos > PIE)
+            lonpos = - (2*PIE - lonpos);
 
         LonLat2PointRad(lat, lonpos, &pos, 1.001f);
         positions->append(pos.x());

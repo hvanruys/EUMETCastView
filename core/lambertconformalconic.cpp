@@ -57,11 +57,11 @@ void LambertConformalConic::Initialize(double r_maj, double r_min, double stdlat
     image_width = imagewidth;
     image_height = imageheight;
 
-    double lat1 = stdlat1*PI/180.0;
-    double lat2 = stdlat2*PI/180.0;
+    double lat1 = stdlat1*PIE/180.0;
+    double lat2 = stdlat2*PIE/180.0;
 
-    center_lon = c_lon * PI/180.0;
-    center_lat = c_lat * PI/180.0;
+    center_lon = c_lon * PIE/180.0;
+    center_lat = c_lat * PIE/180.0;
     r_major = r_maj;
     r_minor = r_min;
     f0 = F;
@@ -386,7 +386,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
             {
                 if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
                 {
-                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
+                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                         //if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, COFF_HRV, LOFF_HRV, CFAC_HRV, LFAC_HRV, &col, &row) == 0)
                     {
                         if( hrvmap == 0)
@@ -461,8 +461,8 @@ void LambertConformalConic::CreateMapFromGeostationary()
                 }
                 else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17 || sl->getGeoSatellite() == eGeoSatellite::GOES_18)
                 {
-                    lon_deg = lon_rad * 180.0 / PI;
-                    lat_deg = lat_rad * 180.0 / PI;
+                    lon_deg = lon_rad * 180.0 / PIE;
+                    lat_deg = lat_rad * 180.0 / PIE;
 
                     pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
                     if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
@@ -488,7 +488,7 @@ void LambertConformalConic::CreateMapFromGeostationary()
                 }
                 else
                 {
-                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
+                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                     {
                         picrow = row;
                         if(picrow < imageptrs->ptrimageGeostationary->height())
@@ -523,7 +523,7 @@ void LambertConformalConic::calc_map_extents()
     min_y = 99999999999.0;
     max_y = -999999999999.0;
 
-    if(this->lamccfor(opts.mapextenteast*PI/180.0, opts.mapextentnorth*PI/180.0, &x, &y))
+    if(this->lamccfor(opts.mapextenteast*PIE/180.0, opts.mapextentnorth*PIE/180.0, &x, &y))
     {
         if(x > max_x)
             max_x = x;
@@ -535,7 +535,7 @@ void LambertConformalConic::calc_map_extents()
             min_y = y;
     }
 
-    if(this->lamccfor(opts.mapextentwest*PI/180.0, opts.mapextentnorth*PI/180.0, &x, &y))
+    if(this->lamccfor(opts.mapextentwest*PIE/180.0, opts.mapextentnorth*PIE/180.0, &x, &y))
     {
         if(x > max_x)
             max_x = x;
@@ -547,7 +547,7 @@ void LambertConformalConic::calc_map_extents()
             min_y = y;
     }
 
-    if(this->lamccfor(opts.mapextentwest*PI/180.0, opts.mapextentsouth*PI/180.0, &x, &y))
+    if(this->lamccfor(opts.mapextentwest*PIE/180.0, opts.mapextentsouth*PIE/180.0, &x, &y))
     {
         if(x > max_x)
             max_x = x;
@@ -559,7 +559,7 @@ void LambertConformalConic::calc_map_extents()
             min_y = y;
     }
 
-    if(this->lamccfor(opts.mapextenteast*PI/180.0, opts.mapextentsouth*PI/180.0, &x, &y))
+    if(this->lamccfor(opts.mapextenteast*PIE/180.0, opts.mapextentsouth*PIE/180.0, &x, &y))
     {
         if(x > max_x)
             max_x = x;
@@ -571,7 +571,7 @@ void LambertConformalConic::calc_map_extents()
             min_y = y;
     }
 
-    if(this->lamccfor(opts.centralmeridian*PI/180.0, opts.mapextentsouth*PI/180.0, &x, &y))
+    if(this->lamccfor(opts.centralmeridian*PIE/180.0, opts.mapextentsouth*PIE/180.0, &x, &y))
     {
         if(x > max_x)
             max_x = x;
@@ -583,7 +583,7 @@ void LambertConformalConic::calc_map_extents()
             min_y = y;
     }
 
-    if(this->lamccfor(opts.centralmeridian*PI/180.0, opts.mapextentnorth*PI/180.0, &x, &y))
+    if(this->lamccfor(opts.centralmeridian*PIE/180.0, opts.mapextentnorth*PIE/180.0, &x, &y))
     {
         if(x > max_x)
             max_x = x;
@@ -661,13 +661,13 @@ void LambertConformalConic::testmap()
     double map_x, map_y;
     double lon_rad, lat_rad;
 
-    map_forward(3.88*PI/180.0, 50.9*PI/180.0, map_x, map_y);
+    map_forward(3.88*PIE/180.0, 50.9*PIE/180.0, map_x, map_y);
 
     qDebug() << QString("testmap map_x = %1 map_y = %2").arg(map_x).arg(map_y);
 
     map_inverse(map_x, map_y, lon_rad, lat_rad);
 
-    qDebug() << QString("testmap lon = %1 lat = %2").arg(lon_rad*180.0/PI).arg(lat_rad*180.0/PI);
+    qDebug() << QString("testmap lon = %1 lat = %2").arg(lon_rad*180.0/PIE).arg(lat_rad*180.0/PIE);
 
 }
 

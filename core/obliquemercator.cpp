@@ -115,16 +115,16 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
     double lon_p1 = atan(P1/P2);
     double lat_p1 = atan( - cos(lon_p1 - lon1_r)/tan(lat1_r));
 
-    qDebug() << "Pole 1 = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")  Pole 2 = (" << rad2deg(-lat_p1) << ", " << rad2deg(lon_p1 + PI) << ")";
-    qDebug() << "Pole 1 = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")  Pole 2 = (" << rad2deg(-lat_p1) << ", " << rad2deg(lon_p1 - PI) << ")";
+    qDebug() << "Pole 1 = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")  Pole 2 = (" << rad2deg(-lat_p1) << ", " << rad2deg(lon_p1 + PIE) << ")";
+    qDebug() << "Pole 1 = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")  Pole 2 = (" << rad2deg(-lat_p1) << ", " << rad2deg(lon_p1 - PIE) << ")";
 
     if(lat_p1 < 0)
     {
         lat_p1 = - lat_p1;
-        if(lon_p1 + PI > PI)
-            lon_p1 = lon_p1 - PI;
+        if(lon_p1 + PIE > PIE)
+            lon_p1 = lon_p1 - PIE;
         else
-            lon_p1 = lon_p1 + PI;
+            lon_p1 = lon_p1 + PIE;
     }
 
     qDebug() << "Pole = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")";
@@ -237,10 +237,10 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
     j = (el * el - l * h)/(el * el + l * h);
     p = (l - h) / (l + h);
     dlon = lon1_r - lon2_r;
-    if (dlon < -PI)
-        lon2_r = lon2_r - 2.0 * PI;
-    if (dlon > PI)
-        lon2_r = lon2_r + 2.0 * PI;
+    if (dlon < -PIE)
+        lon2_r = lon2_r - 2.0 * PIE;
+    if (dlon > PIE)
+        lon2_r = lon2_r + 2.0 * PIE;
     dlon = lon1_r - lon2_r;
     lon_origin = .5 * (lon1_r + lon2_r) - atan(j * tan(.5 * bl * dlon)/p)/bl;
     dlon  = adjust_lon_rad(lon1_r - lon_origin);
@@ -396,10 +396,10 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
     if(lat_p1 < 0)
     {
         lat_p1 = - lat_p1;
-        if(lon_p1 + PI > PI)
-            lon_p1 = lon_p1 - PI;
+        if(lon_p1 + PIE > PIE)
+            lon_p1 = lon_p1 - PIE;
         else
-            lon_p1 = lon_p1 + PI;
+            lon_p1 = lon_p1 + PIE;
     }
 
     qDebug() << "Pole = (" << rad2deg(lat_p1) << ", " << rad2deg(lon_p1) << ")";
@@ -888,7 +888,7 @@ bool ObliqueMercator::omerfor(double lon, double lat, double *x, double *y)
         {
             us = al * atan((s * cosgam + vl * singam) / con)/bl;
             if (con < 0)
-                us = us + PI * al / bl;
+                us = us + PIE * al / bl;
         }
     }
     else
@@ -934,7 +934,7 @@ bool ObliqueMercator::omerforspherical(double lon, double lat, double *x, double
     double xx = atan(K/L);
 
     if(L < 0)
-        xx = xx - PI;
+        xx = xx - PIE;
     double A = sin(lat_p1)*sin(lat) - cos(lat_p1)*cos(lat)*sin(lon - lon_ori);
     double yy = atanh(A);
 

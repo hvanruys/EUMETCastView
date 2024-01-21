@@ -79,8 +79,8 @@ SegmentHRP::SegmentHRP(QFile *filesegment, QObject *parent) :
 
     lon_start_rad = geo.longitude;
     lat_start_rad = geo.latitude;
-    lon_start_deg = lon_start_rad * 180.0 / PI;
-    lat_start_deg = lat_start_rad * 180.0 /PI;
+    lon_start_deg = lon_start_rad * 180.0 / PIE;
+    lat_start_deg = lat_start_rad * 180.0 /PIE;
 
     NbrOfLines = 360;
 
@@ -557,9 +557,9 @@ void SegmentHRP::RenderSegmentlineInProjection( int channel, int heightintotalim
         Vector3 scanref = posref.cross(velref);
 
         mat.identity();
-        mat.rotate(yaw_steering_angle * 180/PI, posref);  // yaw
-        mat.rotate(roll_steering_angle * 180/PI, velref); // roll
-        mat.rotate(pitch_steering_angle * 180/PI, scanref); // pitch
+        mat.rotate(yaw_steering_angle * 180/PIE, posref);  // yaw
+        mat.rotate(roll_steering_angle * 180/PIE, velref); // roll
+        mat.rotate(pitch_steering_angle * 180/PIE, scanref); // pitch
         scan = mat * scanref;
 
 
@@ -716,7 +716,7 @@ void SegmentHRP::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fir
     double lonpos, latpos, dlon, tc;
     double lonpos1, latpos1, lonpos2, latpos2, dlon1, dlon2;
 
-    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PI);
+    tc = fmod(atan2(sin(lon_first-lon_last)*cos(lat_last), cos(lat_first)*sin(lat_last)-sin(lat_first)*cos(lat_last)*cos(lon_first-lon_last)) , 2 * PIE);
 
     //sindeltax = sin(delta);
     //dx = r * cos(delta) - sqrt( this->qtle->radiusearthkm * this->qtle->radiusearthkm - r * r * sindeltax * sindeltax );
@@ -741,11 +741,11 @@ void SegmentHRP::RenderSegmentlineInProjectionCirc(QRgb *row_col, double lat_fir
 
         latpos1 = asin(sin(lat_first)*cos(psix1)+cos(lat_first)*sin(psix1)*cos(tc));
         dlon1=atan2(sin(tc)*sin(psix1)*cos(lat_first),cos(psix1)-sin(lat_first)*sin(latpos1));
-        lonpos1=fmod( lon_first-dlon1 + PI,2*PI )-PI;
+        lonpos1=fmod( lon_first-dlon1 + PIE,2*PIE )-PIE;
 
         latpos2 = asin(sin(lat_first)*cos(psix2)+cos(lat_first)*sin(psix2)*cos(tc));
         dlon2=atan2(sin(tc)*sin(psix2)*cos(lat_first),cos(psix2)-sin(lat_first)*sin(latpos2));
-        lonpos2=fmod( lon_first-dlon2 + PI,2*PI )-PI;
+        lonpos2=fmod( lon_first-dlon2 + PIE,2*PIE )-PIE;
 
         if(proj == LCC)
         {
@@ -949,9 +949,9 @@ void SegmentHRP::RenderSegmentlineInProjectionAlternative(int channel, int nbrLi
 //        qmat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
 //        qmat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
 //        qmat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
-        qmat.rotate(yaw * 180/PI, d3pos);  // yaw
-        qmat.rotate(roll * 180/PI, d3vel); // roll
-        qmat.rotate(pitch * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+        qmat.rotate(yaw * 180/PIE, d3pos);  // yaw
+        qmat.rotate(roll * 180/PIE, d3vel); // roll
+        qmat.rotate(pitch * 180/PIE, QVector3D::crossProduct(d3pos,d3vel)); // pitch
         QVector3D d3scan = qmat * QVector3D::crossProduct(d3pos,d3vel);
         scan.set(d3scan.x(), d3scan.y(), d3scan.z());
 

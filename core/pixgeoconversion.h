@@ -3,8 +3,8 @@
 
 #include "qsgp4globals.h"
 
-#define HALF_PI PI*0.5
-#define TWO_PI 	PI*2.0
+#define HALF_PI PIE*0.5
+#define TWO_PI 	PIE*2.0
 #define EPSLN	1.0e-3
 #define R2D     57.2957795131
 #define D2R     0.0174532925199
@@ -88,6 +88,7 @@ public:
     pixgeoConversion();
     //int pixcoord2geocoord(double sub_lon_deg, int column, int row, long coff, long loff, long long cfac, long long lfac, double *latitude, double *longitude);
     int pixcoord2geocoord(double sub_lon_deg, int column, int row, int coff, int loff, double cfac, double lfac, double *latitude, double *longitude);
+    double calc_sa(double sub_lon_deg, int column, int row, int coff, int loff, double cfac, double lfac, double *latitude, double *longitude);
 
     //int geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, long coff, long loff, long long cfac, long long lfac, int *column, int *row);
     //int geocoord2pixcoordrad(double sub_lon_deg, double lat_rad, double lon_rad, long coff, long loff, long long cfac, long long lfac, int *column, int *row);

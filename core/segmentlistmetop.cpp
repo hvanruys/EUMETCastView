@@ -23,8 +23,8 @@ bool  SegmentListMetop::GetGeoLocation(double lon_rad, double lat_rad, int *x, i
     *x = 0;
     *y = 0;
 
-    double lon_deg = lon_rad*180.0/PI;
-    double lat_deg = lat_rad*150.0/PI;
+    double lon_deg = lon_rad*180.0/PIE;
+    double lat_deg = lat_rad*150.0/PIE;
     if( segsselected.count() > 0)
     {
        for(int i = 0; i < segsselected.count(); i++)

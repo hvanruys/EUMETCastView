@@ -35,7 +35,7 @@ namespace Util
 
     inline double WrapNegPosPI(const double a)
     {
-        return Mod(a + PI, TWOPI) - PI;
+        return Mod(a + PIE, TWOPI) - PIE;
     }
 
     inline double WrapTwoPI(const double a)
@@ -55,12 +55,12 @@ namespace Util
 
     inline double DegreesToRadians(const double degrees)
     {
-        return degrees * PI / 180.0;
+        return degrees * PIE / 180.0;
     }
 
     inline double RadiansToDegrees(const double radians)
     {
-        return radians * 180.0 / PI;
+        return radians * 180.0 / PIE;
     }
 
     inline double AcTan(const double sinx, const double cosx)
@@ -69,11 +69,11 @@ namespace Util
         {
             if (sinx > 0.0)
             {
-                return PI / 2.0;
+                return PIE / 2.0;
             }
             else
             {
-                return 3.0 * PI / 2.0;
+                return 3.0 * PIE / 2.0;
             }
         }
         else
@@ -84,7 +84,7 @@ namespace Util
             }
             else
             {
-                return PI + atan(sinx / cosx);
+                return PIE + atan(sinx / cosx);
             }
         }
     }

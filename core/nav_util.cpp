@@ -226,11 +226,11 @@ static void solar_coords_and_times(double jtime, double *delta,
 
      /* mean longitude of, corrected for aberration */
      L = (280.466 + .9856474 * jdelta)*D2R;
-     L = fmod(L, (PI * 2.));
+     L = fmod(L, (M_PI * 2.));
 
      /* mean anamoly */
      g = (357.528 + .9856003 * jdelta)*D2R;
-     g = fmod(g, (PI * 2.));
+     g = fmod(g, (M_PI * 2.));
 
      /* ecliptic longitude */
      a = 1.915 * sin(g) + .020 * sin(2.0*g);
@@ -255,7 +255,7 @@ static void solar_coords_and_times(double jtime, double *delta,
 */
      alpha = atan2(cos(epsilon)*sin(lambda), cos(epsilon)*cos(lambda));
      if (alpha <= 0.)
-          alpha += (PI * 2.);
+          alpha += (M_PI * 2.);
 
      /* solar declination */
      *delta = asin(sin(epsilon)*sin(lambda));
@@ -264,7 +264,7 @@ static void solar_coords_and_times(double jtime, double *delta,
      gmst = calc_gmst(jtime);
 
      /* greenwich mean solar time */
-     *gw_mean_sol_time  = (gmst - .5 - alpha / (PI * 2.));
+     *gw_mean_sol_time  = (gmst - .5 - alpha / (M_PI * 2.));
 
      if ((*gw_mean_sol_time  = fmod(*gw_mean_sol_time,   1.)) < 0.)
           *gw_mean_sol_time += 1.;
@@ -299,7 +299,7 @@ static double greenwich_to_local_time(double lon, double gw_time)
 {
      double loc_time;
 
-     loc_time = gw_time + lon / (PI * 2.);
+     loc_time = gw_time + lon / (M_PI * 2.);
      if ((loc_time  = fmod(loc_time,  1.)) < 0.)
           loc_time += 1.;
 
@@ -320,7 +320,7 @@ static double local_to_greenwich_time(double lon, double loc_time)
 {
      double gw_time;
 
-     gw_time = loc_time - lon / (PI * 2.);
+     gw_time = loc_time - lon / (M_PI * 2.);
      if ((gw_time  = fmod(gw_time,  1.)) < 0.)
           gw_time += 1.;
 
@@ -380,7 +380,7 @@ static void solar_angles(double delta, double lat, double hour, double eot,
 */
      *phi0   = acos(cosphi0);
      if (h > 0.)
-          *phi0 = 2. * PI - *phi0;
+          *phi0 = 2. * M_PI - *phi0;
 }
 
 

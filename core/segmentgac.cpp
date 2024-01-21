@@ -79,8 +79,8 @@ SegmentGAC::SegmentGAC(QFile *filesegment, QObject *parent) :
 
     lon_start_rad = geo.longitude;
     lat_start_rad = geo.latitude;
-    lon_start_deg = lon_start_rad * 180.0 / PI;
-    lat_start_deg = lat_start_rad * 180.0 /PI;
+    lon_start_deg = lon_start_rad * 180.0 / PIE;
+    lat_start_deg = lat_start_rad * 180.0 /PIE;
 
 
     NbrOfLines = 360;
@@ -229,10 +229,10 @@ bool SegmentGAC::inspectMPHRrecord(QByteArray mphr_record)
     qDebug() << "Voor reset tle";
     qDebug() << "semi_major_axis = " << mphr_record.mid(1560, 11) << ";";  // in KM
     qDebug() << "eccentricity = " << mphr_record.mid(1604, 11) << ";" << this->qtle->Eccentricity();
-    qDebug() << "inclination = " << mphr_record.mid(1648, 11) << ";" << this->qtle->Inclination()*180.0/PI;
-    qDebug() << "perigee_argument = " << mphr_record.mid(1692, 11) << ";" << this->qtle->ArgumentPerigee()*180.0/PI;
+    qDebug() << "inclination = " << mphr_record.mid(1648, 11) << ";" << this->qtle->Inclination()*180.0/PIE;
+    qDebug() << "perigee_argument = " << mphr_record.mid(1692, 11) << ";" << this->qtle->ArgumentPerigee()*180.0/PIE;
     qDebug() << "right_ascension = " << mphr_record.mid(1736, 11);
-    qDebug() << "mean_anomaly = " << mphr_record.mid(1780, 11) << ";" << this->qtle->MeanAnomaly()*180.0/PI;
+    qDebug() << "mean_anomaly = " << mphr_record.mid(1780, 11) << ";" << this->qtle->MeanAnomaly()*180.0/PIE;
     qDebug() << "orbit_start =  " << mphr_record.mid(1389, 5);
 
 
@@ -328,10 +328,10 @@ bool SegmentGAC::inspectMPHRrecord(QByteArray mphr_record)
     qDebug() << "Na reset tle";
     qDebug() << "semi_major_axis = " << mphr_record.mid(1560, 11) << ";";  // in KM
     qDebug() << "eccentricity = " << mphr_record.mid(1604, 11) << ";" << this->qtle->Eccentricity();
-    qDebug() << "inclination = " << mphr_record.mid(1648, 11) << ";" << this->qtle->Inclination()*180.0/PI;
-    qDebug() << "perigee_argument = " << mphr_record.mid(1692, 11) << ";" << this->qtle->ArgumentPerigee()*180.0/PI;
+    qDebug() << "inclination = " << mphr_record.mid(1648, 11) << ";" << this->qtle->Inclination()*180.0/PIE;
+    qDebug() << "perigee_argument = " << mphr_record.mid(1692, 11) << ";" << this->qtle->ArgumentPerigee()*180.0/PIE;
     qDebug() << "right_ascension = " << mphr_record.mid(1736, 11);
-    qDebug() << "mean_anomaly = " << mphr_record.mid(1780, 11) << ";" << this->qtle->MeanAnomaly()*180.0/PI;
+    qDebug() << "mean_anomaly = " << mphr_record.mid(1780, 11) << ";" << this->qtle->MeanAnomaly()*180.0/PIE;
     qDebug() << "orbit_start =  " << mphr_record.mid(1389, 5);
 
     return true;
@@ -561,28 +561,28 @@ Segment *SegmentGAC::ReadSegmentInMemory()
                num32_3 = 0xFF & mdr_record.at(4130);
                num32_4 = 0xFF & mdr_record.at(4131);
                qint32 loc_lat_first = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-               earth_loc_lat_first[heightinsegment] = (double)(loc_lat_first * PI/1800000);
+               earth_loc_lat_first[heightinsegment] = (double)(loc_lat_first * PIE/1800000);
 
                num32_1 = 0xFF & mdr_record.at(4132);
                num32_2 = 0xFF & mdr_record.at(4133);
                num32_3 = 0xFF & mdr_record.at(4134);
                num32_4 = 0xFF & mdr_record.at(4135);
                qint32 loc_lon_first = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-               earth_loc_lon_first[heightinsegment] = (double)(loc_lon_first * PI/1800000);
+               earth_loc_lon_first[heightinsegment] = (double)(loc_lon_first * PIE/1800000);
 
                num32_1 = 0xFF & mdr_record.at(4136);
                num32_2 = 0xFF & mdr_record.at(4137);
                num32_3 = 0xFF & mdr_record.at(4138);
                num32_4 = 0xFF & mdr_record.at(4139);
                qint32 loc_lat_last = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-               earth_loc_lat_last[heightinsegment] = (double)(loc_lat_last * PI/1800000);
+               earth_loc_lat_last[heightinsegment] = (double)(loc_lat_last * PIE/1800000);
 
                num32_1 = 0xFF & mdr_record.at(4140);
                num32_2 = 0xFF & mdr_record.at(4141);
                num32_3 = 0xFF & mdr_record.at(4142);
                num32_4 = 0xFF & mdr_record.at(4143);
                qint32 loc_lon_last = (num32_1 <<= 24) | (num32_2 <<= 16) | (num32_3 <<= 8) | num32_4;
-               earth_loc_lon_last[heightinsegment] = (double)(loc_lon_last * PI/1800000);
+               earth_loc_lon_last[heightinsegment] = (double)(loc_lon_last * PIE/1800000);
 
                num16_1 = 0xFF & mdr_record.at(4144);
                num16_2 = 0xFF & mdr_record.at(4145);
@@ -600,10 +600,10 @@ Segment *SegmentGAC::ReadSegmentInMemory()
       }
     }
 
-    this->cornerpointfirst1 = QGeodetic(earthloc_lat[0]*PI/180.0, earthloc_lon[0]*PI/180.0, 0 );
-    this->cornerpointlast1 = QGeodetic(earthloc_lat[num_navigation_points-1]*PI/180.0, earthloc_lon[num_navigation_points-1]*PI/180.0, 0 );
-    this->cornerpointfirst2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points]*PI/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points]*PI/180.0, 0 );
-    this->cornerpointlast2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PI/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PI/180.0, 0 );
+    this->cornerpointfirst1 = QGeodetic(earthloc_lat[0]*PIE/180.0, earthloc_lon[0]*PIE/180.0, 0 );
+    this->cornerpointlast1 = QGeodetic(earthloc_lat[num_navigation_points-1]*PIE/180.0, earthloc_lon[num_navigation_points-1]*PIE/180.0, 0 );
+    this->cornerpointfirst2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points]*PIE/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points]*PIE/180.0, 0 );
+    this->cornerpointlast2 = QGeodetic(earthloc_lat[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PIE/180.0, earthloc_lon[(NbrOfLines-1)*num_navigation_points + num_navigation_points-1]*PIE/180.0, 0 );
 
     qDebug() << QString("ReadSegmentInMemory stat_min_ch1 = %1  stat_max_ch1 = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
     qDebug() << QString("ReadSegmentInMemory stat_min_ch2 = %1  stat_max_ch2 = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
@@ -784,10 +784,10 @@ void SegmentGAC::RenderSegmentlineInSG( int channel, int nbrLine, int heightinto
     {
         for( int i = 0; i < num_navigation_points-1; i++)
         {
-            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PI/180.0 - earthloc_lat[nbrLine*51 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PI/180.0-earthloc_lon[nbrLine*51 + i+1]*PI/180.0) / 2), 2)));
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PIE/180.0 - earthloc_lat[nbrLine*51 + i+1]*PIE/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PIE/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PIE/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PIE/180.0-earthloc_lon[nbrLine*51 + i+1]*PIE/180.0) / 2), 2)));
             for( int j = 0; j < 8 ; j++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PI/180.0, earthloc_lon[nbrLine*51 + i]*PI/180.0, earthloc_lat[nbrLine*51 + i+1]*PI/180.0, earthloc_lon[nbrLine*51 + i+1]*PI/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
+                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PIE/180.0, earthloc_lon[nbrLine*51 + i]*PIE/180.0, earthloc_lat[nbrLine*51 + i+1]*PIE/180.0, earthloc_lon[nbrLine*51 + i+1]*PIE/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->sg->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 409 + i * 8 + j + 4] = (int)map_x;
@@ -864,10 +864,10 @@ void SegmentGAC::RenderSegmentlineInGVP( int channel, int nbrLine, int heightint
     {
         for( int i = 0; i < num_navigation_points-1; i++)
         {
-            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PI/180.0 - earthloc_lat[nbrLine*51 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PI/180.0-earthloc_lon[nbrLine*51 + i+1]*PI/180.0) / 2), 2)));
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PIE/180.0 - earthloc_lat[nbrLine*51 + i+1]*PIE/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PIE/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PIE/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PIE/180.0-earthloc_lon[nbrLine*51 + i+1]*PIE/180.0) / 2), 2)));
             for( int j = 0; j < 8 ; j++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PI/180.0, earthloc_lon[nbrLine*51 + i]*PI/180.0, earthloc_lat[nbrLine*51 + i+1]*PI/180.0, earthloc_lon[nbrLine*51 + i+1]*PI/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
+                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PIE/180.0, earthloc_lon[nbrLine*51 + i]*PIE/180.0, earthloc_lat[nbrLine*51 + i+1]*PIE/180.0, earthloc_lon[nbrLine*51 + i+1]*PIE/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->gvp->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 409 + i * 8 + j + 4] = (int)map_x;
@@ -944,10 +944,10 @@ void SegmentGAC::RenderSegmentlineInLCC( int channel, int nbrLine, int heightint
     {
         for( int i = 0; i < num_navigation_points-1; i++)
         {
-            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PI/180.0 - earthloc_lat[nbrLine*51 + i+1]*PI/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PI/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PI/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PI/180.0-earthloc_lon[nbrLine*51 + i+1]*PI/180.0) / 2), 2)));
+            dtot = 2 * asin(sqrt(pow((sin((earthloc_lat[nbrLine*51 + i]*PIE/180.0 - earthloc_lat[nbrLine*51 + i+1]*PIE/180.0) / 2)), 2) + cos(earthloc_lat[nbrLine*51 + i]*PIE/180.0) * cos(earthloc_lat[nbrLine*51 + i+1]*PIE/180.0) * pow(sin((earthloc_lon[nbrLine*51 + i]*PIE/180.0-earthloc_lon[nbrLine*51 + i+1]*PIE/180.0) / 2), 2)));
             for( int j = 0; j < 8 ; j++ )
             {
-                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PI/180.0, earthloc_lon[nbrLine*51 + i]*PI/180.0, earthloc_lat[nbrLine*51 + i+1]*PI/180.0, earthloc_lon[nbrLine*51 + i+1]*PI/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
+                intermediatePoint(earthloc_lat[nbrLine*51 + i]*PIE/180.0, earthloc_lon[nbrLine*51 + i]*PIE/180.0, earthloc_lat[nbrLine*51 + i+1]*PIE/180.0, earthloc_lon[nbrLine*51 + i+1]*PIE/180.0, imageptrs->fractionGAC[4 + i*8 + j], &latpos1, &lonpos1, dtot);
                 if(imageptrs->lcc->map_forward_neg_coord(lonpos1, latpos1, map_x, map_y))
                 {
                     projectionCoordX[nbrLine * 409 + i * 8 + j + 4] = (int)map_x;
@@ -1017,7 +1017,7 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
     double tc;
     double lonpos1, latpos1, lonpos2, latpos2, dlon1, dlon2;
 
-    tc = fmod(atan2(sin(this->earth_loc_lon_first[nbrLine]-this->earth_loc_lon_last[nbrLine])*cos(this->earth_loc_lat_last[nbrLine]), cos(this->earth_loc_lat_first[nbrLine])*sin(this->earth_loc_lat_last[nbrLine])-sin(this->earth_loc_lat_first[nbrLine])*cos(this->earth_loc_lat_last[nbrLine])*cos(this->earth_loc_lon_first[nbrLine]-this->earth_loc_lon_last[nbrLine])) , 2 * PI);
+    tc = fmod(atan2(sin(this->earth_loc_lon_first[nbrLine]-this->earth_loc_lon_last[nbrLine])*cos(this->earth_loc_lat_last[nbrLine]), cos(this->earth_loc_lat_first[nbrLine])*sin(this->earth_loc_lat_last[nbrLine])-sin(this->earth_loc_lat_first[nbrLine])*cos(this->earth_loc_lat_last[nbrLine])*cos(this->earth_loc_lon_first[nbrLine]-this->earth_loc_lon_last[nbrLine])) , 2 * PIE);
 
     sindeltax = sin(delta);
     dx = r * cos(delta) - sqrt( XKMPER * XKMPER - r * r * sindeltax * sindeltax );
@@ -1056,11 +1056,11 @@ void SegmentGAC::RenderSegmentlineInProjection( int channel, int nbrLine, int he
 
         latpos1 = asin(sin(this->earth_loc_lat_first[nbrLine])*cos(psix1)+cos(this->earth_loc_lat_first[nbrLine])*sin(psix1)*cos(tc));
         dlon1=atan2(sin(tc)*sin(psix1)*cos(this->earth_loc_lat_first[nbrLine]),cos(psix1)-sin(this->earth_loc_lat_first[nbrLine])*sin(latpos1));
-        lonpos1=fmod( this->earth_loc_lon_first[nbrLine]-dlon1 + PI,2*PI )-PI;
+        lonpos1=fmod( this->earth_loc_lon_first[nbrLine]-dlon1 + PIE,2*PIE )-PIE;
 
         latpos2 = asin(sin(this->earth_loc_lat_first[nbrLine])*cos(psix2)+cos(this->earth_loc_lat_first[nbrLine])*sin(psix2)*cos(tc));
         dlon2=atan2(sin(tc)*sin(psix2)*cos(this->earth_loc_lat_first[nbrLine]),cos(psix2)-sin(this->earth_loc_lat_first[nbrLine])*sin(latpos2));
-        lonpos2=fmod( this->earth_loc_lon_first[nbrLine]-dlon2 + PI,2*PI )-PI;
+        lonpos2=fmod( this->earth_loc_lon_first[nbrLine]-dlon2 + PIE,2*PIE )-PIE;
 
         if(proj == LCC)
         {

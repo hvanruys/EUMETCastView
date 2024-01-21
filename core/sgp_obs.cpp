@@ -71,7 +71,7 @@ Calculate_LatLonAlt(double time, vector_t *pos,  geodetic_t *geodetic)
 
   geodetic->alt = r/cos(geodetic->lat) - XKMPER_WGS72*c;/*kilometers*/
 
-  if( geodetic->lat > PI/2 ) geodetic->lat -= TWOPI;
+  if( geodetic->lat > PIE/2 ) geodetic->lat -= TWOPI;
   
 } /*Procedure Calculate_LatLonAlt*/
 
@@ -135,7 +135,7 @@ Calculate_Obs(double time,
          + sin_lat*range.z;
   azim = atan(-top_e/top_s); /*Azimuth*/
   if( top_s > 0 ) 
-    azim = azim + PI;
+    azim = azim + PIE;
   if( azim < 0 )
     azim = azim + TWOPI;
   el = ArcSin(top_z/range.w);

@@ -125,8 +125,8 @@ QString QTle::ExpToDecimal(const QString str)
 // Initialize the string array.
 void QTle::Initialize()
 {
-   const double deg2rad  =   PI / 180.0;         //   0.0174532925199433
-   const double xpdotp   =  1440.0 / (2.0 * PI);  // 229.1831180523293
+   const double deg2rad  =   PIE / 180.0;         //   0.0174532925199433
+   const double xpdotp   =  1440.0 / (2.0 * PIE);  // 229.1831180523293
    int year, mon, day, hr, minute;
    double sec;
 

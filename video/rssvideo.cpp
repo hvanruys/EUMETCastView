@@ -927,7 +927,7 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
                     QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
                     QEci qeci(solar_vector, vel, dat);
                     qtopo = observer.GetLookAngle(qeci);
-                    elev = qtopo.elevation * 180.0/PI;
+                    elev = qtopo.elevation * 180.0/PIE;
 
                     if(reader->nightkindofimage == "VIS_IR")
                     {
@@ -1219,7 +1219,7 @@ void RSSVideo::ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayG
                 QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
                 QEci qeci(solar_vector, vel, dat);
                 qtopo = observer.GetLookAngle(qeci);
-                elev = qtopo.elevation * 180.0/PI;
+                elev = qtopo.elevation * 180.0/PIE;
 
                 if(reader->nightkindofimage == "VIS_IR")
                 {
@@ -1431,7 +1431,7 @@ void RSSVideo::ComposeHRVFull(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrD
                     QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
                     QEci qeci(solar_vector, vel, dat);
                     qtopo = observer.GetLookAngle(qeci);
-                    elev = qtopo.elevation * 180.0/PI;
+                    elev = qtopo.elevation * 180.0/PIE;
 
                     if(reader->nightkindofimage == "VIS_IR")
                     {
@@ -1907,7 +1907,7 @@ void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *p
                     QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
                     QEci qeci(solar_vector, vel, dat);
                     qtopo = observer.GetLookAngle(qeci);
-                    elev = qtopo.elevation * 180.0/PI;
+                    elev = qtopo.elevation * 180.0/PIE;
 
                     if(elev <= 0.0)
                     {
@@ -2847,7 +2847,7 @@ void RSSVideo::OverlayProjectionGVP()
 
     GeneralVerticalPerspective *gvp = new GeneralVerticalPerspective(reader, this, &overlayimageProjection);
     QPainter paint(&overlayimageProjection);
-    bret = gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+    bret = gvp->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
 
     if(bret)
     {
@@ -2880,7 +2880,7 @@ void RSSVideo::OverlayProjectionGVP()
                 if (lon_deg > 180.0)
                     lon_deg -= 360.0;
 
-                bret = gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+                bret = gvp->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y);
 
                 if(bret)
                 {
@@ -2922,7 +2922,7 @@ void RSSVideo::OverlayProjectionGVP()
                 if (lon_deg > 180.0)
                     lon_deg -= 360.0;
 
-                bret = gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                bret = gvp->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
 
                 if(bret)
                 {
@@ -2964,7 +2964,7 @@ void RSSVideo::OverlayProjectionGVP()
                 if (lon_deg > 180.0)
                     lon_deg -= 360.0;
 
-                bret = gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                bret = gvp->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
 
                 if(bret)
                 {
@@ -3001,7 +3001,7 @@ void RSSVideo::OverlayProjectionGVP()
             {
                 for(double lat = -90.0; lat < 90.0; lat+=0.5)
                 {
-                    bret = gvp->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = gvp->map_forward( lon*PIE/180, lat*PIE/180, map_x, map_y);
 
                     if(bret)
                     {
@@ -3032,7 +3032,7 @@ void RSSVideo::OverlayProjectionGVP()
             {
                 for(double lon = -180.0; lon < 180.0; lon+=1.0)
                 {
-                    bret = gvp->map_forward( lon*PI/180.0, lat*PI/180.0, map_x, map_y);
+                    bret = gvp->map_forward( lon*PIE/180.0, lat*PIE/180.0, map_x, map_y);
 
                     if(bret)
                     {

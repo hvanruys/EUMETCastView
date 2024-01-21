@@ -1627,7 +1627,7 @@ void Globe::Render3DGeoSegmentLine(int heightinimage, int geoindex)
 
                 //if(lon_deg < lon_high && lon_deg > lon_low)
                 {
-                    sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                    sphericalToPixel(lon_deg*PIE/180.0, lat_deg*PIE/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                     fb_painter.setPen(rgbval);
                     fb_painter.drawPoint(x, y);
                 }
@@ -1764,7 +1764,7 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
         {
             if(pixconv.pixcoord2geocoord(segs->seglgeo[0]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                sphericalToPixel(lon_deg*PIE/180.0, lat_deg*PIE/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
                 positions.append((float)(y / (imageptrs->pmOriginal->height()/2) - 1));
                 texpositions.append((float)(pix /imageptrs->pmOriginal->width()));
@@ -1777,7 +1777,7 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
         {
             if(pixconv.pixcoord2geocoord(segs->seglgeo[1]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                sphericalToPixel(lon_deg*PIE/180.0, lat_deg*PIE/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
                 positions.append((float)(y / (imageptrs->pmOriginal->height()/2) - 1));
                 texpositions.append((float)(pix /imageptrs->pmOriginal->width()));
@@ -1790,7 +1790,7 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
         {
             if(pixconv.pixcoord2geocoord(segs->seglgeo[2]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
             {
-                sphericalToPixel(lon_deg*PI/180.0, lat_deg*PI/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+                sphericalToPixel(lon_deg*PIE/180.0, lat_deg*PIE/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
                 positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
                 positions.append((float)(y / (imageptrs->pmOriginal->height()/2) - 1));
                 texpositions.append((float)(pix /imageptrs->pmOriginal->width()));

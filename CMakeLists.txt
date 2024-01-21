@@ -32,6 +32,7 @@ add_subdirectory(bz2)
 add_subdirectory(PublicDecompWT-2.8.1)
 add_subdirectory(meteosatlib)
 add_subdirectory(QSgp4)
+add_subdirectory(aaplus)
 add_subdirectory(core)
 add_subdirectory(video)
 

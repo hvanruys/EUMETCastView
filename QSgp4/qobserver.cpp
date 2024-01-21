@@ -37,12 +37,12 @@ QTopocentric QObserver::GetLookAngle(QEci &eci)
 
     if (top_s > 0.0)
     {
-        az += PI;
+        az += PIE;
     }
 
     if (az < 0.0)
     {
-        az += 2.0 * PI;
+        az += 2.0 * PIE;
     }
 
     double el = asin(top_z / range.length());

@@ -1487,7 +1487,7 @@ void SegmentListOLCI::ShowWinvec(QPainter *painter, float distance, const QMatri
 
                 qreal angle = ArcCos(QVector3D::dotProduct( vecZ, (*segit)->vecvector.at(i)));
 
-                if (angle < PI/2  + (asin(1/distance)))
+                if (angle < PIE/2  + (asin(1/distance)))
                 {
 
                     painter->drawLine((int)winvecend1.x(), (painter->device())->height() - (int)winvecend1.y(), (int)winvecend3.x(), (painter->device())->height() - (int)winvecend3.y() );

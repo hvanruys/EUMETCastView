@@ -1782,8 +1782,8 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
         {
             fflon = (float)longitude_img[yimg*columnslength + ximg]/1000000.0;
             fflat = (float)latitude_img[yimg*columnslength + ximg]/1000000.0;
-            flon = fflon * PI/180.0;
-            flat = fflat * PI/180.0;
+            flon = fflon * PIE/180.0;
+            flat = fflat * PIE/180.0;
             if(segtype == "ERR" && ximg > 40 && ximg < imgscaled.width() - 8)
             {
                 sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );

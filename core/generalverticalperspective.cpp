@@ -52,8 +52,8 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
 
     image_width = imagewidth;
     image_height = imageheight;
-    lon_center = lonmapdeg*PI/180.0;
-    lat_center = latmapdeg*PI/180.0;
+    lon_center = lonmapdeg*PIE/180.0;
+    lat_center = latmapdeg*PIE/180.0;
     R = 6370997.0;
     p = 1.0 + heightmapkm*1000/R;
 
@@ -309,7 +309,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
             {
                 if(sl->getGeoSatellite() == eGeoSatellite::MET_11 || sl->getGeoSatellite() == eGeoSatellite::MET_10 || sl->getGeoSatellite() == eGeoSatellite::MET_9 || sl->getGeoSatellite() == eGeoSatellite::MET_8)
                 {
-                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
+                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                     {
                         if( hrvmap == 0)
                         {
@@ -382,8 +382,8 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                 }
                 else if(sl->getGeoSatellite() == eGeoSatellite::GOES_16 || sl->getGeoSatellite() == eGeoSatellite::GOES_17 || sl->getGeoSatellite() == eGeoSatellite::GOES_18)
                 {
-                    lon_deg = lon_rad * 180.0 / PI;
-                    lat_deg = lat_rad * 180.0 / PI;
+                    lon_deg = lon_rad * 180.0 / PIE;
+                    lat_deg = lat_rad * 180.0 / PIE;
 
                     pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
                     if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
@@ -411,7 +411,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                 {
                     if (this->map_inverse(i, j, lon_rad, lat_rad))
                     {
-                        if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
+                        if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
                         {
                             picrow = row;
                             if(picrow < imageptrs->ptrimageGeostationary->height())

@@ -64,8 +64,8 @@ SegmentHRPT::SegmentHRPT(eSegmentType type, QFile *filesegment, QObject *parent)
 
     lon_start_rad = geo.longitude;
     lat_start_rad = geo.latitude;
-    lon_start_deg = lon_start_rad * 180.0 / PI;
-    lat_start_deg = lat_start_rad * 180.0 /PI;
+    lon_start_deg = lon_start_rad * 180.0 / PIE;
+    lat_start_deg = lat_start_rad * 180.0 /PIE;
 
     CalculateCornerPoints();
     if(segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_NOAA19)
@@ -553,9 +553,9 @@ void SegmentHRPT::RenderSegmentlineInProjectionAlternative(int channel, int nbrL
 //        qmat.rotate(yaw_steering_angle * 180/PI, d3pos);  // yaw
 //        qmat.rotate(roll_steering_angle * 180/PI, d3vel); // roll
 //        qmat.rotate(pitch_steering_angle * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
-        qmat.rotate(yaw * 180/PI, d3pos);  // yaw
-        qmat.rotate(roll * 180/PI, d3vel); // roll
-        qmat.rotate(pitch * 180/PI, QVector3D::crossProduct(d3pos,d3vel)); // pitch
+        qmat.rotate(yaw * 180/PIE, d3pos);  // yaw
+        qmat.rotate(roll * 180/PIE, d3vel); // roll
+        qmat.rotate(pitch * 180/PIE, QVector3D::crossProduct(d3pos,d3vel)); // pitch
         QVector3D d3scan = qmat * QVector3D::crossProduct(d3pos,d3vel);
         scan.set(d3scan.x(), d3scan.y(), d3scan.z());
 

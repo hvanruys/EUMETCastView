@@ -828,8 +828,8 @@ void SegmentSLSTR::RenderSegmentlineInTextureSLSTR( int nbrLine, QRgb *row )
         {
             fflon = (float)(this->longitude[nbrLine * earthviews + pix])/1000000.0;
             fflat = (float)(this->latitude[nbrLine * earthviews + pix])/1000000.0;
-            flon = fflon * PI/180.0;
-            flat = fflat * PI/180.0;
+            flon = fflon * PIE/180.0;
+            flat = fflat * PIE/180.0;
 
 
             sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );

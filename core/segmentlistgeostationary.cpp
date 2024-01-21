@@ -2496,6 +2496,17 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     float mean_radiance_value_of_valid_pixels[3];
     float min_radiance_value_of_valid_pixels[3];
 
+    int ndimsp, nvarsp, ngattsp, unlimdimidp;
+    //ndimsp	Pointer to location for returned number of dimensions defined for this netCDF dataset. Ignored if NULL.
+    //nvarsp	Pointer to location for returned number of variables defined for this netCDF dataset. Ignored if NULL.
+    //nattsp	Pointer to location for returned number of global attributes defined for this netCDF dataset. Ignored if NULL.
+    //unlimdimidp	Pointer to location for returned ID of the unlimited dimension, if there is one for this netCDF dataset.
+    //              If no unlimited length dimension has been defined, -1 is returned. Ignored if NULL.
+    //              If there are multiple unlimited dimensions (possible only for netCDF-4 files), only a pointer to the first is returned,
+    //              for backward compatibility. If you want them all, use nc_inq_unlimids().
+
+    double geospatial_lat_min, geospatial_lat_max;
+
     emit this->progressCounter(10);
 
     nc_type rh_type;
@@ -2558,6 +2569,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
             if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
 
+
             retval = nc_inq_ncid(ncfileid, "data", &grp_data);
             if(retval != NC_NOERR) qDebug() << "error opening data group";
 
@@ -2606,6 +2618,18 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
             if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
 
+            retval = nc_inq(ncfileid, &ndimsp, &nvarsp, &ngattsp, &unlimdimidp);
+            if(retval != NC_NOERR) qDebug() << "error nc_inq " << this->segmentfilelist.at(j);
+
+            retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_min", &geospatial_lat_min);
+            if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_min";
+
+            retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_max", &geospatial_lat_max);
+            if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_max";
+
+            qDebug() << QString("index = %1 geospatial lat min = %2 lat max = %3 nbr of global att = %4").arg(j).arg(geospatial_lat_min)
+                        .arg(geospatial_lat_max).arg(ngattsp);
+
             retval = nc_inq_ncid(ncfileid, "data", &grp_data);
             if(retval != NC_NOERR) qDebug() << "error opening data group";
 
@@ -2645,8 +2669,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                 {
                 // qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
                 // qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
-                qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
-                                end_position_column - start_position_column + 1);
+                //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
+                //                end_position_column - start_position_column + 1);
                 }
 
                 imageptrs->mtg_start_position_row[i][findex - 1] = start_position_row;
@@ -3234,7 +3258,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
     this->CFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
     this->LFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
 
-    emit this->progressCounter(progcounter += 10);
+    progcounter += 10;
+    emit this->progressCounter(progcounter);
 
     this->SetupContrastStretch( 0, 0, 1023, 255);
 
@@ -3265,7 +3290,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
 int SegmentListGeostationary::concurrentMinMaxMTG(SegmentListGeostationary *sm, const int &index)
 {
 
-    qDebug() << "concurrentMinMaxMTG for index = " << index;
+    //qDebug() << "concurrentMinMaxMTG for index = " << index;
 
     for(int j = 0; j < (sm->kindofimage == "VIS_IR Color" ? 3 : 1); j++)
     {
@@ -3944,7 +3969,7 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
     QRgb *row_col;
     QRgb *row_col_bitmap;
     quint16 cred, cgreen, cblue;
-    quint16 r,g, b;
+    quint16 r = 0, g = 0, b = 0;
     quint16 indexoutrc, indexoutgc, indexoutbc;
 
     double gamma = opts.meteosatgamma;
@@ -3957,7 +3982,7 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
 
     int nbroflinespersegment = opts.geosatellites[geoindex].segmentlength;
 
-    if(m_GeoSatellite != eGeoSatellite::H9)
+    //if(m_GeoSatellite != eGeoSatellite::H9)
         im = CalculateBitMap();
 
     unsigned int i_image;
@@ -3976,7 +4001,10 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                 row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
             }
             else
+            {
                 row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
+                row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(line);
+            }
         }
 
         for (int pixelx = (m_GeoSatellite != eGeoSatellite::H9 ? opts.geosatellites[geoindex].imagewidth - 1 : 0);
@@ -4145,29 +4173,50 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                     row_col[pixelx] = qRgb(r,g,b);
                 else
                 {
-                    //                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
-                    //                    {
-                    //                        r = 0;
-                    //                        g = 0;
-                    //                        b = 0;
-                    //                    }
-                    //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
-                    //                    {
-                    //                        r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
-                    //                        g = quint16(this->inversevector[1] ? (g == 255 ? 0 : g) : g);
-                    //                        b = quint16(this->inversevector[2] ? (b == 255 ? 0 : b) : b);
-                    //                    }
-                    //                    else
+//                                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+//                                        {
+//                                            r = 255;
+//                                            g = 0;
+//                                            b = 0;
+//                                        }
+//                                        else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+//                                        {
+//                                            r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
+//                                            g = quint16(this->inversevector[1] ? (g == 255 ? 0 : g) : g);
+//                                            b = quint16(this->inversevector[2] ? (b == 255 ? 0 : b) : b);
+//                                        }
+//                                        else
                     {
                         r = quint16(this->inversevector[0] ? (255 - r) : r);
                         g = quint16(this->inversevector[1] ? (255 - g) : g);
                         b = quint16(this->inversevector[2] ? (255 - b) : b);
                     }
+
+//                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+//                    {
+//                        r = 255;
+//                        g = 0;
+//                        b = 0;
+//                    }
+//                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+//                    {
+//                        r = 0;
+//                        g = 255;
+//                        b = 255;
+//                    }
+//                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 1)
+//                    {
+//                        r = 0;
+//                        g = 255;
+//                        b = 255;
+//                    }
+                }
+
                     if(m_GeoSatellite != eGeoSatellite::H9)
                         row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r,g,b);
                     else
                         row_col[pixelx] = qRgb(r,g,b);
-                }
+
 
 
             }
@@ -5958,7 +6007,7 @@ void SegmentListGeostationary::ComposeDayMicrophysicsRGB(bandstorage &bs, double
 
     //The CO2-corrected, solar constant at the Top of the Atmosphere
     //in Channel 04 (IR3.9)
-    double ESD = 1.0 - 0.0167 * cos( 2 * PI * (julian_day - 3)/ 365.0);
+    double ESD = 1.0 - 0.0167 * cos( 2 * PIE * (julian_day - 3)/ 365.0);
     for (int j = 0; j < 3712; ++j)
     {
         for (int k = 0; k < 3712; ++k)
@@ -6047,7 +6096,7 @@ void SegmentListGeostationary::GetRadBT(int unit, int channel, bandstorage &bs, 
         }
     }
 
-    double a = PI / snu_solar_distance_factor2(bs.day_of_year);
+    double a = PIE / snu_solar_distance_factor2(bs.day_of_year);
     double b = a / band_solar_irradiance[satid][channel - 1];
     const double c1 = 1.19104e-5; // [mW m^-2 sr^-1 (cm^-1)^-4
     const double c2 = 1.43877; // K (cm^-1)^-1
@@ -6217,7 +6266,7 @@ void SegmentListGeostationary::ComposeSnowRGB(bandstorage &bs, double julian_day
 
     //The CO2-corrected, solar constant at the Top of the Atmosphere
     //in Channel 04 (IR3.9)
-    double ESD = 1.0 - 0.0167 * cos( 2 * PI * (julian_day - 3)/ 365.0);
+    double ESD = 1.0 - 0.0167 * cos( 2 * PIE * (julian_day - 3)/ 365.0);
     for (int j = 0; j < 3712; ++j)
     {
         for (int k = 0; k < 3712; ++k)
@@ -6384,7 +6433,7 @@ void SegmentListGeostationary::ComposeIR_039sunreflected(bandstorage &bs, double
 
     //The CO2-corrected, solar constant at the Top of the Atmosphere
     //in Channel 04 (IR3.9)
-    double ESD = 1.0 - 0.0167 * cos( 2 * PI * (julian_day - 3)/ 365.0);
+    double ESD = 1.0 - 0.0167 * cos( 2 * PIE * (julian_day - 3)/ 365.0);
     for (int j = 0; j < 3712; ++j)
     {
         for (int k = 0; k < 3712; ++k)
@@ -6587,8 +6636,8 @@ void SegmentListGeostationary::CalculateGeoRadiances(bandstorage &bs)
     * Ref: PDF_MSG_SEVIRI_RAD2REFL, Page 8
     *-----------------------------------------------------------------------*/
     //double dd = 1. / sqrt(snu_solar_distance_factor2(day_of_year)); // distance earth-sun
-    //double a = PI * dd * dd;
-    double a = PI / snu_solar_distance_factor2(bs.day_of_year);
+    //double a = PIE * dd * dd;
+    double a = PIE / snu_solar_distance_factor2(bs.day_of_year);
 
     int satid =  (int)header.segment_id->spacecraft_id - 321 ;
 
@@ -6742,17 +6791,23 @@ QImage *SegmentListGeostationary::CalculateBitMap()
     imageptrs->ptrimagebitmap = new QImage(imageptrs->ptrimageGeostationary->width(), imageptrs->ptrimageGeostationary->height(), QImage::Format_ARGB32);
     QPainter painter(imageptrs->ptrimagebitmap);
 
-    painter.translate(imageptrs->ptrimageGeostationary->width()/2, imageptrs->ptrimageGeostationary->height()/2);
+//    painter.translate(imageptrs->ptrimageGeostationary->width()/2, imageptrs->ptrimageGeostationary->height()/2);
 
-    int diameter = 3630; // 3615;
+//    int diameter = (m_GeoSatellite != eGeoSatellite::H9 ? 3630 : 5445); // 3615;
+//    painter.setPen(Qt::NoPen);
+//    painter.setBrush(Qt::red);
+//    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+
+//    diameter = (m_GeoSatellite != eGeoSatellite::H9 ? 3600 : 5400); // 3615;
+//    //painter.setPen(QPen(QColor(1,1,1)));
+//    painter.setBrush(QColor(1,1,1));
+//    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+
+    QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
     painter.setPen(Qt::NoPen);
-    painter.setBrush(Qt::red);
-    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
-
-    diameter = 3600; // 3615;
-    //painter.setPen(QPen(QColor(1,1,1)));
     painter.setBrush(QColor(1,1,1));
-    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    painter.drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
+
 
     return(imageptrs->ptrimagebitmap);
 }

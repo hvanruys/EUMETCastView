@@ -4,6 +4,7 @@
 #include "satellite.h"
 #include "ColorSpace.h"
 #include "Conversion.h"
+#include "AA+.h"
 
 #include <QDebug>
 #include <QMessageBox>
@@ -352,18 +353,45 @@ void FormImage::slotcomposefinished(QString kindofimage, int index)
 {
     qDebug() << "slotcomposefinished " << kindofimage << " index = " << index << " channelshown = " << channelshown ;
 
+    pixgeoConversion pixconv;
+    double sa;
+    double lat_deg, lon_deg;
+
     this->setPixmapToScene(true);
 
     SegmentListGeostationary *sl = NULL;
     sl = segs->getActiveSegmentList();
 
+//    if(sl->getGeoSatellite() == eGeoSatellite::H9)
+//    {
+//        for (int pix = 0 ; pix < 100; pix+=1)
+//        {
+//            sa = pixconv.calc_sa(segs->seglgeo[index]->geosatlon, pix, 2750, segs->seglgeo[index]->COFF, segs->seglgeo[index]->LOFF, segs->seglgeo[index]->CFAC, segs->seglgeo[index]->LFAC, &lat_deg, &lon_deg);
+//            qDebug() << pix << " sa = " << sa;
+//        }
+//        for (int pix = 5400 ; pix < 5500; pix+=1)
+//        {
+//            sa = pixconv.calc_sa(segs->seglgeo[index]->geosatlon, pix, 2750, segs->seglgeo[index]->COFF, segs->seglgeo[index]->LOFF, segs->seglgeo[index]->CFAC, segs->seglgeo[index]->LFAC, &lat_deg, &lon_deg);
+//            qDebug() << pix << " sa = " << sa;
+//        }
+//        for (int line = 0 ; line < 100; line+=1)
+//        {
+//            sa = pixconv.calc_sa(segs->seglgeo[index]->geosatlon, 2750, line, segs->seglgeo[index]->COFF, segs->seglgeo[index]->LOFF, segs->seglgeo[index]->CFAC, segs->seglgeo[index]->LFAC, &lat_deg, &lon_deg);
+//            qDebug() << line << " sa = " << sa;
+//        }
+//        for (int line = 5400 ; line < 5500; line+=1)
+//        {
+//            sa = pixconv.calc_sa(segs->seglgeo[index]->geosatlon, 2750, line, segs->seglgeo[index]->COFF, segs->seglgeo[index]->LOFF, segs->seglgeo[index]->CFAC, segs->seglgeo[index]->LFAC, &lat_deg, &lon_deg);
+//            qDebug() << line << " sa = " << sa;
+//        }
+//    }
 
-    //    if(sl->getGeoSatellite() == eGeoSatellite::H8)
-    //    {
-    //        EnhanceDarkSpace(sl->getGeoSatelliteIndex());
-    //        imageGraphicsView->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
-    //        refreshoverlay = true;
-    //    }
+//        if(sl->getGeoSatellite() == eGeoSatellite::H8)
+//        {
+//            EnhanceDarkSpace(sl->getGeoSatelliteIndex());
+//            imageGraphicsView->setPixmap(QPixmap::fromImage( *(imageptrs->ptrimageGeostationary)));
+//            refreshoverlay = true;
+//        }
 
     QApplication::restoreOverrideCursor();
 
@@ -2540,6 +2568,13 @@ void FormImage::OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary
         first = true;
     }
 
+    QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
+    paint->setPen(Qt::red);
+    paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
+
+//    paint->setPen(Qt::red);
+//    paint->drawRect(28, 38, 5453-10, 5444-20);
+//    paint->drawEllipse(28, 38, 5453-10, 5444-20);
 
     //this->update();
 }
@@ -2563,13 +2598,13 @@ void FormImage::OverlayProjection(QPainter *paint)
         lon_deg -= 360.0;
 
     if (opts.currenttoolbox == 0)           // LCC
-        bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+        bret = imageptrs->lcc->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y);
     else if (opts.currenttoolbox == 1)      // GVP
-        bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+        bret = imageptrs->gvp->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
     else if (opts.currenttoolbox == 2)      //SG
-        bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+        bret = imageptrs->sg->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
     else if (opts.currenttoolbox == 3)      //OM
-        bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+        bret = imageptrs->om->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
     else
         bret = false;
 
@@ -2605,13 +2640,13 @@ void FormImage::OverlayProjection(QPainter *paint)
                 lon_deg -= 360.0;
 
             if (opts.currenttoolbox == 0)       //LCC
-                bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+                bret = imageptrs->lcc->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y);
             else if (opts.currenttoolbox == 1)  //GVP
-                bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+                bret = imageptrs->gvp->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y);
             else if (opts.currenttoolbox == 2)  //SG
-                bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+                bret = imageptrs->sg->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y);
             else if (opts.currenttoolbox == 3)  //OM
-                bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+                bret = imageptrs->om->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y);
             else
                 bret = false;
 
@@ -2655,13 +2690,13 @@ void FormImage::OverlayProjection(QPainter *paint)
                 lon_deg -= 360.0;
 
             if (opts.currenttoolbox == 0)       //LCC
-                bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+                bret = imageptrs->lcc->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y);
             else if (opts.currenttoolbox == 1)  //GVP
-                bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                bret = imageptrs->gvp->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
             else if (opts.currenttoolbox == 2)  //SG
-                bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                bret = imageptrs->sg->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
             else if (opts.currenttoolbox == 3)  //OM
-                bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                bret = imageptrs->om->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
             else
                 bret = false;
 
@@ -2705,13 +2740,13 @@ void FormImage::OverlayProjection(QPainter *paint)
                 lon_deg -= 360.0;
 
             if (opts.currenttoolbox == 0)       //LCC
-                bret = imageptrs->lcc->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y);
+                bret = imageptrs->lcc->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y);
             else if (opts.currenttoolbox == 1)  //GVP
-                bret = imageptrs->gvp->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                bret = imageptrs->gvp->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
             else if (opts.currenttoolbox == 2)  //SG
-                bret = imageptrs->sg->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                bret = imageptrs->sg->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
             else if (opts.currenttoolbox == 3)  //OM
-                bret = imageptrs->om->map_forward( lon_deg*PI/180, lat_deg*PI/180, map_x, map_y) ;
+                bret = imageptrs->om->map_forward( lon_deg*PIE/180, lat_deg*PIE/180, map_x, map_y) ;
             else
                 bret = false;
 
@@ -2751,7 +2786,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             {
                 for(double lat = -90.0; lat < 90.0; lat+=0.5)
                 {
-                    bret = imageptrs->lcc->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = imageptrs->lcc->map_forward( lon*PIE/180, lat*PIE/180, map_x, map_y);
 
                     if(bret)
                     {
@@ -2783,7 +2818,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             {
                 for(double lon = -180.0; lon < 180.0; lon+=1.0)
                 {
-                    bret = imageptrs->lcc->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = imageptrs->lcc->map_forward( lon*PIE/180, lat*PIE/180, map_x, map_y);
 
                     if(bret)
                     {
@@ -2817,7 +2852,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             {
                 for(double lat = -90.0; lat < 90.0; lat+=0.5)
                 {
-                    bret = imageptrs->gvp->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = imageptrs->gvp->map_forward( lon*PIE/180, lat*PIE/180, map_x, map_y);
 
                     if(bret)
                     {
@@ -2848,7 +2883,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             {
                 for(double lon = -180.0; lon < 180.0; lon+=1.0)
                 {
-                    bret = imageptrs->gvp->map_forward( lon*PI/180.0, lat*PI/180.0, map_x, map_y);
+                    bret = imageptrs->gvp->map_forward( lon*PIE/180.0, lat*PIE/180.0, map_x, map_y);
 
                     if(bret)
                     {
@@ -2883,7 +2918,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             {
                 for(double lat = -90.0; lat < 90.0; lat+=0.5)
                 {
-                    bret = imageptrs->sg->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = imageptrs->sg->map_forward( lon*PIE/180, lat*PIE/180, map_x, map_y);
 
                     if(bret)
                     {
@@ -2914,7 +2949,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             {
                 for(double lon = -180.0; lon < 180.0; lon+=1.0)
                 {
-                    bret = imageptrs->sg->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = imageptrs->sg->map_forward( lon*PIE/180, lat*PIE/180, map_x, map_y);
 
                     if(bret)
                     {
@@ -2954,7 +2989,7 @@ void FormImage::OverlayProjection(QPainter *paint)
 
         for(int i = 0; i < poly.size(); i++)
         {
-            bret = imageptrs->om->map_forward( poly.at(i).x()*PI/180, poly.at(i).y()*PI/180, map_x, map_y);
+            bret = imageptrs->om->map_forward( poly.at(i).x()*PIE/180, poly.at(i).y()*PIE/180, map_x, map_y);
             if(bret)
             {
                 paint->setPen(QColor(255, 0, 255));
@@ -2977,7 +3012,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             first = true;
             for(int i = 0; i < track.size(); i++)
             {
-                bret = imageptrs->om->map_forward( track.at(i).x()*PI/180, track.at(i).y()*PI/180, map_x, map_y);
+                bret = imageptrs->om->map_forward( track.at(i).x()*PIE/180, track.at(i).y()*PIE/180, map_x, map_y);
                 if(bret)
                 {
                     if (first)
@@ -3009,7 +3044,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             {
                 for(double lat = -80.0; lat < 81.0; lat+=0.5)
                 {
-                    bret = imageptrs->om->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = imageptrs->om->map_forward( lon*PIE/180, lat*PIE/180, map_x, map_y);
 
                     if(bret)
                     {
@@ -3041,7 +3076,7 @@ void FormImage::OverlayProjection(QPainter *paint)
             {
                 for(double lon = -180.0; lon < 180.0; lon+=1.0)
                 {
-                    bret = imageptrs->om->map_forward( lon*PI/180, lat*PI/180, map_x, map_y);
+                    bret = imageptrs->om->map_forward( lon*PIE/180, lat*PIE/180, map_x, map_y);
 
                     if(bret)
                     {

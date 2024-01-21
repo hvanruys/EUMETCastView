@@ -3,8 +3,8 @@
 #include <QDebug>
 
 
-#define DEG_TO_RAD (PI/180.0)
-#define RAD_TO_DEG (180.0/PI)
+#define DEG_TO_RAD (M_PI/180.0)
+#define RAD_TO_DEG (180.0/M_PI)
 
 //#define R_POL (6356.7523)     /* semi-minor axis (polar radius km) */
 //#define R_EQ (6378.1370)       /* semi-major axis (equatorial radius km) */
@@ -463,7 +463,7 @@ int pixgeoConversion::pixcoord2geocoord(double sub_lon_deg, int column, int row,
   double s1=0.0, s2=0.0, s3=0.0, sn=0.0, sd=0.0, sxy=0.0, sa=0.0;
   double x=0.0, y=0.0;
   double longi=0.0, lati=0.0;
-  double sub_lon = sub_lon_deg*PI/180.0;
+  double sub_lon = sub_lon_deg*PIE/180.0;
 
   int c=0, l=0;
 
@@ -517,8 +517,8 @@ int pixgeoConversion::pixcoord2geocoord(double sub_lon_deg, int column, int row,
   longi = atan(s2/s1) + sub_lon;
   lati  = atan(((double)1.006803*s3)/sxy);
   /* convert from radians into degrees */
-  *latitude = lati*180./PI;
-  *longitude = longi*180./PI;
+  *latitude = lati*180./PIE;
+  *longitude = longi*180./PIE;
 
   return (0);
 
@@ -588,7 +588,7 @@ int pixgeoConversion::geocoord2pixcoord(double sub_lon_deg, double latitude, dou
   double cc=0.0, ll=0.0;
   double dotprod=0.0;
 
-  double sub_lon = sub_lon_deg*PI/180.0;
+  double sub_lon = sub_lon_deg*PIE/180.0;
   lati= latitude;
   longi= longitude;
 
@@ -601,8 +601,8 @@ int pixgeoConversion::geocoord2pixcoord(double sub_lon_deg, double latitude, dou
 
 
   /* convert them to radiants */
-  lat = lati*PI / (double)180.;
-  lon = longi *PI / (double)180.;
+  lat = lati*PIE / (double)180.;
+  lon = longi *PIE / (double)180.;
 
   /* calculate the geocentric latitude from the          */
   /* geograhpic one using equations on page 24, Ref. [1] */

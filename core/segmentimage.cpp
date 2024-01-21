@@ -807,7 +807,7 @@ int SegmentImage::GetSpectralChannelNbr(QString channel)
 
 void SegmentImage::CalcSatAngles()
 {
-    double swath = 55.3*PI/180.0;
+    double swath = 55.3*PIE/180.0;
     double deltaphi = swath/1024;
     double deltaphigac  = swath/204.5;
     double phi, beta, d;
@@ -817,8 +817,8 @@ void SegmentImage::CalcSatAngles()
     for(int i = 1; i < 1024; i++)
     {
         phi= deltaphi*(double)i;
-        beta=PI-ArcSin((XKMPER_WGS84 + satheight)*sin(phi)/XKMPER_WGS84);
-        Sigmadist[1024 - i] = Sigmadist[1024 + i] = PI - beta - phi;
+        beta=PIE-ArcSin((XKMPER_WGS84 + satheight)*sin(phi)/XKMPER_WGS84);
+        Sigmadist[1024 - i] = Sigmadist[1024 + i] = PIE - beta - phi;
     }
     Sigmadist[1024] = 0.0;
     Sigmadist[0] = Sigmadist[1];
@@ -826,8 +826,8 @@ void SegmentImage::CalcSatAngles()
     for(int i = 1; i < 204; i++)
     {
         phi= deltaphigac*(double)i;
-        beta=PI-ArcSin((XKMPER_WGS84 + satheight)*sin(phi)/XKMPER_WGS84);
-        SigmadistGAC[204 - i] = SigmadistGAC[204 + i] = PI - beta - phi;
+        beta=PIE-ArcSin((XKMPER_WGS84 + satheight)*sin(phi)/XKMPER_WGS84);
+        SigmadistGAC[204 - i] = SigmadistGAC[204 + i] = PIE - beta - phi;
     }
     SigmadistGAC[204] = 0.0;
     SigmadistGAC[0] = SigmadistGAC[1] = SigmadistGAC[2] = SigmadistGAC[3] = 0.0;

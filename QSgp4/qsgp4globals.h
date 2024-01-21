@@ -41,12 +41,12 @@ const double kS = kAE * (1.0 + kS0 / kXKMPER);
 */
 
 
-const double PI = 3.14159265358979323846264338327950288419716939937510582;
-const double TWOPI = 2.0 * PI;
+const double PIE = 3.14159265358979323846264338327950288419716939937510582;
+const double TWOPI = 2.0 * PIE;
 const double TWOTHIRD = 2.0 / 3.0;
 const double THDT = 4.37526908801129966e-3;
 
-const double NOAA_SWATH     = 55.3 * PI / 180.0;
+const double NOAA_SWATH     = 55.3 * PIE / 180.0;
 
 
 /*

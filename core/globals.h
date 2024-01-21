@@ -237,5 +237,6 @@ double asinz(double con);
 
 QString ProjectionTypeToString(eProjectionType projtype);
 QString ImageTypeToString( eImageType imtype );
+void HoursTohms(double inhours, int &hours, int &minutes, int &seconds);
 
 #endif
