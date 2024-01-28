@@ -6806,7 +6806,7 @@ QImage *SegmentListGeostationary::CalculateBitMap()
     QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(1,1,1));
-    painter.drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
+    painter.drawEllipse(pt, opts.geosatellites.at(geoindex).coff - (m_GeoSatellite == eGeoSatellite::H9 ? 28 : 50), opts.geosatellites.at(geoindex).loff - (m_GeoSatellite == eGeoSatellite::H9 ? 40 : 60));
 
 
     return(imageptrs->ptrimagebitmap);

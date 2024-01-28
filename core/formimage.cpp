@@ -4,7 +4,7 @@
 #include "satellite.h"
 #include "ColorSpace.h"
 #include "Conversion.h"
-#include "AA+.h"
+#include "moon.h"
 
 #include <QDebug>
 #include <QMessageBox>
@@ -40,6 +40,7 @@ FormImage::FormImage(QWidget *parent, AVHRRSatellite *seglist) :
     overlaymeteosat = true;
     overlayprojection = true;
     overlayolci = true;
+    overlaymoon = true;
 
     metopcount = 0;
     noaacount = 0;
@@ -72,6 +73,16 @@ bool FormImage::toggleOverlayMeteosat()
         overlaymeteosat = true;
     m_scene->update();
     return overlaymeteosat;
+}
+
+bool FormImage::toggleOverlayMoon()
+{
+    if(overlaymoon)
+        overlaymoon = false;
+    else
+        overlaymoon = true;
+    m_scene->update();
+    return overlaymoon;
 }
 
 bool FormImage::toggleOverlayOLCI()
@@ -2568,11 +2579,32 @@ void FormImage::OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary
         first = true;
     }
 
-    QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
-    paint->setPen(Qt::red);
-    paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
-
+//    QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
 //    paint->setPen(Qt::red);
+//    paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
+
+    moonCalc obj;
+    float scale = 313.873;
+
+    paint->setPen(Qt::yellow);
+    if(overlaymoon)
+    {
+        for(int i = 0; i < 144; i++)
+        {
+            if(obj.moonIsVisible(i) > 0)
+            {
+                int h, m;
+                obj.getTimeFromIndex(i, &h, &m);
+                qDebug() << "h = " << h << " m = " << m << " moon is visible = " << obj.moonIsVisible(i) << " moonCoordX = " << obj.moonCoordX[i] << " moonCoordY = " << obj.moonCoordY[i];
+                paint->drawEllipse(obj.moonCoordX[i] - 0.25*scale, obj.moonCoordY[i] - 0.25*scale, 0.5*scale, 0.5*scale);
+                QFont serifFont("Times", 20, QFont::Bold);
+                paint->setFont(serifFont);
+                QString txt = QString("%1:%2").arg(h, 2, 'f', 0, '0').arg(m, 2, 'f', 0, '0');
+                paint->drawText(obj.moonCoordX[i] - 20, obj.moonCoordY[i], txt);
+            }
+        }
+    }
+    //    paint->setPen(Qt::red);
 //    paint->drawRect(28, 38, 5453-10, 5444-20);
 //    paint->drawEllipse(28, 38, 5453-10, 5444-20);
 

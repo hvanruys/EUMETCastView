@@ -89,6 +89,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     ui->btnOverlayMeteosat->setText("Overlay On");
     ui->btnOverlayOLCI->setText("Overlay On");
+    ui->btnOverlayMoon->setText("Moon On");
     ui->btnOverlayProjectionGVP->setText("Overlay On");
     ui->btnOverlayProjectionLCC->setText("Overlay On");
     ui->btnOverlayProjectionSG->setText(("Overlay On"));
@@ -1558,6 +1559,15 @@ void FormToolbox::on_btnOverlayMeteosat_clicked()
         ui->btnOverlayMeteosat->setText("Overlay On");
     else
         ui->btnOverlayMeteosat->setText("Overlay Off");
+}
+
+void FormToolbox::on_btnOverlayMoon_clicked()
+{
+    if(formimage->toggleOverlayMoon())
+        ui->btnOverlayMoon->setText("Moon On");
+    else
+        ui->btnOverlayMoon->setText("Moon Off");
+
 }
 
 void FormToolbox::on_btnOverlayOLCI_clicked()
@@ -6282,4 +6292,6 @@ void FormToolbox::on_btnUpdateAVHRRImage_clicked()
     }
 
 }
+
+
 

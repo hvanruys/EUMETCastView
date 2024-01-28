@@ -56,6 +56,7 @@ public:
     bool toggleOverlayMeteosat();
     bool toggleOverlayProjection();
     bool toggleOverlayOLCI();
+    bool toggleOverlayMoon();
     bool toggleOverlayGridOnOLCI();
 
     bool ShowVIIRSMImage();
@@ -120,6 +121,7 @@ private:
     bool overlaymeteosat;
     bool overlayprojection;
     bool overlayolci;
+    bool overlaymoon;
 
 
     int metopcount;

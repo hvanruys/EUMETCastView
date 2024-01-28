@@ -83,6 +83,7 @@ set(PROJECT_SOURCES_CPP
     nav_util.cpp
     ColorSpace.cpp
     Conversion.cpp
+    moon.cpp
     mainwindow.ui
     dialogpreferences.ui
     formephem.ui

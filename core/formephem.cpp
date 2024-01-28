@@ -248,7 +248,8 @@ void FormEphem::getSegmentsForCalendar()
 
     NewSegmentOverviewItem();
 
-    emit signalDirectoriesRead();
+    emit signalDirectoriesRead(ui->calendar->selectedDate());
+    emit signalSetScrollBarMaximum();
 }
 
 void FormEphem::NewSegmentOverviewItem()

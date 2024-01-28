@@ -11,6 +11,7 @@
 #include "nav_util.h"
 #include "qsgp4date.h"
 #include "AA+.h"
+#include "moon.h"
 
 #include <QtConcurrent/QtConcurrent>
 
@@ -23,6 +24,10 @@
 extern SegmentImage *imageptrs;
 extern Options opts;
 extern SatelliteList satellitelist;
+
+int moonCalc::moonVisible[144];
+int moonCalc::moonCoordX[144];
+int moonCalc::moonCoordY[144];
 
 FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
     QWidget(parent),
@@ -46,28 +51,38 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
             treeWidget->header()->setStretchLastSection(true);
             treeWidget->setColumnCount(opts.geosatellites.at(i).spectrumlist.count() + 2);
             QStringList header;
-            int columnsheader;
+            int columnsheadercount;
             if(opts.geosatellites.at(i).spectrumhrv.length() == 0)
             {
                 header << opts.geosatellites.at(i).spectrumvalueslist;
-                columnsheader = opts.geosatellites.at(i).spectrumlist.count() + 2;
+                columnsheadercount = opts.geosatellites.at(i).spectrumlist.count() + 2;
+                if(opts.geosatellites.at(i).shortname == "H9")
+                {
+                    columnsheadercount++;
+                }
+
             }
             else
             {
                 header << opts.geosatellites.at(i).spectrumhrv << opts.geosatellites.at(i).spectrumvalueslist;
-                columnsheader = opts.geosatellites.at(i).spectrumlist.count() + 3;
+                columnsheadercount = opts.geosatellites.at(i).spectrumlist.count() + 3;
             }
 
-            treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header );
             treeWidget->setColumnWidth(0, 150);
             treeWidget->setColumnWidth(1, 150);
 
-            for(int i = 2; i < columnsheader; i++)
+            if(opts.geosatellites.at(i).shortname == "H9")
+                treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header << "Moon illumination (%)" );
+            else
+                treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header );
+
+
+            for(int i = 2; i < columnsheadercount; i++)
             {
                 treeWidget->setColumnWidth(i, 40);
             }
 
-            for(int i = 0; i < columnsheader; i++)
+            for(int i = 0; i < columnsheadercount; i++)
             {
                 treeWidget->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
             }
@@ -335,10 +350,10 @@ int FormGeostationary::wildcmp(const char *wild, const char *string)
     return !*wild;
 }
 
-void FormGeostationary::PopulateTree()
+void FormGeostationary::PopulateTree(QDate seldate)
 {
 
-    qDebug() << "FormGeostationary::PopulateTree()";
+    qDebug() << "FormGeostationary::PopulateTree() selection date = " << seldate.toString();
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
@@ -464,6 +479,8 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > map;
     map = segs->segmentlistmapgeo.at(geoindex);
 
+    QDate seldate = segs->selectiondate;
+
     QTreeWidget *widget;
     widget = geotreewidgetlist.at(geoindex);
 
@@ -476,6 +493,12 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
     QString strspectrum;
     QString filenbr;
     QColor col;
+
+    moonCalc obj;
+    if(opts.geosatellites.at(geoindex).shortname == "H9")
+    {
+        obj.CalcMoon(seldate, geoindex);
+    }
 
     int nbr_spectrum = opts.geosatellites.at(geoindex).spectrumlist.count();
     if(opts.geosatellites.at(geoindex).spectrumhrv.length() > 0)
@@ -548,6 +571,15 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
             //            qDebug() << "cnt_spectrum " << i << " " << strlist;
         }
 
+
+
+        if(opts.geosatellites.at(geoindex).shortname == "H9")
+        {
+            int timeindex = obj.getTimeIndex(strdate.mid(8,2), strdate.mid(10, 2));
+            if(obj.moonIsVisible(timeindex) > 0)
+                strlist << QString("%1").arg(obj.moonIsVisible(timeindex));
+        }
+
         newitem = new QTreeWidgetItem( widget, strlist, 0  );
 
         bool spectrumok = true;
@@ -587,14 +619,33 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
             col.setRgb(225, 171, 196);
 
 
-        for(int i = 0; i < 18; i++)
+        for(int i = 0; i < newitem->columnCount(); i++)
             newitem->setBackground( i, QBrush(col) );
+
+        if(opts.geosatellites.at(geoindex).shortname == "H9")
+        {
+            int timeindex = obj.getTimeIndex(strdate.mid(8,2), strdate.mid(10, 2));
+            if(obj.moonIsVisible(timeindex) > 0)
+                newitem->setBackground( newitem->columnCount() - 1, QBrush(Qt::yellow) );
+            else
+                newitem->setBackground( newitem->columnCount() - 1, QBrush(col) );
+
+        }
 
         ++citdate;
     }
 
 
 }
+
+//int FormGeostationary::getTimeIndex(QString h, QString m)
+//{
+//    int hours = h.toInt();
+//    int minutes = m.toInt();
+
+//    return (hours * 6) + (minutes/10);
+
+//}
 
 FormGeostationary::~FormGeostationary()
 {
@@ -1296,107 +1347,114 @@ void FormGeostationary::slotCreateRGBrecipe(int recipe)
 
 }
 
-void FormGeostationary::CalcMoon(QDate selected, int geosatindex)
-{
-    double hours, minutes;
-    int day, year, month;
-    int min = 10;
+//void FormGeostationary::CalcMoon(QDate selected, int geosatindex)
+//{
+//    double hours, minutes;
+//    int day, year, month;
+//    int min = 10;
+//    int timeindex;
+//    year = selected.year();
+//    month = selected.month();
+//    day = selected.day();
 
-    year = selected.year();
-    month = selected.month();
-    day = selected.day();
+//    double opposietlong = MapToMinus180To180Range(180 - opts.geosatellites.at(geosatindex).longitude);
 
-    QBrush moonBrush(Qt::yellow);
-    QPen blackpen(Qt::black);
-    blackpen.setWidth(1);
 
-//    while (!moonlist.isEmpty())
-//        scene->removeItem(moonlist.takeFirst());
-//    moonlist.clear();
+//    QBrush moonBrush(Qt::yellow);
+//    QPen blackpen(Qt::black);
+//    blackpen.setWidth(1);
 
-//    while (!textlist.isEmpty())
-//        scene->removeItem(textlist.takeFirst());
-//    scene->update();
-//    textlist.clear();
+////    while (!moonlist.isEmpty())
+////        scene->removeItem(moonlist.takeFirst());
+////    moonlist.clear();
 
-//    qDebug() << QString("Calculating for satellite at %1°").arg(geolonlist.at(geosatindex));
+////    while (!textlist.isEmpty())
+////        scene->removeItem(textlist.takeFirst());
+////    scene->update();
+////    textlist.clear();
 
-//    ui->listWidget->clear();
+////    qDebug() << QString("Calculating for satellite at %1°").arg(geolonlist.at(geosatindex));
 
-    for( int hours = 0; hours < 24; hours++)
-    {
-        for( int minutes = 0; minutes < 60; minutes += min)
-        {
-            double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes)/(24.0*60.0);
-            double JD = CAADate::DateToJD(year, month, dday, true);
+////    ui->listWidget->clear();
 
-            double JDMoon = CAADynamicalTime::UTC2TT(JD);
-            double MoonLong = CAAELP2000::EclipticLongitude(JDMoon);
-            double MoonLat = CAAELP2000::EclipticLatitude(JDMoon);
+//    for( int hours = 0; hours < 24; hours++)
+//    {
+//        for( int minutes = 0; minutes < 60; minutes += min)
+//        {
+//            timeindex = (hours * 6) + (minutes/min);
+//            double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes)/(24.0*60.0);
+//            double JD = CAADate::DateToJD(year, month, dday, true);
 
-            int MoonLongdeg, MoonLongmin, MoonLongsec;
-            int MoonLatdeg, MoonLatmin, MoonLatsec;
-            HoursTohms(MoonLong, MoonLongdeg, MoonLongmin, MoonLongsec);
-            HoursTohms(MoonLat, MoonLatdeg, MoonLatmin, MoonLatsec);
-            CAA2DCoordinate Equatorial = CAACoordinateTransformation::Ecliptic2Equatorial(MoonLong, MoonLat, CAANutation::TrueObliquityOfEcliptic(JDMoon));
-            double MoonRad = CAAELP2000::RadiusVector(JDMoon);
-            //MoonRad /= 149597870.691; //Convert KM to AU
-            double AST = CAASidereal::ApparentGreenwichSiderealTime(JDMoon);
-            double LongtitudeAsHourAngle = CAACoordinateTransformation::DegreesToHours( geolonlist.at(geosatindex) );
-            double LocalHourAngle = AST - LongtitudeAsHourAngle - Equatorial.X;
+//            double JDMoon = CAADynamicalTime::UTC2TT(JD);
+//            double MoonLong = CAAELP2000::EclipticLongitude(JDMoon);
+//            double MoonLat = CAAELP2000::EclipticLatitude(JDMoon);
 
-            double LHA = CAACoordinateTransformation::MapTo0To24Range(LocalHourAngle);
-            int LHAhour, LHAmin, LHAsec;
-            HoursTohms(LHA, LHAhour, LHAmin, LHAsec);
-            int DEdeg, DEmin, DEsec;
-            HoursTohms(Equatorial.Y, DEdeg, DEmin, DEsec);
-            int RAhour, RAmin, RAsec;
-            HoursTohms(Equatorial.X, RAhour, RAmin, RAsec);
-            //printf("%d/%d/%d %2d:%02d UTC Ecliptic long = %02d°%02d'%02d\" lat = %02d°%02d'%02d\" RA = %02dh%02dm%02ds localHourAngle = %02dh%02dm%02ds DE = %02d°%02d'%02d\" MoonRad = %f\n",
-            //   year, month, day, hours, minutes, MoonLongdeg, MoonLongmin, MoonLongsec, MoonLatdeg, MoonLatmin, MoonLatsec, RAhour, RAmin, RAsec, LHAhour, LHAmin, LHAsec, DEdeg, DEmin, DEsec, MoonRad);
+//            int MoonLongdeg, MoonLongmin, MoonLongsec;
+//            int MoonLatdeg, MoonLatmin, MoonLatsec;
+//            HoursTohms(MoonLong, MoonLongdeg, MoonLongmin, MoonLongsec);
+//            HoursTohms(MoonLat, MoonLatdeg, MoonLatmin, MoonLatsec);
+//            CAA2DCoordinate Equatorial = CAACoordinateTransformation::Ecliptic2Equatorial(MoonLong, MoonLat, CAANutation::TrueObliquityOfEcliptic(JDMoon));
+//            double MoonRad = CAAELP2000::RadiusVector(JDMoon);
+//            //MoonRad /= 149597870.691; //Convert KM to AU
+//            double AST = CAASidereal::ApparentGreenwichSiderealTime(JDMoon);
+//            double LongtitudeAsHourAngle = CAACoordinateTransformation::DegreesToHours( opposietlong );
+//            double LocalHourAngle = AST - LongtitudeAsHourAngle - Equatorial.X;
 
-            double diffangle = 20.0;
+//            double LHA = CAACoordinateTransformation::MapTo0To24Range(LocalHourAngle);
+//            int LHAhour, LHAmin, LHAsec;
+//            HoursTohms(LHA, LHAhour, LHAmin, LHAsec);
+//            int DEdeg, DEmin, DEsec;
+//            HoursTohms(Equatorial.Y, DEdeg, DEmin, DEsec);
+//            int RAhour, RAmin, RAsec;
+//            HoursTohms(Equatorial.X, RAhour, RAmin, RAsec);
+//            //printf("%d/%d/%d %2d:%02d UTC Ecliptic long = %02d°%02d'%02d\" lat = %02d°%02d'%02d\" RA = %02dh%02dm%02ds localHourAngle = %02dh%02dm%02ds DE = %02d°%02d'%02d\" MoonRad = %f\n",
+//            //   year, month, day, hours, minutes, MoonLongdeg, MoonLongmin, MoonLongsec, MoonLatdeg, MoonLatmin, MoonLatsec, RAhour, RAmin, RAsec, LHAhour, LHAmin, LHAsec, DEdeg, DEmin, DEsec, MoonRad);
 
-            double HourAngleDegrees = MapToMinus180To180Range(CAACoordinateTransformation::HoursToDegrees(LHA));
-            double DecLHA = sqrt(HourAngleDegrees * HourAngleDegrees + Equatorial.Y * Equatorial.Y);
-            double parallax = 5.92 * sin(CAACoordinateTransformation::DegreesToRadians(DecLHA));
-            double deltaY = Equatorial.Y*parallax/DecLHA;
-            double deltaX = HourAngleDegrees*parallax/DecLHA;
+//            double diffangle = 9.0;
 
-            double illuminated_fraction = 0;
-            double position_angle = 0;
-            double phase_angle = 0;
+//            double HourAngleDegrees = MapToMinus180To180Range(CAACoordinateTransformation::HoursToDegrees(LHA));
+//            double DecLHA = sqrt(HourAngleDegrees * HourAngleDegrees + Equatorial.Y * Equatorial.Y);
+//            double parallax = 5.92 * sin(CAACoordinateTransformation::DegreesToRadians(DecLHA));
+//            double deltaY = Equatorial.Y*parallax/DecLHA;
+//            double deltaX = HourAngleDegrees*parallax/DecLHA;
+
+//            double illuminated_fraction = 0;
+//            double position_angle = 0;
+//            double phase_angle = 0;
+
 //            GetMoonIllumination(JD, true, illuminated_fraction, position_angle, phase_angle);
 
-            if(HourAngleDegrees - deltaX > -diffangle && HourAngleDegrees - deltaX < diffangle && Equatorial.Y - deltaY < diffangle && Equatorial.Y - deltaY > -diffangle)
-            {
-
-                printf("==%d/%d/%d %2d:%02d UTC Ecliptic long = %f° lat = %f° RA = %fh DE = %f° localHourAngle = %f° AST = %f MoonRad = %f parallax = %f\n",
-                       year, month, day, hours, minutes, MoonLong, MoonLat, Equatorial.X, Equatorial.Y, HourAngleDegrees, AST, MoonRad, parallax);
-                fflush(stdout);
-
-//                int mooncoordX = (int)((HourAngleDegrees - deltaX) * scale);
-//                int mooncoordY = - (int)((Equatorial.Y - deltaY) * scale);
-
-//                moonlist.append(scene->addEllipse(mooncoordX - 0.25*scale, mooncoordY - 0.25*scale, 0.5*scale, 0.5*scale, blackpen, moonBrush));
-//                QGraphicsTextItem *text = scene->addText(QString("%1:%2").arg(hours, 2, 'f', 0, '0').arg(minutes, 2, 'f', 0, '0'));
-//                textlist.append(text);
-//                text->setPos(mooncoordX-scale, mooncoordY+0.5*scale);
-//                int ilfraction = static_cast<int>((illuminated_fraction * 100) + 0.5);
-
-//                ui->listWidget->addItem(new QListWidgetItem(QString("%1:%2 illumination = %3 ").arg(hours, 2, 'f', 0, '0').arg(minutes, 2, 'f', 0, '0').arg(ilfraction), ui->listWidget));
-
-            }
-//            else
+//            if(HourAngleDegrees - deltaX > -diffangle && HourAngleDegrees - deltaX < diffangle && Equatorial.Y - deltaY < diffangle && Equatorial.Y - deltaY > -diffangle)
 //            {
-//                printf("%d/%d/%d %2d:%02d UTC Ecliptic long = %f° lat = %f° RA = %fh DE = %f° localHourAngle = %f° AST = %f MoonRad = %f parallax = %f\n",
+
+//                printf("==%d/%d/%d %2d:%02d UTC Ecliptic long = %f° lat = %f° RA = %fh DE = %f° localHourAngle = %f° AST = %f MoonRad = %f parallax = %f\n",
 //                       year, month, day, hours, minutes, MoonLong, MoonLat, Equatorial.X, Equatorial.Y, HourAngleDegrees, AST, MoonRad, parallax);
 //                fflush(stdout);
-//            }
+//                int ilfraction = static_cast<int>((illuminated_fraction * 100) + 0.5);
+//                moonVisible[timeindex] = ilfraction;
 
-        }
-    }
-}
+////                int mooncoordX = (int)((HourAngleDegrees - deltaX) * scale);
+////                int mooncoordY = - (int)((Equatorial.Y - deltaY) * scale);
+
+////                moonlist.append(scene->addEllipse(mooncoordX - 0.25*scale, mooncoordY - 0.25*scale, 0.5*scale, 0.5*scale, blackpen, moonBrush));
+////                QGraphicsTextItem *text = scene->addText(QString("%1:%2").arg(hours, 2, 'f', 0, '0').arg(minutes, 2, 'f', 0, '0'));
+////                textlist.append(text);
+////                text->setPos(mooncoordX-scale, mooncoordY+0.5*scale);
+////                int ilfraction = static_cast<int>((illuminated_fraction * 100) + 0.5);
+
+////                ui->listWidget->addItem(new QListWidgetItem(QString("%1:%2 illumination = %3 ").arg(hours, 2, 'f', 0, '0').arg(minutes, 2, 'f', 0, '0').arg(ilfraction), ui->listWidget));
+
+//            }
+//            else
+//                moonVisible[timeindex] = 0;
+//        }
+//    }
+
+//    for(int i = 0; i < 144; i++)
+//    {
+//        qDebug() << QString("%1 illumated fraction = %2").arg(i).arg(moonVisible[i]);
+//    }
+//}
 
 //void FormGeostationary::GetMoonIllumination(double JD, bool bHighPrecision, double& illuminated_fraction, double& position_angle, double& phase_angle)
 //{
@@ -1413,12 +1471,35 @@ void FormGeostationary::CalcMoon(QDate selected, int geosatindex)
 //  illuminated_fraction = CAAMoonIlluminatedFraction::IlluminatedFraction(phase_angle);
 //}
 
-inline double FormGeostationary::MapToMinus180To180Range(double Degrees)
-  {
-    double fResult = CAACoordinateTransformation::MapTo0To360Range(Degrees);
+//void FormGeostationary::GetLunarRaDecByJulian(double JD, double& RA, double& Dec)
+//{
+//  const double JDMoon{CAADynamicalTime::UTC2TT(JD)};
+//  const double lambda{CAAMoon::EclipticLongitude(JDMoon)};
+//  const double beta{CAAMoon::EclipticLatitude(JDMoon)};
+//  const double epsilon{CAANutation::TrueObliquityOfEcliptic(JDMoon)};
+//  CAA2DCoordinate Lunarcoord{CAACoordinateTransformation::Ecliptic2Equatorial(lambda, beta, epsilon)};
+//  RA = Lunarcoord.X;
+//  Dec = Lunarcoord.Y;
+//}
 
-    if (fResult > 180)
-      fResult = fResult - 360;
+//void FormGeostationary::GetSolarRaDecByJulian(double JD, bool bHighPrecision, double& RA, double& Dec)
+//{
+//  const double JDSun{CAADynamicalTime::UTC2TT(JD)};
+//  const double lambda{CAASun::ApparentEclipticLongitude(JDSun, bHighPrecision)};
+//  const double beta{CAASun::ApparentEclipticLatitude(JDSun, bHighPrecision)};
+//  const double epsilon{CAANutation::TrueObliquityOfEcliptic(JDSun)};
+//  CAA2DCoordinate Solarcoord{CAACoordinateTransformation::Ecliptic2Equatorial(lambda, beta, epsilon)};
+//  RA = Solarcoord.X;
+//  Dec = Solarcoord.Y;
+//}
 
-    return fResult;
-  }
+
+//inline double FormGeostationary::MapToMinus180To180Range(double Degrees)
+//  {
+//    double fResult = CAACoordinateTransformation::MapTo0To360Range(Degrees);
+
+//    if (fResult > 180)
+//      fResult = fResult - 360;
+
+//    return fResult;
+//  }

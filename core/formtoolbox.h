@@ -348,6 +348,7 @@ private slots:
     void on_cbProjResolutions_activated(int index);
     void on_hslRed_valueChanged(int value);
     void on_btnUpdateAVHRRImage_clicked();
+    void on_btnOverlayMoon_clicked();
 };
 
 

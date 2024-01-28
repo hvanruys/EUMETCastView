@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     formephem = new FormEphem(this, seglist);
     ui->stackedWidget->addWidget(formephem); // index 0
 
+
     //formtoolbox = NULL;
 
     formgeostationary = new FormGeostationary(this, seglist);
@@ -152,13 +153,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(seglist, SIGNAL(signalXMLProgress(QString, int, bool)), formglobecyl, SLOT(slotShowXMLProgress(QString, int, bool)));
 
+
     connect( formglobecyl, SIGNAL(signalSegmentChanged(QString)), this, SLOT(updateStatusBarIndicator(QString)) );
     connect( ui->stackedWidget, SIGNAL(currentChanged(int)),formglobecyl, SLOT(updatesatmap(int)) );
-    connect( formephem,SIGNAL(signalDirectoriesRead()), formgeostationary, SLOT(PopulateTree()) );
+    connect( formephem,SIGNAL(signalDirectoriesRead(QDate)), formgeostationary, SLOT(PopulateTree(QDate)) );
     connect( seglist,SIGNAL(signalAddedSegmentlist()), formephem, SLOT(showSegmentsAdded()));
     connect( seglist,SIGNAL(signalAddedSegmentlist()), formglobecyl, SLOT(slotShowSegmentCount()));
 
-    connect( formephem,SIGNAL(signalDirectoriesRead()), formglobecyl, SLOT(setScrollBarMaximum()));
+    connect( formephem,SIGNAL(signalSetScrollBarMaximum()), formglobecyl, SLOT(setScrollBarMaximum()));
     connect( formglobecyl, SIGNAL(signalMakeImage()), formimage, SLOT(slotMakeImage()));
 
     if(opts.doOpenGL)

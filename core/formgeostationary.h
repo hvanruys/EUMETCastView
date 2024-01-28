@@ -52,20 +52,14 @@ private:
     void CreateGeoImages(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor, QString tex, int geoindex);
     void CreateGeoImageMTG(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector,int histogrammethod, bool pseudocolor, QString tex, int geoindex);
 
-    inline double MapToMinus180To180Range(double Degrees);
-
-
     Ui::FormGeostationary *ui;
     AVHRRSatellite *segs;
     FormToolbox *formtoolbox;
     FormImage *formimage;
     QList<QTreeWidget *> geotreewidgetlist;
-    QList<double> geolonlist;
-
-
 
 public slots:
-    void PopulateTree();
+    void PopulateTree(QDate seldate);
     void slotCreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
     void slotCreateRGBrecipe(int recipe);
 

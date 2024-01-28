@@ -85,7 +85,8 @@ public slots:
 
 signals:
     void signalSegmenttype( const QString &text );
-    void signalDirectoriesRead();
+    void signalDirectoriesRead(QDate);
+    void signalSetScrollBarMaximum();
     void signalDatagram(QByteArray);
 
 
