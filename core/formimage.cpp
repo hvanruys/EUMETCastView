@@ -2586,7 +2586,8 @@ void FormImage::OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary
     moonCalc obj;
     float scale = 313.873;
 
-    paint->setPen(Qt::yellow);
+    QPen pen(Qt::yellow, 3);
+    paint->setPen(pen);
     if(overlaymoon)
     {
         for(int i = 0; i < 144; i++)
