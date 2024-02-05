@@ -277,7 +277,3 @@ install(TARGETS aaplus-shared aaplus-static
 
 TARGET_LINK_LIBRARIES(AATest aaplus-static)
 
-include(CMakePrintHelpers)
-cmake_print_variables(PROJECT_SOURCE_DIR)
-cmake_print_variables(CMAKE_INSTALL_PREFIX)
-
