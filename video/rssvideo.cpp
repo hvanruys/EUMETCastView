@@ -1551,7 +1551,8 @@ void RSSVideo::getSegmentSamples(QString filepath, quint16 *ptr, int filesequenc
 }
 
 
-void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imvisir, QString date, int imagenbr)
+void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen,
+                            quint16 *ptrNightBlue, QImage &imvisir, QString date, int imagenbr)
 {
 
     QRgb *row_col_day;

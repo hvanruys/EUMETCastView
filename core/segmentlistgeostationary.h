@@ -124,10 +124,12 @@ public:
 private:
 
     void ComposeHRV();
+    void ComposeHRV_Alt();
     void ComposeVISIR();
     void ComposeVISIR_Alt();
     void ComposeVISIRHimawari();
-    void computeGeoImage(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue);
+    void computeGeoImage(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight);
+    void computeGeoImageHimawari(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight);
 
     void getFilenameParameters(QFileInfo fileinfo, QString *filespectrum, QString *filedate, int *filesequence, int *channelindex);
     void getFilenameParameters(QString file, QString *filespectrum, QString *filedate, int *filesequence, int *channelindex);
@@ -152,12 +154,12 @@ private:
 
 
     void CalculateLonLat();
-    QImage *CalculateBitMap();
+    QImage *CalculateBitMap(bool HRV);
 
-    quint16 stat_min[3];
-    quint16 stat_max[3];
+    quint16 stat_min[4];
+    quint16 stat_max[4];
 
-    long active_pixels[3];
+    long active_pixels[4];
 
     QString kindofimage;
     QString imagepath;
@@ -176,6 +178,7 @@ private:
     QVector<bool> inversevector;
     int histogrammethod;
     bool pseudocolor;
+    QString filedatestring;
 
     QList<bandstorage> bands;
     float* result[3];

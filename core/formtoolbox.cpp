@@ -606,8 +606,11 @@ void FormToolbox::setupChannelCombo()
 {
     qDebug() << "FormToolbox::setupChannelCombo()";
 
+    QStringList coloritemsgeo;
+    coloritemsgeo << "-" << "R" << "G" << "B" << "N";
+
     QStringList coloritems;
-    coloritems << "-" << "R" << "G" << "B"; // << "RG" << "RB" << "GB";
+    coloritems << "-" << "R" << "G" << "B";
 
     ui->comboCh1->addItems(coloritems);
     ui->comboCh2->addItems(coloritems);
@@ -615,22 +618,22 @@ void FormToolbox::setupChannelCombo()
     ui->comboCh4->addItems(coloritems);
     ui->comboCh5->addItems(coloritems);
 
-    ui->comboGeo1->addItems(coloritems);
-    ui->comboGeo2->addItems(coloritems);
-    ui->comboGeo3->addItems(coloritems);
-    ui->comboGeo4->addItems(coloritems);
-    ui->comboGeo5->addItems(coloritems);
-    ui->comboGeo6->addItems(coloritems);
-    ui->comboGeo7->addItems(coloritems);
-    ui->comboGeo8->addItems(coloritems);
-    ui->comboGeo9->addItems(coloritems);
-    ui->comboGeo10->addItems(coloritems);
-    ui->comboGeo11->addItems(coloritems);
-    ui->comboGeo12->addItems(coloritems);
-    ui->comboGeo13->addItems(coloritems);
-    ui->comboGeo14->addItems(coloritems);
-    ui->comboGeo15->addItems(coloritems);
-    ui->comboGeo16->addItems(coloritems);
+    ui->comboGeo1->addItems(coloritemsgeo);
+    ui->comboGeo2->addItems(coloritemsgeo);
+    ui->comboGeo3->addItems(coloritemsgeo);
+    ui->comboGeo4->addItems(coloritemsgeo);
+    ui->comboGeo5->addItems(coloritemsgeo);
+    ui->comboGeo6->addItems(coloritemsgeo);
+    ui->comboGeo7->addItems(coloritemsgeo);
+    ui->comboGeo8->addItems(coloritemsgeo);
+    ui->comboGeo9->addItems(coloritemsgeo);
+    ui->comboGeo10->addItems(coloritemsgeo);
+    ui->comboGeo11->addItems(coloritemsgeo);
+    ui->comboGeo12->addItems(coloritemsgeo);
+    ui->comboGeo13->addItems(coloritemsgeo);
+    ui->comboGeo14->addItems(coloritemsgeo);
+    ui->comboGeo15->addItems(coloritemsgeo);
+    ui->comboGeo16->addItems(coloritemsgeo);
 
     ui->comboM1->addItems(coloritems);
     ui->comboM2->addItems(coloritems);
@@ -1003,66 +1006,63 @@ void FormToolbox::setInverseCheckBoxes()
             ui->chkInverseCh5->setChecked(false);
         }
 
-    } else
-        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+    } else if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+    {
+        if (opts.noaa_invlist.count() == 5)
         {
-            if (opts.noaa_invlist.count() == 5)
-            {
-                ui->chkInverseCh1->setChecked(opts.noaa_invlist.at(0) == "1" ? true : false);
-                ui->chkInverseCh2->setChecked(opts.noaa_invlist.at(1) == "1" ? true : false);
-                ui->chkInverseCh3->setChecked(opts.noaa_invlist.at(2) == "1" ? true : false);
-                ui->chkInverseCh4->setChecked(opts.noaa_invlist.at(3) == "1" ? true : false);
-                ui->chkInverseCh5->setChecked(opts.noaa_invlist.at(4) == "1" ? true : false);
-            }
-            else
-            {
-                ui->chkInverseCh1->setChecked(false);
-                ui->chkInverseCh2->setChecked(false);
-                ui->chkInverseCh3->setChecked(false);
-                ui->chkInverseCh4->setChecked(false);
-                ui->chkInverseCh5->setChecked(false);
-            }
+            ui->chkInverseCh1->setChecked(opts.noaa_invlist.at(0) == "1" ? true : false);
+            ui->chkInverseCh2->setChecked(opts.noaa_invlist.at(1) == "1" ? true : false);
+            ui->chkInverseCh3->setChecked(opts.noaa_invlist.at(2) == "1" ? true : false);
+            ui->chkInverseCh4->setChecked(opts.noaa_invlist.at(3) == "1" ? true : false);
+            ui->chkInverseCh5->setChecked(opts.noaa_invlist.at(4) == "1" ? true : false);
+        }
+        else
+        {
+            ui->chkInverseCh1->setChecked(false);
+            ui->chkInverseCh2->setChecked(false);
+            ui->chkInverseCh3->setChecked(false);
+            ui->chkInverseCh4->setChecked(false);
+            ui->chkInverseCh5->setChecked(false);
+        }
 
-        } else
-            if (opts.buttonGAC)
-            {
-                if (opts.gac_invlist.count() == 5)
-                {
-                    ui->chkInverseCh1->setChecked(opts.gac_invlist.at(0) == "1" ? true : false);
-                    ui->chkInverseCh2->setChecked(opts.gac_invlist.at(1) == "1" ? true : false);
-                    ui->chkInverseCh3->setChecked(opts.gac_invlist.at(2) == "1" ? true : false);
-                    ui->chkInverseCh4->setChecked(opts.gac_invlist.at(3) == "1" ? true : false);
-                    ui->chkInverseCh5->setChecked(opts.gac_invlist.at(4) == "1" ? true : false);
-                }
-                else
-                {
-                    ui->chkInverseCh1->setChecked(false);
-                    ui->chkInverseCh2->setChecked(false);
-                    ui->chkInverseCh3->setChecked(false);
-                    ui->chkInverseCh4->setChecked(false);
-                    ui->chkInverseCh5->setChecked(false);
-                }
+    } else if (opts.buttonGAC)
+    {
+        if (opts.gac_invlist.count() == 5)
+        {
+            ui->chkInverseCh1->setChecked(opts.gac_invlist.at(0) == "1" ? true : false);
+            ui->chkInverseCh2->setChecked(opts.gac_invlist.at(1) == "1" ? true : false);
+            ui->chkInverseCh3->setChecked(opts.gac_invlist.at(2) == "1" ? true : false);
+            ui->chkInverseCh4->setChecked(opts.gac_invlist.at(3) == "1" ? true : false);
+            ui->chkInverseCh5->setChecked(opts.gac_invlist.at(4) == "1" ? true : false);
+        }
+        else
+        {
+            ui->chkInverseCh1->setChecked(false);
+            ui->chkInverseCh2->setChecked(false);
+            ui->chkInverseCh3->setChecked(false);
+            ui->chkInverseCh4->setChecked(false);
+            ui->chkInverseCh5->setChecked(false);
+        }
 
-            } else
-                if (opts.buttonHRP)
-                {
-                    if (opts.hrp_invlist.count() == 5)
-                    {
-                        ui->chkInverseCh1->setChecked(opts.hrp_invlist.at(0) == "1" ? true : false);
-                        ui->chkInverseCh2->setChecked(opts.hrp_invlist.at(1) == "1" ? true : false);
-                        ui->chkInverseCh3->setChecked(opts.hrp_invlist.at(2) == "1" ? true : false);
-                        ui->chkInverseCh4->setChecked(opts.hrp_invlist.at(3) == "1" ? true : false);
-                        ui->chkInverseCh5->setChecked(opts.hrp_invlist.at(4) == "1" ? true : false);
-                    }
-                    else
-                    {
-                        ui->chkInverseCh1->setChecked(false);
-                        ui->chkInverseCh2->setChecked(false);
-                        ui->chkInverseCh3->setChecked(false);
-                        ui->chkInverseCh4->setChecked(false);
-                        ui->chkInverseCh5->setChecked(false);
-                    }
-                }
+    } else if (opts.buttonHRP)
+    {
+        if (opts.hrp_invlist.count() == 5)
+        {
+            ui->chkInverseCh1->setChecked(opts.hrp_invlist.at(0) == "1" ? true : false);
+            ui->chkInverseCh2->setChecked(opts.hrp_invlist.at(1) == "1" ? true : false);
+            ui->chkInverseCh3->setChecked(opts.hrp_invlist.at(2) == "1" ? true : false);
+            ui->chkInverseCh4->setChecked(opts.hrp_invlist.at(3) == "1" ? true : false);
+            ui->chkInverseCh5->setChecked(opts.hrp_invlist.at(4) == "1" ? true : false);
+        }
+        else
+        {
+            ui->chkInverseCh1->setChecked(false);
+            ui->chkInverseCh2->setChecked(false);
+            ui->chkInverseCh3->setChecked(false);
+            ui->chkInverseCh4->setChecked(false);
+            ui->chkInverseCh5->setChecked(false);
+        }
+    }
     qDebug() << QString("chkInverse = %1 %2 %3 %4 %5").arg(opts.noaa_invlist.at(0)).arg(opts.noaa_invlist.at(1)).arg(opts.noaa_invlist.at(2)).arg(opts.noaa_invlist.at(3)).arg(opts.noaa_invlist.at(4));
 }
 
@@ -1079,37 +1079,34 @@ void FormToolbox::setChannelInverse()
         opts.metop_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
         opts.metop_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
         opts.metop_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
-    } else
-        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
-        {
-            opts.noaa_invlist.clear();
+    } else if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+    {
+        opts.noaa_invlist.clear();
 
-            opts.noaa_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
-            opts.noaa_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
-            opts.noaa_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
-            opts.noaa_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
-            opts.noaa_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
-        } else
-            if (opts.buttonGAC)
-            {
-                opts.gac_invlist.clear();
+        opts.noaa_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
+        opts.noaa_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
+        opts.noaa_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
+        opts.noaa_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
+        opts.noaa_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
+    } else if (opts.buttonGAC)
+    {
+        opts.gac_invlist.clear();
 
-                opts.gac_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
-                opts.gac_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
-                opts.gac_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
-                opts.gac_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
-                opts.gac_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
-            } else
-                if (opts.buttonHRP)
-                {
-                    opts.hrp_invlist.clear();
+        opts.gac_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
+        opts.gac_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
+        opts.gac_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
+        opts.gac_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
+        opts.gac_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
+    } else if (opts.buttonHRP)
+    {
+        opts.hrp_invlist.clear();
 
-                    opts.hrp_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
-                    opts.hrp_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
-                    opts.hrp_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
-                    opts.hrp_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
-                    opts.hrp_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
-                }
+        opts.hrp_invlist << (ui->chkInverseCh1->isChecked() ? "1" : "0");
+        opts.hrp_invlist << (ui->chkInverseCh2->isChecked() ? "1" : "0");
+        opts.hrp_invlist << (ui->chkInverseCh3->isChecked() ? "1" : "0");
+        opts.hrp_invlist << (ui->chkInverseCh4->isChecked() ? "1" : "0");
+        opts.hrp_invlist << (ui->chkInverseCh5->isChecked() ? "1" : "0");
+    }
 
 }
 
@@ -1126,37 +1123,34 @@ void FormToolbox::setChannelIndex()
         opts.channellistmetop << QString("%1").arg(ui->comboCh4->currentIndex());
         opts.channellistmetop << QString("%1").arg(ui->comboCh5->currentIndex());
     }
-    else
-        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
-        {
-            opts.channellistnoaa.clear();
-            opts.channellistnoaa << QString("%1").arg(ui->comboCh1->currentIndex());
-            opts.channellistnoaa << QString("%1").arg(ui->comboCh2->currentIndex());
-            opts.channellistnoaa << QString("%1").arg(ui->comboCh3->currentIndex());
-            opts.channellistnoaa << QString("%1").arg(ui->comboCh4->currentIndex());
-            opts.channellistnoaa << QString("%1").arg(ui->comboCh5->currentIndex());
-        }
-        else
-            if (opts.buttonGAC)
-            {
-                opts.channellistgac.clear();
-                opts.channellistgac << QString("%1").arg(ui->comboCh1->currentIndex());
-                opts.channellistgac << QString("%1").arg(ui->comboCh2->currentIndex());
-                opts.channellistgac << QString("%1").arg(ui->comboCh3->currentIndex());
-                opts.channellistgac << QString("%1").arg(ui->comboCh4->currentIndex());
-                opts.channellistgac << QString("%1").arg(ui->comboCh5->currentIndex());
+    else if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+    {
+        opts.channellistnoaa.clear();
+        opts.channellistnoaa << QString("%1").arg(ui->comboCh1->currentIndex());
+        opts.channellistnoaa << QString("%1").arg(ui->comboCh2->currentIndex());
+        opts.channellistnoaa << QString("%1").arg(ui->comboCh3->currentIndex());
+        opts.channellistnoaa << QString("%1").arg(ui->comboCh4->currentIndex());
+        opts.channellistnoaa << QString("%1").arg(ui->comboCh5->currentIndex());
+    }
+    else if (opts.buttonGAC)
+    {
+        opts.channellistgac.clear();
+        opts.channellistgac << QString("%1").arg(ui->comboCh1->currentIndex());
+        opts.channellistgac << QString("%1").arg(ui->comboCh2->currentIndex());
+        opts.channellistgac << QString("%1").arg(ui->comboCh3->currentIndex());
+        opts.channellistgac << QString("%1").arg(ui->comboCh4->currentIndex());
+        opts.channellistgac << QString("%1").arg(ui->comboCh5->currentIndex());
 
-            }
-            else
-                if (opts.buttonHRP)
-                {
-                    opts.channellisthrp.clear();
-                    opts.channellisthrp << QString("%1").arg(ui->comboCh1->currentIndex());
-                    opts.channellisthrp << QString("%1").arg(ui->comboCh2->currentIndex());
-                    opts.channellisthrp << QString("%1").arg(ui->comboCh3->currentIndex());
-                    opts.channellisthrp << QString("%1").arg(ui->comboCh4->currentIndex());
-                    opts.channellisthrp << QString("%1").arg(ui->comboCh5->currentIndex());
-                }
+    }
+    else if (opts.buttonHRP)
+    {
+        opts.channellisthrp.clear();
+        opts.channellisthrp << QString("%1").arg(ui->comboCh1->currentIndex());
+        opts.channellisthrp << QString("%1").arg(ui->comboCh2->currentIndex());
+        opts.channellisthrp << QString("%1").arg(ui->comboCh3->currentIndex());
+        opts.channellisthrp << QString("%1").arg(ui->comboCh4->currentIndex());
+        opts.channellisthrp << QString("%1").arg(ui->comboCh5->currentIndex());
+    }
 
     qDebug() << QString("setChannelIndex combo 1 channelindex = %1 %2").arg(ui->comboCh1->currentIndex()).arg(ui->comboCh1->currentText());
     qDebug() << QString("setChannelIndex combo 2 channelindex = %1 %2").arg(ui->comboCh2->currentIndex()).arg(ui->comboCh2->currentText());
@@ -1702,7 +1696,7 @@ void FormToolbox::on_btnCLAHEGeostationary_clicked()
     {
         this->setToolboxButtons(false);
         QApplication::processEvents();
-        formimage->recalculateCLAHEGeo(spectrumvector, inversevector);
+        formimage->recalculateCLAHEGeo();
         formimage->slotUpdateGeosat();
     }
 }
@@ -2255,7 +2249,7 @@ void FormToolbox::on_btnGeoColor_clicked()
     if(!comboColGeoOK())
     {
         QMessageBox msgBox;
-        msgBox.setText("Need color choices for 3 different bands or a combination of two colors and one color.");
+        msgBox.setText("Need different color choices for 3 bands in the Geostationary tab.");
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.setIcon(QMessageBox::Warning);
         int ret = msgBox.exec();
@@ -2287,6 +2281,15 @@ void FormToolbox::on_btnGeoColor_clicked()
         ui->pbProgress->setMaximum(100);
     else if(geoindex == (int)eGeoSatellite::MTG_I1)
         ui->pbProgress->setMaximum(100);
+
+    spectrumvector.clear();
+    inversevector.clear();
+
+    for(int i = 0; i < 6; i++)
+    {
+        spectrumvector.append("");
+        inversevector.append(false);
+    }
 
     onButtonColorHRV("VIS_IR Color");
 
@@ -2364,7 +2367,7 @@ void FormToolbox::on_btnHRV_clicked()
     if(!comboColGeoOK())
     {
         QMessageBox msgBox;
-        msgBox.setText("Need color choices for 3 different bands in the Geostationary tab.");
+        msgBox.setText("Need different color choices for 3 bands in the Geostationary tab.");
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.setIcon(QMessageBox::Warning);
         int ret = msgBox.exec();
@@ -2382,6 +2385,16 @@ void FormToolbox::on_btnHRV_clicked()
     QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
 
     ui->pbProgress->reset();
+
+    spectrumvector.clear();
+    inversevector.clear();
+
+    for(int i = 0; i < 6; i++)
+    {
+        spectrumvector.append("");
+        inversevector.append(false);
+    }
+
 
     //    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
     //    {
@@ -6014,6 +6027,71 @@ void FormToolbox::on_comboGeo16_currentIndexChanged(int index)
     poi.strlComboGeo16.replace(this->geoindex, QString("%1").arg(index));
 }
 
+void FormToolbox::on_chkInverseGeo1_stateChanged(int arg1)
+{
+    poi.strlInverseGeo1.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo2_stateChanged(int arg1)
+{
+    poi.strlInverseGeo2.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo3_stateChanged(int arg1)
+{
+    poi.strlInverseGeo3.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo4_stateChanged(int arg1)
+{
+    poi.strlInverseGeo4.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo5_stateChanged(int arg1)
+{
+    poi.strlInverseGeo5.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo6_stateChanged(int arg1)
+{
+    poi.strlInverseGeo6.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo7_stateChanged(int arg1)
+{
+    poi.strlInverseGeo7.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo8_stateChanged(int arg1)
+{
+    poi.strlInverseGeo8.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo9_stateChanged(int arg1)
+{
+    poi.strlInverseGeo9.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo10_stateChanged(int arg1)
+{
+    poi.strlInverseGeo10.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo11_stateChanged(int arg1)
+{
+    poi.strlInverseGeo11.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo12_stateChanged(int arg1)
+{
+    poi.strlInverseGeo12.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo13_stateChanged(int arg1)
+{
+    poi.strlInverseGeo13.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo14_stateChanged(int arg1)
+{
+    poi.strlInverseGeo14.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo15_stateChanged(int arg1)
+{
+    poi.strlInverseGeo15.replace(this->geoindex, QString("%1").arg(arg1));
+}
+void FormToolbox::on_chkInverseGeo16_stateChanged(int arg1)
+{
+    poi.strlInverseGeo16.replace(this->geoindex, QString("%1").arg(arg1));
+}
+
 
 void FormToolbox::on_cmbHistogramGeo_activated(int index)
 {
@@ -6292,6 +6370,7 @@ void FormToolbox::on_btnUpdateAVHRRImage_clicked()
     }
 
 }
+
 
 
 

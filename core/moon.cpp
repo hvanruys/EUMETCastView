@@ -38,7 +38,6 @@ void moonCalc::CalcMoon(QDate selected, int geosatindex)
 //            double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes)/(24.0*60.0);
             double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes-3)/(24.0*60.0) +
                     static_cast<double>(50)/(24.0*60.0*60.0);
-            qDebug() << "dday = " << dday;
             double JD = CAADate::DateToJD(year, month, dday, true);
 
             double JDMoon = CAADynamicalTime::UTC2TT(JD);

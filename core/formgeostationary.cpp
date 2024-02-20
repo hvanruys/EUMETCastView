@@ -133,7 +133,8 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
 QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern)
 {
     qDebug() << QString("getGeostationarySegments type = %1  Filepath = %2 filepattern = %3").arg(imagetype).arg(filepath).arg(filepattern);
-    qDebug() << QString("getGeostationarySegments spectrumvector %1 %2 %3").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
+    qDebug() << QString("getGeostationarySegments spectrumvector %1 %2 %3 %4").arg(spectrumvector.at(0))
+                .arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg(spectrumvector.at(3));
     QDir meteosatdir(filepath);
     meteosatdir.setFilter(QDir::Files | QDir::NoSymLinks);
     meteosatdir.setSorting(QDir::Name);
@@ -162,7 +163,7 @@ QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QStr
             QString st = *itc;
             QString filespectrum = st.mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length());
             if(meteosatdir.match(filepattern, *itc) &&
-                (filespectrum == spectrumvector.at(0) || filespectrum == spectrumvector.at(1) || filespectrum == spectrumvector.at(2)))
+                (filespectrum == spectrumvector.at(0) || filespectrum == spectrumvector.at(1) || filespectrum == spectrumvector.at(2) || filespectrum == spectrumvector.at(3)))
                 strlistout.append(*itc);
             itc++;
         }
@@ -817,7 +818,7 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
 
     filepattern = QString(opts.geosatellites.at(geoindex).filepattern).arg(filetiming.mid(0, opts.geosatellites.at(geoindex).lengthdate));
 
-    qDebug() << "FormGeostationary::CreateGeoImage filepattern = " << filepattern;
+    qDebug() << "FormGeostationary::CreateGeoImageXRIT filepattern = " << filepattern;
 
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {

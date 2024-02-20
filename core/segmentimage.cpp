@@ -41,6 +41,7 @@ SegmentImage::SegmentImage()
         ptrRed[i] = NULL;
         ptrGreen[i] = NULL;
         ptrBlue[i] = NULL;
+        ptrNight[i] = NULL;
     }
 
     for( int i = 0; i < 3; i++)
@@ -966,6 +967,11 @@ void SegmentImage::ResetPtrImage()
         {
             delete [] ptrBlue[i];
             ptrBlue[i] = NULL;
+        }
+        if (ptrNight[i] != NULL)
+        {
+            delete [] ptrNight[i];
+            ptrNight[i] = NULL;
         }
     }
 

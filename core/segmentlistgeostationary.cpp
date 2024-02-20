@@ -24,6 +24,10 @@
 #include "misc_util.h"
 #include "internal.h"
 
+#include "qsun.h"
+#include "qeci.h"
+#include "qobserver.h"
+
 #ifdef _WIN32
 #include <hdf5.h>
 #else
@@ -336,6 +340,8 @@ void SegmentListGeostationary::getFilenameParameters(QString file, QString *file
         }
     }
 
+    this->filedatestring = *filedate;
+
     if( *filespectrum  == "HRV")
     {
         *channelindex = 0;
@@ -358,9 +364,14 @@ void SegmentListGeostationary::getFilenameParameters(QString file, QString *file
         {
             *channelindex = 2;
         }
+        else if(spectrumvector.at(3) == *filespectrum)
+        {
+            *channelindex = 3;
+        }
     }
 
-    //qDebug() << "SegmentListGeostationary::getFilenameParameters at geoindex = " << geoindex << " channelindex = " << *channelindex;
+    //qDebug() << "SegmentListGeostationary::getFilenameParameters at geoindex = "
+    //         << geoindex << " channelindex = " << *channelindex << " date = " << *filedate;
 
 }
 
@@ -423,7 +434,8 @@ bool SegmentListGeostationary::ComposeImagenetCDFMTGInThread(QStringList strlist
 
 bool SegmentListGeostationary::ComposeImageXRITMSGInThread(QStringList strlistVIS_IR, QStringList strlistHVR, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
-    qDebug() << QString("SegmentListGeostationary::ComposeImageXRITMSGInThread spectrumvector = %2 %3 %4").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
+    qDebug() << QString("SegmentListGeostationary::ComposeImageXRITMSGInThread spectrumvector = %2 %3 %4").arg(spectrumvector.at(0))
+                .arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg(spectrumvector.at(3));
 
     setThreadParametersXRIT(strlistVIS_IR, strlistHVR, spectrumvector, inversevector, histogrammethod);
     QtConcurrent::run(doComposeGeostationaryXRITMSGInThread, this);
@@ -2280,9 +2292,7 @@ void SegmentListGeostationary::concurrentReadFilelist(SegmentListGeostationary *
 
     size_t npixperseg = npix*nlin;
 
-    //qDebug() << QString("[%1] concurrentReadFilelist() planned end = %2 npix = %3 nlin = %4 filesequence = %5")
-    //            .arg(sm->kindofimage).arg(planned_end_segment).arg(sm->number_of_columns).arg(sm->number_of_lines).arg(filesequence);
-    qDebug() << QString("[%1] concurrentReadFilelist() file = %1 channelindex = %2 filesequence = %3")
+    qDebug() << QString("concurrentReadFilelist() %1 channelindex = %2 filesequence = %3")
                 .arg(llFile).arg(channelindex).arg(filesequence);
 
     MSG_SAMPLE *pixels = new MSG_SAMPLE[npixperseg];
@@ -2313,6 +2323,12 @@ void SegmentListGeostationary::concurrentReadFilelist(SegmentListGeostationary *
             imageptrs->ptrBlue[filesequence] = new quint16[nlin * npix];
             memset(imageptrs->ptrBlue[filesequence], 0, nlin * npix * sizeof(quint16));
         }
+        else if(channelindex == 3)
+        {
+            imageptrs->ptrNight[filesequence] = new quint16[nlin * npix];
+            memset(imageptrs->ptrNight[filesequence], 0, nlin * npix * sizeof(quint16));
+        }
+
     }
 
     for(int line = 0; line < nlin; line++)
@@ -2334,6 +2350,8 @@ void SegmentListGeostationary::concurrentReadFilelist(SegmentListGeostationary *
                     *(imageptrs->ptrGreen[filesequence] + line * npix + pixelx) = c;
                 else if(channelindex == 2)
                     *(imageptrs->ptrBlue[filesequence] + line * npix + pixelx) = c;
+                else if(channelindex == 3)
+                    *(imageptrs->ptrNight[filesequence] + line * npix + pixelx) = c;
             }
         }
     }
@@ -2477,7 +2495,7 @@ void SegmentListGeostationary::concurrentReadFilelistHimawari(SegmentListGeostat
     delete [] pixels;
 }
 
-        //No use of QtConcurrent
+//No use of QtConcurrent
 void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 {
     QString ncfile;
@@ -2667,10 +2685,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                     ERR(retval);
                 if(retval == 0 && i == 0)
                 {
-                // qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
-                // qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
-                //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
-                //                end_position_column - start_position_column + 1);
+                    // qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
+                    // qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
+                    //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
+                    //                end_position_column - start_position_column + 1);
                 }
 
                 imageptrs->mtg_start_position_row[i][findex - 1] = start_position_row;
@@ -2710,8 +2728,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     for(int i = 0; i < 40 ; i++)
     {
-       if(nbr_lines_MTG[i] != imageptrs->mtg_nbr_of_rows[0][i])
-           qDebug() << "===> imageptrs->mtg_nbr_of_rows != nbr_linesMTG";
+        if(nbr_lines_MTG[i] != imageptrs->mtg_nbr_of_rows[0][i])
+            qDebug() << "===> imageptrs->mtg_nbr_of_rows != nbr_linesMTG";
     }
     //    auto callbackMethod = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
     //    QtConcurrent::blockingMap(vec, callbackMethod);
@@ -2753,8 +2771,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     }
 
 
-//    auto callbackMethod1 = std::bind(this->concurrentLUTGeoMTG, this, std::placeholders::_1);
-//    QtConcurrent::blockingMap(vec, callbackMethod1);
+    //    auto callbackMethod1 = std::bind(this->concurrentLUTGeoMTG, this, std::placeholders::_1);
+    //    QtConcurrent::blockingMap(vec, callbackMethod1);
 
     for(int i = 0; i < vec.length(); i++)
     {
@@ -2876,10 +2894,10 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     auto callbackMethod2 = std::bind(this->concurrentImageMTG, this, std::placeholders::_1);
     QtConcurrent::blockingMap(vec, callbackMethod2);
 
-//    for(int i = 0; i < vec.length(); i++)
-//    {
-//        this->concurrentImageMTG(this, vec[i]);
-//    }
+    //    for(int i = 0; i < vec.length(); i++)
+    //    {
+    //        this->concurrentImageMTG(this, vec[i]);
+    //    }
 
     for(int i = 0; i < (kindofimage == "VIS_IR Color" ? 3 : 1); i++)
     {
@@ -3877,12 +3895,16 @@ void SegmentListGeostationary::ComposeVISIR()
     quint16 *pixelsRed = NULL;
     quint16 *pixelsGreen = NULL;
     quint16 *pixelsBlue = NULL;
+    quint16 *pixelsNight = NULL;
 
     pixelsRed = new quint16[nbrpix];
     if(kindofimage == "VIS_IR Color")
     {
         pixelsGreen = new quint16[nbrpix];
         pixelsBlue = new quint16[nbrpix];
+        if(this->spectrumvector.at(3).length() > 0)
+            pixelsNight = new quint16[nbrpix];
+
     }
 
     for( int i = (bisRSS ? 5 : 0); i < opts.geosatellites[geoindex].maxsegments + (bisRSS ? 5 : 0); i++)
@@ -3910,23 +3932,40 @@ void SegmentListGeostationary::ComposeVISIR()
             else
                 memset(pixelsBlue + (bisRSS ? i - 5 : i) * nbroflinespersegment * opts.geosatellites[geoindex].imagewidth, 0, nbroflinespersegment * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
         }
+        if(this->spectrumvector.at(3).length() > 0)
+        {
+            for( int i = (bisRSS ? 5 : 0); i < opts.geosatellites[geoindex].maxsegments + (bisRSS ? 5 : 0); i++)
+            {
+                if(imageptrs->ptrNight[i] != NULL)
+                    memcpy(pixelsNight + (bisRSS ? i - 5 : i) * nbroflinespersegment * opts.geosatellites[geoindex].imagewidth, imageptrs->ptrNight[i], nbroflinespersegment * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
+                else
+                    memset(pixelsNight + (bisRSS ? i - 5 : i) * nbroflinespersegment * opts.geosatellites[geoindex].imagewidth, 0, nbroflinespersegment * opts.geosatellites[geoindex].imagewidth * sizeof(quint16));
 
+            }
+        }
     }
 
+
     CalculateMinMax(0, width, height, pixelsRed, 0);
-    //CalculateLUTGeo(0, pixelsRed, 0);
+    CalculateLUTGeo(0, pixelsRed, 0);
     equalizeHistogram(pixelsRed, width, height, 0, 0, 1023);
     if(kindofimage == "VIS_IR Color")
     {
         CalculateMinMax(1, width, height, pixelsGreen, 0);
-        //CalculateLUTGeo(1, pixelsGreen, 0);
+        CalculateLUTGeo(1, pixelsGreen, 0);
         equalizeHistogram(pixelsGreen, width, height, 1, 0, 1023);
         CalculateMinMax(2, width, height, pixelsBlue, 0);
-        //CalculateLUTGeo(2, pixelsBlue, 0);
+        CalculateLUTGeo(2, pixelsBlue, 0);
         equalizeHistogram(pixelsBlue, width, height, 2, 0, 1023);
+        if(this->spectrumvector.at(3).length() > 0)
+        {
+            CalculateMinMax(3, width, height, pixelsNight, 0);
+            CalculateLUTGeo(3, pixelsNight, 0);
+            equalizeHistogram(pixelsNight, width, height, 3, 0, 1023);
+        }
     }
 
-    computeGeoImage(pixelsRed, pixelsGreen, pixelsBlue);
+    computeGeoImage(pixelsRed, pixelsGreen, pixelsBlue, pixelsNight);
 
     //    QVector<int> vec;
 
@@ -3939,12 +3978,36 @@ void SegmentListGeostationary::ComposeVISIR()
     //    QtConcurrent::blockingMap(vec, callbackMethod);
 
 
-    delete [] pixelsRed;
-    if(kindofimage == "VIS_IR Color")
+    if (pixelsRed != NULL)
+    {
+        delete [] pixelsRed;
+        pixelsRed = NULL;
+    }
+    if (pixelsGreen != NULL)
     {
         delete [] pixelsGreen;
-        delete [] pixelsBlue;
+        pixelsGreen = NULL;
     }
+    if (pixelsBlue != NULL)
+    {
+        delete [] pixelsBlue;
+        pixelsBlue = NULL;
+    }
+    if (pixelsNight != NULL)
+    {
+        delete [] pixelsNight;
+        pixelsNight = NULL;
+    }
+
+
+    //    delete [] pixelsRed;
+    //    if(kindofimage == "VIS_IR Color")
+    //    {
+    //        delete [] pixelsGreen;
+    //        delete [] pixelsBlue;
+    //        if(this->spectrumvector.at(3).length() > 0)
+    //            delete [] pixelsNight;
+    //    }
 
 }
 
@@ -3964,13 +4027,13 @@ void SegmentListGeostationary::concurrentSetRed(SegmentListGeostationary *sm, co
     }
 }
 
-void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue)
+void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight)
 {
     QRgb *row_col;
     QRgb *row_col_bitmap;
-    quint16 cred, cgreen, cblue;
-    quint16 r = 0, g = 0, b = 0;
-    quint16 indexoutrc, indexoutgc, indexoutbc;
+    quint16 cred, cgreen, cblue, cnight;
+    quint16 r = 0, g = 0, b = 0, n = 0;
+    quint16 indexoutrc, indexoutgc, indexoutbc, indexoutnc;
 
     double gamma = opts.meteosatgamma;
     double gammafactor = 1023 / pow(1023, gamma);
@@ -3978,45 +4041,60 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
     quint8 valcontrast;
     QImage *im = NULL;
 
-    qDebug() << "SegmentListGeostationary::computeGeoImage";
+    Vector3 solar_vector;
+    Vector3 vel;
+    QObserver observer;
+    QSgp4Date dat;
+    QGeodetic qgeo;
+    QTopocentric qtopo;
 
+    double elev;
+    double twilight = 15.0;
+
+    int year, month, day, hours, minutes;
+    year = this->filedatestring.mid(0, 4).toInt();
+    month = this->filedatestring.mid(4, 2).toInt();
+    day = this->filedatestring.mid(6, 2).toInt();
+    hours = this->filedatestring.mid(8, 2).toInt();
+    minutes = this->filedatestring.mid(10, 2).toInt();
+
+    pixgeoConversion pixconv;
+
+    double sub_lon = opts.geosatellites[geoindex].longitude;
+
+    long coff = opts.geosatellites[geoindex].coff;
+    long loff = opts.geosatellites[geoindex].loff;
+    double cfac = opts.geosatellites[geoindex].cfac;
+    double lfac = opts.geosatellites[geoindex].lfac;
+
+    double latitude, longitude;
+    int ret;
+
+    im = CalculateBitMap(false);
+
+    qDebug() << "SegmentListGeostationary::computeGeoImage";
     int nbroflinespersegment = opts.geosatellites[geoindex].segmentlength;
 
-    //if(m_GeoSatellite != eGeoSatellite::H9)
-        im = CalculateBitMap();
-
-    unsigned int i_image;
-
-    for (int line = (m_GeoSatellite != eGeoSatellite::H9 ? opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1 : 0);
-         (m_GeoSatellite != eGeoSatellite::H9 ? line >= 0 : line < opts.geosatellites[geoindex].maxsegments*nbroflinespersegment);
-         (m_GeoSatellite != eGeoSatellite::H9 ? line-- : line++))
+    for (int line = opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1; line >= 0; line--)
     {
         if(m_GeoSatellite == eGeoSatellite::GOMS3)
             row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
         else
         {
-            if(m_GeoSatellite != eGeoSatellite::H9)
-            {
-                row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
-                row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
-            }
-            else
-            {
-                row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
-                row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(line);
-            }
+            row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
+            row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
         }
 
-        for (int pixelx = (m_GeoSatellite != eGeoSatellite::H9 ? opts.geosatellites[geoindex].imagewidth - 1 : 0);
-             (m_GeoSatellite != eGeoSatellite::H9 ? pixelx >= 0 : pixelx < opts.geosatellites[geoindex].imagewidth);
-             (m_GeoSatellite != eGeoSatellite::H9 ?  pixelx-- : pixelx++))
+
+        for (int pixelx = opts.geosatellites[geoindex].imagewidth - 1; pixelx >= 0; pixelx--)
         {
-            i_image = line * opts.geosatellites[geoindex].imagewidth + pixelx;
             if(kindofimage == "VIS_IR Color")
             {
                 cred = *(pixelsRed + line * opts.geosatellites[geoindex].imagewidth + pixelx);
-                cgreen = *(pixelsGreen+ line * opts.geosatellites[geoindex].imagewidth + pixelx);
-                cblue = *(pixelsBlue+ line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                cgreen = *(pixelsGreen + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                cblue = *(pixelsBlue + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                if(pixelsNight != NULL)
+                    cnight = *(pixelsNight + line * opts.geosatellites[geoindex].imagewidth + pixelx);
 
                 if(this->histogrammethod == CMB_HISTO_NONE_95)
                 {
@@ -4065,6 +4143,473 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                     }
                     else {
                         b = 0;
+                    }
+                    if(pixelsNight != NULL)
+                    {
+                        if(cnight < 65528)
+                        {
+                            indexoutnc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cnight - imageptrs->minRadianceIndex[3] ) / (float)(imageptrs->maxRadianceIndex[3] - imageptrs->minRadianceIndex[3])), 0), 1023);
+                            valgamma = pow( indexoutnc, gamma) * gammafactor;
+                            if (valgamma > 1023)
+                                valgamma = 1023;
+
+                            valcontrast = ContrastStretch(valgamma);
+                            n = quint8(valcontrast);
+                            if (n > 255)
+                                n = 255;
+                        }
+                        else {
+                            n = 0;
+                        }
+                    }
+                }
+                else if(this->histogrammethod == CMB_HISTO_NONE_100)
+                {
+                    if(cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                    else {
+                        r = 0;
+                    }
+                    if(cgreen < 65528)
+                    {
+                        indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cgreen - this->stat_min[1] ) / (float)(this->stat_max[1] - this->stat_min[1])), 0), 1023);
+                        valgamma = pow( indexoutgc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        g = quint8(valcontrast);
+                        if (g > 255)
+                            g = 255;
+                    }
+                    else {
+                        g = 0;
+                    }
+                    if(cblue < 65528)
+                    {
+                        indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cblue - this->stat_min[2] ) / (float)(this->stat_max[2] - this->stat_min[2])), 0), 1023);
+                        valgamma = pow( indexoutbc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        b = quint8(valcontrast);
+                        if (b > 255)
+                            b = 255;
+                    }
+                    else {
+                        b = 0;
+                    }
+                    if(pixelsNight != NULL)
+                    {
+                        if(cnight < 65528)
+                        {
+                            indexoutnc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cnight - this->stat_min[3] ) / (float)(this->stat_max[3] - this->stat_min[3])), 0), 1023);
+                            valgamma = pow( indexoutnc, gamma) * gammafactor;
+                            if (valgamma > 1023)
+                                valgamma = 1023;
+
+                            valcontrast = ContrastStretch(valgamma);
+                            n = quint8(valcontrast);
+                            if (n > 255)
+                                n = 255;
+                        }
+                        else {
+                            n = 0;
+                        }
+
+                    }
+                }
+                else if(this->histogrammethod == CMB_HISTO_EQUALIZE)
+                {
+                    if( cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        indexoutrc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                    else {
+                        r = 0;
+                    }
+
+                    if( cgreen < 65528)
+                    {
+                        indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cgreen - this->stat_min[1] ) / (float)(this->stat_max[1] - this->stat_min[1])), 0), 1023);
+                        indexoutgc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[1][indexoutgc]), 0), 1023);
+                        valgamma = pow( indexoutgc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        g = quint8(valcontrast);
+                        if (g > 255)
+                            g = 255;
+                    }
+                    else {
+                        g = 0;
+                    }
+                    if( cblue < 65528)
+                    {
+                        indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cblue - this->stat_min[2] ) / (float)(this->stat_max[2] - this->stat_min[2])), 0), 1023);
+                        indexoutbc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[2][indexoutbc]), 0), 1023);
+                        valgamma = pow( indexoutbc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        b = quint8(valcontrast);
+                        if (b > 255)
+                            b = 255;
+                    }
+                    else {
+                        b = 0;
+                    }
+                    if(pixelsNight != NULL)
+                    {
+                        if(cnight < 65528)
+                        {
+                            indexoutnc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cnight - this->stat_min[3] ) / (float)(this->stat_max[3] - this->stat_min[3])), 0), 1023);
+                            indexoutnc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[3][indexoutnc]), 0), 1023);
+                            valgamma = pow( indexoutnc, gamma) * gammafactor;
+                            if (valgamma > 1023)
+                                valgamma = 1023;
+
+                            valcontrast = ContrastStretch(valgamma);
+                            n = quint8(valcontrast);
+                            if (n > 255)
+                                n = 255;
+                        }
+                        else {
+                            n = 0;
+                        }
+                    }
+
+                }
+
+                if(m_GeoSatellite == eGeoSatellite::GOMS3 )
+                    row_col[pixelx] = qRgb(r,g,b);
+                else
+                {
+
+                    r = quint16(this->inversevector[0] ? (255 - r) : r);
+                    g = quint16(this->inversevector[1] ? (255 - g) : g);
+                    b = quint16(this->inversevector[2] ? (255 - b) : b);
+                    if(pixelsNight != NULL)
+                    {
+                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                            n = 0;
+                        else
+                            n = quint16(this->inversevector[3] ? (255 - n) : n);
+                    }
+                }
+
+                ret = pixconv.pixcoord2geocoord(sub_lon, opts.geosatellites[geoindex].imagewidth - 1 - pixelx,
+                                                opts.geosatellites[geoindex].imageheight - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
+                if(ret == -1)
+                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(0, 0, 0);
+                else
+                {
+                    observer.SetLocation(latitude, longitude, 0.0);
+                    dat.Set(year, month, day, hours, minutes, 0, true);
+                    QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
+                    QEci qeci(solar_vector, vel, dat);
+                    qtopo = observer.GetLookAngle(qeci);
+                    elev = qtopo.elevation * 180.0/PIE;
+
+                    if(elev <= 0.0)
+                    {
+                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(n, n, n);
+
+                    }
+                    else if(elev > 0.0 && elev < twilight)
+                    {
+                        int percentday = (int)(100.0 * elev / twilight);
+                        int percentnight = 100 - percentday;
+                        int red = (percentday*r + percentnight*n)/100;
+                        red = (red > 255 ? 255 : red);
+
+                        int green = (percentday*g + percentnight*n)/100;
+                        green = (green > 255 ? 255 : green);
+
+                        int blue = (percentday*b + percentnight*n)/100;
+                        blue = (blue > 255 ? 255 : blue);
+                        if(opts.geosatellites[geoindex].rss)
+                        {
+                            if( (opts.geosatellites[geoindex].rss ? 1392 : 3712) - 100 < opts.geosatellites[geoindex].imageheight - 1 - line)
+                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(0, 0, 0);
+                            else
+                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(red, green, blue);
+                        }
+                        else
+                        {
+                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(red, green, blue);
+                        }
+                    }
+                    else
+                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
+                }
+
+            }
+            else if(kindofimage == "VIS_IR")
+            {
+                cred = *(pixelsRed + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+
+                if(this->histogrammethod == CMB_HISTO_NONE_95)
+                {
+                    if(cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - imageptrs->minRadianceIndex[0] ) / (float)(imageptrs->maxRadianceIndex[0] - imageptrs->minRadianceIndex[0])), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                }
+                else if(this->histogrammethod == CMB_HISTO_NONE_100)
+                {
+                    if(cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                }
+                else // if(this->histogrammethod == CMB_HISTO_EQUALIZE)
+                {
+                    if( cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        indexoutrc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                }
+
+                g = r;
+                b = r;
+
+                if(m_GeoSatellite == eGeoSatellite::GOMS3 )
+                    row_col[pixelx] = qRgb(r,g,b);
+                else
+                {
+                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                    {
+                        r = 0;
+                        g = 0;
+                        b = 0;
+                    }
+                    //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                    //                    {
+                    //                        r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
+                    //                        g = r;
+                    //                        b = r;
+                    //                    }
+                    else
+                    {
+                        r = quint16(this->inversevector[0] ? (255 - r) : r);
+                        g = r;
+                        b = r;
+                    }
+
+                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] =  qRgb(r,g,b);
+                }
+            }
+        }
+    }
+
+    if(im != NULL)
+    {
+        delete im;
+        im = NULL;
+    }
+
+
+}
+
+void SegmentListGeostationary::computeGeoImageHimawari(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight)
+{
+    QRgb *row_col;
+    QRgb *row_col_bitmap;
+    quint16 cred, cgreen, cblue, cnight;
+    quint16 r = 0, g = 0, b = 0, n = 0;
+    quint16 indexoutrc, indexoutgc, indexoutbc, indexoutnc;
+
+    double gamma = opts.meteosatgamma;
+    double gammafactor = 1023 / pow(1023, gamma);
+    quint16 valgamma;
+    quint8 valcontrast;
+    QImage *im = NULL;
+
+    Vector3 solar_vector;
+    Vector3 vel;
+    QObserver observer;
+    QSgp4Date dat;
+    QGeodetic qgeo;
+    QTopocentric qtopo;
+
+    double elev;
+    double twilight = 12.0;
+
+
+    int year, month, day, hours, minutes;
+    year = this->filedatestring.mid(0, 4).toInt();
+    month = this->filedatestring.mid(4, 2).toInt();
+    day = this->filedatestring.mid(6, 2).toInt();
+    hours = this->filedatestring.mid(8, 2).toInt();
+    minutes = this->filedatestring.mid(10, 2).toInt();
+
+    pixgeoConversion pixconv;
+
+    double sub_lon = opts.geosatellites[geoindex].longitude;
+
+    long coff = opts.geosatellites[geoindex].coff;
+    long loff = opts.geosatellites[geoindex].loff;
+    double cfac = opts.geosatellites[geoindex].cfac;
+    double lfac = opts.geosatellites[geoindex].lfac;
+
+    double latitude, longitude;
+    int ret;
+
+
+    qDebug() << "SegmentListGeostationary::computeGeoImageHimawari";
+    int nbroflinespersegment = opts.geosatellites[geoindex].segmentlength;
+
+    //if(m_GeoSatellite != eGeoSatellite::H9)
+    im = CalculateBitMap(false);
+
+    unsigned int i_image;
+
+    for (int line = (m_GeoSatellite != eGeoSatellite::H9 ? opts.geosatellites[geoindex].maxsegments*nbroflinespersegment - 1 : 0);
+         (m_GeoSatellite != eGeoSatellite::H9 ? line >= 0 : line < opts.geosatellites[geoindex].maxsegments*nbroflinespersegment);
+         (m_GeoSatellite != eGeoSatellite::H9 ? line-- : line++))
+    {
+        if(m_GeoSatellite == eGeoSatellite::GOMS3)
+            row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
+        else
+        {
+            if(m_GeoSatellite != eGeoSatellite::H9)
+            {
+                row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
+                row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(opts.geosatellites[geoindex].imageheight - 1 - line);
+            }
+            else
+            {
+                row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
+                row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(line);
+            }
+        }
+
+        for (int pixelx = (m_GeoSatellite != eGeoSatellite::H9 ? opts.geosatellites[geoindex].imagewidth - 1 : 0);
+             (m_GeoSatellite != eGeoSatellite::H9 ? pixelx >= 0 : pixelx < opts.geosatellites[geoindex].imagewidth);
+             (m_GeoSatellite != eGeoSatellite::H9 ?  pixelx-- : pixelx++))
+        {
+            i_image = line * opts.geosatellites[geoindex].imagewidth + pixelx;
+            if(kindofimage == "VIS_IR Color")
+            {
+                cred = *(pixelsRed + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                cgreen = *(pixelsGreen + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                cblue = *(pixelsBlue + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                if(pixelsNight != NULL)
+                    cnight = *(pixelsNight + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+
+                if(this->histogrammethod == CMB_HISTO_NONE_95)
+                {
+                    if(cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - imageptrs->minRadianceIndex[0] ) / (float)(imageptrs->maxRadianceIndex[0] - imageptrs->minRadianceIndex[0])), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                    else {
+                        r = 0;
+                    }
+
+                    if(cgreen < 65528)
+                    {
+                        indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cgreen - imageptrs->minRadianceIndex[1] ) / (float)(imageptrs->maxRadianceIndex[1] - imageptrs->minRadianceIndex[1])), 0), 1023);
+                        valgamma = pow( indexoutgc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        g = quint8(valcontrast);
+                        if (g > 255)
+                            g = 255;
+                    }
+                    else {
+                        g = 0;
+                    }
+                    if(cblue < 65528)
+                    {
+                        indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cblue - imageptrs->minRadianceIndex[2] ) / (float)(imageptrs->maxRadianceIndex[2] - imageptrs->minRadianceIndex[2])), 0), 1023);
+                        valgamma = pow( indexoutbc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        b = quint8(valcontrast);
+                        if (b > 255)
+                            b = 255;
+                    }
+                    else {
+                        b = 0;
+                    }
+                    if(pixelsNight != NULL)
+                    {
+                        if(cnight < 65528)
+                        {
+                            indexoutnc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cnight - imageptrs->minRadianceIndex[3] ) / (float)(imageptrs->maxRadianceIndex[3] - imageptrs->minRadianceIndex[3])), 0), 1023);
+                            valgamma = pow( indexoutnc, gamma) * gammafactor;
+                            if (valgamma > 1023)
+                                valgamma = 1023;
+
+                            valcontrast = ContrastStretch(valgamma);
+                            n = quint8(valcontrast);
+                            if (n > 255)
+                                n = 255;
+                        }
+                        else {
+                            n = 0;
+                        }
                     }
                 }
                 else if(this->histogrammethod == CMB_HISTO_NONE_100)
@@ -4173,51 +4718,73 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                     row_col[pixelx] = qRgb(r,g,b);
                 else
                 {
-//                                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
-//                                        {
-//                                            r = 255;
-//                                            g = 0;
-//                                            b = 0;
-//                                        }
-//                                        else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
-//                                        {
-//                                            r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
-//                                            g = quint16(this->inversevector[1] ? (g == 255 ? 0 : g) : g);
-//                                            b = quint16(this->inversevector[2] ? (b == 255 ? 0 : b) : b);
-//                                        }
-//                                        else
+                    //                                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                    //                                        {
+                    //                                            r = 255;
+                    //                                            g = 0;
+                    //                                            b = 0;
+                    //                                        }
+                    //                                        else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                    //                                        {
+                    //                                            r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
+                    //                                            g = quint16(this->inversevector[1] ? (g == 255 ? 0 : g) : g);
+                    //                                            b = quint16(this->inversevector[2] ? (b == 255 ? 0 : b) : b);
+                    //                                        }
+                    //                                        else
                     {
                         r = quint16(this->inversevector[0] ? (255 - r) : r);
                         g = quint16(this->inversevector[1] ? (255 - g) : g);
                         b = quint16(this->inversevector[2] ? (255 - b) : b);
+                        if(pixelsNight != NULL)
+                            n = quint16(this->inversevector[3] ? (255 - n) : n);
+
                     }
 
-//                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
-//                    {
-//                        r = 255;
-//                        g = 0;
-//                        b = 0;
-//                    }
-//                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
-//                    {
-//                        r = 0;
-//                        g = 255;
-//                        b = 255;
-//                    }
-//                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 1)
-//                    {
-//                        r = 0;
-//                        g = 255;
-//                        b = 255;
-//                    }
+                    //                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                    //                    {
+                    //                        r = 255;
+                    //                        g = 0;
+                    //                        b = 0;
+                    //                    }
+                    //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                    //                    {
+                    //                        r = 0;
+                    //                        g = 255;
+                    //                        b = 255;
+                    //                    }
+                    //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 1)
+                    //                    {
+                    //                        r = 0;
+                    //                        g = 255;
+                    //                        b = 255;
+                    //                    }
                 }
 
-                    if(m_GeoSatellite != eGeoSatellite::H9)
-                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r,g,b);
+                if(m_GeoSatellite != eGeoSatellite::H9)
+                {
+                    ret = pixconv.pixcoord2geocoord(sub_lon, opts.geosatellites[geoindex].imagewidth - 1 - pixelx, line, coff, loff, cfac, lfac, &latitude, &longitude);
+                    if(ret == -1)
+                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(0, 0, 0);
                     else
-                        row_col[pixelx] = qRgb(r,g,b);
+                    {
+                        observer.SetLocation(latitude, longitude, 0.0);
+                        dat.Set(year, month, day, hours, minutes, 0, true);
+                        QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
+                        QEci qeci(solar_vector, vel, dat);
+                        qtopo = observer.GetLookAngle(qeci);
+                        elev = qtopo.elevation * 180.0/PIE;
 
+                        if(elev <= 0.0)
+                        {
+                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(n, n, n);
 
+                        }
+                        else
+                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
+                    }
+                }
+                else
+                    row_col[pixelx] = qRgb(r,g,b);
 
             }
             else if(kindofimage == "VIS_IR")
@@ -4480,8 +5047,8 @@ void SegmentListGeostationary::ComposeVISIRHimawari()
 {
 
     QRgb *row_col;
-    quint16 cred, cgreen, cblue;
-    quint16 r,g, b;
+    quint16 cred, cgreen, cbluen, cnight;
+    quint16 r, g, b, n;
     quint16 valcontrast;
 
     qDebug() << "==========start ComposeVISIRHimawari geoindex = " << geoindex << " ==================";
@@ -4494,6 +5061,7 @@ void SegmentListGeostationary::ComposeVISIRHimawari()
     quint16 *pixelsRed = NULL;
     quint16 *pixelsGreen = NULL;
     quint16 *pixelsBlue = NULL;
+    quint16 *pixelsNight = NULL;
 
     pixelsRed = new quint16[nbrpix];
     if(kindofimage == "VIS_IR Color")
@@ -4557,7 +5125,7 @@ void SegmentListGeostationary::ComposeVISIRHimawari()
 #if 1
     emit this->progressCounter(50);
 
-    computeGeoImage(pixelsRed, pixelsGreen, pixelsBlue);
+    computeGeoImageHimawari(pixelsRed, pixelsGreen, pixelsBlue, pixelsNight);
 #else
     for (int line = 0; line < 5500; line++)
     {
@@ -4600,22 +5168,58 @@ void SegmentListGeostationary::ComposeVISIRHimawari()
         delete [] pixelsGreen;
         delete [] pixelsBlue;
     }
-
-
-
-
 }
 
 void SegmentListGeostationary::ComposeHRV()
 {
     QRgb *row_col;
-    quint16 cred, cgreen, cblue, c, clum;
-    quint16 r,g, b;
+    QRgb *row_col_bitmap;
+
+    quint16 cred, cgreen, cblue, cnight, c, clum;
+    quint16 r, g, b, n;
 
     double gamma = opts.meteosatgamma;
     double gammafactor = 1023 / pow(1023, gamma);
     quint16 valgamma;
     quint8 valcontrast;
+    QImage *im = NULL;
+
+    Vector3 solar_vector;
+    Vector3 vel;
+    QObserver observer;
+    QSgp4Date dat;
+    QGeodetic qgeo;
+    QTopocentric qtopo;
+
+
+    int year, month, day, hours, minutes;
+    year = this->filedatestring.midRef(0, 4).toInt();
+    month = this->filedatestring.midRef(4, 2).toInt();
+    day = this->filedatestring.midRef(6, 2).toInt();
+    hours = this->filedatestring.midRef(8, 2).toInt();
+    minutes = this->filedatestring.midRef(10, 2).toInt();
+
+    pixgeoConversion pixconv;
+
+    double sub_lon = opts.geosatellites[geoindex].longitude;
+
+    long coffhrv = opts.geosatellites[geoindex].coffhrv;
+    long loffhrv = opts.geosatellites[geoindex].loffhrv;
+    double cfachrv = opts.geosatellites[geoindex].cfachrv;
+    double lfachrv = opts.geosatellites[geoindex].lfachrv;
+
+    double latitude, longitude;
+    int ret;
+
+    int LECA = 11136 - LowerEastColumnActual;
+    int LSLA = 11136 - LowerSouthLineActual;
+    int LWCA = 11136 - LowerWestColumnActual;
+    int LNLA = 11136 - LowerNorthLineActual;
+
+    int UECA = 11136 - UpperEastColumnActual;
+    int USLA = 11136 - UpperSouthLineActual;
+    int UWCA = 11136 - UpperWestColumnActual;
+    int UNLA = 11136 - UpperNorthLineActual;
 
 
     int width = opts.geosatellites[geoindex].imagewidth;
@@ -4633,10 +5237,11 @@ void SegmentListGeostationary::ComposeHRV()
         npixHRV = 5568*5*464;
     }
 
-    quint16 *pixelsHRV;
-    quint16 *pixelsRed;
-    quint16 *pixelsGreen;
-    quint16 *pixelsBlue;
+    quint16 *pixelsHRV = NULL;
+    quint16 *pixelsRed = NULL;
+    quint16 *pixelsGreen = NULL;
+    quint16 *pixelsBlue = NULL;
+    quint16 *pixelsNight = NULL;
 
     pixelsHRV = new quint16[npixHRV];
 
@@ -4645,6 +5250,8 @@ void SegmentListGeostationary::ComposeHRV()
         pixelsRed = new quint16[npix];
         pixelsGreen = new quint16[npix];
         pixelsBlue = new quint16[npix];
+        if(this->spectrumvector.at(3).length() > 0)
+            pixelsNight = new quint16[npix];
     }
 
 
@@ -4681,6 +5288,16 @@ void SegmentListGeostationary::ComposeHRV()
             else
                 memset(pixelsBlue + i * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
         }
+        if(this->spectrumvector.at(3).length() > 0)
+        {
+            for( int i = (opts.geosatellites.at(geoindex).rss ? 5 : 0); i < 8; i++)
+            {
+                if(imageptrs->ptrNight[i] != NULL)
+                    memcpy(pixelsNight + i * 464 * 3712, imageptrs->ptrNight[i], 464 * 3712 * sizeof(quint16));
+                else
+                    memset(pixelsNight + i * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
+            }
+        }
     }
 
     emit this->progressCounter(10);
@@ -4691,6 +5308,8 @@ void SegmentListGeostationary::ComposeHRV()
         imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, 3);
         imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 1023, 16, 16, 256, 3);
         imageptrs->CLAHE(pixelsBlue, 3712, 3712, 0, 1023, 16, 16, 256, 3);
+        if(this->spectrumvector.at(3).length() > 0)
+            imageptrs->CLAHE(pixelsNight, 3712, 3712, 0, 1023, 16, 16, 256, 5);
     }
 
     emit this->progressCounter(20);
@@ -4706,6 +5325,12 @@ void SegmentListGeostationary::ComposeHRV()
     }
 
     emit this->progressCounter(50);
+
+    int row = 0;
+    int col = 0;
+
+    double elev;
+    double twilight = 12.0;
 
     for (int line = (opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5))*464 - 1; line >= 0; line--)
     {
@@ -4724,6 +5349,8 @@ void SegmentListGeostationary::ComposeHRV()
                     cred = *(pixelsRed + diff);
                     cgreen = *(pixelsGreen + diff);
                     cblue = *(pixelsBlue + diff);
+                    if(this->spectrumvector.at(3).length() > 0)
+                        cnight = *(pixelsNight + diff);
                     clum = (cred+cgreen+cblue)/3;
                     if( clum == 0)
                         clum = 1;
@@ -4733,9 +5360,13 @@ void SegmentListGeostationary::ComposeHRV()
                 {
                     if(this->areatype == 0)
                     {
-                        cred = *(pixelsRed + (19*464 + line)/3 * 3712 + UpperEastColumnActual/3 + pixelx/3);
-                        cgreen = *(pixelsGreen + (19*464 + line)/3 * 3712 + UpperEastColumnActual/3 + pixelx/3);
-                        cblue = *(pixelsBlue + (19*464 + line)/3 * 3712 + UpperEastColumnActual/3 + pixelx/3);
+                        int diff = (19*464 + line)/3 * 3712 + UpperEastColumnActual/3 + pixelx/3;
+                        int diff1 = (((19*464 + line) * 3712 + UpperEastColumnActual + pixelx)/3);
+                        cred = *(pixelsRed + diff);
+                        cgreen = *(pixelsGreen + diff);
+                        cblue = *(pixelsBlue + diff);
+                        if(this->spectrumvector.at(3).length() > 0)
+                            cnight = *(pixelsNight + diff);
                         clum = (cred+cgreen+cblue)/3;
                         if( clum == 0)
                             clum = 1;
@@ -4744,18 +5375,24 @@ void SegmentListGeostationary::ComposeHRV()
                     {
                         if(line > UpperSouthLineActual)
                         {
-                            cred = *(pixelsRed + line/3 * 3712 + UpperEastColumnActual/3 + pixelx/3);
-                            cgreen = *(pixelsGreen + line/3 * 3712 + UpperEastColumnActual/3 + pixelx/3);
-                            cblue = *(pixelsBlue + line/3 * 3712 + UpperEastColumnActual/3 + pixelx/3);
+                            int diff = line/3 * 3712 + UpperEastColumnActual/3 + pixelx/3;
+                            cred = *(pixelsRed + diff);
+                            cgreen = *(pixelsGreen + diff);
+                            cblue = *(pixelsBlue + diff);
+                            if(this->spectrumvector.at(3).length() > 0)
+                                cnight = *(pixelsNight + diff);
                             clum = (cred+cgreen+cblue)/3;
                             if( clum == 0)
                                 clum = 1;
                         }
                         else
                         {
-                            cred = *(pixelsRed + line/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
-                            cgreen = *(pixelsGreen + line/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
-                            cblue = *(pixelsBlue + line/3 * 3712 + LowerEastColumnActual/3 + pixelx/3);
+                            int diff = line/3 * 3712 + LowerEastColumnActual/3 + pixelx/3;
+                            cred = *(pixelsRed + diff);
+                            cgreen = *(pixelsGreen + diff);
+                            cblue = *(pixelsBlue + diff);
+                            if(this->spectrumvector.at(3).length() > 0)
+                                cnight = *(pixelsNight + diff);
                             clum = (cred+cgreen+cblue)/3;
                             if( clum == 0)
                                 clum = 1;
@@ -4789,7 +5426,119 @@ void SegmentListGeostationary::ComposeHRV()
                 b = quint8(valcontrast);
                 if (b > 255)
                     b = 255;
-                row_col[5568 - 1 - pixelx] = qRgb(r,g,b);
+
+                if(this->spectrumvector.at(3).length() > 0)
+                {
+                    valgamma = pow( cnight, gamma) * gammafactor;
+                    if (valgamma >= 1024)
+                        valgamma = 1023;
+
+                    valcontrast = ContrastStretch(valgamma);
+                    n = quint8(valcontrast);
+                    if (n > 255)
+                        n = 255;
+                    (this->inversevector.at(3) ? n = 255 - n : n);
+                }
+
+                //imageheight=1392
+                //imageheighthrv0=2320
+                //imageheighthrv1=11136
+                //imagewidth=3712
+                //imagewidthhrv0=5568
+                //imagewidthhrv1=5568
+
+                if(this->spectrumvector.at(3).length() > 0)
+                {
+                    if(this->areatype == 0)
+                    {
+                        row = opts.geosatellites[geoindex].imageheighthrv0 - 1 - line;
+                        col = opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx;
+                        if (row > 11136 - LowerNorthLineActual ) //LOWER
+                        {
+                            col = col + (11136 - 1 - LowerWestColumnActual);
+                        }
+                        else //UPPER
+                        {
+                            col = col + (11136 - 1 - UpperWestColumnActual);
+                        }
+
+                        ret = pixconv.pixcoord2geocoord(sub_lon, col, row, coffhrv, loffhrv, cfachrv, lfachrv, &latitude, &longitude);
+                    }
+                    else
+                    {
+                        row = opts.geosatellites[geoindex].imageheighthrv1 - 1 - line;
+                        col = opts.geosatellites[geoindex].imagewidthhrv1 - 1 - pixelx;
+                        if (row > 11136 - LowerNorthLineActual ) //LOWER
+                        {
+                            col = col + (11136 - 1 - LowerWestColumnActual);
+                        }
+                        else //UPPER
+                        {
+                            col = col + (11136 - 1 - UpperWestColumnActual);
+                        }
+
+                        ret = pixconv.pixcoord2geocoord(sub_lon, col, row, coffhrv, loffhrv, cfachrv, lfachrv, &latitude, &longitude);
+                    }
+
+                    if(ret == -1)
+                        row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(0, 0, 0);
+                    else
+                    {
+                        observer.SetLocation(latitude, longitude, 0.0);
+                        dat.Set(year, month, day, hours, minutes, 0, true);
+                        QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
+                        QEci qeci(solar_vector, vel, dat);
+                        qtopo = observer.GetLookAngle(qeci);
+                        elev = qtopo.elevation * 180.0/PIE;
+
+                        if(elev <= - 6.0)
+                        {
+                            row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(n, n, n);
+                        }
+                        else if(elev > - 6.0 && elev < 6.0)
+                        {
+                            double abs_elev = elev + 6.0;
+                            int percentday = (int)(100.0 * abs_elev / twilight);
+                            int percentnight = 100 - percentday;
+                            int red = (percentday*r + percentnight*n)/100;
+                            red = (red > 255 ? 255 : red);
+
+                            int green = (percentday*g + percentnight*n)/100;
+                            green = (green > 255 ? 255 : green);
+
+                            int blue = (percentday*b + percentnight*n)/100;
+                            blue = (blue > 255 ? 255 : blue);
+
+                            int diff = (19*464 + line)/3 * 3712 + UpperEastColumnActual/3 + pixelx/3;
+
+//                            if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx]) == 0)
+//                            {
+//                                red = 0;
+//                                green = 0;
+//                                blue = 0;
+//                            }
+
+                            if(opts.geosatellites[geoindex].rss)
+                            {
+                                if( (opts.geosatellites[geoindex].rss ? 1392 : 3712) - 100 < opts.geosatellites[geoindex].imageheighthrv0 - 1 - line)
+                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(0, 0, 0);
+                                else
+                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(red, green, blue);
+                            }
+                            else
+                            {
+                                row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(red, green, blue);
+                            }
+                        }
+
+                        else
+                            row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(r, g, b);
+
+                    }
+                }
+                else
+                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(r, g, b);
+
             }
             else if(kindofimage == "HRV")
             {
@@ -4810,302 +5559,463 @@ void SegmentListGeostationary::ComposeHRV()
 
     emit this->progressCounter(100);
 
-    delete [] pixelsHRV;
-    if(kindofimage == "HRV Color")
+
+    if (pixelsHRV != NULL)
+    {
+        delete [] pixelsHRV;
+        pixelsHRV = NULL;
+    }
+    if (pixelsRed != NULL)
     {
         delete [] pixelsRed;
+        pixelsRed = NULL;
+    }
+    if (pixelsGreen != NULL)
+    {
         delete [] pixelsGreen;
+        pixelsGreen = NULL;
+    }
+    if (pixelsBlue != NULL)
+    {
         delete [] pixelsBlue;
+        pixelsBlue = NULL;
+    }
+    if (pixelsNight != NULL)
+    {
+        delete [] pixelsNight;
+        pixelsNight = NULL;
     }
 }
 
-//bool SegmentListGeostationary::allHRVColorSegmentsReceived()
-//{
+void SegmentListGeostationary::ComposeHRV_Alt()
+{
+    QRgb *row_col;
+    QRgb *row_col_bitmap;
 
-//    qDebug() << QString("SegmentListGeostationary::allHRVColorSegmentsReceived()");
+    quint16 cred, cgreen, cblue, cnight, c, clum;
+    quint16 r, g, b, n;
 
-//    if (this->getKindofImage() == "HRV Color")
+    double gamma = opts.meteosatgamma;
+    double gammafactor = 1023 / pow(1023, gamma);
+    quint16 valgamma;
+    quint8 valcontrast;
+
+    Vector3 solar_vector;
+    Vector3 vel;
+    QObserver observer;
+    QSgp4Date dat;
+    QGeodetic qgeo;
+    QTopocentric qtopo;
+
+
+    int year, month, day, hours, minutes;
+    year = this->filedatestring.mid(0, 4).toInt();
+    month = this->filedatestring.mid(4, 2).toInt();
+    day = this->filedatestring.mid(6, 2).toInt();
+    hours = this->filedatestring.mid(8, 2).toInt();
+    minutes = this->filedatestring.mid(10, 2).toInt();
+
+    pixgeoConversion pixconv;
+
+    double sub_lon = opts.geosatellites[geoindex].longitude;
+
+    long coffhrv = opts.geosatellites[geoindex].coffhrv;
+    long loffhrv = opts.geosatellites[geoindex].loffhrv;
+    double cfachrv = opts.geosatellites[geoindex].cfachrv;
+    double lfachrv = opts.geosatellites[geoindex].lfachrv;
+
+    double latitude, longitude;
+    int ret;
+
+//    imageptrs->ptrimagebitmap = new QImage(11136, 11136, QImage::Format_ARGB32);
+//    QPainter painter(imageptrs->ptrimagebitmap);
+//    QPoint center;
+//    center.setX(opts.geosatellites.at(geoindex).coffhrv);
+//    center.setY(opts.geosatellites.at(geoindex).loffhrv);
+//    painter.setPen(Qt::NoPen);
+//    painter.setBrush(QColor(100, 100, 100));
+//    painter.drawEllipse(center, 5500 - 3, 5500);
+
+
+
+    int LECA = 11136 - LowerEastColumnActual;
+    int LSLA = 11136 - LowerSouthLineActual;
+    int LWCA = 11136 - LowerWestColumnActual;
+    int LNLA = 11136 - LowerNorthLineActual;
+
+    int UECA = 11136 - UpperEastColumnActual;
+    int USLA = 11136 - UpperSouthLineActual;
+    int UWCA = 11136 - UpperWestColumnActual;
+    int UNLA = 11136 - UpperNorthLineActual;
+
+    size_t npix = 3712*3712;
+    size_t npixHRV = 0;
+
+    if (this->areatype == 1)
+        npixHRV = 5568*11136;
+    else
+        npixHRV = 5568*5*464;
+
+    if(opts.geosatellites.at(geoindex).rss)
+    {
+        npixHRV = 5568*5*464;
+    }
+
+    quint16 *pixelsHRV = NULL;
+    quint16 *pixelsRed = NULL;
+    quint16 *pixelsGreen = NULL;
+    quint16 *pixelsBlue = NULL;
+    quint16 *pixelsNight = NULL;
+
+    pixelsHRV = new quint16[npixHRV];
+
+    if(kindofimage == "HRV Color")
+    {
+        pixelsRed = new quint16[npix];
+        pixelsGreen = new quint16[npix];
+        pixelsBlue = new quint16[npix];
+        if(this->spectrumvector.at(3).length() > 0)
+            pixelsNight = new quint16[npix];
+    }
+
+
+    for( int i = 0, k = 0; i < (opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5)); i++)
+    {
+        k = (opts.geosatellites.at(geoindex).rss ? 19 + i : (this->areatype == 1 ? i : 19 + i));
+
+        if(imageptrs->ptrHRV[k] != NULL)
+            memcpy(pixelsHRV + i * 464 * 5568, imageptrs->ptrHRV[k], 464 * 5568 * sizeof(quint16));
+        else
+            memset(pixelsHRV + i * 464 * 5568, 0, 464 * 5568 * sizeof(quint16));
+    }
+
+    if(kindofimage == "HRV Color")
+    {
+        for( int i = (opts.geosatellites.at(geoindex).rss ? 5 : 0); i < 8; i++)
+        {
+            if(imageptrs->ptrRed[i] != NULL)
+                memcpy(pixelsRed + i * 464 * 3712, imageptrs->ptrRed[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsRed + i * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
+        }
+        for( int i = (opts.geosatellites.at(geoindex).rss ? 5 : 0); i < 8; i++)
+        {
+            if(imageptrs->ptrGreen[i] != NULL)
+                memcpy(pixelsGreen + i * 464 * 3712, imageptrs->ptrGreen[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsGreen + i * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
+        }
+        for( int i = (opts.geosatellites.at(geoindex).rss ? 5 : 0); i < 8; i++)
+        {
+            if(imageptrs->ptrBlue[i] != NULL)
+                memcpy(pixelsBlue + i * 464 * 3712, imageptrs->ptrBlue[i], 464 * 3712 * sizeof(quint16));
+            else
+                memset(pixelsBlue + i * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
+        }
+        if(this->spectrumvector.at(3).length() > 0)
+        {
+            for( int i = (opts.geosatellites.at(geoindex).rss ? 5 : 0); i < 8; i++)
+            {
+                if(imageptrs->ptrNight[i] != NULL)
+                    memcpy(pixelsNight + i * 464 * 3712, imageptrs->ptrNight[i], 464 * 3712 * sizeof(quint16));
+                else
+                    memset(pixelsNight + i * 464 * 3712, 0, 464 * 3712 * sizeof(quint16));
+            }
+        }
+    }
+
+    emit this->progressCounter(10);
+
+
+    if(kindofimage == "HRV Color")
+    {
+        imageptrs->CLAHE(pixelsRed, 3712, 3712, 0, 1023, 16, 16, 256, 3);
+        imageptrs->CLAHE(pixelsGreen, 3712, 3712, 0, 1023, 16, 16, 256, 3);
+        imageptrs->CLAHE(pixelsBlue, 3712, 3712, 0, 1023, 16, 16, 256, 3);
+        if(this->spectrumvector.at(3).length() > 0)
+            imageptrs->CLAHE(pixelsNight, 3712, 3712, 0, 1023, 16, 16, 256, 5);
+    }
+
+    emit this->progressCounter(20);
+
+    if(opts.geosatellites.at(geoindex).rss)
+        imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, 4);
+    else
+    {
+        if(this->areatype == 1)
+            imageptrs->CLAHE(pixelsHRV, 5568, 11136, 0, 1023, 16, 16, 256, 3);
+        else
+            imageptrs->CLAHE(pixelsHRV, 5568, 5*464, 0, 1023, 16, 16, 256, 3);
+    }
+
+    emit this->progressCounter(50);
+
+    int row = 0;
+    int col = 0;
+
+    double elev;
+    double twilight = 12.0;
+
+    for (int line = (opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5))*464 - 1; line >= 0; line--)
+    {
+        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine((opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5))*464 - 1 - line);
+//        row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine((opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5))*464 - 1 - line);
+
+        for (int pixelx = 5568 - 1 ; pixelx >= 0; pixelx--)
+        {
+            c = *(pixelsHRV + line * 5568 + pixelx);
+            //c = 255;
+
+            if(kindofimage == "HRV Color")
+            {
+                if(opts.geosatellites.at(geoindex).rss)
+                {
+                    int diff = (19*464 + line)/3 * 3712 + LowerEastColumnActual/3 + pixelx/3;
+                    cred = *(pixelsRed + diff);
+                    cgreen = *(pixelsGreen + diff);
+                    cblue = *(pixelsBlue + diff);
+                    if(this->spectrumvector.at(3).length() > 0)
+                        cnight = *(pixelsNight + diff);
+                    clum = (cred+cgreen+cblue)/3;
+                    if( clum == 0)
+                        clum = 1;
+
+                }
+                else
+                {
+                    if(this->areatype == 0)
+                    {
+                        int diff = (19*464 + line)/3 * 3712 + UpperEastColumnActual/3 + pixelx/3;
+                        int diff1 = (((19*464 + line) * 3712 + UpperEastColumnActual + pixelx)/3);
+                        cred = *(pixelsRed + diff);
+                        cgreen = *(pixelsGreen + diff);
+                        cblue = *(pixelsBlue + diff);
+                        if(this->spectrumvector.at(3).length() > 0)
+                            cnight = *(pixelsNight + diff);
+                        clum = (cred+cgreen+cblue)/3;
+                        if( clum == 0)
+                            clum = 1;
+                    }
+                    else
+                    {
+                        if(line > UpperSouthLineActual)
+                        {
+                            int diff = line/3 * 3712 + UpperEastColumnActual/3 + pixelx/3;
+                            cred = *(pixelsRed + diff);
+                            cgreen = *(pixelsGreen + diff);
+                            cblue = *(pixelsBlue + diff);
+                            if(this->spectrumvector.at(3).length() > 0)
+                                cnight = *(pixelsNight + diff);
+                            clum = (cred+cgreen+cblue)/3;
+                            if( clum == 0)
+                                clum = 1;
+                        }
+                        else
+                        {
+                            int diff = line/3 * 3712 + LowerEastColumnActual/3 + pixelx/3;
+                            cred = *(pixelsRed + diff);
+                            cgreen = *(pixelsGreen + diff);
+                            cblue = *(pixelsBlue + diff);
+                            if(this->spectrumvector.at(3).length() > 0)
+                                cnight = *(pixelsNight + diff);
+                            clum = (cred+cgreen+cblue)/3;
+                            if( clum == 0)
+                                clum = 1;
+                        }
+                    }
+                }
+
+                valgamma = pow( c*cred/clum, gamma) * gammafactor;
+                if (valgamma >= 1024)
+                    valgamma = 1023;
+
+                valcontrast = ContrastStretch(valgamma);
+                r = quint8(valcontrast);
+                if (r > 255)
+                    r = 255;
+
+                valgamma = pow( c*cgreen/clum, gamma) * gammafactor;
+                if (valgamma >= 1024)
+                    valgamma = 1023;
+
+                valcontrast = ContrastStretch(valgamma);
+                g = quint8(valcontrast);
+                if (g > 255)
+                    g = 255;
+
+                valgamma = pow( c*cblue/clum, gamma) * gammafactor;
+                if (valgamma >= 1024)
+                    valgamma = 1023;
+
+                valcontrast = ContrastStretch(valgamma);
+                b = quint8(valcontrast);
+                if (b > 255)
+                    b = 255;
+
+                if(this->spectrumvector.at(3).length() > 0)
+                {
+                    valgamma = pow( cnight, gamma) * gammafactor;
+                    if (valgamma >= 1024)
+                        valgamma = 1023;
+
+                    valcontrast = ContrastStretch(valgamma);
+                    n = quint8(valcontrast);
+                    if (n > 255)
+                        n = 255;
+                    (this->inversevector.at(3) ? n = 255 - n : n);
+                }
+
+                //imageheight=1392
+                //imageheighthrv0=2320
+                //imageheighthrv1=11136
+                //imagewidth=3712
+                //imagewidthhrv0=5568
+                //imagewidthhrv1=5568
+
+                if(this->spectrumvector.at(3).length() > 0)
+                {
+                    if(this->areatype == 0)
+                    {
+                        row = opts.geosatellites[geoindex].imageheighthrv0 - 1 - line;
+                        col = opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx;
+                        if (row > 11136 - LowerNorthLineActual ) //LOWER
+                        {
+                            col = col + (11136 - 1 - LowerWestColumnActual);
+                        }
+                        else //UPPER
+                        {
+                            col = col + (11136 - 1 - UpperWestColumnActual);
+                        }
+
+                        ret = pixconv.pixcoord2geocoord(sub_lon, col, row, coffhrv, loffhrv, cfachrv, lfachrv, &latitude, &longitude);
+                    }
+                    else
+                    {
+                        row = opts.geosatellites[geoindex].imageheighthrv1 - 1 - line;
+                        col = opts.geosatellites[geoindex].imagewidthhrv1 - 1 - pixelx;
+                        if (row > 11136 - LowerNorthLineActual ) //LOWER
+                        {
+                            col = col + (11136 - 1 - LowerWestColumnActual);
+                        }
+                        else //UPPER
+                        {
+                            col = col + (11136 - 1 - UpperWestColumnActual);
+                        }
+
+                        ret = pixconv.pixcoord2geocoord(sub_lon, col, row, coffhrv, loffhrv, cfachrv, lfachrv, &latitude, &longitude);
+                    }
+
+                    if(ret == -1)
+                        row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(255, 0, 0);
+                    else
+                    {
+                        observer.SetLocation(latitude, longitude, 0.0);
+                        dat.Set(year, month, day, hours, minutes, 0, true);
+                        QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
+                        QEci qeci(solar_vector, vel, dat);
+                        qtopo = observer.GetLookAngle(qeci);
+                        elev = qtopo.elevation * 180.0/PIE;
+
+                        if(elev <= - 6.0)
+                        {
+                            row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(n, n, n);
+                        }
+                        else if(elev > - 6.0 && elev < 6.0)
+                        {
+                            double abs_elev = elev + 6.0;
+                            int percentday = (int)(100.0 * abs_elev / twilight);
+                            int percentnight = 100 - percentday;
+                            int red = (percentday*r + percentnight*n)/100;
+                            red = (red > 255 ? 255 : red);
+
+                            int green = (percentday*g + percentnight*n)/100;
+                            green = (green > 255 ? 255 : green);
+
+                            int blue = (percentday*b + percentnight*n)/100;
+                            blue = (blue > 255 ? 255 : blue);
+
+//                            if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx]) == 0)
+//                            {
+//                                red = 0;
+//                                green = 0;
+//                                blue = 0;
+//                            }
+
+                            if(opts.geosatellites[geoindex].rss)
+                            {
+                                if( (opts.geosatellites[geoindex].rss ? 1392 : 3712) - 100 < opts.geosatellites[geoindex].imageheighthrv0 - 1 - line)
+                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(0, 0, 0);
+                                else
+                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(red, green, blue);
+                            }
+                            else
+                            {
+                                row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(red, green, blue);
+                            }
+                        }
+
+                        else
+                            row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(r, g, b);
+
+                    }
+                }
+                else
+                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(r, g, b);
+
+            }
+            else if(kindofimage == "HRV")
+            {
+                valgamma = pow( c, gamma) * gammafactor;
+                if (valgamma >= 1024)
+                    valgamma = 1023;
+
+                valcontrast = ContrastStretch(valgamma);
+                r = quint8(valcontrast);
+                if (r > 255)
+                    r = 255;
+
+                row_col[5568 - 1 - pixelx] = qRgb(r,r,r);
+
+            }
+        }
+    }
+
+    emit this->progressCounter(100);
+
+//    if(imageptrs->ptrimagebitmap != NULL)
 //    {
-//        for(int i = (opts.geosatellites.at(geoindex).rss ? 5 : 0); i < 8; i++)
-//        {
-//            if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-//                return false;
-//            if (isPresentGreen[i] && issegmentcomposedGreen[i] == false)
-//                return false;
-//            if (isPresentBlue[i] && issegmentcomposedBlue[i] == false)
-//                return false;
-//        }
-
-//        for(int i = (opts.geosatellites.at(geoindex).rss ? 19 : (this->areatype == 0 ? 19 : 0)); i < 24; i++)
-//        {
-//            qDebug() << QString("index = %1 isPresent = %2 issegmentcomposedHRV = %3").arg(i).arg(isPresentHRV[i]).arg(issegmentcomposedHRV[i]);
-//            if (isPresentHRV[i] && issegmentcomposedHRV[i] == false)
-//                return false;
-//        }
-//    }
-//    else if(this->getKindofImage() == "HRV")
-//    {
-//        for(int i = (opts.geosatellites.at(geoindex).rss ? 19 : (this->areatype == 0 ? 19 : 0)); i < 24; i++)
-//        {
-//            qDebug() << QString("index = %1 isPresent = %2 issegmentcomposedHRV = %3").arg(i).arg(isPresentHRV[i]).arg(issegmentcomposedHRV[i]);
-//            if (isPresentHRV[i] && issegmentcomposedHRV[i] == false)
-//                return false;
-//        }
+//        delete imageptrs->ptrimagebitmap;
+//        imageptrs->ptrimagebitmap = NULL;
 //    }
 
-//    return true;
-//}
 
-//bool SegmentListGeostationary::allVIS_IRSegmentsReceived()
-//{
+    if (pixelsHRV != NULL)
+    {
+        delete [] pixelsHRV;
+        pixelsHRV = NULL;
+    }
+    if (pixelsRed != NULL)
+    {
+        delete [] pixelsRed;
+        pixelsRed = NULL;
+    }
+    if (pixelsGreen != NULL)
+    {
+        delete [] pixelsGreen;
+        pixelsGreen = NULL;
+    }
+    if (pixelsBlue != NULL)
+    {
+        delete [] pixelsBlue;
+        pixelsBlue = NULL;
+    }
+    if (pixelsNight != NULL)
+    {
+        delete [] pixelsNight;
+        pixelsNight = NULL;
+    }
+}
 
-//    qDebug() << QString("SegmentListGeostationary::allVIS_IRSegmentsReceived()");
-
-//    int pbCounter = 0;
-//    int pbCounterRed = 0;
-//    int pbCounterGreen = 0;
-//    int pbCounterBlue = 0;
-
-
-//    if (this->getKindofImage() == "VIS_IR Color")
-//    {
-//        if(m_GeoSatellite == eGeoSatellite::FY2H || m_GeoSatellite == eGeoSatellite::FY2G || m_GeoSatellite == eGeoSatellite::GOES_16 || m_GeoSatellite == eGeoSatellite::GOES_17 || m_GeoSatellite == eGeoSatellite::GOES_18)
-//        {
-//            return true;
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_9 || m_GeoSatellite == eGeoSatellite::MET_8)
-//        {
-//            for(int i = (this->bisRSS ? 5 : 0) ; i < 8; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == true)
-//                {
-//                    pbCounter++;
-//                    pbCounterRed++;
-//                }
-//                if (isPresentGreen[i] && issegmentcomposedGreen[i] == true)
-//                {
-//                    pbCounter++;
-//                    pbCounterGreen++;
-//                }
-//                if (isPresentBlue[i] && issegmentcomposedBlue[i] == true)
-//                {
-//                    pbCounter++;
-//                    pbCounterBlue++;
-//                }
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::GOMS3)
-//        {
-//            for(int i = 0 ; i < 6; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == true)
-//                    pbCounter++;
-//                if (isPresentGreen[i] && issegmentcomposedGreen[i] == true)
-//                    pbCounter++;
-//                if (isPresentBlue[i] && issegmentcomposedBlue[i] == true)
-//                    pbCounter++;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::H8)
-//        {
-//            for(int i = 0; i < 10; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == true)
-//                    pbCounter++;
-//                if (isPresentGreen[i] && issegmentcomposedGreen[i] == true)
-//                    pbCounter++;
-//                if (isPresentBlue[i] && issegmentcomposedBlue[i] == true)
-//                    pbCounter++;
-//            }
-//        }
-//    }
-//    else if (this->getKindofImage() == "VIS_IR" )
-//    {
-//        if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_8)
-//        {
-//            for(int i = 0; i < 8; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == true)
-//                    pbCounter++;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::GOMS3)
-//        {
-//            for(int i = 0; i < 6; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == true)
-//                    pbCounter++;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::MET_9)
-//        {
-//            for(int i = 0; i < 8; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == true)
-//                    pbCounter++;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::FY2H || m_GeoSatellite == eGeoSatellite::FY2G)
-//        {
-//            if (isPresentRed[0] && issegmentcomposedRed[0] == true)
-//                pbCounter++;
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::H8)
-//        {
-//            for(int i = 0; i < 10; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == true)
-//                    pbCounter++;
-//            }
-//        }
-//    }
-//    else if (this->getKindofImage() == "HRV" || this->getKindofImage() == "HRV Color")
-//    {
-//        if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_9 || m_GeoSatellite == eGeoSatellite::MET_8)
-//        {
-//            for(int i = (this->bisRSS ? 5 : 0) ; i < 8; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == true)
-//                    pbCounter++;
-//                if (isPresentGreen[i] && issegmentcomposedGreen[i] == true)
-//                    pbCounter++;
-//                if (isPresentBlue[i] && issegmentcomposedBlue[i] == true)
-//                    pbCounter++;
-//            }
-//            for(int i = (this->areatype == 0 ? 0 : 19); i < 24; i++)
-//            {
-//                if (isPresentHRV[i] && issegmentcomposedHRV[i] == true)
-//                    pbCounter++;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::FY2H || m_GeoSatellite == eGeoSatellite::FY2G)
-//        {
-//            if (isPresentHRV[0] && issegmentcomposedHRV[0] == true)
-//                pbCounter++;
-//        }
-//    }
-
-//    qDebug() << QString("SegmentListGeostationary::allVIS_IRSegmentsReceived() pbCounter = %1").arg(pbCounter);
-
-//    if(pbCounterRed == 8)
-//        qDebug() << QString("pbCounterRed =  8");
-//    if(pbCounterGreen == 8)
-//        qDebug() << QString("pbCounterGreen =  8");
-//    if(pbCounterBlue == 8)
-//        qDebug() << QString("pbCounterBlue =  8");
-
-
-//    emit progressCounter(pbCounter);
-
-//    if (this->getKindofImage() == "VIS_IR Color")
-//    {
-//        if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_9 || m_GeoSatellite == eGeoSatellite::MET_8)
-//        {
-//            for(int i = (this->bisRSS ? 5 : 0) ; i < 8; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-//                    return false;
-//                if (isPresentGreen[i] && issegmentcomposedGreen[i] == false)
-//                    return false;
-//                if (isPresentBlue[i] && issegmentcomposedBlue[i] == false)
-//                    return false;
-//            }
-//        } else if(m_GeoSatellite == eGeoSatellite::GOMS3)
-//        {
-//            for(int i = 0 ; i < 6; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-//                    return false;
-//                if (isPresentGreen[i] && issegmentcomposedGreen[i] == false)
-//                    return false;
-//                if (isPresentBlue[i] && issegmentcomposedBlue[i] == false)
-//                    return false;
-//            }
-//        } else if(m_GeoSatellite == eGeoSatellite::H8)
-//        {
-//            for(int i = 0 ; i < 10; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-//                    return false;
-//                if (isPresentGreen[i] && issegmentcomposedGreen[i] == false)
-//                    return false;
-//                if (isPresentBlue[i] && issegmentcomposedBlue[i] == false)
-//                    return false;
-//            }
-//        }
-
-//    }
-//    else if (this->getKindofImage() == "VIS_IR" )
-//    {
-//        if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_8)
-//        {
-//            for(int i = 0; i < 8; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-//                    return false;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::MET_9)
-//        {
-//            for(int i = 0; i < 8; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-//                    return false;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::GOMS3)
-//        {
-//            for(int i = 0; i < 6; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-//                    return false;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::FY2H || m_GeoSatellite == eGeoSatellite::FY2G || m_GeoSatellite == eGeoSatellite::GOES_16
-//                || m_GeoSatellite == eGeoSatellite::GOES_17 || m_GeoSatellite == eGeoSatellite::GOES_18)
-//        {
-//            if (isPresentRed[0] && issegmentcomposedRed[0] == false)
-//                return false;
-
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::H8)
-//        {
-//            //            qDebug() << "=======================================";
-//            //            for(int i = 0; i < 10; i++)
-//            //            {
-//            //                qDebug() << QString("%1 isPresentRed = %2 issegmentcomposedRed = %3").arg(i).arg(isPresentRed[i]).arg(issegmentcomposedRed[i]);
-
-//            //            }
-//            //            qDebug() << "=======================================";
-//            for(int i = 0; i < 10; i++)
-//            {
-//                if (isPresentRed[i] && issegmentcomposedRed[i] == false)
-//                    return false;
-//            }
-//        }
-//    }
-//    else if (this->getKindofImage() == "HRV" || this->getKindofImage() == "HRV Color")
-//    {
-//        if(m_GeoSatellite == eGeoSatellite::MET_11 || m_GeoSatellite == eGeoSatellite::MET_10 || m_GeoSatellite == eGeoSatellite::MET_9 || m_GeoSatellite == eGeoSatellite::MET_8)
-//        {
-//            for(int i = 19; i < 24; i++)
-//            {
-//                if (isPresentHRV[i] && issegmentcomposedHRV[i] == false)
-//                    return false;
-//            }
-//        }
-//        else if(m_GeoSatellite == eGeoSatellite::FY2H || m_GeoSatellite == eGeoSatellite::FY2G)
-//        {
-//            if (isPresentHRV[0] && issegmentcomposedHRV[0] == false)
-//                return false;
-//        }
-//    }
-
-//    qDebug() << "SegmentListGeostationary::allVIS_IRSegmentsReceived() returns true";
-
-//    emit progressCounter(100);
-//    return true;
-//}
 
 void SegmentListGeostationary::CalculateMinMaxMTG(int colorindex, int index)
 {
@@ -5137,7 +6047,6 @@ void SegmentListGeostationary::CalculateMinMaxMTG(int colorindex, int index)
 
 }
 
-
 void SegmentListGeostationary::CalculateMinMax(int width, int height, quint16 *ptr, quint16 &stat_min, quint16 &stat_max)
 {
     stat_min = 65535;
@@ -5160,7 +6069,6 @@ void SegmentListGeostationary::CalculateMinMax(int width, int height, quint16 *p
                 count_zero++;
         }
     }
-
 }
 
 void SegmentListGeostationary::CalculateMinMax(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue)
@@ -6785,28 +7693,53 @@ void SegmentListGeostationary::CalculateLonLat()
 
 }
 
-QImage *SegmentListGeostationary::CalculateBitMap()
+QImage *SegmentListGeostationary::CalculateBitMap(bool HRV)
 {
     // bitmap created for inverse infrared images
-    imageptrs->ptrimagebitmap = new QImage(imageptrs->ptrimageGeostationary->width(), imageptrs->ptrimageGeostationary->height(), QImage::Format_ARGB32);
+    if(HRV)
+        imageptrs->ptrimagebitmap = new QImage(11136, 11136, QImage::Format_ARGB32);
+    else
+        imageptrs->ptrimagebitmap = new QImage(imageptrs->ptrimageGeostationary->width(), imageptrs->ptrimageGeostationary->height(), QImage::Format_ARGB32);
+
     QPainter painter(imageptrs->ptrimagebitmap);
 
-//    painter.translate(imageptrs->ptrimageGeostationary->width()/2, imageptrs->ptrimageGeostationary->height()/2);
+    //    painter.translate(imageptrs->ptrimageGeostationary->width()/2, imageptrs->ptrimageGeostationary->height()/2);
 
-//    int diameter = (m_GeoSatellite != eGeoSatellite::H9 ? 3630 : 5445); // 3615;
-//    painter.setPen(Qt::NoPen);
-//    painter.setBrush(Qt::red);
-//    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    //    int diameter = (m_GeoSatellite != eGeoSatellite::H9 ? 3630 : 5445); // 3615;
+    //    painter.setPen(Qt::NoPen);
+    //    painter.setBrush(Qt::red);
+    //    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
-//    diameter = (m_GeoSatellite != eGeoSatellite::H9 ? 3600 : 5400); // 3615;
-//    //painter.setPen(QPen(QColor(1,1,1)));
-//    painter.setBrush(QColor(1,1,1));
-//    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+    //    diameter = (m_GeoSatellite != eGeoSatellite::H9 ? 3600 : 5400); // 3615;
+    //    //painter.setPen(QPen(QColor(1,1,1)));
+    //    painter.setBrush(QColor(1,1,1));
+    //    painter.drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
 
-    QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
+    QPoint center;
+    if(HRV)
+    {
+        center.setX(opts.geosatellites.at(geoindex).coffhrv);
+        center.setY(opts.geosatellites.at(geoindex).loffhrv);
+    }
+    else
+    {
+        center.setX(opts.geosatellites.at(geoindex).coff);
+        center.setY(opts.geosatellites.at(geoindex).loff);
+    }
+
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(1,1,1));
-    painter.drawEllipse(pt, opts.geosatellites.at(geoindex).coff - (m_GeoSatellite == eGeoSatellite::H9 ? 28 : 50), opts.geosatellites.at(geoindex).loff - (m_GeoSatellite == eGeoSatellite::H9 ? 40 : 60));
+
+    if(m_GeoSatellite == eGeoSatellite::H9)
+        painter.drawEllipse(center, opts.geosatellites.at(geoindex).coff - 28,
+                            opts.geosatellites.at(geoindex).loff - 40);
+    else
+    {
+        if(HRV)
+            painter.drawEllipse(center, 5500 - 3, 5500);
+        else
+            painter.drawEllipse(center, 1804 - 3, 1804);
+    }
 
 
     return(imageptrs->ptrimagebitmap);

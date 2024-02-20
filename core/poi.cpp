@@ -348,7 +348,7 @@ void Poi::Initialize()
 
     strlComboGeo1 = POIsettings.value("/GeoConfig/strlComboGeo1").value<QStringList>();
 
-    // MET_11, MET_10, MET_9, MET_8, GOMS2, FY2H, FY2G, GOES_15, GOES_16, GOES_17, H9
+    // MET_10, MET_11, MET_9, MET_8, GOMS2, FY2H, FY2G, GOES_16, GOES_17, GOES_18, H9, MTG_I1
     if(strlComboGeo1.count() != opts.geosatellites.count())
     {
         strlComboGeo1.clear();

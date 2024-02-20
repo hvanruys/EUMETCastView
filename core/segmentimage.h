@@ -170,6 +170,7 @@ public:
     quint16 *ptrRed[10];
     quint16 *ptrGreen[10];
     quint16 *ptrBlue[10];
+    quint16 *ptrNight[10];
 
     quint16 *ptrMTG[3][40];
     int mtg_start_position_row[3][40];

@@ -368,10 +368,14 @@ void FormImage::slotcomposefinished(QString kindofimage, int index)
     double sa;
     double lat_deg, lon_deg;
 
-    this->setPixmapToScene(true);
-
     SegmentListGeostationary *sl = NULL;
     sl = segs->getActiveSegmentList();
+
+//    if(kindofimage == "HRV" || kindofimage == "HRV Color")
+//        this->recalculateCLAHEGeo();
+
+    this->setPixmapToScene(true);
+
 
 //    if(sl->getGeoSatellite() == eGeoSatellite::H9)
 //    {
@@ -1603,25 +1607,14 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 
     drawOverlays(painter);
 
+//    QPoint center(m_image->width()/2, m_image->height()/2);
+
 //    if(m_image->width() == 3712)
 //    {
-//        painter->translate(m_image->width()/2, m_image->height()/2);
-
 //        int diameter = 3608;
 //        painter->setPen(QPen(QColor(255, 0, 0), 1));
-//        painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
+//        painter->drawEllipse(center, 1804 - 3, 1804);
 //    }
-
-    //        diameter = 3650;
-    //        painter->setPen(QPen(QColor(0, 255, 255), 1));
-    //        painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
-
-    //        diameter = 3615;
-    //        painter->setPen(QPen(QColor(0, 0, 255), 30));
-    //        painter->drawEllipse(QRect(-diameter / 2, -diameter / 2, diameter, diameter));
-
-
-    //qDebug() << "AFTER FormImage::drawForeground";
 
 }
 
@@ -3698,7 +3691,7 @@ bool FormImage::ShowAVHRRImage(int histogrammethod, bool normalized)
     return ret;
 }
 
-void FormImage::recalculateCLAHEGeo(QVector<QString> spectrumvector, QVector<bool> inversevector)
+void FormImage::recalculateCLAHEGeo()
 {
     SegmentListGeostationary *sl;
 
@@ -3709,10 +3702,10 @@ void FormImage::recalculateCLAHEGeo(QVector<QString> spectrumvector, QVector<boo
     //    if(sl->getGeoSatellite() == eGeoSatellite::MTG_I1)
     //        recalculateCLAHEMTG(spectrumvector, inversevector);
     //    else
-    recalculateCLAHEMeteosat1(spectrumvector, inversevector);
+    recalculateCLAHEMeteosat1();
 }
 
-void FormImage::recalculateCLAHEMeteosat1(QVector<QString> spectrumvector, QVector<bool> inversevector)
+void FormImage::recalculateCLAHEMeteosat1()
 {
     QRgb *row_col;
     quint16 cred, cgreen, cblue;
@@ -4612,7 +4605,7 @@ void FormImage::recalculateCLAHEMeteosat(QVector<QString> spectrumvector, QVecto
     QApplication::restoreOverrideCursor();
 }
 
-void FormImage::recalculateCLAHEMTG(QVector<QString> spectrumvector, QVector<bool> inversevector)
+void FormImage::recalculateCLAHEMTG()
 {
 
     QRgb *row_col;

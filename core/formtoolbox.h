@@ -349,6 +349,22 @@ private slots:
     void on_hslRed_valueChanged(int value);
     void on_btnUpdateAVHRRImage_clicked();
     void on_btnOverlayMoon_clicked();
+    void on_chkInverseGeo1_stateChanged(int arg1);
+    void on_chkInverseGeo2_stateChanged(int arg1);
+    void on_chkInverseGeo3_stateChanged(int arg1);
+    void on_chkInverseGeo4_stateChanged(int arg1);
+    void on_chkInverseGeo5_stateChanged(int arg1);
+    void on_chkInverseGeo6_stateChanged(int arg1);
+    void on_chkInverseGeo7_stateChanged(int arg1);
+    void on_chkInverseGeo8_stateChanged(int arg1);
+    void on_chkInverseGeo9_stateChanged(int arg1);
+    void on_chkInverseGeo10_stateChanged(int arg1);
+    void on_chkInverseGeo11_stateChanged(int arg1);
+    void on_chkInverseGeo12_stateChanged(int arg1);
+    void on_chkInverseGeo13_stateChanged(int arg1);
+    void on_chkInverseGeo14_stateChanged(int arg1);
+    void on_chkInverseGeo15_stateChanged(int arg1);
+    void on_chkInverseGeo16_stateChanged(int arg1);
 };
 
 
