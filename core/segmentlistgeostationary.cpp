@@ -4335,7 +4335,10 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
 
                     if(elev <= 0.0)
                     {
-                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(n, n, n);
+                        if(m_GeoSatellite == eGeoSatellite::GOMS3 )
+                            row_col[pixelx] = qRgb(n, n, n);
+                        else
+                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(n, n, n);
 
                     }
                     else if(elev > 0.0 && elev < twilight)
@@ -4359,11 +4362,19 @@ void SegmentListGeostationary::computeGeoImage(quint16 *pixelsRed, quint16 *pixe
                         }
                         else
                         {
-                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(red, green, blue);
+                            if(m_GeoSatellite == eGeoSatellite::GOMS3 )
+                                row_col[pixelx] = qRgb(red, green, blue);
+                            else
+                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(red, green, blue);
                         }
                     }
                     else
-                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
+                    {
+                        if(m_GeoSatellite == eGeoSatellite::GOMS3 )
+                            row_col[pixelx] = qRgb(r, g, b);
+                         else
+                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
+                    }
                 }
 
             }
