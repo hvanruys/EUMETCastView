@@ -602,6 +602,85 @@ void FormToolbox::setValueProgressBar(int val)
     ui->pbProgress->setValue(val);
 }
 
+void FormToolbox::setupChannelGeoCombo(bool night)
+{
+    QStringList coloritemsnight;
+    coloritemsnight << "-" << "R" << "G" << "B" << "N";
+
+    QStringList coloritems;
+    coloritems << "-" << "R" << "G" << "B";
+
+    int geo1 = ui->comboGeo1->currentIndex();
+    int geo2 = ui->comboGeo2->currentIndex();
+    int geo3 = ui->comboGeo3->currentIndex();
+    int geo4 = ui->comboGeo4->currentIndex();
+    int geo5 = ui->comboGeo5->currentIndex();
+    int geo6 = ui->comboGeo6->currentIndex();
+    int geo7 = ui->comboGeo7->currentIndex();
+    int geo8 = ui->comboGeo8->currentIndex();
+    int geo9 = ui->comboGeo9->currentIndex();
+    int geo10 = ui->comboGeo10->currentIndex();
+    int geo11 = ui->comboGeo11->currentIndex();
+    int geo12 = ui->comboGeo12->currentIndex();
+    int geo13 = ui->comboGeo13->currentIndex();
+    int geo14 = ui->comboGeo14->currentIndex();
+    int geo15 = ui->comboGeo15->currentIndex();
+    int geo16 = ui->comboGeo16->currentIndex();
+
+    ui->comboGeo1->clear();
+    ui->comboGeo2->clear();
+    ui->comboGeo3->clear();
+    ui->comboGeo4->clear();
+    ui->comboGeo5->clear();
+    ui->comboGeo6->clear();
+    ui->comboGeo7->clear();
+    ui->comboGeo8->clear();
+    ui->comboGeo9->clear();
+    ui->comboGeo10->clear();
+    ui->comboGeo11->clear();
+    ui->comboGeo12->clear();
+    ui->comboGeo13->clear();
+    ui->comboGeo14->clear();
+    ui->comboGeo15->clear();
+    ui->comboGeo16->clear();
+
+    ui->comboGeo1->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo2->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo3->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo4->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo5->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo6->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo7->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo8->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo9->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo10->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo11->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo12->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo13->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo14->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo15->addItems((night ? coloritemsnight : coloritems));
+    ui->comboGeo16->addItems((night ? coloritemsnight : coloritems));
+
+    ui->comboGeo1->setCurrentIndex((night ? geo1 : (geo1 == 4 ? 0 : geo1)));
+    ui->comboGeo2->setCurrentIndex((night ? geo2 : (geo2 == 4 ? 0 : geo2)));
+    ui->comboGeo3->setCurrentIndex((night ? geo3 : (geo3 == 4 ? 0 : geo3)));
+    ui->comboGeo4->setCurrentIndex((night ? geo4 : (geo4 == 4 ? 0 : geo4)));
+    ui->comboGeo5->setCurrentIndex((night ? geo5 : (geo5 == 4 ? 0 : geo5)));
+    ui->comboGeo6->setCurrentIndex((night ? geo6 : (geo6 == 4 ? 0 : geo6)));
+    ui->comboGeo7->setCurrentIndex((night ? geo7 : (geo7 == 4 ? 0 : geo7)));
+    ui->comboGeo8->setCurrentIndex((night ? geo8 : (geo8 == 4 ? 0 : geo8)));
+    ui->comboGeo9->setCurrentIndex((night ? geo9 : (geo9 == 4 ? 0 : geo9)));
+    ui->comboGeo10->setCurrentIndex((night ? geo10 : (geo10 == 4 ? 0 : geo10)));
+    ui->comboGeo11->setCurrentIndex((night ? geo11 : (geo11 == 4 ? 0 : geo11)));
+    ui->comboGeo12->setCurrentIndex((night ? geo12 : (geo12 == 4 ? 0 : geo12)));
+    ui->comboGeo13->setCurrentIndex((night ? geo13 : (geo13 == 4 ? 0 : geo13)));
+    ui->comboGeo14->setCurrentIndex((night ? geo14 : (geo14 == 4 ? 0 : geo14)));
+    ui->comboGeo15->setCurrentIndex((night ? geo15 : (geo15 == 4 ? 0 : geo15)));
+    ui->comboGeo16->setCurrentIndex((night ? geo16 : (geo16 == 4 ? 0 : geo16)));
+
+
+}
+
 void FormToolbox::setupChannelCombo()
 {
     qDebug() << "FormToolbox::setupChannelCombo()";

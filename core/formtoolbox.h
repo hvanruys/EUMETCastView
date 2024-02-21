@@ -95,6 +95,8 @@ public:
     void setFormMovie(FormMovie *formmovie);
     void setProgressMaximum(int max);
     void setProgressValue(int val);
+    void setupChannelGeoCombo(bool night);
+
     QStringList getRowchosen() { return rowchosen; }
     eProjectionType currentProjectionType;
 

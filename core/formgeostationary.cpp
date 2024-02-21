@@ -1311,6 +1311,12 @@ void FormGeostationary::ontreeWidgetitemClicked(QTreeWidgetItem *item, int colum
 
 void FormGeostationary::on_tabGeostationary_tabBarClicked(int index)
 {
+
+    if(index == 0 || index == 1 || index == 2 || index == 3 || index == 4 )
+        formtoolbox->setupChannelGeoCombo(true);
+    else
+        formtoolbox->setupChannelGeoCombo(false);
+
     qDebug() << "FormGeostationary::on_tabGeostationary_tabBarClicked(int index) index = " << index;
 
     formimage->setupGeoOverlay(index);
