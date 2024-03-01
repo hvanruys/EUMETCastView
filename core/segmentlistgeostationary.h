@@ -58,7 +58,7 @@ public:
     void ComposeSegmentImagenetCDFInThread();
     void ComposeSegmentImagenetCDFMTGInThread();
     void ComposeSegmentImagenetCDFMTGInThread1();
-    void ComposeSegmentImagenetCDFMTGInThreadConcurrent();
+    //void ComposeSegmentImagenetCDFMTGInThreadConcurrent();
     void ComposeSegmentImageXRITMSGInThreadConcurrent();
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2);
     quint16 ContrastStretch(quint16 val);
@@ -68,6 +68,7 @@ public:
     int getGeoSatelliteIndex() { return geoindex; }
     void setGeoSatellite(eGeoSatellite ws) { m_GeoSatellite = ws; }
     void setGeoSatellite(int geoindex);
+    void setFileDateString(QString str) { filedatestring = str; }
     void CalculateLUTGeo(int colorindex);
     void CalculateLUTGeo(int colorindex, quint16 *ptr, quint16 fillvalue);
     void CalculateLUTGeoMTG(int colorindex);
@@ -76,7 +77,8 @@ public:
     void CalculateMinMaxMTG(int colorindex, int index);
     void CalculateLUTGeoMTGConcurrent(int colorindex, int index);
     void CalculateImageMTGConcurrent(int index);
-
+    void CalculateImageMTGConcurrentAlt(int index);
+    void CalculateImageMTGConcurrentNight(int index);
 
 
     void ComposeGeoRGBRecipe(int recipe, QString tex);
@@ -128,7 +130,8 @@ private:
     void ComposeVISIR();
     void ComposeVISIR_Alt();
     void ComposeVISIRHimawari();
-    void computeGeoImage(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight);
+    void computeGeoImageVISIR(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight);
+    void computeGeoImageHRV(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight, quint16 *pixelsHRV);
     void computeGeoImageHimawari(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight);
 
     void getFilenameParameters(QFileInfo fileinfo, QString *filespectrum, QString *filedate, int *filesequence, int *channelindex);
@@ -143,6 +146,7 @@ private:
     static int concurrentMinMaxMTG(SegmentListGeostationary *sm, const int &index);
     static int concurrentLUTGeoMTG(SegmentListGeostationary *sm, const int &index);
     static int concurrentImageMTG(SegmentListGeostationary *sm, const int &index);
+    static int concurrentImageMTGNight(SegmentListGeostationary *sm, const int &index);
 
     //static bool concurrentComposeImageXRIT(SegmentListGeostationary *sm, const QStringList files, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     static void concurrentReadFilelist(SegmentListGeostationary *sm, QString llFile);
@@ -195,7 +199,7 @@ private:
     QString tex;
     int satid;
 
-    QVector<int> nbr_lines_MTG;
+//    QVector<int> nbr_lines_MTG;
 
 
 signals:

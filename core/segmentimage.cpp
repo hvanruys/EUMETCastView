@@ -18,7 +18,7 @@ SegmentImage::SegmentImage()
     ptrimagecomp_col = new QImage();
     ptrexpand_col = new QImage();
     ptrimageGeostationary = new QImage(); //3712, 3712, QImage::Format_ARGB32);
-    ptrimageGeostationary->fill(Qt::black);
+    //ptrimageGeostationaryNight = new QImage();
     ptrimageProjection = new QImage();
     ptrimageProjectionCopy = new QImage();
     ptrimageViirsM = new QImage();
@@ -899,6 +899,9 @@ void SegmentImage::DeleteImagePtrs()
         delete ptrimageGeostationary;
         ptrimageGeostationary = NULL;
     }
+
+
+    ptrimageGeoNight.reset();
 
     if(ptrimageProjection != NULL)
     {

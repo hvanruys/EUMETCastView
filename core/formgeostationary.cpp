@@ -126,6 +126,7 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
     if(opts.geosatellites.count() > 0)
     {
         ui->tabGeostationary->setCurrentIndex(0);
+
     }
 
 }
@@ -1234,8 +1235,10 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
     //"2017-08-10   19:45"
     //              012345678901234567890
     //====> tex =  "2017-09-20 11:00;66"
-    QDate now(tex.mid(0, 4).toInt(), tex.mid(5, 2).toInt(), tex.mid(8, 2).toInt());
-    int filenbr = tex.mid(17).toInt();
+    QDate now(tex.midRef(0, 4).toInt(), tex.midRef(5, 2).toInt(), tex.midRef(8, 2).toInt());
+    int filenbr = tex.midRef(17).toInt();
+    sl->setFileDateString(tex.midRef(0, 4) + tex.midRef(5, 2) + tex.midRef(8, 2) + tex.midRef(11, 2) + tex.midRef(14, 2));
+
 
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
     //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
@@ -1257,7 +1260,8 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {
         llVIS_IR = this->getGeostationarySegmentsMTGAlt(geoindex, type, sl->getImagePath(), filenbr);
-        qDebug() << QString("llVIS_IR count = %1").arg(llVIS_IR.count());
+        int count = llVIS_IR.count();
+        qDebug() << QString("llVIS_IR count = %1").arg(count);
         if(llVIS_IR.count() == 0)
         {
             QApplication::restoreOverrideCursor();
@@ -1312,10 +1316,7 @@ void FormGeostationary::ontreeWidgetitemClicked(QTreeWidgetItem *item, int colum
 void FormGeostationary::on_tabGeostationary_tabBarClicked(int index)
 {
 
-    if(index == 0 || index == 1 || index == 2 || index == 3 || index == 4 )
-        formtoolbox->setupChannelGeoCombo(true);
-    else
-        formtoolbox->setupChannelGeoCombo(false);
+    formtoolbox->setupChannelGeoCombo(index);
 
     qDebug() << "FormGeostationary::on_tabGeostationary_tabBarClicked(int index) index = " << index;
 

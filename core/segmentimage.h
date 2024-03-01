@@ -112,6 +112,8 @@ public:
     QImage *ptrimagebitmap;
 
     QImage *ptrimageGeostationary;
+    QScopedArrayPointer<quint16> ptrimageGeoNight;
+
     QImage *ptrimageProjection;
     QImage *ptrimageProjectionCopy; //for VIIRS M background with VIIRS DNB
 
@@ -141,7 +143,7 @@ public:
     quint16 lut_proj_ch[3][1024];
     quint16 lut_sentinel[256];
 
-    quint16 lut_mtg[3][4096];
+    quint16 lut_mtg[4][4096];
 
     int stat_max_ch[5];
     int stat_min_ch[5];
@@ -163,8 +165,8 @@ public:
     int maxRadianceIndex[5];
     int minRadianceIndexNormalized[3];
     int maxRadianceIndexNormalized[3];
-    int minRadianceIndexMTG[3][40];
-    int maxRadianceIndexMTG[3][40];
+    int minRadianceIndexMTG[4][40];
+    int maxRadianceIndexMTG[4][40];
 
 
     quint16 *ptrRed[10];
@@ -172,23 +174,23 @@ public:
     quint16 *ptrBlue[10];
     quint16 *ptrNight[10];
 
-    quint16 *ptrMTG[3][40];
-    int mtg_start_position_row[3][40];
-    int mtg_end_position_row[3][40];
-    int mtg_start_position_column[3][40];
-    int mtg_end_position_column[3][40];
+    quint16 *ptrMTG[4][40];
+    int mtg_start_position_row[4][40];
+    int mtg_end_position_row[4][40];
+    int mtg_start_position_column[4][40];
+    int mtg_end_position_column[4][40];
 
-    int mtg_nbr_of_rows[3][40];
-    int mtg_nbr_of_columns[3][40];
+    int mtg_nbr_of_rows[4][40];
+    int mtg_nbr_of_columns[4][40];
 
-    quint16 mtg_stat_min[3][40];
-    quint16 mtg_stat_max[3][40];
-    long mtg_active_pixels[3][40];
+    quint16 mtg_stat_min[4][40];
+    quint16 mtg_stat_max[4][40];
+    long mtg_active_pixels[4][40];
 
-    quint16 mtg_total_number_of_rows[3];
-    quint16 mtg_total_number_of_columns[3];
+    quint16 mtg_total_number_of_rows[4];
+    quint16 mtg_total_number_of_columns[4];
 
-    quint16 mtg_histogram[3][40][4096];
+    quint16 mtg_histogram[4][40][4096];
 
 
     quint16 *ptrHRV[24];
@@ -199,7 +201,7 @@ public:
     double SigmadistGAC[409];
     double fractionGAC[409];
 
-    int fillvalue[3];  //used for GOES_16
+    int fillvalue[4];  //used for GOES_16
 
 
 

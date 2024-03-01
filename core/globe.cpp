@@ -1711,8 +1711,11 @@ void Globe::Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirecta
                 {
                     scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(yimage);
                     rgbval = scanl[ximage];
-                    fb_painter.setPen(rgbval);
-                    fb_painter.drawPoint(pix, heightinimage);
+                    if(rgbval != qRgb(0, 0, 0))
+                    {
+                        fb_painter.setPen(rgbval);
+                        fb_painter.drawPoint(pix, heightinimage);
+                    }
                 }
             }
         }

@@ -197,6 +197,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     formtoolbox->setChannelIndex();
+    formtoolbox->setupChannelGeoCombo(0);
 
     setWindowTitle(tr("EUMETCast Viewer"));
     timer = new QTimer( this );

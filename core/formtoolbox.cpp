@@ -602,13 +602,15 @@ void FormToolbox::setValueProgressBar(int val)
     ui->pbProgress->setValue(val);
 }
 
-void FormToolbox::setupChannelGeoCombo(bool night)
+void FormToolbox::setupChannelGeoCombo(int index)
 {
     QStringList coloritemsnight;
     coloritemsnight << "-" << "R" << "G" << "B" << "N";
 
     QStringList coloritems;
     coloritems << "-" << "R" << "G" << "B";
+
+    //this->setComboGeo(this->geoindex);
 
     int geo1 = ui->comboGeo1->currentIndex();
     int geo2 = ui->comboGeo2->currentIndex();
@@ -644,40 +646,118 @@ void FormToolbox::setupChannelGeoCombo(bool night)
     ui->comboGeo15->clear();
     ui->comboGeo16->clear();
 
-    ui->comboGeo1->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo2->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo3->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo4->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo5->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo6->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo7->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo8->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo9->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo10->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo11->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo12->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo13->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo14->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo15->addItems((night ? coloritemsnight : coloritems));
-    ui->comboGeo16->addItems((night ? coloritemsnight : coloritems));
 
-    ui->comboGeo1->setCurrentIndex((night ? geo1 : (geo1 == 4 ? 0 : geo1)));
-    ui->comboGeo2->setCurrentIndex((night ? geo2 : (geo2 == 4 ? 0 : geo2)));
-    ui->comboGeo3->setCurrentIndex((night ? geo3 : (geo3 == 4 ? 0 : geo3)));
-    ui->comboGeo4->setCurrentIndex((night ? geo4 : (geo4 == 4 ? 0 : geo4)));
-    ui->comboGeo5->setCurrentIndex((night ? geo5 : (geo5 == 4 ? 0 : geo5)));
-    ui->comboGeo6->setCurrentIndex((night ? geo6 : (geo6 == 4 ? 0 : geo6)));
-    ui->comboGeo7->setCurrentIndex((night ? geo7 : (geo7 == 4 ? 0 : geo7)));
-    ui->comboGeo8->setCurrentIndex((night ? geo8 : (geo8 == 4 ? 0 : geo8)));
-    ui->comboGeo9->setCurrentIndex((night ? geo9 : (geo9 == 4 ? 0 : geo9)));
-    ui->comboGeo10->setCurrentIndex((night ? geo10 : (geo10 == 4 ? 0 : geo10)));
-    ui->comboGeo11->setCurrentIndex((night ? geo11 : (geo11 == 4 ? 0 : geo11)));
-    ui->comboGeo12->setCurrentIndex((night ? geo12 : (geo12 == 4 ? 0 : geo12)));
-    ui->comboGeo13->setCurrentIndex((night ? geo13 : (geo13 == 4 ? 0 : geo13)));
-    ui->comboGeo14->setCurrentIndex((night ? geo14 : (geo14 == 4 ? 0 : geo14)));
-    ui->comboGeo15->setCurrentIndex((night ? geo15 : (geo15 == 4 ? 0 : geo15)));
-    ui->comboGeo16->setCurrentIndex((night ? geo16 : (geo16 == 4 ? 0 : geo16)));
+    if(index == 0 || index == 1 || index == 2 || index == 3)
+    {
+        ui->comboGeo1->addItems(coloritems);
+        ui->comboGeo2->addItems(coloritems);
+        ui->comboGeo3->addItems(coloritems);
+        ui->comboGeo4->addItems(coloritemsnight);
+        ui->comboGeo5->addItems(coloritemsnight);
+        ui->comboGeo6->addItems(coloritemsnight);
+        ui->comboGeo7->addItems(coloritemsnight);
+        ui->comboGeo8->addItems(coloritemsnight);
+        ui->comboGeo9->addItems(coloritemsnight);
+        ui->comboGeo10->addItems(coloritemsnight);
+        ui->comboGeo11->addItems(coloritemsnight);
+        ui->comboGeo12->addItems(coloritemsnight);
+        ui->comboGeo13->addItems(coloritemsnight);
+        ui->comboGeo14->addItems(coloritemsnight);
+        ui->comboGeo15->addItems(coloritemsnight);
+        ui->comboGeo16->addItems(coloritemsnight);
 
+        ui->comboGeo1->setCurrentIndex((geo1 == 4 ? 0 : geo1));
+        ui->comboGeo2->setCurrentIndex((geo2 == 4 ? 0 : geo2));
+        ui->comboGeo3->setCurrentIndex((geo3 == 4 ? 0 : geo3));
+        ui->comboGeo4->setCurrentIndex(geo4);
+        ui->comboGeo5->setCurrentIndex(geo5);
+        ui->comboGeo6->setCurrentIndex(geo6);
+        ui->comboGeo7->setCurrentIndex(geo7);
+        ui->comboGeo8->setCurrentIndex(geo8);
+        ui->comboGeo9->setCurrentIndex(geo9);
+        ui->comboGeo10->setCurrentIndex(geo10);
+        ui->comboGeo11->setCurrentIndex(geo11);
+        ui->comboGeo12->setCurrentIndex(geo12);
+        ui->comboGeo13->setCurrentIndex(geo13);
+        ui->comboGeo14->setCurrentIndex(geo14);
+        ui->comboGeo15->setCurrentIndex(geo15);
+        ui->comboGeo16->setCurrentIndex(geo16);
+
+    }
+    else if(index == 11)
+    {
+        ui->comboGeo1->addItems(coloritems);
+        ui->comboGeo2->addItems(coloritems);
+        ui->comboGeo3->addItems(coloritems);
+        ui->comboGeo4->addItems(coloritems);
+        ui->comboGeo5->addItems(coloritems);
+        ui->comboGeo6->addItems(coloritems);
+        ui->comboGeo7->addItems(coloritems);
+        ui->comboGeo8->addItems(coloritems);
+        ui->comboGeo9->addItems(coloritemsnight);
+        ui->comboGeo10->addItems(coloritemsnight);
+        ui->comboGeo11->addItems(coloritemsnight);
+        ui->comboGeo12->addItems(coloritemsnight);
+        ui->comboGeo13->addItems(coloritemsnight);
+        ui->comboGeo14->addItems(coloritemsnight);
+        ui->comboGeo15->addItems(coloritemsnight);
+        ui->comboGeo16->addItems(coloritemsnight);
+
+        ui->comboGeo1->setCurrentIndex((geo1 == 4 ? 0 : geo1));
+        ui->comboGeo2->setCurrentIndex((geo2 == 4 ? 0 : geo2));
+        ui->comboGeo3->setCurrentIndex((geo3 == 4 ? 0 : geo3));
+        ui->comboGeo4->setCurrentIndex((geo4 == 4 ? 0 : geo4));
+        ui->comboGeo5->setCurrentIndex((geo5 == 4 ? 0 : geo5));
+        ui->comboGeo6->setCurrentIndex((geo6 == 4 ? 0 : geo6));
+        ui->comboGeo7->setCurrentIndex((geo7 == 4 ? 0 : geo7));
+        ui->comboGeo8->setCurrentIndex((geo8 == 4 ? 0 : geo8));
+        ui->comboGeo9->setCurrentIndex(geo9);
+        ui->comboGeo10->setCurrentIndex(geo10);
+        ui->comboGeo11->setCurrentIndex(geo11);
+        ui->comboGeo12->setCurrentIndex(geo12);
+        ui->comboGeo13->setCurrentIndex(geo13);
+        ui->comboGeo14->setCurrentIndex(geo14);
+        ui->comboGeo15->setCurrentIndex(geo15);
+        ui->comboGeo16->setCurrentIndex(geo16);
+
+    }
+    else
+    {
+        ui->comboGeo1->addItems(coloritems);
+        ui->comboGeo2->addItems(coloritems);
+        ui->comboGeo3->addItems(coloritems);
+        ui->comboGeo4->addItems(coloritems);
+        ui->comboGeo5->addItems(coloritems);
+        ui->comboGeo6->addItems(coloritems);
+        ui->comboGeo7->addItems(coloritems);
+        ui->comboGeo8->addItems(coloritems);
+        ui->comboGeo9->addItems(coloritems);
+        ui->comboGeo10->addItems(coloritems);
+        ui->comboGeo11->addItems(coloritems);
+        ui->comboGeo12->addItems(coloritems);
+        ui->comboGeo13->addItems(coloritems);
+        ui->comboGeo14->addItems(coloritems);
+        ui->comboGeo15->addItems(coloritems);
+        ui->comboGeo16->addItems(coloritems);
+
+        ui->comboGeo1->setCurrentIndex(geo1 == 4 ? 0 : geo1);
+        ui->comboGeo2->setCurrentIndex(geo2 == 4 ? 0 : geo2);
+        ui->comboGeo3->setCurrentIndex(geo3 == 4 ? 0 : geo3);
+        ui->comboGeo4->setCurrentIndex(geo4 == 4 ? 0 : geo4);
+        ui->comboGeo5->setCurrentIndex(geo5 == 4 ? 0 : geo5);
+        ui->comboGeo6->setCurrentIndex(geo6 == 4 ? 0 : geo6);
+        ui->comboGeo7->setCurrentIndex(geo7 == 4 ? 0 : geo7);
+        ui->comboGeo8->setCurrentIndex(geo8 == 4 ? 0 : geo8);
+        ui->comboGeo9->setCurrentIndex(geo9 == 4 ? 0 : geo9);
+        ui->comboGeo10->setCurrentIndex(geo10 == 4 ? 0 : geo10);
+        ui->comboGeo11->setCurrentIndex(geo11 == 4 ? 0 : geo11);
+        ui->comboGeo12->setCurrentIndex(geo12 == 4 ? 0 : geo12);
+        ui->comboGeo13->setCurrentIndex(geo13 == 4 ? 0 : geo13);
+        ui->comboGeo14->setCurrentIndex(geo14 == 4 ? 0 : geo14);
+        ui->comboGeo15->setCurrentIndex(geo15 == 4 ? 0 : geo15);
+        ui->comboGeo16->setCurrentIndex(geo16 == 4 ? 0 : geo16);
+
+    }
 
 }
 
