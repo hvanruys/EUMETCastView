@@ -267,9 +267,15 @@ ADD_EXECUTABLE(AATest ${SRCS} )
 #-----------------------------------------------------------------------------
 # Libraries.
 ADD_LIBRARY(aaplus-static STATIC ${SRCS_LIB} ${INCS})
+if(WIN32)
+    target_link_libraries(aaplus-static ws2_32)
+endif(WIN32)
 SET_TARGET_PROPERTIES(aaplus-static PROPERTIES OUTPUT_NAME "aaplus")
 
 ADD_LIBRARY(aaplus-shared SHARED ${SRCS_LIB} ${INCS})
+if(WIN32)
+    target_link_libraries(aaplus-shared ws2_32)
+endif(WIN32)
 SET_TARGET_PROPERTIES(aaplus-shared PROPERTIES OUTPUT_NAME "aaplus")
 
 install(TARGETS aaplus-shared aaplus-static 

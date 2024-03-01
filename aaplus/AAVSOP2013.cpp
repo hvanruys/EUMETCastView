@@ -238,7 +238,7 @@ bool CAAVSOP2013EphemeridesFile::WriteBinaryFile(const std::filesystem::path::va
 #ifdef _MSC_VER
   if (_wfopen_s(&f, pszFilename, L"wb") != 0)
 #else
-  f = fopen(pszFilename, "wb");
+  f = fopen((const char *)pszFilename, "wb");
   if (f == nullptr)
 #endif //#ifdef _MSC_VER
     return false;
@@ -280,7 +280,7 @@ bool CAAVSOP2013EphemeridesFile::ReadBinaryFile(const std::filesystem::path::val
 #ifdef _MSC_VER
   if (_wfopen_s(&f, pszFilename, L"rb") != 0)
 #else
-  f = fopen(pszFilename, "rb");
+  f = fopen((const char *)pszFilename, "rb");
   if (f == nullptr)
 #endif //#ifdef _MSC_VER
     return false;
@@ -411,7 +411,7 @@ bool CAAVSOP2013ElementsFile::WriteBinaryFile(const std::filesystem::path::value
 #ifdef _MSC_VER
   if (_wfopen_s(&f, pszFilename, L"wb") != 0)
 #else
-  f = fopen(pszFilename, "wb");
+  f = fopen((const char *)pszFilename, "wb");
   if (f == nullptr)
 #endif //#ifdef _MSC_VER
     return false;
@@ -465,7 +465,7 @@ bool CAAVSOP2013ElementsFile::ReadBinaryFile(const std::filesystem::path::value_
 #ifdef _MSC_VER
   if (_wfopen_s(&f, pszFilename, L"rb") != 0)
 #else
-  f = fopen(pszFilename, "rb");
+  f = fopen((const char *)pszFilename, "rb");
   if (f == nullptr)
 #endif //#ifdef _MSC_VER
     return false;

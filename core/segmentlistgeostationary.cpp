@@ -11,8 +11,6 @@
    (Written by Greg McGarragh and Simon Proud)
 
    ------------------------------------------------------------------ */
-
-
 #include <QApplication>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>

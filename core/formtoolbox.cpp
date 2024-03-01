@@ -647,7 +647,7 @@ void FormToolbox::setupChannelGeoCombo(int index)
     ui->comboGeo16->clear();
 
 
-    if(index == 0 || index == 1 || index == 2 || index == 3)
+    if(index == 0 || index == 2 || index == 3)
     {
         ui->comboGeo1->addItems(coloritems);
         ui->comboGeo2->addItems(coloritems);
