@@ -1685,6 +1685,8 @@ void FormImage::drawOverlays(QPainter *painter)
             painter->drawText(m_image->width() - pixelsWide, font.pixelSize(), spectrumvector.at(0));
             painter->drawText(m_image->width() - pixelsWide, 2 * font.pixelSize(), spectrumvector.at(1));
             painter->drawText(m_image->width() - pixelsWide, 3 * font.pixelSize(), spectrumvector.at(2));
+            if(spectrumvector.at(3) != "")
+                painter->drawText(m_image->width() - pixelsWide, 4 * font.pixelSize(), spectrumvector.at(3));
 
             // "2023-06-02   07:15"
             if(!rowchosen.isEmpty())
