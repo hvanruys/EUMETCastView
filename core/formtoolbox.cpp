@@ -2846,7 +2846,7 @@ void FormToolbox::onButtonColorHRV(QString type)
         if(ui->rdbPseudoColor->isChecked())
         {
             spectrumvector.clear();
-            spectrumvector << "C02" << "C03" << "C01";
+            spectrumvector << "C02" << "C03" << "C01" << "";
         }
         else
         {

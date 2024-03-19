@@ -867,12 +867,17 @@ void FormMovie::on_btnffmpeg_clicked()
         mylistout.append(list);
     }
 
+    for(int i = 0; i < mylistout.count(); i++)
+    {
+        qDebug() << mylistout.at(i);
+    }
+
 
     ui->lwTraffic->addItem(QString("=== Start creation video %1 ! ===").arg(outputvideoname));
     process.setArguments(mylistout);
 
-    //process.setStandardOutputFile("ffmpegouput.txt");
-    //process.setStandardErrorFile("ffmpegoutputerror.txt"); //QProcess::nullDevice());
+    process.setStandardOutputFile("ffmpegouput.txt");
+    process.setStandardErrorFile("ffmpegoutputerror.txt"); //QProcess::nullDevice());
     process.start();
     process.waitForFinished(-1);
     ui->lwTraffic->addItem(QString("=== The video %1 is created ! ===").arg(outputvideoname));

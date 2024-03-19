@@ -133,6 +133,7 @@ private:
     void computeGeoImageVISIR(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight);
     void computeGeoImageHRV(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight, quint16 *pixelsHRV);
     void computeGeoImageHimawari(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight);
+    void computeGeoImageHimawari_save(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight);
 
     void getFilenameParameters(QFileInfo fileinfo, QString *filespectrum, QString *filedate, int *filesequence, int *channelindex);
     void getFilenameParameters(QString file, QString *filespectrum, QString *filedate, int *filesequence, int *channelindex);

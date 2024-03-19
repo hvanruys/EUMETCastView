@@ -135,7 +135,7 @@ QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QStr
 {
     qDebug() << QString("getGeostationarySegments type = %1  Filepath = %2 filepattern = %3").arg(imagetype).arg(filepath).arg(filepattern);
     qDebug() << QString("getGeostationarySegments spectrumvector %1 %2 %3 %4").arg(spectrumvector.at(0))
-                .arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg(spectrumvector.at(3));
+                .arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg((spectrumvector.at(3) == NULL ? "" : spectrumvector.at(3)));
     QDir meteosatdir(filepath);
     meteosatdir.setFilter(QDir::Files | QDir::NoSymLinks);
     meteosatdir.setSorting(QDir::Name);

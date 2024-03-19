@@ -5047,6 +5047,430 @@ void SegmentListGeostationary::computeGeoImageHimawari(quint16 *pixelsRed, quint
     qDebug() << "SegmentListGeostationary::computeGeoImageHimawari";
     int nbroflinespersegment = opts.geosatellites[geoindex].segmentlength;
 
+    im = CalculateBitMap(false);
+
+    unsigned int i_image;
+
+    for (int line = 0; line < opts.geosatellites[geoindex].maxsegments*nbroflinespersegment ; line++)
+    {
+        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
+        row_col_bitmap = (QRgb*)imageptrs->ptrimagebitmap->scanLine(line);
+
+
+        for (int pixelx = 0; pixelx < opts.geosatellites[geoindex].imagewidth; pixelx++)
+        {
+            i_image = line * opts.geosatellites[geoindex].imagewidth + pixelx;
+            if(kindofimage == "VIS_IR Color")
+            {
+                cred = *(pixelsRed + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                cgreen = *(pixelsGreen + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                cblue = *(pixelsBlue + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+                if(pixelsNight != NULL)
+                    cnight = *(pixelsNight + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+
+                if(this->histogrammethod == CMB_HISTO_NONE_95)
+                {
+                    if(cred < 65528)
+                    {
+                        if(qRed(row_col_bitmap[pixelx]) == 0)
+                        {
+                            indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                            indexoutrc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]), 0), 1023);
+                        }
+                        else
+                            indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - imageptrs->minRadianceIndex[0] ) / (float)(imageptrs->maxRadianceIndex[0] - imageptrs->minRadianceIndex[0])), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                    else {
+                        r = 0;
+                    }
+
+                    if(cgreen < 65528)
+                    {
+                        if(qRed(row_col_bitmap[pixelx]) == 0)
+                        {
+                            indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cgreen - this->stat_min[1] ) / (float)(this->stat_max[1] - this->stat_min[1])), 0), 1023);
+                            indexoutgc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[1][indexoutgc]), 0), 1023);
+                        }
+                        else
+                            indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cgreen - imageptrs->minRadianceIndex[1] ) / (float)(imageptrs->maxRadianceIndex[1] - imageptrs->minRadianceIndex[1])), 0), 1023);
+                        valgamma = pow( indexoutgc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        g = quint8(valcontrast);
+                        if (g > 255)
+                            g = 255;
+                    }
+                    else {
+                        g = 0;
+                    }
+                    if(cblue < 65528)
+                    {
+                        if(qRed(row_col_bitmap[pixelx]) == 0)
+                        {
+                            indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cblue - this->stat_min[2] ) / (float)(this->stat_max[2] - this->stat_min[2])), 0), 1023);
+                            indexoutbc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[2][indexoutbc]), 0), 1023);
+                        }
+                        else
+                            indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cblue - imageptrs->minRadianceIndex[2] ) / (float)(imageptrs->maxRadianceIndex[2] - imageptrs->minRadianceIndex[2])), 0), 1023);
+                        valgamma = pow( indexoutbc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        b = quint8(valcontrast);
+                        if (b > 255)
+                            b = 255;
+                    }
+                    else {
+                        b = 0;
+                    }
+                    if(pixelsNight != NULL)
+                    {
+                        if(cnight < 65528)
+                        {
+                            indexoutnc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cnight - imageptrs->minRadianceIndex[3] ) / (float)(imageptrs->maxRadianceIndex[3] - imageptrs->minRadianceIndex[3])), 0), 1023);
+                            valgamma = pow( indexoutnc, gamma) * gammafactor;
+                            if (valgamma > 1023)
+                                valgamma = 1023;
+
+                            valcontrast = ContrastStretch(valgamma);
+                            n = quint8(valcontrast);
+                            if (n > 255)
+                                n = 255;
+                        }
+                        else {
+                            n = 0;
+                        }
+                    }
+                }
+                else if(this->histogrammethod == CMB_HISTO_NONE_100)
+                {
+                    if(cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                    else {
+                        r = 0;
+                    }
+                    if(cgreen < 65528)
+                    {
+                        indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cgreen - this->stat_min[1] ) / (float)(this->stat_max[1] - this->stat_min[1])), 0), 1023);
+                        valgamma = pow( indexoutgc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        g = quint8(valcontrast);
+                        if (g > 255)
+                            g = 255;
+                    }
+                    else {
+                        g = 0;
+                    }
+                    if(cblue < 65528)
+                    {
+                        indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cblue - this->stat_min[2] ) / (float)(this->stat_max[2] - this->stat_min[2])), 0), 1023);
+                        valgamma = pow( indexoutbc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        b = quint8(valcontrast);
+                        if (b > 255)
+                            b = 255;
+                    }
+                    else {
+                        b = 0;
+                    }
+                }
+                else if(this->histogrammethod == CMB_HISTO_EQUALIZE)
+                {
+                    if( cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        indexoutrc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                    else {
+                        r = 0;
+                    }
+
+                    if( cgreen < 65528)
+                    {
+                        indexoutgc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cgreen - this->stat_min[1] ) / (float)(this->stat_max[1] - this->stat_min[1])), 0), 1023);
+                        indexoutgc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[1][indexoutgc]), 0), 1023);
+                        valgamma = pow( indexoutgc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        g = quint8(valcontrast);
+                        if (g > 255)
+                            g = 255;
+                    }
+                    else {
+                        g = 0;
+                    }
+                    if( cblue < 65528)
+                    {
+                        indexoutbc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cblue - this->stat_min[2] ) / (float)(this->stat_max[2] - this->stat_min[2])), 0), 1023);
+                        indexoutbc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[2][indexoutbc]), 0), 1023);
+                        valgamma = pow( indexoutbc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        b = quint8(valcontrast);
+                        if (b > 255)
+                            b = 255;
+                    }
+                    else {
+                        b = 0;
+                    }
+
+                }
+
+                    //                                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                    //                                        {
+                    //                                            r = 255;
+                    //                                            g = 0;
+                    //                                            b = 0;
+                    //                                        }
+                    //                                        else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                    //                                        {
+                    //                                            r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
+                    //                                            g = quint16(this->inversevector[1] ? (g == 255 ? 0 : g) : g);
+                    //                                            b = quint16(this->inversevector[2] ? (b == 255 ? 0 : b) : b);
+                    //                                        }
+                    //                                        else
+                    {
+                        r = quint16(this->inversevector[0] ? (255 - r) : r);
+                        g = quint16(this->inversevector[1] ? (255 - g) : g);
+                        b = quint16(this->inversevector[2] ? (255 - b) : b);
+                        if(pixelsNight != NULL)
+                            n = quint16(this->inversevector[3] ? (255 - n) : n);
+
+                    }
+
+                    //                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                    //                    {
+                    //                        r = 255;
+                    //                        g = 0;
+                    //                        b = 0;
+                    //                    }
+                    //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                    //                    {
+                    //                        r = 0;
+                    //                        g = 255;
+                    //                        b = 255;
+                    //                    }
+                    //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 1)
+                    //                    {
+                    //                        r = 0;
+                    //                        g = 255;
+                    //                        b = 255;
+                    //                    }
+
+                if(m_GeoSatellite != eGeoSatellite::H9)
+                {
+                    ret = pixconv.pixcoord2geocoord(sub_lon, opts.geosatellites[geoindex].imagewidth - 1 - pixelx, line, coff, loff, cfac, lfac, &latitude, &longitude);
+                    if(ret == -1)
+                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(0, 0, 0);
+                    else
+                    {
+                        observer.SetLocation(latitude, longitude, 0.0);
+                        dat.Set(year, month, day, hours, minutes, 0, true);
+                        QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
+                        QEci qeci(solar_vector, vel, dat);
+                        qtopo = observer.GetLookAngle(qeci);
+                        elev = qtopo.elevation * 180.0/PIE;
+
+                        if(elev <= 0.0)
+                        {
+                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(n, n, n);
+
+                        }
+                        else
+                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
+                    }
+                }
+                else
+                {
+                    row_col[pixelx] = qRgb(r,g,b);
+                }
+
+            }
+            else if(kindofimage == "VIS_IR")
+            {
+                cred = *(pixelsRed + line * opts.geosatellites[geoindex].imagewidth + pixelx);
+
+                if(this->histogrammethod == CMB_HISTO_NONE_95)
+                {
+                    if(cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - imageptrs->minRadianceIndex[0] ) / (float)(imageptrs->maxRadianceIndex[0] - imageptrs->minRadianceIndex[0])), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                }
+                else if(this->histogrammethod == CMB_HISTO_NONE_100)
+                {
+                    if(cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                }
+                else // if(this->histogrammethod == CMB_HISTO_EQUALIZE)
+                {
+                    if( cred < 65528)
+                    {
+                        indexoutrc = (quint16)qMin(qMax(qRound(1023.0 * (float)(cred - this->stat_min[0] ) / (float)(this->stat_max[0] - this->stat_min[0])), 0), 1023);
+                        indexoutrc = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[0][indexoutrc]), 0), 1023);
+                        valgamma = pow( indexoutrc, gamma) * gammafactor;
+                        if (valgamma > 1023)
+                            valgamma = 1023;
+
+                        valcontrast = ContrastStretch(valgamma);
+                        r = quint8(valcontrast);
+                        if (r > 255)
+                            r = 255;
+                    }
+                }
+
+                g = r;
+                b = r;
+
+                    if(m_GeoSatellite != eGeoSatellite::H9)
+                    {
+                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                        {
+                            r = 0;
+                            g = 0;
+                            b = 0;
+                        }
+                        else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                        {
+                            r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
+                            g = r;
+                            b = r;
+                        }
+                        else
+                        {
+                            r = quint16(this->inversevector[0] ? (255 - r) : r);
+                            g = r;
+                            b = r;
+                        }
+
+                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] =  qRgb(r,g,b);
+                    }
+                    else
+                    {
+                        r = quint16(this->inversevector[0] ? (255 - r) : r);
+                        g = r;
+                        b = r;
+                        row_col[pixelx] = qRgb(r,g,b);
+                    }
+
+            }
+        }
+    }
+
+    if(im != NULL)
+    {
+        delete im;
+        im = NULL;
+    }
+
+
+}
+
+void SegmentListGeostationary::computeGeoImageHimawari_save(quint16 *pixelsRed, quint16 *pixelsGreen, quint16 *pixelsBlue, quint16 *pixelsNight)
+{
+    QRgb *row_col;
+    QRgb *row_col_bitmap;
+    quint16 cred, cgreen, cblue, cnight;
+    quint16 r = 0, g = 0, b = 0, n = 0;
+    quint16 indexoutrc, indexoutgc, indexoutbc, indexoutnc;
+
+    double gamma = opts.meteosatgamma;
+    double gammafactor = 1023 / pow(1023, gamma);
+    quint16 valgamma;
+    quint8 valcontrast;
+    QImage *im = NULL;
+
+    Vector3 solar_vector;
+    Vector3 vel;
+    QObserver observer;
+    QSgp4Date dat;
+    QGeodetic qgeo;
+    QTopocentric qtopo;
+
+    double elev;
+    double twilight = 12.0;
+
+
+    int year, month, day, hours, minutes;
+    year = this->filedatestring.mid(0, 4).toInt();
+    month = this->filedatestring.mid(4, 2).toInt();
+    day = this->filedatestring.mid(6, 2).toInt();
+    hours = this->filedatestring.mid(8, 2).toInt();
+    minutes = this->filedatestring.mid(10, 2).toInt();
+
+    pixgeoConversion pixconv;
+
+    double sub_lon = opts.geosatellites[geoindex].longitude;
+
+    long coff = opts.geosatellites[geoindex].coff;
+    long loff = opts.geosatellites[geoindex].loff;
+    double cfac = opts.geosatellites[geoindex].cfac;
+    double lfac = opts.geosatellites[geoindex].lfac;
+
+    double latitude, longitude;
+    int ret;
+
+
+    qDebug() << "SegmentListGeostationary::computeGeoImageHimawari";
+    int nbroflinespersegment = opts.geosatellites[geoindex].segmentlength;
+
     //if(m_GeoSatellite != eGeoSatellite::H9)
     im = CalculateBitMap(false);
 
@@ -8307,8 +8731,8 @@ QImage *SegmentListGeostationary::CalculateBitMap(bool HRV)
     painter.setBrush(QColor(1,1,1));
 
     if(m_GeoSatellite == eGeoSatellite::H9)
-        painter.drawEllipse(center, opts.geosatellites.at(geoindex).coff - 28,
-                            opts.geosatellites.at(geoindex).loff - 40);
+        painter.drawEllipse(center, opts.geosatellites.at(geoindex).coff - 26,
+                            opts.geosatellites.at(geoindex).loff - 38);
     else
     {
         if(HRV)

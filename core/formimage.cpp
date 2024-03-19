@@ -1621,15 +1621,14 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 void FormImage::savePNGImage(QString fileName)
 {
 
-    QImage image_copy = m_image->copy();
+    QImage image_copy = m_image->copy(1800, 0, 1900, 500);
     QPainter painter(&image_copy);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
-
 
     painter.begin(&image_copy);
     //getScene()->render(&painter, m_image->rect() );
 
-    drawOverlays(&painter);
+    //drawOverlays(&painter);
 
     painter.end();
 
@@ -2576,7 +2575,7 @@ void FormImage::OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary
 
 //    QPoint pt(opts.geosatellites.at(geoindex).coff, opts.geosatellites.at(geoindex).loff);
 //    paint->setPen(Qt::red);
-//    paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 28, opts.geosatellites.at(geoindex).loff - 40);
+//    paint->drawEllipse(pt, opts.geosatellites.at(geoindex).coff - 26, opts.geosatellites.at(geoindex).loff - 38);
 
     moonCalc obj;
     float scale = 313.873;
