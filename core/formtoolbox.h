@@ -136,6 +136,7 @@ private:
     void setAllWhatsThis();
     void blockSignalscomboGeo(bool state);
     void reinitProjectionCanvas();
+    void resetSpectrumInverse();
 
 
     AVHRRSatellite *segs;

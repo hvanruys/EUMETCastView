@@ -444,6 +444,16 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
 //}
 
+void FormToolbox::resetSpectrumInverse()
+{
+    for(int i = 0; i < 6; i++)
+    {
+        spectrumvector[i] = "";
+        inversevector[i] = false;
+    }
+
+}
+
 void FormToolbox::setFormMovie(FormMovie *formmovie)
 {
     this->formmovie = formmovie;
@@ -2384,13 +2394,9 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 
     setToolboxButtons(false);
 
+    this->resetSpectrumInverse();
     spectrumvector[0] = channel;
-    spectrumvector[1] = "";
-    spectrumvector[2] = "";
-
     inversevector[0] = bInverse;
-    inversevector[1] = false;
-    inversevector[2] = false;
 
     //formimage->displayImage(8);
     //formimage->adjustPicSize(true);
@@ -2441,14 +2447,7 @@ void FormToolbox::on_btnGeoColor_clicked()
     else if(geoindex == (int)eGeoSatellite::MTG_I1)
         ui->pbProgress->setMaximum(100);
 
-    spectrumvector.clear();
-    inversevector.clear();
-
-    for(int i = 0; i < 6; i++)
-    {
-        spectrumvector.append("");
-        inversevector.append(false);
-    }
+    resetSpectrumInverse();
 
     onButtonColorHRV("VIS_IR Color");
 
@@ -2477,9 +2476,8 @@ void FormToolbox::on_btnRecipes_clicked()
     formimage->setKindOfImage("VIS_IR");
 
     QString recipename = imageptrs->rgbrecipes[ui->lstRGB->currentRow()].Name;
+    this->resetSpectrumInverse();
     this->spectrumvector[0] = recipename;
-    this->spectrumvector[1] = "";
-    this->spectrumvector[2] = "";
     setToolboxButtons(false);
 
     emit switchstackedwidget(3);
@@ -2545,15 +2543,7 @@ void FormToolbox::on_btnHRV_clicked()
 
     ui->pbProgress->reset();
 
-    spectrumvector.clear();
-    inversevector.clear();
-
-    for(int i = 0; i < 6; i++)
-    {
-        spectrumvector.append("");
-        inversevector.append(false);
-    }
-
+    this->resetSpectrumInverse();
 
     //    if(geoindex == (int)eGeoSatellite::MET_11 || geoindex == (int)eGeoSatellite::MET_9 || geoindex == (int)eGeoSatellite::MET_8)
     //    {
@@ -2721,9 +2711,9 @@ void FormToolbox::onButtonColorHRV(QString type)
             spectrumvector[ui->comboGeo5->currentIndex()-1] = "VIS";
             inversevector[ui->comboGeo5->currentIndex()-1] = ui->chkInverseGeo5->isChecked();
         }
-        spectrumvector[0] = "VIS1KM";
-        spectrumvector[1] = "";
-        spectrumvector[2] = "";
+
+        spectrumvector.clear();
+        spectrumvector << "VIS1KM" << "" << "" << "" << "" << "";
     }
     else if (geoindex == (int)eGeoSatellite::GOMS3) // no HRV button
     {
@@ -2846,7 +2836,7 @@ void FormToolbox::onButtonColorHRV(QString type)
         if(ui->rdbPseudoColor->isChecked())
         {
             spectrumvector.clear();
-            spectrumvector << "C02" << "C03" << "C01" << "";
+            spectrumvector << "C02" << "C03" << "C01" << "" << "" << "";
         }
         else
         {
