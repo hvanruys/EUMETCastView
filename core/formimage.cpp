@@ -1621,7 +1621,7 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 void FormImage::savePNGImage(QString fileName)
 {
 
-    QImage image_copy = m_image->copy(1800, 0, 1900, 500);
+    QImage image_copy = m_image->copy(); // (0, 0, 1900, 1000);
     QPainter painter(&image_copy);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
