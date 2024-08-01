@@ -38,6 +38,10 @@
 
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e));}
 
+#ifndef CONC
+#define CONC
+#endif
+
 #define BYTE_SWAP4(x) \
     (((x & 0xFF000000) >> 24) | \
     ((x & 0x00FF0000) >> 8)  | \
@@ -426,7 +430,6 @@ bool SegmentListGeostationary::ComposeImagenetCDFMTGInThread(QStringList strlist
     //        qDebug() << i << " " << strlist.at(i);
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    //setThreadParametersnetCDF(strlist, spectrumvector, inversevector, histogrammethod, pseudocolor);
     QtConcurrent::run(doComposeGeostationarynetCDFMTGInThread, this);
     return true;
 }
@@ -2570,6 +2573,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     QElapsedTimer timer;
     timer.start();
 
+    qDebug() << "Nbr of MTG files = " << this->segmentfilelist.size();
+
     for(int j = 0; j < this->segmentfilelist.size(); j++)
     {
         if(this->segmentfilelist.at(j).contains("TRAIL"))
@@ -2594,7 +2599,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             retval = nc_inq_grps(grp_data, &numgrps, ncidgrps);
             if(retval != NC_NOERR) qDebug() << "error inquire data group";
 
-            qDebug() << "===> number of groups = " << numgrps;
+            qDebug() << "===> in TRAIL file ==> number of groups = " << numgrps;
 
             for(int i = 0; i < numgrps; i++)
             {
@@ -2612,8 +2617,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                     if ((retval = nc_get_var_ushort(ncidgrps[i], varid, &total_number_of_columns)))
                         ERR(retval);
 
-                    qDebug() << "===> groupname = " << spectrumname << "rows = " << total_number_of_rows <<
-                                " col = " << total_number_of_columns;
+                    qDebug() << "===> in TRAIL File ==> groupname = " << spectrumname << "rows = " << total_number_of_rows <<
+                                " columns = " << total_number_of_columns;
                 }
             }
 
@@ -2622,6 +2627,12 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
 
         }
+    }
+
+    for(int i = 0; i < 4; i++)
+    {
+        imageptrs->mtg_total_number_of_columns[i] = 0;
+        imageptrs->mtg_total_number_of_rows[i] = 0;
     }
 
 
@@ -2666,7 +2677,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                 imageptrs->mtg_total_number_of_columns[i] = total_number_of_columns;
                 imageptrs->mtg_total_number_of_rows[i] = total_number_of_rows;
 
-                qDebug() << QString("====> mtg_total_number_of_columns[%1] = %2 mtg_total_number_of_rows[%3] = %4")
+                qDebug() << QString("===> in TRAIL file ==> mtg_total_number_of_columns[%1] = %2 mtg_total_number_of_rows[%3] = %4")
                             .arg(i).arg(imageptrs->mtg_total_number_of_columns[i]).arg(i).arg(imageptrs->mtg_total_number_of_rows[i]);
             }
             retval = nc_close(ncfileid);
@@ -2674,6 +2685,78 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
         }
     }
+
+//    2024-08-01 09:38:22.165 Debug: ===> in TRAIL File ==> groupname =  "vis_04" rows =  11136  columns =  11136
+//    2024-08-01 09:38:22.165 Debug: ===> in TRAIL File ==> groupname =  "vis_05" rows =  11136  columns =  11136
+//    2024-08-01 09:38:22.165 Debug: ===> in TRAIL File ==> groupname =  "vis_06" rows =  11136  columns =  11136
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "vis_08" rows =  11136  columns =  11136
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "vis_09" rows =  11136  columns =  11136
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "nir_13" rows =  11136  columns =  11136
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "nir_16" rows =  11136  columns =  11136
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "nir_22" rows =  11136  columns =  11136
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "ir_38" rows =  5568  columns =  5568
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "wv_63" rows =  5568  columns =  5568
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "wv_73" rows =  5568  columns =  5568
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "ir_87" rows =  5568  columns =  5568
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "ir_97" rows =  5568  columns =  5568
+//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "ir_105" rows =  5568  columns =  5568
+//    2024-08-01 09:38:22.167 Debug: ===> in TRAIL File ==> groupname =  "ir_123" rows =  5568  columns =  5568
+//    2024-08-01 09:38:22.167 Debug: ===> in TRAIL File ==> groupname =  "ir_133" rows =  5568  columns =  5568
+
+
+    if(trailfilefound == false)
+    {
+        QString groupnames[16];
+        int rows[16];
+        int columns[16];
+
+        groupnames[0] =  "vis_04";
+        groupnames[1] =  "vis_05";
+        groupnames[2] =  "vis_06";
+        groupnames[3] =  "vis_08";
+        groupnames[4] =  "vis_09";
+        groupnames[5] =  "nir_13";
+        groupnames[6] =  "nir_16";
+        groupnames[7] =  "nir_22";
+        groupnames[8] =  "ir_38";
+        groupnames[9] =  "wv_63";
+        groupnames[10] =  "wv_73";
+        groupnames[11] =  "ir_87";
+        groupnames[12] =  "ir_97";
+        groupnames[13] =  "ir_105";
+        groupnames[14] =  "ir_123";
+        groupnames[15] =  "ir_133";
+
+        rows[0] =  11136;  columns[0] =  11136;
+        rows[1] =  11136;  columns[1] =  11136;
+        rows[2] =  11136;  columns[2] =  11136;
+        rows[3] =  11136;  columns[3] =  11136;
+        rows[4] =  11136;  columns[4] =  11136;
+        rows[5] =  11136;  columns[5] =  11136;
+        rows[6] =  11136;  columns[6] =  11136;
+        rows[7] =  11136;  columns[7] =  11136;
+        rows[8] =  5568;  columns[8] =  5568;
+        rows[9] =  5568;  columns[9] =  5568;
+        rows[10] =  5568;  columns[10] =  5568;
+        rows[11] =  5568;  columns[11] =  5568;
+        rows[12] =  5568;  columns[12] =  5568;
+        rows[13] =  5568;  columns[13] =  5568;
+        rows[14] =  5568;  columns[14] =  5568;
+        rows[15] =  5568;  columns[15] =  5568;
+
+        for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+        {
+            for(int j = 0; j < 16; j++ )
+            {
+                if(this->spectrumvector.at(i) == groupnames[j])
+                {
+                    imageptrs->mtg_total_number_of_columns[i] = columns[j];
+                    imageptrs->mtg_total_number_of_rows[i] = rows[j];
+                }
+            }
+        }
+    }
+
 
     progcounter += 10;
     emit this->progressCounter(10);
@@ -2743,13 +2826,13 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
                 if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_column)))
                     ERR(retval);
-                if(retval == 0 && i == 0)
-                {
-                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
-                    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
-                    //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
-                    //                end_position_column - start_position_column + 1);
-                }
+//                if(retval == 0 && i == 0)
+//                {
+//                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
+//                    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
+//                    //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
+//                    //                end_position_column - start_position_column + 1);
+//                }
 
                 imageptrs->mtg_start_position_row[i][findex - 1] = start_position_row;
                 imageptrs->mtg_end_position_row[i][findex - 1] = end_position_row;
@@ -2791,14 +2874,18 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     //        if(nbr_lines_MTG[i] != imageptrs->mtg_nbr_of_rows[0][i])
     //            qDebug() << "===> imageptrs->mtg_nbr_of_rows != nbr_linesMTG";
     //    }
-    //    auto callbackMethod = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
-    //    QtConcurrent::blockingMap(vec, callbackMethod);
 
+    qDebug() << "Start Concurrent processing ...";
+
+#ifdef CONC
+     auto callbackMethod = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
+     QtConcurrent::blockingMap(vec, callbackMethod);
+#else
     for(int i = 0; i < vec.length(); i++)
     {
         this->concurrentMinMaxMTG(this, vec[i]);
     }
-
+#endif
 
     emit this->progressCounter(progcounter += 10);
 
@@ -2830,14 +2917,15 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     }
 
-
-    //    auto callbackMethod1 = std::bind(this->concurrentLUTGeoMTG, this, std::placeholders::_1);
-    //    QtConcurrent::blockingMap(vec, callbackMethod1);
-
+#ifdef CONC
+    auto callbackMethod1 = std::bind(this->concurrentLUTGeoMTG, this, std::placeholders::_1);
+    QtConcurrent::blockingMap(vec, callbackMethod1);
+#else
     for(int i = 0; i < vec.length(); i++)
     {
         this->concurrentLUTGeoMTG(this, vec[i]);
     }
+#endif
 
     emit this->progressCounter(progcounter += 5);
 
@@ -2963,19 +3051,28 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     {
         imageptrs->ptrimageGeoNight.reset(new quint16[ 5568 * 5568 ]);
 
+#ifdef CONC
         auto callbackMethod1 = std::bind(this->concurrentImageMTGNight, this, std::placeholders::_1);
         QtConcurrent::blockingMap(vec, callbackMethod1);
+#else
+        for(int i = 0; i < vec.length(); i++)
+        {
+            this->concurrentImageMTGNight(this, vec[i]);
+        }
+#endif
     }
 
     emit this->progressCounter(progcounter += 10);
 
+#ifdef CONC
     auto callbackMethod2 = std::bind(this->concurrentImageMTG, this, std::placeholders::_1);
     QtConcurrent::blockingMap(vec, callbackMethod2);
-
-    //            for(int i = 0; i < vec.length(); i++)
-    //            {
-    //                this->concurrentImageMTG(this, vec[i]);
-    //            }
+#else
+    for(int i = 0; i < vec.length(); i++)
+    {
+        this->concurrentImageMTG(this, vec[i]);
+    }
+#endif
 
     for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
     {
@@ -3938,6 +4035,10 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                     pixelout[2] = pixelout[0];
                     row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
                 }
+                else
+                {
+                    row_col[pixelx] = qRgb(255, 0, 0);
+                }
             }
             else if(this->kindofimage == "VIS_IR Color")
             {
@@ -3993,7 +4094,10 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                         pixelout[0] = quint16(this->inversevector[0] ? (255 - pixelout[0]) : pixelout[0]);
                         pixelout[1] = quint16(this->inversevector[1] ? (255 - pixelout[1]) : pixelout[1]);
                         pixelout[2] = quint16(this->inversevector[2] ? (255 - pixelout[2]) : pixelout[2]);
-                        row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
+                        if(pixelout[0] < 256 && pixelout[1] < 256 && pixelout[2] < 256)
+                            row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
+                        else
+                            row_col[pixelx] = qRgb(255, 0, 0);
                     }
                 }
             }

@@ -1803,56 +1803,80 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
             ui->cmbHRVtype->setEnabled(true);
     }
 
-    for(int i = 0; i < opts.geosatellites.at(geoindex).spectrumlist.count(); i++)
+    if(opts.geosatellites.at(geoindex).shortname != "MTG-I1")
     {
-        if(i == 0)
-            if(rowchosen.at(hrv ? 3 : 2).toInt() > 0)
-                ui->btnGeo1->setEnabled(true);
-        if(i == 1)
-            if(rowchosen.at(hrv ? 4 : 3).toInt() > 0)
-                ui->btnGeo2->setEnabled(true);
-        if(i == 2)
-            if(rowchosen.at(hrv ? 5 : 4).toInt() > 0)
-                ui->btnGeo3->setEnabled(true);
-        if(i == 3)
-            if(rowchosen.at(hrv ? 6 : 5).toInt() > 0)
-                ui->btnGeo4->setEnabled(true);
-        if(i == 4)
-            if(rowchosen.at(hrv ? 7 : 6).toInt() > 0)
-                ui->btnGeo5->setEnabled(true);
-        if(i == 5)
-            if(rowchosen.at(hrv ? 8 : 7).toInt() > 0)
-                ui->btnGeo6->setEnabled(true);
-        if(i == 6)
-            if(rowchosen.at(hrv ? 9 : 8).toInt() > 0)
-                ui->btnGeo7->setEnabled(true);
-        if(i == 7)
-            if(rowchosen.at(hrv ? 10 : 9).toInt() > 0)
-                ui->btnGeo8->setEnabled(true);
-        if(i == 8)
-            if(rowchosen.at(hrv ? 11 : 10).toInt() > 0)
-                ui->btnGeo9->setEnabled(true);
-        if(i == 9)
-            if(rowchosen.at(hrv ? 12 : 11).toInt() > 0)
-                ui->btnGeo10->setEnabled(true);
-        if(i == 10)
-            if(rowchosen.at(hrv ? 13 : 12).toInt() > 0)
-                ui->btnGeo11->setEnabled(true);
-        if(i == 11)
-            if(rowchosen.at(hrv ? 14 : 13).toInt() > 0)
-                ui->btnGeo12->setEnabled(true);
-        if(i == 12)
-            if(rowchosen.at(hrv ? 15 : 14).toInt() > 0)
-                ui->btnGeo13->setEnabled(true);
-        if(i == 13)
-            if(rowchosen.at(hrv ? 16 : 15).toInt() > 0)
-                ui->btnGeo14->setEnabled(true);
-        if(i == 14)
-            if(rowchosen.at(hrv ? 17 : 16).toInt() > 0)
-                ui->btnGeo15->setEnabled(true);
-        if(i == 15)
-            if(rowchosen.at(hrv ? 18 : 17).toInt() > 0)
-                ui->btnGeo16->setEnabled(true);
+        for(int i = 0; i < opts.geosatellites.at(geoindex).spectrumlist.count(); i++)
+        {
+            if(i == 0)
+                if(rowchosen.at(hrv ? 3 : 2).toInt() > 0)
+                    ui->btnGeo1->setEnabled(true);
+            if(i == 1)
+                if(rowchosen.at(hrv ? 4 : 3).toInt() > 0)
+                    ui->btnGeo2->setEnabled(true);
+            if(i == 2)
+                if(rowchosen.at(hrv ? 5 : 4).toInt() > 0)
+                    ui->btnGeo3->setEnabled(true);
+            if(i == 3)
+                if(rowchosen.at(hrv ? 6 : 5).toInt() > 0)
+                    ui->btnGeo4->setEnabled(true);
+            if(i == 4)
+                if(rowchosen.at(hrv ? 7 : 6).toInt() > 0)
+                    ui->btnGeo5->setEnabled(true);
+            if(i == 5)
+                if(rowchosen.at(hrv ? 8 : 7).toInt() > 0)
+                    ui->btnGeo6->setEnabled(true);
+            if(i == 6)
+                if(rowchosen.at(hrv ? 9 : 8).toInt() > 0)
+                    ui->btnGeo7->setEnabled(true);
+            if(i == 7)
+                if(rowchosen.at(hrv ? 10 : 9).toInt() > 0)
+                    ui->btnGeo8->setEnabled(true);
+            if(i == 8)
+                if(rowchosen.at(hrv ? 11 : 10).toInt() > 0)
+                    ui->btnGeo9->setEnabled(true);
+            if(i == 9)
+                if(rowchosen.at(hrv ? 12 : 11).toInt() > 0)
+                    ui->btnGeo10->setEnabled(true);
+            if(i == 10)
+                if(rowchosen.at(hrv ? 13 : 12).toInt() > 0)
+                    ui->btnGeo11->setEnabled(true);
+            if(i == 11)
+                if(rowchosen.at(hrv ? 14 : 13).toInt() > 0)
+                    ui->btnGeo12->setEnabled(true);
+            if(i == 12)
+                if(rowchosen.at(hrv ? 15 : 14).toInt() > 0)
+                    ui->btnGeo13->setEnabled(true);
+            if(i == 13)
+                if(rowchosen.at(hrv ? 16 : 15).toInt() > 0)
+                    ui->btnGeo14->setEnabled(true);
+            if(i == 14)
+                if(rowchosen.at(hrv ? 17 : 16).toInt() > 0)
+                    ui->btnGeo15->setEnabled(true);
+            if(i == 15)
+                if(rowchosen.at(hrv ? 18 : 17).toInt() > 0)
+                    ui->btnGeo16->setEnabled(true);
+        }
+    }
+    else
+    {
+        ui->btnGeo1->setEnabled(true);
+        ui->btnGeo2->setEnabled(true);
+        ui->btnGeo3->setEnabled(true);
+        ui->btnGeo4->setEnabled(true);
+        ui->btnGeo5->setEnabled(true);
+        ui->btnGeo6->setEnabled(true);
+        ui->btnGeo7->setEnabled(true);
+        ui->btnGeo8->setEnabled(true);
+        ui->btnGeo9->setEnabled(true);
+        ui->btnGeo10->setEnabled(true);
+        ui->btnGeo11->setEnabled(true);
+        ui->btnGeo12->setEnabled(true);
+        ui->btnGeo13->setEnabled(true);
+        ui->btnGeo14->setEnabled(true);
+        ui->btnGeo15->setEnabled(true);
+        ui->btnGeo16->setEnabled(true);
+
+
     }
 
 }

@@ -1287,9 +1287,9 @@ void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item,
 
     qDebug() << "FormGeostationary::SelectGeoWidgetItem";
 
-    for(int i = 0; i < opts.geosatellites.count(); i++)
-        if(opts.geosatellites.at(i).shortname != "MTG-I1")
-            setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
+        for(int i = 0; i < opts.geosatellites.count(); i++)
+            if(opts.geosatellites.at(i).shortname != "MTG-I1")
+                setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
 
     qDebug() << opts.geosatellites.at(geoindex).shortname + " " + (*item).text(0);
 
