@@ -719,10 +719,10 @@ void MainWindow::on_actionCreatePNG_triggered()
 
 //        im.save(fileName);
 
-//        QGraphicsView* view = new QGraphicsView(formimage->getScene(),this);
-//        QString fileName = "file_name.png";
-//        QPixmap pixMap = view->grab(view->sceneRect().toRect());
-//        pixMap.save(fileName);
+        // QGraphicsView* view = new QGraphicsView(formimage->getScene(),this);
+        // //QString fileName = "file_name.png";
+        // QPixmap pixMap = view->grab(view->sceneRect().toRect());
+        // pixMap.save(fileName);
         //Uses QWidget::grab function to create a pixmap and paints the QGraphicsView inside it.
 
         formimage->savePNGImage(fileName);

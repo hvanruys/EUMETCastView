@@ -21,7 +21,7 @@ set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
 #set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Gui REQUIRED)
+find_package(Qt6 COMPONENTS Gui REQUIRED)
 add_library(
     QSgp4 STATIC
     ${PROJECT_SOURCES_CPP}
@@ -33,5 +33,5 @@ cmake_print_variables(PROJECT_SOURCE_DIR)
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/core")
 
-target_link_libraries(QSgp4 my_compiler_flags_1 Qt5::Gui)
+target_link_libraries(QSgp4 my_compiler_flags_1 Qt6::Gui)
 

@@ -1626,9 +1626,9 @@ void FormImage::savePNGImage(QString fileName)
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
     painter.begin(&image_copy);
-    //getScene()->render(&painter, m_image->rect() );
+    getScene()->render(&painter, m_image->rect() );
 
-    //drawOverlays(&painter);
+    drawOverlays(&painter);
 
     painter.end();
 
