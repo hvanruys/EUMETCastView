@@ -342,16 +342,16 @@ void Options::Initialize()
 
     bFciDecomp = false;
 
-    CreateGeoSatelliteIni();
+    //CreateGeoSatelliteIni();
 
-//    QFile file("GeoSatellites.ini");
-//    if (!file.open(QIODevice::ReadOnly))
-//    {
-//        CreateGeoSatelliteIni();
-//    }
-//    else
-//        InitializeGeo();
-//    file.close();
+   QFile file("GeoSatellites.ini");
+   if (!file.open(QIODevice::ReadOnly))
+   {
+       CreateGeoSatelliteIni();
+   }
+   else
+       InitializeGeo();
+   file.close();
 
     doLogging = settings.value("/debugging/dologging", false).toBool();
 
@@ -867,16 +867,16 @@ void Options::CreateGeoSatelliteIni()
         geosatellites.append(sat);
 
     //Data Channel 2
-    geosatellites[0].fullname = "Meteosat-10";
-    geosatellites[0].shortname = "MET_10";
+    geosatellites[0].fullname = "Meteosat-11";
+    geosatellites[0].shortname = "MET_11";
     geosatellites[0].longitude = 0.0;
     geosatellites[0].longitudelimit1 = -75.0;
     geosatellites[0].longitudelimit2 = +75.0;
     geosatellites[0].protocol = "XRIT";
     geosatellites[0].rss = false;
-    geosatellites[0].searchstring = "H-000-MSG3__-MSG3";
+    geosatellites[0].searchstring = "H-000-MSG4__-MSG4";
     geosatellites[0].indexsearchstring = 0;
-    geosatellites[0].filepattern = "H-000-MSG3??-?????????___-?????????-0?????___-%1-C_";
+    geosatellites[0].filepattern = "H-000-MSG4??-?????????___-?????????-0?????___-%1-C_";
     geosatellites[0].imagewidth = 3712;
     geosatellites[0].imageheight = 3712;
     geosatellites[0].imagewidthhrv0 = 5568;
@@ -913,16 +913,16 @@ void Options::CreateGeoSatelliteIni()
 
 
     //Data Channel 5
-    geosatellites[1].fullname = "Meteosat-11";
-    geosatellites[1].shortname = "MET_11";
+    geosatellites[1].fullname = "Meteosat-10";
+    geosatellites[1].shortname = "MET_10";
     geosatellites[1].longitude = 9.5;
     geosatellites[1].longitudelimit1 = -30.0;
     geosatellites[1].longitudelimit2 = 20.0;
     geosatellites[1].protocol = "XRIT";
     geosatellites[1].rss = true;
-    geosatellites[1].searchstring = "H-000-MSG4__-MSG4";
+    geosatellites[1].searchstring = "H-000-MSG3__-MSG3";
     geosatellites[1].indexsearchstring = 0;
-    geosatellites[1].filepattern = "H-000-MSG4??-????????????-?????????-0?????___-%1-C_";
+    geosatellites[1].filepattern = "H-000-MSG3??-????????????-?????????-0?????___-%1-C_";
     geosatellites[1].imagewidth = 3712;
     geosatellites[1].imageheight = 1392;
     geosatellites[1].imagewidthhrv0 = 5568;
@@ -1632,10 +1632,10 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[11].lfachrv = 1172050000. * 2;
 
 
-    geosatellites[11].spectrumlist << "vis_04" << "vis_05" << "vis_06" << "vis_08" << "vis_09" << "nir_13" << "nir_16"
-                                   << "nir_22" << "ir_38" << "wv_63" << "wv_73" << "ir_87" << "ir_97" << "ir_105" << "ir_123" << "ir_133";
-    geosatellites[11].spectrumvalueslist << "0.44" << "0.51" << "0.64" << "0.86" << "0.91" << "1.38" << "1.61"
-                                         << "2.25" << "3.80" << "6.30" << "7.35" << "8.70" << "9.66" << "10.5" << "12.3" << "13.3";
+    geosatellites[11].spectrumlist << "vis_04" << "vis_05" << "vis_06" << "vis_08" << "vis_09" << "nir_13" << "nir_16" << "nir_22"
+                                   << "ir_38" << "wv_63" << "wv_73" << "ir_87" << "ir_97" << "ir_105" << "ir_123" << "ir_133";
+    geosatellites[11].spectrumvalueslist << "0.44" << "0.51" << "0.64" << "0.86" << "0.91" << "1.38" << "1.61" << "2.25"
+                                         << "3.80" << "6.30" << "7.35" << "8.70" << "9.66" << "10.5" << "12.3" << "13.3";
 
     settingsgeo.beginWriteArray("geos");
     for (int i = 0; i < this->geosatellites.size(); ++i) {

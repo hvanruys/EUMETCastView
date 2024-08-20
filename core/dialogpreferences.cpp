@@ -312,7 +312,7 @@ void DialogPreferences::setupGeoConfigTable()
     ui->tbvGeoConfig->setModel(myGeoConfigModel);
     ui->tbvGeoConfig->setColumnWidth(0, 150);
 
-    for(int i = 1; i < 4; i++)
+    for(int i = 1; i < myGeoConfigModel->columnCount(); i++)
         ui->tbvGeoConfig->setColumnWidth(i, 150);
 
     QHeaderView *hheader = ui->tbvGeoConfig->horizontalHeader();
@@ -2307,7 +2307,7 @@ int GeoConfigModel::rowCount(const QModelIndex & /*parent*/) const
 
 int GeoConfigModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    return 7;
+    return 50;
 }
 
 QVariant GeoConfigModel::data(const QModelIndex &index, int role) const
@@ -2337,6 +2337,135 @@ QVariant GeoConfigModel::data(const QModelIndex &index, int role) const
             break;
         case 6:
             return opts.geosatellites.at(index.row()).indexsearchstring;
+            break;
+        case 7:
+            return opts.geosatellites.at(index.row()).filepattern;
+            break;
+        case 8:
+            return opts.geosatellites.at(index.row()).imagewidth;
+            break;
+        case 9:
+            return opts.geosatellites.at(index.row()).imageheight;
+            break;
+        case 10:
+            return opts.geosatellites.at(index.row()).imagewidthhrv0;
+            break;
+        case 11:
+            return opts.geosatellites.at(index.row()).imageheighthrv0;
+            break;
+        case 12:
+            return opts.geosatellites.at(index.row()).imagewidthhrv1;
+            break;
+        case 13:
+            return opts.geosatellites.at(index.row()).imageheighthrv1;
+            break;
+        case 14:
+            return opts.geosatellites.at(index.row()).indexspectrum;
+            break;
+        case 15:
+            return opts.geosatellites.at(index.row()).indexfilenbr;
+            break;
+        case 16:
+            return opts.geosatellites.at(index.row()).lengthfilenbr;
+            break;
+        case 17:
+            return opts.geosatellites.at(index.row()).indexdate;
+            break;
+        case 18:
+            return opts.geosatellites.at(index.row()).lengthdate;
+            break;
+        case 19:
+            return opts.geosatellites.at(index.row()).spectrumhrv;
+            break;
+        case 20:
+            return opts.geosatellites.at(index.row()).spectrumvaluehrv;
+            break;
+        case 21:
+            return opts.geosatellites.at(index.row()).indexspectrumhrv;
+            break;
+        case 22:
+            return opts.geosatellites.at(index.row()).indexfilenbrhrv;
+            break;
+        case 23:
+            return opts.geosatellites.at(index.row()).lengthfilenbrhrv;
+            break;
+        case 24:
+            return opts.geosatellites.at(index.row()).indexdatehrv;
+            break;
+        case 25:
+            return opts.geosatellites.at(index.row()).lengthdatehrv;
+            break;
+        case 26:
+            return opts.geosatellites.at(index.row()).color;
+            break;
+        case 27:
+            return opts.geosatellites.at(index.row()).colorhrv;
+            break;
+        case 28:
+            return opts.geosatellites.at(index.row()).maxsegments;
+            break;
+        case 29:
+            return opts.geosatellites.at(index.row()).maxsegmentshrv;
+            break;
+        case 30:
+            return opts.geosatellites.at(index.row()).segmentlength;
+            break;
+        case 31:
+            return opts.geosatellites.at(index.row()).segmentlengthhrv;
+            break;
+        case 32:
+            return opts.geosatellites.at(index.row()).startsegmentnbrtype0;
+            break;
+        case 33:
+            return opts.geosatellites.at(index.row()).startsegmentnbrhrvtype0;
+            break;
+        case 34:
+            return opts.geosatellites.at(index.row()).startsegmentnbrtype1;
+            break;
+        case 35:
+            return opts.geosatellites.at(index.row()).startsegmentnbrhrvtype1;
+            break;
+        case 36:
+            return opts.geosatellites.at(index.row()).prologfile;
+            break;
+        case 37:
+            return opts.geosatellites.at(index.row()).epilogfile;
+            break;
+        case 38:
+            return opts.geosatellites.at(index.row()).longitudelimit1;
+            break;
+        case 39:
+            return opts.geosatellites.at(index.row()).longitudelimit2;
+            break;
+        case 40:
+            return opts.geosatellites.at(index.row()).coff;
+            break;
+        case 41:
+            return opts.geosatellites.at(index.row()).loff;
+            break;
+        case 42:
+            return opts.geosatellites.at(index.row()).cfac;
+            break;
+        case 43:
+            return opts.geosatellites.at(index.row()).lfac;
+            break;
+        case 44:
+            return opts.geosatellites.at(index.row()).coffhrv;
+            break;
+        case 45:
+            return opts.geosatellites.at(index.row()).loffhrv;
+            break;
+        case 46:
+            return opts.geosatellites.at(index.row()).cfachrv;
+            break;
+        case 47:
+            return opts.geosatellites.at(index.row()).lfachrv;
+            break;
+        case 48:
+            return opts.geosatellites.at(index.row()).clahecontextregionx;
+            break;
+        case 49:
+            return opts.geosatellites.at(index.row()).clahecontextregiony;
             break;
 
         }
@@ -2394,24 +2523,155 @@ QVariant GeoConfigModel::headerData(int section, Qt::Orientation orientation, in
         switch (section) {
         case 0:
             return tr("Fullname");
-
+            break;
         case 1:
             return tr("Shortname");
-
+            break;
         case 2:
             return tr("Longitude");
-
+            break;
         case 3:
             return tr("Protocol");
-
+            break;
         case 4:
             return tr("RSS");
-
+            break;
         case 5:
             return tr("Searchstring");
-
+            break;
         case 6:
             return tr("Index Search");
+            break;
+        case 7:
+            return tr("File Pattern");
+            break;
+        case 8:
+            return tr("Imagewidth");
+            break;
+        case 9:
+            return tr("Imageheight");
+            break;
+        case 10:
+            return tr("Imagewidthhrv0");
+            break;
+        case 11:
+            return tr("Imageheighthrv0");
+            break;
+        case 12:
+            return tr("Imagewidthhrv1");
+            break;
+        case 13:
+            return tr("Imageheighthrv1");
+            break;
+        case 14:
+            return tr("Indexspectrum");
+            break;
+        case 15:
+            return tr("Index Filenbr");
+            break;
+        case 16:
+            return tr("Length Filenbr");
+            break;
+        case 17:
+            return tr("Index Date");
+            break;
+        case 18:
+            return tr("Length Date");
+            break;
+        case 19:
+            return tr("Spectrumhrv");
+            break;
+        case 20:
+            return tr("Spectrumvaluehrv");
+            break;
+        case 21:
+            return tr("Indexspectrumhrv");
+            break;
+        case 22:
+            return tr("Indexfilenbrhrv");
+            break;
+        case 23:
+            return tr("Lengthfilenbrhrv");
+            break;
+        case 24:
+            return tr("Indexdatehrv");
+            break;
+        case 25:
+            return tr("Lengthdatehrv");
+            break;
+        case 26:
+            return tr("Color");
+            break;
+        case 27:
+            return tr("Colorhrv");
+            break;
+        case 28:
+            return tr("Max Segments");
+            break;
+        case 29:
+            return tr("Max Segments hrv");
+            break;
+        case 30:
+            return tr("Segment Length");
+            break;
+        case 31:
+            return tr("Segment Length hrv");
+            break;
+        case 32:
+            return tr("Start Segment Nbr Type0");
+            break;
+        case 33:
+            return tr("Start Segment Nbr hrv Type0");
+            break;
+        case 34:
+            return tr("Start Segment Nbr Type1");
+            break;
+        case 35:
+            return tr("Start Segment Nbr hrv Type1");
+            break;
+        case 36:
+            return tr("Prologfile");
+            break;
+        case 37:
+            return tr("Epilogfile");
+            break;
+        case 38:
+            return tr("Longitude limit1");
+            break;
+        case 39:
+            return tr("Longitude limit2");
+            break;
+        case 40:
+            return tr("coff");
+            break;
+        case 41:
+            return tr("loff");
+            break;
+        case 42:
+            return tr("cfac");
+            break;
+        case 43:
+            return tr("lfac");
+            break;
+        case 44:
+            return tr("coffhrv");
+            break;
+        case 45:
+            return tr("loffhrv");
+            break;
+        case 46:
+            return tr("cfachrv");
+            break;
+        case 47:
+            return tr("lfachrv");
+            break;
+        case 48:
+            return tr("clahecontextregionx");
+            break;
+        case 49:
+            return tr("clahecontextregiony");
+            break;
+
 
         default:
             return QVariant();

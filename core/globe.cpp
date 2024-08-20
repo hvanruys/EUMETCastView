@@ -1676,11 +1676,11 @@ void Globe::Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirecta
     for (int pix = 0 ; pix < imageptrs->pmOut->width(); pix+=1)
     {
         equirect->map_inverse(pix, heightinimage, lon_deg, lat_deg);
-        //        if(segs->seglgeo[geoindex]->geosatlon == 0.0)
-        //        {
-        //            lon_low = -90.0;
-        //            lon_high = 20.75;
-        //        }
+//                if(segs->seglgeo[geoindex]->geosatlon == 0.0)
+//                {
+//                    lon_low = -90.0;
+//                    lon_high = 20.75;
+//                }
         //        else if(segs->seglgeo[geoindex]->geosatlon == 104.5)
         //        {
         //            lon_low = 52.25;
@@ -1692,7 +1692,7 @@ void Globe::Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirecta
         //            lon_high = 131.5;
         //        }
 
-        //        if(lon_deg < lon_high && lon_deg > lon_low)
+        //if(lon_deg < lon_high && lon_deg > lon_low)
         {
             if(pixconv.geocoord2pixcoord(segs->seglgeo[geoindex]->geosatlon, lat_deg, lon_deg, segs->seglgeo[geoindex]->COFF, segs->seglgeo[geoindex]->LOFF, segs->seglgeo[geoindex]->CFAC, segs->seglgeo[geoindex]->LFAC, &ximage, &yimage) == 0)
             {
@@ -1711,7 +1711,7 @@ void Globe::Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirecta
                 {
                     scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(yimage);
                     rgbval = scanl[ximage];
-                    if(rgbval != qRgb(0, 0, 0))
+                    //if(rgbval != qRgb(0, 0, 0))
                     {
                         fb_painter.setPen(rgbval);
                         fb_painter.drawPoint(pix, heightinimage);

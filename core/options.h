@@ -1,8 +1,8 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-#include <list>
-#include <string>
+//#include <list>
+//#include <string>
 #include <time.h>
 #include <qstringlist.h>
 #include <QColor>

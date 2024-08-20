@@ -10,11 +10,11 @@
 #include "gshhsdata.h"
 #include "satellite.h"
 
-#include <stdexcept>
+//#include <stdexcept>
 
 #include <QMutex>
 
-#define APPVERSION "2.0.7"
+#define APPVERSION "2.0.8"
 
 
 using namespace std;
