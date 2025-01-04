@@ -142,6 +142,8 @@ void LambertConformalConic::Initialize(double r_maj, double r_min, double stdlat
 #ifdef WIN32 // && __GNUC__
     sin_po = sin(lat1);
     cos_po = cos(lat1);
+#elif __APPLE__
+    __sincos(lat1,&sin_po,&cos_po);
 #else
     sincos(lat1,&sin_po,&cos_po);
 #endif
@@ -153,6 +155,8 @@ void LambertConformalConic::Initialize(double r_maj, double r_min, double stdlat
 #ifdef WIN32 //&& __GNUC__
     sin_po = sin(lat2);
     cos_po = cos(lat2);
+#elif __APPLE__
+    __sincos(lat2,&sin_po,&cos_po);
 #else
     sincos(lat2,&sin_po,&cos_po);
 #endif

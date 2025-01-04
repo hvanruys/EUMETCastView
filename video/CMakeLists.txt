@@ -35,6 +35,7 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/QSgp4")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/meteosatlib")
+target_include_directories(${PROJECT_NAME} PUBLIC "/usr/local/include")
 
 include(CMakePrintHelpers)
 cmake_print_variables(PROJECT_SOURCE_DIR)
