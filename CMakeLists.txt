@@ -7,6 +7,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(MACOSX TRUE)
+endif()
+
 #if(UNIX)
 #    set(CMAKE_PREFIX_PATH /home/hugo/Qt5.12.12/5.12.12/gcc_64)
 #elseif(WIN32)
