@@ -48,6 +48,8 @@ void StereoGraphic::Initialize(double center_lon, double center_lat, double insc
 #ifdef WIN32
     sin_p10 = sin(lat_origin);
     cos_p10 = cos(lat_origin);
+#elif __APPLE__
+    __sincos(lat_origin, &sin_p10, &cos_p10);
 #else
     sincos(lat_origin, &sin_p10, &cos_p10);
 #endif
@@ -476,6 +478,8 @@ bool StereoGraphic::forward(double lon_rad, double lat_rad, double &x, double &y
 #ifdef WIN32
     sinphi = sin(lat_rad);
     cosphi = cos(lat_rad);
+#elif __APPLE__
+    __sincos(lat_rad, &sinphi, &cosphi);
 #else
     sincos(lat_rad, &sinphi, &cosphi);
 #endif
@@ -525,6 +529,8 @@ bool StereoGraphic::inverse(double x, double y, double &lon_rad, double &lat_rad
 #ifdef WIN32 // && __GNUC__)
     sinz = sin(z);
     cosz = cos(z);
+#elif __APPLE__
+    __sincos(z, &sinz, &cosz);
 #else
     sincos(z, &sinz, &cosz);
 #endif

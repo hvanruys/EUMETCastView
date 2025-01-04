@@ -38,6 +38,13 @@ for building AppImage
 - make -j$(nproc)
 - make install DESTDIR=AppDir
 
+Compile in macOS:
+- brew install hdf5 netcdf freeimage libarchive
+- export LIBRARY_PATH=/usr/local/lib
+- mkdir build && cd build
+- cmake ..
+- cmake --build .
+
 Compile in Windows :
 - Install msys2
 - mkdir build

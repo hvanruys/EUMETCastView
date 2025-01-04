@@ -146,6 +146,10 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/aaplus")
+if(MACOSX)
+  target_include_directories(${PROJECT_NAME} PUBLIC "/usr/local/opt/libarchive/include")
+  target_include_directories(${PROJECT_NAME} PUBLIC "/usr/local/include")
+endif ()
 
 add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30)
 # sequence of libraries is important !

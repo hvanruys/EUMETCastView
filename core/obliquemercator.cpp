@@ -195,6 +195,8 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
 #ifdef WIN32 //&& __GNUC__
     sin_p20 = sin(lat_origin);
     cos_p20 = cos(lat_origin);
+#elif __APPLE__
+    __sincos(lat_origin, &sin_p20,&cos_p20);
 #else
     sincos(lat_origin, &sin_p20,&cos_p20);
 #endif
@@ -267,8 +269,13 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
         return;
     }
 
+#ifdef __APPLE__
+    __sincos(gama,&singam,&cosgam);
+    __sincos(azimuth,&sinaz,&cosaz);
+#else
     sincos(gama,&singam,&cosgam);
     sincos(azimuth,&sinaz,&cosaz);
+#endif
     if (lat_origin >= 0)
         u =  (al/bl) * atan(sqrt(d * d - 1.0)/cosaz);
     else

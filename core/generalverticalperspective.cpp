@@ -91,6 +91,8 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
 #ifdef WIN32 //&& __GNUC__
         sin_lat_o = sin(lat_center);
         cos_lat_o = cos(lat_center);
+#elif __APPLE__
+        __sincos(lat_center, &sin_lat_o,&cos_lat_o);
 #else
         sincos(lat_center, &sin_lat_o,&cos_lat_o);
 #endif
