@@ -32,6 +32,7 @@ SegmentImage::SegmentImage()
     ptrimageRGBRecipeGreen.reset(new quint8[3712 * 3712]);
     ptrimageRGBRecipeBlue.reset(new quint8[3712 * 3712]);
 
+    alphazero = false;
     olcitype = SEG_NONE;
 
     CalcSatAngles();
@@ -1029,10 +1030,11 @@ void SegmentImage::InitializeImageGeostationary( int imagewidth, int imageheight
         delete ptrimageGeostationary;
 
     qDebug() << QString("Total nbr of pixels = %1").arg(imagewidth*imageheight);
-    qDebug() << QString("width %1  height %2").arg(imagewidth).arg(imageheight);
+    qDebug() << QString("width %1  height %2 alphazero = %3").arg(imagewidth).arg(imageheight).arg(alphazero);
 
     ptrimageGeostationary = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
-    ptrimageGeostationary->fill(Qt::black);
+    QColor nuts(0,0,0, (alphazero == true ? 0 : 255 ));
+    ptrimageGeostationary->fill(nuts);
 
 }
 
