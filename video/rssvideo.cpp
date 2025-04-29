@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QImage>
 #include <QPainter>
+#include <qregularexpression.h>
 #include "rssvideo.h"
 #include "qsun.h"
 #include "qeci.h"
@@ -126,8 +127,8 @@ void RSSVideo::getDatePathVectorFromDir( QStringList *datelist, QStringList *pat
     QString strdate;
     int filenbr;
 
-    QRegExp rx(this->reader->filepattern);
-    rx.setPatternSyntax(QRegExp::Wildcard);
+    QRegularExpression rx(this->reader->filepattern);
+    //rx.setPatternSyntax(QRegExp::Wildcard);
 
 
     foreach (const QString &path, reader->rsspath)
@@ -150,7 +151,8 @@ void RSSVideo::getDatePathVectorFromDir( QStringList *datelist, QStringList *pat
 
         foreach (const QFileInfo &fileInfo, fileinfolist)
         {
-            if(rx.exactMatch(fileInfo.fileName()))
+            QRegularExpressionMatch match = rx.match(fileInfo.fileName());
+            if(match.hasMatch())
             {
                 getFilenameParameters(fileInfo.fileName(), strspectrum, strdate, filenbr);
 

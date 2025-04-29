@@ -191,6 +191,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     ui->rdbDoLogging->setChecked(opts.doLogging);
 
+    opts.globalChangeFonts(this, opts.fontsize);
 
 }
 
@@ -307,6 +308,12 @@ void DialogPreferences::setupVIIRSMConfigTable()
 
 void DialogPreferences::setupGeoConfigTable()
 {
+
+    for(int i = 0; i < opts.tabgeosort.count(); i++)
+    {
+        new QListWidgetItem(opts.tabgeosort.at(i), ui->lwSort);
+    }
+
     myGeoConfigModel = new GeoConfigModel(this);
 
     ui->tbvGeoConfig->setModel(myGeoConfigModel);
@@ -666,6 +673,14 @@ void DialogPreferences::dialogaccept()
 
     opts.xmllogging = ui->rdbXMLlogging->isChecked();
     opts.datahubuser = ui->leDatahubUserId->text();
+
+    opts.tabgeosort.clear();
+    for(int i = 0; i < ui->lwSort->count(); i++)
+    {
+        opts.tabgeosort.append(ui->lwSort->item(i)->text());
+        qDebug() << opts.tabgeosort.at(i);
+    }
+
 
     if(POItablechanged)
         done(2);
@@ -2506,6 +2521,137 @@ bool GeoConfigModel::setData(const QModelIndex & index, const QVariant & value, 
         case 6:
             opts.geosatellites[index.row()].indexsearchstring = value.toInt();
             break;
+        case 7:
+            opts.geosatellites[index.row()].filepattern = value.toString();
+            break;
+        case 8:
+            opts.geosatellites[index.row()].imagewidth = value.toInt();
+            break;
+        case 9:
+            opts.geosatellites[index.row()].imageheight = value.toInt();
+            break;
+        case 10:
+            opts.geosatellites[index.row()].imagewidthhrv0 = value.toInt();
+            break;
+        case 11:
+            opts.geosatellites[index.row()].imageheighthrv0 = value.toInt();
+            break;
+        case 12:
+            opts.geosatellites[index.row()].imagewidthhrv1 = value.toInt();
+            break;
+        case 13:
+            opts.geosatellites[index.row()].imageheighthrv1 = value.toInt();
+            break;
+        case 14:
+            opts.geosatellites[index.row()].indexspectrum = value.toInt();
+            break;
+        case 15:
+            opts.geosatellites[index.row()].indexfilenbr = value.toInt();
+            break;
+        case 16:
+            opts.geosatellites[index.row()].lengthfilenbr = value.toInt();
+            break;
+        case 17:
+            opts.geosatellites[index.row()].indexdate = value.toInt();
+            break;
+        case 18:
+            opts.geosatellites[index.row()].lengthdate = value.toInt();
+            break;
+        case 19:
+            opts.geosatellites[index.row()].spectrumhrv = value.toString();
+            break;
+        case 20:
+            opts.geosatellites[index.row()].spectrumvaluehrv = value.toString();
+            break;
+        case 21:
+            opts.geosatellites[index.row()].indexspectrumhrv = value.toInt();
+            break;
+        case 22:
+            opts.geosatellites[index.row()].indexfilenbrhrv = value.toInt();
+            break;
+        case 23:
+            opts.geosatellites[index.row()].lengthfilenbrhrv = value.toInt();
+            break;
+        case 24:
+            opts.geosatellites[index.row()].indexdatehrv = value.toInt();
+            break;
+        case 25:
+            opts.geosatellites[index.row()].lengthdatehrv = value.toInt();
+            break;
+        case 26:
+            opts.geosatellites[index.row()].color = value.toBool();
+            break;
+        case 27:
+            opts.geosatellites[index.row()].colorhrv = value.toBool();
+            break;
+        case 28:
+            opts.geosatellites[index.row()].maxsegments = value.toInt();
+            break;
+        case 29:
+            opts.geosatellites[index.row()].maxsegmentshrv = value.toInt();
+            break;
+        case 30:
+            opts.geosatellites[index.row()].segmentlength = value.toInt();
+            break;
+        case 31:
+            opts.geosatellites[index.row()].segmentlengthhrv = value.toInt();
+            break;
+        case 32:
+            opts.geosatellites[index.row()].startsegmentnbrtype0 = value.toInt();
+            break;
+        case 33:
+            opts.geosatellites[index.row()].startsegmentnbrhrvtype0 = value.toInt();
+            break;
+        case 34:
+            opts.geosatellites[index.row()].startsegmentnbrtype1 = value.toInt();
+            break;
+        case 35:
+            opts.geosatellites[index.row()].startsegmentnbrhrvtype1 = value.toInt();
+            break;
+        case 36:
+            opts.geosatellites[index.row()].prologfile = value.toBool();
+            break;
+        case 37:
+            opts.geosatellites[index.row()].epilogfile = value.toBool();
+            break;
+        case 38:
+            opts.geosatellites[index.row()].longitudelimit1 = value.toDouble();
+            break;
+        case 39:
+            opts.geosatellites[index.row()].longitudelimit2 = value.toDouble();
+            break;
+        case 40:
+            opts.geosatellites[index.row()].coff = value.toLongLong();
+            break;
+        case 41:
+            opts.geosatellites[index.row()].loff = value.toLongLong();
+            break;
+        case 42:
+            opts.geosatellites[index.row()].cfac = value.toDouble();
+            break;
+        case 43:
+            opts.geosatellites[index.row()].lfac = value.toDouble();
+            break;
+        case 44:
+            opts.geosatellites[index.row()].coffhrv = value.toLongLong();
+            break;
+        case 45:
+            opts.geosatellites[index.row()].loffhrv = value.toLongLong();
+            break;
+        case 46:
+            opts.geosatellites[index.row()].cfachrv = value.toDouble();
+            break;
+        case 47:
+            opts.geosatellites[index.row()].lfachrv = value.toDouble();
+            break;
+        case 48:
+            opts.geosatellites[index.row()].clahecontextregionx = value.toInt();
+            break;
+        case 49:
+            opts.geosatellites[index.row()].clahecontextregiony = value.toInt();
+            break;
+
+
         }
 
         emit editCompleted();
@@ -3549,5 +3695,52 @@ void DialogPreferences::on_btnSearchProductDirectory_clicked()
 void DialogPreferences::on_rdbDoLogging_toggled(bool checked)
 {
     opts.doLogging = checked;
+}
+
+void DialogPreferences::on_btnSortUp_clicked()
+{
+    // int currentIndex = ui->lwSort->currentRow();
+    // QListWidgetItem *currentItem = ui->lwSort->takeItem(currentIndex);
+    // ui->lwSort->insertItem(currentIndex+1, currentItem);
+    // ui->lwSort->setCurrentRow(currentIndex+1);
+
+
+    QListWidgetItem *current = ui->lwSort->currentItem();
+    int currIndex = ui->lwSort->row(current);
+
+    QListWidgetItem *prev = ui->lwSort->item(ui->lwSort->row(current) - 1);
+    int prevIndex = ui->lwSort->row(prev);
+
+    QListWidgetItem *temp = ui->lwSort->takeItem(prevIndex);
+    ui->lwSort->insertItem(prevIndex, current);
+    ui->lwSort->insertItem(currIndex, temp);
+
+
+    // int currentIndex = ui->lwSort->currentRow();
+    // QListWidgetItem *currentItem = ui->lwSort->takeItem(currentIndex);
+    // ui->lwSort->insertItem(0, currentItem);
+    // ui->lwSort->setCurrentRow(0);
+
+
+    // int currentIndex = ui->lwSort->currentRow();
+    // QListWidgetItem *currentItem = ui->lwSort->takeItem(currentIndex);
+    // ui->lwSort->insertItem(ui->lwSort->count(), currentItem);
+    // ui->lwSort->setCurrentRow(ui->lwSort->count()-1);
+
+
+}
+
+
+void DialogPreferences::on_btnSortDown_clicked()
+{
+    QListWidgetItem *current = ui->lwSort->currentItem();
+    int currIndex = ui->lwSort->row(current);
+
+    QListWidgetItem *next = ui->lwSort->item(ui->lwSort->row(current) + 1);
+    int nextIndex = ui->lwSort->row(next);
+
+    QListWidgetItem *temp = ui->lwSort->takeItem(nextIndex);
+    ui->lwSort->insertItem(currIndex, temp);
+    ui->lwSort->insertItem(nextIndex, current);
 }
 

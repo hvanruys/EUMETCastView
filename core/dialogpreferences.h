@@ -121,6 +121,10 @@ private slots:
 
     void on_rdbDoLogging_toggled(bool checked);
 
+    void on_btnSortUp_clicked();
+
+    void on_btnSortDown_clicked();
+
 private:
     Ui::DialogPreferences *ui;
     QAbstractTableModel *myStationModel;

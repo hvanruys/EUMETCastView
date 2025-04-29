@@ -60,15 +60,17 @@ void MapFieldCyl::timerEvent(QTimerEvent *event)
 
 void MapFieldCyl::wheelEvent(QWheelEvent *event)
 {
-    int numDegrees = event->delta() / 8;
-    int numSteps = numDegrees / 15;
+    QPoint numPixels = event->pixelDelta();
+    QPoint numDegrees = event->angleDelta() / 8;
 
-    if (event->orientation() == Qt::Horizontal) {
-        // qDebug() << QString("scrollHorizontally = %1").arg(numSteps);
-    } else {
-        // qDebug() << QString("scrollVertically = %1").arg(numSteps);
-        emit wheelChange(numSteps);
+
+    if (!numPixels.isNull()) {
+
+    } else if (!numDegrees.isNull()) {
+        QPoint numSteps = numDegrees / 15;
+        emit wheelChange(numSteps.x());
     }
+
     event->accept();
 }
 
@@ -378,10 +380,10 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
 
     bool isselected = false;
     down = true;
-    map_x = e->x();
-    map_y = e->y();
-    map_lon = (double)((TWOPI*e->x()-PIE*pmScaled_res.width())/pmScaled_res.width());
-    map_lat = (double)(((PIE/2)*pmScaled_res.height()-PIE*e->y())/pmScaled_res.height());
+    map_x = e->position().x();
+    map_y = e->position().y();
+    map_lon = (double)((TWOPI*e->position().x()-PIE*pmScaled_res.width())/pmScaled_res.width());
+    map_lat = (double)(((PIE/2)*pmScaled_res.height()-PIE*e->position().y())/pmScaled_res.height());
 
     double lon = rad2deg(map_lon);
     double lat = rad2deg(map_lat);
@@ -421,7 +423,7 @@ void MapFieldCyl::mousePressEvent( QMouseEvent *e )
     if(isselected)
         emit mapClicked();  // show selected segmentlist in FormEphem
      else
-        satellitelist.TestForSat(e->x(), e->y());
+        satellitelist.TestForSat(e->position().x(), e->position().y());
 
     update();
 
@@ -436,8 +438,8 @@ void MapFieldCyl::mouseReleaseEvent( QMouseEvent * )
 void MapFieldCyl::mouseMoveEvent( QMouseEvent *e )
 {
 
-  map_lon = (double)((TWOPI*e->x()-PIE*pmScaled_res.width())/pmScaled_res.width());
-  map_lat = (double)(((PIE/2)*pmScaled_res.height()-PIE*e->y())/pmScaled_res.height());
+  map_lon = (double)((TWOPI*e->position().x()-PIE*pmScaled_res.width())/pmScaled_res.width());
+  map_lat = (double)(((PIE/2)*pmScaled_res.height()-PIE*e->position().y())/pmScaled_res.height());
 
 }
 

@@ -10,6 +10,8 @@ public:
     Poi();
 	void Initialize();
 	void Save();
+    void FillStrlGeo(QStringList strl, QString val, int nbrgeosats);
+
 //    void setBandM(int index, int val);
 //    void setBandMToZero(int index);
 

@@ -4,7 +4,7 @@
 #include <QImage>
 
 #include <QFutureWatcher>
-#include <QOpenGLFramebufferObject>
+//#include <QOpenGLFramebufferObject>
 
 #include "sgp4sdp4.h"
 #include "options.h"
@@ -113,6 +113,7 @@ public:
 
     QImage *ptrimageGeostationary;
     QScopedArrayPointer<quint16> ptrimageGeoNight;
+    bool alphazero;
 
     QImage *ptrimageProjection;
     QImage *ptrimageProjectionCopy; //for VIIRS M background with VIIRS DNB

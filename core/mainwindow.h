@@ -44,7 +44,6 @@ public:
     //void LoadXMLfromDatahub();
     void setMainWindowTitle(QString title) { setWindowTitle(title); };
 
-
     ~MainWindow();
     
 private:
@@ -107,6 +106,11 @@ private slots:
 //    void XMLfileDownloaded();
     void slotMainWindowTitleChanged(QString title) { setWindowTitle(title); }
 
+
+    void on_actionFonts_plus_triggered();
+    void on_actionFonts_min_triggered();
+
+    void on_actionDark_mode_triggered(bool checked);
 
 public slots:
     void updateStatusBarIndicator(const QString &text);

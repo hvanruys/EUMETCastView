@@ -26,5 +26,7 @@
         <file>icons/server.png</file>
         <file>icons/Globe_256x256.png</file>
         <file>icons/movie.png</file>
+        <file>icons/satellite1.png</file>
+        <file>icons/satellite2.png</file>
     </qresource>
 </RCC>

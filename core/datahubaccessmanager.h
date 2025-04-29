@@ -4,12 +4,8 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <qnetworkrequest.h>
-#include "qtxmlglobal.h"
-#include "qdom.h"
-#include "qxml.h"
-#include "qtxmlversion.h"
+#include <QtXml>
 #include "productlist.h"
-
 
 enum eDatahub {
     HUBESA = 0,

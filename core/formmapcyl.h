@@ -59,7 +59,6 @@ private:
     int copy_data(struct archive *ar, struct archive *aw);
 
 
-
 private slots:
 
     void toggleButton(eSegmentType segtype);

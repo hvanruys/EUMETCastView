@@ -69,6 +69,12 @@ void Equirectangular::map_inverse(int map_x, int map_y, float &lon_deg, float &l
     lat_deg = lat_array[map_y];
 }
 
+void Equirectangular::map_inverse_rad(int map_x, int map_y, float &lon_rad, float &lat_rad)
+{
+    lon_rad = lon_array[map_x] * RADS_PER_DEG;
+    lat_rad = lat_array[map_y] * RADS_PER_DEG;
+}
+
 void Equirectangular::initializeProjectionCoord()
 {
     projectionCoordX.reset(new int[imagewidth * imageheight]);

@@ -81,6 +81,7 @@ private:
     void saveOverlayColorsToOptions();
     void saveSpectrumToOptions();
     void writeTolistwidget(QString txt);
+    void listWidgets();
 
     Ui::FormMovie *ui;
     FormToolbox *formtoolbox;

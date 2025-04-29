@@ -7,6 +7,7 @@
 #include <qstringlist.h>
 #include <QColor>
 #include <QRect>
+#include <QVector>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -94,8 +95,14 @@ public:
     void checkStringListValues();
 	void Save();
     void SaveGeoIni();
+    void SaveGeoIniCopy();
     void CreateGeoSatelliteIni();
+    int GetGeoIndex(QString shortname);
+    int GetGeoIndexFromFullName(QString fullname);
+    void CreateGeoSatelliteIni_copy();
     void CreateGeoSatelliteJson();
+    void globalChangeFonts(QWidget *toplevel, int fontsize);
+    void setDarkMode(bool mode);
 
 
 /* Calendar date and time (UTC) */
@@ -294,7 +301,7 @@ public:
     bool downloadxmlslstr;
     bool xmllogging;
     bool bellipsoid; // for OM projection
-    QList<GeoSatellites> geosatellites;
+    QVector<GeoSatellites> geosatellites;
     QString appdir_env;
 
     //  Video form
@@ -356,6 +363,10 @@ public:
     QStringList ffmpeg_options;
 
     bool bFciDecomp;
+    QStringList tabgeosort;
+
+    int fontsize;
+    bool darkmode;
 
 
 private:

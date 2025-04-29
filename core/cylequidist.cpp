@@ -226,7 +226,7 @@ CylEquiDist::DrawGridsRes(QPixmap *pm)
     else
       mx = 9;
 
-    line1.sprintf( "%d", intd  );
+    line1.asprintf( "%d", intd  );
     painter.drawText( i*totx/12-mx, 15,line1 );
     painter.drawText( i*totx/12-mx, toty-5,line1 );
   }

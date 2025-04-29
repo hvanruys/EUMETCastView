@@ -133,7 +133,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
     int UWCAdiff = 0;
     int UNLAdiff = 0;
 
-    if(reader->satname == "MET_11" || reader->satname == "MET_10" || reader->satname == "MET_9" || reader->satname == "MET_8")
+    if(reader->satname == "MET_11" || reader->satname == "MET_10" || reader->satname == "MET_9")
     {
         LECAdiff = 11136 - leca;
         LSLAdiff = 11136 - lsla;
@@ -173,7 +173,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
         {
             if (this->map_inverse(i, j, lon_rad, lat_rad))
             {
-                if(reader->satname == "MET_11" || reader->satname == "MET_10" || reader->satname == "MET_9" || reader->satname == "MET_8")
+                if(reader->satname == "MET_11" || reader->satname == "MET_10" || reader->satname == "MET_9")
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, coff, loff, cfac, lfac, &col, &row) == 0)
                     {

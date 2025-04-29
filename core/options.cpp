@@ -1,9 +1,11 @@
 #include "options.h"
 
+#include <qapplication.h>
 #include <qsettings.h>
 #include <QDebug>
 #include <QFile>
 #include <QProcessEnvironment>
+#include <QWidget>
 
 Options::Options() 
 {
@@ -266,11 +268,14 @@ void Options::Initialize()
     mainwindowgeometry = settings.value("/window/mainwindowgeometry").toByteArray();
     mainwindowstate = settings.value("/window/mainwindowstate").toByteArray();
     toolboxwidth = settings.value("/window/toolboxwidth", 500).toInt();
+    fontsize = settings.value("/window/fontsize", 18).toInt();
+    darkmode = settings.value("/window/darkmode", false).toBool();
 
-    bellipsoid = true; // elipsoid or spherical Oblique Mercator
 
-//    CreateGeoSatelliteIni();
-//    CreateGeoSatelliteJson();
+    bellipsoid = true; // ellipsoid or spherical Oblique Mercator
+
+    //    CreateGeoSatelliteIni();
+    //    CreateGeoSatelliteJson();
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     if(env.contains("APPDIR"))
@@ -315,8 +320,8 @@ void Options::Initialize()
     videocfachrv = settings.value("/video/cfachrv", 2344944937.0).toDouble();
     videolfachrv = settings.value("/video/lfachrv", 2344944937.0).toDouble();
     videosatlon = settings.value("/video/satlon", 9.5).toDouble();
-//    videohomelon = settings.value("/video/homelon", obslon).toDouble();
-//    videohomelat = settings.value("/video/homelat", obslat).toDouble();
+    //    videohomelon = settings.value("/video/homelon", obslon).toDouble();
+    //    videohomelat = settings.value("/video/homelat", obslat).toDouble();
     videooverlaycolor1 = settings.value("/video/overlaycolor1", "#afaf47").value<QString>();
     videooverlaycolor2 = settings.value("/video/overlaycolor2", "#898969").value<QString>();
     videooverlaycolor3 = settings.value("/video/overlaycolor3", "#54686d").value<QString>();
@@ -342,16 +347,28 @@ void Options::Initialize()
 
     bFciDecomp = false;
 
-    //CreateGeoSatelliteIni();
 
-   QFile file("GeoSatellites.ini");
-   if (!file.open(QIODevice::ReadOnly))
-   {
-       CreateGeoSatelliteIni();
-   }
-   else
-       InitializeGeo();
-   file.close();
+    if(settings.contains("/satellite/tabgeosort"))
+    {
+        tabgeosort = settings.value("/satellite/tabgeosort").value<QStringList>();
+    }
+
+    CreateGeoSatelliteIni();
+
+    QFile file("GeoSatellites.ini");
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        CreateGeoSatelliteIni();
+        for(int i = 0; i < geosatellites.count(); i++)
+        {
+            tabgeosort.append(geosatellites.at(i).fullname);
+        }
+     }
+    else
+        InitializeGeo();
+    file.close();
+
+
 
     doLogging = settings.value("/debugging/dologging", false).toBool();
 
@@ -373,12 +390,12 @@ void Options::checkStringListValues()
     if(stationlistname.count() == 0)
     {
         stationlistname << "McMurdo Station" << "Maspalomas" << "Svalbard" << "Edmonton" << "Gander" << "Gilmore Creek" <<
-                           "Monterey" << "Kangerlussuaq" << "Lannion" << "Saint-Denis (La Reunion)" <<
-                           "Moscow" << "Muscat" << "Tromso" << "Ewa Beach" << "Miami" << "Pine Island Glacier" << "Athens";
+            "Monterey" << "Kangerlussuaq" << "Lannion" << "Saint-Denis (La Reunion)" <<
+            "Moscow" << "Muscat" << "Tromso" << "Ewa Beach" << "Miami" << "Pine Island Glacier" << "Athens";
         stationlistlon << "166.666" << "-15.63" << "15.23" << "-113.5" << "-54.57" << "-147.40" << "-121.55" << "-50.67" <<
-                          "-3.5" << "55.50" << "37.569" << "58.29" << "18.933" << "-158.07" << "-80.16" << "-100.0" << "23.769";
+            "-3.5" << "55.50" << "37.569" << "58.29" << "18.933" << "-158.07" << "-80.16" << "-100.0" << "23.769";
         stationlistlat << "-77.85" << "27.78" << "78.13" << "53.33" << "48.95" << "64.97" << "36.35" << "66.98" << "48.75" <<
-                          "-20.91" << "55.759" << "23.59" << "69.65" << "21.33" << "25.74" << "-75.166667" << "37.815";
+            "-20.91" << "55.759" << "23.59" << "69.65" << "21.33" << "25.74" << "-75.166667" << "37.815";
     }
 
 
@@ -388,11 +405,11 @@ void Options::checkStringListValues()
         tlesources << "http://celestrak.org/NORAD/elements/resource.txt";
     }
 
-//    if(ffmpeg_options.count() == 0)
-//    {
-//        ffmpeg_options << "-framerate 5" << "-i INPUTFILES" << "-vf minterpolate=fps=60:mi_mode=blend";
-//        ffmpeg_options << "-c:v libx264" << "-pix_fmt yuv420p" << "-y OUPUTFILE";
-//    }
+    //    if(ffmpeg_options.count() == 0)
+    //    {
+    //        ffmpeg_options << "-framerate 5" << "-i INPUTFILES" << "-vf minterpolate=fps=60:mi_mode=blend";
+    //        ffmpeg_options << "-c:v libx264" << "-pix_fmt yuv420p" << "-y OUPUTFILE";
+    //    }
 
 
 
@@ -441,6 +458,9 @@ void Options::Save()
     settings.setValue("/satellite/segmentdirectories", segmentdirectorylist );
     settings.setValue("/satellite/segmentdirectoriesinc", segmentdirectorylistinc );
     settings.setValue("/satellite/minutesshown", realminutesshown );
+    settings.setValue("/satellite/tabgeosort", tabgeosort );
+
+
     settings.setValue("/segments/nbrofvisiblesegments", nbrofvisiblesegments);
     settings.setValue("/segments/nbrofhours", nbrofhours);
     settings.setValue( "/window/buttonmetop", buttonMetop );
@@ -633,6 +653,8 @@ void Options::Save()
     settings.setValue("/window/mainwindowgeometry", mainwindowgeometry);
     settings.setValue("/window/mainwindowstate", mainwindowstate);
     settings.setValue("/window/toolboxwidth", toolboxwidth);
+    settings.setValue("/window/fontsize", fontsize);
+    settings.setValue("/window/darkmode", darkmode);
 
     settings.setValue("/video/threadcount", threadcount);
     settings.setValue("/video/pathlist", pathlist);
@@ -671,8 +693,8 @@ void Options::Save()
     settings.setValue("/video/cfachrv", videocfachrv);
     settings.setValue("/video/lfachrv", videolfachrv);
     settings.setValue("/video/satlon", videosatlon);
-//    settings.setValue("/video/homelon", videohomelon);
-//    settings.setValue("/video/homelat", videohomelat);
+    //    settings.setValue("/video/homelon", videohomelon);
+    //    settings.setValue("/video/homelat", videohomelat);
     settings.setValue("/video/overlaycolor1", videooverlaycolor1);
     settings.setValue("/video/overlaycolor2", videooverlaycolor2);
     settings.setValue("/video/overlaycolor3", videooverlaycolor3);
@@ -702,7 +724,19 @@ void Options::InitializeGeo()
 
     QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
     //    obslon = settings.value("/observer/longitude", 0.0 ).toDouble();
+
+    QVector<GeoSatellites> copy_geosatellites;
+    copy_geosatellites.clear();
+    geosatellites.clear();
+
     int size = settingsgeo.beginReadArray("geos");
+
+    // for (int i = 0; i < size; ++i)
+    // {
+    //     GeoSatellites geo;
+    //     geosatellites.append(geo);
+    // }
+
     for (int i = 0; i < size; ++i)
     {
         settingsgeo.setArrayIndex(i);
@@ -715,7 +749,7 @@ void Options::InitializeGeo()
         geo.protocol = settingsgeo.value("protocol").toString();
         geo.rss = settingsgeo.value("rss").toBool();
 
-        if(i < 4) // only Meteosat-11,-10,-9,-8
+        if(geo.shortname == "MET_11" || geo.shortname == "MET_10" || geo.shortname == "MET_9") // only Meteosat-11,-10,-9,-8
         {
             if(geo.rss)
             {
@@ -784,9 +818,34 @@ void Options::InitializeGeo()
         geo.cfachrv = settingsgeo.value("cfachrv").toDouble();
         geo.lfachrv = settingsgeo.value("lfachrv").toDouble();
 
-        geosatellites.append(geo);
+        copy_geosatellites.append(geo);
     }
     settingsgeo.endArray();
+
+
+    if(tabgeosort.count() != copy_geosatellites.count())
+        tabgeosort.clear();
+
+    if(this->tabgeosort.count() == 0)
+    {
+        for(int i = 0; i < copy_geosatellites.count(); i++)
+        {
+            tabgeosort.append(copy_geosatellites.at(i).fullname);
+        }
+    }
+
+
+    for(int i = 0; i < tabgeosort.count(); i++)
+    {
+        for(int j = 0; j < copy_geosatellites.size() + 1; j++)
+        {
+            if(copy_geosatellites.at(j).fullname == tabgeosort.at(i))
+            {
+                geosatellites.append(copy_geosatellites.at(j));
+                break;
+            }
+        }
+    }
 
 }
 
@@ -854,10 +913,105 @@ void Options::SaveGeoIni()
         settingsgeo.setValue("lfachrv", geosatellites.at(i).lfachrv);
 
     }
+
+    settingsgeo.endArray();
+
+}
+
+void Options::SaveGeoIniCopy()
+{
+    qDebug() << "Options::SaveGeoIni()";
+    QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
+
+
+
+    settingsgeo.beginWriteArray("geos");
+
+    for(int i = 0; i < this->geosatellites.count(); i++)
+    {
+        settingsgeo.setArrayIndex(i);
+        settingsgeo.setValue("fullname", geosatellites.at(i).fullname);
+        settingsgeo.setValue("shortname", geosatellites.at(i).shortname);
+        settingsgeo.setValue("longitude", geosatellites.at(i).longitude);
+        settingsgeo.setValue("longitudelimit1", geosatellites.at(i).longitudelimit1);
+        settingsgeo.setValue("longitudelimit2", geosatellites.at(i).longitudelimit2);
+        settingsgeo.setValue("protocol", geosatellites.at(i).protocol);
+        settingsgeo.setValue("rss", geosatellites.at(i).rss);
+        settingsgeo.setValue("searchstring", geosatellites.at(i).searchstring);
+        settingsgeo.setValue("indexsearchstring", geosatellites.at(i).indexsearchstring);
+        settingsgeo.setValue("filepattern", geosatellites.at(i).filepattern);
+        settingsgeo.setValue("imagewidth", geosatellites.at(i).imagewidth);
+        settingsgeo.setValue("imageheight", geosatellites.at(i).imageheight);
+        settingsgeo.setValue("imagewidthhrv0", geosatellites.at(i).imagewidthhrv0);
+        settingsgeo.setValue("imageheighthrv0", geosatellites.at(i).imageheighthrv0);
+        settingsgeo.setValue("imagewidthhrv1", geosatellites.at(i).imagewidthhrv1);
+        settingsgeo.setValue("imageheighthrv1", geosatellites.at(i).imageheighthrv1);
+        settingsgeo.setValue("spectrumlist", geosatellites.at(i).spectrumlist);
+        settingsgeo.setValue("spectrumvalueslist", geosatellites.at(i).spectrumvalueslist);
+        settingsgeo.setValue("indexspectrum", geosatellites.at(i).indexspectrum);
+        settingsgeo.setValue("indexfilenbr", geosatellites.at(i).indexfilenbr);
+        settingsgeo.setValue("lengthfilenbr", geosatellites.at(i).lengthfilenbr);
+        settingsgeo.setValue("indexdate", geosatellites.at(i).indexdate);
+        settingsgeo.setValue("lengthdate", geosatellites.at(i).lengthdate);
+        settingsgeo.setValue("spectrumhrv", geosatellites.at(i).spectrumhrv);
+        settingsgeo.setValue("spectrumvaluehrv", geosatellites.at(i).spectrumvaluehrv);
+        settingsgeo.setValue("indexspectrumhrv", geosatellites.at(i).indexspectrumhrv);
+        settingsgeo.setValue("indexfilenbrhrv", geosatellites.at(i).indexfilenbrhrv);
+        settingsgeo.setValue("lengthfilenbrhrv", geosatellites.at(i).lengthfilenbrhrv);
+        settingsgeo.setValue("indexdatehrv", geosatellites.at(i).indexdatehrv);
+        settingsgeo.setValue("lengthdatehrv", geosatellites.at(i).lengthdatehrv);
+
+        settingsgeo.setValue("color", geosatellites.at(i).color);
+        settingsgeo.setValue("colorhrv", geosatellites.at(i).colorhrv);
+        settingsgeo.setValue("maxsegments", geosatellites.at(i).maxsegments);
+        settingsgeo.setValue("maxsegmentshrv", geosatellites.at(i).maxsegmentshrv);
+        settingsgeo.setValue("segmentlength", geosatellites.at(i).segmentlength);
+        settingsgeo.setValue("segmentlengthhrv", geosatellites.at(i).segmentlengthhrv);
+        settingsgeo.setValue("startsegmenttype0", geosatellites.at(i).startsegmentnbrtype0);
+        settingsgeo.setValue("startsegmenthrvtype0", geosatellites.at(i).startsegmentnbrhrvtype0);
+        settingsgeo.setValue("startsegmenttype1", geosatellites.at(i).startsegmentnbrtype1);
+        settingsgeo.setValue("startsegmenthrvtype1", geosatellites.at(i).startsegmentnbrhrvtype1);
+        settingsgeo.setValue("clahecontextregionx", geosatellites.at(i).clahecontextregionx);
+        settingsgeo.setValue("clahecontextregiony", geosatellites.at(i).clahecontextregiony);
+
+        settingsgeo.setValue("prologfile", geosatellites.at(i).prologfile);
+        settingsgeo.setValue("epilogfile", geosatellites.at(i).epilogfile);
+        settingsgeo.setValue("coff", geosatellites.at(i).coff);
+        settingsgeo.setValue("loff", geosatellites.at(i).loff);
+        settingsgeo.setValue("cfac", geosatellites.at(i).cfac);
+        settingsgeo.setValue("lfac", geosatellites.at(i).lfac);
+        settingsgeo.setValue("coffhrv", geosatellites.at(i).coffhrv);
+        settingsgeo.setValue("loffhrv", geosatellites.at(i).loffhrv);
+        settingsgeo.setValue("cfachrv", geosatellites.at(i).cfachrv);
+        settingsgeo.setValue("lfachrv", geosatellites.at(i).lfachrv);
+
+    }
     settingsgeo.endArray();
 }
 
-void Options::CreateGeoSatelliteIni()
+int Options::GetGeoIndex(QString shortname)
+{
+    for(int i = 0; i < geosatellites.size() + 1; i++)
+    {
+        if(geosatellites.at(i).shortname == shortname)
+            return i;
+    }
+
+    return 99;
+}
+
+int Options::GetGeoIndexFromFullName(QString fullname)
+{
+    for(int i = 0; i < geosatellites.size() + 1; i++)
+    {
+        if(geosatellites.at(i).fullname == fullname)
+            return i;
+    }
+
+    return 99;
+}
+
+void Options::CreateGeoSatelliteIni_copy()
 {
 
     QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
@@ -869,16 +1023,16 @@ void Options::CreateGeoSatelliteIni()
     //Data Channel 2
     geosatellites[0].fullname = "Meteosat-11";
     geosatellites[0].shortname = "MET_11";
-    geosatellites[0].longitude = 0.0;
+    geosatellites[0].longitude = 9.5;
     geosatellites[0].longitudelimit1 = -75.0;
     geosatellites[0].longitudelimit2 = +75.0;
     geosatellites[0].protocol = "XRIT";
-    geosatellites[0].rss = false;
+    geosatellites[0].rss = true;
     geosatellites[0].searchstring = "H-000-MSG4__-MSG4";
     geosatellites[0].indexsearchstring = 0;
     geosatellites[0].filepattern = "H-000-MSG4??-?????????___-?????????-0?????___-%1-C_";
     geosatellites[0].imagewidth = 3712;
-    geosatellites[0].imageheight = 3712;
+    geosatellites[0].imageheight = 1392;
     geosatellites[0].imagewidthhrv0 = 5568;
     geosatellites[0].imageheighthrv0 = 2320;
     geosatellites[0].imagewidthhrv1 = 5568;
@@ -900,8 +1054,8 @@ void Options::CreateGeoSatelliteIni()
 
     geosatellites[0].color = true;
     geosatellites[0].colorhrv = true;
-    geosatellites[0].maxsegments = 8;
-    geosatellites[0].maxsegmentshrv = 24;
+    geosatellites[0].maxsegments = 3;
+    geosatellites[0].maxsegmentshrv = 9;
     geosatellites[0].segmentlength = 464;
     geosatellites[0].segmentlengthhrv = 464;
     geosatellites[0].startsegmentnbrtype0 = 5;
@@ -915,16 +1069,16 @@ void Options::CreateGeoSatelliteIni()
     //Data Channel 5
     geosatellites[1].fullname = "Meteosat-10";
     geosatellites[1].shortname = "MET_10";
-    geosatellites[1].longitude = 9.5;
+    geosatellites[1].longitude = 0.0;
     geosatellites[1].longitudelimit1 = -30.0;
     geosatellites[1].longitudelimit2 = 20.0;
     geosatellites[1].protocol = "XRIT";
-    geosatellites[1].rss = true;
+    geosatellites[1].rss = false;
     geosatellites[1].searchstring = "H-000-MSG3__-MSG3";
     geosatellites[1].indexsearchstring = 0;
     geosatellites[1].filepattern = "H-000-MSG3??-????????????-?????????-0?????___-%1-C_";
     geosatellites[1].imagewidth = 3712;
-    geosatellites[1].imageheight = 1392;
+    geosatellites[1].imageheight = 3712;
     geosatellites[1].imagewidthhrv0 = 5568;
     geosatellites[1].imageheighthrv0 = 2320;
     geosatellites[1].imagewidthhrv1 = 5568;
@@ -946,8 +1100,8 @@ void Options::CreateGeoSatelliteIni()
 
     geosatellites[1].color = true;
     geosatellites[1].colorhrv = true;
-    geosatellites[1].maxsegments = 3;
-    geosatellites[1].maxsegmentshrv = 9;
+    geosatellites[1].maxsegments = 8;
+    geosatellites[1].maxsegmentshrv = 24;
     geosatellites[1].segmentlength = 464;
     geosatellites[1].segmentlengthhrv = 464;
     geosatellites[1].startsegmentnbrtype0 = 5;
@@ -1307,14 +1461,14 @@ void Options::CreateGeoSatelliteIni()
     //    geosatellites[7].spectrumvalueslist << "VIS 0.7" << "IR 3.9" << "IR 6.6" << "IR 10.7";
 
     //
-    geosatellites[7].fullname = "GOES 16";
-    geosatellites[7].shortname = "GOES_16";
+    geosatellites[7].fullname = "GOES 19";
+    geosatellites[7].shortname = "GOES_19";
     geosatellites[7].longitude = -75.0;
     geosatellites[7].longitudelimit1 = 0;
     geosatellites[7].longitudelimit2 = 0;
     geosatellites[7].protocol = "netCDF";
     geosatellites[7].rss = false;
-    geosatellites[7].searchstring = "_G16_";
+    geosatellites[7].searchstring = "_G19_";
     geosatellites[7].indexsearchstring = 21;
     geosatellites[7].filepattern =  "";
 
@@ -1373,14 +1527,79 @@ void Options::CreateGeoSatelliteIni()
 
 
     //
-    geosatellites[8].fullname = "GOES 17";
-    geosatellites[8].shortname = "GOES_17";
+    // geosatellites[8].fullname = "GOES 17";
+    // geosatellites[8].shortname = "GOES_17";
+    // geosatellites[8].longitude = -137.0;
+    // geosatellites[8].longitudelimit1 = 0;
+    // geosatellites[8].longitudelimit2 = 0;
+    // geosatellites[8].protocol = "netCDF";
+    // geosatellites[8].rss = false;
+    // geosatellites[8].searchstring = "_G17_";
+    // geosatellites[8].indexsearchstring = 21;
+    // geosatellites[8].filepattern =  "";
+
+    // geosatellites[8].imagewidth = 5424;
+    // geosatellites[8].imageheight = 5424;
+    // geosatellites[8].imagewidthhrv0 = 0;
+    // geosatellites[8].imageheighthrv0 = 0;
+    // geosatellites[8].imagewidthhrv1 = 0;
+    // geosatellites[8].imageheighthrv1 = 0;
+
+    // //0123456789012345678901234567890123456789012345678901234567890123456789012
+    // //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+
+    // geosatellites[8].indexspectrum = 18;
+    // geosatellites[8].indexfilenbr = 0;
+    // geosatellites[8].lengthfilenbr = 0;
+    // geosatellites[8].indexdate = 27;
+    // geosatellites[8].lengthdate = 11; //YYYYDDDHHmm
+
+    // geosatellites[8].spectrumhrv = "";
+    // geosatellites[8].spectrumvaluehrv = "";
+    // geosatellites[8].indexspectrumhrv = 0;
+    // geosatellites[8].indexfilenbrhrv = 0;
+    // geosatellites[8].lengthfilenbrhrv = 0;
+    // geosatellites[8].indexdatehrv = 0;
+    // geosatellites[8].lengthdatehrv = 0;
+
+    // geosatellites[8].color = true;
+    // geosatellites[8].colorhrv = false;
+    // geosatellites[8].maxsegments = 1;
+    // geosatellites[8].maxsegmentshrv = 0;
+    // geosatellites[8].segmentlength = 5424;
+    // geosatellites[8].segmentlengthhrv = 0;
+    // geosatellites[8].startsegmentnbrtype0 = 1;
+    // geosatellites[8].startsegmentnbrhrvtype0 = 1;
+    // geosatellites[8].startsegmentnbrtype1 = 1;
+    // geosatellites[8].startsegmentnbrhrvtype1 = 1;
+    // geosatellites[8].clahecontextregionx = 16;
+    // geosatellites[8].clahecontextregiony = 16;
+
+    // geosatellites[8].prologfile = false;
+    // geosatellites[8].epilogfile = false;
+    // geosatellites[8].coff = 2712;
+    // geosatellites[8].loff = 2712;
+    // geosatellites[8].cfac = 1170000000.;
+    // geosatellites[8].lfac = 1170000000.;
+    // geosatellites[8].coffhrv = 0;
+    // geosatellites[8].loffhrv = 0;
+    // geosatellites[8].cfachrv = 0.;
+    // geosatellites[8].lfachrv = 0.;
+
+
+    // geosatellites[8].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
+    // geosatellites[8].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
+    //                                     << "12.3" << "13.3";
+
+    //
+    geosatellites[8].fullname = "GOES 18";
+    geosatellites[8].shortname = "GOES_18";
     geosatellites[8].longitude = -137.0;
     geosatellites[8].longitudelimit1 = 0;
     geosatellites[8].longitudelimit2 = 0;
     geosatellites[8].protocol = "netCDF";
     geosatellites[8].rss = false;
-    geosatellites[8].searchstring = "_G17_";
+    geosatellites[8].searchstring = "_G18_";
     geosatellites[8].indexsearchstring = 21;
     geosatellites[8].filepattern =  "";
 
@@ -1435,71 +1654,6 @@ void Options::CreateGeoSatelliteIni()
 
     geosatellites[8].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
     geosatellites[8].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
-                                        << "12.3" << "13.3";
-
-    //
-    geosatellites[9].fullname = "GOES 18";
-    geosatellites[9].shortname = "GOES_18";
-    geosatellites[9].longitude = -137.0;
-    geosatellites[9].longitudelimit1 = 0;
-    geosatellites[9].longitudelimit2 = 0;
-    geosatellites[9].protocol = "netCDF";
-    geosatellites[9].rss = false;
-    geosatellites[9].searchstring = "_G18_";
-    geosatellites[9].indexsearchstring = 21;
-    geosatellites[9].filepattern =  "";
-
-    geosatellites[9].imagewidth = 5424;
-    geosatellites[9].imageheight = 5424;
-    geosatellites[9].imagewidthhrv0 = 0;
-    geosatellites[9].imageheighthrv0 = 0;
-    geosatellites[9].imagewidthhrv1 = 0;
-    geosatellites[9].imageheighthrv1 = 0;
-
-    //0123456789012345678901234567890123456789012345678901234567890123456789012
-    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
-
-    geosatellites[9].indexspectrum = 18;
-    geosatellites[9].indexfilenbr = 0;
-    geosatellites[9].lengthfilenbr = 0;
-    geosatellites[9].indexdate = 27;
-    geosatellites[9].lengthdate = 11; //YYYYDDDHHmm
-
-    geosatellites[9].spectrumhrv = "";
-    geosatellites[9].spectrumvaluehrv = "";
-    geosatellites[9].indexspectrumhrv = 0;
-    geosatellites[9].indexfilenbrhrv = 0;
-    geosatellites[9].lengthfilenbrhrv = 0;
-    geosatellites[9].indexdatehrv = 0;
-    geosatellites[9].lengthdatehrv = 0;
-
-    geosatellites[9].color = true;
-    geosatellites[9].colorhrv = false;
-    geosatellites[9].maxsegments = 1;
-    geosatellites[9].maxsegmentshrv = 0;
-    geosatellites[9].segmentlength = 5424;
-    geosatellites[9].segmentlengthhrv = 0;
-    geosatellites[9].startsegmentnbrtype0 = 1;
-    geosatellites[9].startsegmentnbrhrvtype0 = 1;
-    geosatellites[9].startsegmentnbrtype1 = 1;
-    geosatellites[9].startsegmentnbrhrvtype1 = 1;
-    geosatellites[9].clahecontextregionx = 16;
-    geosatellites[9].clahecontextregiony = 16;
-
-    geosatellites[9].prologfile = false;
-    geosatellites[9].epilogfile = false;
-    geosatellites[9].coff = 2712;
-    geosatellites[9].loff = 2712;
-    geosatellites[9].cfac = 1170000000.;
-    geosatellites[9].lfac = 1170000000.;
-    geosatellites[9].coffhrv = 0;
-    geosatellites[9].loffhrv = 0;
-    geosatellites[9].cfachrv = 0.;
-    geosatellites[9].lfachrv = 0.;
-
-
-    geosatellites[9].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
-    geosatellites[9].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
                                         << "12.3" << "13.3";
 
     //E1B-TPG-1 E1H-TPG-2
@@ -1636,6 +1790,847 @@ void Options::CreateGeoSatelliteIni()
                                    << "ir_38" << "wv_63" << "wv_73" << "ir_87" << "ir_97" << "ir_105" << "ir_123" << "ir_133";
     geosatellites[11].spectrumvalueslist << "0.44" << "0.51" << "0.64" << "0.86" << "0.91" << "1.38" << "1.61" << "2.25"
                                          << "3.80" << "6.30" << "7.35" << "8.70" << "9.66" << "10.5" << "12.3" << "13.3";
+
+    settingsgeo.beginWriteArray("geos");
+    for (int i = 0; i < this->geosatellites.size(); ++i) {
+        settingsgeo.setArrayIndex(i);
+        settingsgeo.setValue("fullname", geosatellites.at(i).fullname);
+        settingsgeo.setValue("shortname", geosatellites.at(i).shortname);
+        settingsgeo.setValue("longitude", geosatellites.at(i).longitude);
+        settingsgeo.setValue("longitudelimit1", geosatellites.at(i).longitudelimit1);
+        settingsgeo.setValue("longitudelimit2", geosatellites.at(i).longitudelimit2);
+        settingsgeo.setValue("protocol", geosatellites.at(i).protocol);
+        settingsgeo.setValue("rss", geosatellites.at(i).rss);
+        settingsgeo.setValue("searchstring", geosatellites.at(i).searchstring);
+        settingsgeo.setValue("indexsearchstring", geosatellites.at(i).indexsearchstring);
+        settingsgeo.setValue("filepattern", geosatellites.at(i).filepattern);
+        settingsgeo.setValue("imagewidth", geosatellites.at(i).imagewidth);
+        settingsgeo.setValue("imageheight", geosatellites.at(i).imageheight);
+        settingsgeo.setValue("imagewidthhrv0", geosatellites.at(i).imagewidthhrv0);
+        settingsgeo.setValue("imageheighthrv0", geosatellites.at(i).imageheighthrv0);
+        settingsgeo.setValue("imagewidthhrv1", geosatellites.at(i).imagewidthhrv1);
+        settingsgeo.setValue("imageheighthrv1", geosatellites.at(i).imageheighthrv1);
+        settingsgeo.setValue("spectrumlist", geosatellites.at(i).spectrumlist);
+        settingsgeo.setValue("spectrumvalueslist", geosatellites.at(i).spectrumvalueslist);
+        settingsgeo.setValue("indexspectrum", geosatellites.at(i).indexspectrum);
+        settingsgeo.setValue("indexfilenbr", geosatellites.at(i).indexfilenbr);
+        settingsgeo.setValue("lengthfilenbr", geosatellites.at(i).lengthfilenbr);
+        settingsgeo.setValue("indexdate", geosatellites.at(i).indexdate);
+        settingsgeo.setValue("lengthdate", geosatellites.at(i).lengthdate);
+        settingsgeo.setValue("spectrumhrv", geosatellites.at(i).spectrumhrv);
+        settingsgeo.setValue("spectrumvaluehrv", geosatellites.at(i).spectrumvaluehrv);
+        settingsgeo.setValue("indexspectrumhrv", geosatellites.at(i).indexspectrumhrv);
+        settingsgeo.setValue("indexfilenbrhrv", geosatellites.at(i).indexfilenbrhrv);
+        settingsgeo.setValue("lengthfilenbrhrv", geosatellites.at(i).lengthfilenbrhrv);
+        settingsgeo.setValue("indexdatehrv", geosatellites.at(i).indexdatehrv);
+        settingsgeo.setValue("lengthdatehrv", geosatellites.at(i).lengthdatehrv);
+
+        settingsgeo.setValue("color", geosatellites.at(i).color);
+        settingsgeo.setValue("colorhrv", geosatellites.at(i).colorhrv);
+        settingsgeo.setValue("maxsegments", geosatellites.at(i).maxsegments);
+        settingsgeo.setValue("maxsegmentshrv", geosatellites.at(i).maxsegmentshrv);
+        settingsgeo.setValue("startsegmenttype0", geosatellites.at(i).startsegmentnbrtype0);
+        settingsgeo.setValue("startsegmenthrvtype0", geosatellites.at(i).startsegmentnbrhrvtype0);
+        settingsgeo.setValue("startsegmenttype1", geosatellites.at(i).startsegmentnbrtype1);
+        settingsgeo.setValue("startsegmenthrvtype1", geosatellites.at(i).startsegmentnbrhrvtype1);
+
+        settingsgeo.setValue("prologfile", geosatellites.at(i).prologfile);
+        settingsgeo.setValue("epilogfile", geosatellites.at(i).epilogfile);
+        settingsgeo.setValue("coff", geosatellites.at(i).coff);
+        settingsgeo.setValue("loff", geosatellites.at(i).loff);
+        settingsgeo.setValue("cfac", geosatellites.at(i).cfac);
+        settingsgeo.setValue("lfac", geosatellites.at(i).lfac);
+        settingsgeo.setValue("coffhrv", geosatellites.at(i).coffhrv);
+        settingsgeo.setValue("loffhrv", geosatellites.at(i).loffhrv);
+        settingsgeo.setValue("cfachrv", geosatellites.at(i).cfachrv);
+        settingsgeo.setValue("lfachrv", geosatellites.at(i).lfachrv);
+
+    }
+    settingsgeo.endArray();
+}
+
+void Options::CreateGeoSatelliteIni()
+{
+
+    QSettings settingsgeo( "GeoSatellites.ini", QSettings::IniFormat);
+
+    GeoSatellites sat;
+    for(int i = 0; i < 10; i++)
+    {
+        geosatellites.append(sat);
+    }
+    //MTG-I1
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
+
+    geosatellites[0].fullname = "Meteosat Third Gen";
+    geosatellites[0].shortname = "MTG-I1";
+    geosatellites[0].longitude = 0.0;
+    geosatellites[0].longitudelimit1 = 92.0;
+    geosatellites[0].longitudelimit2 = 250.0;
+    geosatellites[0].protocol = "netCDF";
+    geosatellites[0].rss = false;
+    geosatellites[0].searchstring = "W_XX";
+    geosatellites[0].indexsearchstring = 0;
+    geosatellites[0].filepattern = "W_XX-EUMETSAT*";
+    geosatellites[0].imagewidth = 5568;
+    geosatellites[0].imageheight = 5568;
+    geosatellites[0].imagewidthhrv0 = 11136;
+    geosatellites[0].imageheighthrv0 = 11136;
+    geosatellites[0].imagewidthhrv1 = 22272;
+    geosatellites[0].imageheighthrv1 = 22272;
+
+    geosatellites[0].indexspectrum = 0;
+    geosatellites[0].indexfilenbr = 0;
+    geosatellites[0].lengthfilenbr = 0;
+    geosatellites[0].indexdate = 0;
+    geosatellites[0].lengthdate = 0;
+
+    geosatellites[0].spectrumhrv = "";
+    geosatellites[0].spectrumvaluehrv = "";
+    geosatellites[0].indexspectrumhrv = 0;
+    geosatellites[0].indexfilenbrhrv = 0;
+    geosatellites[0].lengthfilenbrhrv = 0;
+    geosatellites[0].indexdatehrv = 0;
+    geosatellites[0].lengthdatehrv = 0;
+
+    geosatellites[0].color = true;
+    geosatellites[0].colorhrv = false;
+    geosatellites[0].maxsegments = 41;
+    geosatellites[0].maxsegmentshrv = 0;
+    geosatellites[0].segmentlength = 550;
+    geosatellites[0].segmentlengthhrv = 0;
+    geosatellites[0].startsegmentnbrtype0 = 1;
+    geosatellites[0].startsegmentnbrhrvtype0 = 1;
+    geosatellites[0].startsegmentnbrtype1 = 1;
+    geosatellites[0].startsegmentnbrhrvtype1 = 1;
+    geosatellites[0].clahecontextregionx = 10;
+    geosatellites[0].clahecontextregiony = 10;
+
+    geosatellites[0].prologfile = false;
+    geosatellites[0].epilogfile = false;
+    geosatellites[0].coff = 2784;
+    geosatellites[0].loff = 2784;
+    geosatellites[0].cfac = 1172050000.;
+    geosatellites[0].lfac = 1172050000.;
+    geosatellites[0].coffhrv = 5568;
+    geosatellites[0].loffhrv = 5568;
+    geosatellites[0].cfachrv = 1172050000. * 2;
+    geosatellites[0].lfachrv = 1172050000. * 2;
+
+
+    geosatellites[0].spectrumlist << "vis_04" << "vis_05" << "vis_06" << "vis_08" << "vis_09" << "nir_13" << "nir_16" << "nir_22"
+                                  << "ir_38" << "wv_63" << "wv_73" << "ir_87" << "ir_97" << "ir_105" << "ir_123" << "ir_133";
+    geosatellites[0].spectrumvalueslist << "0.44" << "0.51" << "0.64" << "0.86" << "0.91" << "1.38" << "1.61" << "2.25"
+                                        << "3.80" << "6.30" << "7.35" << "8.70" << "9.66" << "10.5" << "12.3" << "13.3";
+
+    //E1B-GEO-5
+    geosatellites[1].fullname = "Meteosat-11";
+    geosatellites[1].shortname = "MET_11";
+    geosatellites[1].longitude = 9.5;
+    geosatellites[1].longitudelimit1 = -75.0;
+    geosatellites[1].longitudelimit2 = +75.0;
+    geosatellites[1].protocol = "XRIT";
+    geosatellites[1].rss = true;
+    geosatellites[1].searchstring = "H-000-MSG4__-MSG4";
+    geosatellites[1].indexsearchstring = 0;
+    geosatellites[1].filepattern = "H-000-MSG4??-?????????___-?????????-0?????___-%1-C_";
+    geosatellites[1].imagewidth = 3712;
+    geosatellites[1].imageheight = 1392;
+    geosatellites[1].imagewidthhrv0 = 5568;
+    geosatellites[1].imageheighthrv0 = 2320;
+    geosatellites[1].imagewidthhrv1 = 5568;
+    geosatellites[1].imageheighthrv1 = 11136;
+
+    geosatellites[1].indexspectrum = 26;
+    geosatellites[1].indexfilenbr = 36;
+    geosatellites[1].lengthfilenbr = 6;
+    geosatellites[1].indexdate = 46;
+    geosatellites[1].lengthdate = 12;
+
+    geosatellites[1].spectrumhrv = "HRV";
+    geosatellites[1].spectrumvaluehrv = "HRV";
+    geosatellites[1].indexspectrumhrv = 26;
+    geosatellites[1].indexfilenbrhrv = 36;
+    geosatellites[1].lengthfilenbrhrv = 6;
+    geosatellites[1].indexdatehrv = 46;
+    geosatellites[1].lengthdatehrv = 12;
+
+    geosatellites[1].color = true;
+    geosatellites[1].colorhrv = true;
+    geosatellites[1].maxsegments = 3;
+    geosatellites[1].maxsegmentshrv = 9;
+    geosatellites[1].segmentlength = 464;
+    geosatellites[1].segmentlengthhrv = 464;
+    geosatellites[1].startsegmentnbrtype0 = 5;
+    geosatellites[1].startsegmentnbrhrvtype0 = 19;
+    geosatellites[1].startsegmentnbrtype1 = 1;
+    geosatellites[1].startsegmentnbrhrvtype1 = 1;
+    geosatellites[1].prologfile = true;
+    geosatellites[1].epilogfile = true;
+
+
+    //E1B-GEO-3
+    geosatellites[2].fullname = "Meteosat-10";
+    geosatellites[2].shortname = "MET_10";
+    geosatellites[2].longitude = 0.0;
+    geosatellites[2].longitudelimit1 = -30.0;
+    geosatellites[2].longitudelimit2 = 20.0;
+    geosatellites[2].protocol = "XRIT";
+    geosatellites[2].rss = false;
+    geosatellites[2].searchstring = "H-000-MSG3__-MSG3";
+    geosatellites[2].indexsearchstring = 0;
+    geosatellites[2].filepattern = "H-000-MSG3??-????????????-?????????-0?????___-%1-C_";
+    geosatellites[2].imagewidth = 3712;
+    geosatellites[2].imageheight = 3712;
+    geosatellites[2].imagewidthhrv0 = 5568;
+    geosatellites[2].imageheighthrv0 = 2320;
+    geosatellites[2].imagewidthhrv1 = 5568;
+    geosatellites[2].imageheighthrv1 = 11136;
+
+    geosatellites[2].indexspectrum = 26;
+    geosatellites[2].indexfilenbr = 36;
+    geosatellites[2].lengthfilenbr = 6;
+    geosatellites[2].indexdate = 46;
+    geosatellites[2].lengthdate = 12;
+
+    geosatellites[2].spectrumhrv = "HRV";
+    geosatellites[2].spectrumvaluehrv = "HRV";
+    geosatellites[2].indexspectrumhrv = 26;
+    geosatellites[2].indexfilenbrhrv = 36;
+    geosatellites[2].lengthfilenbrhrv = 6;
+    geosatellites[2].indexdatehrv = 46;
+    geosatellites[2].lengthdatehrv = 12;
+
+    geosatellites[2].color = true;
+    geosatellites[2].colorhrv = true;
+    geosatellites[2].maxsegments = 8;
+    geosatellites[2].maxsegmentshrv = 24;
+    geosatellites[2].segmentlength = 464;
+    geosatellites[2].segmentlengthhrv = 464;
+    geosatellites[2].startsegmentnbrtype0 = 5;
+    geosatellites[2].startsegmentnbrhrvtype0 = 19;
+    geosatellites[2].startsegmentnbrtype1 = 1;
+    geosatellites[2].startsegmentnbrhrvtype1 = 1;
+    geosatellites[2].prologfile = true;
+    geosatellites[2].epilogfile = true;
+
+
+    // E1B-GEO-1
+    geosatellites[3].fullname = "Meteosat-9";
+    geosatellites[3].shortname = "MET_9";
+    geosatellites[3].longitude = 45.5;
+    geosatellites[3].longitudelimit1 = 0.0;
+    geosatellites[3].longitudelimit2 = 0.0;
+    geosatellites[3].protocol = "XRIT";
+    geosatellites[3].rss = false;
+    geosatellites[3].searchstring = "H-000-MSG2__-MSG2";
+    geosatellites[3].indexsearchstring = 0;
+    geosatellites[3].filepattern = "H-000-MSG2??-????????????-?????????-0?????___-%1-C_";
+    geosatellites[3].imagewidth = 3712;
+    geosatellites[3].imageheight = 3712;
+    geosatellites[3].imagewidthhrv0 = 5568;
+    geosatellites[3].imageheighthrv0 = 2320;
+    geosatellites[3].imagewidthhrv1 = 5568;
+    geosatellites[3].imageheighthrv1 = 11136;
+
+    geosatellites[3].indexspectrum = 26;
+    geosatellites[3].indexfilenbr = 36;
+    geosatellites[3].lengthfilenbr = 6;
+    geosatellites[3].indexdate = 46;
+    geosatellites[3].lengthdate = 12;
+
+    geosatellites[3].spectrumhrv = "HRV";
+    geosatellites[3].spectrumvaluehrv = "HRV";
+    geosatellites[3].indexspectrumhrv = 26;
+    geosatellites[3].indexfilenbrhrv = 36;
+    geosatellites[3].lengthfilenbrhrv = 6;
+    geosatellites[3].indexdatehrv = 46;
+    geosatellites[3].lengthdatehrv = 12;
+
+    geosatellites[3].color = true;
+    geosatellites[3].colorhrv = true;
+    geosatellites[3].maxsegments = 8;
+    geosatellites[3].maxsegmentshrv = 24;
+    geosatellites[3].segmentlength = 464;
+    geosatellites[3].segmentlengthhrv = 464;
+    geosatellites[3].startsegmentnbrtype0 = 5;
+    geosatellites[3].startsegmentnbrhrvtype0 = 19;
+    geosatellites[3].startsegmentnbrtype1 = 1;
+    geosatellites[3].startsegmentnbrhrvtype1 = 1;
+    geosatellites[3].prologfile = true;
+    geosatellites[3].epilogfile = true;
+
+
+    //E1B-GEO-1
+    // geosatellites[4].fullname = "Meteosat-8";
+    // geosatellites[4].shortname = "MET_8";
+    // geosatellites[4].longitude = 41.5;
+    // geosatellites[4].longitudelimit1 = 20.0;
+    // geosatellites[4].longitudelimit2 = 92.0;
+    // geosatellites[4].protocol = "XRIT";
+    // geosatellites[4].rss = false;
+    // geosatellites[4].searchstring = "H-000-MSG1__-MSG1";
+    // geosatellites[4].indexsearchstring = 0;
+    // geosatellites[4].filepattern = "H-000-MSG1??-?????????___-?????????-0?????___-%1-C_";
+    // geosatellites[4].imagewidth = 3712;
+    // geosatellites[4].imageheight = 3712;
+    // geosatellites[4].imagewidthhrv0 = 5568;
+    // geosatellites[4].imageheighthrv0 = 2320;
+    // geosatellites[4].imagewidthhrv1 = 5568;
+    // geosatellites[4].imageheighthrv1 = 11136;
+
+    // geosatellites[4].indexspectrum = 26;
+    // geosatellites[4].indexfilenbr = 36;
+    // geosatellites[4].lengthfilenbr = 6;
+    // geosatellites[4].indexdate = 46;
+    // geosatellites[4].lengthdate = 12;
+
+    // geosatellites[4].spectrumhrv = "HRV";
+    // geosatellites[4].spectrumvaluehrv = "HRV";
+    // geosatellites[4].indexspectrumhrv = 26;
+    // geosatellites[4].indexfilenbrhrv = 36;
+    // geosatellites[4].lengthfilenbrhrv = 6;
+    // geosatellites[4].indexdatehrv = 46;
+    // geosatellites[4].lengthdatehrv = 12;
+
+    // geosatellites[4].color = true;
+    // geosatellites[4].colorhrv = true;
+    // geosatellites[4].maxsegments = 8;
+    // geosatellites[4].maxsegmentshrv = 24;
+    // geosatellites[4].segmentlength = 464;
+    // geosatellites[4].segmentlengthhrv = 464;
+    // geosatellites[4].startsegmentnbrtype0 = 5;
+    // geosatellites[4].startsegmentnbrhrvtype0 = 19;
+    // geosatellites[4].startsegmentnbrtype1 = 1;
+    // geosatellites[4].startsegmentnbrhrvtype1 = 1;
+    // geosatellites[4].prologfile = true;
+    // geosatellites[4].epilogfile = true;
+
+
+
+    for(int i = 1; i < 4; i++)
+    {
+        geosatellites[i].spectrumlist << "VIS006" << "VIS008" << "IR_016" << "IR_039" << "WV_062" << "WV_073" << "IR_087" << "IR_097" << "IR_108" << "IR_120" << "IR_134";
+        geosatellites[i].spectrumvalueslist << "0.635" << "0.81" << "1.64" << "3.90" << "6.25" << "7.35" << "8.70" << "9.66" << "10.80" << "12.00" << "13.40";
+        geosatellites[i].coff = 1856;
+        geosatellites[i].loff = 1856;
+        geosatellites[i].cfac = 781648343.;
+        geosatellites[i].lfac = 781648343.;
+        geosatellites[i].coffhrv = 5566;
+        geosatellites[i].loffhrv = 5566;
+        geosatellites[i].cfachrv = 2344944937; //2344945030.;
+        geosatellites[i].lfachrv = 2344944937; //2344945030.;
+        geosatellites[i].clahecontextregionx = 16;
+        geosatellites[i].clahecontextregiony = 16;
+    }
+
+    //E1B-TPG-1
+    geosatellites[4].fullname = "Electro L3";
+    geosatellites[4].shortname = "GOMS3";
+    geosatellites[4].longitude = 76.1;
+    geosatellites[4].longitudelimit1 = 0.0;
+    geosatellites[4].longitudelimit2 = 0.0;
+    geosatellites[4].protocol = "XRIT";
+    geosatellites[4].rss = false;
+    geosatellites[4].searchstring = "H-000-GOMS3_-GOMS3_4";
+    geosatellites[4].indexsearchstring = 0;
+    geosatellites[4].filepattern = "H-???-??????-?????????___-?????????-0?????___-%1-C_";
+    geosatellites[4].imagewidth = 2784;
+    geosatellites[4].imageheight = 2784;
+    geosatellites[4].imagewidthhrv0 = 0;
+    geosatellites[4].imageheighthrv0 = 0;
+    geosatellites[4].imagewidthhrv1 = 0;
+    geosatellites[4].imageheighthrv1 = 0;
+
+    geosatellites[4].indexspectrum = 26;
+    geosatellites[4].indexfilenbr = 36;
+    geosatellites[4].lengthfilenbr = 6;
+    geosatellites[4].indexdate = 46;
+    geosatellites[4].lengthdate = 12;
+
+    geosatellites[4].spectrumhrv = "";
+    geosatellites[4].spectrumvaluehrv = "";
+    geosatellites[4].indexspectrumhrv = 0;
+    geosatellites[4].indexfilenbrhrv = 0;
+    geosatellites[4].lengthfilenbrhrv = 0;
+    geosatellites[4].indexdatehrv = 0;
+    geosatellites[4].lengthdatehrv = 0;
+
+    geosatellites[4].color = true;
+    geosatellites[4].colorhrv = false;
+    geosatellites[4].maxsegments = 6;
+    geosatellites[4].maxsegmentshrv = 0;
+    geosatellites[4].segmentlength = 464;
+    geosatellites[4].segmentlengthhrv = 0;
+    geosatellites[4].startsegmentnbrtype0 = 1;
+    geosatellites[4].startsegmentnbrhrvtype0 = 1;
+    geosatellites[4].startsegmentnbrtype1 = 1;
+    geosatellites[4].startsegmentnbrhrvtype1 = 1;
+    geosatellites[4].clahecontextregionx = 16;
+    geosatellites[4].clahecontextregiony = 16;
+
+    geosatellites[4].prologfile = false;
+    geosatellites[4].epilogfile = false;
+    geosatellites[4].coff = 1392;
+    geosatellites[4].loff = 1392;
+    geosatellites[4].cfac = 586236263.;
+    geosatellites[4].lfac = 586236263.;
+    geosatellites[4].coffhrv = 0;
+    geosatellites[4].loffhrv = 0;
+    geosatellites[4].cfachrv = 0.;
+    geosatellites[4].lfachrv = 0.;
+
+    geosatellites[4].spectrumlist << "00_9_0" << "03_8_0" << "08_0_0" << "09_7_0" << "10_7_0" << "11_9_0";
+    geosatellites[4].spectrumvalueslist << "VIS 0.9" << "IR 3.8" << "IR 8.0" << "IR 9.7" << "IR 10.7" << "IR 11.9";
+
+    //Data Channel 12
+    geosatellites[5].fullname = "FengYun 2H";
+    geosatellites[5].shortname = "FY2H";
+    geosatellites[5].longitude = 79.0;
+    geosatellites[5].longitudelimit1 = 0.0;
+    geosatellites[5].longitudelimit2 = 0.0;
+    geosatellites[5].protocol = "HDF";
+    geosatellites[5].rss = false;
+    geosatellites[5].searchstring = "FY2H_FDI";
+    geosatellites[5].indexsearchstring = 31;
+    geosatellites[5].imagewidth = 2288;
+    geosatellites[5].imageheight = 2288;
+    geosatellites[5].imagewidthhrv0 = 9152;
+    geosatellites[5].imageheighthrv0 = 9152;
+    geosatellites[5].imagewidthhrv1 = 0;
+    geosatellites[5].imageheighthrv1 = 0;
+
+    geosatellites[5].indexspectrum = 40;
+    geosatellites[5].indexfilenbr = 44;
+    geosatellites[5].lengthfilenbr = 3;
+    geosatellites[5].indexdate = 14;
+    geosatellites[5].lengthdate = 12;
+
+    geosatellites[5].spectrumhrv = "VIS1KM";
+    geosatellites[5].spectrumvaluehrv = "HRV";
+    geosatellites[5].indexspectrumhrv = 40;
+    geosatellites[5].indexfilenbrhrv = 47;
+    geosatellites[5].lengthfilenbrhrv = 3;
+    geosatellites[5].indexdatehrv = 14;
+    geosatellites[5].lengthdatehrv = 12;
+
+    geosatellites[5].color = true;
+    geosatellites[5].colorhrv = false;
+    geosatellites[5].maxsegments = 1;
+    geosatellites[5].maxsegmentshrv = 1;
+    geosatellites[5].segmentlength = 2288;
+    geosatellites[5].segmentlengthhrv = 9152;
+    geosatellites[5].startsegmentnbrtype0 = 1;
+    geosatellites[5].startsegmentnbrhrvtype0 = 1;
+    geosatellites[5].startsegmentnbrtype1 = 1;
+    geosatellites[5].startsegmentnbrhrvtype1 = 1;
+    geosatellites[5].clahecontextregionx = 16;
+    geosatellites[5].clahecontextregiony = 16;
+
+    geosatellites[5].prologfile = false;
+    geosatellites[5].epilogfile = false;
+    geosatellites[5].coff = 1144;
+    geosatellites[5].loff = 1144;
+    geosatellites[5].cfac = 468000000.;
+    geosatellites[5].lfac = 468000000.;
+    geosatellites[5].coffhrv = 4576;
+    geosatellites[5].loffhrv = 4576;
+    geosatellites[5].cfachrv = 1872000000.;
+    geosatellites[5].lfachrv = 1872000000.;
+
+
+
+    geosatellites[5].spectrumlist << "VIS" << "IR4" << "IR3" << "IR1" << "IR2";
+    geosatellites[5].spectrumvalueslist << "VIS 0.7" << "IR 3.7" << "IR 6.9" << "IR 10.8" << "IR 12.0";
+
+    //Data Channel 12
+    geosatellites[6].fullname = "FengYun 2G";
+    geosatellites[6].shortname = "FY2G";
+    geosatellites[6].longitude = 104.5;
+    geosatellites[6].longitudelimit1 = 0.0;
+    geosatellites[6].longitudelimit2 = 0.0;
+    geosatellites[6].protocol = "HDF";
+    geosatellites[6].rss = false;
+    geosatellites[6].searchstring = "FY2G_FDI";
+    geosatellites[6].indexsearchstring = 31;
+    geosatellites[6].imagewidth = 2288;
+    geosatellites[6].imageheight = 2288;
+    geosatellites[6].imagewidthhrv0 = 9152;
+    geosatellites[6].imageheighthrv0 = 9152;
+    geosatellites[6].imagewidthhrv1 = 0;
+    geosatellites[6].imageheighthrv1 = 0;
+
+    geosatellites[6].indexspectrum = 40;
+    geosatellites[6].indexfilenbr = 44;
+    geosatellites[6].lengthfilenbr = 3;
+    geosatellites[6].indexdate = 14;
+    geosatellites[6].lengthdate = 12;
+
+    geosatellites[6].spectrumhrv = "VIS1KM";
+    geosatellites[6].spectrumvaluehrv = "HRV";
+    geosatellites[6].indexspectrumhrv = 40;
+    geosatellites[6].indexfilenbrhrv = 47;
+    geosatellites[6].lengthfilenbrhrv = 3;
+    geosatellites[6].indexdatehrv = 14;
+    geosatellites[6].lengthdatehrv = 12;
+
+    geosatellites[6].color = true;
+    geosatellites[6].colorhrv = false;
+    geosatellites[6].maxsegments = 1;
+    geosatellites[6].maxsegmentshrv = 1;
+    geosatellites[6].segmentlength = 2288;
+    geosatellites[6].segmentlengthhrv = 9152;
+    geosatellites[6].startsegmentnbrtype0 = 1;
+    geosatellites[6].startsegmentnbrhrvtype0 = 1;
+    geosatellites[6].startsegmentnbrtype1 = 1;
+    geosatellites[6].startsegmentnbrhrvtype1 = 1;
+    geosatellites[6].clahecontextregionx = 16;
+    geosatellites[6].clahecontextregiony = 16;
+
+    geosatellites[6].prologfile = false;
+    geosatellites[6].epilogfile = false;
+    geosatellites[6].coff = 1144;
+    geosatellites[6].loff = 1144;
+    geosatellites[6].cfac = 468000000.;
+    geosatellites[6].lfac = 468000000.;
+    geosatellites[6].coffhrv = 4576;
+    geosatellites[6].loffhrv = 4576;
+    geosatellites[6].cfachrv = 1872000000.;
+    geosatellites[6].lfachrv = 1872000000.;
+
+    geosatellites[6].spectrumlist << "VIS" << "IR4" << "IR3" << "IR1" << "IR2";
+    geosatellites[6].spectrumvalueslist << "VIS 0.7" << "IR 3.7" << "IR 6.9" << "IR 10.8" << "IR 12.0";
+
+
+    // Data Channel 3 & 4
+    //L-000-MSG4__-GOES15______-00_7_128W-000007___-201811061600-__
+    //    geosatellites[7].fullname = "GOES 15";
+    //    geosatellites[7].shortname = "GOES_15";
+    //    geosatellites[7].longitude = -128.0;
+    //    geosatellites[7].longitudelimit1 = 0.0;
+    //    geosatellites[7].longitudelimit2 = 0.0;
+    //    geosatellites[7].protocol = "XRIT";
+    //    geosatellites[7].rss = false;
+    //    geosatellites[7].searchstring = "L-000-MSG4__-GOES15";
+    //    geosatellites[7].indexsearchstring = 0;
+    //    geosatellites[7].filepattern =  "L-???-??????-GOES15______-?????????-00000?___-%1-__";
+    //    geosatellites[7].imagewidth = 2816;
+    //    geosatellites[7].imageheight = 3248;
+    //    geosatellites[7].imagewidthhrv0 = 0;
+    //    geosatellites[7].imageheighthrv0 = 0;
+    //    geosatellites[7].imagewidthhrv1 = 0;
+    //    geosatellites[7].imageheighthrv1 = 0;
+
+    //    geosatellites[7].indexspectrum = 26;
+    //    geosatellites[7].indexfilenbr = 36;
+    //    geosatellites[7].lengthfilenbr = 6;
+    //    geosatellites[7].indexdate = 46;
+    //    geosatellites[7].lengthdate = 12; //YYYYMMDDHHmm
+
+    //    geosatellites[7].spectrumhrv = "";
+    //    geosatellites[7].spectrumvaluehrv = "";
+    //    geosatellites[7].indexspectrumhrv = 0;
+    //    geosatellites[7].indexfilenbrhrv = 0;
+    //    geosatellites[7].lengthfilenbrhrv = 0;
+    //    geosatellites[7].indexdatehrv = 0;
+    //    geosatellites[7].lengthdatehrv = 0;
+
+    //    geosatellites[7].color = false;
+    //    geosatellites[7].colorhrv = false;
+    //    geosatellites[7].maxsegments = 7;
+    //    geosatellites[7].maxsegmentshrv = 0;
+    //    geosatellites[7].segmentlength = 464;
+    //    geosatellites[7].segmentlengthhrv = 0;
+    //    geosatellites[7].startsegmentnbrtype0 = 1;
+    //    geosatellites[7].startsegmentnbrhrvtype0 = 1;
+    //    geosatellites[7].startsegmentnbrtype1 = 1;
+    //    geosatellites[7].startsegmentnbrhrvtype1 = 1;
+    //    geosatellites[7].clahecontextregionx = 16;
+    //    geosatellites[7].clahecontextregiony = 16;
+
+    //    geosatellites[7].prologfile = true;
+    //    geosatellites[7].epilogfile = false;
+    //    geosatellites[7].coff = 1408;
+    //    geosatellites[7].loff = 1408;
+    //    geosatellites[7].cfac = 585352820.;
+    //    geosatellites[7].lfac = 585352820.;
+    //    geosatellites[7].coffhrv = 0;
+    //    geosatellites[7].loffhrv = 0;
+    //    geosatellites[7].cfachrv = 0.;
+    //    geosatellites[7].lfachrv = 0.;
+
+
+    //    geosatellites[7].spectrumlist << "00_7" << "03_9" << "06_6" << "10_7";
+    //    geosatellites[7].spectrumvalueslist << "VIS 0.7" << "IR 3.9" << "IR 6.6" << "IR 10.7";
+
+    //
+    geosatellites[7].fullname = "GOES 19";
+    geosatellites[7].shortname = "GOES_19";
+    geosatellites[7].longitude = -75.0;
+    geosatellites[7].longitudelimit1 = 0;
+    geosatellites[7].longitudelimit2 = 0;
+    geosatellites[7].protocol = "netCDF";
+    geosatellites[7].rss = false;
+    geosatellites[7].searchstring = "_G19_";
+    geosatellites[7].indexsearchstring = 21;
+    geosatellites[7].filepattern =  "";
+
+    geosatellites[7].imagewidth = 5424;
+    geosatellites[7].imageheight = 5424;
+    geosatellites[7].imagewidthhrv0 = 0;
+    geosatellites[7].imageheighthrv0 = 0;
+    geosatellites[7].imagewidthhrv1 = 0;
+    geosatellites[7].imageheighthrv1 = 0;
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012
+    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+
+    geosatellites[7].indexspectrum = 18;
+    geosatellites[7].indexfilenbr = 0;
+    geosatellites[7].lengthfilenbr = 0;
+    geosatellites[7].indexdate = 27;
+    geosatellites[7].lengthdate = 11; //YYYYDDDHHmm
+
+    geosatellites[7].spectrumhrv = "";
+    geosatellites[7].spectrumvaluehrv = "";
+    geosatellites[7].indexspectrumhrv = 0;
+    geosatellites[7].indexfilenbrhrv = 0;
+    geosatellites[7].lengthfilenbrhrv = 0;
+    geosatellites[7].indexdatehrv = 0;
+    geosatellites[7].lengthdatehrv = 0;
+
+    geosatellites[7].color = true;
+    geosatellites[7].colorhrv = false;
+    geosatellites[7].maxsegments = 1;
+    geosatellites[7].maxsegmentshrv = 0;
+    geosatellites[7].segmentlength = 5424;
+    geosatellites[7].segmentlengthhrv = 0;
+    geosatellites[7].startsegmentnbrtype0 = 1;
+    geosatellites[7].startsegmentnbrhrvtype0 = 1;
+    geosatellites[7].startsegmentnbrtype1 = 1;
+    geosatellites[7].startsegmentnbrhrvtype1 = 1;
+    geosatellites[7].clahecontextregionx = 16;
+    geosatellites[7].clahecontextregiony = 16;
+
+    geosatellites[7].prologfile = false;
+    geosatellites[7].epilogfile = false;
+    geosatellites[7].coff = 2712;
+    geosatellites[7].loff = 2712;
+    geosatellites[7].cfac = 1170000000.;
+    geosatellites[7].lfac = 1170000000.;
+    geosatellites[7].coffhrv = 0;
+    geosatellites[7].loffhrv = 0;
+    geosatellites[7].cfachrv = 0.;
+    geosatellites[7].lfachrv = 0.;
+
+
+    geosatellites[7].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
+    geosatellites[7].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
+                                        << "12.3" << "13.3";
+
+
+    //
+    // geosatellites[9].fullname = "GOES 17";
+    // geosatellites[9].shortname = "GOES_17";
+    // geosatellites[9].longitude = -137.0;
+    // geosatellites[9].longitudelimit1 = 0;
+    // geosatellites[9].longitudelimit2 = 0;
+    // geosatellites[9].protocol = "netCDF";
+    // geosatellites[9].rss = false;
+    // geosatellites[9].searchstring = "_G17_";
+    // geosatellites[9].indexsearchstring = 21;
+    // geosatellites[9].filepattern =  "";
+
+    // geosatellites[9].imagewidth = 5424;
+    // geosatellites[9].imageheight = 5424;
+    // geosatellites[9].imagewidthhrv0 = 0;
+    // geosatellites[9].imageheighthrv0 = 0;
+    // geosatellites[9].imagewidthhrv1 = 0;
+    // geosatellites[9].imageheighthrv1 = 0;
+
+    // //0123456789012345678901234567890123456789012345678901234567890123456789012
+    // //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+
+    // geosatellites[9].indexspectrum = 18;
+    // geosatellites[9].indexfilenbr = 0;
+    // geosatellites[9].lengthfilenbr = 0;
+    // geosatellites[9].indexdate = 27;
+    // geosatellites[9].lengthdate = 11; //YYYYDDDHHmm
+
+    // geosatellites[9].spectrumhrv = "";
+    // geosatellites[9].spectrumvaluehrv = "";
+    // geosatellites[9].indexspectrumhrv = 0;
+    // geosatellites[9].indexfilenbrhrv = 0;
+    // geosatellites[9].lengthfilenbrhrv = 0;
+    // geosatellites[9].indexdatehrv = 0;
+    // geosatellites[9].lengthdatehrv = 0;
+
+    // geosatellites[9].color = true;
+    // geosatellites[9].colorhrv = false;
+    // geosatellites[9].maxsegments = 1;
+    // geosatellites[9].maxsegmentshrv = 0;
+    // geosatellites[9].segmentlength = 5424;
+    // geosatellites[9].segmentlengthhrv = 0;
+    // geosatellites[9].startsegmentnbrtype0 = 1;
+    // geosatellites[9].startsegmentnbrhrvtype0 = 1;
+    // geosatellites[9].startsegmentnbrtype1 = 1;
+    // geosatellites[9].startsegmentnbrhrvtype1 = 1;
+    // geosatellites[9].clahecontextregionx = 16;
+    // geosatellites[9].clahecontextregiony = 16;
+
+    // geosatellites[9].prologfile = false;
+    // geosatellites[9].epilogfile = false;
+    // geosatellites[9].coff = 2712;
+    // geosatellites[9].loff = 2712;
+    // geosatellites[9].cfac = 1170000000.;
+    // geosatellites[9].lfac = 1170000000.;
+    // geosatellites[9].coffhrv = 0;
+    // geosatellites[9].loffhrv = 0;
+    // geosatellites[9].cfachrv = 0.;
+    // geosatellites[9].lfachrv = 0.;
+
+
+    // geosatellites[9].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
+    // geosatellites[9].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
+    //                                     << "12.3" << "13.3";
+
+    //
+    geosatellites[8].fullname = "GOES 18";
+    geosatellites[8].shortname = "GOES_18";
+    geosatellites[8].longitude = -137.0;
+    geosatellites[8].longitudelimit1 = 0;
+    geosatellites[8].longitudelimit2 = 0;
+    geosatellites[8].protocol = "netCDF";
+    geosatellites[8].rss = false;
+    geosatellites[8].searchstring = "_G18_";
+    geosatellites[8].indexsearchstring = 21;
+    geosatellites[8].filepattern =  "";
+
+    geosatellites[8].imagewidth = 5424;
+    geosatellites[8].imageheight = 5424;
+    geosatellites[8].imagewidthhrv0 = 0;
+    geosatellites[8].imageheighthrv0 = 0;
+    geosatellites[8].imagewidthhrv1 = 0;
+    geosatellites[8].imageheighthrv1 = 0;
+
+    //0123456789012345678901234567890123456789012345678901234567890123456789012
+    //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
+
+    geosatellites[8].indexspectrum = 18;
+    geosatellites[8].indexfilenbr = 0;
+    geosatellites[8].lengthfilenbr = 0;
+    geosatellites[8].indexdate = 27;
+    geosatellites[8].lengthdate = 11; //YYYYDDDHHmm
+
+    geosatellites[8].spectrumhrv = "";
+    geosatellites[8].spectrumvaluehrv = "";
+    geosatellites[8].indexspectrumhrv = 0;
+    geosatellites[8].indexfilenbrhrv = 0;
+    geosatellites[8].lengthfilenbrhrv = 0;
+    geosatellites[8].indexdatehrv = 0;
+    geosatellites[8].lengthdatehrv = 0;
+
+    geosatellites[8].color = true;
+    geosatellites[8].colorhrv = false;
+    geosatellites[8].maxsegments = 1;
+    geosatellites[8].maxsegmentshrv = 0;
+    geosatellites[8].segmentlength = 5424;
+    geosatellites[8].segmentlengthhrv = 0;
+    geosatellites[8].startsegmentnbrtype0 = 1;
+    geosatellites[8].startsegmentnbrhrvtype0 = 1;
+    geosatellites[8].startsegmentnbrtype1 = 1;
+    geosatellites[8].startsegmentnbrhrvtype1 = 1;
+    geosatellites[8].clahecontextregionx = 16;
+    geosatellites[8].clahecontextregiony = 16;
+
+    geosatellites[8].prologfile = false;
+    geosatellites[8].epilogfile = false;
+    geosatellites[8].coff = 2712;
+    geosatellites[8].loff = 2712;
+    geosatellites[8].cfac = 1170000000.;
+    geosatellites[8].lfac = 1170000000.;
+    geosatellites[8].coffhrv = 0;
+    geosatellites[8].loffhrv = 0;
+    geosatellites[8].cfachrv = 0.;
+    geosatellites[8].lfachrv = 0.;
+
+
+    geosatellites[8].spectrumlist << "C01" << "C02" << "C03" << "C04" << "C05" << "C06" << "C07" << "C08" << "C09" << "C10" << "C11" << "C12" << "C13" << "C14" << "C15" << "C16";
+    geosatellites[8].spectrumvalueslist << "0.47" << "0.64" << "0.86" << "1.37" << "1.61" << "2.24" << "3.89" << "6.17" << "6.93" << "7.34" << "8.44" << "9.61" << "10.33"  << "11.2"
+                                         << "12.3" << "13.3";
+
+    //E1B-TPG-1 E1H-TPG-2
+    geosatellites[9].fullname = "Himawari 9";
+    geosatellites[9].shortname = "H9";
+    geosatellites[9].longitude = 140.7;
+    geosatellites[9].longitudelimit1 = 92.0;
+    geosatellites[9].longitudelimit2 = 250.0;
+    geosatellites[9].protocol = "XRIT";
+    geosatellites[9].rss = false;
+    geosatellites[9].searchstring = "IMG_DK01";
+    geosatellites[9].indexsearchstring = 0;
+    geosatellites[9].filepattern = "IMG_DK01???_%1*";
+    geosatellites[9].imagewidth = 5500;
+    geosatellites[9].imageheight = 5500;
+    geosatellites[9].imagewidthhrv0 = 0;
+    geosatellites[9].imageheighthrv0 = 0;
+    geosatellites[9].imagewidthhrv1 = 0;
+    geosatellites[9].imageheighthrv1 = 0;
+
+    geosatellites[9].indexspectrum = 8;
+    geosatellites[9].indexfilenbr = 25;
+    geosatellites[9].lengthfilenbr = 3;
+    geosatellites[9].indexdate = 12;
+    geosatellites[9].lengthdate = 11;
+
+    geosatellites[9].spectrumhrv = "";
+    geosatellites[9].spectrumvaluehrv = "";
+    geosatellites[9].indexspectrumhrv = 0;
+    geosatellites[9].indexfilenbrhrv = 0;
+    geosatellites[9].lengthfilenbrhrv = 0;
+    geosatellites[9].indexdatehrv = 0;
+    geosatellites[9].lengthdatehrv = 0;
+
+    geosatellites[9].color = true;
+    geosatellites[9].colorhrv = false;
+    geosatellites[9].maxsegments = 10;
+    geosatellites[9].maxsegmentshrv = 0;
+    geosatellites[9].segmentlength = 550;
+    geosatellites[9].segmentlengthhrv = 0;
+    geosatellites[9].startsegmentnbrtype0 = 1;
+    geosatellites[9].startsegmentnbrhrvtype0 = 1;
+    geosatellites[9].startsegmentnbrtype1 = 1;
+    geosatellites[9].startsegmentnbrhrvtype1 = 1;
+    geosatellites[9].clahecontextregionx = 10;
+    geosatellites[9].clahecontextregiony = 10;
+
+    geosatellites[9].prologfile = false;
+    geosatellites[9].epilogfile = false;
+    geosatellites[9].coff = 2750;
+    geosatellites[9].loff = 2750;
+    geosatellites[9].cfac = 1172050000.;
+    geosatellites[9].lfac = 1172050000.;
+    geosatellites[9].coffhrv = 0;
+    geosatellites[9].loffhrv = 0;
+    geosatellites[9].cfachrv = 0.;
+    geosatellites[9].lfachrv = 0.;
+
+
+    geosatellites[9].spectrumlist << "B01" << "B02" << "VIS" << "B04" << "B05" << "B06" << "IR4" << "IR3" << "B09" << "B10" << "B11" << "B12" << "IR1" << "B14" << "IR2" << "B16";
+    geosatellites[9].spectrumvalueslist << "0.46" << "0.51" << "0.64" << "0.86" << "1.6" << "2.3" << "3.9" << "6.2" << "6.9" << "7.3" << "8.6" << "9.6" << "10.4" << "11.2" << "12.4" << "13.3";
+
+
+
 
     settingsgeo.beginWriteArray("geos");
     for (int i = 0; i < this->geosatellites.size(); ++i) {
@@ -1930,3 +2925,129 @@ void Options::deleteSegmentDirectory( QString sel )
 
 }
 
+void Options::globalChangeFonts(QWidget *toplevel, int fontsize)
+{
+    qDebug() << "--- Listing Widgets in FormToolbox ---";
+
+    QFont new_font = toplevel->font();
+    int point_size = new_font.pointSize();
+    new_font.setPointSize(fontsize);
+    new_font.setWeight(QFont::Medium);
+
+
+    // 1. Find all Buttons (using the base class QAbstractButton)
+    // qDebug() << "\n[Buttons (QAbstractButton subclasses)]";
+    // // Use 'this' to search within the MainWindow instance
+    // QList<QAbstractButton *> allButtons = this->findChildren<QAbstractButton *>();
+    // if (allButtons.isEmpty()) {
+    //     qDebug() << "  No buttons found.";
+    // } else {
+    //     for (QAbstractButton *button : allButtons) {
+    //         // Print object name (if set) and class name
+    //         qDebug() << "  - Object Name:" << button->objectName()
+    //                  << ", Class:" << button->metaObject()->className()
+    //                  << ", Text:" << button->text(); // Text might be empty for some
+    //         //button->setFont(new_font);
+
+    //     }
+    // }
+
+    // 2. Find all Item Views (using the base class QAbstractItemView)
+    // qDebug() << "\n[Item Views (QAbstractItemView subclasses)]";
+    // QList<QAbstractItemView *> allItemViews = this->findChildren<QAbstractItemView *>();
+    //  if (allItemViews.isEmpty()) {
+    //     qDebug() << "  No item views found.";
+    // } else {
+    //     for (QAbstractItemView *view : allItemViews) {
+    //         qDebug() << "  - Object Name:" << view->objectName()
+    //                  << ", Class:" << view->metaObject()->className();
+    //     }
+    // }
+
+
+    // 3. Find ALL Widgets (using the base class QWidget)
+    //    This will find *everything*, including layouts if they derive from QWidget (QVBoxLayout doesn't)
+    //    and potentially internal widgets of complex controls.
+    qDebug() << "\n[All Widgets (QWidget subclasses)]";
+    QList<QWidget *> allWidgets = toplevel->findChildren<QWidget *>();
+    if (allWidgets.isEmpty()) {
+        qDebug() << "  No widgets found.";
+    } else {
+        for (QWidget *widget : allWidgets) {
+            // You could add filters here if needed, e.g., ignore widgets with empty object names
+            // or only show specific types not covered above.
+            qDebug() << "  - Object Name:" << widget->objectName()
+                     << ", Class:" << widget->metaObject()->className();
+            widget->setFont(new_font);
+        }
+        toplevel->update();
+    }
+
+    qDebug() << "\n--- End of Listing ---";
+}
+
+void Options::setDarkMode(bool mode)
+{
+    if(mode)
+    {
+        QPalette dark_palette = QPalette();
+        dark_palette.setColor(dark_palette.Window, QColor(100, 100, 100));
+//        dark_palette.setColor(dark_palette.Active, dark_palette.Window, QColor(100, 100, 100));
+//        dark_palette.setColor(dark_palette.Inactive, dark_palette.Window, QColor(100, 100, 100));
+//        dark_palette.setColor(dark_palette.Disabled, dark_palette.Window, QColor(100, 100, 100));
+
+        dark_palette.setColor(dark_palette.Active, dark_palette.WindowText, QColor(255, 255, 255));
+        dark_palette.setColor(dark_palette.Inactive, dark_palette.WindowText, QColor(35, 35, 35));
+        dark_palette.setColor(dark_palette.Disabled, dark_palette.WindowText, QColor(35, 35, 35));
+
+        dark_palette.setColor(dark_palette.Base, QColor(53, 53, 53));
+//        dark_palette.setColor(dark_palette.Active, dark_palette.Base, QColor(53, 53, 53));
+//        dark_palette.setColor(dark_palette.Inactive, dark_palette.Base, QColor(53, 53, 53));
+
+        dark_palette.setColor(dark_palette.AlternateBase, QColor(73, 73, 73));
+        dark_palette.setColor(dark_palette.ToolTipBase, QColor(25, 25, 25));
+        dark_palette.setColor(dark_palette.ToolTipText, Qt::white);
+        dark_palette.setColor(dark_palette.Text, Qt::white);
+
+        dark_palette.setColor(dark_palette.Button, QColor(53, 53, 53));
+//        dark_palette.setColor(dark_palette.Active, dark_palette.Button, QColor(35, 35, 35));
+//        dark_palette.setColor(dark_palette.Inactive, dark_palette.Button, QColor(35, 35, 35));
+//        dark_palette.setColor(dark_palette.Disabled, dark_palette.Button, QColor(35, 35, 35));
+
+//        dark_palette.setColor(dark_palette.ButtonText, Qt::white);
+        dark_palette.setColor(dark_palette.Active, dark_palette.ButtonText, Qt::white);
+        dark_palette.setColor(dark_palette.Inactive, dark_palette.ButtonText, Qt::darkGray);
+        dark_palette.setColor(dark_palette.Disabled, dark_palette.ButtonText, Qt::darkGray);
+
+        dark_palette.setColor(dark_palette.BrightText, Qt::red);
+        dark_palette.setColor(dark_palette.Link, QColor(42, 130, 218));
+        dark_palette.setColor(dark_palette.Highlight, QColor(42, 130, 218));
+        dark_palette.setColor(dark_palette.HighlightedText, QColor(35, 35, 35));
+        //dark_palette.setColor(dark_palette.Active, dark_palette.Button, QColor(53, 53, 53));
+        //dark_palette.setColor(dark_palette.Disabled, dark_palette.WindowText, Qt::darkGray);
+        //dark_palette.setColor(dark_palette.Disabled, dark_palette.Text, Qt::darkGray);
+        //dark_palette.setColor(dark_palette.Disabled, dark_palette.Light, QColor(53, 53, 53));
+        QApplication::setPalette(dark_palette);
+
+    }
+    else
+    {
+        // QPalette lightPalette;
+        // lightPalette.setColor(QPalette::Window, Qt::white);
+        // lightPalette.setColor(QPalette::WindowText, Qt::black);
+        // lightPalette.setColor(QPalette::Base, Qt::white);
+        // lightPalette.setColor(QPalette::Text, Qt::black);
+        // QApplication::setPalette(lightPalette);
+
+        QPalette light_palette;
+        light_palette.setColor(light_palette.Active, light_palette.Window, Qt::white);
+        light_palette.setColor(light_palette.Inactive, light_palette.Window, Qt::darkGray);
+
+//        light_palette.setColor(QPalette::Window, Qt::white);
+        light_palette.setColor(QPalette::WindowText, Qt::black);
+        light_palette.setColor(QPalette::Base, Qt::white);
+        light_palette.setColor(QPalette::Text, Qt::black);
+        QApplication::setPalette(light_palette);
+
+    }
+}

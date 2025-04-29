@@ -24,7 +24,7 @@ set(PROJECT_SOURCES
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 REQUIRED Core Gui Widgets Xml Concurrent Network PrintSupport)
+find_package(Qt6 REQUIRED Core Gui Widgets Xml Concurrent Network PrintSupport)
 
 if(UNIX)
     add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
@@ -44,7 +44,7 @@ cmake_print_variables(CMAKE_SOURCE_DIR)
 INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
 
 # sequence of libraries is important !
-target_link_libraries(${PROJECT_NAME} z pthread Qt5::Widgets Qt5::Gui Qt5::Core Qt5::Widgets Qt5::Xml Qt5::Concurrent Qt5::Network Qt5::PrintSupport
+target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Widgets Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport
     my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} netcdf archive freeimage)
 
 #set_target_properties(${PROJECT_NAME}

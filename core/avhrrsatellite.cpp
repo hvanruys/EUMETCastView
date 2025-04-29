@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QDate>
 #include <QApplication>
-#include <QStringRef>
+#include <QStringView>
 
 template <typename T>
 struct PtrLess // public std::binary_function<bool, const T*, const T*>
@@ -53,7 +53,6 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent) :
     segldatahubolcierr = new SegmentListDatahub();
     segldatahubslstr = new SegmentListDatahub();
 
-
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
         SegmentListGeostationary *seglistgeo = new SegmentListGeostationary(0, i);
@@ -65,6 +64,12 @@ AVHRRSatellite::AVHRRSatellite(QObject *parent) :
 
         QMap<QString, QMap<QString, QMap< int, QFileInfo > > > segmentlistmap;
         segmentlistmapgeo.append(segmentlistmap);
+    }
+
+
+    for(int i = 0; i < opts.geosatellites.count(); i++)
+    {
+        qDebug() << "seglistgeo #" << i << " = " << seglgeo.at(i)->geosatname;
     }
 
     countmetop = 0;
@@ -484,6 +489,13 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20231127115648_IDPFI_OPE_20231127115154_20231127115249_N_JLS_C_0072_0012.nc
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20231127112342_IDPFI_OPE_20231127112007_20231127112924_N_JLS_C_0069_0041.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+LI-2-LGR--FD--CHK-BODY---NC4E_C_EUMT_20250218050905_L2PF_OPE_20250218050846_20250218050856_N__O_0031_0053.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+LI-2-LGR--FD--CHK-TRAIL---NC4E_C_EUMT_20250218095020_L2PF_OPE_20250218094006_20250218095006_N__O_0059_0061.nc
+        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20250403094427_IDPFI_OPE_20250403094003_20250403094018_N_JLS_O_0059_0001.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20250403102306_IDPFI_OPE_20250403102003_20250403102935_N_JLS_O_0063_0041
+
 
         for(int i = 0; i < opts.geosatellites.count(); i++)
         {
@@ -499,7 +511,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 seglgeo.at(i)->setImagePath(fileInfo.absolutePath());
 
                 QMap<int, QFileInfo> hashseqnbr;
-                //QMap<int, QMap<int, QFileInfo> > hashfilenbr;
+                QMap<int, QMap<int, QFileInfo> > hashfilenbr;
 
                 if (segmentlistmapgeomtgi1.contains(filenbr))
                 {
@@ -551,11 +563,10 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
             }
         }
 
-
-
-        emit signalProgress(i);
-        QApplication::processEvents();
+        // emit signalProgress(i);
+        // QApplication::processEvents();
     }
+
 }
 
 void AVHRRSatellite::getFilenameParametersMTGI1(QString filename, QString *strdate, int *filenbr, int *seqnbr)
@@ -582,21 +593,44 @@ void AVHRRSatellite::getFilenameParametersMTGI1(QString filename, QString *strda
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
 
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20250403094427_IDPFI_OPE_20250403094003_20250403094018_N_JLS_O_0059_0001.nc
+    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20250403102306_IDPFI_OPE_20250403102003_20250403102935_N_JLS_O_0063_0041.nc
+
     if(filename.contains("JLS", Qt::CaseSensitive))
     {
         if(filename.contains("DIS", Qt::CaseSensitive))
         {
             if(filename.contains("BODY", Qt::CaseSensitive))
             {
-                *strdate = filename.mid(110, 12);
-                *filenbr = filename.mid(148, 4).toInt();
-                *seqnbr = filename.mid(153, 4).toInt();
+                if(filename.contains("FDHSI", Qt::CaseSensitive))
+                {
+                    *strdate = filename.mid(110, 12);
+                    *filenbr = filename.mid(148, 4).toInt();
+                    *seqnbr = filename.mid(153, 4).toInt();
+                }
+                else if(filename.contains("HRFI", Qt::CaseSensitive))
+                {
+                    *strdate = filename.mid(109, 12);
+                    *filenbr = filename.mid(147, 4).toInt();
+                    *seqnbr = filename.mid(152, 4).toInt();
+                }
             }
             else if(filename.contains("TRAIL", Qt::CaseSensitive))
             {
-                *strdate = filename.mid(111, 12);
-                *filenbr = filename.mid(149, 4).toInt();
-                *seqnbr = filename.mid(154, 4).toInt();
+                if(filename.contains("FDHSI", Qt::CaseSensitive))
+                {
+                    *strdate = filename.mid(111, 12);
+                    *filenbr = filename.mid(149, 4).toInt();
+                    *seqnbr = filename.mid(154, 4).toInt();
+                }
+                else if(filename.contains("HRFI", Qt::CaseSensitive))
+                {
+                    *strdate = filename.mid(110, 12);
+                    *filenbr = filename.mid(148, 4).toInt();
+                    *seqnbr = filename.mid(153, 4).toInt();
+                }
             }
         }
         else
@@ -660,7 +694,7 @@ void AVHRRSatellite::getFilenameParameters(int geosatindex, QString filename,  Q
                     *filenbr = filename.mid(opts.geosatellites.at(geosatindex).indexfilenbr, opts.geosatellites.at(geosatindex).lengthfilenbr).toInt();
                     *strdate = filename.mid(opts.geosatellites.at(geosatindex).indexdate, opts.geosatellites.at(geosatindex).lengthdate);
 
-                    if( opts.geosatellites.at(geosatindex).shortname == "GOES_16" || opts.geosatellites.at(geosatindex).shortname == "GOES_17" || opts.geosatellites.at(geosatindex).shortname == "GOES_18" ) //convert YYYYDDDHHmm to YYYYMMDDHHmm
+                    if( opts.geosatellites.at(geosatindex).shortname == "GOES_19" || opts.geosatellites.at(geosatindex).shortname == "GOES_18" ) //convert YYYYDDDHHmm to YYYYMMDDHHmm
                     {
                         QDate fdate = QDate(strdate->mid(0, 4).toInt(), 1, 1).addDays(strdate->mid(4, 3).toInt() - 1);
                         *strdate = fdate.toString("yyyyMMdd") + strdate->mid(7, 4);
@@ -827,6 +861,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
     this->ReadXMLfiles();
 
+    int countprogress = 0;
+    emit signalResetProgressbar(opts.segmentdirectorylist.count(), "reading files");
+
     if (opts.segmentdirectorylist.count() > 0)
     {
         QStringList seglist = opts.segmentdirectorylist;
@@ -848,6 +885,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
         while( its != seglist.end() ) // opts.segmentdirectorylist.end() )
         {
             qDebug() << "Start " << *its;
+            emit signalProgress(++countprogress);
+            QApplication::processEvents();
+
             if (*itc == "1")  //include checked
             {
                 qDebug() << "cd to = " << *its;
@@ -873,11 +913,11 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     segmentdir.setSorting(QDir::Name);
                     fileinfolist = segmentdir.entryInfoList();
 
-                    if (fileinfolist.size() > 0)
-                    {
-                        emit signalResetProgressbar(fileinfolist.size(), (*its));
-                        QApplication::processEvents();
-                    }
+                    // if (fileinfolist.size() > 0)
+                    // {
+                    //     emit signalResetProgressbar(fileinfolist.size(), (*its));
+                    //     QApplication::processEvents();
+                    // }
 
                     qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(*its);
                     //for(int i= 0; i < fileinfolist.size(); i++)
@@ -1009,7 +1049,6 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     //for(int i = 0; i < fileinfolist.count(); i++)
                     //    qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
-                    emit signalResetProgressbar(fileinfolist.size(), (*its));
 
                     if( fileinfolist.count() > 0)
                         AddSegmentsToList(fileinfolist);
@@ -1176,7 +1215,6 @@ void AVHRRSatellite::XMLPagesDownloaded(int pages)
 
 void AVHRRSatellite::ReadXMLfiles()
 {
-
     if(!QFile::exists(QCoreApplication::applicationDirPath() +  "/Segments.xml"))
         return;
 
@@ -1217,7 +1255,6 @@ void AVHRRSatellite::ReadXMLfiles()
 
     emit signalXMLProgress(QString("All Pages downloaded"), 999, 0);
     CreateListfromXML(document);
-
 }
 
 void AVHRRSatellite::CreateListfromXML(QDomDocument document)

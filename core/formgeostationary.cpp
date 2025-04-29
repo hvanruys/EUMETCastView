@@ -37,97 +37,103 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
     segs = seglist;
 
     qDebug() << "in constructor FormGeostationary opts.geosatellites.count() = " << opts.geosatellites.count();
+    qDebug() << opts.tabgeosort;
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
-        if(opts.geosatellites.at(i).shortname != "MTG-I1")
-        {
-            QWidget *mywidget = new QWidget();
-            ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(i).fullname + " : " + QString("%1").arg(opts.geosatellites.at(i).longitude) + "°");
-            QTreeWidget *treeWidget = new QTreeWidget;
-
-            geotreewidgetlist.append(treeWidget);
-            treeWidget->setRootIsDecorated(false);
-            treeWidget->header()->setStretchLastSection(true);
-            treeWidget->setColumnCount(opts.geosatellites.at(i).spectrumlist.count() + 2);
-            QStringList header;
-            int columnsheadercount;
-            if(opts.geosatellites.at(i).spectrumhrv.length() == 0)
-            {
-                header << opts.geosatellites.at(i).spectrumvalueslist;
-                columnsheadercount = opts.geosatellites.at(i).spectrumlist.count() + 2;
-                if(opts.geosatellites.at(i).shortname == "H9")
-                {
-                    columnsheadercount++;
-                }
-
-            }
-            else
-            {
-                header << opts.geosatellites.at(i).spectrumhrv << opts.geosatellites.at(i).spectrumvalueslist;
-                columnsheadercount = opts.geosatellites.at(i).spectrumlist.count() + 3;
-            }
-
-            treeWidget->setColumnWidth(0, 150);
-            treeWidget->setColumnWidth(1, 150);
-
-            if(opts.geosatellites.at(i).shortname == "H9")
-                treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header << "Moon illumination (%)" );
-            else
-                treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header );
-
-
-            for(int i = 2; i < columnsheadercount; i++)
-            {
-                treeWidget->setColumnWidth(i, 40);
-            }
-
-            for(int i = 0; i < columnsheadercount; i++)
-            {
-                treeWidget->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
-            }
-
-            connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(ontreeWidgetitemClicked(QTreeWidgetItem *, int)));
-            QVBoxLayout *mylayout = new QVBoxLayout;
-            mylayout->addWidget(treeWidget);
-            mywidget->setLayout(mylayout);
-        }
-        else
-        {
-            QWidget *mywidget = new QWidget();
-            ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(i).fullname + " : " + QString("%1").arg(opts.geosatellites.at(i).longitude) + "°");
-                QTreeWidget *treeWidget = new QTreeWidget;
-
-            geotreewidgetlist.append(treeWidget);
-            treeWidget->setRootIsDecorated(false);
-            treeWidget->header()->setStretchLastSection(false);
-            treeWidget->setColumnCount(41 + 2);
-            QStringList header;
-
-            for(int i = 1; i < 42; i++)
-            {
-                QString tel = QString("%1").arg(i, 3, 10);
-                header.append(tel);
-            }
-
-            treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Seq." << header );
-
-            treeWidget->header()->setMinimumSectionSize(5);
-            treeWidget->header()->resizeSections(QHeaderView::ResizeToContents);
-            treeWidget->setColumnWidth(0, 250);
-
-            connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(ontreeWidgetitemClicked(QTreeWidgetItem *, int)));
-            QVBoxLayout *mylayout = new QVBoxLayout;
-            mylayout->addWidget(treeWidget);
-            mywidget->setLayout(mylayout);
-        }
+        newGeoTab(i);
     }
 
     if(opts.geosatellites.count() > 0)
     {
         ui->tabGeostationary->setCurrentIndex(0);
-
     }
+}
+
+void FormGeostationary::newGeoTab(int geoindex)
+{
+    if(opts.geosatellites.at(geoindex).shortname != "MTG-I1")
+    {
+        QWidget *mywidget = new QWidget();
+        ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(geoindex).fullname + " : " + QString("%1").arg(opts.geosatellites.at(geoindex).longitude) + "°");
+        QTreeWidget *treeWidget = new QTreeWidget;
+
+        geotreewidgetlist.append(treeWidget);
+        treeWidget->setRootIsDecorated(false);
+        treeWidget->header()->setStretchLastSection(true);
+        treeWidget->setColumnCount(opts.geosatellites.at(geoindex).spectrumlist.count() + 2);
+        QStringList header;
+        int columnsheadercount;
+        if(opts.geosatellites.at(geoindex).spectrumhrv.length() == 0)
+        {
+            header << opts.geosatellites.at(geoindex).spectrumvalueslist;
+            columnsheadercount = opts.geosatellites.at(geoindex).spectrumlist.count() + 2;
+            if(opts.geosatellites.at(geoindex).shortname == "H9")
+            {
+                columnsheadercount++;
+            }
+
+        }
+        else
+        {
+            header << opts.geosatellites.at(geoindex).spectrumhrv << opts.geosatellites.at(geoindex).spectrumvalueslist;
+            columnsheadercount = opts.geosatellites.at(geoindex).spectrumlist.count() + 3;
+        }
+
+        treeWidget->setColumnWidth(0, 150);
+        treeWidget->setColumnWidth(1, 150);
+
+        if(opts.geosatellites.at(geoindex).shortname == "H9")
+            treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header << "Moon illumination (%)" );
+        else
+            treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Channels" << header );
+
+
+        for(int i = 2; i < columnsheadercount; i++)
+        {
+            treeWidget->setColumnWidth(i, 40);
+        }
+
+        for(int i = 0; i < columnsheadercount; i++)
+        {
+            treeWidget->header()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
+        }
+
+        connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(ontreeWidgetitemClicked(QTreeWidgetItem *, int)));
+        QVBoxLayout *mylayout = new QVBoxLayout;
+        mylayout->addWidget(treeWidget);
+        mywidget->setLayout(mylayout);
+    }
+    else
+    {
+        QWidget *mywidget = new QWidget();
+        ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(geoindex).fullname + " : " + QString("%1").arg(opts.geosatellites.at(geoindex).longitude) + "°");
+        QTreeWidget *treeWidget = new QTreeWidget;
+
+        geotreewidgetlist.append(treeWidget);
+        treeWidget->setRootIsDecorated(false);
+        treeWidget->header()->setStretchLastSection(false);
+        treeWidget->setColumnCount(41 + 2);
+        QStringList header;
+
+        for(int i = 1; i < 42; i++)
+        {
+            QString tel = QString("%1").arg(i, 3, 10);
+            header.append(tel);
+        }
+
+        treeWidget->setHeaderLabels( QStringList() << "Date/Time" << "Seq." << header );
+
+        treeWidget->header()->setMinimumSectionSize(5);
+        treeWidget->header()->resizeSections(QHeaderView::ResizeToContents);
+        treeWidget->setColumnWidth(0, 250);
+
+        connect(treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(ontreeWidgetitemClicked(QTreeWidgetItem *, int)));
+        QVBoxLayout *mylayout = new QVBoxLayout;
+        mylayout->addWidget(treeWidget);
+        mywidget->setLayout(mylayout);
+    }
+
 
 }
 
@@ -135,7 +141,7 @@ QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QStr
 {
     qDebug() << QString("getGeostationarySegments type = %1  Filepath = %2 filepattern = %3").arg(imagetype).arg(filepath).arg(filepattern);
     qDebug() << QString("getGeostationarySegments spectrumvector %1 %2 %3 %4").arg(spectrumvector.at(0))
-                .arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg((spectrumvector.at(3) == NULL ? "" : spectrumvector.at(3)));
+                .arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg((spectrumvector.at(3).isEmpty() ? "" : spectrumvector.at(3)));
     QDir meteosatdir(filepath);
     meteosatdir.setFilter(QDir::Files | QDir::NoSymLinks);
     meteosatdir.setSorting(QDir::Name);
@@ -284,9 +290,9 @@ QStringList FormGeostationary::getGeostationarySegmentsMTGAlt(int geoindex, cons
     while (i != mapfilenbr.constEnd()) {
         outlist << i.value().fileName();
         if(i.value().fileName().contains("BODY"))
-            qDebug() << "key = " << i.key() << " filename = " << i.value().fileName().midRef(85);
+            qDebug() << "key = " << i.key() << " filename = " << i.value().fileName().mid(85);
         else
-            qDebug() << "key = " << i.key() << " filename = " << i.value().fileName().midRef(86);
+            qDebug() << "key = " << i.key() << " filename = " << i.value().fileName().mid(86);
 
         ++i;
     }
@@ -367,7 +373,7 @@ void FormGeostationary::PopulateTree(QDate seldate)
 
 }
 
-void FormGeostationary::PopulateTreeGeoMTGI1(int geoindex)
+void FormGeostationary::PopulateTreeGeoMTGI1(int tabindex)
 {
 
     int filenbr;// 1 --> 144
@@ -382,7 +388,7 @@ void FormGeostationary::PopulateTreeGeoMTGI1(int geoindex)
     mapmtgi1 = segs->segmentlistmapgeomtgi1;
 
     QTreeWidget *widget;
-    widget = geotreewidgetlist.at(geoindex);
+    widget = geotreewidgetlist.at(tabindex);
     widget->clear();
 
     QMap<int, QMap< int, QFileInfo > >::const_iterator citfilenbr = mapmtgi1.constBegin();
@@ -451,6 +457,7 @@ void FormGeostationary::PopulateTreeGeoMTGI1(int geoindex)
                 col.setRgb(174, 225, 184);
             }
             newitem->setBackground( i, QBrush(col) );
+            newitem->setForeground( i, QBrush(Qt::black) );
         }
         ++citfilenbr;
     }
@@ -493,11 +500,11 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
     QTreeWidgetItem *newitem;
     QString strdate;
     QString strspectrum;
-    QString filenbr;
+    int filenbr;
     QColor col;
 
     moonCalc obj;
-    if(opts.geosatellites.at(geoindex).shortname == "H9")
+    if(opts.geosatellites.at( geoindex).shortname == "H9")
     {
         obj.CalcMoon(seldate, geoindex);
     }
@@ -622,8 +629,10 @@ void FormGeostationary::PopulateTreeGeo(int geoindex)
 
 
         for(int i = 0; i < newitem->columnCount(); i++)
+        {
+            newitem->setForeground(i, QBrush(Qt::black));
             newitem->setBackground( i, QBrush(col) );
-
+        }
         if(opts.geosatellites.at(geoindex).shortname == "H9")
         {
             int timeindex = obj.getTimeIndex(strdate.mid(8,2), strdate.mid(10, 2));
@@ -670,21 +679,31 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
 
     SegmentListGeostationary *sl;
 
-    for(int i = 0; i < opts.geosatellites.count(); i++)
-    {
-        QList<QTreeWidgetItem *> treewidgetselected = geotreewidgetlist.at(i)->selectedItems();
-        if(treewidgetselected.count() > 0)
-        {
-            sl = setActiveSegmentList(i);
-            qDebug() << "getGeoSatelliteIndex = " << sl->getGeoSatelliteIndex();
-            QTreeWidgetItem *it = treewidgetselected.at(0);
-            tex = it->text(0);
-            tex1 = it->text(1);
-            break;
-        }
-    }
+    int geoindex = formtoolbox->getGeoIndex();
+    sl = setActiveSegmentList(geoindex);
 
-    int geoindex = sl->getGeoSatelliteIndex();
+    QList<QTreeWidgetItem *> treewidgetselected = geotreewidgetlist.at(geoindex)->selectedItems();
+
+    QTreeWidgetItem *it = treewidgetselected.at(0);
+    qDebug() << it->text(0);
+    tex = it->text(0);
+    tex1 = it->text(1);
+
+    // for(int i = 0; i < opts.geosatellites.count(); i++)
+    // {
+    //     QList<QTreeWidgetItem *> treewidgetselected = geotreewidgetlist.at(i)->selectedItems();
+    //     if(treewidgetselected.count() > 0)
+    //     {
+    //         sl = setActiveSegmentList(i);
+    //         //qDebug() << "getGeoSatelliteIndex = " << sl->getGeoSatelliteIndex();
+    //         QTreeWidgetItem *it = treewidgetselected.at(0);
+    //         tex = it->text(0);
+    //         tex1 = it->text(1);
+    //         break;
+    //     }
+    // }
+
+    //geoindex = sl->getGeoSatelliteIndex();
 
     if(opts.geosatellites.at(geoindex).shortname == "MTG-I1") {
         CreateGeoImageMTG(type, spectrumvector, inversevector, histogrammethod, pseudocolor, tex + ";" + tex1, geoindex);
@@ -808,8 +827,6 @@ void FormGeostationary::CreateGeoImageXRIT(SegmentListGeostationary *sl, QString
     QString filepattern;
     int filesequence;
     QString filespectrum;
-
-    QApplication::setOverrideCursor(( Qt::WaitCursor));
 
     formtoolbox->setProgressValue(10);
 
@@ -1175,10 +1192,10 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     //OR_ABI-L1b-RadF-M4C01_G16_s20161811455312_e20161811500122_c20161811500175.nc
     //01234567890123456789012345678901234567890123456789
 
-    if((whichgeo == eGeoSatellite::GOES_16) && (type == "VIS_IR" || type == "VIS_IR Color"))
-        filepattern = QString("OR_ABI-L1b-RadF-M????_G16_s") + filetiming_goes + QString("*.nc");
-    else if((whichgeo == eGeoSatellite::GOES_17) && (type == "VIS_IR" || type == "VIS_IR Color"))
-        filepattern = QString("OR_ABI-L1b-RadF-M????_G17_s") + filetiming_goes + QString("*.nc");
+    if((whichgeo == eGeoSatellite::GOES_19) && (type == "VIS_IR" || type == "VIS_IR Color"))
+        filepattern = QString("OR_ABI-L1b-RadF-M????_G19_s") + filetiming_goes + QString("*.nc");
+    //else if((whichgeo == eGeoSatellite::GOES_19) && (type == "VIS_IR" || type == "VIS_IR Color"))
+    //     filepattern = QString("OR_ABI-L1b-RadF-M????_G19_s") + filetiming_goes + QString("*.nc");
     else if((whichgeo == eGeoSatellite::GOES_18) && (type == "VIS_IR" || type == "VIS_IR Color"))
         filepattern = QString("OR_ABI-L1b-RadF-M????_G18_s") + filetiming_goes + QString("*.nc");
     else if(whichgeo == eGeoSatellite::MTG_I1)
@@ -1235,9 +1252,9 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
     //"2017-08-10   19:45"
     //              012345678901234567890
     //====> tex =  "2017-09-20 11:00;66"
-    QDate now(tex.midRef(0, 4).toInt(), tex.midRef(5, 2).toInt(), tex.midRef(8, 2).toInt());
-    int filenbr = tex.midRef(17).toInt();
-    sl->setFileDateString(tex.midRef(0, 4) + tex.midRef(5, 2) + tex.midRef(8, 2) + tex.midRef(11, 2) + tex.midRef(14, 2));
+    QDate now(tex.mid(0, 4).toInt(), tex.mid(5, 2).toInt(), tex.mid(8, 2).toInt());
+    int filenbr = tex.mid(17).toInt();
+    sl->setFileDateString(tex.mid(0, 4) + tex.mid(5, 2) + tex.mid(8, 2) + tex.mid(11, 2) + tex.mid(14, 2));
 
 
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
@@ -1287,9 +1304,9 @@ void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item,
 
     qDebug() << "FormGeostationary::SelectGeoWidgetItem";
 
-        for(int i = 0; i < opts.geosatellites.count(); i++)
-            if(opts.geosatellites.at(i).shortname != "MTG-I1")
-                setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
+    for(int i = 0; i < opts.geosatellites.count(); i++)
+        if(opts.geosatellites.at(i).shortname != "MTG-I1")
+            setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
 
     qDebug() << opts.geosatellites.at(geoindex).shortname + " " + (*item).text(0);
 
@@ -1313,21 +1330,16 @@ void FormGeostationary::ontreeWidgetitemClicked(QTreeWidgetItem *item, int colum
     SelectGeoWidgetItem(ui->tabGeostationary->currentIndex(), item, column);
 }
 
-void FormGeostationary::on_tabGeostationary_tabBarClicked(int index)
+void FormGeostationary::on_tabGeostationary_tabBarClicked(int geoindex)
 {
 
-    formtoolbox->setupChannelGeoCombo(index);
+    formtoolbox->setupChannelGeoCombo(geoindex);
 
-    qDebug() << "FormGeostationary::on_tabGeostationary_tabBarClicked(int index) index = " << index;
+    qDebug() << "FormGeostationary::on_tabGeostationary_tabBarClicked(int geoindex) geoindex = " << geoindex;
 
-    formimage->setupGeoOverlay(index);
+    formimage->setupGeoOverlay(geoindex);
 
-    emit setbuttonlabels(index, false);
-}
-
-int FormGeostationary::getTabWidgetGeoIndex()
-{
-    return ui->tabGeostationary->currentIndex();
+    emit setbuttonlabels(geoindex, false);
 }
 
 void FormGeostationary::slotCreateRGBrecipe(int recipe)

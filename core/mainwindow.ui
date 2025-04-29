@@ -59,6 +59,9 @@
    <addaction name="separator"/>
    <addaction name="actionWhatsthis"/>
    <addaction name="separator"/>
+   <addaction name="actionFonts_plus"/>
+   <addaction name="actionFonts_min"/>
+   <addaction name="actionDark_mode"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -72,7 +75,7 @@
     </size>
    </property>
    <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonIconOnly</enum>
+    <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
    </property>
    <attribute name="toolBarArea">
     <enum>LeftToolBarArea</enum>
@@ -92,7 +95,7 @@
   <action name="actionSatSelection">
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
-     <normaloff>:/icons/satellite.jpg</normaloff>:/icons/satellite.jpg</iconset>
+     <normaloff>:/icons/satellite2.png</normaloff>:/icons/satellite2.png</iconset>
    </property>
    <property name="text">
     <string>Satellite Setup</string>
@@ -273,6 +276,45 @@
    </property>
    <property name="toolTip">
     <string>Settings movie XML file</string>
+   </property>
+  </action>
+  <action name="actionFonts_plus">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ListAdd"/>
+   </property>
+   <property name="text">
+    <string>Fonts plus</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionFonts_min">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ListRemove"/>
+   </property>
+   <property name="text">
+    <string>Fonts min</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionDark_mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::FormatJustifyFill"/>
+   </property>
+   <property name="text">
+    <string>Dark mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle Dark Mode/Light Mode</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
    </property>
   </action>
  </widget>

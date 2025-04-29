@@ -101,7 +101,68 @@ FormMovie::FormMovie(QWidget *parent) :
         ui->lwffmpeg->setCurrentRow(0);
         ui->leffmpegoptions->setText(ui->lwffmpeg->currentItem()->text());
     }
+
+    opts.globalChangeFonts(this, opts.fontsize);
 }
+
+// void FormMovie::listWidgets()
+// {
+//     qDebug() << "--- Listing Widgets in FormMapCyl ---";
+
+//     QFont new_font = this->font();
+//     new_font.setPointSize(16); //your option
+//     new_font.setWeight(QFont::Medium); //your option
+
+
+//     // 1. Find all Buttons (using the base class QAbstractButton)
+//     // qDebug() << "\n[Buttons (QAbstractButton subclasses)]";
+//     // // Use 'this' to search within the MainWindow instance
+//     // QList<QAbstractButton *> allButtons = this->findChildren<QAbstractButton *>();
+//     // if (allButtons.isEmpty()) {
+//     //     qDebug() << "  No buttons found.";
+//     // } else {
+//     //     for (QAbstractButton *button : allButtons) {
+//     //         // Print object name (if set) and class name
+//     //         qDebug() << "  - Object Name:" << button->objectName()
+//     //                  << ", Class:" << button->metaObject()->className()
+//     //                  << ", Text:" << button->text(); // Text might be empty for some
+//     //         //button->setFont(new_font);
+
+//     //     }
+//     // }
+
+//     // 2. Find all Item Views (using the base class QAbstractItemView)
+//     // qDebug() << "\n[Item Views (QAbstractItemView subclasses)]";
+//     // QList<QAbstractItemView *> allItemViews = this->findChildren<QAbstractItemView *>();
+//     //  if (allItemViews.isEmpty()) {
+//     //     qDebug() << "  No item views found.";
+//     // } else {
+//     //     for (QAbstractItemView *view : allItemViews) {
+//     //         qDebug() << "  - Object Name:" << view->objectName()
+//     //                  << ", Class:" << view->metaObject()->className();
+//     //     }
+//     // }
+
+
+//     // 3. Find ALL Widgets (using the base class QWidget)
+//     //    This will find *everything*, including layouts if they derive from QWidget (QVBoxLayout doesn't)
+//     //    and potentially internal widgets of complex controls.
+//     qDebug() << "\n[All Widgets (QWidget subclasses)]";
+//     QList<QWidget *> allWidgets = this->findChildren<QWidget *>();
+//     if (allWidgets.isEmpty()) {
+//         qDebug() << "  No widgets found.";
+//     } else {
+//         for (QWidget *widget : allWidgets) {
+//             // You could add filters here if needed, e.g., ignore widgets with empty object names
+//             // or only show specific types not covered above.
+//             qDebug() << "  - Object Name:" << widget->objectName()
+//                      << ", Class:" << widget->metaObject()->className();
+//             widget->setFont(new_font);
+//         }
+//     }
+
+//     qDebug() << "\n--- End of Listing ---";
+// }
 
 void FormMovie::readPendingDatagrams()
 {
@@ -170,7 +231,7 @@ void FormMovie::setupSpectrum()
 void FormMovie::setupSatname()
 {
     QStringList satnames;
-    satnames << "MET_11" << "MET_10" << "MET_9" << "MET_8";
+    satnames << "MET_11" << "MET_10" << "MET_9";
     ui->cmbSatname->addItems(satnames);
     ui->cmbSatname->setCurrentText(opts.satname);
 
@@ -185,7 +246,8 @@ bool FormMovie::saveFormToOptions()
     QString pathlistdata = ui->tePathlist->toPlainText();
     qDebug() << pathlistdata;
     QStringList list;
-    list = pathlistdata.split(QRegExp("\\s+"));
+    list = pathlistdata.split(QRegularExpression("\\s+"));
+
     opts.pathlist.clear();
     opts.pathlist = list;
 
@@ -256,7 +318,7 @@ void FormMovie::on_btnCreateXML_clicked()
 
     QString pathlistdata = ui->tePathlist->toPlainText();
     QStringList list;
-    list = pathlistdata.split(QRegExp("\\s+"));
+    list = pathlistdata.split(QRegularExpression("\\s+"));
 
     foreach (const QString &str, list) {
         tag = doc.createElement("path");
@@ -309,19 +371,19 @@ void FormMovie::on_btnCreateXML_clicked()
         tag.appendChild(t);
 
     }
-    else if(ui->cmbSatname->currentText() == "MET_8")
-    {
-        tag = doc.createElement("pattern");
-        root.appendChild(tag);
-        t = doc.createTextNode("H-000-MSG1__-MSG1_????___-??????___-??????___-????????????-?_");
-        tag.appendChild(t);
+    // else if(ui->cmbSatname->currentText() == "MET_8")
+    // {
+    //     tag = doc.createElement("pattern");
+    //     root.appendChild(tag);
+    //     t = doc.createTextNode("H-000-MSG1__-MSG1_????___-??????___-??????___-????????????-?_");
+    //     tag.appendChild(t);
 
-        tag = doc.createElement("rss");
-        root.appendChild(tag);
-        t = doc.createTextNode("0");
-        tag.appendChild(t);
+    //     tag = doc.createElement("rss");
+    //     root.appendChild(tag);
+    //     t = doc.createTextNode("0");
+    //     tag.appendChild(t);
 
-    }
+    // }
     else
         return;
 
@@ -518,13 +580,13 @@ void FormMovie::on_btnCreateXML_clicked()
         t = doc.createTextNode("45.5");
         tag.appendChild(t);
     }
-    else if(ui->cmbSatname->currentText() == "MET_8")
-    {
-        tag = doc.createElement("satlon");
-        tagroot.appendChild(tag);
-        t = doc.createTextNode("41.5");
-        tag.appendChild(t);
-    }
+    // else if(ui->cmbSatname->currentText() == "MET_8")
+    // {
+    //     tag = doc.createElement("satlon");
+    //     tagroot.appendChild(tag);
+    //     t = doc.createTextNode("41.5");
+    //     tag.appendChild(t);
+    // }
 
     tag = doc.createElement("homelon");
     tagroot.appendChild(tag);

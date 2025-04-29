@@ -222,7 +222,7 @@ void Globe::mousePressEvent(QMouseEvent *event)
 
     if(event->buttons() & Qt::RightButton)
     {
-        this->mouseDownAction(event->x(), event->y());
+        this->mouseDownAction(event->position().x(), event->position().y());
         event->accept();
     }
 
@@ -542,7 +542,7 @@ void Globe::paintGL()
     {
         delete textureearth;
         QPixmap pm = *(imageptrs->pmOut);
-        textureearth = new QOpenGLTexture(pm.toImage().mirrored(true, false));
+        textureearth = new QOpenGLTexture(pm.toImage().flipped(Qt::Horizontal));
         textureearth->setMinificationFilter(QOpenGLTexture::Linear);
         textureearth->setMagnificationFilter(QOpenGLTexture::Linear);
         textureearth->setWrapMode(QOpenGLTexture::ClampToEdge);
@@ -1665,7 +1665,6 @@ void Globe::Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirecta
     QRgb rgbval;
     double lon_low, lon_high;
 
-
     QPainter fb_painter(imageptrs->pmOut);
 
     int imheight = imageptrs->ptrimageGeostationary->height();
@@ -1711,10 +1710,25 @@ void Globe::Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirecta
                 {
                     scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(yimage);
                     rgbval = scanl[ximage];
-                    //if(rgbval != qRgb(0, 0, 0))
+                    float lat_rad, lon_rad;
+                    lat_rad = lat_deg * RADS_PER_DEG;
+                    lon_rad = lon_deg * RADS_PER_DEG;
+                    //  angle = arccos(sin(lat1).sin(lat2)+ cos(lat1).cos(lat2).cos(lon1 - lon2)
+                    float angle = ArcCos(cos(lat_rad)*cos(segs->seglgeo[geoindex]->geosatlon * RADS_PER_DEG - lon_rad));
+
+                    if(angle < 70 * RADS_PER_DEG)
                     {
                         fb_painter.setPen(rgbval);
                         fb_painter.drawPoint(pix, heightinimage);
+                    }
+                    else
+                    {
+                        if(rgbval != qRgb(0, 0, 0))
+                        {
+                            fb_painter.setPen(rgbval);
+                            fb_painter.drawPoint(pix, heightinimage);
+                        }
+
                     }
                 }
             }
@@ -1789,19 +1803,19 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
                 rainbow.append(qBlue(rgbval));
             }
         }
-        else if(geo == eGeoSatellite::MET_8)
-        {
-            if(pixconv.pixcoord2geocoord(segs->seglgeo[2]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
-            {
-                sphericalToPixel(lon_deg*PIE/180.0, lat_deg*PIE/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
-                positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
-                positions.append((float)(y / (imageptrs->pmOriginal->height()/2) - 1));
-                texpositions.append((float)(pix /imageptrs->pmOriginal->width()));
-                rainbow.append(qRed(rgbval));
-                rainbow.append(qGreen(rgbval));
-                rainbow.append(qBlue(rgbval));
-            }
-        }
+        // else if(geo == eGeoSatellite::MET_8)
+        // {
+        //     if(pixconv.pixcoord2geocoord(segs->seglgeo[2]->geosatlon, pix, heightinimage, COFF_NONHRV, LOFF_NONHRV, CFAC_NONHRV, LFAC_NONHRV, &lat_deg, &lon_deg) == 0)
+        //     {
+        //         sphericalToPixel(lon_deg*PIE/180.0, lat_deg*PIE/180.0, x, y, imageptrs->pmOriginal->width(), imageptrs->pmOriginal->height());
+        //         positions.append((float)(x / (imageptrs->pmOriginal->width()/2) - 1));
+        //         positions.append((float)(y / (imageptrs->pmOriginal->height()/2) - 1));
+        //         texpositions.append((float)(pix /imageptrs->pmOriginal->width()));
+        //         rainbow.append(qRed(rgbval));
+        //         rainbow.append(qGreen(rgbval));
+        //         rainbow.append(qBlue(rgbval));
+        //     }
+        // }
 
     }
 
@@ -1839,9 +1853,9 @@ void Globe::keyPressEvent(QKeyEvent *event)
 {
 
     qDebug() << "Globe::keyPressEvent(QKeyEvent *event)";
-    QMatrix mat;
-    mat.reset();
-    mat.rotate(180.0);
+    // QGenericMatrix<3, 3, mat;
+    // mat.reset();
+    // mat.rotate(180.0);
 
     switch (event->key())
     {

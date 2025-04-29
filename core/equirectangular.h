@@ -15,6 +15,8 @@ public:
     void Initialize(int imwidth, int imheight);
     void map_forward(float lon_deg, float lat_deg, int &map_x, int &map_y);
     void map_inverse(int map_x, int map_y, float &lon_deg, float &lat_deg);
+    void map_inverse_rad(int map_x, int map_y, float &lon_rad, float &lat_rad);
+
     void initializeProjectionCoord();
     qint32 getProjectionX(int line, int pixelx);
     qint32 getProjectionY(int line, int pixelx);

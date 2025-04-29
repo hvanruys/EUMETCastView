@@ -306,39 +306,39 @@ double QTle::MeanAnomaly(QSgp4Date gmt)
 //      Have as the second character a blank
 //      Be TLE_LEN_LINE_DATA characters long
 //      Have a valid checksum (note: no longer required as of 12/96)
-//      
-bool QTle::IsValidLine(QString str, eTleLine line)
-{
-   str = str.trimmed();
+//
+// bool QTle::IsValidLine(QString str, eTleLine line)
+// {
+//    str = str.trimmed();
    
-   int nLen = str.length();
+//    int nLen = str.length();
    
-   if (nLen != TLE_LEN_LINE_DATA)
-      return false;
+//    if (nLen != TLE_LEN_LINE_DATA)
+//       return false;
    
-   // First char in string must be line number
-   if (str.at(0) != line)
-      return false;
+//    // First char in string must be line number
+//    if (str.at(0) != line)
+//       return false;
    
-   // Second char in string must be blank
-   if (str.at(1) != ' ')
-      return false;
+//    // Second char in string must be blank
+//    if (str.at(1) != ' ')
+//       return false;
    
-   /*
-      NOTE: 12/96 
-      The requirement that the last char in the line data must be a valid 
-      checksum is too restrictive. 
+//    /*
+//       NOTE: 12/96
+//       The requirement that the last char in the line data must be a valid
+//       checksum is too restrictive.
       
-      // Last char in string must be checksum
-      int nSum = CheckSum(str);
+//       // Last char in string must be checksum
+//       int nSum = CheckSum(str);
      
-      if (nSum != (str[TLE_LEN_LINE_DATA - 1] - '0'))
-         return false;
-   */
+//       if (nSum != (str[TLE_LEN_LINE_DATA - 1] - '0'))
+//          return false;
+//    */
    
-   return true;
+//    return true;
    
-} // IsTleFormat()
+// } // IsTleFormat()
 
 /////////////////////////////////////////////////////////////////////////////
 // CheckSum()

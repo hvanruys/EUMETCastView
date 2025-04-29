@@ -28,9 +28,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupStatusBar();
 
+    ui->actionDark_mode->setChecked(opts.darkmode);
+
     seglist = new AVHRRSatellite(this);
 
     formephem = new FormEphem(this, seglist);
+
+    // QFont currentFont = QApplication::font(); // Get current application font
+    // currentFont.setPointSize(16);      // Set the desired point size
+    // QApplication::setFont(currentFont);       // Apply it globally
+
     ui->stackedWidget->addWidget(formephem); // index 0
 
 
@@ -63,6 +70,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     formtoolbox = new FormToolbox(this, formimage, formgeostationary, seglist);
+    // new_font = formtoolbox->font();
+    // new_font.setPointSize(18); //your option
+    // new_font.setWeight(QFont::Medium); //your option
+    // formtoolbox->setFont(new_font);
+
 
     formimage->SetFormToolbox(formtoolbox);
     formgeostationary->SetFormToolBox(formtoolbox);
@@ -503,7 +515,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-8"
     "<br>FCI from MTG-I1"
     "<br>Electro L3, FengYun 2H, FengYun 2G"
-    "<br>GOES-16, GOES-17 and Himawari-8"
+    "<br>GOES-18, GOES-19 and Himawari-9"
     "<ul>"
     "<li>Made by Hugo Van Ruyskensvelde.</li>"
     "</HTML>";
@@ -566,7 +578,6 @@ void MainWindow::on_actionMeteosat_triggered()
 {
      ui->stackedWidget->setCurrentIndex(1);
      formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
-     //formtoolbox->setButtons(formtoolbox->getGeoIndex(), true);
 }
 
 void MainWindow::on_actionCylindricalEquidistant_triggered()
@@ -603,7 +614,6 @@ void MainWindow::on_actionImage_triggered()
     int index = formtoolbox->getTabWidgetIndex();
     int indexviirs = formtoolbox->getTabWidgetVIIRSIndex();
     int indexsentinel = formtoolbox->getTabWidgetSentinelIndex();
-    int indexgeostationary = formgeostationary->getTabWidgetGeoIndex();
 
     qDebug() << "MainWindow::on_actionImage_triggered()";
 
@@ -731,38 +741,6 @@ void MainWindow::on_actionCreatePNG_triggered()
     }
 }
 
-//void MainWindow::moveImage(QPoint d, QPoint e)
-//{
-//    int width = imagescrollarea->width();
-//    int height = imagescrollarea->height();
-
-//    QPoint mousePos = d;
-
-//    int deltaX = e.x() - mousePos.x();
-//    int deltaY = e.y() - mousePos.y();
-
-
-//    if (mousePos.y() <= 4 && imagescrollarea->verticalScrollBar()->value() < imagescrollarea->verticalScrollBar()->maximum() - 10) {
-//            // wrap mouse from top to bottom
-//            mousePos.setY(height - 5);
-//    } else if (mousePos.y() >= height - 4 && imagescrollarea->verticalScrollBar()->value() > 10) {
-//            // wrap mouse from bottom to top
-//            mousePos.setY(5);
-//    }
-
-//    if (mousePos.x() <= 4 && imagescrollarea->horizontalScrollBar()->value() < imagescrollarea->horizontalScrollBar()->maximum() - 10) {
-//            // wrap mouse from left to right
-//            mousePos.setX(width - 5);
-//    } else if (mousePos.x() >= width - 4 && imagescrollarea->horizontalScrollBar()->value() > 10) {
-//            // wrap mouse from right to left
-//            mousePos.setX(5);
-//    }
-
-//    imagescrollarea->horizontalScrollBar()->setValue(imagescrollarea->horizontalScrollBar()->value() + deltaX);
-//    imagescrollarea->verticalScrollBar()->setValue(imagescrollarea->verticalScrollBar()->value() + deltaY);
-
-//}
-
 void MainWindow::updateWindowTitle()
 {
         QString windowTitleFormat = QString("EUMETCastView zoomLevel");
@@ -773,6 +751,21 @@ void MainWindow::updateWindowTitle()
         this->setWindowTitle(windowTitleFormat);
 }
 
+void MainWindow::on_actionFonts_plus_triggered()
+{
+    opts.fontsize++;
+    opts.globalChangeFonts(this, opts.fontsize);
+}
 
+void MainWindow::on_actionFonts_min_triggered()
+{
+    opts.fontsize--;
+    opts.globalChangeFonts(this, opts.fontsize);
+}
 
+void MainWindow::on_actionDark_mode_triggered(bool checked)
+{
+    opts.darkmode = checked;
+    opts.setDarkMode(opts.darkmode);
+}
 

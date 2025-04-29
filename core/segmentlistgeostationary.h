@@ -161,10 +161,10 @@ private:
     void CalculateLonLat();
     QImage *CalculateBitMap(bool HRV);
 
-    quint16 stat_min[4];
-    quint16 stat_max[4];
+    quint16 stat_min[5];
+    quint16 stat_max[5];
 
-    long active_pixels[4];
+    long active_pixels[5];
 
     QString kindofimage;
     QString imagepath;

@@ -21,6 +21,7 @@ FormEphem::FormEphem(QWidget *parent, AVHRRSatellite *seglist):
 {
     ui->setupUi(this);
 
+
     if(ui->splitter->restoreState( opts.ephemsplittersizes ))
         qDebug() << "splitter ok";
     else
@@ -103,6 +104,11 @@ FormEphem::FormEphem(QWidget *parent, AVHRRSatellite *seglist):
     ui->selectedsegmentwidget->header()->setStretchLastSection(true);
     ui->selectedsegmentwidget->setColumnWidth(0, 300);
 
+    // QFont currentFont = ui->calendar->font(); // Get current application font
+    // currentFont.setPointSize(16);      // Set the desired point size
+    // ui->calendar->setFont(currentFont);       // Apply it globally
+
+
     /*    QDate now =QDate::currentDate();
     ui->calendar->setSelectedDate(now);
 
@@ -132,6 +138,7 @@ FormEphem::FormEphem(QWidget *parent, AVHRRSatellite *seglist):
 
     showAvailSat();
     showSegmentDirectoryList();
+    opts.globalChangeFonts(this, opts.fontsize);
 
 }
 

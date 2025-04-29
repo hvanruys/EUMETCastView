@@ -25,6 +25,8 @@ class FormGeostationary : public QWidget
 public:
 
     explicit FormGeostationary(QWidget *parent = 0, AVHRRSatellite *seglist = 0);
+    void newGeoTab(int geoindex);
+
     QStringList globit(const QString filepath, const QString filepattern);
     void SetFormToolBox(FormToolbox *p_formtoolbox) { formtoolbox = p_formtoolbox; }
     int wildcmp(const char *wild, const char *string);
@@ -33,7 +35,6 @@ public:
     void SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item, int column );
     SegmentListGeostationary *setActiveSegmentList(int geoindex);
     SegmentListGeostationary *getActiveSegmentList();
-    int getTabWidgetGeoIndex();
     void getTimeFromFilenbr(int filenbr, QString *strtime);
     void CalcMoon(QDate selected, int geosatindex);
     ~FormGeostationary();
@@ -65,7 +66,7 @@ public slots:
 
 private slots:
     void ontreeWidgetitemClicked(QTreeWidgetItem *item, int column);
-    void on_tabGeostationary_tabBarClicked(int index);
+    void on_tabGeostationary_tabBarClicked(int geoindex);
 
 signals:
     void geostationarysegmentschosen(int geoindex, QStringList ll);

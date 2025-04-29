@@ -73,16 +73,14 @@ enum class eGeoSatellite {
     MET_11 = 0,
     MET_10 = 1,
     MET_9 = 2,
-    MET_8 = 3,
-    GOMS3 = 4,
-    FY2H = 5,
-    FY2G = 6,
-    GOES_16 = 7,
-    GOES_17 = 8,
-    GOES_18 = 9,
-    H9 = 10,
-    MTG_I1 = 11,
-    NOGEO = 12
+    GOMS3 = 3,
+    FY2H = 4,
+    FY2G = 5,
+    GOES_19 = 6,
+    GOES_18 = 7,
+    H9 = 8,
+    MTG_I1 = 9,
+    NOGEO = 10
 };
 
 enum class ePolarSatellite {

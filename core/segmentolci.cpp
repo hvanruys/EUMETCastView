@@ -310,7 +310,7 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
     if (retval != NC_NOERR) qDebug() << "error reading att string flag_meanings retval = " << retval ;
 
     QString strflagmeanings(string_attr);
-    this->strlflagmeanings = strflagmeanings.split(" ",QString::SkipEmptyParts);
+    this->strlflagmeanings = strflagmeanings.split(" ", Qt::SkipEmptyParts);
     for (int i = 0; i < strlflagmeanings.size(); i++)
     {
         qDebug() << i << " " << strlflagmeanings.at(i);

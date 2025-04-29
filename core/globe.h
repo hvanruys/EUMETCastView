@@ -166,7 +166,7 @@ private:
 
     QMatrix4x4 projection;
     int m_frames;
-    QTime m_time;
+    QElapsedTimer m_time;
 
     bool bBorders;
     bool bSatellites;

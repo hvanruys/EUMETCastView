@@ -95,7 +95,7 @@ public:
     void setFormMovie(FormMovie *formmovie);
     void setProgressMaximum(int max);
     void setProgressValue(int val);
-    void setupChannelGeoCombo(int index);
+    void setupChannelGeoCombo(int geoindex);
 
     QStringList getRowchosen() { return rowchosen; }
     eProjectionType currentProjectionType;
@@ -137,7 +137,6 @@ private:
     void blockSignalscomboGeo(bool state);
     void reinitProjectionCanvas();
     void resetSpectrumInverse();
-
 
     AVHRRSatellite *segs;
 
@@ -368,6 +367,7 @@ private slots:
     void on_chkInverseGeo14_stateChanged(int arg1);
     void on_chkInverseGeo15_stateChanged(int arg1);
     void on_chkInverseGeo16_stateChanged(int arg1);
+    void on_rdbAlphaZero_clicked();
 };
 
 

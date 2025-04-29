@@ -244,8 +244,10 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->rdbDownloadXMLOLCIERR->setChecked(false);
     ui->rdbDownloadXMLSLSTR->setChecked(false);
 
+    opts.globalChangeFonts(this, opts.fontsize);
 
 }
+
 
 void FormMapCyl::SetAllButtonsToFalse()
 {

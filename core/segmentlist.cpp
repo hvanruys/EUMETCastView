@@ -707,7 +707,7 @@ bool SegmentList::ComposeAVHRRImageInThread()
 {
     qDebug() << "SegmentList::ComposeAVHRRImageInThread()";
 
-    QApplication::setOverrideCursor( Qt::WaitCursor );  //restore in finished()
+    //QApplication::setOverrideCursor( Qt::WaitCursor );  //restore in finished()
 
     emit progressCounter(0);
 

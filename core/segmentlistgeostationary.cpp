@@ -13,8 +13,8 @@
    ------------------------------------------------------------------ */
 #include <QApplication>
 #include <QFuture>
-#include <QtConcurrent/QtConcurrent>
-#include <iomanip>
+#include <QtConcurrent>
+//#include <iomanip>
 
 #include "segmentlistgeostationary.h"
 #include "qcompressor.h"
@@ -220,10 +220,10 @@ void SegmentListGeostationary::setGeoSatellite(int geoindex)
     {
         this->m_GeoSatellite = eGeoSatellite::MET_9;
     }
-    else if(str_GeoSatellite == "MET_8")
-    {
-        this->m_GeoSatellite = eGeoSatellite::MET_8;
-    }
+    // else if(str_GeoSatellite == "MET_8")
+    // {
+    //     this->m_GeoSatellite = eGeoSatellite::MET_8;
+    // }
     else if(str_GeoSatellite == "GOMS3")
     {
         this->m_GeoSatellite = eGeoSatellite::GOMS3;
@@ -240,14 +240,14 @@ void SegmentListGeostationary::setGeoSatellite(int geoindex)
     {
         this->m_GeoSatellite = eGeoSatellite::GOES_18;
     }
-    else if(str_GeoSatellite == "GOES_16")
+    else if(str_GeoSatellite == "GOES_19")
     {
-        this->m_GeoSatellite = eGeoSatellite::GOES_16;
+        this->m_GeoSatellite = eGeoSatellite::GOES_19;
     }
-    else if(str_GeoSatellite == "GOES_17")
-    {
-        this->m_GeoSatellite = eGeoSatellite::GOES_17;
-    }
+    // else if(str_GeoSatellite == "GOES_17")
+    // {
+    //     this->m_GeoSatellite = eGeoSatellite::GOES_17;
+    // }
     else if(str_GeoSatellite == "H9")
     {
         this->m_GeoSatellite = eGeoSatellite::H9;
@@ -1463,7 +1463,6 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread() //(QStringLis
 
         qDebug() << "nominal_satellite_subpoint_lon = " << nominal_satellite_subpoint_lon;
         //this->geosatlon = nominal_satellite_subpoint_lon;
-        //opts.geosatellites[(int)eGeoSatellite::GOES_16].longitude = nominal_satellite_subpoint_lon;
 
         float scale_factor_x, add_offset_x;
         float scale_factor_y, add_offset_y;
@@ -2561,7 +2560,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     emit this->progressCounter(progcounter);
 
-    qDebug() << "Start SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent() size = " << this->segmentfilelist.size();
+    qDebug() << "Start SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1() size = " << this->segmentfilelist.size();
     qDebug() << "Spectrum vector count = " << this->spectrumvector.count() << " kindofimage = " << kindofimage;
     if(this->histogrammethod == CMB_HISTO_NONE_95)
         qDebug() << "histgrammethod = CMB_HISTO_NONE_95";
@@ -2575,59 +2574,59 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     qDebug() << "Nbr of MTG files = " << this->segmentfilelist.size();
 
-    for(int j = 0; j < this->segmentfilelist.size(); j++)
-    {
-        if(this->segmentfilelist.at(j).contains("TRAIL"))
-        {
-            trailfilefound = true;
-            ncfile = this->getImagePath() + "/" + this->segmentfilelist.at(j);
-            arrayncfile = ncfile.toUtf8();
-            pncfile = arrayncfile.constData();
+    // for(int j = 0; j < this->segmentfilelist.size(); j++)
+    // {
+    //     if(this->segmentfilelist.at(j).contains("TRAIL"))
+    //     {
+    //         trailfilefound = true;
+    //         ncfile = this->getImagePath() + "/" + this->segmentfilelist.at(j);
+    //         arrayncfile = ncfile.toUtf8();
+    //         pncfile = arrayncfile.constData();
 
-            //qDebug() << "Starting netCDF file " + ncfile;
-            retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
-            if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
-
-
-            retval = nc_inq_ncid(ncfileid, "data", &grp_data);
-            if(retval != NC_NOERR) qDebug() << "error opening data group";
-
-            int numgrps;
-            int ncidgrps[20];
-            char grpname[50];
-
-            retval = nc_inq_grps(grp_data, &numgrps, ncidgrps);
-            if(retval != NC_NOERR) qDebug() << "error inquire data group";
-
-            qDebug() << "===> in TRAIL file ==> number of groups = " << numgrps;
-
-            for(int i = 0; i < numgrps; i++)
-            {
-                retval = nc_inq_grpname(ncidgrps[i], grpname);
-                QString spectrumname = QString::fromUtf8(grpname);
-
-                if(spectrumname != "quality")
-                {
-                    if ((retval = nc_inq_varid(ncidgrps[i], "number_of_rows", &varid)))
-                        ERR(retval);
-                    if ((retval = nc_get_var_ushort(ncidgrps[i], varid, &total_number_of_rows)))
-                        ERR(retval);
-                    if ((retval = nc_inq_varid(ncidgrps[i], "number_of_columns", &varid)))
-                        ERR(retval);
-                    if ((retval = nc_get_var_ushort(ncidgrps[i], varid, &total_number_of_columns)))
-                        ERR(retval);
-
-                    qDebug() << "===> in TRAIL File ==> groupname = " << spectrumname << "rows = " << total_number_of_rows <<
-                                " columns = " << total_number_of_columns;
-                }
-            }
+    //         //qDebug() << "Starting netCDF file " + ncfile;
+    //         retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
+    //         if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
 
 
-            retval = nc_close(ncfileid);
-            if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
+    //         retval = nc_inq_ncid(ncfileid, "data", &grp_data);
+    //         if(retval != NC_NOERR) qDebug() << "error opening data group";
 
-        }
-    }
+    //         int numgrps;
+    //         int ncidgrps[20];
+    //         char grpname[50];
+
+    //         retval = nc_inq_grps(grp_data, &numgrps, ncidgrps);
+    //         if(retval != NC_NOERR) qDebug() << "error inquire data group";
+
+    //         qDebug() << "===> in TRAIL file ==> number of groups = " << numgrps;
+
+    //         // for(int i = 0; i < numgrps; i++)
+    //         // {
+    //         //     retval = nc_inq_grpname(ncidgrps[i], grpname);
+    //         //     QString spectrumname = QString::fromUtf8(grpname);
+
+    //         //     if(spectrumname != "quality")
+    //         //     {
+    //         //         if ((retval = nc_inq_varid(ncidgrps[i], "number_of_rows", &varid)))
+    //         //             ERR(retval);
+    //         //         if ((retval = nc_get_var_ushort(ncidgrps[i], varid, &total_number_of_rows)))
+    //         //             ERR(retval);
+    //         //         if ((retval = nc_inq_varid(ncidgrps[i], "number_of_columns", &varid)))
+    //         //             ERR(retval);
+    //         //         if ((retval = nc_get_var_ushort(ncidgrps[i], varid, &total_number_of_columns)))
+    //         //             ERR(retval);
+
+    //         //         qDebug() << "===> in TRAIL File ==> groupname = " << spectrumname << "rows = " << total_number_of_rows <<
+    //         //                     " columns = " << total_number_of_columns;
+    //         //     }
+    //         // }
+
+
+    //         retval = nc_close(ncfileid);
+    //         if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
+
+    //     }
+    // }
 
     for(int i = 0; i < 4; i++)
     {
@@ -2638,53 +2637,75 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     // in include file we have the following definition : quint 16 imageptrs->ptrRed[10];
     // ptrBlue and ptrGreen are not used
+    //**********************************************
     // the reading of the netcdf files is sequential
-    for(int j = 0; j < this->segmentfilelist.size(); j++)
-    {
-        if(this->segmentfilelist.at(j).contains("TRAIL"))
-        {
-            trailfilefound = true;
-            ncfile = this->getImagePath() + "/" + this->segmentfilelist.at(j);
-            arrayncfile = ncfile.toUtf8();
-            pncfile = arrayncfile.constData();
-
-            //qDebug() << "Starting netCDF file " + ncfile;
-            retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
-            if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
+    //**********************************************
 
 
-            retval = nc_inq_ncid(ncfileid, "data", &grp_data);
-            if(retval != NC_NOERR) qDebug() << "error opening data group";
+    // reading of the TRAIL file
+    // for(int j = 0; j < this->segmentfilelist.size(); j++)
+    // {
+    //     if(this->segmentfilelist.at(j).contains("TRAIL"))
+    //     {
+    //         trailfilefound = true;
+    //         ncfile = this->getImagePath() + "/" + this->segmentfilelist.at(j);
+    //         arrayncfile = ncfile.toUtf8();
+    //         pncfile = arrayncfile.constData();
 
-            for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
-            {
+    //         qDebug() << "Starting netCDF file " + ncfile;
 
-                QString strspectrum = "data/" + this->spectrumvector.at(i);
+    //         retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
+    //         if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
 
-                QByteArray ba = strspectrum.toLocal8Bit();
-                const char *c_channel = ba.data();
-                retval = nc_inq_grp_full_ncid(ncfileid, c_channel, &grp_spectrum);
-                if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum;
 
-                if ((retval = nc_inq_varid(grp_spectrum, "number_of_rows", &varid)))
-                    ERR(retval);
-                if ((retval = nc_get_var_ushort(grp_spectrum, varid, &total_number_of_rows)))
-                    ERR(retval);
-                if ((retval = nc_inq_varid(grp_spectrum, "number_of_columns", &varid)))
-                    ERR(retval);
-                if ((retval = nc_get_var_ushort(grp_spectrum, varid, &total_number_of_columns)))
-                    ERR(retval);
-                imageptrs->mtg_total_number_of_columns[i] = total_number_of_columns;
-                imageptrs->mtg_total_number_of_rows[i] = total_number_of_rows;
+    //         retval = nc_inq_ncid(ncfileid, "data", &grp_data);
+    //         if(retval != NC_NOERR) qDebug() << "error opening data group";
 
-                qDebug() << QString("===> in TRAIL file ==> mtg_total_number_of_columns[%1] = %2 mtg_total_number_of_rows[%3] = %4")
-                            .arg(i).arg(imageptrs->mtg_total_number_of_columns[i]).arg(i).arg(imageptrs->mtg_total_number_of_rows[i]);
-            }
-            retval = nc_close(ncfileid);
-            if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
+    //         int numgrps;
+    //         int ncids[100];
+    //         char grpname[100];
 
-        }
-    }
+    //         retval = nc_inq_grps(grp_data, &numgrps, ncids);
+    //         if(retval != NC_NOERR) qDebug() << "error opening nc_inq_grps";
+    //         qDebug() << "Number of groups in data = " << numgrps;
+    //         for(int i = 0; i < numgrps; i++)
+    //         {
+    //             retval = nc_inq_grpname(ncids[i], grpname);
+    //             if(retval != NC_NOERR) qDebug() << "error nc_inq_grpname";
+    //             qDebug() << "grpname = " << QString::fromLocal8Bit(grpname);
+
+    //         }
+
+    //         for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+    //         {
+
+    //             QString strspectrum = "data/" + this->spectrumvector.at(i);
+    //             qDebug() << "strspectrum = " << strspectrum;
+
+    //             QByteArray ba = strspectrum.toLocal8Bit();
+    //             const char *c_channel = ba.data();
+    //             retval = nc_inq_grp_full_ncid(ncfileid, c_channel, &grp_spectrum);
+    //             if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum << " retval = " << retval;
+
+    //             if ((retval = nc_inq_varid(grp_spectrum, "number_of_rows", &varid)))
+    //                 ERR(retval);
+    //             if ((retval = nc_get_var_ushort(grp_spectrum, varid, &total_number_of_rows)))
+    //                 ERR(retval);
+    //             if ((retval = nc_inq_varid(grp_spectrum, "number_of_columns", &varid)))
+    //                 ERR(retval);
+    //             if ((retval = nc_get_var_ushort(grp_spectrum, varid, &total_number_of_columns)))
+    //                 ERR(retval);
+    //             imageptrs->mtg_total_number_of_columns[i] = total_number_of_columns;
+    //             imageptrs->mtg_total_number_of_rows[i] = total_number_of_rows;
+
+    //             qDebug() << QString("===> in TRAIL file ==> mtg_total_number_of_columns[%1] = %2 mtg_total_number_of_rows[%3] = %4")
+    //                         .arg(i).arg(imageptrs->mtg_total_number_of_columns[i]).arg(i).arg(imageptrs->mtg_total_number_of_rows[i]);
+    //         }
+    //         retval = nc_close(ncfileid);
+    //         if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
+
+    //     }
+    // }
 
 //    2024-08-01 09:38:22.165 Debug: ===> in TRAIL File ==> groupname =  "vis_04" rows =  11136  columns =  11136
 //    2024-08-01 09:38:22.165 Debug: ===> in TRAIL File ==> groupname =  "vis_05" rows =  11136  columns =  11136
@@ -2703,7 +2724,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 //    2024-08-01 09:38:22.167 Debug: ===> in TRAIL File ==> groupname =  "ir_123" rows =  5568  columns =  5568
 //    2024-08-01 09:38:22.167 Debug: ===> in TRAIL File ==> groupname =  "ir_133" rows =  5568  columns =  5568
 
-
+    trailfilefound = false;
     if(trailfilefound == false)
     {
         QString groupnames[16];
@@ -2761,6 +2782,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     progcounter += 10;
     emit this->progressCounter(10);
 
+    QByteArray ba;
 
     for(int j = 0; j < this->segmentfilelist.size(); j++)
     {
@@ -2772,7 +2794,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
             qDebug() << "Starting netCDF file " + ncfile;
             int ind = ncfile.indexOf(".nc");
-            int findex = ncfile.midRef(ind - 4, 4).toInt();
+            int findex = ncfile.mid(ind - 4, 4).toInt();
 
             vec.append(findex);
 
@@ -2798,34 +2820,51 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             {
                 qDebug() << "reading radiance from channel i = " << i << " spectrum = " << this->spectrumvector.at(i);
 
-                QString strmeasured = "data/" + this->spectrumvector.at(i) + "/measured";
-                QByteArray ba = strmeasured.toLocal8Bit();
+//                QString strmeasured = "data/" + this->spectrumvector.at(i) + "/measured";
+                // QString strmeasured = this->spectrumvector.at(i) + "/measured";
+                // ba = strmeasured.toLocal8Bit();
+                // const char *c_channel = ba.data();
+                // //retval = nc_inq_grp_full_ncid(ncfileid, c_channel, &grp_measured);
+                // retval = nc_inq_ncid(grp_data, c_channel, &grp_measured);
+                // if(retval != NC_NOERR) qDebug() << "error opening " << strmeasured;
+
+                QString strspectrum = this->spectrumvector.at(i);
+                ba = strspectrum.toLocal8Bit();
                 const char *c_channel = ba.data();
-                retval = nc_inq_grp_full_ncid(ncfileid, c_channel, &grp_measured);
-                if(retval != NC_NOERR) qDebug() << "error opening " << strmeasured;
+                retval = nc_inq_ncid(grp_data, c_channel, &grp_spectrum);
+                if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum;
+
+                retval = nc_inq_ncid(grp_spectrum, "measured", &grp_measured);
+                if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum << "/measured";
 
 
                 if ((retval = nc_inq_varid(grp_measured, "start_position_row", &varid)))
                     ERR(retval);
                 if ((retval = nc_get_var_ushort(grp_measured, varid, &start_position_row)))
                     ERR(retval);
+
                 if ((retval = nc_inq_varid(grp_measured, "start_position_column", &varid)))
                     ERR(retval);
                 if ((retval = nc_get_var_ushort(grp_measured, varid, &start_position_column)))
                     ERR(retval);
+
                 if ((retval = nc_inq_varid(grp_measured, "end_position_row", &varid)))
                     ERR(retval);
                 if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_row)))
                     ERR(retval);
+
                 if ((retval = nc_inq_varid(grp_measured, "end_position_column", &varid)))
                     ERR(retval);
+                if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_column)))
+                    ERR(retval);
+
+
                 retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i]);
                 if (retval != NC_NOERR) qDebug() << "error reading _FillValue (2605)";
                 imageptrs->fillvalue[i] = fillvalue[i];
+                qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
 
 
-                if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_column)))
-                    ERR(retval);
 //                if(retval == 0 && i == 0)
 //                {
 //                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
@@ -2846,19 +2885,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                 imageptrs->ptrMTG[i][findex - 1] = new quint16[imageptrs->mtg_nbr_of_rows[i][findex - 1] * imageptrs->mtg_nbr_of_columns[i][findex - 1]];
 
                 retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
-                if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strmeasured;
-                //qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
+                if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strspectrum << "/measured";
 
 
                 retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrMTG[i][findex - 1]);
-                if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strmeasured << " findex = " << findex << " error = " << retval;
-                //qDebug() << "reading to i = " << i << " findex = " << findex - 1;
-
-                //                if(i == 0)
-                //                    qDebug() << "copy to ptrRed start_position = " << (start_position_row - 1) * nbr_col;
-                //memcpy(imageptrs->ptrRed[i] + nbr_col * (start_position_row - 1), effective_radiance_data, sizeof(quint16)*nbr_rows*nbr_col);
-
-
+                if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strspectrum << "/measured" << " findex = " << findex << " error = " << retval;
             }
             retval = nc_close(ncfileid);
             if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
@@ -3093,6 +3124,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     emit signalcomposefinished(kindofimage, geoindex);
     emit this->progressCounter(100);
 
+    QApplication::restoreOverrideCursor();
+
     return;
 }
 
@@ -3220,7 +3253,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
 
             //qDebug() << "Starting netCDF file " + ncfile;
             int ind = ncfile.indexOf(".nc");
-            int findex = ncfile.midRef(ind - 4, 4).toInt();
+            int findex = ncfile.mid(ind - 4, 4).toInt();
 
             vec.append(findex);
 
@@ -3926,11 +3959,11 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
     double twilight = 12.0;
 
     int year, month, day, hours, minutes;
-    year = this->filedatestring.midRef(0, 4).toInt();
-    month = this->filedatestring.midRef(4, 2).toInt();
-    day = this->filedatestring.midRef(6, 2).toInt();
-    hours = this->filedatestring.midRef(8, 2).toInt();
-    minutes = this->filedatestring.midRef(10, 2).toInt();
+    year = this->filedatestring.mid(0, 4).toInt();
+    month = this->filedatestring.mid(4, 2).toInt();
+    day = this->filedatestring.mid(6, 2).toInt();
+    hours = this->filedatestring.mid(8, 2).toInt();
+    minutes = this->filedatestring.mid(10, 2).toInt();
 
     pixgeoConversion pixconv;
 
@@ -4037,7 +4070,7 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                 }
                 else
                 {
-                    row_col[pixelx] = qRgb(255, 0, 0);
+                    row_col[pixelx] = qRgb(0, 0, 0);
                 }
             }
             else if(this->kindofimage == "VIS_IR Color")
@@ -4212,11 +4245,11 @@ void SegmentListGeostationary::CalculateImageMTGConcurrentAlt(int index)
     double twilight = 15.0;
 
     int year, month, day, hours, minutes;
-    year = this->filedatestring.midRef(0, 4).toInt();
-    month = this->filedatestring.midRef(4, 2).toInt();
-    day = this->filedatestring.midRef(6, 2).toInt();
-    hours = this->filedatestring.midRef(8, 2).toInt();
-    minutes = this->filedatestring.midRef(10, 2).toInt();
+    year = this->filedatestring.mid(0, 4).toInt();
+    month = this->filedatestring.mid(4, 2).toInt();
+    day = this->filedatestring.mid(6, 2).toInt();
+    hours = this->filedatestring.mid(8, 2).toInt();
+    minutes = this->filedatestring.mid(10, 2).toInt();
 
     pixgeoConversion pixconv;
 
@@ -4570,20 +4603,20 @@ void SegmentListGeostationary::ComposeVISIR()
 
     CalculateMinMax(0, width, height, pixelsRed, 0);
     CalculateLUTGeo(0, pixelsRed, 0);
-    equalizeHistogram(pixelsRed, width, height, 0, 0, 1023);
+    //equalizeHistogram(pixelsRed, width, height, 0, 0, 1023);
     if(kindofimage == "VIS_IR Color")
     {
         CalculateMinMax(1, width, height, pixelsGreen, 0);
         CalculateLUTGeo(1, pixelsGreen, 0);
-        equalizeHistogram(pixelsGreen, width, height, 1, 0, 1023);
+        //equalizeHistogram(pixelsGreen, width, height, 1, 0, 1023);
         CalculateMinMax(2, width, height, pixelsBlue, 0);
         CalculateLUTGeo(2, pixelsBlue, 0);
-        equalizeHistogram(pixelsBlue, width, height, 2, 0, 1023);
+        //equalizeHistogram(pixelsBlue, width, height, 2, 0, 1023);
         if(this->spectrumvector.at(3).length() > 0)
         {
             CalculateMinMax(3, width, height, pixelsNight, 0);
             CalculateLUTGeo(3, pixelsNight, 0);
-            equalizeHistogram(pixelsNight, width, height, 3, 0, 1023);
+            //equalizeHistogram(pixelsNight, width, height, 3, 0, 1023);
             imageptrs->CLAHE(pixelsNight, 3712, 3712, 0, 1023, 16, 16, 256, 5);
 
         }
@@ -4956,7 +4989,7 @@ void SegmentListGeostationary::computeGeoImageVISIR(quint16 *pixelsRed, quint16 
                 ret = pixconv.pixcoord2geocoord(sub_lon, opts.geosatellites[geoindex].imagewidth - 1 - pixelx,
                                                 opts.geosatellites[geoindex].imageheight - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
                 if(ret == -1)
-                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(0, 0, 0);
+                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
                 else
                 {
                     observer.SetLocation(latitude, longitude, 0.0);
@@ -4971,7 +5004,12 @@ void SegmentListGeostationary::computeGeoImageVISIR(quint16 *pixelsRed, quint16 
                         if(m_GeoSatellite == eGeoSatellite::GOMS3 )
                             row_col[pixelx] = qRgb(n, n, n);
                         else
-                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(n, n, n);
+                        {
+                            if(n == 0)
+                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255) );
+                            else
+                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(n, n, n);
+                        }
 
                     }
                     else if(elev > 0.0 && elev < twilight)
@@ -4989,16 +5027,26 @@ void SegmentListGeostationary::computeGeoImageVISIR(quint16 *pixelsRed, quint16 
                         if(opts.geosatellites[geoindex].rss)
                         {
                             if( (opts.geosatellites[geoindex].rss ? 1392 : 3712) - 100 < opts.geosatellites[geoindex].imageheight - 1 - line)
-                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(0, 0, 0);
+                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
                             else
-                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(red, green, blue);
+                            {
+                                if(red == 0 && green == 0 && blue == 0)
+                                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
+                                else
+                                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(red, green, blue);
+                            }
                         }
                         else
                         {
                             if(m_GeoSatellite == eGeoSatellite::GOMS3 )
                                 row_col[pixelx] = qRgb(red, green, blue);
                             else
-                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(red, green, blue);
+                            {
+                                if(red == 0 && green == 0 && blue == 0)
+                                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
+                                else
+                                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(red, green, blue);
+                            }
                         }
                     }
                     else
@@ -5006,7 +5054,12 @@ void SegmentListGeostationary::computeGeoImageVISIR(quint16 *pixelsRed, quint16 
                         if(m_GeoSatellite == eGeoSatellite::GOMS3 )
                             row_col[pixelx] = qRgb(r, g, b);
                         else
-                            row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
+                        {
+                            if(r == 0 && g == 0 && b == 0)
+                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
+                            else
+                                row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
+                        }
                     }
                 }
 
@@ -5087,9 +5140,11 @@ void SegmentListGeostationary::computeGeoImageVISIR(quint16 *pixelsRed, quint16 
                         g = r;
                         b = r;
                     }
-
-                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] =  qRgb(r,g,b);
-                }
+                    if(r == 0 && g == 0 && b == 0)
+                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
+                    else
+                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
+                 }
             }
         }
     }
@@ -6298,6 +6353,14 @@ void SegmentListGeostationary::ComposeHRV()
             memset(pixelsHRV + i * 464 * 5568, 0, 464 * 5568 * sizeof(quint16));
     }
 
+    // long countFiller = 0;
+    // for( int i = 0; i < npixHRV; i++)
+    // {
+    //     if(*(pixelsHRV + i) == 0)
+    //         countFiller++;
+    // }
+    // qDebug() << "============> count zero befor clahe = " << countFiller;
+
     if(kindofimage == "HRV Color")
     {
         for( int i = (opts.geosatellites.at(geoindex).rss ? 5 : 0); i < 8; i++)
@@ -6351,11 +6414,19 @@ void SegmentListGeostationary::ComposeHRV()
     //    }
 
 
-    imageptrs->CLAHE(pixelsHRV, 5568, (opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5)) * 464, 0, 1023, 16, 16, 256, 4);
+    //imageptrs->CLAHE(pixelsHRV, 5568, (opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5)) * 464, 0, 1023, 16, 16, 256, 4);
 
-    //QImage imagenight(3712, 3712, QImage::Format_ARGB32);
+    // countFiller = 0;
+    // for( int i = 0; i < npixHRV; i++)
+    // {
+    //     if(*(pixelsHRV + i) == 0)
+    //         countFiller++;
+    // }
+    // qDebug() << "============> count zero after clahe = " << countFiller;
+
     if(kindofimage == "HRV Color")
     {
+
         CalculateMinMax(0, width, height, pixelsRed, 0);
         CalculateLUTGeo(0, pixelsRed, 0);
         equalizeHistogram(pixelsRed, width, height, 0, 0, 1023);
@@ -6376,8 +6447,10 @@ void SegmentListGeostationary::ComposeHRV()
             imageptrs->CLAHE(pixelsNight, 3712, 3712, 0, 1023, 16, 16, 256, 5);
 
         }
-    }
 
+        CalculateMinMax(4, 5568, (opts.geosatellites.at(geoindex).rss || this->areatype == 0 ? 5 * 464 : 11136 ), pixelsHRV, 0);
+
+    }
 
     computeGeoImageHRV(pixelsRed, pixelsGreen, pixelsBlue, pixelsNight, pixelsHRV);
 
@@ -6440,11 +6513,11 @@ void SegmentListGeostationary::computeGeoImageHRV(quint16 *pixelsRed, quint16 *p
 
 
     int year, month, day, hours, minutes;
-    year = this->filedatestring.midRef(0, 4).toInt();
-    month = this->filedatestring.midRef(4, 2).toInt();
-    day = this->filedatestring.midRef(6, 2).toInt();
-    hours = this->filedatestring.midRef(8, 2).toInt();
-    minutes = this->filedatestring.midRef(10, 2).toInt();
+    year = this->filedatestring.mid(0, 4).toInt();
+    month = this->filedatestring.mid(4, 2).toInt();
+    day = this->filedatestring.mid(6, 2).toInt();
+    hours = this->filedatestring.mid(8, 2).toInt();
+    minutes = this->filedatestring.mid(10, 2).toInt();
 
     pixgeoConversion pixconv;
 
@@ -6456,6 +6529,8 @@ void SegmentListGeostationary::computeGeoImageHRV(quint16 *pixelsRed, quint16 *p
     double elev;
     double twilight = 12.0;
 
+    qDebug() << "SegmentListGeostationary::computeGeoImageHRV kindofimage = " << this->kindofimage;
+
     for (int line = (opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5))*464 - 1; line >= 0; line--)
     {
         row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine((opts.geosatellites.at(geoindex).rss ? 5 : (this->areatype == 1 ? 24 : 5))*464 - 1 - line);
@@ -6465,7 +6540,7 @@ void SegmentListGeostationary::computeGeoImageHRV(quint16 *pixelsRed, quint16 *p
             c = *(pixelsHRV + line * 5568 + pixelx);
             //c = 255;
 
-            if(kindofimage == "HRV Color")
+            if(this->kindofimage == "HRV Color")
             {
                 if(opts.geosatellites.at(geoindex).rss)
                 {
@@ -6523,32 +6598,42 @@ void SegmentListGeostationary::computeGeoImageHRV(quint16 *pixelsRed, quint16 *p
                     }
                 }
 
-                valgamma = pow( c*cred/clum, gamma) * gammafactor;
-                if (valgamma >= 1024)
-                    valgamma = 1023;
+                if( c > 0)
+                {
+                    c = c*2;
+                    valgamma = pow( c*0.7*cred/clum, gamma) * gammafactor;
+                    if (valgamma >= 1024)
+                        valgamma = 1023;
 
-                valcontrast = ContrastStretch(valgamma);
-                r = quint8(valcontrast);
-                if (r > 255)
-                    r = 255;
+                    valcontrast = ContrastStretch(valgamma);
+                    r = quint8(valcontrast);
+                    if (r > 255)
+                        r = 255;
 
-                valgamma = pow( c*cgreen/clum, gamma) * gammafactor;
-                if (valgamma >= 1024)
-                    valgamma = 1023;
+                    valgamma = pow( c*cgreen/clum, gamma) * gammafactor;
+                    if (valgamma >= 1024)
+                        valgamma = 1023;
 
-                valcontrast = ContrastStretch(valgamma);
-                g = quint8(valcontrast);
-                if (g > 255)
-                    g = 255;
+                    valcontrast = ContrastStretch(valgamma);
+                    g = quint8(valcontrast);
+                    if (g > 255)
+                        g = 255;
 
-                valgamma = pow( c*cblue/clum, gamma) * gammafactor;
-                if (valgamma >= 1024)
-                    valgamma = 1023;
+                    valgamma = pow( c*cblue/clum, gamma) * gammafactor;
+                    if (valgamma >= 1024)
+                        valgamma = 1023;
 
-                valcontrast = ContrastStretch(valgamma);
-                b = quint8(valcontrast);
-                if (b > 255)
-                    b = 255;
+                    valcontrast = ContrastStretch(valgamma);
+                    b = quint8(valcontrast);
+                    if (b > 255)
+                        b = 255;
+                }
+                else
+                {
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                }
 
                 if(this->spectrumvector.at(3).length() > 0)
                 {
@@ -6610,7 +6695,7 @@ void SegmentListGeostationary::computeGeoImageHRV(quint16 *pixelsRed, quint16 *p
                     }
 
                     if(ret == -1)
-                        row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(0, 0, 0);
+                        row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
                     else
                     {
                         observer.SetLocation(latitude, longitude, 0.0);
@@ -6650,23 +6735,35 @@ void SegmentListGeostationary::computeGeoImageHRV(quint16 *pixelsRed, quint16 *p
                             if(opts.geosatellites[geoindex].rss)
                             {
                                 if( (opts.geosatellites[geoindex].rss ? 1392 : 3712) - 100 < opts.geosatellites[geoindex].imageheighthrv0 - 1 - line)
-                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(0, 0, 0);
+                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
                                 else
-                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(red, green, blue);
+                                {
+                                    if(red == 0 && green == 0 && blue == 0)
+                                        row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
+                                    else
+                                        row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(red, green, blue);
+                                }
                             }
                             else
                             {
-                                row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(red, green, blue);
+                                if(red == 0 && green == 0 && blue == 0)
+                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
+                                else
+                                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(red, green, blue);
                             }
                         }
-
                         else
                             row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(r, g, b);
 
                     }
                 }
                 else
-                    row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(r, g, b);
+                {
+                    if( r == 0 && g == 0 && b == 0)
+                        row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
+                    else
+                        row_col[opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx] = qRgb(r, g, b);
+                }
 
             }
             else if(kindofimage == "HRV")

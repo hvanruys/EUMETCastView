@@ -39,7 +39,7 @@
           <widget class="QPushButton" name="btnAdd">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>14</pointsize>
             </font>
            </property>
            <property name="text">
@@ -51,7 +51,7 @@
           <widget class="QPushButton" name="btnDel">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>14</pointsize>
             </font>
            </property>
            <property name="text">
@@ -63,7 +63,7 @@
           <widget class="QPushButton" name="btnUpdateTLE">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>14</pointsize>
             </font>
            </property>
            <property name="text">
@@ -239,7 +239,7 @@
               <widget class="QPushButton" name="btnReload">
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="text">
@@ -325,7 +325,7 @@
                 <widget class="QPushButton" name="btnAddsegmentdir">
                  <property name="font">
                   <font>
-                   <pointsize>10</pointsize>
+                   <pointsize>14</pointsize>
                   </font>
                  </property>
                  <property name="text">
@@ -337,7 +337,7 @@
                 <widget class="QPushButton" name="btnDelsegmentdir">
                  <property name="font">
                   <font>
-                   <pointsize>10</pointsize>
+                   <pointsize>14</pointsize>
                   </font>
                  </property>
                  <property name="text">
