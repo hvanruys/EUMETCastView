@@ -146,7 +146,7 @@
     <string>Cylindrical Equidistant</string>
    </property>
    <property name="toolTip">
-    <string>Cylindrical Equidistant</string>
+    <string>Cylindrical Equidistant/Polar Satellites</string>
    </property>
   </action>
   <action name="action3DGlobe">
@@ -158,7 +158,7 @@
     <string>3D Globe</string>
    </property>
    <property name="toolTip">
-    <string>3D Globe</string>
+    <string>3D Globe/Polar Satellites</string>
    </property>
   </action>
   <action name="actionImage">
@@ -170,7 +170,7 @@
     <string>Image</string>
    </property>
    <property name="toolTip">
-    <string>Image</string>
+    <string>Images</string>
    </property>
   </action>
   <action name="actionAbout">

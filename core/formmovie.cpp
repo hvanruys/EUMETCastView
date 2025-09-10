@@ -2,6 +2,7 @@
 #include "poi.h"
 #include "ui_formmovie.h"
 #include "options.h"
+#include <QDomDocument>
 
 extern Options opts;
 extern SegmentImage *imageptrs;

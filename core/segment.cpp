@@ -108,9 +108,7 @@ void Segment::CalculateCornerPoints()
 
     //qDebug() << QString("minutes_since_state_vector = %1 in CalculateCornerPoints").arg(minutes_since_state_vector);
 
-    if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
-            segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || // segtype == SEG_HRPT_NOAA19 ||
-            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR) // || segtype == SEG_MERSI )
+    if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR ) // || segtype == SEG_MERSI )
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = 0.00089 * sin(PSO);
@@ -137,12 +135,13 @@ void Segment::CalculateCornerPoints()
     double delta1;
     double delta2;
 
-    if(segtype == SEG_VIIRSM || segtype == SEG_VIIRSDNB || segtype == SEG_VIIRSMNOAA20 || segtype == SEG_VIIRSDNBNOAA20)
+    if(segtype == SEG_VIIRSM || segtype == SEG_VIIRSDNB || segtype == SEG_VIIRSMNOAA20 || segtype == SEG_VIIRSDNBNOAA20 ||
+       segtype == SEG_VIIRSMNOAA21 || segtype == SEG_VIIRSDNBNOAA21)
     {
         delta1 = 56.28 * PIE / 180.0;  // (in rad) for VIIRS
         delta2 = delta1;
     }
-    else if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR || segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR)
+    else if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR)
     {
         delta2 = 22.1 * PIE / 180.0;  // see page 97 of Sentinel-3 User Handbook
         delta1 = 46.5 * PIE / 180.0;
@@ -194,9 +193,7 @@ void Segment::CalculateCornerPoints()
     trueAnomaly = M + C;
     PSO = fmod(qtle->ArgumentPerigee() + trueAnomaly, TWOPI);
 
-    if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
-            segtype == SEG_HRPT_METOPA || segtype == SEG_HRPT_METOPB || segtype == SEG_HRPT_M01 || segtype == SEG_HRPT_M02 || // segtype == SEG_HRPT_NOAA19 ||
-            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR ) //|| segtype == SEG_MERSI )
+    if (segtype == SEG_HRP || segtype == SEG_METOP || segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR) //|| segtype == SEG_MERSI )
     {
         double pitch_steering_angle = - 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = 0.00089 * sin(PSO);
@@ -304,8 +301,7 @@ void Segment::setupVector(double statevec, QSgp4Date sensing)
     QVector3D d3scannorm = d3scan.normalized();
 
     double delta1, delta2;
-    if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR || segtype == SEG_SLSTR ||
-            segtype == SEG_DATAHUB_OLCIEFR || segtype == SEG_DATAHUB_OLCIERR || segtype == SEG_DATAHUB_SLSTR)
+    if(segtype == SEG_OLCIEFR || segtype == SEG_OLCIERR)
     {
         delta2 = 23.0 * PIE / 180.0;
         delta1 = 47.0 * PIE / 180.0;
@@ -460,8 +456,8 @@ void Segment::RenderSatPath(QPainter *painter, QColor color)
         sphericalToPixel( qgeo.longitude, qgeo.latitude, posx, posy, devwidth, devheight );
 
         if (((save_posx >= devwidth*0.9) && (posx < devwidth*0.1)) ||
-                ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
-                (posy <= devheight*0.02) || (posy >= devheight*0.98) )
+            ((save_posx <= devwidth*0.1) && (posx > devwidth*0.9)) ||
+            (posy <= devheight*0.02) || (posy >= devheight*0.98) )
         {
             //painter->drawEllipse( posx -  2 , posy - 2, 4, 4 );
             //painter->moveTo( posx, posy );
@@ -625,7 +621,7 @@ int Segment::pnpoly(int nvert, QPoint points[], int testx, int testy)
     int i, j, c = 0;
     for (i = 0, j = nvert-1; i < nvert; j = i++) {
         if ( ((points[i].y() > testy) != (points[j].y() > testy)) &&
-             (testx < (points[j].x() - points[i].x() ) * (testy-points[i].y()) / (points[j].y() - points[i].y()) + points[i].x()) )
+            (testx < (points[j].x() - points[i].x() ) * (testy-points[i].y()) / (points[j].y() - points[i].y()) + points[i].x()) )
             c = !c;
     }
     return c;
@@ -762,7 +758,7 @@ void Segment::RenderSegmentlineInTexture( int channel, int nbrLine, int nbrTotal
 
 
     QVector3D d3scan;
-    if (segment_type == "HRP" || segment_type == "HRPTMETOPA" || segment_type == "HRPTMETOPB" || segment_type == "HRPTM01" || segment_type == "HRPTM02" || segment_type == "HRPTNOAA19")
+    if (segment_type == "HRP")
     {
         double pitch_steering_angle = + 0.002899 * sin( 2 * PSO);
         double roll_steering_angle = - 0.00089 * sin(PSO);
@@ -928,29 +924,17 @@ void Segment::ComposeSegmentImage()
 
     QStringList channellist;
     QStringList inverse;
-    if (opts.buttonMetop || opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonM01hrpt || opts.buttonM02hrpt)
+    if (opts.buttonMetop)
     {
         channellist = opts.channellistmetop;
         inverse = opts.metop_invlist;
     }
     else
-        if (opts.buttonNoaa || opts.buttonNoaa19hrpt)
+        if (opts.buttonHRP)
         {
-            channellist = opts.channellistnoaa;
-            inverse = opts.noaa_invlist;
+            channellist = opts.channellisthrp;
+            inverse = opts.hrp_invlist;
         }
-        else
-            if (opts.buttonGAC)
-            {
-                channellist = opts.channellistgac;
-                inverse = opts.gac_invlist;
-            }
-            else
-                if (opts.buttonHRP)
-                {
-                    channellist = opts.channellisthrp;
-                    inverse = opts.hrp_invlist;
-                }
 
     int half_earth_views = earth_views_per_scanline / 2;
 
@@ -1405,7 +1389,7 @@ int Segment::pnpolyinsegment(int testx, int testy)   //
 
     for (i = 0, j = nvert-1; i < nvert; j = i++) {
         if ( (( winvectorfirst.at(i).y() > testy) != (winvectorfirst.at(j).y() > testy)) &&
-             (testx < (winvectorfirst.at(j).x() - winvectorfirst.at(i).x() ) * (testy-winvectorfirst.at(i).y()) / (winvectorfirst.at(j).y() - winvectorfirst.at(i).y()) + winvectorfirst.at(i).x()) )
+            (testx < (winvectorfirst.at(j).x() - winvectorfirst.at(i).x() ) * (testy-winvectorfirst.at(i).y()) / (winvectorfirst.at(j).y() - winvectorfirst.at(i).y()) + winvectorfirst.at(i).x()) )
             c = !c;
     }
 

@@ -46,10 +46,6 @@ public:
     int getOLCIHistogrammethod();
     bool getOLCINormalized();
 
-    QList<bool> getSLSTRBandList();
-    QList<int> getSLSTRColorList();
-    QList<bool> getSLSTRInvertList();
-
     QList<bool> getMERSIBandList();
     QList<int> getMERSIColorList();
     QList<bool> getMERSIInvertList();
@@ -67,9 +63,6 @@ public:
     int getGVPFalseEasting();
     int getGVPFalseNorthing();
 
-
-    eSLSTRImageView getSLSTRImageView();
-
     void setTabWidgetIndex(int index);
     void setTabWidgetVIIRSIndex(int index);
     void setTabWidgetSentinelIndex(int index);
@@ -79,7 +72,6 @@ public:
     bool comboColVIIRSOK();
     bool comboColAVHRROK();
     bool comboColOLCIOK();
-    bool comboColSLSTROK();
     bool comboColGeoOK();
     bool comboColMERSIOK();
     bool GridOnProjLCC();
@@ -89,7 +81,6 @@ public:
     void setPOIsettings();
     void setMConfigsettings();
     void setOLCIefrConfigsettings();
-    void setSLSTRConfigsettings();
     void setMERSIConfigsettings();
     void setComboGeo(int geoindex);
     void setFormMovie(FormMovie *formmovie);
@@ -124,11 +115,9 @@ private:
     void setRadioButtonsMERSIToFalse();
 
     void setConfigOLCIParameters(int strlindex);
-    void setConfigSLSTRParameters(int strlindex);
     void setConfigMERSIParameters(int strlindex);
 
     void setRadioButtonsOLCIefrToFalse();
-    void setRadioButtonsSLSTRToFalse();
     void copyProjectionImage();
     bool checkSegmentDateTime();
     void setLogValue(int deg, double rad);
@@ -272,7 +261,6 @@ private slots:
     void on_rbtnACh5_clicked();
     void on_btnTextureVIIRS_clicked();
     void on_btnTextureOLCI_clicked();
-    void on_btnTextureSLSTR_clicked();
     void on_sliCLAHE_sliderMoved(int position);
     void on_sliCLAHEAVHRR_sliderMoved(int position);
     void on_sliCLAHE_RGBRecipe_sliderMoved(int position);
@@ -289,7 +277,6 @@ private slots:
 
     void on_comboMConfig_currentIndexChanged(int index);
     void on_comboOLCIConfig_currentIndexChanged(int index);
-    void on_comboSLSTRConfig_currentIndexChanged(int index);
     void on_btnAddMConfig_clicked();
 
     void on_tabWidgetVIIRS_currentChanged(int index);
@@ -301,10 +288,8 @@ private slots:
 
     void on_rdbOLCINormalized_toggled(bool checked);
     //void on_cmbHistogram_activated(int index);
-    void on_cmbHistogramSLSTR_activated(int index);
     void on_btnSaveAsPNG48bits_clicked();
     void on_btnOverlayOLCI_clicked();
-    void on_btnUpdateSLSTRImage_clicked();
     void on_btnSaveProjectionAsPNG48bits_clicked();
 
     void on_comboGeo1_currentIndexChanged(int index);

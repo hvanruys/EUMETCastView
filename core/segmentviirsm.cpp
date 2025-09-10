@@ -21,6 +21,9 @@ SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, eSegmentType type, QObject *par
     case eSegmentType::SEG_VIIRSMNOAA20:
         segment_type = "VIIRSMNOAA20";
         break;
+    case eSegmentType::SEG_VIIRSMNOAA21:
+        segment_type = "VIIRSMNOAA21";
+        break;
     default:
         break;
     }
@@ -65,6 +68,11 @@ SegmentVIIRSM::SegmentVIIRSM(QFile *filesegment, eSegmentType type, QObject *par
     {
         //viirssat.sat_name = "NOAA-20";
         viirssat = satellitelist.GetSatellite(43013, &ok);
+    }
+    else if(type == eSegmentType::SEG_VIIRSMNOAA21)
+    {
+        //viirssat.sat_name = "NOAA-21";
+        viirssat = satellitelist.GetSatellite(54234, &ok);
     }
 
     line1 = viirssat->line1;

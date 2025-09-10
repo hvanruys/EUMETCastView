@@ -121,24 +121,15 @@ public:
     QStringList segmentdirectorylist;
     QStringList segmentdirectorylistinc;
     bool buttonMetop;
-    bool buttonNoaa;
-    bool buttonGAC;
     bool buttonHRP;
     bool buttonVIIRSM;
     bool buttonVIIRSDNB;
     bool buttonVIIRSMNOAA20;
     bool buttonVIIRSDNBNOAA20;
+    bool buttonVIIRSMNOAA21;
+    bool buttonVIIRSDNBNOAA21;
     bool buttonOLCIefr;
     bool buttonOLCIerr;
-    bool buttonSLSTR;
-    bool buttonDatahubOLCIefr;
-    bool buttonDatahubOLCIerr;
-    bool buttonDatahubSLSTR;
-    bool buttonMetopAhrpt;
-    bool buttonMetopBhrpt;
-    bool buttonNoaa19hrpt;
-    bool buttonM01hrpt;
-    bool buttonM02hrpt;
     bool buttonMERSI;
 
 
@@ -150,7 +141,7 @@ public:
     int nbrofhours;
 
 
-    QStringList metop_invlist, noaa_invlist, gac_invlist, hrp_invlist;
+    QStringList metop_invlist, hrp_invlist;
     bool sattrackinimage;
 
     double getObsLat() { return(obslat); }
@@ -164,8 +155,6 @@ public:
 
     void deleteSegmentDirectory( QString sel );
     QStringList channellistmetop;
-    QStringList channellistnoaa;
-    QStringList channellistgac;
     QStringList channellisthrp;
 
     QStringList stationlistname;

@@ -102,47 +102,19 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
 void GeneralVerticalPerspective::CreateMapFromAVHRR(int inputchannel, eSegmentType type)
 {
 
-    if (type == SEG_NOAA19)
-        segs->seglnoaa->ComposeGVProjection(inputchannel);
-    else if( type == SEG_METOP)
+    if( type == SEG_METOP)
         segs->seglmetop->ComposeGVProjection(inputchannel);
-    else if( type == SEG_GAC)
-        segs->seglgac->ComposeGVProjection(inputchannel);
     else if( type == SEG_HRP)
         segs->seglhrp->ComposeGVProjection(inputchannel);
-    else if( type == SEG_HRPT_METOPA)
-        segs->seglmetopAhrpt->ComposeGVProjection(inputchannel);
-    else if( type == SEG_HRPT_METOPB)
-        segs->seglmetopBhrpt->ComposeGVProjection(inputchannel);
-    else if( type == SEG_HRPT_NOAA19)
-        segs->seglnoaa19hrpt->ComposeGVProjection(inputchannel);
-    else if( type == SEG_HRPT_M01)
-        segs->seglM01hrpt->ComposeGVProjection(inputchannel);
-    else if( type == SEG_HRPT_M02)
-        segs->seglM02hrpt->ComposeGVProjection(inputchannel);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
     else if(opts.smoothprojectiontype == 2)
     {
-        if (type == SEG_NOAA19)
-            segs->seglnoaa->SmoothProjectionImageBilinear();
-        else if( type == SEG_METOP)
+        if( type == SEG_METOP)
             segs->seglmetop->SmoothProjectionImageBilinear();
-        else if( type == SEG_GAC)
-            segs->seglgac->SmoothProjectionImageBilinear();
         else if( type == SEG_HRP)
             segs->seglhrp->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_METOPA)
-            segs->seglmetopAhrpt->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_METOPB)
-            segs->seglmetopBhrpt->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_NOAA19)
-            segs->seglnoaa19hrpt->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_M01)
-            segs->seglM01hrpt->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_M02)
-            segs->seglM02hrpt->SmoothProjectionImageBilinear();
     }
 
 }
@@ -157,6 +129,10 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool comb
         segs->seglviirsmnoaa20->ComposeGVProjection(0);
     else if( type == SEG_VIIRSDNBNOAA20)
         segs->seglviirsdnbnoaa20->ComposeGVProjection(0);
+    else if( type == SEG_VIIRSMNOAA21)
+        segs->seglviirsmnoaa21->ComposeGVProjection(0);
+    else if( type == SEG_VIIRSDNBNOAA21)
+        segs->seglviirsdnbnoaa21->ComposeGVProjection(0);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
@@ -176,6 +152,13 @@ void GeneralVerticalPerspective::CreateMapFromVIIRS(eSegmentType type, bool comb
         }
         else if( type == SEG_VIIRSDNBNOAA20)
             segs->seglviirsdnbnoaa20->SmoothVIIRSImage(combine);
+        else if (type == SEG_VIIRSMNOAA21)
+        {
+            segs->seglviirsmnoaa21->SmoothVIIRSImage(combine);
+            segs->seglviirsmnoaa21->SmoothProjectionBrightnessTemp();
+        }
+        else if( type == SEG_VIIRSDNBNOAA21)
+            segs->seglviirsdnbnoaa21->SmoothVIIRSImage(combine);
     }
 
 }

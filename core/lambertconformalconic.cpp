@@ -179,49 +179,20 @@ void LambertConformalConic::CreateMapFromAVHRR(int inputchannel, eSegmentType ty
 
     calc_map_extents();
 
-    if (type == SEG_NOAA19)
-        segs->seglnoaa->ComposeLCCProjection(inputchannel);
-    else if( type == SEG_METOP)
+    if( type == SEG_METOP)
         segs->seglmetop->ComposeLCCProjection(inputchannel);
-    else if( type == SEG_GAC)
-        segs->seglgac->ComposeLCCProjection(inputchannel);
     else if( type == SEG_HRP)
         segs->seglhrp->ComposeLCCProjection(inputchannel);
-    else if( type == SEG_HRPT_METOPA)
-        segs->seglmetopAhrpt->ComposeLCCProjection(inputchannel);
-    else if( type == SEG_HRPT_METOPB)
-        segs->seglmetopBhrpt->ComposeLCCProjection(inputchannel);
-    else if( type == SEG_HRPT_NOAA19)
-        segs->seglnoaa19hrpt->ComposeLCCProjection(inputchannel);
-    else if( type == SEG_HRPT_M01)
-        segs->seglM01hrpt->ComposeLCCProjection(inputchannel);
-    else if( type == SEG_HRPT_M02)
-        segs->seglM02hrpt->ComposeLCCProjection(inputchannel);
 
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
     else if(opts.smoothprojectiontype == 2)
     {
-        if (type == SEG_NOAA19)
-            segs->seglnoaa->SmoothProjectionImageBilinear();
-        else if( type == SEG_METOP)
+        if( type == SEG_METOP)
             segs->seglmetop->SmoothProjectionImageBilinear();
-        else if( type == SEG_GAC)
-            segs->seglgac->SmoothProjectionImageBilinear();
         else if( type == SEG_HRP)
             segs->seglhrp->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_METOPA)
-            segs->seglmetopAhrpt->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_METOPB)
-            segs->seglmetopBhrpt->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_NOAA19)
-            segs->seglnoaa19hrpt->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_M01)
-            segs->seglM01hrpt->SmoothProjectionImageBilinear();
-        else if( type == SEG_HRPT_M02)
-            segs->seglM02hrpt->SmoothProjectionImageBilinear();
-
     }
  }
 
@@ -238,6 +209,10 @@ void LambertConformalConic::CreateMapFromVIIRS(eSegmentType type, bool combine)
         segs->seglviirsmnoaa20->ComposeLCCProjection(0);
     else if( type == SEG_VIIRSDNBNOAA20)
         segs->seglviirsdnbnoaa20->ComposeLCCProjection(0);
+    else if (type == SEG_VIIRSMNOAA21)
+        segs->seglviirsmnoaa21->ComposeLCCProjection(0);
+    else if( type == SEG_VIIRSDNBNOAA21)
+        segs->seglviirsdnbnoaa21->ComposeLCCProjection(0);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
@@ -255,9 +230,16 @@ void LambertConformalConic::CreateMapFromVIIRS(eSegmentType type, bool combine)
             segs->seglviirsmnoaa20->SmoothVIIRSImage(combine);
             segs->seglviirsmnoaa20->SmoothProjectionBrightnessTemp();
         }
-        else if( type == SEG_VIIRSDNB)
+        else if( type == SEG_VIIRSDNBNOAA20)
             segs->seglviirsdnbnoaa20->SmoothVIIRSImage(combine);
-    }
+        else if (type == SEG_VIIRSMNOAA21)
+        {
+            segs->seglviirsmnoaa21->SmoothVIIRSImage(combine);
+            segs->seglviirsmnoaa21->SmoothProjectionBrightnessTemp();
+        }
+        else if( type == SEG_VIIRSDNBNOAA21)
+            segs->seglviirsdnbnoaa21->SmoothVIIRSImage(combine);
+     }
 
 }
 

@@ -95,22 +95,8 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
 
     if (opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
         sl = segs->seglmetop;
-    else if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
-        sl = segs->seglnoaa;
     else if (opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
         sl = segs->seglhrp;
-    else if (opts.buttonGAC && segs->seglgac->NbrOfSegments() > 0)
-        sl = segs->seglgac;
-    else if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
-        sl = segs->seglmetopAhrpt;
-    else if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
-        sl = segs->seglmetopBhrpt;
-    else if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
-        sl = segs->seglnoaa19hrpt;
-    else if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
-        sl = segs->seglM01hrpt;
-    else if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
-        sl = segs->seglM02hrpt;
     else if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
         sl = segs->seglviirsm;
     else if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
@@ -119,18 +105,14 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
         sl = segs->seglviirsmnoaa20;
     else if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
         sl = segs->seglviirsdnbnoaa20;
+    else if (opts.buttonVIIRSMNOAA21 && segs->seglviirsmnoaa21->NbrOfSegments() > 0)
+        sl = segs->seglviirsmnoaa21;
+    else if (opts.buttonVIIRSDNBNOAA21 && segs->seglviirsdnbnoaa21->NbrOfSegments() > 0)
+        sl = segs->seglviirsdnbnoaa21;
     else if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
         sl = segs->seglolciefr;
     else if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
         sl = segs->seglolcierr;
-    else if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
-        sl = segs->seglslstr;
-    else if (opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
-        sl = segs->segldatahubolciefr;
-    else if (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
-        sl = segs->segldatahubolcierr;
-    else if (opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0)
-        sl = segs->segldatahubslstr;
     else if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
         sl = segs->seglmersi;
     else
@@ -144,22 +126,6 @@ void SegmentGL::render(QMatrix4x4 projection, float dist, QQuaternion quat, int 
             if(segs->getShowAllSegments() || (*segit)->segmentshow)
             {
                 RenderContourDetail(*segit, projection, modelview, width, height);
-
-            }
-
-            ++segit;
-        }
-
-    } else if((opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0) ||
-              (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0) ||
-              (opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0))
-    {
-        QList<Segment*>::iterator segit = sl->GetSegmentlistptr()->begin();
-        while ( segit != sl->GetSegmentlistptr()->end() )
-        {
-            if(segs->getShowAllSegments() || (*segit)->segmentshow)
-            {
-                RenderContourXML(*segit, projection, modelview, width, height);
 
             }
 

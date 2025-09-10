@@ -470,8 +470,6 @@ QString ProjectionTypeToString( eProjectionType projtype )
         return "PROJ_OLCI_EFR";
     case PROJ_OLCI_ERR:
         return "PROJ_OLCI_ERR";
-    case PROJ_SLSTR:
-        return "PROJ_SLSTR";
     case PROJ_MERSI:
         return "PROJ_MERSI";
     default:
@@ -509,8 +507,6 @@ QString ImageTypeToString( eImageType imtype )
         return "IMAGE_VIIRSDNB";
     case IMAGE_OLCI:
         return "IMAGE_OLCI";
-    case IMAGE_SLSTR:
-        return "IMAGE_SLSTR";
     case IMAGE_MERSI:
         return "IMAGE_MERSI";
     }

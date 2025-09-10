@@ -43,18 +43,13 @@ FormImage::FormImage(QWidget *parent, AVHRRSatellite *seglist) :
     overlaymoon = true;
 
     metopcount = 0;
-    noaacount = 0;
     hrpcount = 0;
-    gaccount = 0;
-    metopAhrptcount = 0;
-    metopBhrptcount = 0;
-    noaa19hrptcount = 0;
-    M01hrptcount = 0;
-    M02hrptcount = 0;
     viirsmcount = 0;
     viirsdnbcount = 0;
     viirsmcountnoaa20 = 0;
     viirsdnbcountnoaa20 = 0;
+    viirsmcountnoaa21 = 0;
+    viirsdnbcountnoaa21 = 0;
     olciefrcount = 0;
     olcierrcount = 0;
     slstrcount = 0;
@@ -440,20 +435,10 @@ void FormImage::slotMakeImage()
 void FormImage::MakeImage()
 {
 
-    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonHRP || opts.buttonGAC)
+    if(opts.buttonMetop || opts.buttonHRP)
     {
         metopcount = segs->seglmetop->NbrOfSegmentsSelected();
-        noaacount = segs->seglnoaa->NbrOfSegmentsSelected();
         hrpcount = segs->seglhrp->NbrOfSegmentsSelected();
-        gaccount = segs->seglgac->NbrOfSegmentsSelected();
-    }
-    else if(opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt || opts.buttonM01hrpt || opts.buttonM02hrpt)
-    {
-        metopAhrptcount = segs->seglmetopAhrpt->NbrOfSegmentsSelected();
-        metopBhrptcount = segs->seglmetopBhrpt->NbrOfSegmentsSelected();
-        noaa19hrptcount = segs->seglnoaa19hrpt->NbrOfSegmentsSelected();
-        M01hrptcount = segs->seglM01hrpt->NbrOfSegmentsSelected();
-        M02hrptcount = segs->seglM02hrpt->NbrOfSegmentsSelected();
     }
     else if(opts.buttonVIIRSM)
     {
@@ -471,6 +456,14 @@ void FormImage::MakeImage()
     {
         viirsdnbcountnoaa20 = segs->seglviirsdnbnoaa20->NbrOfSegmentsSelected();
     }
+    else if(opts.buttonVIIRSMNOAA21)
+    {
+        viirsmcountnoaa21 = segs->seglviirsmnoaa21->NbrOfSegmentsSelected();
+    }
+    else if(opts.buttonVIIRSDNBNOAA21)
+    {
+        viirsdnbcountnoaa21 = segs->seglviirsdnbnoaa21->NbrOfSegmentsSelected();
+    }
     else if(opts.buttonOLCIefr)
     {
         olciefrcount = segs->seglolciefr->NbrOfSegmentsSelected();
@@ -478,10 +471,6 @@ void FormImage::MakeImage()
     else if(opts.buttonOLCIerr)
     {
         olcierrcount = segs->seglolcierr->NbrOfSegmentsSelected();
-    }
-    else if(opts.buttonSLSTR)
-    {
-        slstrcount = segs->seglslstr->NbrOfSegmentsSelected();
     }
     else if(opts.buttonMERSI)
     {
@@ -495,29 +484,22 @@ void FormImage::MakeImage()
     QList<bool> invertlist;
 
     qDebug() << QString("in FormImage::ComposeImage nbr of metop segments selected = %1").arg(metopcount);
-    qDebug() << QString("in FormImage::ComposeImage nbr of noaa segments selected = %1").arg(noaacount);
     qDebug() << QString("in FormImage::ComposeImage nbr of hrp segments selected = %1").arg(hrpcount);
-    qDebug() << QString("in FormImage::ComposeImage nbr of gac segments selected = %1").arg(gaccount);
-
-    qDebug() << QString("in FormImage::ComposeImage nbr of metopAhrpt segments selected = %1").arg(metopAhrptcount);
-    qDebug() << QString("in FormImage::ComposeImage nbr of metopBhrpt segments selected = %1").arg(metopBhrptcount);
-    qDebug() << QString("in FormImage::ComposeImage nbr of noaa19hrpt segments selected = %1").arg(noaa19hrptcount);
-    qDebug() << QString("in FormImage::ComposeImage nbr of M01hrpt segments selected = %1").arg(M01hrptcount);
-    qDebug() << QString("in FormImage::ComposeImage nbr of M02hrpt segments selected = %1").arg(M02hrptcount);
 
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsm segments selected = %1").arg(viirsmcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnb segments selected = %1").arg(viirsdnbcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsmnoaa20 segments selected = %1").arg(viirsmcountnoaa20);
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnbnoaa20 segments selected = %1").arg(viirsdnbcountnoaa20);
+    qDebug() << QString("in FormImage::ComposeImage nbr of viirsmnoaa21 segments selected = %1").arg(viirsmcountnoaa21);
+    qDebug() << QString("in FormImage::ComposeImage nbr of viirsdnbnoaa21 segments selected = %1").arg(viirsdnbcountnoaa21);
     qDebug() << QString("in FormImage::ComposeImage nbr of olciefr segments selected = %1").arg(olciefrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of olcierr segments selected = %1").arg(olcierrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of slstr segments selected = %1").arg(slstrcount);
     qDebug() << QString("in FormImage::ComposeImage nbr of mersi segments selected = %1").arg(mersicount);
 
-    if(opts.buttonMetop || opts.buttonNoaa || opts.buttonGAC || opts.buttonHRP ||
-            opts.buttonMetopAhrpt || opts.buttonMetopBhrpt || opts.buttonNoaa19hrpt || opts.buttonM01hrpt || opts.buttonM02hrpt )
+    if(opts.buttonMetop || opts.buttonHRP )
     {
-        if (metopcount + noaacount + hrpcount + gaccount + metopAhrptcount + metopBhrptcount + noaa19hrptcount + M01hrptcount + M02hrptcount > 0)
+        if (metopcount + hrpcount > 0)
         {
             this->channelshown = IMAGE_AVHRR_COL;
             if (metopcount > 0 && opts.buttonMetop)
@@ -528,14 +510,6 @@ void FormImage::MakeImage()
                 this->setSegmentType(SEG_METOP);
                 segs->seglmetop->ComposeAVHRRImage();
             }
-            else if (noaacount > 0 && opts.buttonNoaa)
-            {
-                formtoolbox->setToolboxButtons(false);
-
-                this->kindofimage = "AVHRR Color";
-                this->setSegmentType(SEG_NOAA19);
-                segs->seglnoaa->ComposeAVHRRImage();
-            }
             else if (hrpcount > 0 && opts.buttonHRP)
             {
                 formtoolbox->setToolboxButtons(false);
@@ -544,55 +518,6 @@ void FormImage::MakeImage()
                 this->setSegmentType(SEG_HRP);
                 segs->seglhrp->ComposeAVHRRImage();
             }
-            else if (gaccount > 0 && opts.buttonGAC)
-            {
-                formtoolbox->setToolboxButtons(false);
-
-                this->kindofimage = "AVHRR Color";
-                this->setSegmentType(SEG_GAC);
-                segs->seglgac->ComposeAVHRRImage();
-            }
-            else if (metopAhrptcount > 0 && opts.buttonMetopAhrpt)
-            {
-                formtoolbox->setToolboxButtons(false);
-
-                this->kindofimage = "AVHRR Color";
-                this->setSegmentType(SEG_HRPT_METOPA);
-                segs->seglmetopAhrpt->ComposeAVHRRImage();
-            }
-            else if (metopBhrptcount > 0 && opts.buttonMetopBhrpt)
-            {
-                formtoolbox->setToolboxButtons(false);
-
-                this->kindofimage = "AVHRR Color";
-                this->setSegmentType(SEG_HRPT_METOPB);
-                segs->seglmetopBhrpt->ComposeAVHRRImage();
-            }
-            else if (noaa19hrptcount > 0 && opts.buttonNoaa19hrpt)
-            {
-                formtoolbox->setToolboxButtons(false);
-
-                this->kindofimage = "AVHRR Color";
-                this->setSegmentType(SEG_HRPT_NOAA19);
-                segs->seglnoaa19hrpt->ComposeAVHRRImage();
-            }
-            else if (M01hrptcount > 0 && opts.buttonM01hrpt)
-            {
-                formtoolbox->setToolboxButtons(false);
-
-                this->kindofimage = "AVHRR Color";
-                this->setSegmentType(SEG_HRPT_M01);
-                segs->seglM01hrpt->ComposeAVHRRImage();
-            }
-            else if (M02hrptcount > 0 && opts.buttonM02hrpt)
-            {
-                formtoolbox->setToolboxButtons(false);
-
-                this->kindofimage = "AVHRR Color";
-                this->setSegmentType(SEG_HRPT_M02);
-                segs->seglM02hrpt->ComposeAVHRRImage();
-            }
-
         }
         else
             return;
@@ -705,6 +630,60 @@ void FormImage::MakeImage()
         invertlist = formtoolbox->getVIIRSMInvertList();
         //          in Workerthread
         segs->seglviirsdnbnoaa20->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+    }
+    else if(viirsmcountnoaa21 > 0 && opts.buttonVIIRSMNOAA21)
+    {
+        if(!formtoolbox->comboColVIIRSOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the VIIRS tab.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        this->channelshown = IMAGE_VIIRSM;
+
+        formtoolbox->setToolboxButtons(false);
+
+        this->displayImage(IMAGE_VIIRSM, true);
+        this->kindofimage = "VIIRSM";
+        this->setSegmentType(SEG_VIIRSMNOAA21);
+        bandlist = formtoolbox->getVIIRSMBandList();
+        colorlist = formtoolbox->getVIIRSMColorList();
+        invertlist = formtoolbox->getVIIRSMInvertList();
+        //          in Workerthread
+        segs->seglviirsmnoaa21->ComposeVIIRSImage(bandlist, colorlist, invertlist);
+        //          in main thread
+        //            segs->seglviirsm->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
+    }
+    else if(viirsdnbcountnoaa21 > 0 && opts.buttonVIIRSDNBNOAA21)
+    {
+        this->channelshown = IMAGE_VIIRSDNB;
+        formtoolbox->setToolboxButtons(false);
+        segs->seglviirsdnbnoaa21->graphvalues.reset(new long[150 * 180]);
+        for(int i = 0; i < 150 * 180; i++)
+            segs->seglviirsdnbnoaa21->graphvalues[i] = 0;
+
+
+        this->displayImage(IMAGE_VIIRSDNB, true);
+        this->kindofimage = "VIIRSDNB";
+        this->setSegmentType(SEG_VIIRSDNBNOAA21);
+
+        bandlist = formtoolbox->getVIIRSMBandList();
+        colorlist = formtoolbox->getVIIRSMColorList();
+        invertlist = formtoolbox->getVIIRSMInvertList();
+        //          in Workerthread
+        segs->seglviirsdnbnoaa21->ComposeVIIRSImage(bandlist, colorlist, invertlist);
     }
     else if(olciefrcount > 0 && opts.buttonOLCIefr)
     {
@@ -859,69 +838,6 @@ void FormImage::MakeImage()
         else     //          in Workerthread
             segs->seglolcierr->ComposeOLCIImage(bandlist, colorlist, invertlist, true, histogrammethod, normalized);
     }
-    else if(slstrcount > 0 && opts.buttonSLSTR)
-    {
-        if(!formtoolbox->comboColSLSTROK())
-        {
-            QMessageBox msgBox;
-            msgBox.setText("Need color choices for 3 different bands in the SLSTR tab.");
-            msgBox.setStandardButtons(QMessageBox::Ok);
-            msgBox.setIcon(QMessageBox::Warning);
-            int ret = msgBox.exec();
-
-            switch (ret) {
-            case QMessageBox::Ok:
-                break;
-            default:
-                break;
-            }
-
-            return;
-        }
-
-        formtoolbox->setToolboxButtons(false);
-
-        this->channelshown = IMAGE_SLSTR;
-
-        this->displayImage(IMAGE_SLSTR, true);
-        this->kindofimage = "SLSTR";
-        this->setSegmentType(SEG_SLSTR);
-
-        bandlist = formtoolbox->getSLSTRBandList();
-        colorlist = formtoolbox->getSLSTRColorList();
-        invertlist = formtoolbox->getSLSTRInvertList();
-        eSLSTRImageView slstrimageview = formtoolbox->getSLSTRImageView(); //Oblique or Nadir
-
-        QStringList missing;
-
-        if(segs->seglslstr->CheckForSLSTRFiles(bandlist, colorlist, missing) == false)
-        {
-            formtoolbox->setToolboxButtons(true);
-
-            emit setmapcylbuttons(true);
-
-            QMessageBox msgBox;
-            QString txt = "One or more files are missing ; download the complete product";
-            for(int i = 0; i < missing.count(); i++)
-            {
-                txt.append(missing.at(i) + "\n");
-            }
-            msgBox.setText(txt);
-            msgBox.setStandardButtons(QMessageBox::Ok);
-            msgBox.setIcon(QMessageBox::Warning);
-            int ret = msgBox.exec();
-
-            switch (ret) {
-            case QMessageBox::Ok:
-                break;
-            default:
-                break;
-            }
-            return;
-        }
-        else     //          in Workerthread
-            segs->seglslstr->ComposeSLSTRImage(bandlist, colorlist, invertlist, true, slstrimageview);
-    }
     else if(mersicount > 0 && opts.buttonMERSI)
     {
         if(!formtoolbox->comboColMERSIOK())
@@ -1031,10 +947,6 @@ void FormImage::setPixmapToScene(bool settoolboxbuttons)
     case IMAGE_OLCI:
         displaySentinelImageInfo(SEG_OLCIEFR);
         m_image = imageptrs->ptrimageOLCI;
-        break;
-    case IMAGE_SLSTR:
-        displaySentinelImageInfo(SEG_SLSTR);
-        m_image = imageptrs->ptrimageSLSTR;
         break;
     case IMAGE_MERSI:
         displayMERSIImageInfo(SEG_MERSI);
@@ -1254,6 +1166,8 @@ void FormImage::displayImage(eImageType channel, bool resize)
                     displayVIIRSImageInfo(SEG_VIIRSM);
                 else if(segmenttype == eSegmentType::SEG_VIIRSMNOAA20)
                     displayVIIRSImageInfo(SEG_VIIRSMNOAA20);
+                else if(segmenttype == eSegmentType::SEG_VIIRSMNOAA21)
+                    displayVIIRSImageInfo(SEG_VIIRSMNOAA21);
             }
             break;
         case IMAGE_VIIRSDNB:
@@ -1272,6 +1186,8 @@ void FormImage::displayImage(eImageType channel, bool resize)
                     displayVIIRSImageInfo(SEG_VIIRSDNB);
                 else if(segmenttype == eSegmentType::SEG_VIIRSDNBNOAA20)
                     displayVIIRSImageInfo(SEG_VIIRSDNBNOAA20);
+                else if(segmenttype == eSegmentType::SEG_VIIRSDNBNOAA21)
+                    displayVIIRSImageInfo(SEG_VIIRSDNBNOAA21);
             }
             break;
         case IMAGE_OLCI:
@@ -1287,21 +1203,6 @@ void FormImage::displayImage(eImageType channel, bool resize)
                 m_image = imageptrs->ptrimageOLCI;
                 m_pixmap = QPixmap::fromImage(*m_image);
                 this->displaySentinelImageInfo(imageptrs->olcitype);
-            }
-            break;
-        case IMAGE_SLSTR:
-            if(imageptrs->ptrimageSLSTR->sizeInBytes() == 0)
-            {
-                QString str("No SLSTR image");
-                int pixelsWide = fm.horizontalAdvance(str);
-                painter.drawText((pm.width() - pixelsWide)/2, pm.height()/2, str);
-                m_pixmap = pm;
-            }
-            else
-            {
-                m_image = imageptrs->ptrimageSLSTR;
-                m_pixmap = QPixmap::fromImage(*m_image);
-                this->displaySentinelImageInfo(SEG_SLSTR);
             }
             break;
         case IMAGE_MERSI:
@@ -1350,53 +1251,18 @@ void FormImage::displayAVHRRImageInfo()
     case SEG_METOP:
         segtype = "Metop";
         break;
-    case SEG_NOAA19:
-        segtype = "Noaa";
-        break;
     case SEG_HRP:
         segtype = "HRP";
-        break;
-    case SEG_GAC:
-        segtype = "GAC";
-        break;
-    case SEG_HRPT_METOPA:
-        segtype = "Metop A HRPT";
-        break;
-    case SEG_HRPT_METOPB:
-        segtype = "Metop B HRPT";
-        break;
-    case SEG_HRPT_NOAA19:
-        segtype = "Noaa 19 HRPT";
-        break;
-    case SEG_HRPT_M01:
-        segtype = "Metop B HRPT";
-        break;
-    case SEG_HRPT_M02:
-        segtype = "Metop A HRPT";
         break;
     default:
         segtype = "NA";
         break;
     }
 
-    if (type == SEG_NOAA19)
-        nbrselected = segs->seglnoaa->NbrOfSegmentsSelected();
-    else if( type == SEG_METOP)
+    if( type == SEG_METOP)
         nbrselected = segs->seglmetop->NbrOfSegmentsSelected();
-    else if( type == SEG_GAC)
-        nbrselected = segs->seglgac->NbrOfSegmentsSelected();
     else if( type == SEG_HRP)
         nbrselected = segs->seglhrp->NbrOfSegmentsSelected();
-    else if( type == SEG_HRPT_METOPA)
-        nbrselected = segs->seglmetopAhrpt->NbrOfSegmentsSelected();
-    else if( type == SEG_HRPT_METOPB)
-        nbrselected = segs->seglmetopBhrpt->NbrOfSegmentsSelected();
-    else if( type == SEG_HRPT_NOAA19)
-        nbrselected = segs->seglnoaa19hrpt->NbrOfSegmentsSelected();
-    else if( type == SEG_HRPT_M01)
-        nbrselected = segs->seglM01hrpt->NbrOfSegmentsSelected();
-    else if( type == SEG_HRPT_M02)
-        nbrselected = segs->seglM02hrpt->NbrOfSegmentsSelected();
 
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"
@@ -1658,11 +1524,11 @@ void FormImage::drawOverlays(QPainter *painter)
             if(this->m_image == NULL)
                 return;
 
-            if(m_image->width() <= 3712)
+            if(this->m_image->width() <= 3712)
                 font.setPixelSize(50);
-            else if(m_image->width() == 5568)
+            else if(this->m_image->width() == 5568)
                 font.setPixelSize(100);
-            else if(m_image->width() > 9000)
+            else if(this->m_image->width() > 9000)
                 font.setPixelSize(150);
             else
                 font.setPixelSize(100);
@@ -3013,6 +2879,8 @@ void FormImage::OverlayProjection(QPainter *paint)
             segs->seglviirsm->GetContourPolygon(&poly);
         else if(opts.buttonVIIRSMNOAA20)
             segs->seglviirsmnoaa20->GetContourPolygon(&poly);
+        else if(opts.buttonVIIRSMNOAA21)
+            segs->seglviirsmnoaa21->GetContourPolygon(&poly);
         else if(opts.buttonMetop)
             segs->seglmetop->GetContourPolygonAVHRR(&poly);
 
@@ -3035,6 +2903,8 @@ void FormImage::OverlayProjection(QPainter *paint)
                 segs->seglviirsm->GetTrackPolygon(&track);
             else if(opts.buttonVIIRSMNOAA20)
                 segs->seglviirsmnoaa20->GetTrackPolygon(&track);
+            else if(opts.buttonVIIRSMNOAA21)
+                segs->seglviirsmnoaa21->GetTrackPolygon(&track);
             else if(opts.buttonMetop)
                 segs->seglmetop->GetTrackPolygonAVHRR(&track);
 
@@ -3151,7 +3021,6 @@ void FormImage::OverlayOLCI(QPainter *paint)
     qDebug() << "FormImage::OverlayOLCI(QPainter *paint) 1";
     qDebug() << "opts.buttonOLCIefr = " << opts.buttonOLCIefr;
     qDebug() << "opts.buttonOLCIerr = " << opts.buttonOLCIerr;
-    qDebug() << "opts.buttonSLSTR   = " << opts.buttonSLSTR;
 
     if(opts.buttonOLCIefr)
     {
@@ -3179,10 +3048,8 @@ void FormImage::OverlayOLCI(QPainter *paint)
     qDebug() << "FormImage::OverlayOLCI(QPainter *paint) ptrimageOLCI height = " << imageptrs->ptrimageOLCI->height();
     qDebug() << "opts.buttonOLCIefr = " << opts.buttonOLCIefr;
     qDebug() << "opts.buttonOLCIerr = " << opts.buttonOLCIerr;
-    qDebug() << "opts.buttonSLSTR   = " << opts.buttonSLSTR;
     qDebug() << "segs->seglolciefr->GetSegmentlistptr()->count() = " << segs->seglolciefr->GetSegmentlistptr()->count();
     qDebug() << "segs->seglolcierr->GetSegmentlistptr()->count() = " << segs->seglolcierr->GetSegmentlistptr()->count();
-    qDebug() << "segs->seglslstr->GetSegmentlistptr()->count() = " << segs->seglslstr->GetSegmentlistptr()->count();
 
     if(sl->GetSegsSelectedptr()->count() > 0)
     {
@@ -3252,13 +3119,24 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
         moonillum = segs->seglviirsdnbnoaa20->getMoonIllumination();
 
         break;
+    case SEG_VIIRSMNOAA21:
+        segtype = "VIIRSMNOAA21";
+        nbrselected = segs->seglviirsmnoaa21->NbrOfSegmentsSelected();
+
+        break;
+    case SEG_VIIRSDNBNOAA21:
+        segtype = "VIIRSDNBNOAA21";
+        nbrselected = segs->seglviirsdnbnoaa21->NbrOfSegmentsSelected();
+        moonillum = segs->seglviirsdnbnoaa21->getMoonIllumination();
+
+        break;
     default:
         segtype = "NA";
         break;
     }
 
 
-    if(type == SEG_VIIRSM || type == SEG_VIIRSMNOAA20)
+    if(type == SEG_VIIRSM || type == SEG_VIIRSMNOAA20 || type == SEG_VIIRSMNOAA21)
     {
         txtInfo = QString("<!DOCTYPE html>"
                           "<html><head><title>Info</title></head>"
@@ -3271,7 +3149,7 @@ void FormImage::displayVIIRSImageInfo(eSegmentType type)
         formtoolbox->writeInfoToTextEdit(txtInfo);
 
     } else
-        if(type == SEG_VIIRSDNB || type == SEG_VIIRSDNBNOAA20)
+        if(type == SEG_VIIRSDNB || type == SEG_VIIRSDNBNOAA20 || type == SEG_VIIRSDNBNOAA21)
         {
             txtInfo = QString("<!DOCTYPE html>"
                               "<html><head><title>Info</title></head>"
@@ -3311,10 +3189,6 @@ void FormImage::displaySentinelImageInfo(eSegmentType type)
         nbrselected = segs->seglolcierr->NbrOfSegmentsSelected();
         nbrofsaturatedpixels = segs->seglolcierr->NbrOfSaturatedPixels();
         break;
-    case SEG_SLSTR:
-        segtype = "SLSTR";
-        nbrselected = segs->seglslstr->NbrOfSegmentsSelected();
-        break;
     default:
         segtype = "NA";
         break;
@@ -3334,19 +3208,6 @@ void FormImage::displaySentinelImageInfo(eSegmentType type)
                           "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageOLCI->width()).arg(imageptrs->ptrimageOLCI->height()).arg(nbrofsaturatedpixels);
         formtoolbox->writeInfoToTextEdit(txtInfo);
     }
-    else if(type == SEG_SLSTR)
-    {
-        txtInfo = QString("<!DOCTYPE html>"
-                          "<html><head><title>Info</title></head>"
-                          "<body>"
-                          "<h4 style='color:blue'>Image Information</h4>"
-                          "<p>Segment type = %1<br>"
-                          "Nbr of segments = %2<br>"
-                          "Image width = %3 height = %4<br>"
-                          "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageSLSTR->width()).arg(imageptrs->ptrimageSLSTR->height());
-        formtoolbox->writeInfoToTextEdit(txtInfo);
-    }
-
 }
 
 void FormImage::displayMERSIImageInfo(eSegmentType type)
@@ -3378,6 +3239,8 @@ bool FormImage::ShowVIIRSMImage()
         viirsmcount = segs->seglviirsm->NbrOfSegmentsSelected();
     else if(opts.buttonVIIRSMNOAA20)
         viirsmcount = segs->seglviirsmnoaa20->NbrOfSegmentsSelected();
+    else if(opts.buttonVIIRSMNOAA21)
+        viirsmcount = segs->seglviirsmnoaa21->NbrOfSegmentsSelected();
 
     QList<bool> bandlist;
     QList<int> colorlist;
@@ -3403,6 +3266,8 @@ bool FormImage::ShowVIIRSMImage()
             segs->seglviirsm->ShowImageSerial(bandlist, colorlist, invertlist);
         else if(opts.buttonVIIRSMNOAA20)
             segs->seglviirsmnoaa20->ShowImageSerial(bandlist, colorlist, invertlist);
+        else if(opts.buttonVIIRSMNOAA21)
+            segs->seglviirsmnoaa21->ShowImageSerial(bandlist, colorlist, invertlist);
     }
     else
         ret = false;
@@ -3565,41 +3430,6 @@ bool FormImage::ShowOLCIerrImage(int histogrammethod, bool normalized)
 
 }
 
-bool FormImage::ShowSLSTRImage(int histogrammethod)
-{
-    bool ret = false;
-
-    slstrcount = segs->seglslstr->NbrOfSegmentsSelected();
-
-    QList<bool> bandlist;
-    QList<int> colorlist;
-    QList<bool> invertlist;
-
-    qDebug() << QString("in FormImage::ShowSLSTRImage nbr of slstr segments selected = %1").arg(slstrcount);
-
-    if (slstrcount > 0)
-    {
-
-        ret = true;
-        displayImage(IMAGE_SLSTR, true);
-
-        emit allsegmentsreceivedbuttons(false);
-
-        this->kindofimage = "SLSTR";
-
-        bandlist = formtoolbox->getSLSTRBandList();
-        colorlist = formtoolbox->getSLSTRColorList();
-        invertlist = formtoolbox->getSLSTRInvertList();
-        segs->seglslstr->setHistogramMethod(histogrammethod);
-        segs->seglslstr->ComposeSLSTRImage(bandlist, colorlist, invertlist, false, formtoolbox->getSLSTRImageView());
-    }
-    else
-        ret = false;
-
-    return ret;
-
-}
-
 bool FormImage::ShowMERSIImage(int histogrammethod, bool normalized)
 {
     bool ret = false;
@@ -3656,14 +3486,10 @@ bool FormImage::ShowAVHRRImage(int histogrammethod, bool normalized)
 
     if(segmenttype == SEG_METOP)
         metopcount = segs->seglmetop->NbrOfSegmentsSelected();
-    else if(segmenttype == SEG_NOAA19)
-        noaacount = segs->seglnoaa->NbrOfSegmentsSelected();
     else if(segmenttype == SEG_HRP)
         hrpcount = segs->seglhrp->NbrOfSegmentsSelected();
-    else if(segmenttype == SEG_GAC)
-        gaccount = segs->seglgac->NbrOfSegmentsSelected();
 
-    if (metopcount > 0 || noaacount > 0 || hrpcount > 0  || gaccount > 0)
+    if (metopcount > 0 || hrpcount > 0)
     {
         ret = true;
 
@@ -3672,22 +3498,12 @@ bool FormImage::ShowAVHRRImage(int histogrammethod, bool normalized)
             segs->seglmetop->setHistogramMethod(histogrammethod);
             segs->seglmetop->UpdateAVHRRImageInThread();
         }
-        else if(segmenttype == SEG_NOAA19)
-        {
-            segs->seglnoaa->setHistogramMethod(histogrammethod);
-            segs->seglnoaa->UpdateAVHRRImageInThread();
-        }
         else if(segmenttype == SEG_HRP)
         {
             segs->seglhrp->setHistogramMethod(histogrammethod);
             segs->seglhrp->UpdateAVHRRImageInThread();
         }
-        else if(segmenttype == SEG_GAC)
-        {
-            segs->seglgac->setHistogramMethod(histogrammethod);
-            segs->seglgac->UpdateAVHRRImageInThread();
-        }
-    }
+     }
     else
         ret = false;
 

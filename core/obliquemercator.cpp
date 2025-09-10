@@ -78,6 +78,8 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
             segs->seglviirsm->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
         else if(opts.buttonVIIRSMNOAA20)
             segs->seglviirsmnoaa20->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+        else if(opts.buttonVIIRSMNOAA21)
+            segs->seglviirsmnoaa21->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
     }
     else if(projtype == PROJ_VIIRSDNB)
     {
@@ -85,6 +87,8 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
             segs->seglviirsdnb->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
         else if(opts.buttonVIIRSDNBNOAA20)
             segs->seglviirsdnbnoaa20->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+        else if(opts.buttonVIIRSDNBNOAA21)
+            segs->seglviirsdnbnoaa21->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
     }
     else if(projtype == PROJ_MERSI)
     {
@@ -292,6 +296,8 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
             GetMinMaxXBoundingBox(SEG_VIIRSM, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
         else if(opts.buttonVIIRSMNOAA20)
             GetMinMaxXBoundingBox(SEG_VIIRSMNOAA20, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+        else if(opts.buttonVIIRSMNOAA21)
+            GetMinMaxXBoundingBox(SEG_VIIRSMNOAA21, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
     }
     else if(projtype == PROJ_VIIRSDNB)
     {
@@ -299,6 +305,8 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
             GetMinMaxXBoundingBox(SEG_VIIRSDNB, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
         else if(opts.buttonVIIRSDNBNOAA20)
             GetMinMaxXBoundingBox(SEG_VIIRSDNBNOAA20, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+        else if(opts.buttonVIIRSDNBNOAA21)
+            GetMinMaxXBoundingBox(SEG_VIIRSDNBNOAA21, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
     }
     else if(projtype == PROJ_MERSI)
     {
@@ -364,6 +372,8 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
             segs->seglviirsm->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
         else if(opts.buttonVIIRSMNOAA20)
             segs->seglviirsmnoaa20->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+        else if(opts.buttonVIIRSMNOAA21)
+            segs->seglviirsmnoaa21->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
     }
     else if(projtype == PROJ_MERSI)
     {
@@ -469,6 +479,8 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
             GetMinMaxXBoundingBox(SEG_VIIRSM, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
         else if(opts.buttonVIIRSMNOAA20)
             GetMinMaxXBoundingBox(SEG_VIIRSMNOAA20, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+        else if(opts.buttonVIIRSMNOAA21)
+            GetMinMaxXBoundingBox(SEG_VIIRSMNOAA21, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
     } else if(projtype == PROJ_MERSI)
     {
         GetMinMaxXBoundingBox(SEG_MERSI, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
@@ -521,6 +533,14 @@ void ObliqueMercator::GetMinMaxXBoundingBox(eSegmentType type, double *boundingb
     else if( type == SEG_VIIRSDNBNOAA20)
     {
         seglist = (SegmentList *)segs->seglviirsdnbnoaa20;
+    }
+    else if( type == SEG_VIIRSMNOAA21)
+    {
+        seglist = (SegmentList *)segs->seglviirsmnoaa21;
+    }
+    else if( type == SEG_VIIRSDNBNOAA21)
+    {
+        seglist = (SegmentList *)segs->seglviirsdnbnoaa21;
     }
     else if( type == SEG_MERSI)
     {
@@ -807,12 +827,16 @@ void ObliqueMercator::CreateMapFromVIIRS(eSegmentType type, bool combine)
 {
     if (type == SEG_VIIRSM)
         segs->seglviirsm->ComposeOMProjection(0);
-    else if( type == SEG_VIIRSMNOAA20)
-        segs->seglviirsmnoaa20->ComposeOMProjection(0);
     else if (type == SEG_VIIRSDNB)
         segs->seglviirsdnb->ComposeOMProjection(0);
+    else if( type == SEG_VIIRSMNOAA20)
+        segs->seglviirsmnoaa20->ComposeOMProjection(0);
     else if( type == SEG_VIIRSDNBNOAA20)
         segs->seglviirsdnbnoaa20->ComposeOMProjection(0);
+    else if( type == SEG_VIIRSMNOAA21)
+        segs->seglviirsmnoaa21->ComposeOMProjection(0);
+    else if( type == SEG_VIIRSDNBNOAA21)
+        segs->seglviirsdnbnoaa21->ComposeOMProjection(0);
 
     if(opts.smoothprojectiontype == 1)
         imageptrs->SmoothProjectionImage();
@@ -822,17 +846,25 @@ void ObliqueMercator::CreateMapFromVIIRS(eSegmentType type, bool combine)
         {
             segs->seglviirsm->SmoothVIIRSImage(combine);
         }
-        else if (type == SEG_VIIRSMNOAA20)
-        {
-            segs->seglviirsmnoaa20->SmoothVIIRSImage(combine);
-        }
         else if (type == SEG_VIIRSDNB)
         {
             segs->seglviirsdnb->SmoothVIIRSImage(combine);
         }
+        else if (type == SEG_VIIRSMNOAA20)
+        {
+            segs->seglviirsmnoaa20->SmoothVIIRSImage(combine);
+        }
         else if (type == SEG_VIIRSDNBNOAA20)
         {
             segs->seglviirsdnbnoaa20->SmoothVIIRSImage(combine);
+        }
+        else if (type == SEG_VIIRSMNOAA21)
+        {
+            segs->seglviirsmnoaa21->SmoothVIIRSImage(combine);
+        }
+        else if (type == SEG_VIIRSDNBNOAA21)
+        {
+            segs->seglviirsdnbnoaa21->SmoothVIIRSImage(combine);
         }
     }
 

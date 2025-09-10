@@ -241,22 +241,8 @@ void Globe::mouseDownAction(int x, int y)
     QString segname;
     if(opts.buttonMetop)
         isselected = segs->seglmetop->TestForSegmentGL( x, realy, distance, m, segs->getShowAllSegments(), segname );
-    else if (opts.buttonNoaa)
-        isselected = segs->seglnoaa->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else if (opts.buttonHRP)
         isselected = segs->seglhrp->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonGAC)
-        isselected = segs->seglgac->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonMetopAhrpt)
-        isselected = segs->seglmetopAhrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname ); // must be extended test !
-    else if (opts.buttonMetopBhrpt)
-        isselected = segs->seglmetopBhrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonNoaa19hrpt)
-        isselected = segs->seglnoaa19hrpt->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonM01hrpt)
-        isselected = segs->seglM01hrpt->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonM02hrpt)
-        isselected = segs->seglM02hrpt->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else if (opts.buttonVIIRSM)
         isselected = segs->seglviirsm->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else if (opts.buttonVIIRSDNB)
@@ -265,18 +251,14 @@ void Globe::mouseDownAction(int x, int y)
         isselected = segs->seglviirsmnoaa20->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else if (opts.buttonVIIRSDNBNOAA20)
         isselected = segs->seglviirsdnbnoaa20->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+    else if (opts.buttonVIIRSMNOAA21)
+        isselected = segs->seglviirsmnoaa21->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
+    else if (opts.buttonVIIRSDNBNOAA21)
+        isselected = segs->seglviirsdnbnoaa21->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else if (opts.buttonOLCIefr)
         isselected = segs->seglolciefr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else if (opts.buttonOLCIerr)
         isselected = segs->seglolcierr->TestForSegmentGLextended( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonSLSTR)
-        isselected = segs->seglslstr->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonDatahubOLCIefr)
-        isselected = segs->segldatahubolciefr->TestForSegmentGLXML( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonDatahubOLCIerr)
-        isselected = segs->segldatahubolcierr->TestForSegmentGLXML( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
-    else if (opts.buttonDatahubSLSTR)
-        isselected = segs->segldatahubslstr->TestForSegmentGLXML( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else if (opts.buttonMERSI)
         isselected = segs->seglmersi->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else
@@ -588,101 +570,56 @@ void Globe::paintGL()
             segs->seglmetop->GetFirstLastVisible(&first_julian, &last_julian);
             segs->seglmetop->CalculateSunPosition(first_julian, last_julian, &sunPosition);
         } else
-            if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
+            if (opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
             {
-                segs->seglnoaa->GetFirstLastVisible(&first_julian, &last_julian);
-                segs->seglnoaa->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                segs->seglhrp->GetFirstLastVisible(&first_julian, &last_julian);
+                segs->seglhrp->CalculateSunPosition(first_julian, last_julian, &sunPosition);
             } else
-                if (opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
+                if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
                 {
-                    segs->seglhrp->GetFirstLastVisible(&first_julian, &last_julian);
-                    segs->seglhrp->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                    segs->seglviirsm->GetFirstLastVisible(&first_julian, &last_julian);
+                    segs->seglviirsm->CalculateSunPosition(first_julian, last_julian, &sunPosition);
                 } else
-                    if (opts.buttonGAC && segs->seglgac->NbrOfSegments() > 0)
+                    if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
                     {
-                        segs->seglgac->GetFirstLastVisible(&first_julian, &last_julian);
-                        segs->seglgac->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                        segs->seglviirsdnb->GetFirstLastVisible(&first_julian, &last_julian);
+                        segs->seglviirsdnb->CalculateSunPosition(first_julian, last_julian, &sunPosition);
                     } else
-                        if (opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegments() > 0)
+                        if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
                         {
-                            segs->seglmetopAhrpt->GetFirstLastVisible(&first_julian, &last_julian);
-                            segs->seglmetopAhrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                            segs->seglviirsmnoaa20->GetFirstLastVisible(&first_julian, &last_julian);
+                            segs->seglviirsmnoaa20->CalculateSunPosition(first_julian, last_julian, &sunPosition);
                         } else
-                            if (opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegments() > 0)
+                            if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
                             {
-                                segs->seglmetopBhrpt->GetFirstLastVisible(&first_julian, &last_julian);
-                                segs->seglmetopBhrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                                segs->seglviirsdnbnoaa20->GetFirstLastVisible(&first_julian, &last_julian);
+                                segs->seglviirsdnbnoaa20->CalculateSunPosition(first_julian, last_julian, &sunPosition);
                             } else
-                                if (opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegments() > 0)
+                                if (opts.buttonVIIRSMNOAA21 && segs->seglviirsmnoaa21->NbrOfSegments() > 0)
                                 {
-                                    segs->seglnoaa19hrpt->GetFirstLastVisible(&first_julian, &last_julian);
-                                    segs->seglnoaa19hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                                    segs->seglviirsmnoaa21->GetFirstLastVisible(&first_julian, &last_julian);
+                                    segs->seglviirsmnoaa21->CalculateSunPosition(first_julian, last_julian, &sunPosition);
                                 } else
-                                    if (opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegments() > 0)
+                                    if (opts.buttonVIIRSDNBNOAA21 && segs->seglviirsdnbnoaa21->NbrOfSegments() > 0)
                                     {
-                                        segs->seglM01hrpt->GetFirstLastVisible(&first_julian, &last_julian);
-                                        segs->seglM01hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                                        segs->seglviirsdnbnoaa21->GetFirstLastVisible(&first_julian, &last_julian);
+                                        segs->seglviirsdnbnoaa21->CalculateSunPosition(first_julian, last_julian, &sunPosition);
                                     } else
-                                        if (opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegments() > 0)
+                                        if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
                                         {
-                                            segs->seglM02hrpt->GetFirstLastVisible(&first_julian, &last_julian);
-                                            segs->seglM02hrpt->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                                            segs->seglolciefr->GetFirstLastVisible(&first_julian, &last_julian);
+                                            segs->seglolciefr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
                                         } else
-                                            if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
+                                            if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
                                             {
-                                                segs->seglviirsm->GetFirstLastVisible(&first_julian, &last_julian);
-                                                segs->seglviirsm->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                                                segs->seglolcierr->GetFirstLastVisible(&first_julian, &last_julian);
+                                                segs->seglolcierr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
                                             } else
-                                                if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+                                                if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
                                                 {
-                                                    segs->seglviirsdnb->GetFirstLastVisible(&first_julian, &last_julian);
-                                                    segs->seglviirsdnb->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                } else
-                                                    if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
-                                                    {
-                                                        segs->seglviirsmnoaa20->GetFirstLastVisible(&first_julian, &last_julian);
-                                                        segs->seglviirsmnoaa20->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                    } else
-                                                        if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
-                                                        {
-                                                            segs->seglviirsdnbnoaa20->GetFirstLastVisible(&first_julian, &last_julian);
-                                                            segs->seglviirsdnbnoaa20->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                        } else
-                                                            if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
-                                                            {
-                                                                segs->seglolciefr->GetFirstLastVisible(&first_julian, &last_julian);
-                                                                segs->seglolciefr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                            } else
-                                                                if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
-                                                                {
-                                                                    segs->seglolcierr->GetFirstLastVisible(&first_julian, &last_julian);
-                                                                    segs->seglolcierr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                                } else
-                                                                    if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
-                                                                    {
-                                                                        segs->seglslstr->GetFirstLastVisible(&first_julian, &last_julian);
-                                                                        segs->seglslstr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                                    } else
-                                                                        if (opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
-                                                                        {
-                                                                            segs->segldatahubolciefr->GetFirstLastVisible(&first_julian, &last_julian);
-                                                                            segs->segldatahubolciefr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                                        } else
-                                                                            if (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
-                                                                            {
-                                                                                segs->segldatahubolcierr->GetFirstLastVisible(&first_julian, &last_julian);
-                                                                                segs->segldatahubolcierr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                                            } else
-                                                                                if (opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0)
-                                                                                {
-                                                                                    segs->segldatahubslstr->GetFirstLastVisible(&first_julian, &last_julian);
-                                                                                    segs->segldatahubslstr->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                                                } else
-                                                                                    if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
-                                                                                    {
-                                                                                        segs->seglmersi->GetFirstLastVisible(&first_julian, &last_julian);
-                                                                                        segs->seglmersi->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                                                    }
+                                                    segs->seglmersi->GetFirstLastVisible(&first_julian, &last_julian);
+                                                    segs->seglmersi->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                                                }
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -740,35 +677,32 @@ void Globe::paintGL()
         if (opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
             segs->seglmetop->ShowWinvec(&painter, distance, modelview );
         else
-            if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
-                segs->seglnoaa->ShowWinvec(&painter, distance, modelview );
+            if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
+                segs->seglviirsm->ShowWinvec(&painter, distance, modelview );
             else
-                if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
-                    segs->seglviirsm->ShowWinvec(&painter, distance, modelview );
+                if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
+                    segs->seglviirsdnb->ShowWinvec(&painter, distance, modelview );
                 else
-                    if (opts.buttonVIIRSDNB && segs->seglviirsdnb->NbrOfSegments() > 0)
-                        segs->seglviirsdnb->ShowWinvec(&painter, distance, modelview );
+                    if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
+                        segs->seglviirsmnoaa20->ShowWinvec(&painter, distance, modelview );
                     else
-                        if (opts.buttonVIIRSMNOAA20 && segs->seglviirsmnoaa20->NbrOfSegments() > 0)
-                            segs->seglviirsmnoaa20->ShowWinvec(&painter, distance, modelview );
+                        if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
+                            segs->seglviirsdnbnoaa20->ShowWinvec(&painter, distance, modelview );
                         else
-                            if (opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegments() > 0)
-                                segs->seglviirsdnbnoaa20->ShowWinvec(&painter, distance, modelview );
+                            if (opts.buttonVIIRSMNOAA21 && segs->seglviirsmnoaa21->NbrOfSegments() > 0)
+                                segs->seglviirsmnoaa21->ShowWinvec(&painter, distance, modelview );
                             else
-                                if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
-                                    segs->seglolciefr->ShowWinvec(&painter, distance, modelview );
+                                if (opts.buttonVIIRSDNBNOAA21 && segs->seglviirsdnbnoaa21->NbrOfSegments() > 0)
+                                    segs->seglviirsdnbnoaa21->ShowWinvec(&painter, distance, modelview );
                                 else
-                                    if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
-                                        segs->seglolcierr->ShowWinvec(&painter, distance, modelview );
+                                    if (opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
+                                        segs->seglolciefr->ShowWinvec(&painter, distance, modelview );
                                     else
-                                        if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
-                                            segs->seglmersi->ShowWinvec(&painter, distance, modelview );
+                                        if (opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
+                                            segs->seglolcierr->ShowWinvec(&painter, distance, modelview );
                                         else
-                                            if (opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
-                                                segs->segldatahubolciefr->ShowWinvecXML(&painter, distance, modelview );
-                                            else
-                                                if (opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
-                                                    segs->segldatahubolcierr->ShowWinvecXML(&painter, distance, modelview );
+                                            if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
+                                                segs->seglmersi->ShowWinvec(&painter, distance, modelview );
         painter.restore();
     }
 
@@ -789,46 +723,24 @@ void Globe::paintGL()
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
-                .arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2)).arg(segmentnameselected.mid(28, 2));
+                              .arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2)).arg(segmentnameselected.mid(28, 2));
 
         if(segmentnameselected.mid(0,15) == "AVHR_xxx_1B_M02")  // Metop-A
             painter.drawText(10, this->height() - 20, "Metop-A " + segdate);
         else if(segmentnameselected.mid(0,15) == "AVHR_xxx_1B_M01") // Metop-B
             painter.drawText(10, this->height() - 20, "Metop-B " + segdate);
     }
-    //avhrr_20131111_011500_noaa19.hrp.bz2
-    //012345678901234567890123456789012345678901234567890123456789
-    else if (opts.buttonNoaa && segs->seglnoaa->NbrOfSegmentsSelected() > 0)
-    {
-        painter.drawText(10, this->height() - 40, "Last selected segment :");
-        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(6, 4)).arg(segmentnameselected.mid(10, 2)).arg(segmentnameselected.mid(12, 2))
-                .arg(segmentnameselected.mid(15, 2)).arg(segmentnameselected.mid(17, 2)).arg(segmentnameselected.mid(19, 2));
-
-        if(segmentnameselected.mid(0,5) == "avhrr" && segmentnameselected.mid(22,6) == "noaa19")
-            painter.drawText(10, this->height() - 20, "NOAA 19 " + segdate);
-    }
     //AVHR_HRP_00_M02_20130701060200Z_20130701060300Z_N_O_20130701061314Z
     else if (opts.buttonHRP && segs->seglhrp->NbrOfSegmentsSelected() > 0)
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
-                .arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2)).arg(segmentnameselected.mid(28, 2));
+                              .arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2)).arg(segmentnameselected.mid(28, 2));
 
         if(segmentnameselected.mid(0,15) == "AVHR_HRP_00_M02")  // Metop-A
             painter.drawText(10, this->height() - 20, "Metop-A " + segdate);
         else if(segmentnameselected.mid(0,15) == "AVHR_HRP_00_M01") // Metop-B
             painter.drawText(10, this->height() - 20, "Metop-B " + segdate);
-
-    }
-    //AVHR_GAC_1B_N19_20130701041003Z_20130701041303Z_N_O_20130701054958Z
-    else if (opts.buttonGAC && segs->seglgac->NbrOfSegmentsSelected() > 0)
-    {
-        painter.drawText(10, this->height() - 40, "Last selected segment :");
-        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
-                .arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2)).arg(segmentnameselected.mid(28, 2));
-
-        if(segmentnameselected.mid(0,15) == "AVHR_GAC_1B_N19")
-            painter.drawText(10, this->height() - 20, "NOAA 19 " + segdate);
 
     }
     //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
@@ -837,7 +749,7 @@ void Globe::paintGL()
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(10, 4)).arg(segmentnameselected.mid(14, 2)).arg(segmentnameselected.mid(16, 2))
-                .arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2));
+                              .arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2));
 
         if(segmentnameselected.mid(0,8) == "SVMC_npp")
             painter.drawText(10, this->height() - 20, "SUOMI NPP M Band " + segdate);
@@ -848,7 +760,7 @@ void Globe::paintGL()
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(12, 4)).arg(segmentnameselected.mid(16, 2)).arg(segmentnameselected.mid(18, 2))
-                .arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2));
+                              .arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2));
 
         if(segmentnameselected.mid(0,10) == "SVDNBC_npp")
             painter.drawText(10, this->height() - 20, "SUOMI NPP DNB " + segdate);
@@ -857,7 +769,7 @@ void Globe::paintGL()
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(10, 4)).arg(segmentnameselected.mid(14, 2)).arg(segmentnameselected.mid(16, 2))
-                .arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2));
+                              .arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2));
 
         if(segmentnameselected.mid(0,8) == "SVMC_j01")
             painter.drawText(10, this->height() - 20, "NOAA-20 M Band " + segdate);
@@ -868,10 +780,30 @@ void Globe::paintGL()
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(12, 4)).arg(segmentnameselected.mid(16, 2)).arg(segmentnameselected.mid(18, 2))
-                .arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2));
+                              .arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2));
 
         if(segmentnameselected.mid(0,10) == "SVDNBC_j01")
-            painter.drawText(10, this->height() - 20, "SUOMI NPP DNB " + segdate);
+            painter.drawText(10, this->height() - 20, "NOAA-20 DNB " + segdate);
+    }
+    else if (opts.buttonVIIRSMNOAA21 && segs->seglviirsmnoaa21->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(10, 4)).arg(segmentnameselected.mid(14, 2)).arg(segmentnameselected.mid(16, 2))
+                              .arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2));
+
+        if(segmentnameselected.mid(0,8) == "SVMC_j02")
+            painter.drawText(10, this->height() - 20, "NOAA-21 M Band " + segdate);
+    }
+    //SVDNBC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
+    //012345678901234567890123456789012345678901234567890123456789
+    else if (opts.buttonVIIRSDNBNOAA21 && segs->seglviirsdnbnoaa21->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(12, 4)).arg(segmentnameselected.mid(16, 2)).arg(segmentnameselected.mid(18, 2))
+                              .arg(segmentnameselected.mid(22, 2)).arg(segmentnameselected.mid(24, 2)).arg(segmentnameselected.mid(26, 2));
+
+        if(segmentnameselected.mid(0,10) == "SVDNBC_j02")
+            painter.drawText(10, this->height() - 20, "NOAA-21 DNB " + segdate);
     }
     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
     //0         1         2         3         4         5         6         7         8         9         10
@@ -880,7 +812,7 @@ void Globe::paintGL()
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
-                .arg(segmentnameselected.mid(25, 2)).arg(segmentnameselected.mid(27, 2)).arg(segmentnameselected.mid(29, 2));
+                              .arg(segmentnameselected.mid(25, 2)).arg(segmentnameselected.mid(27, 2)).arg(segmentnameselected.mid(29, 2));
 
         if(segmentnameselected.mid(0,12) == "S3A_OL_1_EFR")
             painter.drawText(10, this->height() - 20, "Sentinel-3A EFR" + segdate);
@@ -894,23 +826,12 @@ void Globe::paintGL()
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
-                .arg(segmentnameselected.mid(25, 2)).arg(segmentnameselected.mid(27, 2)).arg(segmentnameselected.mid(29, 2));
+                              .arg(segmentnameselected.mid(25, 2)).arg(segmentnameselected.mid(27, 2)).arg(segmentnameselected.mid(29, 2));
 
         if(segmentnameselected.mid(0,12) == "S3A_OL_1_ERR")
             painter.drawText(10, this->height() - 20, "Sentinel-3A ERR" + segdate);
         else if(segmentnameselected.mid(0,12) == "S3B_OL_1_ERR")
             painter.drawText(10, this->height() - 20, "Sentinel-3B ERR" + segdate);
-    }
-    else if (opts.buttonSLSTR && segs->seglslstr->NbrOfSegmentsSelected() > 0)
-    {
-        painter.drawText(10, this->height() - 40, "Last selected segment :");
-        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(16, 4)).arg(segmentnameselected.mid(20, 2)).arg(segmentnameselected.mid(22, 2))
-                .arg(segmentnameselected.mid(25, 2)).arg(segmentnameselected.mid(27, 2)).arg(segmentnameselected.mid(29, 2));
-
-        if(segmentnameselected.mid(0,12) == "S3A_SL_1_RBT")
-            painter.drawText(10, this->height() - 20, "Sentinel-3A SLSTR" + segdate);
-        else if(segmentnameselected.mid(0,12) == "S3B_SL_1_RBT")
-            painter.drawText(10, this->height() - 20, "Sentinel-3B SLSTR" + segdate);
     }
     //012345678901234567890123456789012345678901234567890
     //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
@@ -919,7 +840,7 @@ void Globe::paintGL()
     {
         painter.drawText(10, this->height() - 40, "Last selected segment :");
         QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(5, 4)).arg(segmentnameselected.mid(9, 2)).arg(segmentnameselected.mid(11, 2))
-                .arg(segmentnameselected.mid(14, 2)).arg(segmentnameselected.mid(16, 2)).arg(segmentnameselected.mid(18, 2));
+                              .arg(segmentnameselected.mid(14, 2)).arg(segmentnameselected.mid(16, 2)).arg(segmentnameselected.mid(18, 2));
 
         if(segmentnameselected.mid(0,4) == "FY3D")
             painter.drawText(10, this->height() - 20, "FY-3D " + segdate);
@@ -930,17 +851,9 @@ void Globe::paintGL()
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_METOP, segs->seglmetop->GetSegmentlistptr());
     }
-    else if (bSegmentNames && opts.buttonNoaa && segs->seglnoaa->NbrOfSegments() > 0)
-    {
-        drawSegmentNames(&painter, modelview, eSegmentType::SEG_NOAA19, segs->seglnoaa->GetSegmentlistptr());
-    }
     else if (bSegmentNames && opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_HRP, segs->seglhrp->GetSegmentlistptr());
-    }
-    else if (bSegmentNames && opts.buttonGAC && segs->seglgac->NbrOfSegments() > 0)
-    {
-        drawSegmentNames(&painter, modelview, eSegmentType::SEG_GAC, segs->seglgac->GetSegmentlistptr());
     }
     else if (bSegmentNames && opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)
     {
@@ -958,6 +871,14 @@ void Globe::paintGL()
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSDNBNOAA20, segs->seglviirsdnbnoaa20->GetSegmentlistptr());
     }
+    else if (bSegmentNames && opts.buttonVIIRSMNOAA21 && segs->seglviirsmnoaa21->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSMNOAA21, segs->seglviirsmnoaa21->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonVIIRSDNBNOAA21 && segs->seglviirsdnbnoaa21->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_VIIRSDNBNOAA21, segs->seglviirsdnbnoaa21->GetSegmentlistptr());
+    }
     else if (bSegmentNames && opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_OLCIEFR, segs->seglolciefr->GetSegmentlistptr());
@@ -965,22 +886,6 @@ void Globe::paintGL()
     else if (bSegmentNames && opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_OLCIERR, segs->seglolcierr->GetSegmentlistptr());
-    }
-    else if (bSegmentNames && opts.buttonSLSTR && segs->seglslstr->NbrOfSegments() > 0)
-    {
-        drawSegmentNames(&painter, modelview, eSegmentType::SEG_SLSTR, segs->seglslstr->GetSegmentlistptr());
-    }
-    else if (bSegmentNames && opts.buttonDatahubOLCIefr && segs->segldatahubolciefr->NbrOfSegments() > 0)
-    {
-        drawSegmentNames(&painter, modelview, eSegmentType::SEG_DATAHUB_OLCIEFR, segs->segldatahubolciefr->GetSegmentlistptr());
-    }
-    else if (bSegmentNames && opts.buttonDatahubOLCIerr && segs->segldatahubolcierr->NbrOfSegments() > 0)
-    {
-        drawSegmentNames(&painter, modelview, eSegmentType::SEG_DATAHUB_OLCIERR, segs->segldatahubolcierr->GetSegmentlistptr());
-    }
-    else if (bSegmentNames && opts.buttonDatahubSLSTR && segs->segldatahubslstr->NbrOfSegments() > 0)
-    {
-        drawSegmentNames(&painter, modelview, eSegmentType::SEG_DATAHUB_SLSTR, segs->segldatahubslstr->GetSegmentlistptr());
     }
     else if (bSegmentNames && opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
     {
@@ -1218,8 +1123,7 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
     bool showsegmenttext = false;
     if(segs->getShowAllSegments())
     {
-        if( (*segit)->segtype == SEG_DATAHUB_OLCIEFR || (*segit)->segtype == SEG_DATAHUB_OLCIERR || (*segit)->segtype == SEG_DATAHUB_SLSTR ||
-                (*segit)->segtype == SEG_OLCIEFR || (*segit)->segtype == SEG_OLCIERR || (*segit)->segtype == SEG_SLSTR || (*segit)->segtype == SEG_MERSI)
+        if( (*segit)->segtype == SEG_OLCIEFR || (*segit)->segtype == SEG_OLCIERR || (*segit)->segtype == SEG_MERSI)
             showsegmenttext = true;
         else
             showsegmenttext = false;
@@ -1253,14 +1157,6 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 {
                     renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(12, 3)).arg((*segit)->fileInfo.fileName().mid(24, 2)).arg((*segit)->fileInfo.fileName().mid(26, 2));
                 }
-                else if(seg == eSegmentType::SEG_NOAA19)
-                {
-                    renderout = QString("%1 %2:%3").arg("N19").arg((*segit)->fileInfo.fileName().mid(15, 2)).arg((*segit)->fileInfo.fileName().mid(17, 2));
-                }
-                else if(seg == eSegmentType::SEG_GAC)
-                {
-                    renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(12, 3)).arg((*segit)->fileInfo.fileName().mid(24, 2)).arg((*segit)->fileInfo.fileName().mid(26, 2));
-                }
                 else if(seg == eSegmentType::SEG_HRP)
                 {
                     renderout = QString("%1 %2:%3").arg((*segit)->fileInfo.fileName().mid(12, 3)).arg((*segit)->fileInfo.fileName().mid(24, 2)).arg((*segit)->fileInfo.fileName().mid(26, 2));
@@ -1281,6 +1177,14 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 {
                     renderout = QString("DNB %1:%2").arg((*segit)->fileInfo.fileName().mid(22, 2)).arg((*segit)->fileInfo.fileName().mid(24, 2));
                 }
+                else if(seg == eSegmentType::SEG_VIIRSMNOAA21)
+                {
+                    renderout = QString("M %1:%2").arg((*segit)->fileInfo.fileName().mid(20, 2)).arg((*segit)->fileInfo.fileName().mid(22, 2));
+                }
+                else if(seg == eSegmentType::SEG_VIIRSDNBNOAA21)
+                {
+                    renderout = QString("DNB %1:%2").arg((*segit)->fileInfo.fileName().mid(22, 2)).arg((*segit)->fileInfo.fileName().mid(24, 2));
+                }
                 else if(seg == eSegmentType::SEG_OLCIEFR)
                 {
                     QString filename = (*segit)->fileInfo.fileName();
@@ -1290,29 +1194,6 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 {
                     QString filename = (*segit)->fileInfo.fileName();
                     renderout = QString("%1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
-                }
-                else if(seg == eSegmentType::SEG_SLSTR)
-                {
-                    QString filename = (*segit)->fileInfo.fileName();
-                    renderout = QString("SLSTR %1 %2:%3").arg(filename.mid(0,3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
-                }
-                else if(seg == eSegmentType::SEG_DATAHUB_OLCIEFR)
-                {
-                    SegmentDatahub *segm = (SegmentDatahub *)(*segit);
-                    QString filename = (*segm).getName();
-                    renderout = QString("EFR %1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
-                }
-                else if(seg == eSegmentType::SEG_DATAHUB_OLCIERR)
-                {
-                    SegmentDatahub *segm = (SegmentDatahub *)(*segit);
-                    QString filename = (*segm).getName();
-                    renderout = QString("ERR %1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
-                }
-                else if(seg == eSegmentType::SEG_DATAHUB_SLSTR)
-                {
-                    SegmentDatahub *segm = (SegmentDatahub *)(*segit);
-                    QString filename = (*segm).getName();
-                    renderout = QString("SLSTR %1 %2:%3").arg(filename.mid(0, 3)).arg(filename.mid(25, 2)).arg(filename.mid(27, 2));
                 }
                 //012345678901234567890123456789012345678901234567890
                 //FY3D_20200113_113000_113100_11206_MERSI_1000M_L1B.HDF
@@ -1328,8 +1209,6 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 }
                 painter->drawText(win.x(), this->height() - win.y(), renderout);
             }
-
-
         }
         ++segit;
     }
@@ -1451,18 +1330,18 @@ void Globe::initTextures()
 
 
     static unsigned char rainbow_image[] =
-    {
-        //         0x3f, 0x00, 0x3f, 0xff, /* Dark Violet (for 8 colors…) */
+        {
+            //         0x3f, 0x00, 0x3f, 0xff, /* Dark Violet (for 8 colors…) */
 
-        0xff, 0xff, 0xff, 0xff,
-        0x7f, 0x00, 0x7f, 0xff, /* Violet */
-        0xbf, 0x00, 0xbf, 0xff, /* Indigo */
-        0x00, 0x00, 0xff, 0xff, /* Blue */
-        0x00, 0xff, 0x00, 0xff, /* Green */
-        0xff, 0xff, 0x00, 0xff, /* Yellow */
-        0xff, 0x7f, 0x00, 0xff, /* Orange */
-        0xff, 0x00, 0x00, 0xff /* Red */
-    };
+            0xff, 0xff, 0xff, 0xff,
+            0x7f, 0x00, 0x7f, 0xff, /* Violet */
+            0xbf, 0x00, 0xbf, 0xff, /* Indigo */
+            0x00, 0x00, 0xff, 0xff, /* Blue */
+            0x00, 0xff, 0x00, 0xff, /* Green */
+            0xff, 0xff, 0x00, 0xff, /* Yellow */
+            0xff, 0x7f, 0x00, 0xff, /* Orange */
+            0xff, 0x00, 0x00, 0xff /* Red */
+        };
 
     //      glNewList(RainbowTexture = glGenLists(1), GL_COMPILE);
     //        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1562,13 +1441,13 @@ void Globe::Render3DGeoSegmentNew(int geoindex)
 {
     Equirectangular equirect;
 
-//    int height = imageptrs->ptrimageGeostationary->height();
-//    int width = imageptrs->ptrimageGeostationary->width();
+    //    int height = imageptrs->ptrimageGeostationary->height();
+    //    int width = imageptrs->ptrimageGeostationary->width();
 
-//    height = imageptrs->pmOut->height();
-//    width = imageptrs->pmOut->width();
+    //    height = imageptrs->pmOut->height();
+    //    width = imageptrs->pmOut->width();
 
-//    qDebug() << imageptrs->pmOut->height();
+    //    qDebug() << imageptrs->pmOut->height();
 
     equirect.Initialize(imageptrs->pmOut->width(), imageptrs->pmOut->height());
 
@@ -1675,11 +1554,11 @@ void Globe::Render3DGeoSegmentLineNew(int heightinimage, int geoindex, Equirecta
     for (int pix = 0 ; pix < imageptrs->pmOut->width(); pix+=1)
     {
         equirect->map_inverse(pix, heightinimage, lon_deg, lat_deg);
-//                if(segs->seglgeo[geoindex]->geosatlon == 0.0)
-//                {
-//                    lon_low = -90.0;
-//                    lon_high = 20.75;
-//                }
+        //                if(segs->seglgeo[geoindex]->geosatlon == 0.0)
+        //                {
+        //                    lon_low = -90.0;
+        //                    lon_high = 20.75;
+        //                }
         //        else if(segs->seglgeo[geoindex]->geosatlon == 104.5)
         //        {
         //            lon_low = 52.25;

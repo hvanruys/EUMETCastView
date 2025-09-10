@@ -86,22 +86,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglviirsdnb, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglviirsmnoaa20, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglviirsdnbnoaa20, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglviirsmnoaa21, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglviirsdnbnoaa21, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglolciefr, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglolcierr, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmetop, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglnoaa, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglhrp, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglgac, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglmetopAhrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglmetopBhrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglnoaa19hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglM01hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
-    connect(seglist->seglM02hrpt, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmersi, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
 
 
     connect(seglist->seglviirsdnb, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
     connect(seglist->seglviirsdnbnoaa20, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
+    connect(seglist->seglviirsdnbnoaa21, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
 
 
     formglobecyl = new FormMapCyl( this, mapcyl, globe, formtoolbox, seglist);
@@ -125,40 +121,27 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->stackedWidget->setCurrentIndex(0);
 
     connect(seglist->seglmetop, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglnoaa, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglhrp, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglgac, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-
-    connect(seglist->seglmetopAhrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglmetopBhrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglnoaa19hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglM01hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglM02hrpt, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
     connect(seglist->seglviirsm, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglviirsdnb, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglviirsmnoaa20, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglviirsdnbnoaa20, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsmnoaa21, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsdnbnoaa21, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglslstr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglmersi, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
     connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglnoaa, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglhrp, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglgac, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-
-    connect(seglist->seglmetopAhrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglmetopBhrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglnoaa19hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglM01hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
-    connect(seglist->seglM02hrpt, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
     connect(seglist->seglviirsm, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglviirsdnb, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglviirsmnoaa20, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglviirsdnbnoaa20, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsmnoaa21, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglviirsdnbnoaa21, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglmersi, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
@@ -301,15 +284,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->toolBar->setVisible(true);
     ui->mainToolBar->setVisible(true);
-    //    dockwidget->setVisible(true);
-
-
-    //QMainWindow::resizeDocks({dockwidget}, {1000}, Qt::Horizontal);
-    //bool restored = QMainWindow::restoreDockWidget(dockwidget);
-    //qDebug() << "restoredockwidget = " << restored << " width of toolbox = " << formtoolbox->width();
-
-
-    seglist->ReadXMLfiles();
 
     qDebug() << QString("ideal threadcount = %1  max threadcount = %2 active threadcount = %3").
                 arg(QThread::idealThreadCount()).
@@ -507,8 +481,8 @@ void MainWindow::on_actionAbout_triggered()
     "<center><b>Version " + QApplication::applicationVersion() + "</b></center>"
     "<p>supports the following satellites</p>"
     "<br><b>Polar satellites :</b>"
-    "<br>AVHRR images from Metop-A/-B/-C and NOAA-19"
-    "<br>VIIRS images from SUOMI NPP and NOAA-20 (M-Band and Day/Night Band)"
+    "<br>AVHRR images from Metop-A/-B/-C"
+    "<br>VIIRS images from SUOMI NPP, NOAA-20 and NOAA-21 (M-Band and Day/Night Band)"
     "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A/-3B"
     "<br>MERSI from FengYun 3D"
     "<br><br><b>Geostationary satellites :</b>"
@@ -632,13 +606,6 @@ void MainWindow::on_actionImage_triggered()
             formimage->displayImage(IMAGE_VIIRSM, true); //VIIRSM image
         else
             formimage->displayImage(IMAGE_VIIRSDNB, true); //VIIRSDNB image
-    }
-    else if(index == TAB_SENTINEL)
-    {
-        if(indexsentinel == 0)
-            formimage->displayImage(IMAGE_OLCI, true); //OLCI image
-        else
-            formimage->displayImage(IMAGE_SLSTR, true); //SLSTR image
     }
     else if(index == TAB_MERSI)
     {

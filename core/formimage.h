@@ -63,7 +63,6 @@ public:
     bool ShowVIIRSDNBImage();
     bool ShowOLCIefrImage(int histogrammethod, bool normalized);
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
-    bool ShowSLSTRImage(int histogrammethod);
     bool ShowMERSIImage(int histogrammethod, bool normalized);
     bool ShowAVHRRImage(int histogrammethod, bool normalized);
 
@@ -125,20 +124,14 @@ private:
 
 
     int metopcount;
-    int noaacount;
-    int gaccount;
     int hrpcount;
-
-    int metopAhrptcount;
-    int metopBhrptcount;
-    int noaa19hrptcount;
-    int M01hrptcount;
-    int M02hrptcount;
 
     int viirsmcount;
     int viirsdnbcount;
     int viirsmcountnoaa20;
     int viirsdnbcountnoaa20;
+    int viirsmcountnoaa21;
+    int viirsdnbcountnoaa21;
     int olciefrcount;
     int olcierrcount;
     int slstrcount;

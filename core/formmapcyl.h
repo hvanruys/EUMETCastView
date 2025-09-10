@@ -39,20 +39,17 @@ private:
     Globe *globe;
     FormToolbox *formtoolbox;
 
-    DatahubAccessManager hubmanagerprod1;
-    DatahubAccessManager hubmanagerprod2;
     QString currentDownloadFilename1;
     QString currentDownloadFilename2;
 
     QList<ProductList> todownloadlist;
 
+    void RenderQuicklookinTexture(QString completebasename);
+
 
     void RemoveAllSelected();
-    void SearchForFreeManager();
     void SetAllButtonsToFalse();
-    void showSelectedSegmentToDownloadList();
     bool IsProductDirFilledIn();
-    void RenderQuicklookinTexture(QString completebasename);
     bool QuicklookExist(QString completebasename);
     bool FileExist(QString completebasename, QString band_or_quicklook);
     bool WriteNetCDFFile(int *longitude_img, int *latitude_img, int tierowslength, int columnslength);
@@ -65,10 +62,6 @@ private slots:
     void updatesatmap(int);
     void setScrollBarMaximum();
     void slotShowSegmentCount();
-    void createSelectedSegmentToDownloadList();
-
-    void productFileDownloaded(int whichdownload, int downloadindex, QString absoluteproductpath, QString absolutepath, QString filename);
-    void productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal, int whichdownload);
 
     void on_btnRemoveSelected_clicked();
 
@@ -80,13 +73,9 @@ private slots:
 
     void on_verticalScrollBar_valueChanged(int value);
 
-    void on_btnNoaa_clicked();
-
     void on_btnMetop_clicked();
 
     void on_btnHRP_clicked();
-
-    void on_btnGAC_clicked();
 
     void on_btnRealTime_clicked();
 
@@ -94,6 +83,8 @@ private slots:
     void on_btnVIIRSDNB_clicked();
     void on_btnVIIRSMNOAA20_clicked();
     void on_btnVIIRSDNBNOAA20_clicked();
+    void on_btnVIIRSMNOAA21_clicked();
+    void on_btnVIIRSDNBNOAA21_clicked();
 
     void on_btnAllSegments_clicked();
 
@@ -103,34 +94,12 @@ private slots:
 
     void on_btnOLCIerr_clicked();
 
-    void on_btnSLSTR_clicked();
-
-
-    void on_btnMetopAhrpt_clicked();
-    void on_btnMetopBhrpt_clicked();
-    void on_btnNoaa19hrpt_clicked();
-    void on_btnM01hrpt_clicked();
-    void on_btnM02hrpt_clicked();
-
-    void on_btnOLCIefrDatahub_clicked();
-    void on_btnOLCIerrDatahub_clicked();
-    void on_btnSLSTRDatahub_clicked();
-
-    void on_btnDownloadCompleteProduct_clicked();
-    void on_btnDownloadPartialProduct_clicked();
-    void on_btnDownloadQuicklook_clicked();
-
-    void on_btnCancelDownloadProduct_clicked();
-
-    void on_btnDownloadXMLFromDatahub_clicked();
-
     void on_btnMERSI_clicked();
 
 public slots:
       void showSegmentList(int);
       void showSegmentCount();
       void changeScrollBar(int);
-      void slotShowXMLProgress(QString, int pages, bool downloadinprogress);
       void slotSetMapCylButtons(bool stat);
 
 signals:

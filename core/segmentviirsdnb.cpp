@@ -27,6 +27,9 @@ SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, eSegmentType type, QObject 
     case eSegmentType::SEG_VIIRSDNBNOAA20:
         segment_type = "VIIRSDNBNOAA20";
         break;
+    case eSegmentType::SEG_VIIRSDNBNOAA21:
+        segment_type = "VIIRSDNBNOAA21";
+        break;
     default:
         break;
     }
@@ -71,6 +74,11 @@ SegmentVIIRSDNB::SegmentVIIRSDNB(QFile *filesegment, eSegmentType type, QObject 
     {
         //viirssat.sat_name = "NOAA-20";
         viirssat = satellitelist.GetSatellite(43013, &ok);
+    }
+    else if(type == eSegmentType::SEG_VIIRSDNBNOAA21)
+    {
+        //viirssat.sat_name = "NOAA-21";
+        viirssat = satellitelist.GetSatellite(54234, &ok);
     }
     if(!ok)
         qDebug() << "Sat not found!";

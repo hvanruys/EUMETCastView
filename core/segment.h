@@ -29,12 +29,6 @@ enum eProjections {
     OM
 };
 
-enum eSLSTRImageView
-{
-    OBLIQUE = 0,
-    NADIR
-};
-
 class Segment : public QObject
 {
     Q_OBJECT

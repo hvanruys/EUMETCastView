@@ -16,17 +16,15 @@ set(PROJECT_SOURCES_CPP
     globals.cpp
     avhrrsatellite.cpp
     segment.cpp
-    segmentgac.cpp
+
     segmenthrp.cpp
     segmentlistmersi.cpp
     segmentmersi.cpp
     segmentmetop.cpp
-    segmentnoaa.cpp
+
     segmentlist.cpp
-    segmentlistgac.cpp
     segmentlisthrp.cpp
     segmentlistmetop.cpp
-    segmentlistnoaa.cpp
     generalverticalperspective.cpp
     lambertconformalconic.cpp
     stereographic.cpp
@@ -69,13 +67,6 @@ set(PROJECT_SOURCES_CPP
     segmentlistolci.cpp
     segmentolci.cpp
     dialogsaveimage.cpp
-    segmenthrpt.cpp
-    segmentlisthrpt.cpp
-    segmentslstr.cpp
-    segmentlistslstr.cpp
-    datahubaccessmanager.cpp
-    segmentdatahub.cpp
-    segmentlistdatahub.cpp
     msgdataaccess.cpp
     msgfileaccess.cpp
     internal.cpp

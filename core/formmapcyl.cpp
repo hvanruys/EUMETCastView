@@ -32,59 +32,29 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->tabWidget->setCurrentIndex(0);
 
     ui->btnMetop->setCheckable(true);
-    ui->btnNoaa->setCheckable(true);
-    ui->btnGAC->setCheckable(true);
     ui->btnHRP->setCheckable(true);
-    ui->btnMetopAhrpt->setCheckable(true);
-    ui->btnMetopBhrpt->setCheckable(true);
-    ui->btnNoaa19hrpt->setCheckable(true);
-    ui->btnM01hrpt->setCheckable(true);
-    ui->btnM02hrpt->setCheckable(true);
 
     ui->btnVIIRSM->setCheckable(true);
     ui->btnVIIRSDNB->setCheckable(true);
     ui->btnVIIRSMNOAA20->setCheckable(true);
     ui->btnVIIRSDNBNOAA20->setCheckable(true);
+    ui->btnVIIRSMNOAA21->setCheckable(true);
+    ui->btnVIIRSDNBNOAA21->setCheckable(true);
     ui->btnOLCIefr->setCheckable(true);
     ui->btnOLCIerr->setCheckable(true);
-    ui->btnSLSTR->setCheckable(true);
-    ui->btnOLCIefrDatahub->setCheckable(true);
-    ui->btnOLCIerrDatahub->setCheckable(true);
-    ui->btnSLSTRDatahub->setCheckable(true);
     ui->btnMERSI->setCheckable(true);
 
     ui->btnRealTime->setCheckable(true);
     ui->btnPhong->setCheckable(true);
     ui->btnAllSegments->setCheckable(true);
 
-    ui->pbProduct1->setValue(0);
-    ui->pbProduct2->setValue(0);
-    ui->pbXMLprogress->setValue(0);
-
-    ui->twSelectedProducts->setColumnCount(6);
     QStringList hlst;
     hlst << "Status" << "Type" << "Date" << "Start" << "End" << "Size";
-    ui->twSelectedProducts->setHorizontalHeaderLabels(hlst);
-    ui->twSelectedProducts->verticalHeader()->setVisible(false);
-    ui->twSelectedProducts->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->twSelectedProducts->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->twSelectedProducts->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->twSelectedProducts->setShowGrid(true);
-    ui->twSelectedProducts->setStyleSheet("QTableView {selection-background-color: green;}");
-    ui->lblTotalDownloadSize->setText("No selected segments");
 
     SetAllButtonsToFalse();
     if (opts.buttonMetop)
     {
         opts.buttonMetop = true;
-    }
-    else if (opts.buttonNoaa)
-    {
-        opts.buttonNoaa = true;
-    }
-    else if (opts.buttonGAC)
-    {
-        opts.buttonGAC = true;
     }
     else if (opts.buttonHRP)
     {
@@ -118,6 +88,18 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
         formtoolbox->setTabWidgetIndex(TAB_VIIRS);
         formtoolbox->setTabWidgetVIIRSIndex(1);
     }
+    else if (opts.buttonVIIRSMNOAA21)
+    {
+        opts.buttonVIIRSMNOAA21 = true;
+        formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+        formtoolbox->setTabWidgetVIIRSIndex(0);
+    }
+    else if (opts.buttonVIIRSDNBNOAA21)
+    {
+        opts.buttonVIIRSDNBNOAA21 = true;
+        formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+        formtoolbox->setTabWidgetVIIRSIndex(1);
+    }
     else if (opts.buttonOLCIefr)
     {
         opts.buttonOLCIefr = true;
@@ -130,55 +112,6 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
         formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
         formtoolbox->setTabWidgetSentinelIndex(0);
     }
-    else if (opts.buttonSLSTR)
-    {
-        opts.buttonSLSTR = true;
-        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-        formtoolbox->setTabWidgetSentinelIndex(1);
-    }
-    else if (opts.buttonMetopAhrpt)
-    {
-        opts.buttonMetopAhrpt = true;
-        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    }
-    else if (opts.buttonMetopBhrpt)
-    {
-        opts.buttonMetopBhrpt = true;
-        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    }
-    else if (opts.buttonNoaa19hrpt)
-    {
-        opts.buttonNoaa19hrpt = true;
-        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    }
-    else if (opts.buttonM01hrpt)
-    {
-        opts.buttonM01hrpt = true;
-        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    }
-    else if (opts.buttonM02hrpt)
-    {
-        opts.buttonM02hrpt = true;
-        formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    }
-    else if (opts.buttonDatahubOLCIefr)
-    {
-        opts.buttonDatahubOLCIefr = true;
-        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-        formtoolbox->setTabWidgetSentinelIndex(0);
-    }
-    else if (opts.buttonDatahubOLCIerr)
-    {
-        opts.buttonDatahubOLCIerr = true;
-        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-        formtoolbox->setTabWidgetSentinelIndex(0);
-    }
-    else if (opts.buttonDatahubSLSTR)
-    {
-        opts.buttonDatahubSLSTR = true;
-        formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-        formtoolbox->setTabWidgetSentinelIndex(1);
-    }
     else if (opts.buttonMERSI)
     {
         opts.buttonMERSI = true;
@@ -186,44 +119,25 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 
 
     ui->btnMetop->setChecked(opts.buttonMetop);
-    ui->btnNoaa->setChecked(opts.buttonNoaa);
-    ui->btnGAC->setChecked(opts.buttonGAC);
     ui->btnHRP->setChecked(opts.buttonHRP);
-    ui->btnMetopAhrpt->setChecked(opts.buttonMetopAhrpt);
-    ui->btnMetopBhrpt->setChecked(opts.buttonMetopBhrpt);
-    ui->btnNoaa19hrpt->setChecked(opts.buttonNoaa19hrpt);
-    ui->btnM01hrpt->setChecked(opts.buttonM01hrpt);
-    ui->btnM02hrpt->setChecked(opts.buttonM02hrpt);
 
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
     ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
     ui->btnVIIRSMNOAA20->setChecked(opts.buttonVIIRSMNOAA20);
     ui->btnVIIRSDNBNOAA20->setChecked(opts.buttonVIIRSDNBNOAA20);
+    ui->btnVIIRSMNOAA21->setChecked(opts.buttonVIIRSMNOAA21);
+    ui->btnVIIRSDNBNOAA21->setChecked(opts.buttonVIIRSDNBNOAA21);
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
     ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
-    ui->btnSLSTR->setChecked(opts.buttonSLSTR);
-    ui->btnOLCIefrDatahub->setChecked(opts.buttonDatahubOLCIefr);
-    ui->btnOLCIerrDatahub->setChecked(opts.buttonDatahubOLCIerr);
-    ui->btnSLSTRDatahub->setChecked(opts.buttonDatahubSLSTR);
     ui->btnMERSI->setChecked(opts.buttonMERSI);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
     ui->btnPhong->setChecked(opts.buttonPhong);
     ui->btnAllSegments->setChecked(opts.buttonShowAllSegments);
 
-    if(opts.buttonDatahubOLCIefr || opts.buttonDatahubOLCIerr || opts.buttonDatahubSLSTR)
-        ui->btnMakeImage->setEnabled(false);
-    else
-        ui->btnMakeImage->setEnabled(true);
+    ui->btnMakeImage->setEnabled(true);
 
     connect( ui->btnMetop, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
-    connect( ui->btnNoaa, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnGAC, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnHRP, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnMetopAhrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnMetopBhrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnNoaa19hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnM01hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
-    connect( ui->btnM02hrpt, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnMERSI, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
 
     //connect( ui->btnVIIRSM, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
@@ -240,10 +154,6 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 
     this->showSegmentCount();
 
-    ui->rdbDownloadXMLOLCIEFR->setChecked(true);
-    ui->rdbDownloadXMLOLCIERR->setChecked(false);
-    ui->rdbDownloadXMLSLSTR->setChecked(false);
-
     opts.globalChangeFonts(this, opts.fontsize);
 
 }
@@ -252,25 +162,16 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 void FormMapCyl::SetAllButtonsToFalse()
 {
     opts.buttonMetop = false;
-    opts.buttonNoaa = false;
-    opts.buttonGAC = false;
     opts.buttonHRP = false;
-    opts.buttonMetopAhrpt = false;
-    opts.buttonMetopBhrpt = false;
-    opts.buttonNoaa19hrpt = false;
-    opts.buttonM01hrpt = false;
-    opts.buttonM02hrpt = false;
 
     opts.buttonVIIRSM = false;
     opts.buttonVIIRSDNB = false;
     opts.buttonVIIRSMNOAA20 = false;
     opts.buttonVIIRSDNBNOAA20 = false;
+    opts.buttonVIIRSMNOAA21 = false;
+    opts.buttonVIIRSDNBNOAA21 = false;
     opts.buttonOLCIefr = false;
     opts.buttonOLCIerr = false;
-    opts.buttonSLSTR = false;
-    opts.buttonDatahubOLCIefr = false;
-    opts.buttonDatahubOLCIerr = false;
-    opts.buttonDatahubSLSTR = false;
     opts.buttonRealTime = false;
 
 }
@@ -287,32 +188,17 @@ void FormMapCyl::slotSetMapCylButtons(bool stat)
 
     ui->btnMetop->setEnabled(stat);
     ui->btnHRP->setEnabled(stat);
-    ui->btnGAC->setEnabled(stat);
-    ui->btnNoaa->setEnabled(stat);
     ui->btnVIIRSM->setEnabled(stat);
     ui->btnVIIRSDNB->setEnabled(stat);
     ui->btnVIIRSMNOAA20->setEnabled(stat);
     ui->btnVIIRSDNBNOAA20->setEnabled(stat);
+    ui->btnVIIRSMNOAA21->setEnabled(stat);
+    ui->btnVIIRSDNBNOAA21->setEnabled(stat);
     ui->btnOLCIefr->setEnabled(stat);
     ui->btnOLCIerr->setEnabled(stat);
-    ui->btnSLSTR->setEnabled(stat);
     ui->btnMERSI->setEnabled(stat);
 
-
-    ui->btnMetopAhrpt->setEnabled(stat);
-    ui->btnMetopBhrpt->setEnabled(stat);
-    ui->btnNoaa19hrpt->setEnabled(stat);
-    ui->btnM01hrpt->setEnabled(stat);
-    ui->btnM02hrpt->setEnabled(stat);
-
-    ui->btnOLCIefrDatahub->setEnabled(stat);
-    ui->btnOLCIerrDatahub->setEnabled(stat);
-    ui->btnSLSTRDatahub->setEnabled(stat);
-    ui->btnDownloadQuicklook->setEnabled(stat);
-    ui->btnDownloadCompleteProduct->setEnabled(stat);
-    ui->btnDownloadPartialProduct->setEnabled(stat);
-    ui->btnCancelDownloadProduct->setEnabled(stat);
-}
+ }
 
 // Key handler
 void FormMapCyl::keyPressEvent(QKeyEvent *event)
@@ -344,54 +230,34 @@ void FormMapCyl::showSegmentCount()
     qDebug() << "FormMapCyl::showSegmentcount";
 
     int cntselmetop = segs->seglmetop->NbrOfSegmentsSelected();
-    int cntselnoaa = segs->seglnoaa->NbrOfSegmentsSelected();
     int cntselhrp = segs->seglhrp->NbrOfSegmentsSelected();
-    int cntselgac = segs->seglgac->NbrOfSegmentsSelected();
     int cntselviirsm = segs->seglviirsm->NbrOfSegmentsSelected();
     int cntselviirsdnb = segs->seglviirsdnb->NbrOfSegmentsSelected();
     int cntselviirsmnoaa20 = segs->seglviirsmnoaa20->NbrOfSegmentsSelected();
     int cntselviirsdnbnoaa20 = segs->seglviirsdnbnoaa20->NbrOfSegmentsSelected();
+    int cntselviirsmnoaa21 = segs->seglviirsmnoaa21->NbrOfSegmentsSelected();
+    int cntselviirsdnbnoaa21 = segs->seglviirsdnbnoaa21->NbrOfSegmentsSelected();
     int cntselolciefr = segs->seglolciefr->NbrOfSegmentsSelected();
     int cntselolcierr = segs->seglolcierr->NbrOfSegmentsSelected();
-    int cntselslstr = segs->seglslstr->NbrOfSegmentsSelected();
-    int cntseldatahubolciefr = segs->segldatahubolciefr->NbrOfSegmentsSelected();
-    int cntseldatahubolcierr = segs->segldatahubolcierr->NbrOfSegmentsSelected();
-    int cntseldatahubslstr = segs->segldatahubslstr->NbrOfSegmentsSelected();
     int cntselmersi = segs->seglmersi->NbrOfSegmentsSelected();
 
 
-    int cntselmetopAhrpt = segs->seglmetopAhrpt->NbrOfSegmentsSelected();
-    int cntselmetopBhrpt = segs->seglmetopBhrpt->NbrOfSegmentsSelected();
-    int cntselnoaa19hrpt = segs->seglnoaa19hrpt->NbrOfSegmentsSelected();
-    int cntselM02hrpt = segs->seglM02hrpt->NbrOfSegmentsSelected();
-    int cntselM01hrpt = segs->seglM01hrpt->NbrOfSegmentsSelected();
-
     int cntmetop = segs->seglmetop->NbrOfSegments();
-    int cntnoaa = segs->seglnoaa->NbrOfSegments();
     int cnthrp = segs->seglhrp->NbrOfSegments();
-    int cntgac = segs->seglgac->NbrOfSegments();
     int cntviirsm = segs->seglviirsm->NbrOfSegments();
     int cntviirsdnb = segs->seglviirsdnb->NbrOfSegments();
     int cntviirsmnoaa20 = segs->seglviirsmnoaa20->NbrOfSegments();
     int cntviirsdnbnoaa20 = segs->seglviirsdnbnoaa20->NbrOfSegments();
+    int cntviirsmnoaa21 = segs->seglviirsmnoaa21->NbrOfSegments();
+    int cntviirsdnbnoaa21 = segs->seglviirsdnbnoaa21->NbrOfSegments();
     int cntolciefr = segs->seglolciefr->NbrOfSegments();
     int cntolcierr = segs->seglolcierr->NbrOfSegments();
-    int cntslstr = segs->seglslstr->NbrOfSegments();
-    int cntdatahubolciefr = segs->segldatahubolciefr->NbrOfSegments();
-    int cntdatahubolcierr = segs->segldatahubolcierr->NbrOfSegments();
-    int cntdatahubslstr = segs->segldatahubslstr->NbrOfSegments();
     int cntmersi = segs->seglmersi->NbrOfSegments();
 
-    int cntmetopAhrpt = segs->seglmetopAhrpt->NbrOfSegments();
-    int cntmetopBhrpt = segs->seglmetopBhrpt->NbrOfSegments();
-    int cntnoaa19hrpt = segs->seglnoaa19hrpt->NbrOfSegments();
-    int cntM02hrpt = segs->seglM02hrpt->NbrOfSegments();
-    int cntM01hrpt = segs->seglM01hrpt->NbrOfSegments();
-
-    long totseg = cntmetop + cntnoaa + cnthrp + cntgac + cntviirsm + cntviirsdnb + cntviirsmnoaa20 + cntviirsdnbnoaa20 + cntolciefr + cntolcierr + cntslstr +
-            cntmetopAhrpt + cntmetopBhrpt + cntnoaa19hrpt + cntM01hrpt + cntM02hrpt + cntdatahubolciefr + cntdatahubolcierr + cntdatahubslstr + cntmersi;
-    long totsegsel = cntselmetop + cntselnoaa + cntselhrp + cntselgac + cntselviirsm + cntselviirsdnb  + cntselviirsmnoaa20 + cntselviirsdnbnoaa20 + cntselolciefr + cntselolcierr + cntselslstr +
-            cntselmetopAhrpt + cntselmetopBhrpt + cntselnoaa19hrpt + cntselM01hrpt + cntselM02hrpt + cntseldatahubolciefr + cntseldatahubolcierr + cntseldatahubslstr + cntselmersi;
+    long totseg = cntmetop + cnthrp + cntviirsm + cntviirsdnb + cntviirsmnoaa20 + cntviirsdnbnoaa20 + cntviirsmnoaa21 + cntviirsdnbnoaa21
+                  + cntolciefr + cntolcierr + cntmersi;
+    long totsegsel = cntselmetop + cntselhrp + cntselviirsm + cntselviirsdnb  + cntselviirsmnoaa20 + cntselviirsdnbnoaa20 + cntselviirsmnoaa21 + cntselviirsdnbnoaa21
+                     + cntselolciefr + cntselolcierr + cntselmersi;
 
     if ( totsegsel  > 0)
     {
@@ -403,29 +269,17 @@ void FormMapCyl::showSegmentCount()
     }
 
     ui->btnMetop->setText((QString(" Metop A/B/C # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
-    ui->btnNoaa->setText((QString(" NOAA-19 # %1/%2 ").arg(cntselnoaa).arg(cntnoaa)));
-    ui->btnGAC->setText((QString(" NOAA-19 GAC # %1/%2 ").arg(cntselgac).arg(cntgac)));
     ui->btnHRP->setText((QString(" Metop A/B/C HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
 
     ui->btnVIIRSM->setText((QString(" NPP VIIRS M # %1/%2 ").arg(cntselviirsm).arg(cntviirsm)));
     ui->btnVIIRSDNB->setText((QString(" NPP VIIRS DNB # %1/%2 ").arg(cntselviirsdnb).arg(cntviirsdnb)));
     ui->btnVIIRSMNOAA20->setText((QString(" NOAA-20 VIIRS M # %1/%2 ").arg(cntselviirsmnoaa20).arg(cntviirsmnoaa20)));
     ui->btnVIIRSDNBNOAA20->setText((QString(" NOAA-20 VIIRS DNB # %1/%2 ").arg(cntselviirsdnbnoaa20).arg(cntviirsdnbnoaa20)));
+    ui->btnVIIRSMNOAA21->setText((QString(" NOAA-21 VIIRS M # %1/%2 ").arg(cntselviirsmnoaa21).arg(cntviirsmnoaa21)));
+    ui->btnVIIRSDNBNOAA21->setText((QString(" NOAA-21 VIIRS DNB # %1/%2 ").arg(cntselviirsdnbnoaa21).arg(cntviirsdnbnoaa21)));
 
     ui->btnOLCIefr->setText((QString(" OLCI EFR # %1/%2 ").arg(cntselolciefr).arg(cntolciefr)));
     ui->btnOLCIerr->setText((QString(" OLCI ERR # %1/%2 ").arg(cntselolcierr).arg(cntolcierr)));
-
-    ui->btnSLSTR->setText((QString(" SLSTR # %1/%2 ").arg(cntselslstr).arg(cntslstr)));
-
-    ui->btnMetopAhrpt->setText((QString(" Metop A # %1/%2 ").arg(cntselmetopAhrpt).arg(cntmetopAhrpt)));
-    ui->btnMetopBhrpt->setText((QString(" Metop B # %1/%2 ").arg(cntselmetopBhrpt).arg(cntmetopBhrpt)));
-    ui->btnNoaa19hrpt->setText((QString(" NOAA19 # %1/%2 ").arg(cntselnoaa19hrpt).arg(cntnoaa19hrpt)));
-    ui->btnM02hrpt->setText((QString(" Metop A # %1/%2 ").arg(cntselM02hrpt).arg(cntM02hrpt)));
-    ui->btnM01hrpt->setText((QString(" Metop B # %1/%2 ").arg(cntselM01hrpt).arg(cntM01hrpt)));
-
-    ui->btnOLCIefrDatahub->setText((QString(" OLCI EFR # %1/%2 ").arg(cntseldatahubolciefr).arg(cntdatahubolciefr)));
-    ui->btnOLCIerrDatahub->setText((QString(" OLCI ERR # %1/%2 ").arg(cntseldatahubolcierr).arg(cntdatahubolcierr)));
-    ui->btnSLSTRDatahub->setText((QString(" SLSTR # %1/%2 ").arg(cntseldatahubslstr).arg(cntdatahubslstr)));
 
     ui->btnMERSI->setText((QString(" FY-3D # %1/%2 ").arg(cntselmersi).arg(cntmersi)));
 
@@ -456,70 +310,46 @@ void FormMapCyl::updatesatmap(int index)
         {
             segs->seglmetop->ShowSegment(ui->verticalScrollBar->value());
         } else
-            if (opts.buttonNoaa )
+            if (opts.buttonHRP)
             {
-                segs->seglnoaa->ShowSegment(ui->verticalScrollBar->value());
+                segs->seglhrp->ShowSegment(ui->verticalScrollBar->value());
             } else
-                if (opts.buttonHRP)
+                if (opts.buttonVIIRSM)
                 {
-                    segs->seglhrp->ShowSegment(ui->verticalScrollBar->value());
+                    segs->seglviirsm->ShowSegment(ui->verticalScrollBar->value());
                 } else
-                    if (opts.buttonGAC)
+                    if (opts.buttonVIIRSDNB)
                     {
-                        segs->seglgac->ShowSegment(ui->verticalScrollBar->value());
+                        segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
                     } else
-                        if (opts.buttonMetopAhrpt)
+                        if (opts.buttonVIIRSMNOAA20)
                         {
-                            segs->seglmetopAhrpt->ShowSegment(ui->verticalScrollBar->value());
+                            segs->seglviirsmnoaa20->ShowSegment(ui->verticalScrollBar->value());
                         } else
-                            if (opts.buttonMetopBhrpt)
+                            if (opts.buttonVIIRSDNBNOAA20)
                             {
-                                segs->seglmetopBhrpt->ShowSegment(ui->verticalScrollBar->value());
+                                segs->seglviirsdnbnoaa20->ShowSegment(ui->verticalScrollBar->value());
                             } else
-                                if (opts.buttonNoaa19hrpt)
+                                if (opts.buttonVIIRSMNOAA21)
                                 {
-                                    segs->seglnoaa19hrpt->ShowSegment(ui->verticalScrollBar->value());
+                                    segs->seglviirsmnoaa21->ShowSegment(ui->verticalScrollBar->value());
                                 } else
-                                    if (opts.buttonM01hrpt)
+                                    if (opts.buttonVIIRSDNBNOAA21)
                                     {
-                                        segs->seglM01hrpt->ShowSegment(ui->verticalScrollBar->value());
+                                        segs->seglviirsdnbnoaa21->ShowSegment(ui->verticalScrollBar->value());
                                     } else
-                                        if (opts.buttonM02hrpt)
+                                        if (opts.buttonOLCIefr)
                                         {
-                                            segs->seglM02hrpt->ShowSegment(ui->verticalScrollBar->value());
+                                            segs->seglolciefr->ShowSegment(ui->verticalScrollBar->value());
                                         } else
-                                            if (opts.buttonVIIRSM)
+                                            if (opts.buttonOLCIerr)
                                             {
-                                                segs->seglviirsm->ShowSegment(ui->verticalScrollBar->value());
+                                                segs->seglolcierr->ShowSegment(ui->verticalScrollBar->value());
                                             } else
-                                                if (opts.buttonVIIRSDNB)
+                                                if (opts.buttonMERSI)
                                                 {
-                                                    segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
-                                                } else
-                                                    if (opts.buttonVIIRSMNOAA20)
-                                                    {
-                                                        segs->seglviirsmnoaa20->ShowSegment(ui->verticalScrollBar->value());
-                                                    } else
-                                                        if (opts.buttonVIIRSDNBNOAA20)
-                                                        {
-                                                            segs->seglviirsdnbnoaa20->ShowSegment(ui->verticalScrollBar->value());
-                                                        } else
-                                                            if (opts.buttonOLCIefr)
-                                                            {
-                                                                segs->seglolciefr->ShowSegment(ui->verticalScrollBar->value());
-                                                            } else
-                                                                if (opts.buttonOLCIerr)
-                                                                {
-                                                                    segs->seglolcierr->ShowSegment(ui->verticalScrollBar->value());
-                                                                } else
-                                                                    if (opts.buttonSLSTR)
-                                                                    {
-                                                                        segs->seglslstr->ShowSegment(ui->verticalScrollBar->value());
-                                                                    } else
-                                                                        if (opts.buttonMERSI)
-                                                                        {
-                                                                            segs->seglmersi->ShowSegment(ui->verticalScrollBar->value());
-                                                                        }
+                                                    segs->seglmersi->ShowSegment(ui->verticalScrollBar->value());
+                                                }
 
         mapcyl->update();
     }
@@ -530,12 +360,6 @@ void FormMapCyl::updatesatmap(int index)
         if (opts.buttonMetop )
         {
             tit = "Metop ";
-        } else if (opts.buttonNoaa )
-        {
-            tit = "Noaa ";
-        } else if (opts.buttonGAC)
-        {
-            tit = "GAC ";
         } else if (opts.buttonHRP)
         {
             tit = "HRP ";
@@ -551,10 +375,7 @@ void FormMapCyl::updatesatmap(int index)
         }  else if (opts.buttonOLCIerr)
         {
             tit = "OLCI ERR ";
-        }  else if (opts.buttonSLSTR)
-        {
-            tit = "SLSTR ";
-        }  else if (opts.buttonMERSI)
+        } else if (opts.buttonMERSI)
         {
             tit = "MERSI ";
         }
@@ -567,55 +388,34 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
 {
 
     opts.buttonMetop = segtype == eSegmentType::SEG_METOP ? true : false;
-    opts.buttonNoaa = segtype == eSegmentType::SEG_NOAA19 ? true : false;
-    opts.buttonGAC = segtype == eSegmentType::SEG_GAC ? true : false;
     opts.buttonHRP = segtype == eSegmentType::SEG_HRP ? true : false;
     opts.buttonVIIRSM = segtype == eSegmentType::SEG_VIIRSM ? true : false;
     opts.buttonVIIRSDNB = segtype == eSegmentType::SEG_VIIRSDNB ? true : false;
     opts.buttonVIIRSMNOAA20 = segtype == eSegmentType::SEG_VIIRSMNOAA20 ? true : false;
     opts.buttonVIIRSDNBNOAA20 = segtype == eSegmentType::SEG_VIIRSDNBNOAA20 ? true : false;
+    opts.buttonVIIRSMNOAA21 = segtype == eSegmentType::SEG_VIIRSMNOAA21 ? true : false;
+    opts.buttonVIIRSDNBNOAA21 = segtype == eSegmentType::SEG_VIIRSDNBNOAA21 ? true : false;
     opts.buttonOLCIefr = segtype == eSegmentType::SEG_OLCIEFR ? true : false;
     opts.buttonOLCIerr = segtype == eSegmentType::SEG_OLCIERR ? true : false;
-    opts.buttonSLSTR = segtype == eSegmentType::SEG_SLSTR ? true : false;
-    opts.buttonDatahubOLCIefr = segtype == eSegmentType::SEG_DATAHUB_OLCIEFR ? true : false;
-    opts.buttonDatahubOLCIerr = segtype == eSegmentType::SEG_DATAHUB_OLCIERR ? true : false;
-    opts.buttonDatahubSLSTR = segtype == eSegmentType::SEG_DATAHUB_SLSTR ? true : false;
     opts.buttonRealTime = segtype == eSegmentType::SEG_NONE ? true : false;
-    opts.buttonMetopAhrpt = segtype == eSegmentType::SEG_HRPT_METOPA ? true : false;
-    opts.buttonMetopBhrpt = segtype == eSegmentType::SEG_HRPT_METOPB ? true : false;
-    opts.buttonNoaa19hrpt = segtype == eSegmentType::SEG_HRPT_NOAA19 ? true : false;
-    opts.buttonM01hrpt = segtype == eSegmentType::SEG_HRPT_M01 ? true : false;
-    opts.buttonM02hrpt = segtype == eSegmentType::SEG_HRPT_M02 ? true : false;
     opts.buttonMERSI = segtype == eSegmentType::SEG_MERSI ? true : false;
 
     ui->btnMetop->setChecked(opts.buttonMetop);
-    ui->btnNoaa->setChecked(opts.buttonNoaa);
-    ui->btnGAC->setChecked(opts.buttonGAC);
     ui->btnHRP->setChecked(opts.buttonHRP);
 
-    ui->btnMetopAhrpt->setChecked(opts.buttonMetopAhrpt);
-    ui->btnMetopBhrpt->setChecked(opts.buttonMetopBhrpt);
-    ui->btnNoaa19hrpt->setChecked(opts.buttonNoaa19hrpt);
-    ui->btnM01hrpt->setChecked(opts.buttonM01hrpt);
-    ui->btnM02hrpt->setChecked(opts.buttonM02hrpt);
 
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
     ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
     ui->btnVIIRSMNOAA20->setChecked(opts.buttonVIIRSMNOAA20);
     ui->btnVIIRSDNBNOAA20->setChecked(opts.buttonVIIRSDNBNOAA20);
+    ui->btnVIIRSMNOAA21->setChecked(opts.buttonVIIRSMNOAA21);
+    ui->btnVIIRSDNBNOAA21->setChecked(opts.buttonVIIRSDNBNOAA21);
     ui->btnOLCIefr->setChecked(opts.buttonOLCIefr);
     ui->btnOLCIerr->setChecked(opts.buttonOLCIerr);
-    ui->btnSLSTR->setChecked(opts.buttonSLSTR);
-    ui->btnOLCIefrDatahub->setChecked(opts.buttonDatahubOLCIefr);
-    ui->btnOLCIerrDatahub->setChecked(opts.buttonDatahubOLCIerr);
-    ui->btnSLSTRDatahub->setChecked(opts.buttonDatahubSLSTR);
     ui->btnMERSI->setChecked(opts.buttonMERSI);
     ui->btnRealTime->setChecked(opts.buttonRealTime);
 
-    if(opts.buttonDatahubOLCIefr || opts.buttonDatahubOLCIerr || opts.buttonDatahubSLSTR)
-        ui->btnMakeImage->setEnabled(false);
-    else
-        ui->btnMakeImage->setEnabled(true);
+    ui->btnMakeImage->setEnabled(true);
 
 
     this->showSegmentList(0);
@@ -632,51 +432,17 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
 void FormMapCyl::setScrollBarMaximum()
 {
 
+    ui->verticalScrollBar->setValue(0);
 
     if (opts.buttonMetop)
     {
         ui->verticalScrollBar->setMaximum(segs->seglmetop->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum metop = %1").arg(segs->seglmetop->NbrOfSegments());
     }
-    else if (opts.buttonNoaa)
-    {
-        ui->verticalScrollBar->setMaximum(segs->seglnoaa->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum noaa = %1").arg(segs->seglnoaa->NbrOfSegments());
-    }
     else if (opts.buttonHRP)
     {
         ui->verticalScrollBar->setMaximum(segs->seglhrp->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum HRP = %1").arg(segs->seglhrp->NbrOfSegments());
-    }
-    else if (opts.buttonGAC)
-    {
-        ui->verticalScrollBar->setMaximum(segs->seglgac->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum GAC = %1").arg(segs->seglgac->NbrOfSegments());
-    }
-    else if (opts.buttonMetopAhrpt)
-    {
-        ui->verticalScrollBar->setMaximum(segs->seglmetopAhrpt->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum hrpt Metop A = %1").arg(segs->seglmetopAhrpt->NbrOfSegments());
-    }
-    else if (opts.buttonMetopBhrpt)
-    {
-        ui->verticalScrollBar->setMaximum(segs->seglmetopBhrpt->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum hrpt Metop B = %1").arg(segs->seglmetopBhrpt->NbrOfSegments());
-    }
-    else if (opts.buttonNoaa19hrpt)
-    {
-        ui->verticalScrollBar->setMaximum(segs->seglnoaa19hrpt->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum hrpt noaa19 = %1").arg(segs->seglnoaa19hrpt->NbrOfSegments());
-    }
-    else if (opts.buttonM01hrpt)
-    {
-        ui->verticalScrollBar->setMaximum(segs->seglM01hrpt->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum hrpt M01 = %1").arg(segs->seglM01hrpt->NbrOfSegments());
-    }
-    else if (opts.buttonM02hrpt)
-    {
-        ui->verticalScrollBar->setMaximum(segs->seglM02hrpt->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum hrpt M02 = %1").arg(segs->seglM02hrpt->NbrOfSegments());
     }
     else if (opts.buttonVIIRSM)
     {
@@ -698,6 +464,16 @@ void FormMapCyl::setScrollBarMaximum()
         ui->verticalScrollBar->setMaximum(segs->seglviirsdnbnoaa20->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum VIIRSDNB NOAA-20 = %1").arg(segs->seglviirsdnbnoaa20->NbrOfSegments());
     }
+    else if (opts.buttonVIIRSMNOAA21)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglviirsmnoaa21->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum VIIRSM NOAA-21 = %1").arg(segs->seglviirsmnoaa21->NbrOfSegments());
+    }
+    else if (opts.buttonVIIRSDNBNOAA21)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglviirsdnbnoaa21->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum VIIRSDNB NOAA-21 = %1").arg(segs->seglviirsdnbnoaa21->NbrOfSegments());
+    }
     else if (opts.buttonOLCIefr)
     {
         ui->verticalScrollBar->setMaximum(segs->seglolciefr->NbrOfSegments());
@@ -707,26 +483,6 @@ void FormMapCyl::setScrollBarMaximum()
     {
         ui->verticalScrollBar->setMaximum(segs->seglolcierr->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum OLCIerr = %1").arg(segs->seglolcierr->NbrOfSegments());
-    }
-    else if (opts.buttonSLSTR)
-    {
-        ui->verticalScrollBar->setMaximum(segs->seglslstr->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum SLSTR = %1").arg(segs->seglslstr->NbrOfSegments());
-    }
-    else if (opts.buttonDatahubOLCIefr)
-    {
-        ui->verticalScrollBar->setMaximum(segs->segldatahubolciefr->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum Datahub OLCIefr = %1").arg(segs->segldatahubolciefr->NbrOfSegments());
-    }
-    else if (opts.buttonDatahubOLCIerr)
-    {
-        ui->verticalScrollBar->setMaximum(segs->segldatahubolcierr->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum Datahub OLCIerr = %1").arg(segs->segldatahubolcierr->NbrOfSegments());
-    }
-    else if (opts.buttonDatahubSLSTR)
-    {
-        ui->verticalScrollBar->setMaximum(segs->segldatahubslstr->NbrOfSegments());
-        qDebug() << QString("setscrollbarmaximum Datahub SLSTR = %1").arg(segs->segldatahubslstr->NbrOfSegments());
     }
     else if (opts.buttonMERSI)
     {
@@ -756,14 +512,6 @@ void FormMapCyl::showSegmentList(int value)
 
         outp = QString("Metop From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
-    else if(opts.buttonNoaa)
-    {
-        segs->seglnoaa->ShowSegment(value);
-        segs->seglnoaa->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglnoaa->NbrOfSegments();
-
-        outp = QString("Noaa From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
     else if(opts.buttonHRP)
     {
         segs->seglhrp->ShowSegment(value);
@@ -771,54 +519,6 @@ void FormMapCyl::showSegmentList(int value)
         nbrseg = segs->seglhrp->NbrOfSegments();
 
         outp = QString("HRP From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    else if(opts.buttonGAC)
-    {
-        segs->seglgac->ShowSegment(value);
-        segs->seglgac->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglgac->NbrOfSegments();
-
-        outp = QString("GAC From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    if(opts.buttonMetopAhrpt)
-    {
-        segs->seglmetopAhrpt->ShowSegment(value);
-        segs->seglmetopAhrpt->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglmetopAhrpt->NbrOfSegments();
-
-        outp = QString("Metop A HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    if(opts.buttonMetopBhrpt)
-    {
-        segs->seglmetopBhrpt->ShowSegment(value);
-        segs->seglmetopBhrpt->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglmetopBhrpt->NbrOfSegments();
-
-        outp = QString("Metop B HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    if(opts.buttonNoaa19hrpt)
-    {
-        segs->seglnoaa19hrpt->ShowSegment(value);
-        segs->seglnoaa19hrpt->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglnoaa19hrpt->NbrOfSegments();
-
-        outp = QString("Noaa19 HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    if(opts.buttonM01hrpt)
-    {
-        segs->seglM01hrpt->ShowSegment(value);
-        segs->seglM01hrpt->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglM01hrpt->NbrOfSegments();
-
-        outp = QString("M01 HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    if(opts.buttonM02hrpt)
-    {
-        segs->seglM02hrpt->ShowSegment(value);
-        segs->seglM02hrpt->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglM02hrpt->NbrOfSegments();
-
-        outp = QString("M02 HRPT From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
     else if(opts.buttonVIIRSM)
     {
@@ -852,6 +552,22 @@ void FormMapCyl::showSegmentList(int value)
 
         outp = QString("NOAA-20 VIIRSDNB From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
+    else if(opts.buttonVIIRSMNOAA21)
+    {
+        segs->seglviirsmnoaa21->ShowSegment(value);
+        segs->seglviirsmnoaa21->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglviirsmnoaa21->NbrOfSegments();
+
+        outp = QString("NOAA-21 VIIRSM From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    else if(opts.buttonVIIRSDNBNOAA21)
+    {
+        segs->seglviirsdnbnoaa21->ShowSegment(value);
+        segs->seglviirsdnbnoaa21->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglviirsdnbnoaa21->NbrOfSegments();
+
+        outp = QString("NOAA-21 VIIRSDNB From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
     else if(opts.buttonOLCIefr)
     {
         segs->seglolciefr->ShowSegment(value);
@@ -867,38 +583,6 @@ void FormMapCyl::showSegmentList(int value)
         nbrseg = segs->seglolcierr->NbrOfSegments();
 
         outp = QString("OLCI ERR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    else if(opts.buttonSLSTR)
-    {
-        segs->seglslstr->ShowSegment(value);
-        segs->seglslstr->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->seglslstr->NbrOfSegments();
-
-        outp = QString("SLSTR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    else if(opts.buttonDatahubOLCIefr)
-    {
-        segs->segldatahubolciefr->ShowSegment(value);
-        segs->segldatahubolciefr->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->segldatahubolciefr->NbrOfSegments();
-
-        outp = QString("Datahub OLCI EFR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    else if(opts.buttonDatahubOLCIerr)
-    {
-        segs->segldatahubolcierr->ShowSegment(value);
-        segs->segldatahubolcierr->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->segldatahubolcierr->NbrOfSegments();
-
-        outp = QString("Datahub OLCI ERR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
-    }
-    else if(opts.buttonDatahubSLSTR)
-    {
-        segs->segldatahubslstr->ShowSegment(value);
-        segs->segldatahubslstr->GetFirstLastVisible(&first, &last);
-        nbrseg = segs->segldatahubslstr->NbrOfSegments();
-
-        outp = QString("Datahub SLSTR From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
     else if(opts.buttonMERSI)
     {
@@ -925,12 +609,10 @@ void FormMapCyl::RemoveAllSelected()
     segs->RemoveAllSelectedVIIRSDNB();
     segs->RemoveAllSelectedVIIRSMNOAA20();
     segs->RemoveAllSelectedVIIRSDNBNOAA20();
+    segs->RemoveAllSelectedVIIRSMNOAA21();
+    segs->RemoveAllSelectedVIIRSDNBNOAA21();
     segs->RemoveAllSelectedOLCIefr();
     segs->RemoveAllSelectedOLCIerr();
-    segs->RemoveAllSelectedSLSTR();
-    segs->RemoveAllSelectedDatahubOLCIefr();
-    segs->RemoveAllSelectedDatahubOLCIerr();
-    segs->RemoveAllSelectedDatahubSLSTR();
     segs->RemoveAllSelectedMERSI();
 
     imageptrs->ptrProjectionBrightnessTemp.reset();
@@ -938,8 +620,6 @@ void FormMapCyl::RemoveAllSelected()
 
     mapcyl->update();
     showSegmentCount();
-    ui->twSelectedProducts->clearContents();
-    ui->twSelectedProducts->setRowCount(0);
 
 }
 
@@ -958,22 +638,7 @@ bool FormMapCyl::AreThereSelectedSegments()
 
     if(opts.buttonMetop && segs->seglmetop->NbrOfSegmentsSelected() > 0)
         return true;
-    if(opts.buttonNoaa && segs->seglnoaa->NbrOfSegmentsSelected() > 0)
-        return true;
     if(opts.buttonHRP && segs->seglhrp->NbrOfSegmentsSelected() > 0)
-        return true;
-    if(opts.buttonGAC && segs->seglgac->NbrOfSegmentsSelected() > 0)
-        return true;
-
-    if(opts.buttonMetopAhrpt && segs->seglmetopAhrpt->NbrOfSegmentsSelected() > 0)
-        return true;
-    if(opts.buttonMetopBhrpt && segs->seglmetopBhrpt->NbrOfSegmentsSelected() > 0)
-        return true;
-    if(opts.buttonNoaa19hrpt && segs->seglnoaa19hrpt->NbrOfSegmentsSelected() > 0)
-        return true;
-    if(opts.buttonM01hrpt && segs->seglM01hrpt->NbrOfSegmentsSelected() > 0)
-        return true;
-    if(opts.buttonM02hrpt && segs->seglM02hrpt->NbrOfSegmentsSelected() > 0)
         return true;
 
     if(opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegmentsSelected() > 0)
@@ -984,13 +649,15 @@ bool FormMapCyl::AreThereSelectedSegments()
         return true;
     if(opts.buttonVIIRSDNBNOAA20 && segs->seglviirsdnbnoaa20->NbrOfSegmentsSelected() > 0)
         return true;
+    if(opts.buttonVIIRSMNOAA21 && segs->seglviirsmnoaa21->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonVIIRSDNBNOAA21 && segs->seglviirsdnbnoaa21->NbrOfSegmentsSelected() > 0)
+        return true;
 
 
     if(opts.buttonOLCIefr && segs->seglolciefr->NbrOfSegmentsSelected() > 0)
         return true;
     if(opts.buttonOLCIerr && segs->seglolcierr->NbrOfSegmentsSelected() > 0)
-        return true;
-    if(opts.buttonSLSTR && segs->seglslstr->NbrOfSegmentsSelected() > 0)
         return true;
 
     if(opts.buttonMERSI && segs->seglmersi->NbrOfSegmentsSelected() > 0)
@@ -1049,15 +716,6 @@ void FormMapCyl::on_verticalScrollBar_valueChanged(int value)
     showSegmentList(value);
 }
 
-void FormMapCyl::on_btnNoaa_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButton(eSegmentType::SEG_NOAA19);
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-
-}
-
 void FormMapCyl::on_btnMetop_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_AVHRR);
@@ -1070,51 +728,6 @@ void FormMapCyl::on_btnHRP_clicked()
 {
     formtoolbox->setTabWidgetIndex(TAB_AVHRR);
     toggleButton(eSegmentType::SEG_HRP);
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-
-void FormMapCyl::on_btnGAC_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButton(eSegmentType::SEG_GAC);
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-
-void FormMapCyl::on_btnMetopAhrpt_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButton(eSegmentType::SEG_HRPT_METOPA);
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-
-void FormMapCyl::on_btnMetopBhrpt_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButton(eSegmentType::SEG_HRPT_METOPB);
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-void FormMapCyl::on_btnNoaa19hrpt_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButton(eSegmentType::SEG_HRPT_NOAA19);
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-void FormMapCyl::on_btnM01hrpt_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButton(eSegmentType::SEG_HRPT_M01);
-    this->RemoveAllSelected();
-    this->setScrollBarMaximum();
-}
-void FormMapCyl::on_btnM02hrpt_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_AVHRR);
-    toggleButton(eSegmentType::SEG_HRPT_M02);
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
 }
@@ -1133,22 +746,29 @@ void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
     formtoolbox->setTabWidgetVIIRSIndex(0);
     toggleButton(eSegmentType::SEG_VIIRSM);
-    segs->RemoveAllSelectedAVHRR();
-    segs->RemoveAllSelectedOLCIefr();
-    segs->RemoveAllSelectedOLCIerr();
-    segs->RemoveAllSelectedSLSTR();
-    segs->RemoveAllSelectedDatahubOLCIefr();
-    segs->RemoveAllSelectedDatahubOLCIerr();
-    segs->RemoveAllSelectedDatahubSLSTR();
-    segs->RemoveAllSelectedVIIRSDNB();
-    segs->RemoveAllSelectedVIIRSMNOAA20();
-    segs->RemoveAllSelectedVIIRSDNBNOAA20();
 
-
-    mapcyl->update();
-    this->showSegmentCount();
+    this->RemoveAllSelected();
     this->setScrollBarMaximum();
-    return;
+
+
+    // segs->RemoveAllSelectedAVHRR();
+    // segs->RemoveAllSelectedOLCIefr();
+    // segs->RemoveAllSelectedOLCIerr();
+    // segs->RemoveAllSelectedSLSTR();
+    // segs->RemoveAllSelectedDatahubOLCIefr();
+    // segs->RemoveAllSelectedDatahubOLCIerr();
+    // segs->RemoveAllSelectedDatahubSLSTR();
+    // segs->RemoveAllSelectedVIIRSDNB();
+    // segs->RemoveAllSelectedVIIRSMNOAA20();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
+    // segs->RemoveAllSelectedVIIRSMNOAA21();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
+
+
+    // mapcyl->update();
+    // this->showSegmentCount();
+    // this->setScrollBarMaximum();
+    // return;
 }
 
 void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
@@ -1156,23 +776,29 @@ void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
     formtoolbox->setTabWidgetVIIRSIndex(1);
     toggleButton(eSegmentType::SEG_VIIRSDNB);
-    segs->RemoveAllSelectedAVHRR();
-    segs->RemoveAllSelectedOLCIefr();
-    segs->RemoveAllSelectedOLCIerr();
-    segs->RemoveAllSelectedSLSTR();
-    segs->RemoveAllSelectedDatahubOLCIefr();
-    segs->RemoveAllSelectedDatahubOLCIerr();
-    segs->RemoveAllSelectedDatahubSLSTR();
-    segs->RemoveAllSelectedVIIRSM();
-    segs->RemoveAllSelectedVIIRSMNOAA20();
-    segs->RemoveAllSelectedVIIRSDNBNOAA20();
 
-
-
-    mapcyl->update();
-    this->showSegmentCount();
+    this->RemoveAllSelected();
     this->setScrollBarMaximum();
-    return;
+
+    // segs->RemoveAllSelectedAVHRR();
+    // segs->RemoveAllSelectedOLCIefr();
+    // segs->RemoveAllSelectedOLCIerr();
+    // segs->RemoveAllSelectedSLSTR();
+    // segs->RemoveAllSelectedDatahubOLCIefr();
+    // segs->RemoveAllSelectedDatahubOLCIerr();
+    // segs->RemoveAllSelectedDatahubSLSTR();
+    // segs->RemoveAllSelectedVIIRSM();
+    // segs->RemoveAllSelectedVIIRSMNOAA20();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
+    // segs->RemoveAllSelectedVIIRSMNOAA21();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
+
+
+
+    // mapcyl->update();
+    // this->showSegmentCount();
+    // this->setScrollBarMaximum();
+    // return;
 }
 
 void FormMapCyl::on_btnVIIRSMNOAA20_clicked() // M-Bands
@@ -1181,21 +807,27 @@ void FormMapCyl::on_btnVIIRSMNOAA20_clicked() // M-Bands
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
     formtoolbox->setTabWidgetVIIRSIndex(0);
     toggleButton(eSegmentType::SEG_VIIRSMNOAA20);
-    segs->RemoveAllSelectedAVHRR();
-    segs->RemoveAllSelectedOLCIefr();
-    segs->RemoveAllSelectedOLCIerr();
-    segs->RemoveAllSelectedSLSTR();
-    segs->RemoveAllSelectedDatahubOLCIefr();
-    segs->RemoveAllSelectedDatahubOLCIerr();
-    segs->RemoveAllSelectedDatahubSLSTR();
-    segs->RemoveAllSelectedVIIRSM();
-    segs->RemoveAllSelectedVIIRSDNB();
-    segs->RemoveAllSelectedVIIRSDNBNOAA20();
 
-    mapcyl->update();
-    this->showSegmentCount();
+    this->RemoveAllSelected();
     this->setScrollBarMaximum();
-    return;
+
+    // segs->RemoveAllSelectedAVHRR();
+    // segs->RemoveAllSelectedOLCIefr();
+    // segs->RemoveAllSelectedOLCIerr();
+    // segs->RemoveAllSelectedSLSTR();
+    // segs->RemoveAllSelectedDatahubOLCIefr();
+    // segs->RemoveAllSelectedDatahubOLCIerr();
+    // segs->RemoveAllSelectedDatahubSLSTR();
+    // segs->RemoveAllSelectedVIIRSM();
+    // segs->RemoveAllSelectedVIIRSDNB();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
+    // segs->RemoveAllSelectedVIIRSMNOAA21();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
+
+    // mapcyl->update();
+    // this->showSegmentCount();
+    // this->setScrollBarMaximum();
+    // return;
 }
 
 void FormMapCyl::on_btnVIIRSDNBNOAA20_clicked() // DNB Bands
@@ -1203,21 +835,84 @@ void FormMapCyl::on_btnVIIRSDNBNOAA20_clicked() // DNB Bands
     formtoolbox->setTabWidgetIndex(TAB_VIIRS);
     formtoolbox->setTabWidgetVIIRSIndex(1);
     toggleButton(eSegmentType::SEG_VIIRSDNBNOAA20);
-    segs->RemoveAllSelectedAVHRR();
-    segs->RemoveAllSelectedOLCIefr();
-    segs->RemoveAllSelectedOLCIerr();
-    segs->RemoveAllSelectedSLSTR();
-    segs->RemoveAllSelectedDatahubOLCIefr();
-    segs->RemoveAllSelectedDatahubOLCIerr();
-    segs->RemoveAllSelectedDatahubSLSTR();
-    segs->RemoveAllSelectedVIIRSM();
-    segs->RemoveAllSelectedVIIRSDNB();
-    segs->RemoveAllSelectedVIIRSMNOAA20();
 
-    mapcyl->update();
-    this->showSegmentCount();
+    this->RemoveAllSelected();
     this->setScrollBarMaximum();
-    return;
+
+    // segs->RemoveAllSelectedAVHRR();
+    // segs->RemoveAllSelectedOLCIefr();
+    // segs->RemoveAllSelectedOLCIerr();
+    // segs->RemoveAllSelectedSLSTR();
+    // segs->RemoveAllSelectedDatahubOLCIefr();
+    // segs->RemoveAllSelectedDatahubOLCIerr();
+    // segs->RemoveAllSelectedDatahubSLSTR();
+    // segs->RemoveAllSelectedVIIRSM();
+    // segs->RemoveAllSelectedVIIRSDNB();
+    // segs->RemoveAllSelectedVIIRSMNOAA20();
+    // segs->RemoveAllSelectedVIIRSMNOAA21();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
+
+    // mapcyl->update();
+    // this->showSegmentCount();
+    // this->setScrollBarMaximum();
+    // return;
+}
+
+void FormMapCyl::on_btnVIIRSMNOAA21_clicked() // M-Bands
+{
+
+    formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+    formtoolbox->setTabWidgetVIIRSIndex(0);
+    toggleButton(eSegmentType::SEG_VIIRSMNOAA21);
+
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+
+    // segs->RemoveAllSelectedAVHRR();
+    // segs->RemoveAllSelectedOLCIefr();
+    // segs->RemoveAllSelectedOLCIerr();
+    // segs->RemoveAllSelectedSLSTR();
+    // segs->RemoveAllSelectedDatahubOLCIefr();
+    // segs->RemoveAllSelectedDatahubOLCIerr();
+    // segs->RemoveAllSelectedDatahubSLSTR();
+    // segs->RemoveAllSelectedVIIRSM();
+    // segs->RemoveAllSelectedVIIRSDNB();
+    // segs->RemoveAllSelectedVIIRSMNOAA20();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
+
+    // mapcyl->update();
+    // this->showSegmentCount();
+    // this->setScrollBarMaximum();
+    // return;
+}
+
+void FormMapCyl::on_btnVIIRSDNBNOAA21_clicked() // DNB Bands
+{
+    formtoolbox->setTabWidgetIndex(TAB_VIIRS);
+    formtoolbox->setTabWidgetVIIRSIndex(1);
+    toggleButton(eSegmentType::SEG_VIIRSDNBNOAA21);
+
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+
+    // segs->RemoveAllSelectedAVHRR();
+    // segs->RemoveAllSelectedOLCIefr();
+    // segs->RemoveAllSelectedOLCIerr();
+    // segs->RemoveAllSelectedSLSTR();
+    // segs->RemoveAllSelectedDatahubOLCIefr();
+    // segs->RemoveAllSelectedDatahubOLCIerr();
+    // segs->RemoveAllSelectedDatahubSLSTR();
+    // segs->RemoveAllSelectedVIIRSM();
+    // segs->RemoveAllSelectedVIIRSDNB();
+    // segs->RemoveAllSelectedVIIRSMNOAA20();
+    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
+    // segs->RemoveAllSelectedVIIRSMNOAA21();
+
+    // mapcyl->update();
+    // this->showSegmentCount();
+    // this->setScrollBarMaximum();
+    // return;
 }
 
 void FormMapCyl::on_btnOLCIefr_clicked()
@@ -1226,8 +921,6 @@ void FormMapCyl::on_btnOLCIefr_clicked()
     formtoolbox->setTabWidgetSentinelIndex(0);
     toggleButton(eSegmentType::SEG_OLCIEFR);
     this->RemoveAllSelected();
-    //    mapcyl->update();
-    //    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
@@ -1239,65 +932,11 @@ void FormMapCyl::on_btnOLCIerr_clicked()
     formtoolbox->setTabWidgetSentinelIndex(0);
     toggleButton(eSegmentType::SEG_OLCIERR);
     this->RemoveAllSelected();
-    //    mapcyl->update();
-    //    this->showSegmentCount();
     this->setScrollBarMaximum();
 
     return;
 }
 
-void FormMapCyl::on_btnSLSTR_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-    formtoolbox->setTabWidgetSentinelIndex(1);
-    toggleButton(eSegmentType::SEG_SLSTR);
-    this->RemoveAllSelected();
-    //    mapcyl->update();
-    //    this->showSegmentCount();
-    this->setScrollBarMaximum();
-
-    return;
-}
-
-void FormMapCyl::on_btnOLCIefrDatahub_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-    formtoolbox->setTabWidgetSentinelIndex(0);
-    toggleButton(eSegmentType::SEG_DATAHUB_OLCIEFR);
-    //this->RemoveAllSelected();
-    mapcyl->update();
-    this->showSegmentCount();
-    this->setScrollBarMaximum();
-
-    return;
-}
-
-void FormMapCyl::on_btnOLCIerrDatahub_clicked()
-{
-
-    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-    formtoolbox->setTabWidgetSentinelIndex(0);
-    toggleButton(eSegmentType::SEG_DATAHUB_OLCIERR);
-    //this->RemoveAllSelected();
-    mapcyl->update();
-    this->showSegmentCount();
-    this->setScrollBarMaximum();
-
-    return;
-}
-
-void FormMapCyl::on_btnSLSTRDatahub_clicked()
-{
-    formtoolbox->setTabWidgetIndex(TAB_SENTINEL);
-    formtoolbox->setTabWidgetSentinelIndex(1);
-    toggleButton(eSegmentType::SEG_DATAHUB_SLSTR);
-    //this->RemoveAllSelected();
-    mapcyl->update();
-    this->showSegmentCount();
-    this->setScrollBarMaximum();
-
-    return;
-}
 
 void FormMapCyl::on_btnMERSI_clicked()
 {
@@ -1330,161 +969,8 @@ bool FormMapCyl::IsProductDirFilledIn()
     return true;
 }
 
-void FormMapCyl::on_btnDownloadCompleteProduct_clicked()
-{
-
-    if(!IsProductDirFilledIn())
-        return;
-
-    if(!CheckUserAndPassword())
-        return;
-
-    if(todownloadlist.count() ==  0)
-        return;
-
-    for(int i = 0; i < todownloadlist.count(); i++)
-    {
-        todownloadlist[i].band_or_quicklook = "complete";
-    }
 
 
-    SearchForFreeManager();
-
-}
-
-void FormMapCyl::on_btnDownloadQuicklook_clicked()
-{
-    if(!IsProductDirFilledIn())
-        return;
-
-    if(!CheckUserAndPassword())
-        return;
-
-    QList<ProductList> newtodownloadlist;
-
-    if(todownloadlist.count() ==  0)
-        return;
-
-    for(int i = 0; i < todownloadlist.count(); i++)
-    {
-        if(!QuicklookExist(todownloadlist.at(i).completebasename))
-        {
-            todownloadlist[i].band_or_quicklook = "quicklook";
-            newtodownloadlist.append(todownloadlist.at(i));
-            ProductList newtoadd;
-            newtoadd.completebasename = todownloadlist.at(i).completebasename;
-            newtoadd.uuid = todownloadlist.at(i).uuid;
-            newtoadd.status = "waiting";
-            if(newtoadd.completebasename.mid(9, 3) == "RBT")
-                newtoadd.band_or_quicklook = "geodetic_an.nc";
-            else
-                newtoadd.band_or_quicklook = "tie_geo_coordinates.nc";
-
-            newtodownloadlist.append(newtoadd);
-        }
-        else
-        {
-            RenderQuicklookinTexture(todownloadlist.at(i).completebasename);
-        }
-    }
-
-    todownloadlist = newtodownloadlist;
-
-    showSelectedSegmentToDownloadList();
-
-    SearchForFreeManager();
-
-}
-
-void FormMapCyl::on_btnDownloadPartialProduct_clicked()
-{
-    if(!IsProductDirFilledIn())
-        return;
-
-    if(!CheckUserAndPassword())
-        return;
-
-    if(ui->btnSLSTRDatahub->isChecked())
-        return;
-
-    QList<bool> bandlist = formtoolbox->getOLCIBandList();
-    QList<int> colorlist = formtoolbox->getOLCIColorList();
-
-    QList<ProductList> newtodownloadlist;
-
-    if(todownloadlist.count() ==  0)
-        return;
-
-    for(int i = 0; i < todownloadlist.count(); i++)
-    {
-        if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, "geo_coordinates.nc"))
-        {
-            todownloadlist[i].band_or_quicklook = "geo_coordinates.nc";
-            newtodownloadlist.append(todownloadlist.at(i)); // 1
-        }
-
-        ProductList newtoadd;
-        newtoadd.completebasename = todownloadlist.at(i).completebasename;
-        newtoadd.uuid = todownloadlist.at(i).uuid;
-        newtoadd.status = "waiting";
-
-        if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, "tie_geometries.nc"))
-        {
-            if(newtoadd.completebasename.mid(9, 3) == "RBT")
-                newtoadd.band_or_quicklook = "";
-            else
-                newtoadd.band_or_quicklook = "tie_geometries.nc";
-            newtodownloadlist.append(newtoadd); // 2
-        }
-
-        if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, "qualityFlags.nc"))
-        {
-            newtoadd.band_or_quicklook = "qualityFlags.nc";
-            newtodownloadlist.append(newtoadd); // 3
-        }
-
-        if(bandlist.at(0) == false) // No color
-        {
-            QString bandfile;
-            SegmentListOLCI::getDatasetNameFromBand(bandlist, &bandfile );
-            if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, bandfile))
-            {
-                newtoadd.band_or_quicklook = bandfile;
-                newtodownloadlist.append(newtoadd);
-            }
-        }
-        else
-        {
-            QString colorfile;
-            SegmentListOLCI::getDatasetNameFromColor(colorlist, 0, &colorfile);
-            if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, colorfile))
-            {
-                newtoadd.band_or_quicklook = colorfile;
-                newtodownloadlist.append(newtoadd);
-            }
-            SegmentListOLCI::getDatasetNameFromColor(colorlist, 1, &colorfile);
-            if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, colorfile))
-            {
-                newtoadd.band_or_quicklook = colorfile;
-                newtodownloadlist.append(newtoadd);
-            }
-            SegmentListOLCI::getDatasetNameFromColor(colorlist, 2, &colorfile);
-            if(!SegmentListOLCI::OLCIFileExist(todownloadlist.at(i).completebasename, colorfile))
-            {
-                newtoadd.band_or_quicklook = colorfile;
-                newtodownloadlist.append(newtoadd);
-            }
-        }
-
-    }
-
-    todownloadlist = newtodownloadlist;
-
-    showSelectedSegmentToDownloadList();
-
-    SearchForFreeManager();
-
-}
 
 void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
 {
@@ -1912,153 +1398,7 @@ bool FormMapCyl::QuicklookExist(QString completebasename)
 
 }
 
-void FormMapCyl::SearchForFreeManager()
-{
-    eDatahub hub;
-    if(opts.provideresaoreumetsat)
-        hub = HUBESA;
-    else
-        hub = HUBEUMETSAT;
 
-    qDebug() <<  "FormMapCyl::SearchForFreeManager()";
-    for(int i = 0; i < todownloadlist.count() ; i++)
-    {
-        qDebug() << "status = " << todownloadlist.at(i).status;
-    }
-
-    for(int i = 0; i < todownloadlist.count() ; i++)
-    {
-        if(todownloadlist.at(i).status == "waiting")
-        {
-            if(!hubmanagerprod1.isProductDownloadBusy())
-            {
-                qDebug() << "hubmanagerprod1.DownloadProduct";
-                QObject::connect(&hubmanagerprod1, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
-                QObject::connect(&hubmanagerprod1, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
-                todownloadlist[i].status = "busy";
-                hubmanagerprod1.DownloadProduct(todownloadlist, i, hub, 0);
-                showSelectedSegmentToDownloadList();
-            }
-            else if(!hubmanagerprod2.isProductDownloadBusy())
-            {
-                qDebug() << "hubmanagerprod2.DownloadProduct";
-
-                QObject::connect(&hubmanagerprod2, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
-                QObject::connect(&hubmanagerprod2, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
-                todownloadlist[i].status = "busy";
-                hubmanagerprod2.DownloadProduct(todownloadlist, i, hub, 1);
-                showSelectedSegmentToDownloadList();
-            }
-        }
-    }
-
-    for(int i = 0; i < todownloadlist.count() ; i++)
-    {
-        if(todownloadlist.at(i).status == "busy")
-        {
-            ui->btnDownloadCompleteProduct->setEnabled(false);
-            ui->btnDownloadPartialProduct->setEnabled(false);
-            ui->btnDownloadQuicklook->setEnabled(false);
-            break;
-        }
-    }
-
-}
-
-void FormMapCyl::productDownloadProgress(qint64 bytesReceived, qint64 bytesTotal, int whichdownload)
-{
-    if( whichdownload == 0)
-    {
-        ui->pbProduct1->setMaximum(bytesTotal);
-        ui->pbProduct1->setValue(bytesReceived);
-    }
-    else
-    {
-        ui->pbProduct2->setMaximum(bytesTotal);
-        ui->pbProduct2->setValue(bytesReceived);
-    }
-}
-
-void FormMapCyl::productFileDownloaded(int whichdownload, int downloadindex, QString absoluteproductpath, QString absolutepath, QString filename)
-{
-
-    qDebug() << "productFileDownloaded absoluteproductpath = " << absoluteproductpath;
-    qDebug() << "productFileDownloaded absolutepath = " << absolutepath;
-    qDebug() << "productFileDownloaded filename = " << filename;
-    qDebug() << "todownloadlist[downloadindex].band_or_quicklook = " << todownloadlist[downloadindex].band_or_quicklook;
-
-    if(whichdownload == 0)
-    {
-        qDebug() << "FormMapCyl::productFileDownloaded whichdownload = 0";
-        QObject::disconnect(&hubmanagerprod1, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
-        QObject::disconnect(&hubmanagerprod1, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
-        ui->pbProduct1->setValue(0);
-    }
-    else
-    {
-        qDebug() << "FormMapCyl::productFileDownloaded whichdownload = 1";
-        QObject::disconnect(&hubmanagerprod2, &DatahubAccessManager::productFinished, this, &FormMapCyl::productFileDownloaded);
-        QObject::disconnect(&hubmanagerprod2, &DatahubAccessManager::productProgress, this, &FormMapCyl::productDownloadProgress);
-        ui->pbProduct2->setValue(0);
-    }
-
-    if(downloadindex < todownloadlist.count())
-    {
-        todownloadlist[downloadindex].status = "finished";
-        todownloadlist[downloadindex].absoluteproductpath = absoluteproductpath;
-    }
-    showSelectedSegmentToDownloadList();
-
-    qDebug() << "hubmanagerprod1.isProductDownloadBusy() = " << hubmanagerprod1.isProductDownloadBusy();
-    qDebug() << "hubmanagerprod2.isProductDownloadBusy() = " << hubmanagerprod2.isProductDownloadBusy();
-
-    if(todownloadlist[downloadindex].band_or_quicklook == "complete")
-    {
-        qDebug() << "Start extraction to " << absolutepath;
-        QString ArchivePath = absoluteproductpath;
-        QString DestinationPath = absolutepath;
-        ExtractSegment(ArchivePath, DestinationPath);
-        qDebug() << "Removing " << ArchivePath;
-        QFile::remove(ArchivePath);
-    }
-
-    if((!hubmanagerprod1.isProductDownloadBusy()) && (!hubmanagerprod2.isProductDownloadBusy()))
-    {
-        ui->btnDownloadCompleteProduct->setEnabled(true);
-        ui->btnDownloadPartialProduct->setEnabled(true);
-        ui->btnDownloadQuicklook->setEnabled(true);
-        ui->btnCancelDownloadProduct->setEnabled(true);
-    }
-
-
-    bool alldownloaded = true;
-    for(int i = 0; i < todownloadlist.count() ; i++)
-    {
-        qDebug() << "status = " << todownloadlist.at(i).status;
-        if(todownloadlist.at(i).status != "finished")
-        {
-            alldownloaded = false;
-            break;
-        }
-    }
-
-
-    if(alldownloaded)
-    {
-        for(int i = 0; i < todownloadlist.count(); i++)
-        {
-            qDebug() << "todownloadlist " << todownloadlist.at(i).band_or_quicklook << " " << todownloadlist.at(i).completebasename;
-            if(todownloadlist.at(i).band_or_quicklook == "quicklook")
-            {
-                RenderQuicklookinTexture(todownloadlist.at(i).completebasename);
-            }
-        }
-        segs->ReadDirectoriesDatahub(ui->calendarDatahub->selectedDate());
-    }
-
-    SearchForFreeManager();
-
-}
 
 int FormMapCyl::ExtractSegment(QString ArchivePath, QString DestinationPath)
 {
@@ -2163,213 +1503,6 @@ int FormMapCyl::copy_data(struct archive *ar, struct archive *aw)
 
 
 
-void FormMapCyl::createSelectedSegmentToDownloadList()
-{
-    QList<Segment*> *sldatahubolciefr = segs->segldatahubolciefr->GetSegmentlistptr();
-    QList<Segment*> *sldatahubolcierr = segs->segldatahubolcierr->GetSegmentlistptr();
-    QList<Segment*> *sldatahubslstr = segs->segldatahubslstr->GetSegmentlistptr();
-
-    todownloadlist.clear();
-
-    //if (opts.buttonDatahubOLCIefr)
-    {
-        for(int i = 0; i < sldatahubolciefr->count(); i++)
-        {
-            if( sldatahubolciefr->at(i)->IsSelected())
-            {
-                ProductList prodlist;
-                SegmentDatahub *segdatahub = (SegmentDatahub *)sldatahubolciefr->at(i);
-                prodlist.completebasename = segdatahub->fileInfo.fileName();
-                prodlist.uuid = segdatahub->getUUID();
-                prodlist.size = segdatahub->getSize();
-                prodlist.status = "waiting";
-                prodlist.band_or_quicklook = "";
-                todownloadlist.append(prodlist);
-            }
-        }
-    }
-    //else if (opts.buttonDatahubOLCIerr)
-    {
-        QList<Segment*>::iterator segitolcierr = sldatahubolcierr->begin();
-        while ( segitolcierr != sldatahubolcierr->end() )
-        {
-            if((*segitolcierr)->IsSelected())
-            {
-                ProductList prodlist;
-                prodlist.completebasename = (*segitolcierr)->fileInfo.fileName();
-                prodlist.uuid = ((SegmentDatahub *)(*segitolcierr))->getUUID();
-                prodlist.size = ((SegmentDatahub *)(*segitolcierr))->getSize();
-                prodlist.status = "waiting";
-                prodlist.band_or_quicklook = "";
-                todownloadlist.append(prodlist);
-            }
-            ++segitolcierr;
-        }
-
-    }
-    //else if (opts.buttonDatahubSLSTR)
-    {
-        QList<Segment*>::iterator segitslstr = sldatahubslstr->begin();
-        while ( segitslstr != sldatahubslstr->end() )
-        {
-            if((*segitslstr)->IsSelected())
-            {
-                ProductList prodlist;
-                prodlist.completebasename = (*segitslstr)->fileInfo.fileName();
-                prodlist.uuid = ((SegmentDatahub *)(*segitslstr))->getUUID();
-                prodlist.size = ((SegmentDatahub *)(*segitslstr))->getSize();
-                prodlist.status = "waiting";
-                prodlist.band_or_quicklook = "";
-                todownloadlist.append(prodlist);
-            }
-            ++segitslstr;
-        }
-
-    }
-
-    showSelectedSegmentToDownloadList();
-}
-
-void FormMapCyl::showSelectedSegmentToDownloadList()
-{
-    bool ok;
-
-    QBrush background(Qt::green);
-    double totalsize = 0;
-    ui->twSelectedProducts->clearContents();
-    ui->twSelectedProducts->setRowCount(0);
-
-    //S3A_OL_1_EFR____20161026T121318_20161026T121318_20161026T163853_0000_010_166______MAR_O_NR_002.SEN3.tar
-    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
-
-    for( int i = 0; i < todownloadlist.count(); ++i )
-    {
-        ui->twSelectedProducts->insertRow(i);
-
-        if(todownloadlist.at(i).status == "finished")
-            background.setColor(Qt::green);
-        else
-            background.setColor(Qt::white);
-        QTableWidgetItem *item0 = new QTableWidgetItem(todownloadlist.at(i).status);
-        item0->setBackground(background);
-        ui->twSelectedProducts->setItem(i, 0, item0);
-
-        QTableWidgetItem *item1 = new QTableWidgetItem(todownloadlist.at(i).band_or_quicklook);  // complete or quiclook or band
-        item1->setBackground(background);
-        ui->twSelectedProducts->setItem(i, 1, item1);
-
-        QString year = todownloadlist.at(i).completebasename.mid(16, 4);
-        QString month = todownloadlist.at(i).completebasename.mid(20, 2);
-        QString day = todownloadlist.at(i).completebasename.mid(22, 2);
-        QTableWidgetItem *item2 = new QTableWidgetItem(year + "-" + month + "-" + day);
-        item2->setBackground(background);
-        ui->twSelectedProducts->setItem(i, 2, item2);
-
-        QString hour = todownloadlist.at(i).completebasename.mid(25, 2);
-        QString min = todownloadlist.at(i).completebasename.mid(27, 2);
-        QString sec = todownloadlist.at(i).completebasename.mid(29, 2);
-        QTableWidgetItem *item3 = new QTableWidgetItem(hour + ":" + min + ":" + sec);
-        item3->setBackground(background);
-        ui->twSelectedProducts->setItem(i, 3, item3);
-
-        hour = todownloadlist.at(i).completebasename.mid(41, 2);
-        min = todownloadlist.at(i).completebasename.mid(43, 2);
-        sec = todownloadlist.at(i).completebasename.mid(45, 2);
-        QTableWidgetItem *item4 = new QTableWidgetItem(hour + ":" + min + ":" + sec);
-        item4->setBackground(background);
-        ui->twSelectedProducts->setItem(i, 4, item4);
-
-        int strsizelength = todownloadlist.at(i).size.length();
-        QString strsize = todownloadlist.at(i).size.mid(0, todownloadlist.at(i).size.indexOf(" MB"));
-        double lsize = strsize.toDouble(&ok);
-        if(ok)
-            totalsize += lsize;
-
-        QTableWidgetItem *item5 = new QTableWidgetItem(todownloadlist.at(i).size);
-        item5->setBackground(background);
-        ui->twSelectedProducts->setItem(i, 5, item5);
-
-        ui->twSelectedProducts->setColumnWidth(0, 60); // status
-        ui->twSelectedProducts->setColumnWidth(1, 80); // type
-        ui->twSelectedProducts->setColumnWidth(2, 80); // date
-        ui->twSelectedProducts->setColumnWidth(3, 70); // start
-        ui->twSelectedProducts->setColumnWidth(4, 70); // end
-        ui->twSelectedProducts->setColumnWidth(5, 80); // size
-    }
-
-    //    float ftotalsize = (float)totalsize/1000000;
-    ui->lblTotalDownloadSize->setText(QString("Total size complete product = %1 Mb").arg(totalsize, 0, 'f', 2));
-
-    ui->twSelectedProducts->resizeRowsToContents();
-    ui->twSelectedProducts->show();
-}
-
-void FormMapCyl::slotShowXMLProgress(QString str, int pages, bool downloadinprogress)
-{
-    ui->pbXMLprogress->setMaximum(10);
-
-    ui->lblTotalAvailable->setText(str);
-    if(downloadinprogress)
-    {
-        ui->btnDownloadQuicklook->setEnabled(false);
-        ui->btnDownloadCompleteProduct->setEnabled(false);
-        ui->btnDownloadPartialProduct->setEnabled(false);
-        ui->btnCancelDownloadProduct->setEnabled(true);
-    }
-    else
-    {
-        ui->btnDownloadQuicklook->setEnabled(true);
-        ui->btnDownloadCompleteProduct->setEnabled(true);
-        ui->btnDownloadPartialProduct->setEnabled(true);
-        ui->btnCancelDownloadProduct->setEnabled(true);
-    }
-
-    if(pages == 999)
-        ui->pbXMLprogress->setValue(10);
-    else
-        ui->pbXMLprogress->setValue(pages);
-}
-
-
-void FormMapCyl::on_btnCancelDownloadProduct_clicked()
-{
-    hubmanagerprod1.CancelDownload();
-    hubmanagerprod2.CancelDownload();
-    ui->pbProduct1->setValue(0);
-    ui->pbProduct2->setValue(0);
-
-    todownloadlist.clear();
-
-    RemoveAllSelected();
-
-    ui->twSelectedProducts->clearContents();
-    ui->twSelectedProducts->setRowCount(0);
-
-    ui->btnDownloadCompleteProduct->setEnabled(true);
-    ui->btnDownloadPartialProduct->setEnabled(true);
-    ui->btnDownloadQuicklook->setEnabled(true);
-
-
-}
-
-
-void FormMapCyl::on_btnDownloadXMLFromDatahub_clicked()
-{
-    bool ok = false;
-    QFile segfile("Segments.xml");
-    segfile.remove();
-
-    QString type;
-    if(ui->rdbDownloadXMLOLCIEFR->isChecked())
-        type = "EFR";
-    else if(ui->rdbDownloadXMLOLCIERR->isChecked())
-        type = "ERR";
-    else if(ui->rdbDownloadXMLSLSTR->isChecked())
-        type = "SLSTR";
-
-    if(CheckUserAndPassword())
-        segs->LoadXMLfromDatahub(ui->calendarDatahub->selectedDate(), type);
-}
 
 bool FormMapCyl::CheckUserAndPassword()
 {

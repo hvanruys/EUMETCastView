@@ -8,6 +8,7 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern SatelliteList satellitelist;
 
 //void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
 //{

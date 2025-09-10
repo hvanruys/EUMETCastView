@@ -7415,8 +7415,10 @@ void SegmentListGeostationary::SetupContrastStretch(quint16 x1, quint16 y1, quin
 void SegmentListGeostationary::ComposeGeoRGBRecipe(int recipe, QString tex)
 {
     this->tex = tex;
-    QtConcurrent::run(doComposeGeoRGBRecipe, this, recipe);
+    // QtConcurrent::run(doComposeGeoRGBRecipe, this, recipe);
+    this->ComposeGeoRGBRecipeInThread(recipe);
 }
+
 
 void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 {
@@ -7766,8 +7768,8 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 
     for(int i = 0; i < 3; i++)
     {
-        resultmin[i] = 999999999;
-        resultmax[i] = -999999999;
+        resultmin[i] = 999999999.;
+        resultmax[i] = -999999999.;
         countresultfill[i] = 0;
     }
 

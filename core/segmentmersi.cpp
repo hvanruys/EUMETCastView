@@ -25,6 +25,7 @@
 
 extern Options opts;
 extern SegmentImage *imageptrs;
+extern SatelliteList satellitelist;
 #include <QMutex>
 
 #define DIMX 410

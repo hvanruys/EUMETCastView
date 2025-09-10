@@ -21,26 +21,16 @@ void Options::Initialize()
     obslat = settings.value("/observer/latitude", 0.0 ).toDouble();
     obsalt = settings.value( "/observer/altitude", 0.0 ).toDouble();
     buttonMetop=settings.value("/window/buttonmetop", false ).toBool();
-    buttonNoaa=settings.value("/window/buttonnoaa", false ).toBool();
-    buttonGAC=settings.value("/window/buttongac", false ).toBool();
     buttonHRP=settings.value("/window/buttonhrp", false ).toBool();
     buttonVIIRSM=settings.value("/window/buttonviirs", false ).toBool();
     buttonVIIRSDNB=settings.value("/window/buttonviirsdnb", false ).toBool();
     buttonVIIRSMNOAA20=settings.value("/window/buttonviirsmnoaa20", false ).toBool();
     buttonVIIRSDNBNOAA20=settings.value("/window/buttonviirsdnbnoaa20", false ).toBool();
+    buttonVIIRSMNOAA21=settings.value("/window/buttonviirsmnoaa21", false ).toBool();
+    buttonVIIRSDNBNOAA21=settings.value("/window/buttonviirsdnbnoaa21", false ).toBool();
     buttonOLCIefr=settings.value("/window/buttonolciefr", false ).toBool();
     buttonOLCIerr=settings.value("/window/buttonolcierr", false ).toBool();
-    buttonSLSTR=settings.value("/window/buttonslstr", false ).toBool();
-    buttonDatahubOLCIefr=settings.value("/window/buttondatahubolciefr", false ).toBool();
-    buttonDatahubOLCIerr=settings.value("/window/buttondatahubolcierr", false ).toBool();
-    buttonDatahubSLSTR=settings.value("/window/buttondatahubslstr", false ).toBool();
     buttonMERSI=settings.value("/window/buttonmersi", false ).toBool();
-
-    buttonMetopAhrpt=settings.value("/window/buttonmetopAhrpt", false ).toBool();
-    buttonMetopBhrpt=settings.value("/window/buttonmetopBhrpt", false ).toBool();
-    buttonNoaa19hrpt=settings.value("/window/buttonnoaa19hrpt", false ).toBool();
-    buttonM01hrpt=settings.value("/window/buttonM01hrpt", false ).toBool();
-    buttonM02hrpt=settings.value("/window/buttonM02hrpt", false ).toBool();
 
     buttonRealTime=settings.value("/window/buttonrealtime", true ).toBool();
     buttonPhong=settings.value("/window/buttonphong", false ).toBool();
@@ -49,8 +39,6 @@ void Options::Initialize()
     nbrofhours=settings.value("/segments/nbrofhours", 0).toInt();
 
     metop_invlist=settings.value("/segments/metop_invlist").value<QStringList>();
-    noaa_invlist=settings.value("/segments/noaa_invlist").value<QStringList>();
-    gac_invlist=settings.value("/segments/gac_invlist").value<QStringList>();
     hrp_invlist=settings.value("/segments/hrp_invlist").value<QStringList>();
 
     sattrackinimage=settings.value("/segments/sattrackinimage", false ).toBool();
@@ -95,8 +83,6 @@ void Options::Initialize()
     realminutesshown=settings.value("/satellite/minutesshown", 10).toInt();
 
     channellistmetop=settings.value("/segments/channellistmetop").value<QStringList>();
-    channellistnoaa=settings.value("/segments/channellistnoaa").value<QStringList>();
-    channellistgac=settings.value("/segments/channellistGAC").value<QStringList>();
     channellisthrp=settings.value("/segments/channellistHRP").value<QStringList>();
 
     stationlistname=settings.value("/window/stationlistname").value<QStringList>();
@@ -378,13 +364,9 @@ void Options::Initialize()
 void Options::checkStringListValues()
 {
     if(channellistmetop.count() != 5) { channellistmetop << "3" << "2" << "1" << "0" << "0"; }
-    if(channellistnoaa.count() != 5) { channellistnoaa << "3" << "2" << "1" << "0" << "0"; }
-    if(channellistgac.count() != 5) { channellistgac << "3" << "2" << "1" << "0" << "0"; }
     if(channellisthrp.count() != 5) { channellisthrp << "3" << "2" << "1" << "0" << "0"; }
 
     if(metop_invlist.count() != 5) { metop_invlist << "0" << "0" << "0" << "0" <<"0"; }
-    if(noaa_invlist.count() != 5) { noaa_invlist << "0" << "0" << "0" << "0" <<"0"; }
-    if(gac_invlist.count() != 5) { gac_invlist << "0" << "0" << "0" << "0" <<"0"; }
     if(hrp_invlist.count() != 5) { hrp_invlist << "0" << "0" << "0" << "0" <<"0"; }
 
     if(stationlistname.count() == 0)
@@ -464,24 +446,15 @@ void Options::Save()
     settings.setValue("/segments/nbrofvisiblesegments", nbrofvisiblesegments);
     settings.setValue("/segments/nbrofhours", nbrofhours);
     settings.setValue( "/window/buttonmetop", buttonMetop );
-    settings.setValue( "/window/buttonnoaa", buttonNoaa );
-    settings.setValue( "/window/buttongac", buttonGAC );
     settings.setValue( "/window/buttonhrp", buttonHRP );
     settings.setValue( "/window/buttonviirs", buttonVIIRSM );
     settings.setValue( "/window/buttonviirsdnb", buttonVIIRSDNB );
     settings.setValue( "/window/buttonviirsmnoaa20", buttonVIIRSMNOAA20 );
     settings.setValue( "/window/buttonviirsdnbnoaa20", buttonVIIRSDNBNOAA20 );
+    settings.setValue( "/window/buttonviirsmnoaa21", buttonVIIRSMNOAA21 );
+    settings.setValue( "/window/buttonviirsdnbnoaa21", buttonVIIRSDNBNOAA21 );
     settings.setValue( "/window/buttonolciefr", buttonOLCIefr );
     settings.setValue( "/window/buttonolcierr", buttonOLCIerr );
-    settings.setValue( "/window/buttonslstr", buttonSLSTR );
-    settings.setValue( "/window/buttondatahubolciefr", buttonDatahubOLCIefr );
-    settings.setValue( "/window/buttondatahubolcierr", buttonDatahubOLCIerr );
-    settings.setValue( "/window/buttondatahubslstr", buttonDatahubSLSTR );
-    settings.setValue( "/window/buttonmetopAhrpt", buttonMetopAhrpt );
-    settings.setValue( "/window/buttonmetopBhrpt", buttonMetopBhrpt );
-    settings.setValue( "/window/buttonnoaa19hrpt", buttonNoaa19hrpt );
-    settings.setValue( "/window/buttonM01hrpt", buttonM01hrpt );
-    settings.setValue( "/window/buttonM02hrpt", buttonM02hrpt );
     settings.setValue( "/window/buttonmersi", buttonMERSI );
 
     settings.setValue( "/window/buttonrealtime", buttonRealTime );
@@ -493,15 +466,11 @@ void Options::Save()
     settings.setValue( "/observer/altitude", obsalt );
 
     settings.setValue("/segments/metop_invlist", metop_invlist);
-    settings.setValue("/segments/noaa_invlist", noaa_invlist);
-    settings.setValue("/segments/gac_invlist", gac_invlist);
     settings.setValue("/segments/hrp_invlist", hrp_invlist);
 
     settings.setValue( "/segments/sattrackinimage", sattrackinimage );
 
     settings.setValue("/segments/channellistmetop", channellistmetop);
-    settings.setValue("/segments/channellistnoaa", channellistnoaa);
-    settings.setValue("/segments/channellistGAC", channellistgac);
     settings.setValue("/segments/channellistHRP", channellisthrp);
 
     settings.setValue("/window/stationlistname", stationlistname );
@@ -2976,14 +2945,14 @@ void Options::globalChangeFonts(QWidget *toplevel, int fontsize)
         for (QWidget *widget : allWidgets) {
             // You could add filters here if needed, e.g., ignore widgets with empty object names
             // or only show specific types not covered above.
-            qDebug() << "  - Object Name:" << widget->objectName()
-                     << ", Class:" << widget->metaObject()->className();
+            //qDebug() << "  - Object Name:" << widget->objectName()
+            //         << ", Class:" << widget->metaObject()->className();
             widget->setFont(new_font);
         }
         toplevel->update();
     }
 
-    qDebug() << "\n--- End of Listing ---";
+    // qDebug() << "\n--- End of Listing ---";
 }
 
 void Options::setDarkMode(bool mode)

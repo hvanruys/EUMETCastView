@@ -7,46 +7,30 @@
 
 #include "satellite.h"
 #include "segmentmetop.h"
-#include "segmentnoaa.h"
 #include "segmenthrp.h"
-#include "segmentgac.h"
 #include "segmentviirsm.h"
 #include "segmentviirsdnb.h"
 #include "segmentolci.h"
-#include "segmenthrpt.h"
-#include "segmentslstr.h"
-#include "segmentdatahub.h"
 #include "segmentmersi.h"
 
 #include "segmentlistmetop.h"
-#include "segmentlistnoaa.h"
 #include "segmentlisthrp.h"
-#include "segmentlistgac.h"
 #include "segmentlistgeostationary.h"
 #include "segmentlistviirsm.h"
 #include "segmentlistviirsdnb.h"
 #include "segmentlistolci.h"
-#include "segmentlisthrpt.h"
-#include "segmentlistslstr.h"
-#include "segmentlistdatahub.h"
 #include "segmentlistmersi.h"
-#include "datahubaccessmanager.h"
 
 #include "segmentimage.h"
 #include "options.h"
 
 class SegmentList;
 class SegmentListGeostationary;
-class SegmentListNoaa;
 class SegmentListMetop;
 class SegmentListHRP;
-class SegmentListGAC;
 class SegmentListVIIRSM;
 class SegmentListVIIRSDNB;
 class SegmentListOLCI;
-class SegmentListSLSTR;
-class SegmentListHRPT;
-class SegmentListDatahub;
 class SegmentListMERSI;
 
 
@@ -68,7 +52,6 @@ public:
     bool SelectedVIIRSDNBSegments();
     bool SelectedOLCIefrSegments();
     bool SelectedOLCIerrSegments();
-    bool SelectedSLSTRSegments();
     bool SelectedMERSISegments();
 
     void RemoveAllSelectedAVHRR();
@@ -76,39 +59,27 @@ public:
     void RemoveAllSelectedVIIRSDNB();
     void RemoveAllSelectedVIIRSMNOAA20();
     void RemoveAllSelectedVIIRSDNBNOAA20();
+    void RemoveAllSelectedVIIRSMNOAA21();
+    void RemoveAllSelectedVIIRSDNBNOAA21();
     void RemoveAllSelectedOLCIefr();
     void RemoveAllSelectedOLCIerr();
     void RemoveAllSelectedSLSTR();
-    void RemoveAllSelectedDatahubOLCIefr();
-    void RemoveAllSelectedDatahubOLCIerr();
-    void RemoveAllSelectedDatahubSLSTR();
     void RemoveAllSelectedMERSI();
 
     void emitProgressCounter(int);
 
     QString GetOverviewSegments();
     QStringList GetOverviewSegmentsMetop();
-    QStringList GetOverviewSegmentsNoaa();
-    QStringList GetOverviewSegmentsGAC();
     QStringList GetOverviewSegmentsHRP();
-
-    QStringList GetOverviewSegmentsMetopAhrpt();
-    QStringList GetOverviewSegmentsMetopBhrpt();
-    QStringList GetOverviewSegmentsNoaa19hrpt();
-    QStringList GetOverviewSegmentsM01hrpt();
-    QStringList GetOverviewSegmentsM02hrpt();
 
     QStringList GetOverviewSegmentsVIIRSM();
     QStringList GetOverviewSegmentsVIIRSDNB();
     QStringList GetOverviewSegmentsVIIRSMNOAA20();
     QStringList GetOverviewSegmentsVIIRSDNBNOAA20();
+    QStringList GetOverviewSegmentsVIIRSMNOAA21();
+    QStringList GetOverviewSegmentsVIIRSDNBNOAA21();
     QStringList GetOverviewSegmentsOLCIefr();
     QStringList GetOverviewSegmentsOLCIerr();
-    QStringList GetOverviewSegmentsSLSTR();
-
-    QStringList GetOverviewSegmentsDatahubOLCIefr();
-    QStringList GetOverviewSegmentsDatahubOLCIerr();
-    QStringList GetOverviewSegmentsDatahubSLSTR();
 
     QStringList GetOverviewSegmentsMERSI();
 
@@ -120,31 +91,21 @@ public:
     bool getShowAllSegments() { return showallsegments; }
     void setShowAllSegments(bool allseg) { showallsegments = allseg; }
 
-    void LoadXMLfromDatahub(QDate selecteddate, QString type);
-    void ReadXMLfiles();
-    void setXMLDate(QDate date) { xmlselectdate = date; }
     void setAbsolutePathFromMap(int geoindex, QString strdate);
 
 
     SegmentListMetop *seglmetop;
-    SegmentListNoaa *seglnoaa;
     SegmentListHRP *seglhrp;
-    SegmentListGAC *seglgac;
-    SegmentListVIIRSM *seglviirsm;
-    SegmentListVIIRSDNB *seglviirsdnb;
     SegmentListOLCI *seglolciefr;
     SegmentListOLCI *seglolcierr;
-    SegmentListSLSTR *seglslstr;
-    SegmentListHRPT *seglmetopAhrpt;
-    SegmentListHRPT *seglmetopBhrpt;
-    SegmentListHRPT *seglnoaa19hrpt;
-    SegmentListHRPT *seglM01hrpt;
-    SegmentListHRPT *seglM02hrpt;
-    SegmentListDatahub *segldatahubolciefr;
-    SegmentListDatahub *segldatahubolcierr;
-    SegmentListDatahub *segldatahubslstr;
+
+    SegmentListVIIRSM *seglviirsm;
+    SegmentListVIIRSDNB *seglviirsdnb;
     SegmentListVIIRSM *seglviirsmnoaa20;
     SegmentListVIIRSDNB *seglviirsdnbnoaa20;
+    SegmentListVIIRSM *seglviirsmnoaa21;
+    SegmentListVIIRSDNB *seglviirsdnbnoaa21;
+
     SegmentListMERSI *seglmersi;
 
     QList<SegmentListGeostationary *> seglgeo;
@@ -155,15 +116,12 @@ public:
 
 private:
 
-    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *noaaTle, bool *metopTle, bool *nppTle, bool *sentinel3Tle, bool *fy3dTle,
+    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *metopTle, bool *nppTle, bool *sentinel3Tle, bool *fy3dTle,
                      QDate seldate, int hoursbefore);
     void RemoveFromList(QList<Segment*> *sl);
-    void CreateListfromXML(QDomDocument document);
     void getFilenameParameters(int geosatindex, QString filename, QString *strspectrum, QString *strdate, int *filenbr);
     void getFilenameParametersMTGI1(QString filename, QString *strdate, int *filenbr, int *seqnbr);
 
-    DatahubAccessManager hubmanager;
-    QDate xmlselectdate;
     long nbrofpointsselected;
     long countmetop;
     long countnoaa;
@@ -173,6 +131,8 @@ private:
     long countviirsdnb;
     long countviirsmnoaa20;
     long countviirsdnbnoaa20;
+    long countviirsmnoaa21;
+    long countviirsdnbnoaa21;
     long countolciefr;
     long countolcierr;
     long countslstr;
@@ -197,9 +157,6 @@ signals:
     void progressCounter(int);
     void signalXMLProgress(QString, int, bool);
 
-private slots:
-    void XMLFileDownloaded();
-    void XMLPagesDownloaded(int pages);
 
 public slots:
     void AddSegmentsToListFromUdp(QByteArray thefilepath);

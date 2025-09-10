@@ -149,32 +149,6 @@ int main(int argc, char *argv[])
     app.setApplicationName("EUMETCastView");
     app.setApplicationVersion(APPVERSION);
 
-    //"QTabWidget::tab:disabled { width: 0; height: 0; margin: 0; padding: 0; border: none; }"
-
-    // app.setStyleSheet(
-    // "QTabWidget::tab:default {border-color: navy;}"
-    // "QPushButton {"
-    //     "border: 2px solid #8f8f91;"
-    //     "border-radius: 6px;"
-    //     "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-    //     "                           stop: 0 #f6f7fa, stop: 1 #dadbde);"
-    //     "min-width: 80px;"
-    // "}"
-    // "QPushButton:pressed {"
-    //     "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-    //                                       "stop: 0 #dadbde, stop: 1 #f6f7fa);"
-    // "}"
-    // "QPushButton:checked {"
-    //     "background-color: rgb(100, 220, 100);"
-    // "}"
-
-    // "QPushButton:flat {"
-    //     "border: none; /* no border for a flat push button */"
-    // "}"
-    // "QPushButton:default {"
-    //     "border-color: navy; /* make the default button prominent */"
-    // "}");
-
     app.setStyle(QStyleFactory::create("Fusion"));
 
     QFont new_font = app.font();
@@ -184,43 +158,6 @@ int main(int argc, char *argv[])
 
     opts.setDarkMode(opts.darkmode);
 
-
-    // QPalette newPalette;
-    // newPalette.setColor(QPalette::Window,          QColor( 37,  37,  37));
-    // newPalette.setColor(QPalette::WindowText,      Qt::white); //QColor(212, 212, 212));
-    // newPalette.setColor(QPalette::Base,            QColor( 60,  60,  60));
-    // newPalette.setColor(QPalette::AlternateBase,   QColor( 45,  45,  45));
-    // newPalette.setColor(QPalette::PlaceholderText, QColor(127, 127, 127));
-    // newPalette.setColor(QPalette::Text,           Qt::white); // QColor(212, 212, 212));
-    // newPalette.setColor(QPalette::Button,          QColor( 45,  45,  45));
-    // newPalette.setColor(QPalette::ButtonText,      QColor(212, 212, 212));
-    // newPalette.setColor(QPalette::BrightText,      QColor(240, 240, 240));
-    // newPalette.setColor(QPalette::Highlight,       QColor( 38,  79, 120));
-    // newPalette.setColor(QPalette::HighlightedText, QColor(240, 240, 240));
-
-    // newPalette.setColor(QPalette::Light,           QColor( 60,  60,  60));
-    // newPalette.setColor(QPalette::Midlight,        QColor( 52,  52,  52));
-    // newPalette.setColor(QPalette::Dark,            QColor( 30,  30,  30) );
-    // newPalette.setColor(QPalette::Mid,             QColor( 37,  37,  37));
-    // newPalette.setColor(QPalette::Shadow,          QColor( 0,    0,   0));
-    // newPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(127, 127, 127));
-    // app.setPalette(newPalette);
-
-    // QPalette darkPalette;
-    // darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
-    // darkPalette.setColor(QPalette::WindowText, Qt::white);
-    // darkPalette.setColor(QPalette::Base, QColor(42, 42, 42));
-    // darkPalette.setColor(QPalette::AlternateBase, QColor(66, 66, 66));
-    // darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-    // darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-    // darkPalette.setColor(QPalette::Text, Qt::white);
-    // darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-    // darkPalette.setColor(QPalette::ButtonText, Qt::white);
-    // darkPalette.setColor(QPalette::BrightText, Qt::red);
-
-    // darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218).lighter());
-    // darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-    // app.setPalette(darkPalette);
 
 #ifndef QT_NO_OPENGL
 
