@@ -158,7 +158,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupVIIRSMConfigTable();
     setupGeoConfigTable();
     setupOLCIefrConfigTable();
-    setupSLSTRConfigTable();
+    //setupSLSTRConfigTable();
     setupMERSIConfigTable();
     setupDatahubConfig();
 
@@ -352,25 +352,25 @@ void DialogPreferences::setupOLCIefrConfigTable()
 
 }
 
-void DialogPreferences::setupSLSTRConfigTable()
-{
-    mySLSTRConfigModel = new SLSTRConfigModel(this);
+// void DialogPreferences::setupSLSTRConfigTable()
+// {
+//     mySLSTRConfigModel = new SLSTRConfigModel(this);
 
-    ui->tbvSLSTRConfig->setModel(mySLSTRConfigModel);
-    ui->tbvSLSTRConfig->setColumnWidth(0, 100);
+//     ui->tbvSLSTRConfig->setModel(mySLSTRConfigModel);
+//     ui->tbvSLSTRConfig->setColumnWidth(0, 100);
 
-    for(int i = 1; i < 13; i++)
-        ui->tbvSLSTRConfig->setColumnWidth(i, 50);
+//     for(int i = 1; i < 13; i++)
+//         ui->tbvSLSTRConfig->setColumnWidth(i, 50);
 
-    QHeaderView *hheader = ui->tbvSLSTRConfig->horizontalHeader();
-    hheader->setStretchLastSection(true);
-    //hheader->setMinimumSectionSize(-1);
-    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+//     QHeaderView *hheader = ui->tbvSLSTRConfig->horizontalHeader();
+//     hheader->setStretchLastSection(true);
+//     //hheader->setMinimumSectionSize(-1);
+//     //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
 
-    connect(ui->btnAddSLSTRConfig, SIGNAL(clicked()), this, SLOT(addSLSTRConfigRow()));
-    connect(ui->btnDeleteSLSTRConfig, SIGNAL(clicked()), this, SLOT(deleteSLSTRConfigRow()));
+//     connect(ui->btnAddSLSTRConfig, SIGNAL(clicked()), this, SLOT(addSLSTRConfigRow()));
+//     connect(ui->btnDeleteSLSTRConfig, SIGNAL(clicked()), this, SLOT(deleteSLSTRConfigRow()));
 
-}
+// }
 
 void DialogPreferences::setupMERSIConfigTable()
 {

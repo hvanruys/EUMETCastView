@@ -167,7 +167,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>7</number>
+        <number>12</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -2010,6 +2010,9 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pageSLSTRConfig">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <layout class="QVBoxLayout" name="verticalLayout_18">
          <item>
           <widget class="QRadioButton" name="rdbRemoveSLSTRDirs">
@@ -2136,6 +2139,9 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pageScihubCodaConfig">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <layout class="QVBoxLayout" name="verticalLayout_19">
          <item>
           <widget class="QLabel" name="label_21">

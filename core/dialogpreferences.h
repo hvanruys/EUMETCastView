@@ -28,7 +28,7 @@ public:
     void setupVIIRSMConfigTable();
     void setupGeoConfigTable();
     void setupOLCIefrConfigTable();
-    void setupSLSTRConfigTable();
+    //void setupSLSTRConfigTable();
     void setupMERSIConfigTable();
     void setupDatahubConfig();
 
