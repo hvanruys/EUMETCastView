@@ -728,12 +728,13 @@ void FormMovie::on_btnCreateXML_clicked()
     file.close();
     ui->lwTraffic->addItem("EUMETCastVideo.xml is created !");
 
-    QProcess process;
-    process.setProgram("EUMETCastVideo");
-    process.setStandardOutputFile(QProcess::nullDevice());
-    process.setStandardErrorFile(QProcess::nullDevice());
+    QProcess *process;
+    process = new QProcess(this);
+    process->setProgram("EUMETCastVideo");
+    process->setStandardOutputFile(QProcess::nullDevice());
+    process->setStandardErrorFile(QProcess::nullDevice());
     qint64 pid;
-    bool isstarted = process.startDetached(NULL);
+    bool isstarted = process->startDetached(NULL);
     if(!isstarted)
     {
         QMessageBox msgBox;

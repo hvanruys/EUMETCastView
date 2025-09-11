@@ -53,11 +53,13 @@ private:
     void CreateGeoImages(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor, QString tex, int geoindex);
     void CreateGeoImageMTG(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector,int histogrammethod, bool pseudocolor, QString tex, int geoindex);
 
+    void setTabSelectedColor(int geotab);
     Ui::FormGeostationary *ui;
     AVHRRSatellite *segs;
     FormToolbox *formtoolbox;
     FormImage *formimage;
     QList<QTreeWidget *> geotreewidgetlist;
+    QColor tabSelectedColor;
 
 public slots:
     void PopulateTree(QDate seldate);

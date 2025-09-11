@@ -165,6 +165,9 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->tabWidgetVIIRS->setCurrentIndex(0);
     ui->tabWidgetSentinel->setCurrentIndex(0);
 
+    tabSelectedColor = ui->tabWidget->tabBar()->tabTextColor(0);
+    setTabSelectedColor(0);
+
     QStringList listResolution;
     listResolution << "User defined";
     listResolution << "4:3  SVGA   800x600";
@@ -2391,9 +2394,16 @@ void FormToolbox::on_btnRecipes_clicked()
     if(!(geoindex == opts.GetGeoIndex("MET_11") || geoindex == opts.GetGeoIndex("MET_10") ||
          geoindex == opts.GetGeoIndex("MET_9")))
     {
-        QMessageBox msgBox;
-        msgBox.setText("Only for Meteosat-9/10/11");
+
+        QMessageBox  msgBox;
+        msgBox.setStandardButtons( QMessageBox::Ok );
+        QSpacerItem* horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        msgBox.setText( "Only for Meteosat-9 ,Meteosat-10 and Meteosat-11" );
+        msgBox.setIcon(QMessageBox::Critical);
+        QGridLayout* layout = (QGridLayout*)msgBox.layout();
+        layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
         msgBox.exec();
+
         return;
     }
 
@@ -3011,6 +3021,7 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     qDebug() << "on_tabWidget_currentChanged(int index) index = " << index << " currentAVHHRimage = " << currentAVHRRimage;
 
     this->writeInfoToTextEdit(" ");
+    this->setTabSelectedColor(index);
 
     if (index == TAB_AVHRR) //AVHHR
     {
@@ -3054,6 +3065,17 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
 
     //    opts.currenttabwidget = ui->tabWidget->currentIndex();
     //    opts.currenttoolbox = ui->toolBox->currentIndex();
+}
+
+void FormToolbox::setTabSelectedColor(int tabnbr)
+{
+
+    QTabBar *tab = ui->tabWidget->tabBar();
+
+    for(int i = 0; i < ui->tabWidget->count(); i++)
+        tab->setTabTextColor(i, this->tabSelectedColor);
+    tab->setTabTextColor(tabnbr, QColor(0, 255, 0));
+
 }
 
 void FormToolbox::on_tabWidgetVIIRS_currentChanged(int index)

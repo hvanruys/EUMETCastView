@@ -48,6 +48,9 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
     {
         ui->tabGeostationary->setCurrentIndex(0);
     }
+
+    tabSelectedColor = ui->tabGeostationary->tabBar()->tabTextColor(0);
+    setTabSelectedColor(0);
 }
 
 void FormGeostationary::newGeoTab(int geoindex)
@@ -1330,6 +1333,17 @@ void FormGeostationary::ontreeWidgetitemClicked(QTreeWidgetItem *item, int colum
     SelectGeoWidgetItem(ui->tabGeostationary->currentIndex(), item, column);
 }
 
+void FormGeostationary::setTabSelectedColor(int geotab)
+{
+
+    QTabBar *tab = ui->tabGeostationary->tabBar();
+
+    for(int i = 0; i < ui->tabGeostationary->count(); i++)
+        tab->setTabTextColor(i, this->tabSelectedColor);
+    tab->setTabTextColor(geotab, QColor(0, 255, 0));
+
+}
+
 void FormGeostationary::on_tabGeostationary_tabBarClicked(int geoindex)
 {
 
@@ -1337,6 +1351,7 @@ void FormGeostationary::on_tabGeostationary_tabBarClicked(int geoindex)
 
     qDebug() << "FormGeostationary::on_tabGeostationary_tabBarClicked(int geoindex) geoindex = " << geoindex;
 
+    setTabSelectedColor(geoindex);
     formimage->setupGeoOverlay(geoindex);
 
     emit setbuttonlabels(geoindex, false);

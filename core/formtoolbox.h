@@ -126,6 +126,7 @@ private:
     void blockSignalscomboGeo(bool state);
     void reinitProjectionCanvas();
     void resetSpectrumInverse();
+    void setTabSelectedColor(int tabnbr);
 
     AVHRRSatellite *segs;
 
@@ -138,6 +139,7 @@ private:
     QVector<int> resolutionY;
     eImageType currentAVHRRimage; // from 1 to 6 , 6 color image
     double valueRangeDNBGraph;
+    QColor tabSelectedColor;
 
 public slots:
     void setChannelComboBoxes();
