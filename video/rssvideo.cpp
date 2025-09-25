@@ -127,7 +127,10 @@ void RSSVideo::getDatePathVectorFromDir( QStringList *datelist, QStringList *pat
     QString strdate;
     int filenbr;
 
-    QRegularExpression rx(this->reader->filepattern);
+    QString pat = this->reader->filepattern;
+
+
+    QRegularExpression rx("^(" + this->reader->filepattern + ")");
     //rx.setPatternSyntax(QRegExp::Wildcard);
 
 

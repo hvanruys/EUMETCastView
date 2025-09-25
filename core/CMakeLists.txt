@@ -133,10 +133,9 @@ cmake_print_variables(NETCDF_INCLUDE_DIRS)
 cmake_print_variables(CMAKE_CURRENT_SOURCE_DIR)
 
 if(UNIX)
-    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc
-    )
+    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
 elseif(WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc darkstyle.qrc)
+    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

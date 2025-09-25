@@ -146,7 +146,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglmersi, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
-    connect(seglist, SIGNAL(signalXMLProgress(QString, int, bool)), formglobecyl, SLOT(slotShowXMLProgress(QString, int, bool)));
+    //connect(seglist, SIGNAL(signalXMLProgress(QString, int, bool)), formglobecyl, SLOT(slotShowXMLProgress(QString, int, bool)));
 
 
     connect( formglobecyl, SIGNAL(signalSegmentChanged(QString)), this, SLOT(updateStatusBarIndicator(QString)) );
@@ -161,7 +161,7 @@ MainWindow::MainWindow(QWidget *parent) :
     if(opts.doOpenGL)
     {
         connect( globe , SIGNAL(mapClicked()), formephem, SLOT(showSelectedSegmentList()));
-        connect( globe , SIGNAL(mapClicked()), formglobecyl, SLOT(createSelectedSegmentToDownloadList()));
+        // connect( globe , SIGNAL(mapClicked()), formglobecyl, SLOT(createSelectedSegmentToDownloadList()));
         connect( formimage, SIGNAL(render3dgeo(int)), globe, SLOT(Render3DGeo(int)));
         connect( globe, SIGNAL(renderingglobefinished(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
     }

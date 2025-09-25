@@ -49,8 +49,9 @@ or
 
 Compile in QtCreator (Windows):
 
-- pacman --needed -S mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-qwt-qt5
+- pacman --needed -S mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-qwt-qt6
 - pacman --needed -S mingw-w64-ucrt-x86_64-hdf5 mingw-w64-ucrt-x86_64-netcdf
+- pacman --needed -S mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-qt6-5compat
 - pacman --needed -S mingw-w64-ucrt-x86_64-freeimage
 
 Setting up QtCreator

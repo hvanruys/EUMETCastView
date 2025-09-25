@@ -436,7 +436,7 @@ bool SegmentListGeostationary::ComposeImagenetCDFMTGInThread(QStringList strlist
 
 bool SegmentListGeostationary::ComposeImageXRITMSGInThread(QStringList strlistVIS_IR, QStringList strlistHVR, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
-    qDebug() << QString("SegmentListGeostationary::ComposeImageXRITMSGInThread spectrumvector = %2 %3 %4").arg(spectrumvector.at(0))
+    qDebug() << QString("SegmentListGeostationary::ComposeImageXRITMSGInThread spectrumvector = %1 %2 %3 %4").arg(spectrumvector.at(0))
                 .arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg(spectrumvector.at(3));
 
     setThreadParametersXRIT(strlistVIS_IR, strlistHVR, spectrumvector, inversevector, histogrammethod);

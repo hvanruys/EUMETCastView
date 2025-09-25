@@ -2,10 +2,23 @@
 #include "options.h"
 #include <QSettings>
 #include <QDebug>
+#include <QFile>
+
 extern Options opts;
 
 Poi::Poi()
 {
+    QFile file("POI.ini");
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        Initialize();
+        Save();
+    }
+    else
+        Initialize();
+
+    file.close();
+
 }
 
 void Poi::Initialize()
