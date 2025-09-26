@@ -339,8 +339,6 @@ void Options::Initialize()
         tabgeosort = settings.value("/satellite/tabgeosort").value<QStringList>();
     }
 
-    CreateGeoSatelliteIni();
-
     QFile file("GeoSatellites.ini");
     if (!file.open(QIODevice::ReadOnly))
     {
@@ -349,12 +347,11 @@ void Options::Initialize()
         {
             tabgeosort.append(geosatellites.at(i).fullname);
         }
-     }
+    }
     else
         InitializeGeo();
+
     file.close();
-
-
 
     doLogging = settings.value("/debugging/dologging", false).toBool();
 
