@@ -3209,48 +3209,48 @@ QVariant SLSTRConfigModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole)
     {
-        switch(index.column())
-        {
-        case 0:
-            return poi.strlConfigNameSLSTR.at(index.row());
-            break;
-        case 1:
-            return poi.strlColorBandSLSTR.at(index.row());
-            break;
-        case 2:
-            return poi.strlComboSLSTRS1.at(index.row());
-            break;
-        case 3:
-            return poi.strlComboSLSTRS2.at(index.row());
-            break;
-        case 4:
-            return poi.strlComboSLSTRS3.at(index.row());
-            break;
-        case 5:
-            return poi.strlComboSLSTRS4.at(index.row());
-            break;
-        case 6:
-            return poi.strlComboSLSTRS5.at(index.row());
-            break;
-        case 7:
-            return poi.strlComboSLSTRS6.at(index.row());
-            break;
-        case 8:
-            return poi.strlComboSLSTRS7.at(index.row());
-            break;
-        case 9:
-            return poi.strlComboSLSTRS8.at(index.row());
-            break;
-        case 10:
-            return poi.strlComboSLSTRS9.at(index.row());
-            break;
-        case 11:
-            return poi.strlComboSLSTRF1.at(index.row());
-            break;
-        case 12:
-            return poi.strlComboSLSTRF2.at(index.row());
-            break;
-        }
+        // switch(index.column())
+        // {
+        // case 0:
+        //     return poi.strlConfigNameSLSTR.at(index.row());
+        //     break;
+        // case 1:
+        //     return poi.strlColorBandSLSTR.at(index.row());
+        //     break;
+        // case 2:
+        //     return poi.strlComboSLSTRS1.at(index.row());
+        //     break;
+        // case 3:
+        //     return poi.strlComboSLSTRS2.at(index.row());
+        //     break;
+        // case 4:
+        //     return poi.strlComboSLSTRS3.at(index.row());
+        //     break;
+        // case 5:
+        //     return poi.strlComboSLSTRS4.at(index.row());
+        //     break;
+        // case 6:
+        //     return poi.strlComboSLSTRS5.at(index.row());
+        //     break;
+        // case 7:
+        //     return poi.strlComboSLSTRS6.at(index.row());
+        //     break;
+        // case 8:
+        //     return poi.strlComboSLSTRS7.at(index.row());
+        //     break;
+        // case 9:
+        //     return poi.strlComboSLSTRS8.at(index.row());
+        //     break;
+        // case 10:
+        //     return poi.strlComboSLSTRS9.at(index.row());
+        //     break;
+        // case 11:
+        //     return poi.strlComboSLSTRF1.at(index.row());
+        //     break;
+        // case 12:
+        //     return poi.strlComboSLSTRF2.at(index.row());
+        //     break;
+        // }
     }
 
     return QVariant();
@@ -3265,48 +3265,48 @@ bool SLSTRConfigModel::setData(const QModelIndex & index, const QVariant & value
     if (role == Qt::EditRole)
     {
         // m_gridData[index.row()][index.column()] = value.toString();
-        switch(index.column())
-        {
-        case 0:
-            poi.strlConfigNameSLSTR.replace(index.row(), value.toString());
-            break;
-        case 1:
-            poi.strlColorBandSLSTR.replace(index.row(), value.toString());
-            break;
-        case 2:
-            poi.strlComboSLSTRS1.replace(index.row(), value.toString());
-            break;
-        case 3:
-            poi.strlComboSLSTRS2.replace(index.row(), value.toString());
-            break;
-        case 4:
-            poi.strlComboSLSTRS3.replace(index.row(), value.toString());
-            break;
-        case 5:
-            poi.strlComboSLSTRS4.replace(index.row(), value.toString());
-            break;
-        case 6:
-            poi.strlComboSLSTRS5.replace(index.row(), value.toString());
-            break;
-        case 7:
-            poi.strlComboSLSTRS6.replace(index.row(), value.toString());
-            break;
-        case 8:
-            poi.strlComboSLSTRS7.replace(index.row(), value.toString());
-            break;
-        case 9:
-            poi.strlComboSLSTRS8.replace(index.row(), value.toString());
-            break;
-        case 10:
-            poi.strlComboSLSTRS9.replace(index.row(), value.toString());
-            break;
-        case 11:
-            poi.strlComboSLSTRF1.replace(index.row(), value.toString());
-            break;
-        case 12:
-            poi.strlComboSLSTRF2.replace(index.row(), value.toString());
-            break;
-        }
+        // switch(index.column())
+        // {
+        // case 0:
+        //     poi.strlConfigNameSLSTR.replace(index.row(), value.toString());
+        //     break;
+        // case 1:
+        //     poi.strlColorBandSLSTR.replace(index.row(), value.toString());
+        //     break;
+        // case 2:
+        //     poi.strlComboSLSTRS1.replace(index.row(), value.toString());
+        //     break;
+        // case 3:
+        //     poi.strlComboSLSTRS2.replace(index.row(), value.toString());
+        //     break;
+        // case 4:
+        //     poi.strlComboSLSTRS3.replace(index.row(), value.toString());
+        //     break;
+        // case 5:
+        //     poi.strlComboSLSTRS4.replace(index.row(), value.toString());
+        //     break;
+        // case 6:
+        //     poi.strlComboSLSTRS5.replace(index.row(), value.toString());
+        //     break;
+        // case 7:
+        //     poi.strlComboSLSTRS6.replace(index.row(), value.toString());
+        //     break;
+        // case 8:
+        //     poi.strlComboSLSTRS7.replace(index.row(), value.toString());
+        //     break;
+        // case 9:
+        //     poi.strlComboSLSTRS8.replace(index.row(), value.toString());
+        //     break;
+        // case 10:
+        //     poi.strlComboSLSTRS9.replace(index.row(), value.toString());
+        //     break;
+        // case 11:
+        //     poi.strlComboSLSTRF1.replace(index.row(), value.toString());
+        //     break;
+        // case 12:
+        //     poi.strlComboSLSTRF2.replace(index.row(), value.toString());
+        //     break;
+        // }
 
         emit editCompleted();
     }
@@ -3363,29 +3363,29 @@ bool SLSTRConfigModel::insertRows(int position, int rows, const QModelIndex &ind
 
     poi.strlConfigNameSLSTR.append( " " );
     poi.strlColorBandSLSTR.append( "0" );
-    poi.strlComboSLSTRS1.append( "0" );
-    poi.strlComboSLSTRS2.append( "0" );
-    poi.strlComboSLSTRS3.append( "0" );
-    poi.strlComboSLSTRS4.append( "0" );
-    poi.strlComboSLSTRS5.append( "0" );
-    poi.strlComboSLSTRS6.append( "0" );
-    poi.strlComboSLSTRS7.append( "0" );
-    poi.strlComboSLSTRS8.append( "0" );
-    poi.strlComboSLSTRS9.append( "0" );
-    poi.strlComboSLSTRF1.append( "0" );
-    poi.strlComboSLSTRF2.append( "0" );
+    // poi.strlComboSLSTRS1.append( "0" );
+    // poi.strlComboSLSTRS2.append( "0" );
+    // poi.strlComboSLSTRS3.append( "0" );
+    // poi.strlComboSLSTRS4.append( "0" );
+    // poi.strlComboSLSTRS5.append( "0" );
+    // poi.strlComboSLSTRS6.append( "0" );
+    // poi.strlComboSLSTRS7.append( "0" );
+    // poi.strlComboSLSTRS8.append( "0" );
+    // poi.strlComboSLSTRS9.append( "0" );
+    // poi.strlComboSLSTRF1.append( "0" );
+    // poi.strlComboSLSTRF2.append( "0" );
 
-    poi.strlInverseSLSTRS1.append( "0" );
-    poi.strlInverseSLSTRS2.append( "0" );
-    poi.strlInverseSLSTRS3.append( "0" );
-    poi.strlInverseSLSTRS4.append( "0" );
-    poi.strlInverseSLSTRS5.append( "0" );
-    poi.strlInverseSLSTRS6.append( "0" );
-    poi.strlInverseSLSTRS7.append( "0" );
-    poi.strlInverseSLSTRS8.append( "0" );
-    poi.strlInverseSLSTRS9.append( "0" );
-    poi.strlInverseSLSTRF1.append( "0" );
-    poi.strlInverseSLSTRF2.append( "0" );
+    // poi.strlInverseSLSTRS1.append( "0" );
+    // poi.strlInverseSLSTRS2.append( "0" );
+    // poi.strlInverseSLSTRS3.append( "0" );
+    // poi.strlInverseSLSTRS4.append( "0" );
+    // poi.strlInverseSLSTRS5.append( "0" );
+    // poi.strlInverseSLSTRS6.append( "0" );
+    // poi.strlInverseSLSTRS7.append( "0" );
+    // poi.strlInverseSLSTRS8.append( "0" );
+    // poi.strlInverseSLSTRS9.append( "0" );
+    // poi.strlInverseSLSTRF1.append( "0" );
+    // poi.strlInverseSLSTRF2.append( "0" );
 
     endInsertRows();
     return true;

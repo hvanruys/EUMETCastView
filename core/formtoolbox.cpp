@@ -2124,6 +2124,7 @@ void FormToolbox::setComboGeo(int geoindex)
 
     qDebug() << "FormToolbox::setComboGeo(int geoindex) geoindex = " << geoindex;
 
+
     ui->comboGeo1->setCurrentIndex(poi.strlComboGeo1.at(geoindex).toInt());
     ui->comboGeo2->setCurrentIndex(poi.strlComboGeo2.at(geoindex).toInt());
     ui->comboGeo3->setCurrentIndex(poi.strlComboGeo3.at(geoindex).toInt());

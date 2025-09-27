@@ -254,8 +254,8 @@ void Options::Initialize()
     mainwindowgeometry = settings.value("/window/mainwindowgeometry").toByteArray();
     mainwindowstate = settings.value("/window/mainwindowstate").toByteArray();
     toolboxwidth = settings.value("/window/toolboxwidth", 500).toInt();
-    fontsize = settings.value("/window/fontsize", 18).toInt();
-    darkmode = settings.value("/window/darkmode", false).toBool();
+    fontsize = settings.value("/window/fontsize", 12).toInt();
+    darkmode = settings.value("/window/darkmode", true).toBool();
 
 
     bellipsoid = true; // ellipsoid or spherical Oblique Mercator
@@ -333,12 +333,6 @@ void Options::Initialize()
 
     bFciDecomp = false;
 
-
-    if(settings.contains("/satellite/tabgeosort"))
-    {
-        tabgeosort = settings.value("/satellite/tabgeosort").value<QStringList>();
-    }
-
     QFile file("GeoSatellites.ini");
     if (!file.open(QIODevice::ReadOnly))
     {
@@ -352,6 +346,11 @@ void Options::Initialize()
         InitializeGeo();
 
     file.close();
+
+    if(settings.contains("/satellite/tabgeosort"))
+    {
+        tabgeosort = settings.value("/satellite/tabgeosort").value<QStringList>();
+    }
 
     doLogging = settings.value("/debugging/dologging", false).toBool();
 
