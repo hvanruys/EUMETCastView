@@ -5,7 +5,7 @@ A viewer for the Eumetcast transmissions,EUMETSAT’s primary dissemination mech
 
 The Open Source program **EUMETCastView** allows you to view
 
-- AVHRR images from NOAA-19, Metop-A, Metop-B and Metop-C.
+- AVHRR images from Metop-A, Metop-B and Metop-C.
 - VIIRS images from SUOMI-NPP, NOAA-20 and NOAA-21.
 - OLCI EFR/ERR from Sentinel-3A
 - HRIT/LRIT images from Meteosat-11, Meteosat-10, Meteosat-9, Electro L3, FengYun 2H/2G, GOES-18, GOES-19 and Himawari-9.
