@@ -205,7 +205,11 @@ MainWindow::MainWindow(QWidget *parent) :
     unsigned int minnum;
     unsigned int relnum;
 
-    h5_status = H5get_libversion(&majnum, &minnum, &relnum);
+    if (H5open() < 0) {
+        qDebug() << "Error: Failed to initialize HDF5 library";
+    }
+    else
+        h5_status = H5get_libversion(&majnum, &minnum, &relnum);
 
     qDebug() << QString("HDF5 library %1.%2.%3").arg(majnum).arg(minnum).arg(relnum);
 
@@ -280,7 +284,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     restoreGeometry(opts.mainwindowgeometry);
     restoreState(opts.mainwindowstate);
-    restoreDockWidget(dockwidget);
+    //restoreDockWidget(dockwidget);
 
     ui->toolBar->setVisible(true);
     ui->mainToolBar->setVisible(true);

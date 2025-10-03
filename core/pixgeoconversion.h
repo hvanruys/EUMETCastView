@@ -125,4 +125,62 @@ private:
 
 };
 
+// Constants for MTG FCI navigation
+namespace MTGFCIConstants {
+// Earth ellipsoid parameters
+//static constexpr double R_EQ = 6378.137;           // Equatorial radius (km)
+//static constexpr double R_POL = 6356.7523142;      // Polar radius (km)
+static constexpr double FLATTENING = 1.0 / 298.257223563;
+
+// Geostationary orbit parameters
+static constexpr double H = 42164.0;               // Geostationary radius (km)
+static constexpr double LAMBDA_D = 0.0;            // Sub-satellite longitude (radians)
+
+// Grid sampling angles (radians) for different SSDs
+static constexpr double GRID_SAMPLING_05KM = 1.3971788e-5;
+static constexpr double GRID_SAMPLING_1KM = 2.7943576e-5;
+static constexpr double GRID_SAMPLING_2KM = 5.5887153e-5;
+
+// Full disc dimensions and center positions
+struct GridParams {
+    int columns;
+    int rows;
+    double coff;     // Column offset (center position)
+    double loff;     // Line offset (center position)
+    double lambda0;  // Azimuth angle at first column (radians)
+    double phi0;     // Elevation angle at first row (radians)
+    double grid_sampling; // Grid sampling angle (radians)
+};
+
+// Grid parameters for 0.5 km SSD
+static GridParams get_grid_05km() {
+    return {22272, 22272, 11136.5, 11136.5,
+            0.1555828471, -0.1555828471, GRID_SAMPLING_05KM};
+}
+
+// Grid parameters for 1 km SSD
+static GridParams get_grid_1km() {
+    return {11136, 11136, 5568.5, 5568.5,
+            0.1555758612, -0.1555758612, GRID_SAMPLING_1KM};
+}
+
+// Grid parameters for 2 km SSD
+static GridParams get_grid_2km() {
+    return {5568, 5568, 2784.5, 2784.5,
+            0.1555618893, -0.1555618893, GRID_SAMPLING_2KM};
+}
+};
+
+// Structure to hold geographic coordinates
+struct GeoCoord {
+    double lon;  // Longitude in degrees
+    double lat;  // Latitude in degrees
+};
+
+// Structure to hold pixel coordinates (1-indexed as per MTG convention)
+struct PixCoord {
+    double col;  // Column (1-based)
+    double row;  // Row (1-based)
+};
+
 #endif // PIXGEOCONVERSION_H

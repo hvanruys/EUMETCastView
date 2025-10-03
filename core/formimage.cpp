@@ -363,7 +363,7 @@ void FormImage::slotcomposefinished(QString kindofimage, int index)
     double sa;
     double lat_deg, lon_deg;
 
-    QGuiApplication::restoreOverrideCursor();
+    QApplication::restoreOverrideCursor();
 
     SegmentListGeostationary *sl = NULL;
     sl = segs->getActiveSegmentList();
@@ -1479,7 +1479,8 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 //    {
 //        int diameter = 3608;
 //        painter->setPen(QPen(QColor(255, 0, 0), 1));
-//        painter->drawEllipse(center, 1804 - 3, 1804);
+// //       painter->drawEllipse(center, 1804 - 3, 1804);
+//        painter->drawEllipse(center, 1804, 1804);
 //    }
 
 }
@@ -1538,7 +1539,7 @@ void FormImage::drawOverlays(QPainter *painter)
             painter->drawText(0, font.pixelSize(), slgeo->geosatname);
             QStringList rowchosen = formtoolbox->getRowchosen();
             QVector<QString> spectrumvector = formtoolbox->getSpectrumVector();
-            QVector<bool> inversevector = formtoolbox->getInverseVector();
+            //QVector<bool> inversevector = formtoolbox->getInverseVector();
             //            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), font.pixelSize(), spectrumvector.at(0));
             //            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), 2 * font.pixelSize(), spectrumvector.at(1));
             //            painter->drawText(m_image->width() - (font.pixelSize() == 50 ? 200 : 600), 3 * font.pixelSize(), spectrumvector.at(2));
@@ -1547,11 +1548,11 @@ void FormImage::drawOverlays(QPainter *painter)
             int pixelsWide = fm.horizontalAdvance(spectrumvector.at(0));
             int pixelsHigh = fm.height();
 
-            painter->drawText(m_image->width() - pixelsWide, font.pixelSize(), spectrumvector.at(0));
-            painter->drawText(m_image->width() - pixelsWide, 2 * font.pixelSize(), spectrumvector.at(1));
-            painter->drawText(m_image->width() - pixelsWide, 3 * font.pixelSize(), spectrumvector.at(2));
+            painter->drawText(m_image->width() - pixelsWide -10, font.pixelSize(), spectrumvector.at(0));
+            painter->drawText(m_image->width() - pixelsWide - 10, 2 * font.pixelSize(), spectrumvector.at(1));
+            painter->drawText(m_image->width() - pixelsWide - 10, 3 * font.pixelSize(), spectrumvector.at(2));
             if(spectrumvector.at(3) != "")
-                painter->drawText(m_image->width() - pixelsWide, 4 * font.pixelSize(), spectrumvector.at(3));
+                painter->drawText(m_image->width() - pixelsWide - 10, 4 * font.pixelSize(), spectrumvector.at(3));
 
             // "2023-06-02   07:15"
             if(!rowchosen.isEmpty())

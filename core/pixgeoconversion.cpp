@@ -1,6 +1,8 @@
 #include "pixgeoconversion.h"
 #include "globals.h"
 #include <QDebug>
+#include <cmath>
+
 
 
 #define DEG_TO_RAD (PIE/180.0)
@@ -756,3 +758,129 @@ void pixgeoConversion::sat_to_jmaidx(const double lamda, const double theta, con
 }
 
 
+
+
+/**
+ * Convert pixel coordinates to geographic coordinates for MTG FCI
+ * @param pix Pixel coordinates (1-based indexing: col and row start at 1)
+ * @param grid Grid parameters for the specific SSD
+ * @return Geographic coordinates (lon, lat in degrees)
+ */
+GeoCoord pixcoord2geocoord(const PixCoord& pix,
+                           const MTGFCIConstants::GridParams& grid) {
+    using namespace MTGFCIConstants;
+
+    // Convert pixel coordinates to viewing angles
+    // Note: columns are numbered 1 to N from west to east
+    // rows are numbered 1 to N from south to north
+    double lambda_s = grid.lambda0 - (pix.col - 1.0) * grid.grid_sampling;
+    double phi_s = grid.phi0 + (pix.row - 1.0) * grid.grid_sampling;
+
+    // Calculate intermediate values
+    double cos_lambda = cos(lambda_s);
+    double cos_phi = cos(phi_s);
+    double sin_lambda = sin(lambda_s);
+    double sin_phi = sin(phi_s);
+
+    // Calculate viewing vector components
+    double cos_lambda_cos_phi = cos_lambda * cos_phi;
+
+    // Calculate sn (distance to Earth surface along viewing direction)
+    double r_pol_sq = R_POL * R_POL;
+    double r_eq_sq = R_EQ * R_EQ;
+    double s4 = r_pol_sq / r_eq_sq;
+    double sd = sqrt((H * cos_lambda_cos_phi) * (H * cos_lambda_cos_phi) -
+                     (cos_phi * cos_phi + s4 * sin_phi * sin_phi) *
+                         (H * H - r_eq_sq));
+
+    double sn = (H * cos_lambda_cos_phi - sd) /
+                (cos_phi * cos_phi + s4 * sin_phi * sin_phi);
+
+    // Calculate satellite viewing vector components
+    double s1 = H - sn * cos_lambda_cos_phi;
+    double s2 = sn * sin_lambda * cos_phi;
+    double s3 = -sn * sin_phi;
+
+    // Calculate geographic coordinates
+    double s_xy = sqrt(s1 * s1 + s2 * s2);
+
+    GeoCoord geo;
+    geo.lon = atan2(s2, s1) + LAMBDA_D;
+    geo.lat = atan(s4 * s3 / s_xy);
+
+    // Convert to degrees
+    geo.lon *= 180.0 / M_PI;
+    geo.lat *= 180.0 / M_PI;
+
+    return geo;
+}
+
+/**
+ * Convert geographic coordinates to pixel coordinates for MTG FCI
+ * @param geo Geographic coordinates (lon, lat in degrees)
+ * @param grid Grid parameters for the specific SSD
+ * @return Pixel coordinates (1-based indexing) or {-1, -1} if point not visible
+ */
+PixCoord geocoord2pixcoord(const GeoCoord& geo,
+                           const MTGFCIConstants::GridParams& grid) {
+    using namespace MTGFCIConstants;
+
+    // Convert to radians
+    double lon_rad = geo.lon * M_PI / 180.0;
+    double lat_rad = geo.lat * M_PI / 180.0;
+
+    // Calculate geocentric latitude
+    double c_lat = atan(R_POL * R_POL / (R_EQ * R_EQ) * tan(lat_rad));
+
+    // Calculate position on Earth surface
+    double r_l = R_POL / sqrt(1.0 - (1.0 - R_POL * R_POL / (R_EQ * R_EQ)) *
+                                        cos(c_lat) * cos(c_lat));
+
+    double r1 = H - r_l * cos(c_lat) * cos(lon_rad - LAMBDA_D);
+    double r2 = -r_l * cos(c_lat) * sin(lon_rad - LAMBDA_D);
+    double r3 = r_l * sin(c_lat);
+
+    // Check visibility
+    if (r1 * (H - R_EQ) - r2 * r2 - r3 * r3 < 0) {
+        // Point not visible from satellite
+        return {-1.0, -1.0};
+    }
+
+    // Calculate viewing angles
+    double lambda_s = atan2(-r2, r1);
+    double phi_s = atan(r3 / sqrt(r1 * r1 + r2 * r2));
+
+    // Convert viewing angles to pixel coordinates
+    PixCoord pix;
+    pix.col = (grid.lambda0 - lambda_s) / grid.grid_sampling + 1.0;
+    pix.row = (phi_s - grid.phi0) / grid.grid_sampling + 1.0;
+
+    return pix;
+}
+
+// Example usage
+// #include <iostream>
+
+// int main() {
+//     // Get grid parameters for 1 km SSD
+//     auto grid = MTGFCIConstants::get_grid_1km();
+
+//     // Example 1: Convert pixel to geographic coordinates
+//     PixCoord pix1 = {5568.5, 5568.5};  // Center pixel
+//     GeoCoord geo1 = pixcoord2geocoord(pix1, grid);
+//     std::cout << "Pixel (" << pix1.col << ", " << pix1.row << ") -> "
+//               << "Geo (" << geo1.lon << "°, " << geo1.lat << "°)\n";
+
+//     // Example 2: Convert geographic to pixel coordinates
+//     GeoCoord geo2 = {10.0, 45.0};  // Somewhere over Italy
+//     PixCoord pix2 = geocoord2pixcoord(geo2, grid);
+//     std::cout << "Geo (" << geo2.lon << "°, " << geo2.lat << "°) -> "
+//               << "Pixel (" << pix2.col << ", " << pix2.row << ")\n";
+
+//     // Example 3: Round trip test
+//     GeoCoord geo3 = pixcoord2geocoord(pix2, grid);
+//     std::cout << "Round trip: Pixel (" << pix2.col << ", " << pix2.row << ") -> "
+//               << "Geo (" << geo3.lon << "°, " << geo3.lat << "°)\n";
+
+//     return 0;
+// }

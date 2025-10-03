@@ -88,23 +88,23 @@ void Options::Initialize()
     stationlistname=settings.value("/window/stationlistname").value<QStringList>();
     stationlistlon=settings.value("/window/stationlistlon").value<QStringList>();
     stationlistlat=settings.value("/window/stationlistlat").value<QStringList>();
-    backgroundimage2D=settings.value("/window/backgroundimage2D", "images/Topography.jpg").value<QString>();
-    backgroundimage3D=settings.value("/window/backgroundimage3D", "images/NE2_50M_SR_W_4096.jpg").value<QString>();
+    backgroundimage2D=settings.value("/window/backgroundimage2D", "/usr/bin/images/Topography.jpg").value<QString>();
+    backgroundimage3D=settings.value("/window/backgroundimage3D", "/usr/bin/images/NE2_50M_SR_W_4096.jpg").value<QString>();
     tlesources=settings.value("/satellite/tlesources").value<QStringList>();
 
-    gshhsglobe1=settings.value("/window/gshhsglobe1", "gshhs2_3_7/gshhs_i.b").value<QString>();
-    gshhsglobe2=settings.value("/window/gshhsglobe2", "gshhs2_3_7/wdb_borders_i.b").value<QString>();
-    gshhsglobe3=settings.value("/window/gshhsglobe3", "gshhs2_3_7/wdb_rivers_i.b").value<QString>();
-    gshhsoverlay1=settings.value("/window/gshhsoverlay1", "gshhs2_3_7/gshhs_i.b").value<QString>();
-    gshhsoverlay2=settings.value("/window/gshhsoverlay2", "gshhs2_3_7/wdb_borders_i.b").value<QString>();
+    gshhsglobe1=settings.value("/window/gshhsglobe1", "/usr/bin/gshhs2_3_7/gshhs_i.b").value<QString>();
+    gshhsglobe2=settings.value("/window/gshhsglobe2", "/usr/bin/gshhs2_3_7/wdb_borders_i.b").value<QString>();
+    gshhsglobe3=settings.value("/window/gshhsglobe3", "/usr/bin/gshhs2_3_7/wdb_rivers_i.b").value<QString>();
+    gshhsoverlay1=settings.value("/window/gshhsoverlay1", "/usr/bin/gshhs2_3_7/gshhs_i.b").value<QString>();
+    gshhsoverlay2=settings.value("/window/gshhsoverlay2", "/usr/bin/gshhs2_3_7/wdb_borders_i.b").value<QString>();
     gshhsoverlay3=settings.value("/window/gshhsoverlay3", "").value<QString>();
 
-    skyboxup=settings.value("/window/skyboxup", "images/ulukai/corona_up.png").value<QString>();
-    skyboxdown=settings.value("/window/skyboxdown", "images/ulukai/corona_dn.png").value<QString>();
-    skyboxleft=settings.value("/window/skyboxleft", "images/ulukai/corona_lf.png").value<QString>();
-    skyboxright=settings.value("/window/skyboxright", "images/ulukai/corona_rt.png").value<QString>();
-    skyboxfront=settings.value("/window/skyboxfront", "images/ulukai/corona_ft.png").value<QString>();
-    skyboxback=settings.value("/window/skyboxback", "images/ulukai/corona_bk.png").value<QString>();
+    skyboxup=settings.value("/window/skyboxup", "/usr/bin/images/ulukai/corona_up.png").value<QString>();
+    skyboxdown=settings.value("/window/skyboxdown", "/usr/bin/images/ulukai/corona_dn.png").value<QString>();
+    skyboxleft=settings.value("/window/skyboxleft", "/usr/bin/images/ulukai/corona_lf.png").value<QString>();
+    skyboxright=settings.value("/window/skyboxright", "/usr/bin/images/ulukai/corona_rt.png").value<QString>();
+    skyboxfront=settings.value("/window/skyboxfront", "/usr/bin/images/ulukai/corona_ft.png").value<QString>();
+    skyboxback=settings.value("/window/skyboxback", "/usr/bin/images/ulukai/corona_bk.png").value<QString>();
 
     sathorizoncolor=settings.value("/window/sathorizoncolor", "#ffff00").value<QString>();
     sattrackcolor=settings.value("/window/sattrackcolor", "#dcdc00").value<QString>();
@@ -239,9 +239,6 @@ void Options::Initialize()
     gridonolciimage = false;
 
     datahubuser = settings.value("/datahub/datahubuser", "").value<QString>();
-    //    esapassword = settings.value("/datahub/esapassword", "").value<QString>();
-    //    eumetsatuser = settings.value("/datahub/eumetsatuser", "").value<QString>();
-    //    eumetsatpassword = settings.value("/datahub/eumetsatpassword", "").value<QString>();
     productdirectory = settings.value("/datahub/productdirectory", "").value<QString>();
     provideresaoreumetsat = settings.value("/datahub/provideresaoreumetsat", false).toBool();
     downloadxmlolciefr = settings.value("/datahub/downloadxmlolciefr", false).toBool();
@@ -268,6 +265,8 @@ void Options::Initialize()
         appdir_env = env.value("APPDIR");
     else
         appdir_env = "";
+
+    qDebug() << "APPDIR = " << appdir_env;
 
     threadcount = settings.value("/video/threadcount", 8).toInt();
     pathlist = settings.value("/video/pathlist").value<QStringList>();
@@ -381,6 +380,12 @@ void Options::checkStringListValues()
     {
         tlesources << "http://celestrak.org/NORAD/elements/weather.txt";
         tlesources << "http://celestrak.org/NORAD/elements/resource.txt";
+    }
+
+    if(tlelist.count() == 0)
+    {
+        tlelist << "weather.txt";
+        tlelist << "resource.txt";
     }
 
     //    if(ffmpeg_options.count() == 0)
@@ -604,9 +609,6 @@ void Options::Save()
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
 
     settings.setValue("/datahub/datahubuser", datahubuser);
-    //    settings.setValue("/datahub/esapassword", esapassword);
-    //    settings.setValue("/datahub/eumetsatuser", eumetsatuser);
-    //    settings.setValue("/datahub/eumetsatpassword", eumetsatpassword);
     settings.setValue("/datahub/productdirectory", productdirectory);
     settings.setValue("/datahub/provideresaoreumetsat", provideresaoreumetsat);
 
@@ -2892,7 +2894,7 @@ void Options::deleteSegmentDirectory( QString sel )
 
 void Options::globalChangeFonts(QWidget *toplevel, int fontsize)
 {
-    qDebug() << "--- Listing Widgets in FormToolbox ---";
+    // qDebug() << "--- Listing Widgets in FormToolbox ---";
 
     QFont new_font = toplevel->font();
     int point_size = new_font.pointSize();
@@ -2933,7 +2935,7 @@ void Options::globalChangeFonts(QWidget *toplevel, int fontsize)
     // 3. Find ALL Widgets (using the base class QWidget)
     //    This will find *everything*, including layouts if they derive from QWidget (QVBoxLayout doesn't)
     //    and potentially internal widgets of complex controls.
-    qDebug() << "\n[All Widgets (QWidget subclasses)]";
+    //qDebug() << "\n[All Widgets (QWidget subclasses)]";
     QList<QWidget *> allWidgets = toplevel->findChildren<QWidget *>();
     if (allWidgets.isEmpty()) {
         qDebug() << "  No widgets found.";

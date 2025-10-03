@@ -466,10 +466,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     rowchosen.clear();
 
-    ui->hslRed->setMaximum(100);
-    ui->hslRed->setMinimum(0);
-    ui->hslRed->setValue(100);
-
     opts.globalChangeFonts(this, opts.fontsize);
 
 }
