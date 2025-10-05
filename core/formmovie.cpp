@@ -730,7 +730,7 @@ void FormMovie::on_btnCreateXML_clicked()
 
     QProcess *process;
     process = new QProcess(this);
-    process->setProgram("EUMETCastVideo");
+    process->setProgram("./EUMETCastVideo");
     process->setStandardOutputFile(QProcess::nullDevice());
     process->setStandardErrorFile(QProcess::nullDevice());
     qint64 pid;

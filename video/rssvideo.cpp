@@ -130,7 +130,7 @@ void RSSVideo::getDatePathVectorFromDir( QStringList *datelist, QStringList *pat
     QString pat = this->reader->filepattern;
 
 
-    QRegularExpression rx("^(" + this->reader->filepattern + ")");
+    //QRegularExpression rx("^(" + this->reader->filepattern + ")");
     //rx.setPatternSyntax(QRegExp::Wildcard);
 
 
@@ -154,8 +154,9 @@ void RSSVideo::getDatePathVectorFromDir( QStringList *datelist, QStringList *pat
 
         foreach (const QFileInfo &fileInfo, fileinfolist)
         {
-            QRegularExpressionMatch match = rx.match(fileInfo.fileName());
-            if(match.hasMatch())
+//           QRegularExpressionMatch match = rx.match(fileInfo.fileName());
+
+            if(segmentdir.match(pat, fileInfo.fileName()))
             {
                 getFilenameParameters(fileInfo.fileName(), strspectrum, strdate, filenbr);
 

@@ -1953,77 +1953,10 @@
              <layout class="QVBoxLayout" name="verticalLayout_19">
               <item>
                <layout class="QGridLayout" name="gridLayout_7">
-                <item row="6" column="2">
-                 <widget class="QRadioButton" name="rbOLCI06">
-                  <property name="text">
-                   <string>O06 (0.560)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="4">
-                 <widget class="QComboBox" name="cmbOLCI12">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="2">
-                 <widget class="QRadioButton" name="rbOLCI07">
-                  <property name="text">
-                   <string>O07 (0.620)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="5">
-                 <widget class="QRadioButton" name="rbOLCI15">
-                  <property name="text">
-                   <string>O15 (0.768)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="2">
-                 <widget class="QRadioButton" name="rbOLCI03">
-                  <property name="text">
-                   <string>O03 (0.443)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="chkInverseOLCI02">
+                <item row="3" column="0">
+                 <widget class="QCheckBox" name="chkInverseOLCI03">
                   <property name="text">
                    <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QRadioButton" name="rbOLCI01">
-                  <property name="text">
-                   <string>O01 (0.400)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="4">
-                 <widget class="QComboBox" name="cmbOLCI15">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
                   </property>
                  </widget>
                 </item>
@@ -2034,228 +1967,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="4">
-                 <widget class="QComboBox" name="cmbOLCI18">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="2">
-                 <widget class="QRadioButton" name="rbOLCI10">
-                  <property name="text">
-                   <string>O10 (0.681)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="4">
-                 <widget class="QComboBox" name="cmbOLCI13">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI18">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="5">
-                 <widget class="QRadioButton" name="rbOLCI18">
-                  <property name="text">
-                   <string>O18 (0.885)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="4">
-                 <widget class="QComboBox" name="cmbOLCI20">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="5">
-                 <widget class="QRadioButton" name="rbOLCI20">
-                  <property name="text">
-                   <string>O20 (0.940)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="1">
-                 <widget class="QComboBox" name="cmbOLCI08">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QComboBox" name="cmbOLCI04">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="1">
-                 <widget class="QComboBox" name="cmbOLCI05">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI17">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="5">
-                 <widget class="QRadioButton" name="rbOLCI17">
-                  <property name="text">
-                   <string>O17 (0.865)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI11">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="5">
-                 <widget class="QRadioButton" name="rbOLCI11">
-                  <property name="text">
-                   <string>O11 (0.709)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="1">
-                 <widget class="QComboBox" name="cmbOLCI09">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QComboBox" name="cmbOLCI02">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="5">
-                 <widget class="QLabel" name="label_54">
-                  <property name="text">
-                   <string>Band (in µm)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="2">
-                 <widget class="QRadioButton" name="rbOLCI04">
-                  <property name="text">
-                   <string>O04 (0.490)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QComboBox" name="cmbOLCI01">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI15">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="4">
                  <widget class="QComboBox" name="cmbOLCI11">
                   <property name="minimumSize">
                    <size>
@@ -2271,31 +1983,10 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI19">
+                <item row="4" column="6">
+                 <widget class="QRadioButton" name="rbOLCI14">
                   <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="5">
-                 <widget class="QRadioButton" name="rbOLCI19">
-                  <property name="text">
-                   <string>O19 (0.900)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI12">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="5">
-                 <widget class="QRadioButton" name="rbOLCI12">
-                  <property name="text">
-                   <string>O12 (0.754)</string>
+                   <string>O14 (0.764)</string>
                   </property>
                  </widget>
                 </item>
@@ -2306,111 +1997,14 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="4">
-                 <widget class="QComboBox" name="cmbOLCI19">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI13">
+                <item row="2" column="6">
+                 <widget class="QRadioButton" name="rbOLCI12">
                   <property name="text">
-                   <string/>
+                   <string>O12 (0.754)</string>
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI20">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="0">
-                 <widget class="QCheckBox" name="chkInverseOLCI09">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="0">
-                 <widget class="QCheckBox" name="chkInverseOLCI10">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="1">
-                 <widget class="QComboBox" name="cmbOLCI06">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI14">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3">
-                 <widget class="QLabel" name="label_53">
-                  <property name="text">
-                   <string>Inv</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="5">
-                 <widget class="QRadioButton" name="rbOLCI13">
-                  <property name="text">
-                   <string>O13 (0.761)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="4">
-                 <widget class="QComboBox" name="cmbOLCI14">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QCheckBox" name="chkInverseOLCI04">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="4">
+                <item row="6" column="5">
                  <widget class="QComboBox" name="cmbOLCI16">
                   <property name="minimumSize">
                    <size>
@@ -2426,6 +2020,20 @@
                   </property>
                  </widget>
                 </item>
+                <item row="7" column="6">
+                 <widget class="QRadioButton" name="rbOLCI17">
+                  <property name="text">
+                   <string>O17 (0.865)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QRadioButton" name="rbOLCI06">
+                  <property name="text">
+                   <string>O06 (0.560)</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_49">
                   <property name="text">
@@ -2433,96 +2041,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="2">
-                 <widget class="QRadioButton" name="rbOLCI08">
-                  <property name="text">
-                   <string>O08 (0.665)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="chkInverseOLCI03">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QRadioButton" name="rbColorOLCI">
-                  <property name="text">
-                   <string>Colors</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0">
-                 <widget class="QCheckBox" name="chkInverseOLCI05">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="0">
-                 <widget class="QCheckBox" name="chkInverseOLCI07">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="1">
-                 <widget class="QComboBox" name="cmbOLCI07">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QRadioButton" name="rbOLCI02">
-                  <property name="text">
-                   <string>O02 (0.413)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="4">
-                 <widget class="QComboBox" name="cmbOLCI17">
-                  <property name="minimumSize">
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI16">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="5">
-                 <widget class="QRadioButton" name="rbOLCI16">
-                  <property name="text">
-                   <string>O16 (0.779)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QComboBox" name="cmbOLCI03">
+                <item row="3" column="5">
+                 <widget class="QComboBox" name="cmbOLCI13">
                   <property name="minimumSize">
                    <size>
                     <width>60</width>
@@ -2544,8 +2064,81 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="0">
-                 <widget class="QCheckBox" name="chkInverseOLCI06">
+                <item row="11" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI21">
+                  <property name="maximumSize">
+                   <size>
+                    <width>20</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QCheckBox" name="chkInverseOLCI02">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QRadioButton" name="rbOLCI02">
+                  <property name="text">
+                   <string>O02 (0.413)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="2">
+                 <widget class="QRadioButton" name="rbOLCI07">
+                  <property name="text">
+                   <string>O07 (0.620)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QComboBox" name="cmbOLCI02">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QComboBox" name="cmbOLCI07">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="6">
+                 <widget class="QRadioButton" name="rbOLCI19">
+                  <property name="text">
+                   <string>O19 (0.900)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI13">
                   <property name="text">
                    <string/>
                   </property>
@@ -2558,10 +2151,26 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="5">
-                 <widget class="QRadioButton" name="rbOLCI14">
+                <item row="7" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI17">
                   <property name="text">
-                   <string>O14 (0.764)</string>
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="5">
+                 <widget class="QComboBox" name="cmbOLCI12">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -2569,6 +2178,135 @@
                  <widget class="QCheckBox" name="chkInverseOLCI08">
                   <property name="text">
                    <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QComboBox" name="cmbOLCI03">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <widget class="QComboBox" name="cmbOLCI09">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QRadioButton" name="rbOLCI04">
+                  <property name="text">
+                   <string>O04 (0.490)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="6">
+                 <widget class="QRadioButton" name="rbOLCI18">
+                  <property name="text">
+                   <string>O18 (0.885)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="5">
+                 <widget class="QComboBox" name="cmbOLCI21">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QComboBox" name="cmbOLCI06">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI16">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QRadioButton" name="rbOLCI03">
+                  <property name="text">
+                   <string>O03 (0.443)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI14">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI18">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QCheckBox" name="chkInverseOLCI06">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QComboBox" name="cmbOLCI04">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -2588,15 +2326,29 @@
                   </property>
                  </widget>
                 </item>
-                <item row="11" column="5">
-                 <widget class="QRadioButton" name="rbOLCI21">
+                <item row="1" column="6">
+                 <widget class="QRadioButton" name="rbOLCI11">
                   <property name="text">
-                   <string>O21 (1.020)</string>
+                   <string>O11 (0.709)</string>
                   </property>
                  </widget>
                 </item>
-                <item row="11" column="4">
-                 <widget class="QComboBox" name="cmbOLCI21">
+                <item row="9" column="0">
+                 <widget class="QCheckBox" name="chkInverseOLCI09">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QCheckBox" name="chkInverseOLCI05">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QComboBox" name="cmbOLCI05">
                   <property name="minimumSize">
                    <size>
                     <width>60</width>
@@ -2611,18 +2363,279 @@
                   </property>
                  </widget>
                 </item>
-                <item row="11" column="3">
-                 <widget class="QCheckBox" name="chkInverseOLCI21">
-                  <property name="maximumSize">
-                   <size>
-                    <width>20</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
+                <item row="1" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI11">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
+                </item>
+                <item row="8" column="2">
+                 <widget class="QRadioButton" name="rbOLCI08">
+                  <property name="text">
+                   <string>O08 (0.665)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QRadioButton" name="rbOLCI01">
+                  <property name="text">
+                   <string>O01 (0.400)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="6">
+                 <widget class="QRadioButton" name="rbOLCI15">
+                  <property name="text">
+                   <string>O15 (0.768)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QRadioButton" name="rbColorOLCI">
+                  <property name="text">
+                   <string>Colors</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="label_54">
+                  <property name="text">
+                   <string>Band (in µm)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="2">
+                 <widget class="QRadioButton" name="rbOLCI10">
+                  <property name="text">
+                   <string>O10 (0.681)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI15">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="6">
+                 <widget class="QRadioButton" name="rbOLCI13">
+                  <property name="text">
+                   <string>O13 (0.761)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QCheckBox" name="chkInverseOLCI04">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QLabel" name="label_53">
+                  <property name="text">
+                   <string>Inv</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="6">
+                 <widget class="QRadioButton" name="rbOLCI16">
+                  <property name="text">
+                   <string>O16 (0.779)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI12">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QCheckBox" name="chkInverseOLCI07">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="5">
+                 <widget class="QComboBox" name="cmbOLCI19">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="5">
+                 <widget class="QComboBox" name="cmbOLCI15">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="1">
+                 <widget class="QComboBox" name="cmbOLCI08">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="5">
+                 <widget class="QComboBox" name="cmbOLCI17">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="6">
+                 <widget class="QRadioButton" name="rbOLCI21">
+                  <property name="text">
+                   <string>O21 (1.020)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="5">
+                 <widget class="QComboBox" name="cmbOLCI14">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="6">
+                 <widget class="QRadioButton" name="rbOLCI20">
+                  <property name="text">
+                   <string>O20 (0.940)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="5">
+                 <widget class="QComboBox" name="cmbOLCI20">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="5">
+                 <widget class="QComboBox" name="cmbOLCI18">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI20">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="0">
+                 <widget class="QCheckBox" name="chkInverseOLCI10">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QComboBox" name="cmbOLCI01">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="4">
+                 <widget class="QCheckBox" name="chkInverseOLCI19">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <spacer name="horizontalSpacer_35">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>

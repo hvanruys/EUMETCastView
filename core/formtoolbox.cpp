@@ -161,12 +161,15 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     formimage->channelshown = IMAGE_GEOSTATIONARY;
     qDebug() << QString("Current tabwidget = %1").arg(opts.currenttabwidget);
-    //ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
+
+    ui->tabWidget->setCurrentIndex(opts.currenttabwidget);
     ui->tabWidgetVIIRS->setCurrentIndex(0);
     ui->tabWidgetSentinel->setCurrentIndex(0);
 
     tabSelectedColor = ui->tabWidget->tabBar()->tabTextColor(0);
-    setTabSelectedColor(0);
+    qDebug() << QString("tabSelectedColor = %1").arg(tabSelectedColor.name());
+
+    setTabSelectedColor(opts.currenttabwidget);
 
     QStringList listResolution;
     listResolution << "User defined";

@@ -678,14 +678,50 @@ void FormEphem::itemSelectedtreewidget( QTreeWidgetItem *item, int test)
 
 void FormEphem::on_btnAddsegmentdir_clicked()
 {
-    QString directory = QFileDialog::getExistingDirectory(this, tr("Find Files"), QDir::currentPath());
+    // QString directory = QFileDialog::getExistingDirectory(this, tr("Find Files"), QDir::currentPath());
 
-    if (!directory.isEmpty()) {
-        qDebug() << QString("directory = %1").arg(directory);
-        opts.segmentdirectorylist.append(directory);
+    // if (!directory.isEmpty()) {
+    //     qDebug() << QString("directory = %1").arg(directory);
+    //     opts.segmentdirectorylist.append(directory);
+    //     showSegmentDirectoryList();
+    // }
+
+    QStringList directories = selectMultipleDirectories(this,
+                                                        "Select Directories ; Ctrl for multiple directories",
+                                                        QDir::homePath());
+    if (!directories.isEmpty()) {
+        qDebug() << (directories);
+        opts.segmentdirectorylist.append(directories);
         showSegmentDirectoryList();
     }
 
+}
+
+QStringList FormEphem::selectMultipleDirectories(QWidget *parent = nullptr,
+                                      const QString &caption = QString(),
+                                      const QString &dir = QString())
+{
+    QFileDialog dialog(parent, caption, dir);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOption(QFileDialog::DontUseNativeDialog, true);
+
+    // Enable multiple selection
+    QListView *listView = dialog.findChild<QListView*>("listView");
+    if (listView) {
+        listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    }
+
+    QTreeView *treeView = dialog.findChild<QTreeView*>();
+    if (treeView) {
+        treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    }
+
+    QStringList selectedDirs;
+    if (dialog.exec()) {
+        selectedDirs = dialog.selectedFiles();
+    }
+
+    return selectedDirs;
 }
 
 void FormEphem::on_btnDelsegmentdir_clicked()

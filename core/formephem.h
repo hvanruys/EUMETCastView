@@ -37,6 +37,7 @@ private:
     void showSegmentDirectoryList(void);
     void AddRootDirectoryWidgetItem(QString segname, Qt::CheckState checkstate);
     void NewSegmentOverviewItem();
+    QStringList selectMultipleDirectories(QWidget *parent,  const QString &caption, const QString &dir);
 
     int metopcount;
     int noaacount;
