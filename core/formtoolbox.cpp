@@ -3434,27 +3434,6 @@ void FormToolbox::on_btnCreatePerspective_clicked()
 
 }
 
-void FormToolbox::copyProjectionImage()
-{
-    int width = imageptrs->ptrimageProjection->width();
-    int height = imageptrs->ptrimageProjection->height();
-    QRgb *scanproj;
-    QRgb rgb;
-
-    imageptrs->ptrProjectionInfra.reset(new quint8[width * height]);
-    for(int y = 0; y < height; y++)
-    {
-        scanproj = (QRgb *)imageptrs->ptrimageProjection->scanLine(y);
-        for(int x = 0; x < width; x++)
-        {
-            rgb = scanproj[x];
-            imageptrs->ptrProjectionInfra[y * width + x] = (quint8)(qRed(rgb));
-        }
-
-    }
-
-}
-
 void FormToolbox::on_btnCreateLambert_clicked()
 {
     ui->pbProgress->reset();
@@ -4037,7 +4016,6 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     ui->comboPOI->blockSignals(true);
     ui->comboPOI->clear();
 
-    imageptrs->ptrProjectionInfra.reset();
     imageptrs->ptrProjectionBrightnessTemp.reset();
 
     opts.currenttoolbox = index;

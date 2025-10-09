@@ -119,7 +119,6 @@ public:
     QImage *ptrimageProjectionCopy; //for VIIRS M background with VIIRS DNB
 
     QScopedArrayPointer<float> ptrProjectionBrightnessTemp;
-    QScopedArrayPointer<quint8> ptrProjectionInfra; // for Infra
     QScopedArrayPointer<quint16> ptrimageProjectionRed;
     QScopedArrayPointer<quint16> ptrimageProjectionGreen;
     QScopedArrayPointer<quint16> ptrimageProjectionBlue;

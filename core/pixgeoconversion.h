@@ -2,6 +2,10 @@
 #define PIXGEOCONVERSION_H
 
 #include "qsgp4globals.h"
+#include <qtypes.h>
+#include <QtCore/qmath.h>
+#include <QtCore/QPointF>
+#include <QList>
 
 #define HALF_PI PIE*0.5
 #define TWO_PI 	PIE*2.0
@@ -182,5 +186,60 @@ struct PixCoord {
     double col;  // Column (1-based)
     double row;  // Row (1-based)
 };
+
+
+
+class MTGLatMinMax {
+public:
+
+    MTGLatMinMax();
+    qreal getLatMin(int index);
+    qreal getLatMax(int index);
+private:
+    // Structure to hold the max and min in degrees of MTG segments (40)
+    struct ListLatMinMax {
+        qreal max;
+        qreal min;
+    };
+
+    QList<ListLatMinMax> listlatminmax;
+};
+
+class GeostationaryConverter {
+private:
+    // Image dimensions
+    const int imageWidth = 11136;
+    const int imageHeight = 11136;
+
+    // Earth parameters
+    const qreal EARTH_RADIUS = 6378137.0;  // WGS84 equatorial radius in meters
+    const qreal EARTH_FLATTENING = 1.0 / 298.257223563;  // WGS84 flattening
+    const qreal SATELLITE_HEIGHT = 35786400.0;  // Geostationary orbit height in meters
+
+    // Satellite position (default: 0° longitude, equator)
+    qreal satelliteLongitude;  // in radians
+
+    // Projection parameters (typical for full disk)
+    qreal pixelSizeX;  // radians per pixel
+    qreal pixelSizeY;  // radians per pixel
+
+    // Convert degrees to radians
+    qreal deg2rad(qreal deg) const {
+        return qDegreesToRadians(deg);
+    }
+
+    // Convert radians to degrees
+    qreal rad2deg(qreal rad) const {
+        return qRadiansToDegrees(rad);
+    }
+
+public:
+    // Constructor with satellite longitude in degrees
+    GeostationaryConverter(qreal satLonDeg);
+    QPointF pixelToGeo(qreal pixelX, qreal pixelY) const;
+    QPointF geoToPixel(qreal lon, qreal lat) const;
+    QPointF geoToPixel(const QPointF& geoCoord) const;
+};
+
 
 #endif // PIXGEOCONVERSION_H

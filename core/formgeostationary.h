@@ -35,7 +35,8 @@ public:
     void SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item, int column );
     SegmentListGeostationary *setActiveSegmentList(int geoindex);
     SegmentListGeostationary *getActiveSegmentList();
-    void getTimeFromFilenbr(int filenbr, QString *strtime);
+    void getTimeFromIndex(int index, QString *strtime);
+
     void CalcMoon(QDate selected, int geosatindex);
     ~FormGeostationary();
 

@@ -74,6 +74,7 @@ private slots:
     void on_verticalScrollBar_valueChanged(int value);
 
     void on_btnMetop_clicked();
+    void on_btnMetopSGA1_clicked();
 
     void on_btnHRP_clicked();
 

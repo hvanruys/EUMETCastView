@@ -230,6 +230,7 @@ void FormMapCyl::showSegmentCount()
     qDebug() << "FormMapCyl::showSegmentcount";
 
     int cntselmetop = segs->seglmetop->NbrOfSegmentsSelected();
+    int cntselmetopsga1 = segs->seglmetopsga1->NbrOfSegmentsSelected();
     int cntselhrp = segs->seglhrp->NbrOfSegmentsSelected();
     int cntselviirsm = segs->seglviirsm->NbrOfSegmentsSelected();
     int cntselviirsdnb = segs->seglviirsdnb->NbrOfSegmentsSelected();
@@ -243,6 +244,7 @@ void FormMapCyl::showSegmentCount()
 
 
     int cntmetop = segs->seglmetop->NbrOfSegments();
+    int cntmetopsga1 = segs->seglmetopsga1->NbrOfSegments();
     int cnthrp = segs->seglhrp->NbrOfSegments();
     int cntviirsm = segs->seglviirsm->NbrOfSegments();
     int cntviirsdnb = segs->seglviirsdnb->NbrOfSegments();
@@ -254,9 +256,9 @@ void FormMapCyl::showSegmentCount()
     int cntolcierr = segs->seglolcierr->NbrOfSegments();
     int cntmersi = segs->seglmersi->NbrOfSegments();
 
-    long totseg = cntmetop + cnthrp + cntviirsm + cntviirsdnb + cntviirsmnoaa20 + cntviirsdnbnoaa20 + cntviirsmnoaa21 + cntviirsdnbnoaa21
+    long totseg = cntmetop + cntmetopsga1 + cnthrp + cntviirsm + cntviirsdnb + cntviirsmnoaa20 + cntviirsdnbnoaa20 + cntviirsmnoaa21 + cntviirsdnbnoaa21
                   + cntolciefr + cntolcierr + cntmersi;
-    long totsegsel = cntselmetop + cntselhrp + cntselviirsm + cntselviirsdnb  + cntselviirsmnoaa20 + cntselviirsdnbnoaa20 + cntselviirsmnoaa21 + cntselviirsdnbnoaa21
+    long totsegsel = cntselmetop + cntselmetopsga1 + cntselhrp + cntselviirsm + cntselviirsdnb  + cntselviirsmnoaa20 + cntselviirsdnbnoaa20 + cntselviirsmnoaa21 + cntselviirsdnbnoaa21
                      + cntselolciefr + cntselolcierr + cntselmersi;
 
     if ( totsegsel  > 0)
@@ -270,6 +272,8 @@ void FormMapCyl::showSegmentCount()
 
     ui->btnMetop->setText((QString(" Metop A/B/C # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
     ui->btnHRP->setText((QString(" Metop A/B/C HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
+
+    ui->btnMetopSGA1->setText((QString(" Metop SGA1 # %1/%2 ").arg(cntselmetopsga1).arg(cntmetopsga1)));
 
     ui->btnVIIRSM->setText((QString(" NPP VIIRS M # %1/%2 ").arg(cntselviirsm).arg(cntviirsm)));
     ui->btnVIIRSDNB->setText((QString(" NPP VIIRS DNB # %1/%2 ").arg(cntselviirsdnb).arg(cntviirsdnb)));
@@ -616,7 +620,6 @@ void FormMapCyl::RemoveAllSelected()
     segs->RemoveAllSelectedMERSI();
 
     imageptrs->ptrProjectionBrightnessTemp.reset();
-    imageptrs->ptrProjectionInfra.reset();
 
     mapcyl->update();
     showSegmentCount();
@@ -723,6 +726,15 @@ void FormMapCyl::on_btnMetop_clicked()
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
 }
+
+void FormMapCyl::on_btnMetopSGA1_clicked()
+{
+    formtoolbox->setTabWidgetIndex(TAB_METIMAGE);
+    toggleButton(eSegmentType::SEG_METOPSGA1);
+    this->RemoveAllSelected();
+    this->setScrollBarMaximum();
+}
+
 
 void FormMapCyl::on_btnHRP_clicked()
 {

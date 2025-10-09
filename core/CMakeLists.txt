@@ -66,6 +66,8 @@ set(PROJECT_SOURCES_CPP
     qcustomplot.cpp
     segmentlistolci.cpp
     segmentolci.cpp
+    segmentvii.cpp
+    segmentlistvii.cpp
     dialogsaveimage.cpp
     msgdataaccess.cpp
     msgfileaccess.cpp

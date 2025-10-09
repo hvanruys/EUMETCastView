@@ -366,6 +366,7 @@ void FormGeostationary::PopulateTree(QDate seldate)
 
     qDebug() << "FormGeostationary::PopulateTree() selection date = " << seldate.toString();
 
+
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
         if(opts.geosatellites.at(i).shortname != "MTG-I1")
@@ -389,6 +390,9 @@ void FormGeostationary::PopulateTreeGeoMTGI1(int tabindex)
 
     QMap<int, QMap< int, QFileInfo > > mapmtgi1;
     mapmtgi1 = segs->segmentlistmapgeomtgi1;
+
+    if(mapmtgi1.empty())
+        return;
 
     QTreeWidget *widget;
     widget = geotreewidgetlist.at(tabindex);
@@ -428,7 +432,7 @@ void FormGeostationary::PopulateTreeGeoMTGI1(int tabindex)
 
         strlist.clear();
         QString strtime;
-        getTimeFromFilenbr(filenbr, &strtime);
+        getTimeFromIndex(filenbr, &strtime);
 
         strlist << strtime << QString("%1").arg(filenbr);
 
@@ -466,30 +470,30 @@ void FormGeostationary::PopulateTreeGeoMTGI1(int tabindex)
     }
 }
 
-void FormGeostationary::getTimeFromFilenbr(int filenbr, QString *strtime)
+void FormGeostationary::getTimeFromIndex(int index, QString *strtime)
 {
-    double intpart;
-    double hrs = filenbr/6.0;
-    int hour;
-    double fractpart = modf(hrs, &intpart);
-
     QDate mydate = segs->selectiondate;
     QString yeardir = mydate.toString("yyyyMMdd").mid(0, 4);
     QString monthdir = mydate.toString("yyyyMMdd").mid(4, 2);
     QString daydir = mydate.toString("yyyyMMdd").mid(6, 2);
 
-    hour = (int)intpart;
-    double dmin = fractpart * 60.0;
-    int min = round(dmin);
-
-    *strtime = QString("%1-%2-%3 %4:%5").arg(yeardir).arg(monthdir).arg(daydir).arg(hour, 2, 10, QChar('0')).arg(min, 2, 10, QChar('0'));
+    index--;
+    int m = index % 6;
+    int h = index / 6;
+    int hours = h;
+    int minutes = m*10;
+    *strtime = QString("%1-%2-%3 %4:%5").arg(yeardir).arg(monthdir).arg(daydir).arg(hours, 2, 10, QChar('0')).arg(minutes, 2, 10, QChar('0'));
 }
+
 
 void FormGeostationary::PopulateTreeGeo(int geoindex)
 {
 
     QMap<QString, QMap<QString, QMap< int, QFileInfo > > > map;
     map = segs->segmentlistmapgeo.at(geoindex);
+
+    if(map.empty())
+        return;
 
     QDate seldate = segs->selectiondate;
 

@@ -98,6 +98,49 @@ extern gshhsData *gshhsdata;
 // Electro_n1
 // Height = 2784 / 6 = 464 Width = 2784
 
+/* Maximum and minimum latidudes for MTG
+veclatminmax  0  ; max =  -69.2419  min =  -80.0814
+veclatminmax  1  ; max =  -59.8475  min =  -74.2498
+veclatminmax  2  ; max =  -53.5037  min =  -65.8096
+veclatminmax  3  ; max =  -48.3907  min =  -59.5561
+veclatminmax  4  ; max =  -43.9502  min =  -54.2379
+veclatminmax  5  ; max =  -39.9802  min =  -49.5518
+veclatminmax  6  ; max =  -36.3348  min =  -45.3278
+veclatminmax  7  ; max =  -32.9216  min =  -41.3692
+veclatminmax  8  ; max =  -29.7108  min =  -37.5932
+veclatminmax  9  ; max =  -26.6401  min =  -34.0258
+veclatminmax  10  ; max =  -23.7023  min =  -30.5877
+veclatminmax  11  ; max =  -20.8637  min =  -27.2897
+veclatminmax  12  ; max =  -18.0964  min =  -24.0395
+veclatminmax  13  ; max =  -15.4051  min =  -20.8972
+veclatminmax  14  ; max =  -12.7579  min =  -17.8043
+veclatminmax  15  ; max =  -10.1626  min =  -14.759
+veclatminmax  16  ; max =  -7.60002  min =  -11.7664
+veclatminmax  17  ; max =  -5.05215  min =  -8.80622
+veclatminmax  18  ; max =  -2.529  min =  -5.85302
+veclatminmax  19  ; max =  -0.00452185  min =  -2.92396
+veclatminmax  20  ; max =  2.91328  min =  0.00452185
+veclatminmax  21  ; max =  5.84166  min =  2.51995
+veclatminmax  22  ; max =  8.79377  min =  5.04305
+veclatminmax  23  ; max =  11.7528  min =  7.59085
+veclatminmax  24  ; max =  14.759  min =  10.1533
+veclatminmax  25  ; max =  18.0173  min =  12.7579
+veclatminmax  26  ; max =  21.3152  min =  15.5872
+veclatminmax  27  ; max =  24.7405  min =  18.4789
+veclatminmax  28  ; max =  27.9595  min =  21.469
+veclatminmax  29  ; max =  31.0826  min =  24.3168
+veclatminmax  30  ; max =  34.2672  min =  27.0613
+veclatminmax  31  ; max =  37.5885  min =  29.9137
+veclatminmax  32  ; max =  41.3187  min =  32.9097
+veclatminmax  33  ; max =  45.3114  min =  36.3221
+veclatminmax  34  ; max =  49.5518  min =  39.9666
+veclatminmax  35  ; max =  54.2458  min =  43.9502
+veclatminmax  36  ; max =  59.5467  min =  48.3737
+veclatminmax  37  ; max =  65.8148  min =  53.4836
+veclatminmax  38  ; max =  74.0858  min =  59.8213
+veclatminmax  39  ; max =  80.1184  min =  69.1945
+*/
+
 void SegmentListGeostationary::doComposeGeostationaryHDFInThread(SegmentListGeostationary *sm, QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector)
 {
     sm->ComposeSegmentImageHDFInThread(filelist, spectrumvector, inversevector);
@@ -2784,6 +2827,15 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     QByteArray ba;
 
+    struct latminmax {
+        qreal max;
+        qreal min;
+    };
+
+    QList<latminmax> veclatminmax;
+
+
+
     for(int j = 0; j < this->segmentfilelist.size(); j++)
     {
         if(this->segmentfilelist.at(j).contains("BODY"))
@@ -2812,6 +2864,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
             qDebug() << QString("index = %1 geospatial lat min = %2 lat max = %3 nbr of global att = %4").arg(j).arg(geospatial_lat_min)
                         .arg(geospatial_lat_max).arg(ngattsp);
+
+            latminmax lmm;
+            lmm.max = geospatial_lat_max;
+            lmm.min = geospatial_lat_min;
+            veclatminmax.append(lmm);
 
             retval = nc_inq_ncid(ncfileid, "data", &grp_data);
             if(retval != NC_NOERR) qDebug() << "error opening data group";
@@ -2899,6 +2956,18 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
         }
 
     }
+
+    // qDebug() << "veclatminmax length = " << veclatminmax.length();
+    // for(int i = 0; i < veclatminmax.length() ; i++)
+    // {
+    //     qDebug() << "veclatminmax " << i << " ; max = " << veclatminmax.at(i).max << " min = " << veclatminmax.at(i).min;
+    // }
+
+    // MTGLatMinMax latminmax;
+    // for(int i = 1; i < 41; i++)
+    // {
+    //     qDebug() << "latminmax " << i << " ; max = " << latminmax.getLatMax(i) << " min = " << latminmax.getLatMin(i);
+    // }
 
     //    for(int i = 0; i < 40 ; i++)
     //    {

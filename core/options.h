@@ -13,12 +13,13 @@
 #include <QJsonDocument>
 
 #define TAB_AVHRR 0
-#define TAB_VIIRS 1
-#define TAB_SENTINEL 2
-#define TAB_MERSI 3
-#define TAB_GEOSTATIONARY 4
-#define TAB_PROJECTION 5
-#define TAB_HISTOGRAM 6
+#define TAB_METIMAGE 1
+#define TAB_VIIRS 2
+#define TAB_SENTINEL 3
+#define TAB_MERSI 4
+#define TAB_GEOSTATIONARY 5
+#define TAB_PROJECTION 6
+#define TAB_HISTOGRAM 7
 
 #define TAB_LLC 0
 #define TAB_GVP 1
@@ -121,6 +122,7 @@ public:
     QStringList segmentdirectorylist;
     QStringList segmentdirectorylistinc;
     bool buttonMetop;
+    bool buttonMetopSGA1;
     bool buttonHRP;
     bool buttonVIIRSM;
     bool buttonVIIRSDNB;

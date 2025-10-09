@@ -884,3 +884,212 @@ PixCoord geocoord2pixcoord(const GeoCoord& geo,
 
 //     return 0;
 // }
+
+// Constructor with satellite longitude in degrees
+GeostationaryConverter::GeostationaryConverter(qreal satLonDeg) {
+    satelliteLongitude = deg2rad(satLonDeg);
+
+    // Calculate pixel size based on image dimensions
+    // For full disk, angular extent is approximately ±81.3 degrees
+    qreal maxScanAngle = deg2rad(81.3);
+    pixelSizeX = (2.0 * maxScanAngle) / imageWidth;
+    pixelSizeY = (2.0 * maxScanAngle) / imageHeight;
+}
+
+// Convert pixel coordinates (x, y) to geographic coordinates (lon, lat)
+// Returns QPointF(longitude, latitude) in degrees
+// Origin (0,0) is at top-left corner
+// Returns QPointF(NaN, NaN) if point not visible
+QPointF GeostationaryConverter::pixelToGeo(qreal pixelX, qreal pixelY) const {
+    // Convert pixel to scanning angles (radians)
+    // Center of image corresponds to (0, 0) scanning angles
+    qreal x = (pixelX - imageWidth / 2.0) * pixelSizeX;
+    qreal y = (imageHeight / 2.0 - pixelY) * pixelSizeY;
+
+    // Distance from satellite to Earth center
+    qreal H = SATELLITE_HEIGHT + EARTH_RADIUS;
+
+    // Calculate intermediate values
+    qreal cosx = qCos(x);
+    qreal cosy = qCos(y);
+    qreal sinx = qSin(x);
+    qreal siny = qSin(y);
+
+    // Calculate the distance to the Earth surface point
+    qreal cosxcosy = cosx * cosy;
+    qreal sd = H * H - EARTH_RADIUS * EARTH_RADIUS * (1.0 - cosxcosy * cosxcosy);
+
+    // Check if point is visible from satellite
+    if (sd < 0) {
+        return QPointF(qQNaN(), qQNaN());  // Point not visible (beyond Earth limb)
+    }
+
+    qreal sn = (H * cosxcosy - qSqrt(sd)) / EARTH_RADIUS;
+
+    // Calculate Cartesian coordinates
+    qreal s1 = H - sn * EARTH_RADIUS * cosxcosy;
+    qreal s2 = sn * EARTH_RADIUS * cosy * sinx;
+    qreal s3 = -sn * EARTH_RADIUS * siny;
+
+    // Convert to geodetic coordinates
+    qreal lon = satelliteLongitude + qAtan2(s2, s1);
+    qreal lat = qAtan2(s3, qSqrt(s1 * s1 + s2 * s2));
+
+    // Apply ellipsoid correction for latitude
+    qreal e2 = 2.0 * EARTH_FLATTENING - EARTH_FLATTENING * EARTH_FLATTENING;
+    lat = qAtan(qTan(lat) / (1.0 - e2));
+
+    return QPointF(rad2deg(lon), rad2deg(lat));
+}
+
+// Convert geographic coordinates (lon, lat) to pixel coordinates (x, y)
+// Input: QPointF(longitude, latitude) in degrees
+// Returns QPointF(pixelX, pixelY)
+// Returns QPointF(NaN, NaN) if point not visible
+QPointF GeostationaryConverter::geoToPixel(qreal lon, qreal lat) const {
+    // Convert to radians
+    qreal lonRad = deg2rad(lon);
+    qreal latRad = deg2rad(lat);
+
+    // Apply ellipsoid correction
+    qreal e2 = 2.0 * EARTH_FLATTENING - EARTH_FLATTENING * EARTH_FLATTENING;
+    qreal latGeocentric = qAtan((1.0 - e2) * qTan(latRad));
+
+    // Calculate Cartesian coordinates on Earth surface
+    qreal cosLat = qCos(latGeocentric);
+    qreal sinLat = qSin(latGeocentric);
+    qreal cosLon = qCos(lonRad - satelliteLongitude);
+    qreal sinLon = qSin(lonRad - satelliteLongitude);
+
+    // Distance from satellite to Earth center
+    qreal H = SATELLITE_HEIGHT + EARTH_RADIUS;
+
+    // Calculate if point is visible
+    qreal cosc = cosLat * cosLon;
+    if (H * (H - EARTH_RADIUS * cosc) < 0) {
+        return QPointF(qQNaN(), qQNaN());  // Point not visible from satellite
+    }
+
+    // Calculate scanning angles
+    qreal rl = EARTH_RADIUS / qSqrt(H * H - 2.0 * H * EARTH_RADIUS * cosc + EARTH_RADIUS * EARTH_RADIUS);
+
+    qreal x = qAtan2(rl * cosLat * sinLon, H - rl * EARTH_RADIUS * cosc);
+    qreal y = -qAtan2(rl * sinLat, qSqrt((H - rl * EARTH_RADIUS * cosc) *
+                                             (H - rl * EARTH_RADIUS * cosc) +
+                                         rl * rl * cosLat * cosLat * sinLon * sinLon));
+
+    // Convert scanning angles to pixel coordinates
+    qreal pixelX = imageWidth / 2.0 + x / pixelSizeX;
+    qreal pixelY = imageHeight / 2.0 - y / pixelSizeY;
+
+    return QPointF(pixelX, pixelY);
+}
+
+// Convenience overload using QPointF for geographic coordinates
+QPointF GeostationaryConverter::geoToPixel(const QPointF& geoCoord) const {
+    return geoToPixel(geoCoord.x(), geoCoord.y());
+}
+
+/* Maximum and minimum latidudes for MTG
+veclatminmax  0  ; max =  -69.2419  min =  -80.0814
+veclatminmax  1  ; max =  -59.8475  min =  -74.2498
+veclatminmax  2  ; max =  -53.5037  min =  -65.8096
+veclatminmax  3  ; max =  -48.3907  min =  -59.5561
+veclatminmax  4  ; max =  -43.9502  min =  -54.2379
+veclatminmax  5  ; max =  -39.9802  min =  -49.5518
+veclatminmax  6  ; max =  -36.3348  min =  -45.3278
+veclatminmax  7  ; max =  -32.9216  min =  -41.3692
+veclatminmax  8  ; max =  -29.7108  min =  -37.5932
+veclatminmax  9  ; max =  -26.6401  min =  -34.0258
+veclatminmax  10  ; max =  -23.7023  min =  -30.5877
+veclatminmax  11  ; max =  -20.8637  min =  -27.2897
+veclatminmax  12  ; max =  -18.0964  min =  -24.0395
+veclatminmax  13  ; max =  -15.4051  min =  -20.8972
+veclatminmax  14  ; max =  -12.7579  min =  -17.8043
+veclatminmax  15  ; max =  -10.1626  min =  -14.759
+veclatminmax  16  ; max =  -7.60002  min =  -11.7664
+veclatminmax  17  ; max =  -5.05215  min =  -8.80622
+veclatminmax  18  ; max =  -2.529  min =  -5.85302
+veclatminmax  19  ; max =  -0.00452185  min =  -2.92396
+veclatminmax  20  ; max =  2.91328  min =  0.00452185
+veclatminmax  21  ; max =  5.84166  min =  2.51995
+veclatminmax  22  ; max =  8.79377  min =  5.04305
+veclatminmax  23  ; max =  11.7528  min =  7.59085
+veclatminmax  24  ; max =  14.759  min =  10.1533
+veclatminmax  25  ; max =  18.0173  min =  12.7579
+veclatminmax  26  ; max =  21.3152  min =  15.5872
+veclatminmax  27  ; max =  24.7405  min =  18.4789
+veclatminmax  28  ; max =  27.9595  min =  21.469
+veclatminmax  29  ; max =  31.0826  min =  24.3168
+veclatminmax  30  ; max =  34.2672  min =  27.0613
+veclatminmax  31  ; max =  37.5885  min =  29.9137
+veclatminmax  32  ; max =  41.3187  min =  32.9097
+veclatminmax  33  ; max =  45.3114  min =  36.3221
+veclatminmax  34  ; max =  49.5518  min =  39.9666
+veclatminmax  35  ; max =  54.2458  min =  43.9502
+veclatminmax  36  ; max =  59.5467  min =  48.3737
+veclatminmax  37  ; max =  65.8148  min =  53.4836
+veclatminmax  38  ; max =  74.0858  min =  59.8213
+veclatminmax  39  ; max =  80.1184  min =  69.1945
+*/
+MTGLatMinMax::MTGLatMinMax()
+{
+
+    ListLatMinMax llmm;
+    llmm.max =  -69.2419;  llmm.min =  -80.0814; listlatminmax.append(llmm);
+    llmm.max =  -59.8475; llmm.min =  -74.2498; listlatminmax.append(llmm);
+    llmm.max =  -53.5037; llmm.min =  -65.8096; listlatminmax.append(llmm);
+    llmm.max =  -48.3907; llmm.min =  -59.5561; listlatminmax.append(llmm);
+    llmm.max =  -43.9502; llmm.min =  -54.2379; listlatminmax.append(llmm);
+    llmm.max =  -39.9802; llmm.min =  -49.5518; listlatminmax.append(llmm);
+    llmm.max =  -36.3348; llmm.min =  -45.3278; listlatminmax.append(llmm);
+    llmm.max =  -32.9216; llmm.min =  -41.3692; listlatminmax.append(llmm);
+    llmm.max =  -29.7108; llmm.min =  -37.5932; listlatminmax.append(llmm);
+    llmm.max =  -26.6401; llmm.min =  -34.0258; listlatminmax.append(llmm);
+    llmm.max =  -23.7023; llmm.min =  -30.5877; listlatminmax.append(llmm);
+    llmm.max =  -20.8637; llmm.min =  -27.2897; listlatminmax.append(llmm);
+    llmm.max =  -18.0964; llmm.min =  -24.0395; listlatminmax.append(llmm);
+    llmm.max =  -15.4051; llmm.min =  -20.8972; listlatminmax.append(llmm);
+    llmm.max =  -12.7579; llmm.min =  -17.8043; listlatminmax.append(llmm);
+    llmm.max =  -10.1626; llmm.min =  -14.759; listlatminmax.append(llmm);
+    llmm.max =  -7.60002; llmm.min =  -11.7664; listlatminmax.append(llmm);
+    llmm.max =  -5.05215; llmm.min =  -8.80622; listlatminmax.append(llmm);
+    llmm.max =  -2.529; llmm.min =  -5.85302; listlatminmax.append(llmm);
+    llmm.max =  -0.00452185; llmm.min =  -2.92396; listlatminmax.append(llmm);
+    llmm.max =  2.91328; llmm.min =  0.00452185; listlatminmax.append(llmm);
+    llmm.max =  5.84166; llmm.min =  2.51995; listlatminmax.append(llmm);
+    llmm.max =  8.79377; llmm.min =  5.04305; listlatminmax.append(llmm);
+    llmm.max =  11.7528; llmm.min =  7.59085; listlatminmax.append(llmm);
+    llmm.max =  14.759; llmm.min =  10.1533; listlatminmax.append(llmm);
+    llmm.max =  18.0173; llmm.min =  12.7579; listlatminmax.append(llmm);
+    llmm.max =  21.3152; llmm.min =  15.5872; listlatminmax.append(llmm);
+    llmm.max =  24.7405; llmm.min =  18.4789; listlatminmax.append(llmm);
+    llmm.max =  27.9595; llmm.min =  21.469; listlatminmax.append(llmm);
+    llmm.max =  31.0826; llmm.min =  24.3168; listlatminmax.append(llmm);
+    llmm.max =  34.2672; llmm.min =  27.0613; listlatminmax.append(llmm);
+    llmm.max =  37.5885; llmm.min =  29.9137; listlatminmax.append(llmm);
+    llmm.max =  41.3187; llmm.min =  32.9097; listlatminmax.append(llmm);
+    llmm.max =  45.3114; llmm.min =  36.3221; listlatminmax.append(llmm);
+    llmm.max =  49.5518; llmm.min =  39.9666; listlatminmax.append(llmm);
+    llmm.max =  54.2458; llmm.min =  43.9502; listlatminmax.append(llmm);
+    llmm.max =  59.5467; llmm.min =  48.3737; listlatminmax.append(llmm);
+    llmm.max =  65.8148; llmm.min =  53.4836; listlatminmax.append(llmm);
+    llmm.max =  74.0858; llmm.min =  59.8213; listlatminmax.append(llmm);
+    llmm.max =  80.1184; llmm.min =  69.1945; listlatminmax.append(llmm);
+}
+
+qreal MTGLatMinMax::getLatMax(int index)
+{
+    if (index <= 0)
+        return 999;
+    else
+        return listlatminmax.at(index-1).max;
+}
+
+qreal MTGLatMinMax::getLatMin(int index)
+{
+    if (index <= 0)
+        return 999;
+    else
+       return listlatminmax.at(index-1).min;
+}

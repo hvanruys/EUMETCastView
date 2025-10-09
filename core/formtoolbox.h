@@ -118,7 +118,6 @@ private:
     void setConfigMERSIParameters(int strlindex);
 
     void setRadioButtonsOLCIefrToFalse();
-    void copyProjectionImage();
     bool checkSegmentDateTime();
     void setLogValue(int deg, double rad);
     void fitCurve();

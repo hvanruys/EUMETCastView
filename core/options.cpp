@@ -21,6 +21,7 @@ void Options::Initialize()
     obslat = settings.value("/observer/latitude", 0.0 ).toDouble();
     obsalt = settings.value( "/observer/altitude", 0.0 ).toDouble();
     buttonMetop=settings.value("/window/buttonmetop", false ).toBool();
+    buttonMetopSGA1=settings.value("/window/buttonmetopsga1", false ).toBool();
     buttonHRP=settings.value("/window/buttonhrp", false ).toBool();
     buttonVIIRSM=settings.value("/window/buttonviirs", false ).toBool();
     buttonVIIRSDNB=settings.value("/window/buttonviirsdnb", false ).toBool();
@@ -447,6 +448,7 @@ void Options::Save()
     settings.setValue("/segments/nbrofvisiblesegments", nbrofvisiblesegments);
     settings.setValue("/segments/nbrofhours", nbrofhours);
     settings.setValue( "/window/buttonmetop", buttonMetop );
+    settings.setValue( "/window/buttonmetopsga1", buttonMetopSGA1 );
     settings.setValue( "/window/buttonhrp", buttonHRP );
     settings.setValue( "/window/buttonviirs", buttonVIIRSM );
     settings.setValue( "/window/buttonviirsdnb", buttonVIIRSDNB );
@@ -1704,9 +1706,9 @@ void Options::CreateGeoSatelliteIni_copy()
     geosatellites[11].longitudelimit2 = 250.0;
     geosatellites[11].protocol = "netCDF";
     geosatellites[11].rss = false;
-    geosatellites[11].searchstring = "W_XX";
-    geosatellites[11].indexsearchstring = 0;
-    geosatellites[11].filepattern = "W_XX-EUMETSAT*";
+    geosatellites[11].searchstring = "MTI1+FCI-1C-RRAD";
+    geosatellites[11].indexsearchstring = 32;
+    geosatellites[11].filepattern = "W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD*";
     geosatellites[11].imagewidth = 5568;
     geosatellites[11].imageheight = 5568;
     geosatellites[11].imagewidthhrv0 = 11136;

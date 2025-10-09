@@ -16,6 +16,7 @@ enum eSegmentType
 {
     SEG_NONE = 0,
     SEG_METOP,
+    SEG_METOPSGA1,
     SEG_HRP,
     SEG_VIIRSM,
     SEG_VIIRSDNB,
@@ -26,6 +27,7 @@ enum eSegmentType
     SEG_OLCIEFR,
     SEG_OLCIERR,
     SEG_MERSI
+
 };
 
 enum eImageType
@@ -43,7 +45,8 @@ enum eImageType
     IMAGE_VIIRSM,
     IMAGE_VIIRSDNB,
     IMAGE_OLCI,
-    IMAGE_MERSI
+    IMAGE_MERSI,
+    IMAGE_VII
 };
 
 enum eProjectionType
@@ -80,7 +83,8 @@ enum class ePolarSatellite {
     NOAA_20,
     S_NPP,
     Sentinel_3,
-    FY_3D
+    FY_3D,
+    Metop_SGA1
 };
 
 //1 "Airmass RGB"

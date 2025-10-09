@@ -255,6 +255,7 @@ void FormEphem::NewSegmentOverviewItem()
     QTreeWidgetItem *newitem;
 
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetop(), 0  );
+    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMetopSGA1(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsHRP(), 0  );
 
 

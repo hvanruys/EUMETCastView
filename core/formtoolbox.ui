@@ -49,7 +49,7 @@
       <enum>QTabWidget::TabPosition::West</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>1</number>
      </property>
      <property name="elideMode">
       <enum>Qt::TextElideMode::ElideNone</enum>
@@ -683,6 +683,11 @@
         </spacer>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="METimage">
+      <attribute name="title">
+       <string>METimage</string>
+      </attribute>
      </widget>
      <widget class="QWidget" name="tabVIIRS">
       <attribute name="title">

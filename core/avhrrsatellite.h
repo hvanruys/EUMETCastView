@@ -12,21 +12,24 @@
 #include "segmentviirsdnb.h"
 #include "segmentolci.h"
 #include "segmentmersi.h"
+#include "segmentvii.h"
 
 #include "segmentlistmetop.h"
+#include "segmentlistvii.h"
 #include "segmentlisthrp.h"
-#include "segmentlistgeostationary.h"
 #include "segmentlistviirsm.h"
 #include "segmentlistviirsdnb.h"
 #include "segmentlistolci.h"
 #include "segmentlistmersi.h"
 
+#include "segmentlistgeostationary.h"
 #include "segmentimage.h"
 #include "options.h"
 
 class SegmentList;
 class SegmentListGeostationary;
 class SegmentListMetop;
+class SegmentListVII;
 class SegmentListHRP;
 class SegmentListVIIRSM;
 class SegmentListVIIRSDNB;
@@ -70,6 +73,7 @@ public:
 
     QString GetOverviewSegments();
     QStringList GetOverviewSegmentsMetop();
+    QStringList GetOverviewSegmentsMetopSGA1();
     QStringList GetOverviewSegmentsHRP();
 
     QStringList GetOverviewSegmentsVIIRSM();
@@ -95,6 +99,8 @@ public:
 
 
     SegmentListMetop *seglmetop;
+    SegmentListVII *seglmetopsga1;
+
     SegmentListHRP *seglhrp;
     SegmentListOLCI *seglolciefr;
     SegmentListOLCI *seglolcierr;
@@ -124,9 +130,8 @@ private:
 
     long nbrofpointsselected;
     long countmetop;
-    long countnoaa;
+    long countmetopsga1;
     long counthrp;
-    long countgac;
     long countviirsm;
     long countviirsdnb;
     long countviirsmnoaa20;
@@ -135,7 +140,6 @@ private:
     long countviirsdnbnoaa21;
     long countolciefr;
     long countolcierr;
-    long countslstr;
     long countmetopAhrpt;
     long countmetopBhrpt;
     long countnoaa19hrpt;

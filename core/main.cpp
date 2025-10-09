@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
         QCoreApplication::arguments().contains(QStringLiteral("-l")) )
         opts.doLogging = true;
 
-    qInstallMessageHandler(myMessageOutput);
+    //qInstallMessageHandler(myMessageOutput);
 
     if(opts.doLogging)
     {
