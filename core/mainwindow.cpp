@@ -554,8 +554,8 @@ void MainWindow::on_actionSatSelection_triggered()
 
 void MainWindow::on_actionMeteosat_triggered()
 {
-     ui->stackedWidget->setCurrentIndex(1);
-     formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
+    ui->stackedWidget->setCurrentIndex(1);
+    formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
 }
 
 void MainWindow::on_actionCylindricalEquidistant_triggered()
@@ -582,6 +582,7 @@ void MainWindow::on_action3DGlobe_triggered()
 void MainWindow::on_actionSettingsMovie_triggered()
 {
     ui->stackedWidget->setCurrentIndex(4);
+    formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
     formmovie->getProjectionData();
 
 }
@@ -595,10 +596,7 @@ void MainWindow::on_actionImage_triggered()
 
     qDebug() << "MainWindow::on_actionImage_triggered()";
 
-    Q_ASSERT(index < 6);
-
-    if(index == TAB_HISTOGRAM)
-        return;
+    Q_ASSERT(index < 7);
 
     if(index == -1 || index == TAB_AVHRR)
     {

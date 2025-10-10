@@ -167,7 +167,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>12</number>
+        <number>7</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -1801,58 +1801,11 @@
        <widget class="QWidget" name="pageGeoConfig">
         <layout class="QVBoxLayout" name="verticalLayout_22">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_29" stretch="0,1">
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_21">
-             <item>
-              <widget class="QLabel" name="label_16">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
-               </property>
-               <property name="text">
-                <string>Sequence in Geo Tab</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QListWidget" name="lwSort"/>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_26">
-               <item>
-                <widget class="QPushButton" name="btnSortUp">
-                 <property name="text">
-                  <string>Up</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="btnSortDown">
-                 <property name="text">
-                  <string>Down</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
+          <layout class="QHBoxLayout" name="horizontalLayout_29" stretch="1">
            <item>
             <widget class="QTableView" name="tbvGeoConfig"/>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>Changes in the sequence of the Geo tab will be visible after restart</string>
-           </property>
-          </widget>
          </item>
          <item>
           <widget class="QLabel" name="label_24">

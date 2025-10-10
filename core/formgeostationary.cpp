@@ -37,7 +37,6 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
     segs = seglist;
 
     qDebug() << "in constructor FormGeostationary opts.geosatellites.count() = " << opts.geosatellites.count();
-    qDebug() << opts.tabgeosort;
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
@@ -187,100 +186,100 @@ QStringList FormGeostationary::getGeostationarySegments(int geoindex, const QStr
     return strlistout;
 }
 
+// QStringList FormGeostationary::getGeostationarySegmentsMTG(int geoindex, const QString imagetype, const QString filepath, int filenbr)
+// {
+//     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+//     //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+//     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+//     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
+//     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
+
+//     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+//     //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+//     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+//     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
+//     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
+//     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+//     //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+//     //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+//     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20231127115648_IDPFI_OPE_20231127115154_20231127115249_N_JLS_C_0072_0012.nc
+//     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20231127112342_IDPFI_OPE_20231127112007_20231127112924_N_JLS_C_0069_0041.nc
+
+//     qDebug() << QString("getGeostationarySegments type = %1  Filepath = %2 filenbr = %3").arg(imagetype).arg(filepath).arg(filenbr);
+
+
+
+//     QDir meteosatdir(filepath);
+//     meteosatdir.setFilter(QDir::Files | QDir::NoSymLinks);
+//     meteosatdir.setSorting(QDir::Name);
+
+//     QStringList strlist = meteosatdir.entryList();
+//     QStringList strlistout;
+
+//     QStringList::Iterator itc = strlist.begin();
+
+//     int inpfilenbr = 0;
+
+//     while( itc != strlist.end() )
+//     {
+//         QString st = *itc;
+//         if(st.contains("JLS", Qt::CaseSensitive))
+//         {
+//             if(st.contains("DIS", Qt::CaseSensitive))
+//             {
+//                 if(st.contains("BODY", Qt::CaseSensitive))
+//                 {
+//                     inpfilenbr = st.mid(148, 4).toInt();
+//                 }
+//                 else if(st.contains("TRAIL", Qt::CaseSensitive))
+//                 {
+//                     inpfilenbr = st.mid(149, 4).toInt();
+//                 }
+//             }
+//             else
+//             {
+//                 if(st.contains("BODY", Qt::CaseSensitive))
+//                 {
+//                     inpfilenbr = st.mid(143, 4).toInt();
+//                 }
+//                 else if(st.contains("TRAIL", Qt::CaseSensitive))
+//                 {
+//                     inpfilenbr = st.mid(144, 4).toInt();
+//                 }
+//             }
+//         } else
+//         {
+//             if(st.contains("BODY", Qt::CaseSensitive))
+//             {
+//                 inpfilenbr = st.mid(140, 4).toInt();
+//             }
+//             else if(st.contains("TRAIL", Qt::CaseSensitive))
+//             {
+//                 inpfilenbr = st.mid(141, 4).toInt();
+//             }
+//         }
+
+//         if(inpfilenbr == filenbr)
+//         {
+//             strlistout.append(*itc);
+//         }
+//         itc++;
+//     }
+
+//     // If you want to sort your strings in an arbitrary order, consider using the QMap class.
+//     // For example, you could use a QMap<QString, QString> to create a case-insensitive ordering
+//     // (e.g. with the keys being lower-case versions of the strings, and the values being the strings),
+//     // or a QMap<int, QString> to sort the strings by some integer index.
+
+// //    for (int j = 0; j < strlistout.size(); ++j)
+// //    {
+// //        qDebug() << QString("getGeostationarySegmentsMTG out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
+// //    }
+
+//     return strlistout;
+// }
+
 QStringList FormGeostationary::getGeostationarySegmentsMTG(int geoindex, const QString imagetype, const QString filepath, int filenbr)
-{
-    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
-    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N__T_0070_0001.nc
-    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N__T_0070_0041.nc
-
-    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
-    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920113515_GTT_DEV_20170920113008_20170920113015_N_JLS_T_0070_0001.nc
-    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
-    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-    //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
-    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20231127115648_IDPFI_OPE_20231127115154_20231127115249_N_JLS_C_0072_0012.nc
-    //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20231127112342_IDPFI_OPE_20231127112007_20231127112924_N_JLS_C_0069_0041.nc
-
-    qDebug() << QString("getGeostationarySegments type = %1  Filepath = %2 filenbr = %3").arg(imagetype).arg(filepath).arg(filenbr);
-
-
-
-    QDir meteosatdir(filepath);
-    meteosatdir.setFilter(QDir::Files | QDir::NoSymLinks);
-    meteosatdir.setSorting(QDir::Name);
-
-    QStringList strlist = meteosatdir.entryList();
-    QStringList strlistout;
-
-    QStringList::Iterator itc = strlist.begin();
-
-    int inpfilenbr = 0;
-
-    while( itc != strlist.end() )
-    {
-        QString st = *itc;
-        if(st.contains("JLS", Qt::CaseSensitive))
-        {
-            if(st.contains("DIS", Qt::CaseSensitive))
-            {
-                if(st.contains("BODY", Qt::CaseSensitive))
-                {
-                    inpfilenbr = st.mid(148, 4).toInt();
-                }
-                else if(st.contains("TRAIL", Qt::CaseSensitive))
-                {
-                    inpfilenbr = st.mid(149, 4).toInt();
-                }
-            }
-            else
-            {
-                if(st.contains("BODY", Qt::CaseSensitive))
-                {
-                    inpfilenbr = st.mid(143, 4).toInt();
-                }
-                else if(st.contains("TRAIL", Qt::CaseSensitive))
-                {
-                    inpfilenbr = st.mid(144, 4).toInt();
-                }
-            }
-        } else
-        {
-            if(st.contains("BODY", Qt::CaseSensitive))
-            {
-                inpfilenbr = st.mid(140, 4).toInt();
-            }
-            else if(st.contains("TRAIL", Qt::CaseSensitive))
-            {
-                inpfilenbr = st.mid(141, 4).toInt();
-            }
-        }
-
-        if(inpfilenbr == filenbr)
-        {
-            strlistout.append(*itc);
-        }
-        itc++;
-    }
-
-    // If you want to sort your strings in an arbitrary order, consider using the QMap class.
-    // For example, you could use a QMap<QString, QString> to create a case-insensitive ordering
-    // (e.g. with the keys being lower-case versions of the strings, and the values being the strings),
-    // or a QMap<int, QString> to sort the strings by some integer index.
-
-//    for (int j = 0; j < strlistout.size(); ++j)
-//    {
-//        qDebug() << QString("getGeostationarySegmentsMTG out ======= %1  %2    %3").arg(imagetype).arg(j).arg(strlistout.at(j));
-//    }
-
-    return strlistout;
-}
-
-QStringList FormGeostationary::getGeostationarySegmentsMTGAlt(int geoindex, const QString imagetype, const QString filepath, int filenbr)
 {
     QStringList outlist;
     QMap<int, QMap< int, QFileInfo > > mapmtgi1;
@@ -1283,7 +1282,7 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
 
     if(type == "VIS_IR" || type == "VIS_IR Color")
     {
-        llVIS_IR = this->getGeostationarySegmentsMTGAlt(geoindex, type, sl->getImagePath(), filenbr);
+        llVIS_IR = this->getGeostationarySegmentsMTG(geoindex, type, sl->getImagePath(), filenbr);
         int count = llVIS_IR.count();
         qDebug() << QString("llVIS_IR count = %1").arg(count);
         if(llVIS_IR.count() == 0)

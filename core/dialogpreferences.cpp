@@ -309,11 +309,6 @@ void DialogPreferences::setupVIIRSMConfigTable()
 void DialogPreferences::setupGeoConfigTable()
 {
 
-    for(int i = 0; i < opts.tabgeosort.count(); i++)
-    {
-        new QListWidgetItem(opts.tabgeosort.at(i), ui->lwSort);
-    }
-
     myGeoConfigModel = new GeoConfigModel(this);
 
     ui->tbvGeoConfig->setModel(myGeoConfigModel);
@@ -673,14 +668,6 @@ void DialogPreferences::dialogaccept()
 
     opts.xmllogging = ui->rdbXMLlogging->isChecked();
     opts.datahubuser = ui->leDatahubUserId->text();
-
-    opts.tabgeosort.clear();
-    for(int i = 0; i < ui->lwSort->count(); i++)
-    {
-        opts.tabgeosort.append(ui->lwSort->item(i)->text());
-        qDebug() << opts.tabgeosort.at(i);
-    }
-
 
     if(POItablechanged)
         done(2);
@@ -3697,50 +3684,6 @@ void DialogPreferences::on_rdbDoLogging_toggled(bool checked)
     opts.doLogging = checked;
 }
 
-void DialogPreferences::on_btnSortUp_clicked()
-{
-    // int currentIndex = ui->lwSort->currentRow();
-    // QListWidgetItem *currentItem = ui->lwSort->takeItem(currentIndex);
-    // ui->lwSort->insertItem(currentIndex+1, currentItem);
-    // ui->lwSort->setCurrentRow(currentIndex+1);
 
 
-    QListWidgetItem *current = ui->lwSort->currentItem();
-    int currIndex = ui->lwSort->row(current);
-
-    QListWidgetItem *prev = ui->lwSort->item(ui->lwSort->row(current) - 1);
-    int prevIndex = ui->lwSort->row(prev);
-
-    QListWidgetItem *temp = ui->lwSort->takeItem(prevIndex);
-    ui->lwSort->insertItem(prevIndex, current);
-    ui->lwSort->insertItem(currIndex, temp);
-
-
-    // int currentIndex = ui->lwSort->currentRow();
-    // QListWidgetItem *currentItem = ui->lwSort->takeItem(currentIndex);
-    // ui->lwSort->insertItem(0, currentItem);
-    // ui->lwSort->setCurrentRow(0);
-
-
-    // int currentIndex = ui->lwSort->currentRow();
-    // QListWidgetItem *currentItem = ui->lwSort->takeItem(currentIndex);
-    // ui->lwSort->insertItem(ui->lwSort->count(), currentItem);
-    // ui->lwSort->setCurrentRow(ui->lwSort->count()-1);
-
-
-}
-
-
-void DialogPreferences::on_btnSortDown_clicked()
-{
-    QListWidgetItem *current = ui->lwSort->currentItem();
-    int currIndex = ui->lwSort->row(current);
-
-    QListWidgetItem *next = ui->lwSort->item(ui->lwSort->row(current) + 1);
-    int nextIndex = ui->lwSort->row(next);
-
-    QListWidgetItem *temp = ui->lwSort->takeItem(nextIndex);
-    ui->lwSort->insertItem(currIndex, temp);
-    ui->lwSort->insertItem(nextIndex, current);
-}
 

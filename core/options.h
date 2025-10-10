@@ -19,7 +19,6 @@
 #define TAB_MERSI 4
 #define TAB_GEOSTATIONARY 5
 #define TAB_PROJECTION 6
-#define TAB_HISTOGRAM 7
 
 #define TAB_LLC 0
 #define TAB_GVP 1
@@ -100,7 +99,6 @@ public:
     void CreateGeoSatelliteIni();
     int GetGeoIndex(QString shortname);
     int GetGeoIndexFromFullName(QString fullname);
-    void CreateGeoSatelliteIni_copy();
     void CreateGeoSatelliteJson();
     void globalChangeFonts(QWidget *toplevel, int fontsize);
     void setDarkMode(bool mode);
@@ -354,7 +352,6 @@ public:
     QStringList ffmpeg_options;
 
     bool bFciDecomp;
-    QStringList tabgeosort;
 
     int fontsize;
     bool darkmode;
