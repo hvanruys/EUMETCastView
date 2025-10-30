@@ -123,6 +123,7 @@ pkg_check_modules(NETCDF REQUIRED netcdf)
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Xml Core5Compat OpenGLWidgets)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Xml Concurrent Network PrintSupport OpenGL Core5Compat OpenGLWidgets)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 include(CMakePrintHelpers)
 cmake_print_variables(PROJECT_SOURCE_DIR)
@@ -135,9 +136,12 @@ cmake_print_variables(NETCDF_INCLUDE_DIRS)
 cmake_print_variables(CMAKE_CURRENT_SOURCE_DIR)
 
 if(UNIX)
-    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
+    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc
+        processmanager.h processmanager.cpp)
 elseif(WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
+
+target_link_libraries(EUMETCastView PRIVATE Qt6::Core)
+add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

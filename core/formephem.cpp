@@ -265,7 +265,7 @@ void FormEphem::NewSegmentOverviewItem()
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSDNBNOAA20(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSMNOAA21(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsVIIRSDNBNOAA21(), 0  );
-    newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIefr(), 0  );
+    //newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIefr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsOLCIerr(), 0  );
     newitem = new QTreeWidgetItem( ui->segmentoverview, segs->GetOverviewSegmentsMERSI(), 0  );
 

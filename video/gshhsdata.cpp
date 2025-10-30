@@ -1,6 +1,8 @@
 #include <QDebug>
 #include <QVector3D>
 #include "gshhsdata.h"
+#include "gshhs.h"
+#include "pixgeoconversion.h"
 
 // c = crude
 // l = low
@@ -9,7 +11,7 @@
 // f = full
 
 
-gshhsData::gshhsData(QVector<QString> overlayfiles)
+gshhsData::gshhsData(QList<QString> overlayfiles)
 {
 
 

@@ -284,19 +284,29 @@ void Options::Initialize()
     videogshhsglobe3On = settings.value("/video/videogshhsglobe3On", 0).toBool();
     videoresolutionheight = settings.value("/video/videoresolutionheight", 1080).toInt();
     videoresolutionwidth = settings.value("/video/videoresolutionwidth", 1920).toInt();
+
     dayred = settings.value("/video/dayred", "IR_016").value<QString>();
     daygreen = settings.value("/video/daygreen", "VIS008").value<QString>();
     dayblue = settings.value("/video/dayblue", "VIS006").value<QString>();
     dayredinverse = settings.value("/video/dayredinverse", 0).toBool();
     daygreeninverse = settings.value("/video/daygreeninverse", 0).toBool();
     dayblueinverse = settings.value("/video/dayblueinverse", 0).toBool();
+
+    dayredMTG = settings.value("/video/dayredmtg", "nir_16").value<QString>();
+    daygreenMTG = settings.value("/video/daygreenmtg", "vis_08").value<QString>();
+    dayblueMTG = settings.value("/video/daybluemtg", "vis_06").value<QString>();
+    dayredinverseMTG = settings.value("/video/dayredinversemtg", 0).toBool();
+    daygreeninverseMTG = settings.value("/video/daygreeninversemtg", 0).toBool();
+    dayblueinverseMTG = settings.value("/video/dayblueinversemtg", 0).toBool();
+
     dayhrv = settings.value("/video/dayhrv", 0).toBool();
+
     nightred = settings.value("/video/nightred", "IR_087").value<QString>();
-    nightgreen = settings.value("/video/nightgreen", "").value<QString>();
-    nightblue = settings.value("/video/nightblue", "").value<QString>();
     nightredinverse = settings.value("/video/nightredinverse", 1).toBool();
-    nightgreeninverse = settings.value("/video/nightgreeninverse", 0).toBool();
-    nightblueinverse = settings.value("/video/nightblueinverse", 0).toBool();
+
+    nightredMTG = settings.value("/video/nightredmtg", "ir_097").value<QString>();
+    nightredinverseMTG = settings.value("/video/nightredinversemtg", 1).toBool();
+
     videocoff = settings.value("/video/coff", 1856).toInt();
     videoloff = settings.value("/video/loff", 1856).toInt();
     videocfac = settings.value("/video/cfac", 781648343.0).toDouble();
@@ -631,19 +641,29 @@ void Options::Save()
     settings.setValue("/video/videogshhsglobe3On", videogshhsglobe3On);
     settings.setValue("/video/videoresolutionheight", videoresolutionheight);
     settings.setValue("/video/videoresolutionwidth", videoresolutionwidth);
+
     settings.setValue("/video/dayred", dayred);
     settings.setValue("/video/daygreen", daygreen);
     settings.setValue("/video/dayblue", dayblue);
     settings.setValue("/video/dayredinverse", dayredinverse);
     settings.setValue("/video/daygreeninverse", daygreeninverse);
     settings.setValue("/video/dayblueinverse", dayblueinverse);
+
+    settings.setValue("/video/dayredmtg", dayredMTG);
+    settings.setValue("/video/daygreenmtg", daygreenMTG);
+    settings.setValue("/video/daybluemtg", dayblueMTG);
+    settings.setValue("/video/dayredinversemtg", dayredinverseMTG);
+    settings.setValue("/video/daygreeninversemtg", daygreeninverseMTG);
+    settings.setValue("/video/dayblueinversemtg", dayblueinverseMTG);
+
     settings.setValue("/video/dayhrv", dayhrv);
+
     settings.setValue("/video/nightred", nightred);
-    settings.setValue("/video/nightgreen", nightgreen);
-    settings.setValue("/video/nightblue", nightblue);
     settings.setValue("/video/nightredinverse", nightredinverse);
-    settings.setValue("/video/nightgreeninverse", nightgreeninverse);
-    settings.setValue("/video/nightblueinverse", nightblueinverse);
+
+    settings.setValue("/video/nightredmtg", nightredMTG);
+    settings.setValue("/video/nightredinversemtg", nightredinverseMTG);
+
     settings.setValue("/video/coff", videocoff);
     settings.setValue("/video/loff", videoloff);
     settings.setValue("/video/cfac", videocfac);
@@ -969,7 +989,7 @@ void Options::CreateGeoSatelliteIni()
     //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
 
     geosatellites[0].fullname = "Meteosat-12";
-    geosatellites[0].shortname = "MTG-I1";
+    geosatellites[0].shortname = "MET_12";
     geosatellites[0].longitude = 0.0;
     geosatellites[0].longitudelimit1 = 92.0;
     geosatellites[0].longitudelimit2 = 250.0;

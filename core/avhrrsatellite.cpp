@@ -659,8 +659,6 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QList<Segment*> *slolcierr = seglolcierr->GetSegmentlistptr();
     QList<Segment*> *slmersi = seglmersi->GetSegmentlistptr();
 
-    qDebug() << QString("Start clearing segments");
-
     seglhrp->ClearSegments();
     seglmetop->ClearSegments();
     seglmetopsga1->ClearSegments();
@@ -925,9 +923,9 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString("Count segmentlistmersi = %1").arg(slmersi->count());
 
     for(int i = 0; i < opts.geosatellites.length(); i++)
-        if(opts.geosatellites.at(i).shortname != "MTG-I1")
+        if(opts.geosatellites.at(i).shortname != "MET_12")
             qDebug() << QString( "Nbr of items in segmentlistmapgeo %1 = %2").arg(opts.geosatellites.at(i).shortname).arg(segmentlistmapgeo[0].size());
-    qDebug() << QString( "Nbr of items in segmentlistmapgeomtgi1 MTG-I1 = %1").arg(segmentlistmapgeomtgi1.size());
+    qDebug() << QString( "Nbr of items in segmentlistmapgeomtgi1 MTG_12 = %1").arg(segmentlistmapgeomtgi1.size());
 
     int totgeosegments = 0;
     for(int i = 0; i < opts.geosatellites.length(); i++)
@@ -1692,7 +1690,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsMetop()
 {
 
     QStringList strlist;
-    strlist << seglmetop->GetDirectoryName() << QString("Metop") << QString("%1").arg(seglmetop->NbrOfSegments());
+    strlist << seglmetop->GetDirectoryName() << QString("Metop") << QString("(# %1)").arg(seglmetop->NbrOfSegments());
 
     return strlist;
 
@@ -1702,7 +1700,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsMetopSGA1()
 {
 
     QStringList strlist;
-    strlist << seglmetopsga1->GetDirectoryName() << QString("Metop SGA1") << QString("%1").arg(seglmetopsga1->NbrOfSegments());
+    strlist << seglmetopsga1->GetDirectoryName() << QString("Metop SGA1") << QString("(# %1)").arg(seglmetopsga1->NbrOfSegments());
 
     return strlist;
 
@@ -1712,7 +1710,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsHRP()
 {
 
     QStringList strlist;
-    strlist << seglhrp->GetDirectoryName() << QString("HRP") << QString("%1").arg(seglhrp->NbrOfSegments());
+    strlist << seglhrp->GetDirectoryName() << QString("HRP") << QString("(# %1)").arg(seglhrp->NbrOfSegments());
 
     return strlist;
 
@@ -1722,7 +1720,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSM()
 {
 
     QStringList strlist;
-    strlist << seglviirsm->GetDirectoryName() << QString("VIIRSM") <<  QString("%1").arg(seglviirsm->NbrOfSegments());
+    strlist << seglviirsm->GetDirectoryName() << QString("VIIRSM") <<  QString("(# %1)").arg(seglviirsm->NbrOfSegments());
 
     return strlist;
 
@@ -1732,7 +1730,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSDNB()
 {
 
     QStringList strlist;
-    strlist << seglviirsdnb->GetDirectoryName() << QString("VIIRSDNB") <<  QString("%1").arg(seglviirsdnb->NbrOfSegments());
+    strlist << seglviirsdnb->GetDirectoryName() << QString("VIIRSDNB") <<  QString("(# %1)").arg(seglviirsdnb->NbrOfSegments());
 
     return strlist;
 
@@ -1742,7 +1740,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSMNOAA20()
 {
 
     QStringList strlist;
-    strlist << seglviirsmnoaa20->GetDirectoryName() << QString("NOAA-20 M") <<  QString("%1").arg(seglviirsmnoaa20->NbrOfSegments());
+    strlist << seglviirsmnoaa20->GetDirectoryName() << QString("NOAA-20 M") <<  QString("(# %1)").arg(seglviirsmnoaa20->NbrOfSegments());
 
     return strlist;
 
@@ -1752,7 +1750,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSDNBNOAA20()
 {
 
     QStringList strlist;
-    strlist << seglviirsdnbnoaa20->GetDirectoryName() << QString("NOAA-20 DNB") <<  QString("%1").arg(seglviirsdnbnoaa20->NbrOfSegments());
+    strlist << seglviirsdnbnoaa20->GetDirectoryName() << QString("NOAA-20 DNB") <<  QString("(# %1)").arg(seglviirsdnbnoaa20->NbrOfSegments());
 
     return strlist;
 
@@ -1761,7 +1759,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSMNOAA21()
 {
 
     QStringList strlist;
-    strlist << seglviirsmnoaa21->GetDirectoryName() << QString("NOAA-21 M") <<  QString("%1").arg(seglviirsmnoaa21->NbrOfSegments());
+    strlist << seglviirsmnoaa21->GetDirectoryName() << QString("NOAA-21 M") <<  QString("(# %1)").arg(seglviirsmnoaa21->NbrOfSegments());
 
     return strlist;
 
@@ -1771,7 +1769,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsVIIRSDNBNOAA21()
 {
 
     QStringList strlist;
-    strlist << seglviirsdnbnoaa21->GetDirectoryName() << QString("NOAA-21 DNB") <<  QString("%1").arg(seglviirsdnbnoaa21->NbrOfSegments());
+    strlist << seglviirsdnbnoaa21->GetDirectoryName() << QString("NOAA-21 DNB") <<  QString("(# %1)").arg(seglviirsdnbnoaa21->NbrOfSegments());
 
     return strlist;
 
@@ -1780,7 +1778,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsOLCIefr()
 {
 
     QStringList strlist;
-    strlist << seglolciefr->GetDirectoryName() << QString("OLCI EFR") <<  QString("%1").arg(seglolciefr->NbrOfSegments());
+    strlist << seglolciefr->GetDirectoryName() << QString("OLCI EFR") <<  QString("(# %1)").arg(seglolciefr->NbrOfSegments());
 
     return strlist;
 
@@ -1790,7 +1788,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsOLCIerr()
 {
 
     QStringList strlist;
-    strlist << seglolcierr->GetDirectoryName() << QString("OLCI ERR") <<  QString("%1").arg(seglolcierr->NbrOfSegments());
+    strlist << seglolcierr->GetDirectoryName() << QString("OLCI ERR") <<  QString("(# %1)").arg(seglolcierr->NbrOfSegments());
 
     return strlist;
 
@@ -1801,7 +1799,7 @@ QStringList AVHRRSatellite::GetOverviewSegmentsMERSI()
 {
 
     QStringList strlist;
-    strlist << seglmersi->GetDirectoryName() << QString("FY3D") << QString("%1").arg(seglmersi->NbrOfSegments());
+    strlist << seglmersi->GetDirectoryName() << QString("FY3D") << QString("(# %1)").arg(seglmersi->NbrOfSegments());
 
     return strlist;
 
@@ -1810,10 +1808,53 @@ QStringList AVHRRSatellite::GetOverviewSegmentsMERSI()
 QStringList AVHRRSatellite::GetOverviewSegmentsGeo(int geoindex)
 {
     QStringList strlist;
-    if(opts.geosatellites.at(geoindex).shortname == "MTG-I1")
-        strlist << seglgeo.at(geoindex)->getImagePath() << QString(opts.geosatellites.at(geoindex).shortname) << QString("%1").arg(this->segmentlistmapgeomtgi1.count());
+    if(opts.geosatellites.at(geoindex).shortname == "MET_12")
+        strlist << seglgeo.at(geoindex)->getImagePath() << QString(opts.geosatellites.at(geoindex).shortname) << QString("(# %1)").arg(this->segmentlistmapgeomtgi1.count());
     else
-        strlist << seglgeo.at(geoindex)->getImagePath() << QString(opts.geosatellites.at(geoindex).shortname) << QString("%1").arg(this->segmentlistmapgeo.at(geoindex).count());
+        strlist << seglgeo.at(geoindex)->getImagePath() << QString(opts.geosatellites.at(geoindex).shortname) << QString("(# %1)").arg(this->segmentlistmapgeo.at(geoindex).count());
+
+    return strlist;
+}
+
+QStringList AVHRRSatellite::GetDatestampsList(int geoindex)
+{
+
+    QDate mydate = this->selectiondate;
+    QString yeardir = mydate.toString("yyyyMMdd").mid(0, 4);
+    QString monthdir = mydate.toString("yyyyMMdd").mid(4, 2);
+    QString daydir = mydate.toString("yyyyMMdd").mid(6, 2);
+
+
+
+    QStringList strlist;
+
+    //QMap<int, QMap< int, QFileInfo > > segmentlistmapgeomtgi1;
+    if(opts.geosatellites.at(geoindex).shortname == "MET_12")
+    {
+        if(segmentlistmapgeomtgi1.count() > 0)
+        {
+            for (auto i = segmentlistmapgeomtgi1.cbegin(), end = segmentlistmapgeomtgi1.cend(); i != end; ++i)
+            {
+                int ii = i.key();
+                int totmin = (i.key() - 1) * 10;
+                int hour = (totmin - (totmin % 60))/60;
+                int min = totmin - (hour * 60);
+                //qDebug() << "hour = " << hour << " min = " << min;
+                //strlist << QString("%1%2%3%4%5").arg(yeardir).arg(monthdir).arg(daydir).arg(hour, 2, 10, QChar('0')).arg(min, 2, 10, QChar('0'));
+                strlist << QString("%1").arg(ii, 3, 10, QChar('0'));
+            }
+        }
+    }
+    else
+    {
+        // QList<QMap<QString, QMap<QString, QMap< int, QFileInfo > > > > segmentlistmapgeo;
+        if(segmentlistmapgeo.count() > 0)
+        {
+            for (auto i = segmentlistmapgeo.at(geoindex).cbegin(), end = segmentlistmapgeo.at(geoindex).cend(); i != end; ++i)
+                strlist << i.key();
+        }
+    }
+
 
     return strlist;
 }

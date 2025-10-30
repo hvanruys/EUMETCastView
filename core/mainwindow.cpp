@@ -112,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->stackedWidget->addWidget(formimage); //imagescrollarea);  // index 3
 
-    formmovie = new FormMovie(this);
+    formmovie = new FormMovie(this, seglist);
     formmovie->SetFormToolbox(formtoolbox);
     formtoolbox->setFormMovie(formmovie);
 
@@ -152,6 +152,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formglobecyl, SIGNAL(signalSegmentChanged(QString)), this, SLOT(updateStatusBarIndicator(QString)) );
     connect( ui->stackedWidget, SIGNAL(currentChanged(int)),formglobecyl, SLOT(updatesatmap(int)) );
     connect( formephem,SIGNAL(signalDirectoriesRead(QDate)), formgeostationary, SLOT(PopulateTree(QDate)) );
+    connect( formephem,SIGNAL(signalDirectoriesRead(QDate)), formmovie, SLOT(PopulateSelectionList(QDate)) );
     connect( seglist,SIGNAL(signalAddedSegmentlist()), formephem, SLOT(showSegmentsAdded()));
     connect( seglist,SIGNAL(signalAddedSegmentlist()), formglobecyl, SLOT(slotShowSegmentCount()));
 
@@ -491,7 +492,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br>MERSI from FengYun 3D"
     "<br><br><b>Geostationary satellites :</b>"
     "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-8"
-    "<br>FCI from MTG-I1"
+    "<br>FCI from Meteosat-12"
     "<br>Electro L3, FengYun 2H, FengYun 2G"
     "<br>GOES-18, GOES-19 and Himawari-9"
     "<ul>"
@@ -628,7 +629,7 @@ void MainWindow::on_actionImage_triggered()
         }
 //        formimage->UpdateProjection();
 
-       // formimage->displayImage(IMAGE_PROJECTION); //Projection image
+        formimage->displayImage(IMAGE_PROJECTION, true); //Projection image
     }
 
     ui->actionSatSelection->setChecked(false);

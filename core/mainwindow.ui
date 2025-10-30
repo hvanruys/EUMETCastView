@@ -272,10 +272,13 @@
      <normaloff>:/icons/movie.png</normaloff>:/icons/movie.png</iconset>
    </property>
    <property name="text">
-    <string>Settings Movie</string>
+    <string>Settings Video</string>
+   </property>
+   <property name="iconText">
+    <string>Settings Video</string>
    </property>
    <property name="toolTip">
-    <string>Settings movie XML file</string>
+    <string>Settings video Json file</string>
    </property>
   </action>
   <action name="actionFonts_plus">

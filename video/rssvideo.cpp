@@ -8,8 +8,11 @@
 #include "qsun.h"
 #include "qeci.h"
 #include "qobserver.h"
-
-
+#include "generalverticalperspective.h"
+#include "MSG_data.h"
+#include "msgfileaccess.h"
+#include "msgdataaccess.h"
+#include "pixgeoconversion.h"
 
 #define CMB_HISTO_NONE_95 0
 #define CMB_HISTO_NONE_100 1
@@ -245,16 +248,16 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
     quint16 *ptrDayGreen;
     quint16 *ptrDayBlue;
     quint16 *ptrNightRed;
-    quint16 *ptrNightGreen;
-    quint16 *ptrNightBlue;
+    // quint16 *ptrNightGreen;
+    // quint16 *ptrNightBlue;
     quint16 *ptrHRV;
 
     ptrDayRed = NULL;
     ptrDayGreen = NULL;
     ptrDayBlue = NULL;
     ptrNightRed = NULL;
-    ptrNightGreen = NULL;
-    ptrNightBlue = NULL;
+    // ptrNightGreen = NULL;
+    // ptrNightBlue = NULL;
     ptrHRV = NULL;
 
     QImage imagevisir;
@@ -308,10 +311,10 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
     {
         ptrNightRed = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
         memset(ptrNightRed, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
-        ptrNightGreen = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
-        memset(ptrNightGreen, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
-        ptrNightBlue = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
-        memset(ptrNightBlue, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
+        // ptrNightGreen = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
+        // memset(ptrNightGreen, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
+        // ptrNightBlue = new quint16[3712 * (reader->brss ? 3*464 : 8*464)];
+        // memset(ptrNightBlue, 0, 3712 * (reader->brss ? 3*464 : 8*464) * sizeof(quint16));
     }
 
     QString fpattern = reader->filepattern.replace(46, 12, date);
@@ -448,10 +451,10 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
                 getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrDayBlue, filesequence, "VISIRList");
             else if(filespectrum == reader->spectrum.at(3))
                 getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightRed, filesequence, "VISIRList");
-            else if(filespectrum == reader->spectrum.at(4))
-                getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightGreen, filesequence, "VISIRList");
-            else if(filespectrum == reader->spectrum.at(5))
-                getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightBlue, filesequence, "VISIRList");
+            // else if(filespectrum == reader->spectrum.at(4))
+            //     getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightGreen, filesequence, "VISIRList");
+            // else if(filespectrum == reader->spectrum.at(5))
+            //     getSegmentSamples(path + "/" + llVIS_IR.at(i), ptrNightBlue, filesequence, "VISIRList");
         }
 
     }
@@ -491,7 +494,7 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
 
     if(reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color")
     {
-        this->ComposeHRV1(ptrHRV, ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, ptrNightGreen, ptrNightBlue, imagehrv, date,
+        this->ComposeHRV1(ptrHRV, ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, imagehrv, date,
                           LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA, imagenbr);
         imageGeostationary = imagehrv;
         imagehrv.save(QString("tempimages/hrv%1.png").arg(imagenbr, 4, 10, QChar('0')));
@@ -508,7 +511,7 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
     else
         if(reader->daykindofimage == "VIS_IR" || reader->daykindofimage == "VIS_IR Color" || reader->nightkindofimage == "VIS_IR" || reader->nightkindofimage == "VIS_IR Color")
         {
-            this->ComposeVISIR(ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, ptrNightGreen, ptrNightBlue, imagevisir, date, imagenbr);
+            this->ComposeVISIR(ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, imagevisir, date, imagenbr);
             imageGeostationary = imagevisir;
             imagevisir.save(QString("tempimages/visir%1.png").arg(imagenbr, 4, 10, QChar('0')));
 
@@ -524,6 +527,7 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
 
     if(reader->projectiontype == "GVP")
     {
+        // GeneralVerticalPerspective(JsonVideoReader *reader = 0, VideoMaker *video = 0, QImage *imGeostationary = 0, QObject *parent = 0);
         GeneralVerticalPerspective *gvp = new GeneralVerticalPerspective(reader, this, &imageGeostationary);
 
         QPainter painter(gvp->imageProjection);
@@ -587,8 +591,8 @@ void RSSVideo::compileImage(QString date, QString path, int imagenbr)
     if(reader->nightkindofimage == "VIS_IR Color")
     {
         delete ptrNightRed;
-        delete ptrNightGreen;
-        delete ptrNightBlue;
+        // delete ptrNightGreen;
+        // delete ptrNightBlue;
     }
 
 
@@ -719,7 +723,7 @@ bool RSSVideo::isSegmentAvailable(QString segmentstr, QStringList *segs, QTime t
 }
 
 void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue,
-                          quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
+                          quint16 *ptrNightRed, QImage &imhrv, QString date,
                           int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr)
 {
     QRgb *row_col;
@@ -984,7 +988,7 @@ void RSSVideo::ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGr
 }
 
 void RSSVideo::ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue,
-                           quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
+                           quint16 *ptrNightRed, QImage &imhrv, QString date,
                            int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr)
 {
     QRgb *row_col;
@@ -1260,7 +1264,7 @@ void RSSVideo::ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayG
 }
 
 void RSSVideo::ComposeHRVFull(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue,
-                              quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrvfull, QString date,
+                              quint16 *ptrNightRed, QImage &imhrvfull, QString date,
                               int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla)
 {
     QRgb *row_col;
@@ -1557,8 +1561,7 @@ void RSSVideo::getSegmentSamples(QString filepath, quint16 *ptr, int filesequenc
 }
 
 
-void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen,
-                            quint16 *ptrNightBlue, QImage &imvisir, QString date, int imagenbr)
+void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, QImage &imvisir, QString date, int imagenbr)
 {
 
     QRgb *row_col_day;
@@ -1664,13 +1667,13 @@ void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *p
             CalculateMinMax(0, width, height, ptrNightRed, 0, stat_min_night, stat_max_night, active_pixels_night);
             CalculateLUTGeo(0, width, height, ptrNightRed, 0, stat_min_night, stat_max_night, active_pixels_night, lut_ch_night, minRadianceIndexNight, maxRadianceIndexNight);
         }
-        if(reader->nightkindofimage == "VIS_IR Color")
-        {
-            CalculateMinMax(1, width, height, ptrNightGreen, 0, stat_min_night, stat_max_night, active_pixels_night);
-            CalculateLUTGeo(1, width, height, ptrNightGreen, 0, stat_min_night, stat_max_night, active_pixels_night, lut_ch_night, minRadianceIndexNight, maxRadianceIndexNight);
-            CalculateMinMax(2, width, height, ptrNightBlue, 0, stat_min_night, stat_max_night, active_pixels_night);
-            CalculateLUTGeo(2, width, height, ptrNightBlue, 0, stat_min_night, stat_max_night, active_pixels_night, lut_ch_night, minRadianceIndexNight, maxRadianceIndexNight);
-        }
+        // if(reader->nightkindofimage == "VIS_IR Color")
+        // {
+        //     CalculateMinMax(1, width, height, ptrNightGreen, 0, stat_min_night, stat_max_night, active_pixels_night);
+        //     CalculateLUTGeo(1, width, height, ptrNightGreen, 0, stat_min_night, stat_max_night, active_pixels_night, lut_ch_night, minRadianceIndexNight, maxRadianceIndexNight);
+        //     CalculateMinMax(2, width, height, ptrNightBlue, 0, stat_min_night, stat_max_night, active_pixels_night);
+        //     CalculateLUTGeo(2, width, height, ptrNightBlue, 0, stat_min_night, stat_max_night, active_pixels_night, lut_ch_night, minRadianceIndexNight, maxRadianceIndexNight);
+        // }
     }
 
     if(nighthistogrammethod == CMB_HISTO_CLAHE )
@@ -1679,11 +1682,11 @@ void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *p
         {
             this->CLAHE(ptrNightRed, 3712, reader->brss ? 3*464 : 8*464, 0, 1023, 16, 16, 256, 8.7);
         }
-        if(reader->nightkindofimage == "VIS_IR Color")
-        {
-            this->CLAHE(ptrNightGreen, 3712, reader->brss ? 3*464 : 8*464, 0, 1023, 16, 16, 256, 8.7);
-            this->CLAHE(ptrNightBlue, 3712, reader->brss ? 3*464 : 8*464, 0, 1023, 16, 16, 256, 8.7);
-        }
+        // if(reader->nightkindofimage == "VIS_IR Color")
+        // {
+        //     this->CLAHE(ptrNightGreen, 3712, reader->brss ? 3*464 : 8*464, 0, 1023, 16, 16, 256, 8.7);
+        //     this->CLAHE(ptrNightBlue, 3712, reader->brss ? 3*464 : 8*464, 0, 1023, 16, 16, 256, 8.7);
+        // }
     }
 
 
@@ -1793,8 +1796,8 @@ void RSSVideo::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *p
             if(reader->nightkindofimage == "VIS_IR Color")
             {
                 cred = *(ptrNightRed + line * 3712 + pixelx);
-                cgreen = *(ptrNightGreen + line * 3712 + pixelx);
-                cblue = *(ptrNightBlue + line * 3712 + pixelx);
+                // cgreen = *(ptrNightGreen + line * 3712 + pixelx);
+                // cblue = *(ptrNightBlue + line * 3712 + pixelx);
 
                 if(nighthistogrammethod == CMB_HISTO_NONE_95)
                 {

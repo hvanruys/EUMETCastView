@@ -309,19 +309,28 @@ public:
     bool videogshhsglobe3On;
     int videoresolutionheight;
     int videoresolutionwidth;
+
     QString dayred;
     QString daygreen;
     QString dayblue;
     bool dayredinverse;
     bool daygreeninverse;
     bool dayblueinverse;
+
+    QString dayredMTG;
+    QString daygreenMTG;
+    QString dayblueMTG;
+    bool dayredinverseMTG;
+    bool daygreeninverseMTG;
+    bool dayblueinverseMTG;
+
     bool dayhrv;
+
     QString nightred;
-    QString nightgreen;
-    QString nightblue;
     bool nightredinverse;
-    bool nightgreeninverse;
-    bool nightblueinverse;
+    QString nightredMTG;
+    bool nightredinverseMTG;
+
     int videocoff;
     int videoloff;
     double videocfac;
@@ -331,6 +340,7 @@ public:
     double videocfachrv;
     double videolfachrv;
     double videosatlon;
+
 //    double videohomelon;
 //    double videohomelat;
     QString videooverlaycolor1;

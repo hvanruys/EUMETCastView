@@ -2,9 +2,9 @@
 #define GENERALVERTICALPERSPECTIVE_H
 
 #include <QLabel>
-#include "gshhsdata.h"
 #include "xmlvideoreader.h"
-#include "rssvideo.h"
+#include "jsonvideoreader.h"
+#include "videomaker.h"
 
 #define EPSLN	1.0e-3
 class RSSVideo;
@@ -14,7 +14,7 @@ class GeneralVerticalPerspective : public QObject
     Q_OBJECT
 
 public:
-    explicit GeneralVerticalPerspective(XMLVideoReader *reader = 0, RSSVideo *video = 0, QImage *imGeostationary = 0, QObject *parent = 0);
+    explicit GeneralVerticalPerspective(JsonVideoReader *reader = 0, VideoMaker *video = 0, QImage *imGeostationary = 0, QObject *parent = 0);
     ~GeneralVerticalPerspective();
 
     double Initialize(double lonmapdeg, double latmapdeg, double heightmapkm, double scaling, double falseeasting, double falsenorthing, int imagewidth, int imageheight);
@@ -58,8 +58,8 @@ private:
     double map_radius;
     //int *map_extents_min;
     //int *map_extents_max;
-    XMLVideoReader *reader;
-    RSSVideo *video;
+    JsonVideoReader *reader;
+    VideoMaker *video;
 
 
 

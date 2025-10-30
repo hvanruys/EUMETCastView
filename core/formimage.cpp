@@ -1401,7 +1401,7 @@ void FormImage::setupGshhs(int geoindex, int k)
 
     if(!(opts.geosatellites.at(geoindex).shortname == "GOES_19" || opts.geosatellites.at(geoindex).shortname == "GOES_18" ||
         opts.geosatellites.at(geoindex).shortname == "FY2H" || opts.geosatellites.at(geoindex).shortname == "FY2G"))
-        geoindex = opts.GetGeoIndex("MTG-I1");
+        geoindex = opts.GetGeoIndex("MET_12");
 
     for (int i=0; i<gshhsdata->vxp_data_overlay[k]->nFeatures; i++)
     {
@@ -1626,7 +1626,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
     cfac = hrvimage ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
     lfac = hrvimage ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
 
-    if(sl->getGeoSatellite() == eGeoSatellite::MTG_I1)
+    if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
     {
         coff = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
         loff = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
@@ -1808,7 +1808,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                     row = this->geooverlay[k].at(i).y()/factor;
                     if(row < m_image->height() && col < m_image->width())
                     {
-                        if(sl->getGeoSatellite() == eGeoSatellite::MTG_I1)
+                        if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
                             paint->drawLine(save_col, save_row - 3, col, row - 3);
                         else
                             paint->drawLine(save_col, save_row, col, row);
@@ -3519,7 +3519,7 @@ void FormImage::recalculateCLAHEGeo()
     if(sl == NULL)
         return;
 
-    //    if(sl->getGeoSatellite() == eGeoSatellite::MTG_I1)
+    //    if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
     //        recalculateCLAHEMTG(spectrumvector, inversevector);
     //    else
     recalculateCLAHEMeteosat1();

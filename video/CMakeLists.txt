@@ -11,14 +11,23 @@ set(CMAKE_AUTORCC ON)
 set(PROJECT_SOURCES
 	main.cpp
 	generalverticalperspective.cpp
-	geoseglist.cpp
+	generalverticalperspective.h
 	globals.cpp
-	rssvideo.cpp
+	globals.h
 	msgdataaccess.cpp
+	msgdataaccess.h
 	msgfileaccess.cpp
+	msgfileaccess.h
 	gshhsdata.cpp
+	gshhsdata.h
 	pixgeoconversion.cpp
+	pixgeoconversion.h
 	xmlvideoreader.cpp
+	xmlvideoreader.h
+	jsonvideoreader.cpp
+	jsonvideoreader.h
+	videomaker.cpp
+	videomaker.h
 )
 
 set(CMAKE_CXX_STANDARD 20)
@@ -27,9 +36,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED Core Gui Widgets Xml Concurrent Network PrintSupport)
 
 if(UNIX)
-    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
+	jsonvideoreader.h jsonvideoreader.cpp
+	videomaker.h videomaker.cpp)
 elseif(WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES})
+
+target_link_libraries(EUMETCastVideo PRIVATE Qt6::Core Qt6::Gui)
+add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES})
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

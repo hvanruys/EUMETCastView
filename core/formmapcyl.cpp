@@ -256,8 +256,7 @@ void FormMapCyl::showSegmentCount()
     int cntolcierr = segs->seglolcierr->NbrOfSegments();
     int cntmersi = segs->seglmersi->NbrOfSegments();
 
-    long totseg = cntmetop + cntmetopsga1 + cnthrp + cntviirsm + cntviirsdnb + cntviirsmnoaa20 + cntviirsdnbnoaa20 + cntviirsmnoaa21 + cntviirsdnbnoaa21
-                  + cntolciefr + cntolcierr + cntmersi;
+    qDebug() << "1";
     long totsegsel = cntselmetop + cntselmetopsga1 + cntselhrp + cntselviirsm + cntselviirsdnb  + cntselviirsmnoaa20 + cntselviirsdnbnoaa20 + cntselviirsmnoaa21 + cntselviirsdnbnoaa21
                      + cntselolciefr + cntselolcierr + cntselmersi;
 
@@ -269,6 +268,8 @@ void FormMapCyl::showSegmentCount()
     {
         ui->btnRemoveSelected->setText(" No selected segments ");
     }
+
+    qDebug() << "2";
 
     ui->btnMetop->setText((QString(" Metop A/B/C # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
     ui->btnHRP->setText((QString(" Metop A/B/C HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
@@ -286,6 +287,7 @@ void FormMapCyl::showSegmentCount()
     ui->btnOLCIerr->setText((QString(" OLCI ERR # %1/%2 ").arg(cntselolcierr).arg(cntolcierr)));
 
     ui->btnMERSI->setText((QString(" FY-3D # %1/%2 ").arg(cntselmersi).arg(cntmersi)));
+    qDebug() << "3";
 
 }
 

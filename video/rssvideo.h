@@ -3,12 +3,8 @@
 #include <QPainter>
 #include <QUdpSocket>
 
-#include "MSG_data.h"
-#include "msgfileaccess.h"
-#include "msgdataaccess.h"
 #include "gshhsdata.h"
 #include "xmlvideoreader.h"
-#include "generalverticalperspective.h"
 
 #ifdef _WIN32
 #include <hdf5.h>
@@ -17,7 +13,6 @@
 #endif
 #include <netcdf.h>
 
-class GeneralVerticalPerspective;
 
 class RSSVideo : public QObject
 {
@@ -48,12 +43,12 @@ private:
     QStringList getGeostationarySegments(const QString imagetype, QString path, QVector<QString> spectrumvector, QString filepattern);
     void getFilenameParameters(QString filename, QString &filespectrum, QString &filedate, int &filesequence);
     //void ComposeSegmentImageXRIT(QString filepath, quint16 *ptrRed, quint16 *ptrGreen, quint16 *ptrBlue, quint16 *ptrHRV);
-    void ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imvisir, QString date, int imagenbr);
-    void ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
+    void ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, QImage &imvisir, QString date, int imagenbr);
+    void ComposeHRV(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, QImage &imhrv, QString date,
                     int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr);
-    void ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
+    void ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, QImage &imhrv, QString date,
                     int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr);
-    void ComposeHRVFull(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, quint16 *ptrNightGreen, quint16 *ptrNightBlue, QImage &imhrv, QString date,
+    void ComposeHRVFull(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue, quint16 *ptrNightRed, QImage &imhrv, QString date,
                         int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla);
     void CalculateMinMax(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue, quint16 stat_min[], quint16 stat_max[], long active_pixels[]);
     void CalculateLUTGeo(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue, quint16 stat_min[], quint16 stat_max[],

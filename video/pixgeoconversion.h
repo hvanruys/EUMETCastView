@@ -1,7 +1,6 @@
 #ifndef PIXGEOCONVERSION_H
 #define PIXGEOCONVERSION_H
 
-#include "qsgp4globals.h"
 
 #define HALF_PI PI*0.5
 #define TWO_PI 	PI*2.0

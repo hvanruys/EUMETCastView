@@ -1,13 +1,14 @@
 #include "generalverticalperspective.h"
 #include "globals.h"
 #include "pixgeoconversion.h"
+#include "videomaker.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QPainter>
 #include <QDebug>
 
 extern gshhsData *gshhsdata;
 
-GeneralVerticalPerspective::GeneralVerticalPerspective(XMLVideoReader *reader, RSSVideo *video, QImage *imGeostationary, QObject *parent ) : QObject(parent)
+GeneralVerticalPerspective::GeneralVerticalPerspective(JsonVideoReader *reader, VideoMaker *video, QImage *imGeostationary, QObject *parent ) : QObject(parent)
 {
     image_width = 0;
     image_height = 0;
@@ -27,31 +28,31 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
                                               double falseeasting, double falsenorthing, int imagewidth, int imageheight)
 {
 
-//    if (imagewidth != video->ptrimageProjection->width() || imageheight != video->ptrimageProjection->height())
-//    {
-//        delete video->ptrimageProjection;
-        imageProjection = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
-        imageProjection->fill(qRgba(0, 0, 0, 250));
-//    }
+    //    if (imagewidth != video->ptrimageProjection->width() || imageheight != video->ptrimageProjection->height())
+    //    {
+    //        delete video->ptrimageProjection;
+    imageProjection = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
+    imageProjection->fill(qRgba(0, 0, 0, 250));
+    //    }
 
-//    video->ptrimageProjectionRed.reset(new quint16[imagewidth * imageheight]);
-//    video->ptrimageProjectionGreen.reset(new quint16[imagewidth * imageheight]);
-//    video->ptrimageProjectionBlue.reset(new quint16[imagewidth * imageheight]);
-//    video->ptrimageProjectionAlpha.reset(new quint16[imagewidth * imageheight]);
+    //    video->ptrimageProjectionRed.reset(new quint16[imagewidth * imageheight]);
+    //    video->ptrimageProjectionGreen.reset(new quint16[imagewidth * imageheight]);
+    //    video->ptrimageProjectionBlue.reset(new quint16[imagewidth * imageheight]);
+    //    video->ptrimageProjectionAlpha.reset(new quint16[imagewidth * imageheight]);
 
-//    for(int i = 0; i < imagewidth * imageheight; i++)
-//    {
-//        video->ptrimageProjectionRed[i] = 0;
-//        video->ptrimageProjectionGreen[i] = 0;
-//        video->ptrimageProjectionBlue[i] = 0;
-//        video->ptrimageProjectionAlpha[i] = 0;
-//    }
+    //    for(int i = 0; i < imagewidth * imageheight; i++)
+    //    {
+    //        video->ptrimageProjectionRed[i] = 0;
+    //        video->ptrimageProjectionGreen[i] = 0;
+    //        video->ptrimageProjectionBlue[i] = 0;
+    //        video->ptrimageProjectionAlpha[i] = 0;
+    //    }
 
 
     image_width = imagewidth;
     image_height = imageheight;
-    lon_center = lonmapdeg*PIE/180.0;
-    lat_center = latmapdeg*PIE/180.0;
+    lon_center = lonmapdeg*M_PI/180.0;
+    lat_center = latmapdeg*M_PI/180.0;
     R = 6370997.0;
     p = 1.0 + heightmapkm*1000/R;
 
@@ -87,10 +88,10 @@ double GeneralVerticalPerspective::Initialize(double lonmapdeg, double latmapdeg
 
 
 #ifdef WIN32 //&& __GNUC__
-        sin_lat_o = sin(lat_center);
-        cos_lat_o = cos(lat_center);
+    sin_lat_o = sin(lat_center);
+    cos_lat_o = cos(lat_center);
 #else
-        sincos(lat_center, &sin_lat_o,&cos_lat_o);
+    sincos(lat_center, &sin_lat_o,&cos_lat_o);
 #endif
 
     return map_radius;
@@ -133,7 +134,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
     int UWCAdiff = 0;
     int UNLAdiff = 0;
 
-    if(reader->satname == "MET_11" || reader->satname == "MET_10" || reader->satname == "MET_9")
+    if(reader->shortname == "MET_11" || reader->shortname == "MET_10" || reader->shortname == "MET_9")
     {
         LECAdiff = 11136 - leca;
         LSLAdiff = 11136 - lsla;
@@ -173,9 +174,9 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
         {
             if (this->map_inverse(i, j, lon_rad, lat_rad))
             {
-                if(reader->satname == "MET_11" || reader->satname == "MET_10" || reader->satname == "MET_9")
+                if(reader->shortname == "MET_11" || reader->shortname == "MET_10" || reader->shortname == "MET_9")
                 {
-                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, coff, loff, cfac, lfac, &col, &row) == 0)
+                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/M_PI, lon_rad*180.0/M_PI, coff, loff, cfac, lfac, &col, &row) == 0)
                     {
                         if( reader->bhrv == false)
                         {
@@ -220,20 +221,20 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
                                 {
                                     scanl = (QRgb*)imageGeostationary->scanLine(picrow);
 
-//                                    if (picrow > usla ) //LOWER
-//                                    {
-//                                        if( col > LWCA && col < LECA)
-//                                            piccol = col - LWCA;
-//                                        else
-//                                            piccol = 0;
-//                                    }
-//                                    else //UPPER
-//                                    {
-                                        if( col > UWCAdiff && col < UECAdiff)
-                                            piccol = col - UWCAdiff;
-                                        else
-                                            piccol = 0;
-//                                    }
+                                    //                                    if (picrow > usla ) //LOWER
+                                    //                                    {
+                                    //                                        if( col > LWCA && col < LECA)
+                                    //                                            piccol = col - LWCA;
+                                    //                                        else
+                                    //                                            piccol = 0;
+                                    //                                    }
+                                    //                                    else //UPPER
+                                    //                                    {
+                                    if( col > UWCAdiff && col < UECAdiff)
+                                        piccol = col - UWCAdiff;
+                                    else
+                                        piccol = 0;
+                                    //                                    }
 
                                     if(piccol > 0 && piccol < 5568)
                                     {
@@ -247,50 +248,24 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
 
                     }
                 }
-//                else if( reader->satname == "GOES_16" || reader->satname == "GOES_17")
-//                {
-//                    lon_deg = lon_rad * 180.0 / PI;
-//                    lat_deg = lat_rad * 180.0 / PI;
+                else
+                {
+                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/M_PI, lon_rad*180.0/M_PI, coff, loff, cfac, lfac, &col, &row) == 0)
+                    {
+                        picrow = row;
+                        if(picrow < imageGeostationary->height())
+                        {
 
-//                    pixconv.earth_to_fgf_(&sat, &lon_deg, &lat_deg, &scale_x, &offset_x, &scale_y, &offset_y, &sub_lon, &fgf_x, &fgf_y);
-//                    if(fgf_x >= 0 && fgf_x < opts.geosatellites.at(geoindex).imagewidth && fgf_y >= 0 && fgf_y < opts.geosatellites.at(geoindex).imageheight)
-//                    {
-//                        col = (int)fgf_x;
-//                        row = (int)fgf_y;
-//                        ret = 0;
-//                    }
-//                    else
-//                        ret = 1;
+                            scanl = (QRgb*)imageGeostationary->scanLine(picrow);
+                            rgbval = scanl[col];
 
-//                    if(ret == 0)
-//                    {
-//                        picrow = row;
-//                        if(picrow < video->ptrimageGeostationary->height())
-//                        {
-//                            scanl = (QRgb*)video->ptrimageGeostationary->scanLine(picrow);
-//                            rgbval = scanl[col];
-//                            fb_painter.setPen(rgbval);
-//                            fb_painter.drawPoint(i,j);
-//                        }
-//                    }
-//                }
-//                else
-//                {
-//                    if (this->map_inverse(i, j, lon_rad, lat_rad))
-//                    {
-//                        if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PI, lon_rad*180.0/PI, coff, loff, cfac, lfac, &col, &row) == 0)
-//                        {
-//                            picrow = row;
-//                            if(picrow < imageGeostationary->height())
-//                            {
-//                                scanl = (QRgb*)imageGeostationary->scanLine(picrow);
-//                                rgbval = scanl[col];
-//                                fb_painter->setPen(rgbval);
-//                                fb_painter->drawPoint(i,j);
-//                            }
-//                        }
-//                    }
-//                }
+                            fb_painter->setPen(rgbval);
+                            fb_painter->drawPoint(i,j);
+
+
+                        }
+                    }
+                }
             }
         }
     }
@@ -345,17 +320,17 @@ bool GeneralVerticalPerspective::genpersfor(double lon, double lat, double *x, d
     dlon = adjust_lon_rad(lon - lon_center);
 
 
-//#ifdef WIN32 && __GNUC__
-//        sinphi = sin(lat);
-//        cosphi = cos(lat);
-//#else
-//        sincos(lat,&sinphi,&cosphi);
-//#endif
-        sinphi = sin(lat);
-        cosphi = cos(lat);
+    //#ifdef WIN32 && __GNUC__
+    //        sinphi = sin(lat);
+    //        cosphi = cos(lat);
+    //#else
+    //        sincos(lat,&sinphi,&cosphi);
+    //#endif
+    sinphi = sin(lat);
+    cosphi = cos(lat);
 
-        coslon = cos(dlon);
-        sinlon = sin(dlon);
+    coslon = cos(dlon);
+    sinlon = sin(dlon);
 
     g = sin_lat_o * sinphi + cos_lat_o * cosphi * coslon;
     if (g < (1.0/ p))
@@ -414,12 +389,12 @@ bool GeneralVerticalPerspective::genpersinv(double x, double y, double *lon, dou
 
     sinz = (p - sqrt(1.0 - (r * r * com) / con)) / (con / r + r/con);
     z = asinz(sinz);
-//#ifdef WIN32 && __GNUC__
-//    sinz = sin(z);
-//    cosz = cos(z);
-//#else
-//    sincos(z,&sinz,&cosz);
-//#endif
+    //#ifdef WIN32 && __GNUC__
+    //    sinz = sin(z);
+    //    cosz = cos(z);
+    //#else
+    //    sincos(z,&sinz,&cosz);
+    //#endif
 
     sinz = sin(z);
     cosz = cos(z);

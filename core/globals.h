@@ -71,7 +71,7 @@ enum class eGeoSatellite {
     GOES_19 = 6,
     GOES_18 = 7,
     H9 = 8,
-    MTG_I1 = 9,
+    MET_12 = 9,
     NOGEO = 10
 };
 

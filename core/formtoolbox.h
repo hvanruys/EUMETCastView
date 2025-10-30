@@ -311,7 +311,6 @@ private slots:
     void on_comboGeo16_currentIndexChanged(int index);
 
     void on_cmbHistogramAVHRR_activated(int index);
-    void on_cmbHistogramGeo_activated(int index);
     void on_btnRecipes_clicked();
     void on_btnCLAHE_RGBRecipe_clicked();
     void on_btnUpdateMERSIImage_clicked();

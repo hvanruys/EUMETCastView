@@ -3,8 +3,6 @@
 #include <QVector>
 #include <QString>
 #include <QVector2D>
-#include "gshhs.h"
-#include "pixgeoconversion.h"
 
 struct LonLatPair {
         int lonmicro;
@@ -26,7 +24,7 @@ struct Vxp {
 class gshhsData
 {
 public:
-    gshhsData(QVector<QString> overlayfiles);
+    gshhsData(QList<QString> overlayfiles);
     ~gshhsData();
 
     Vxp	*vxp_data[3];

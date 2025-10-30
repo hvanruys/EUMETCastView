@@ -54,7 +54,7 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
 
 void FormGeostationary::newGeoTab(int geoindex)
 {
-    if(opts.geosatellites.at(geoindex).shortname != "MTG-I1")
+    if(opts.geosatellites.at(geoindex).shortname != "MET_12")
     {
         QWidget *mywidget = new QWidget();
         ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(geoindex).fullname + " : " + QString("%1").arg(opts.geosatellites.at(geoindex).longitude) + "°");
@@ -368,9 +368,9 @@ void FormGeostationary::PopulateTree(QDate seldate)
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
-        if(opts.geosatellites.at(i).shortname != "MTG-I1")
+        if(opts.geosatellites.at(i).shortname != "MET_12")
             PopulateTreeGeo(i);
-        else if(opts.geosatellites.at(i).shortname == "MTG-I1")
+        else if(opts.geosatellites.at(i).shortname == "MET_12")
             PopulateTreeGeoMTGI1(i);
     }
 
@@ -711,7 +711,7 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
 
     //geoindex = sl->getGeoSatelliteIndex();
 
-    if(opts.geosatellites.at(geoindex).shortname == "MTG-I1") {
+    if(opts.geosatellites.at(geoindex).shortname == "MET_12") {
         CreateGeoImageMTG(type, spectrumvector, inversevector, histogrammethod, pseudocolor, tex + ";" + tex1, geoindex);
     }
     else {
@@ -1204,7 +1204,7 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     //     filepattern = QString("OR_ABI-L1b-RadF-M????_G19_s") + filetiming_goes + QString("*.nc");
     else if((whichgeo == eGeoSatellite::GOES_18) && (type == "VIS_IR" || type == "VIS_IR Color"))
         filepattern = QString("OR_ABI-L1b-RadF-M????_G18_s") + filetiming_goes + QString("*.nc");
-    else if(whichgeo == eGeoSatellite::MTG_I1)
+    else if(whichgeo == eGeoSatellite::MET_12)
         filepattern = QString("W_XX") + filetiming_mtg + QString("*.nc");
     else
         return;
@@ -1311,7 +1311,7 @@ void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item,
     qDebug() << "FormGeostationary::SelectGeoWidgetItem";
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
-        if(opts.geosatellites.at(i).shortname != "MTG-I1")
+        if(opts.geosatellites.at(i).shortname != "MET_12")
             setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
 
     qDebug() << opts.geosatellites.at(geoindex).shortname + " " + (*item).text(0);

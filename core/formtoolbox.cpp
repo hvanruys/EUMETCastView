@@ -264,6 +264,10 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     ui->spbGVPMapWidth->setMaximum(20000);
     ui->spbGVPMapHeight->setMaximum(20000);
+    ui->spbLCCMapWidth->setMaximum(20000);
+    ui->spbLCCMapHeight->setMaximum(20000);
+    ui->spbSGMapWidth->setMaximum(20000);
+    ui->spbSGMapHeight->setMaximum(20000);
 
     ui->cbProjResolutions->addItems(listResolution);
 
@@ -789,7 +793,7 @@ void FormToolbox::setupChannelGeoCombo(int geoindex)
         ui->comboGeo16->setCurrentIndex(geo16);
 
     }
-    else if(opts.GetGeoIndex("MTG-I1") == geoindex)
+    else if(opts.GetGeoIndex("MET_12") == geoindex)
     {
         ui->comboGeo1->addItems(coloritems);
         ui->comboGeo2->addItems(coloritems);
@@ -1700,7 +1704,7 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
             ui->cmbHRVtype->setEnabled(true);
     }
 
-    if(opts.geosatellites.at(geoindex).shortname != "MTG-I1")
+    if(opts.geosatellites.at(geoindex).shortname != "MET_12")
     {
         for(int i = 0; i < opts.geosatellites.at(geoindex).spectrumlist.count(); i++)
         {
@@ -2323,7 +2327,7 @@ void FormToolbox::onButtonChannel( QString channel, bool bInverse)
 
     ui->pbProgress->reset();
 
-    //    if(opts.geosatellites.at(geoindex).shortname == "MTG-I1")
+    //    if(opts.geosatellites.at(geoindex).shortname == "MET_12")
     //        ui->pbProgress->setMaximum(100);
     //    else
     //        ui->pbProgress->setMaximum(opts.geosatellites.at(geoindex).maxsegments);
@@ -2866,7 +2870,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             }
         }
     }
-    else if(opts.GetGeoIndex("MTG-I1") == geoindex)
+    else if(opts.GetGeoIndex("MET_12") == geoindex)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
@@ -6061,13 +6065,6 @@ void FormToolbox::on_chkInverseGeo16_stateChanged(int arg1)
 {
     poi.strlInverseGeo16.replace(this->geoindex, QString("%1").arg(arg1));
 }
-
-
-void FormToolbox::on_cmbHistogramGeo_activated(int index)
-{
-
-}
-
 
 void FormToolbox::on_btnCLAHE_RGBRecipe_clicked()
 {

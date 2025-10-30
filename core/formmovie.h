@@ -4,15 +4,23 @@
 #include <QWidget>
 #include <QUdpSocket>
 #include <QNetworkDatagram>
+#include "processmanager.h"
 #include "segmentimage.h"
 #include "options.h"
 #include "formtoolbox.h"
+#include "avhrrsatellite.h"
 
 struct VideoGeoSatellites
 {
     QString shortname;
     double longitude;
     bool rss;
+};
+
+struct VideoMinMaxLat
+{
+    double maxlat;
+    double minlat;
 };
 
 namespace Ui {
@@ -24,7 +32,7 @@ class FormMovie : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormMovie(QWidget *parent = nullptr);
+    explicit FormMovie(QWidget *parent = 0, AVHRRSatellite *seglist = 0);
     void SetFormToolbox(FormToolbox *ptr) { formtoolbox = ptr; }
     void getProjectionData();
     void setGVPlat(double latitude);
@@ -41,7 +49,7 @@ public:
     ~FormMovie();
 
 private slots:
-    void on_btnCreateXML_clicked();
+    // void on_btnCreateXML_clicked();
 
     void on_btnOverlayColor1_clicked();
 
@@ -73,20 +81,46 @@ private slots:
 
     void on_btnDefault_clicked();
 
+    void PopulateSelectionList(QDate seldate);
+
+    void on_btnJson_clicked();
+
+    void on_rdbMeteosat_12_clicked();
+
+    void on_rdbMeteosat_11_clicked();
+
+    void on_rdbMeteosat_10_clicked();
+
+    void on_rdbMeteosat_9_clicked();
+
+    void deleteManager();
 
 private:
-    void setupSpectrum();
-    void setupSatname();
+    void setupSpectrumMeteosat();
+    void setupSpectrumMTG();
     bool saveFormToOptions();
     void saveOverlayColorsToOptions();
     void saveSpectrumToOptions();
     void writeTolistwidget(QString txt);
     void listWidgets();
-
+    void CreateVideoJson(QString shortname);
+    bool convertToJson(const QMap<int, QMap<int, QFileInfo>>& segmentlistmap, const QString& outputFilePath);
+    QJsonObject getJasonObjectFromMap(const QMap<int, QMap<int, QFileInfo>>& segmentlistmap);
+    QJsonObject getJasonObjectFromMap(const QMap<QString, QMap<QString, QMap< int, QFileInfo > > >& segmentlistmap);
+    QMap<int, QMap<int, QFileInfo>> filterByKeys( const QMap<int, QMap<int, QFileInfo>>& input, const QSet<int>& allowedKeys);
+    QSet<int> getFilteredSet();
+    QDate selectiondate;
+    QJsonObject getJsonFileList();
     Ui::FormMovie *ui;
     FormToolbox *formtoolbox;
     QUdpSocket *udpSocket;
     QListWidgetItem *item;
+    AVHRRSatellite *segs;
+    ProcessManager *processmanager;
+    QString shortname;
+    int geoindex;
+    QList<VideoMinMaxLat> minmaxlist;
+
 
 };
 

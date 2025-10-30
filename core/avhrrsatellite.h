@@ -88,6 +88,7 @@ public:
     QStringList GetOverviewSegmentsMERSI();
 
     QStringList GetOverviewSegmentsGeo(int geoindex);
+    QStringList GetDatestampsList(int geoindex);
 
 
 
