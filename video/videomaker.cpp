@@ -689,11 +689,12 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
     quint16 valgamma;
     quint16 valcontrast;
 
-    QList<int> vec;
 
     int geoindex = this->reader->geoindex;
 
     QStringList spectrumlist = this->reader->spectrum;
+
+    sendMessages(QString("Start compileImage nbr %1").arg(imagenbr));
 
 
     qDebug() << "Start compileImageMTG" << this->reader->segmentspathlist.size();
@@ -781,7 +782,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
             int ind = ncfile.indexOf(".nc");
             int findex = ncfile.mid(ind - 4, 4).toInt();
 
-            vec.append(findex);
+            this->vec.append(findex);
 
             retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
             if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->reader->segmentspathlist.at(j);
@@ -837,18 +838,18 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
 
 
                 retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i]);
-                if (retval != NC_NOERR) qDebug() << "error reading _FillValue (2605)";
+                if (retval != NC_NOERR) qDebug() << "error reading _FillValue";
                 this->fillvalue[i] = fillvalue[i];
                 qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
 
 
-                if(retval == 0 && i == 0)
-                {
-                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
-                    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
+                //if(retval == 0 && i == 0)
+                //{
+                //    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
+                //    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
                     //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
                     //                end_position_column - start_position_column + 1);
-                }
+                //}
 
                 this->mtg_start_position_row[i][findex - 1] = start_position_row;
                 this->mtg_end_position_row[i][findex - 1] = end_position_row;
@@ -872,7 +873,33 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
             if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
 
         }
+    }
 
+    for(int i = 0; i < (this->reader->spectrum.at(3).length() > 0 ? 4 : 3); i++)
+    {
+        qDebug() << "for colour = " << i;
+        for(int j = 0; j < 40; j++)
+        {
+            if(this->mtg_start_position_row[i][j] > 0)
+            {
+                qDebug() << QString("j = %1 start position row = %2 column = %3").arg(j).arg(this->mtg_start_position_row[i][j]).arg(this->mtg_start_position_column[i][j]);
+                qDebug() << QString("j = %1 end position row = %2 column = %3").arg(j).arg(this->mtg_end_position_row[i][j]).arg(this->mtg_end_position_column[i][j]);
+                qDebug() << QString("diff row = %1").arg(this->mtg_end_position_row[i][j] - this->mtg_start_position_row[i][j] + 1);
+                this->total_rows[i] += this->mtg_end_position_row[i][j] - this->mtg_start_position_row[i][j] + 1;
+                this->mtg_total_rows_per_segment[i][j] = this->mtg_end_position_row[i][j] - this->mtg_start_position_row[i][j] + 1;
+            }
+        }
+    }
+
+    for(int i = 0; i < (this->reader->spectrum.at(3).length() > 0 ? 4 : 3); i++)
+    {
+        qDebug() << "this->total_rows[" << i << "] = " << this->total_rows[i];
+    }
+
+    for(int i = 0; i < vec.length(); i++)
+    {
+
+        qDebug() << QString("findex ==> vec[%1] = %2").arg(i).arg(vec.at(i));
     }
 
     for(int i = 0; i < vec.length(); i++)
@@ -1015,12 +1042,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
 
     }
 
-    if(this->reader->daykindofimage == "VIS_IR Color")
-    {
-        this->InitializeImageGeostationary(this->mtg_total_number_of_columns[0], this->mtg_total_number_of_rows[0]);
-    }
-    else
-        this->InitializeImageGeostationary(this->mtg_total_number_of_columns[0], this->mtg_total_number_of_rows[0]);
+    this->InitializeImageGeostationary(this->mtg_total_number_of_columns[0], this->total_rows[0]);
 
     this->COFF = this->mtg_total_number_of_columns[0] == 11136 ? this->reader->coffhrv : this->reader->coff;
     this->LOFF = this->mtg_total_number_of_columns[0] == 11136 ? this->reader->loffhrv : this->reader->loff;
@@ -1028,26 +1050,72 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
     this->LFAC = this->mtg_total_number_of_columns[0] == 11136 ? this->reader->lfachrv : this->reader->lfac;
 
 
+    ///////////////////////////////////////////////////////////////////////
+    // tot_rows = 0;
+    // tot_rest_rows = this->total_rows;
+
+    // for(int i = vec.length() - 1; i >= 0; i--)
+    // {
+    //     TestCalculateImageMTG(vec.at(i));
+    // }
+    // return;
+    ////////////////////////////////////////////////////////////////////////
+
+
+
+
     this->SetupContrastStretch( 0, 0, 1023, 255);
+
+    // if(this->reader->spectrum.at(3).length() > 0)
+    // {
+    //     this->ptrimageGeoNight.reset(new quint16[ 5568 * 5568 ]);
+
+    //     for(int i = 0; i < vec.length(); i++)
+    //     {
+    //         this->CalculateImageMTGNight(vec[i]);
+    //     }
+    // }
+
+    for(int colorindex = 0; colorindex < (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        tot_rows[colorindex] = 0;
+        tot_rest_rows[colorindex] = this->total_rows[colorindex];
+    }
 
     if(this->reader->spectrum.at(3).length() > 0)
     {
-        this->ptrimageGeoNight.reset(new quint16[ 5568 * 5568 ]);
+        ptrimageGeoNight = new QImage(this->mtg_total_number_of_columns[3], this->total_rows[3], QImage::Format_ARGB32);
+        QColor nuts(0,0,0, 255);  //(alphazero == true ? 0 : 255 ));
+        ptrimageGeoNight->fill(nuts);
+
+        //ptrimageGeoNight = new QImage(this->mtg_total_number_of_columns[3], this->total_rows[3], QImage::Format_Grayscale8);
 
         for(int i = 0; i < vec.length(); i++)
         {
             this->CalculateImageMTGNight(vec[i]);
         }
+
+        ptrimageGeoNight->save("ptrimagegeonight.png");
     }
 
+    for(int colorindex = 0; colorindex < (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        tot_rows[colorindex] = 0;
+        tot_rest_rows[colorindex] = this->total_rows[colorindex];
+    }
 
     for(int i = 0; i < vec.length(); i++)
     {
-        this->CalculateImageMTG(vec[i]);
+        this->CalculateImageMTG(vec.at(i));
     }
 
     this->ptrimageGeostationary->save("ptrimagegeo.png");
 
+    QString year;
+    QString month;
+    QString day;
+    QString hour;
+    QString minute;
 
     if(reader->projectiontype == "GVP")
     {
@@ -1055,7 +1123,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
         GeneralVerticalPerspective *gvp = new GeneralVerticalPerspective(reader, this, ptrimageGeostationary);
 
         QPainter painter(gvp->imageProjection);
-        gvp->CreateMapFromGeoStationary(&painter, 0,0,0,0,0,0,0,0);
+        gvp->CreateMapFromGeoStationary(&painter, mtg_end_position_row[0][vec.at(vec.length() - 1) - 1],0,0,0,0,0,0,0);
 
         if(reader->boverlaydate)
         {
@@ -1063,14 +1131,9 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
             painter.setFont(f);
             painter.setPen(Qt::yellow);
             painter.setBrush(Qt::NoBrush);
-
-            QString year = date.mid(0, 4);
-            QString month = date.mid(4, 2);
-            QString day = date.mid(6, 2);
-            QString hour = date.mid(8, 2);
-            QString minute = date.mid(10, 2);
-
-            painter.drawText(20, gvp->imageProjection->height() - 20, QString("%1 %2-%3-%4 %5:%6").arg(reader->shortname).arg(year).arg(month).arg(day).arg(hour).arg(minute));
+            QString subscript;
+            this->getTimeFromIndex(imagenbr, &subscript);
+            painter.drawText(20, gvp->imageProjection->height() - 20, subscript);
         }
 
 
@@ -1109,19 +1172,32 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
         }
     }
 
-    this->ptrimageGeoNight.reset();
+    //this->ptrimageGeoNight->reset();
 
-    qDebug() << "===> The image process for concurrent took " << timer.elapsed() << "milliseconds";
+    sendMessages(QString("Image %1 is finished").arg(imagenbr));
+
+    sendMessages(QString("===> The image process took %1 milliseconds").arg(timer.elapsed()));
 
     return;
 }
 
-void VideoMaker::CalculateImageMTG(int index)
+void VideoMaker::TestCalculateImageMTG(int findex)
+{
+    qDebug() << "Total rows = " << this->total_rows[0];
+
+    qDebug() << "Total rows per segment index = " << findex - 1 << " = " << this->mtg_total_rows_per_segment[0][findex - 1];
+    tot_rows[0] += this->mtg_total_rows_per_segment[0][findex - 1];
+    qDebug() << "scanline from line = " << tot_rest_rows[0] - 1 << " to " << this->total_rows[0] - tot_rows[0];
+    tot_rest_rows[0] -= this->mtg_total_rows_per_segment[0][findex - 1];
+}
+
+void VideoMaker::CalculateImageMTG(int findex)
 {
     quint16 pixel[4];
     quint16 indexoutpixel[4];
     quint8 pixelout[4];
     QRgb *row_col;
+    QRgb *row_col_night;
     QImage *im;
     quint16 valgamma;
     quint8 valcontrast;
@@ -1140,7 +1216,7 @@ void VideoMaker::CalculateImageMTG(int index)
     double elev;
     double twilight = 12.0;
 
-    qDebug() << "start VideoMaker::CalculateImageMTG(int index) = " << index;
+    qDebug() << "start VideoMaker::CalculateImageMTG(int index) = " << findex;
 
     int year, month, day, hours, minutes;
     // timestamp for MTG = "001" "002"  ...  "144"
@@ -1175,16 +1251,24 @@ void VideoMaker::CalculateImageMTG(int index)
 
     long count_error = 0;
 
-    for(int line = this->mtg_start_position_row[0][index-1] - 1; line < this->mtg_end_position_row[0][index-1]; line++)
-    {
-        row_col = (QRgb*)im->scanLine(this->mtg_total_number_of_rows[0] - 1 - line);
 
-        for (int pixelx = this->mtg_start_position_column[0][index-1] - 1; pixelx < this->mtg_end_position_column[0][index-1]; pixelx++)
+    for(int i = 0; i < (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1); i++)
+    {
+        tot_rows[i] += this->mtg_total_rows_per_segment[i][findex - 1];
+        qDebug() << "Total rows = " << this->total_rows[i] << "  total rest rows = " << this->tot_rest_rows[i] << " total_rows - tot_rows = " << this->total_rows[i] - tot_rows[i] <<
+            "  this->mtg_total_rows_per_segment[" << i << "][findex - 1] = " << this->mtg_total_rows_per_segment[i][findex - 1];
+    }
+
+    for(int line = tot_rest_rows[0] - 1; line >= this->total_rows[0] - tot_rows[0]; line--)
+    {
+        row_col = (QRgb*)im->scanLine(line);
+
+        for (int pixelx = this->mtg_start_position_column[0][findex-1] - 1; pixelx < this->mtg_end_position_column[0][findex-1]; pixelx++)
         {
             for(int colorindex = 0; colorindex < (this->reader->daykindofimage == "VIS_IR Color" ? 3 : 1); colorindex++)
             {
                 //                if(colorindex < 3)
-                pixel[colorindex] = *(this->ptrMTG[colorindex][index-1] + (this->mtg_nbr_of_columns[colorindex][index-1] * linelocal) + pixelx);
+                pixel[colorindex] = *(this->ptrMTG[colorindex][findex-1] + (this->mtg_nbr_of_columns[colorindex][findex-1] * linelocal) + pixelx);
                 //                else
                 //                {
                 //                    long tot = 5568 * (linelocal/2) + (int)(pixelx/2);
@@ -1243,8 +1327,8 @@ void VideoMaker::CalculateImageMTG(int index)
 
             if(this->reader->spectrum.at(3).length() > 0)
             {
-                ret = pixconv.pixcoord2geocoord(sub_lon, pixelx, 11136 - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
-                pixelout[3] = this->ptrimageGeoNight[5568 * (line/2) + (int)(pixelx/2)];
+                row_col_night = (QRgb*)this->ptrimageGeoNight->scanLine(line/2);
+                pixelout[3] = row_col_night[(int)(pixelx/2)];
             }
 
             if(this->reader->daykindofimage == "VIS_IR")
@@ -1265,8 +1349,13 @@ void VideoMaker::CalculateImageMTG(int index)
             {
                 if(this->reader->spectrum.at(3).length() > 0)
                 {
-                    if(pixel[0] != this->fillvalue[0])
+                    if(pixelout[3] != this->fillvalue[3])
                     {
+                        //ret = pixconv.pixcoord2geocoord(sub_lon, pixelx/2, (11136 - 1 - line)/2 - this->mtg_end_position_row[3][vec.at(vec.length()-1) - 1], coff/2, loff/2, cfac/2, lfac/2, &latitude, &longitude);
+                        //ret = pixconv.pixcoord2geocoord(sub_lon, pixelx/2, - (5568 - 1) + (line/2) + this->mtg_end_position_row[3][vec.at(vec.length()-1) - 1], coff/2, loff/2, cfac/2, lfac/2, &latitude, &longitude);
+                        // ret = pixconv.pixcoord2geocoord(sub_lon, pixelx/2, - (5568 - 1) + (line/2)  + 5845, coff/2, loff/2, cfac/2, lfac/2, &latitude, &longitude);
+                        ret = pixconv.pixcoord2geocoord(sub_lon, pixelx/2, 5568 - this->mtg_end_position_row[3][vec.at(vec.length()-1) - 1] + (line/2), coff/2, loff/2, cfac/2, lfac/2, &latitude, &longitude);
+
                         if(ret > -1)
                         {
                             observer.SetLocation(latitude, longitude, 0.0);
@@ -1306,6 +1395,10 @@ void VideoMaker::CalculateImageMTG(int index)
                             }
 
                         }
+                        else
+                        {
+                            row_col[pixelx] = qRgb(0,255,255);
+                        }
                     }
                 }
                 else
@@ -1315,10 +1408,7 @@ void VideoMaker::CalculateImageMTG(int index)
                         pixelout[0] = quint16(this->reader->inverse[0] ? (255 - pixelout[0]) : pixelout[0]);
                         pixelout[1] = quint16(this->reader->inverse[1] ? (255 - pixelout[1]) : pixelout[1]);
                         pixelout[2] = quint16(this->reader->inverse[2] ? (255 - pixelout[2]) : pixelout[2]);
-                        if(pixelout[0] < 256 && pixelout[1] < 256 && pixelout[2] < 256)
-                            row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
-                        else
-                            row_col[pixelx] = qRgb(255, 0, 0);
+                        row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
                     }
                 }
             }
@@ -1327,36 +1417,285 @@ void VideoMaker::CalculateImageMTG(int index)
         linelocal++;
     }
 
-    //    qDebug() << QString("====> count_error for index %1 = %2 start_pos_row[0] = %3 end_pos_row[0] = %4 start_pos_row[3] = %5 end_pos_row[3] = %6  tot[0] = %7 tot[3] = %8")
-    //                .arg(index).arg(count_error).arg(this->mtg_start_position_row[0][index - 1]).arg(this->mtg_end_position_row[0][index - 1])
-    //            .arg(this->mtg_start_position_row[3][index - 1]).arg(this->mtg_end_position_row[3][index - 1])
-    //            .arg(this->mtg_end_position_row[0][index - 1] - this->mtg_start_position_row[0][index - 1] + 1)
-    //            .arg(this->mtg_end_position_row[3][index - 1] - this->mtg_start_position_row[3][index - 1] + 1);
 
+
+    for(int i = 0; i < (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1); i++)
+    {
+        tot_rest_rows[i] -= this->mtg_total_rows_per_segment[i][findex - 1];
+    }
+
+
+    // if(this->reader->spectrum.at(3).length() > 0)
+    // {
+    //     tot_rows[3] += this->mtg_total_rows_per_segment[3][findex - 1];
+
+    //     for(int line = tot_rest_rows[3] - 1; line >= this->total_rows[3] - tot_rows[3]; line--)
+    //     {
+    //         row_col = (QRgb*)im->scanLine(line);
+
+    //         for (int pixelx = this->mtg_start_position_column[3][findex-1] - 1; pixelx < this->mtg_end_position_column[3][findex-1]; pixelx++)
+    //         {
+    //             ret = pixconv.pixcoord2geocoord(sub_lon, pixelx, 11136 - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
+    //             pixelout[3] = this->ptrimageGeoNight[5568 * line + pixelx];
+    //         }
+    //     }
+    // }
 }
 
-void VideoMaker::CalculateImageMTGNight(int index)
+// void VideoMaker::CalculateImageMTG(int findex)
+// {
+//     quint16 pixel[4];
+//     quint16 indexoutpixel[4];
+//     quint8 pixelout[4];
+//     QRgb *row_col;
+//     QImage *im;
+//     quint16 valgamma;
+//     quint8 valcontrast;
+//     double gamma = this->reader->gamma;
+//     double gammafactor = 1023 / pow(1023, gamma);
+
+//     im = this->ptrimageGeostationary;
+
+//     Vector3 solar_vector;
+//     Vector3 vel;
+//     QObserver observer;
+//     QSgp4Date dat;
+//     QGeodetic qgeo;
+//     QTopocentric qtopo;
+
+//     double elev;
+//     double twilight = 12.0;
+
+//     qDebug() << "start VideoMaker::CalculateImageMTG(int index) = " << findex;
+
+//     int year, month, day, hours, minutes;
+//     // timestamp for MTG = "001" "002"  ...  "144"
+//     year = this->reader->selectiondate.mid(0, 4).toInt();
+//     month = this->reader->selectiondate.mid(4, 2).toInt();
+//     day = this->reader->selectiondate.mid(6, 2).toInt();
+
+//     int ii = this->reader->timestamp.toUInt();
+//     int totmin = (ii - 1) * 10;
+//     hours = (totmin - (totmin % 60))/60;
+//     minutes = totmin - (hours * 60);
+
+//     pixgeoConversion pixconv;
+
+//     double sub_lon = this->reader->satlon;
+
+//     long coff = this->reader->coffhrv;
+//     long loff = this->reader->loffhrv;
+//     double cfac = this->reader->cfachrv;
+//     double lfac = this->reader->lfachrv;
+
+//     double latitude, longitude;
+//     int ret = 0;
+
+//     int linelocal = 0;
+
+//     //    2024-02-27 18:30:26.047 Debug: "start position row = 1 column = 1"
+//     //    2024-02-27 18:30:26.047 Debug: "end position row = 278 column = 11136"
+
+//     //    2024-02-27 18:33:14.782 Debug: "start position row = 1 column = 1"
+//     //    2024-02-27 18:33:14.782 Debug: "end position row = 139 column = 5568"
+
+//     long count_error = 0;
+
+//     qDebug() << "Total rows = " << this->total_rows;
+//     for(int line = 0 ; line < this->mtg_total_rows_per_segment[0][findex- 1]; line++)
+//     {
+//         qDebug() << "scanline = " << this->total_rows - (this->mtg_end_position_row[0][findex-1] -  this->mtg_start_position_row[0][findex-1]) - line << " start_pos = "
+//                  <<  this->mtg_start_position_row[0][findex-1] << " end_pos " << this->mtg_end_position_row[0][findex-1] << " line = " << line;
+//         row_col = (QRgb*)im->scanLine(this->total_rows - (this->mtg_end_position_row[0][findex-1] -  this->mtg_start_position_row[0][findex-1]) - line);
+
+//         for (int pixelx = this->mtg_start_position_column[0][findex-1] - 1; pixelx < this->mtg_end_position_column[0][findex-1]; pixelx++)
+//         {
+//             for(int colorindex = 0; colorindex < (this->reader->daykindofimage == "VIS_IR Color" ? 3 : 1); colorindex++)
+//             {
+//                 //                if(colorindex < 3)
+//                 pixel[colorindex] = *(this->ptrMTG[colorindex][findex-1] + (this->mtg_nbr_of_columns[colorindex][findex-1] * linelocal) + pixelx);
+//                 //                else
+//                 //                {
+//                 //                    long tot = 5568 * (linelocal/2) + (int)(pixelx/2);
+//                 //                    long nbr_rows_per_segment = this->mtg_end_position_row[3][index-1] - this->mtg_start_position_row[3][index-1] + 1;
+//                 //                    if(nbr_rows_per_segment * 5568 < tot)
+//                 //                    {
+//                 //                        count_error++;
+//                 //                    }
+//                 //                }
+
+//                 if(this->histogrammethod == CMB_HISTO_NONE_95)
+//                 {
+//                     if(pixel[colorindex] != this->fillvalue[colorindex])
+//                     {
+//                         indexoutpixel[colorindex] = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel[colorindex] - this->minRadianceIndex[colorindex] ) / (float)(this->maxRadianceIndex[colorindex] - this->minRadianceIndex[colorindex])), 0), 1023);
+//                         valgamma = pow( indexoutpixel[colorindex], gamma) * gammafactor;
+//                         if (valgamma > 1023)
+//                             valgamma = 1023;
+
+//                         valcontrast = ContrastStretch(valgamma);
+//                         pixelout[colorindex] = (valcontrast);
+//                     }
+//                 }
+//                 else if(this->histogrammethod == CMB_HISTO_NONE_100)
+//                 {
+//                     if(pixel[colorindex] != this->fillvalue[colorindex])
+//                     {
+//                         indexoutpixel[colorindex] = (quint16)qMin(qMax(qRound(1023.0 * (float)(pixel[colorindex] - this->stat_min[colorindex] ) / (float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 1023);
+//                         valgamma = pow( indexoutpixel[colorindex], gamma) * gammafactor;
+//                         if (valgamma > 1023)
+//                             valgamma = 1023;
+
+//                         valcontrast = ContrastStretch(valgamma);
+//                         pixelout[colorindex] = (valcontrast);
+//                     }
+//                 }
+//                 else if(this->histogrammethod == CMB_HISTO_EQUALIZE)
+//                 {
+//                     if( pixel[colorindex] != this->fillvalue[colorindex])
+//                     {
+//                         quint16 val = (quint16)qMin(qMax(qRound(4095.0 * (float)(pixel[colorindex] - this->stat_min[colorindex] ) / (float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 1023);
+//                         indexoutpixel[colorindex] = (quint16)(qMin(qMax((int)this->lut_mtg[colorindex][val], 0), 4095));
+//                         valgamma = pow( indexoutpixel[colorindex]/4, gamma) * gammafactor;
+//                         if (valgamma > 1023)
+//                             valgamma = 1023;
+
+//                         valcontrast = ContrastStretch(valgamma);
+//                         pixelout[colorindex] = (valcontrast);
+//                     }
+//                 }
+//             }
+
+//             //            ret = pixconv.pixcoord2geocoord(sub_lon, opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx,
+//             //                                            opts.geosatellites[geoindex].imageheighthrv0 - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
+
+
+//             if(this->reader->spectrum.at(3).length() > 0)
+//             {
+//                 ret = pixconv.pixcoord2geocoord(sub_lon, pixelx, 11136 - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
+//                 pixelout[3] = this->ptrimageGeoNight[5568 * (line/2) + (int)(pixelx/2)];
+//             }
+
+//             if(this->reader->daykindofimage == "VIS_IR")
+//             {
+//                 if(pixel[0] != this->fillvalue[0])
+//                 {
+//                     pixelout[0] = quint16(this->reader->inverse[0] ? (255 - pixelout[0]) : pixelout[0]);
+//                     pixelout[1] = pixelout[0];
+//                     pixelout[2] = pixelout[0];
+//                     row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
+//                 }
+//                 else
+//                 {
+//                     row_col[pixelx] = qRgb(0, 0, 0);
+//                 }
+//             }
+//             else if(this->reader->daykindofimage == "VIS_IR Color")
+//             {
+//                 if(this->reader->spectrum.at(3).length() > 0)
+//                 {
+//                     if(pixel[0] != this->fillvalue[0])
+//                     {
+//                         if(ret > -1)
+//                         {
+//                             observer.SetLocation(latitude, longitude, 0.0);
+//                             dat.Set(year, month, day, hours, minutes, 0, true);
+//                             QSun::Calculate_Solar_Position(dat.Julian(), &solar_vector);
+//                             QEci qeci(solar_vector, vel, dat);
+//                             qtopo = observer.GetLookAngle(qeci);
+//                             elev = qtopo.elevation * 180.0/PIE;
+
+
+//                             if(elev <= 0.0)
+//                             {
+//                                 row_col[pixelx] = qRgb(pixelout[3], pixelout[3], pixelout[3]);
+//                                 //row_col[pixelx] = qRgb(255, 0, 0);
+//                             }
+//                             else if(elev > 0.0 && elev < twilight)
+//                             {
+//                                 int percentday = (int)(100.0 * elev / twilight);
+//                                 int percentnight = 100 - percentday;
+//                                 int red = (percentday*pixelout[0] + percentnight*pixelout[3])/100;
+//                                 red = (red > 255 ? 255 : red);
+
+//                                 int green = (percentday*pixelout[1] + percentnight*pixelout[3])/100;
+//                                 green = (green > 255 ? 255 : green);
+
+//                                 int blue = (percentday*pixelout[2] + percentnight*pixelout[3])/100;
+//                                 blue = (blue > 255 ? 255 : blue);
+
+//                                 row_col[pixelx] = qRgb(red, green, blue);
+//                             }
+//                             else
+//                             {
+//                                 pixelout[0] = quint16(this->reader->inverse[0] ? (255 - pixelout[0]) : pixelout[0]);
+//                                 pixelout[1] = quint16(this->reader->inverse[1] ? (255 - pixelout[1]) : pixelout[1]);
+//                                 pixelout[2] = quint16(this->reader->inverse[2] ? (255 - pixelout[2]) : pixelout[2]);
+//                                 row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
+//                             }
+
+//                         }
+//                     }
+//                 }
+//                 else
+//                 {
+//                     if(pixel[0] != this->fillvalue[0])
+//                     {
+//                         pixelout[0] = quint16(this->reader->inverse[0] ? (255 - pixelout[0]) : pixelout[0]);
+//                         pixelout[1] = quint16(this->reader->inverse[1] ? (255 - pixelout[1]) : pixelout[1]);
+//                         pixelout[2] = quint16(this->reader->inverse[2] ? (255 - pixelout[2]) : pixelout[2]);
+//                         if(pixelout[0] < 256 && pixelout[1] < 256 && pixelout[2] < 256)
+//                             row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
+//                         else
+//                             row_col[pixelx] = qRgb(255, 0, 0);
+//                     }
+//                 }
+//             }
+//         }
+
+//         linelocal++;
+//     }
+
+//     //    qDebug() << QString("====> count_error for index %1 = %2 start_pos_row[0] = %3 end_pos_row[0] = %4 start_pos_row[3] = %5 end_pos_row[3] = %6  tot[0] = %7 tot[3] = %8")
+//     //                .arg(index).arg(count_error).arg(this->mtg_start_position_row[0][index - 1]).arg(this->mtg_end_position_row[0][index - 1])
+//     //            .arg(this->mtg_start_position_row[3][index - 1]).arg(this->mtg_end_position_row[3][index - 1])
+//     //            .arg(this->mtg_end_position_row[0][index - 1] - this->mtg_start_position_row[0][index - 1] + 1)
+//     //            .arg(this->mtg_end_position_row[3][index - 1] - this->mtg_start_position_row[3][index - 1] + 1);
+
+// }
+
+void VideoMaker::CalculateImageMTGNight(int findex)
 {
     quint16 pixel;
     quint16 indexoutpixel;
     int linelocal = 0;
     quint16 valgamma;
     quint8 pixelout;
+    QImage *im;
+    QRgb *row_col;
+
+    im = this->ptrimageGeoNight;
+
     double gamma = this->reader->gamma;
     double gammafactor = 1023 / pow(1023, gamma);
     int countfillvalue = 0;
     int count = 0;
 
-    qDebug() << "start VideoMaker::CalculateImageMTGNight(int index) = " << index;
+    tot_rows[3] += this->mtg_total_rows_per_segment[3][findex - 1];
+
+    qDebug() << "start VideoMaker::CalculateImageMTGNight(int index) = " << findex;
 
     if(this->reader->spectrum.at(3).length() > 0)
     {
-        for(int line = this->mtg_start_position_row[3][index-1] - 1; line < this->mtg_end_position_row[3][index-1]; line++)
+        qDebug() << "From " << tot_rest_rows[3] - 1 << " to line >= " << this->total_rows[3] - tot_rows[3];
+        for(int line = tot_rest_rows[3] - 1; line >= this->total_rows[3] - tot_rows[3]; line--)
         {
-            for (int pixelx = this->mtg_start_position_column[3][index-1] - 1; pixelx < this->mtg_end_position_column[3][index-1]; pixelx++)
+            row_col = (QRgb*)im->scanLine(line);
+
+            for (int pixelx = this->mtg_start_position_column[3][findex-1] - 1; pixelx < this->mtg_end_position_column[3][findex-1]; pixelx++)
             {
                 count++;
-                pixel = *(this->ptrMTG[3][index-1] + ((this->mtg_nbr_of_columns[3][index-1]) * linelocal) + pixelx);
+                pixel = *(this->ptrMTG[3][findex-1] + ((this->mtg_nbr_of_columns[3][findex-1]) * linelocal) + pixelx);
 
                 if(pixel != this->fillvalue[3])
                 {
@@ -1390,7 +1729,7 @@ void VideoMaker::CalculateImageMTGNight(int index)
                     }
 
                     pixelout = quint16(this->reader->inverse[3] ? (255 - pixelout) : pixelout);
-                    this->ptrimageGeoNight[line * 5568 + pixelx] = pixelout;
+                    row_col[pixelx] = qRgb(pixelout, pixelout, pixelout);
                 }
                 else {
                     countfillvalue++;
@@ -1398,47 +1737,52 @@ void VideoMaker::CalculateImageMTGNight(int index)
             }
             linelocal++;
         }
+        tot_rest_rows[3] -= this->mtg_total_rows_per_segment[3][findex - 1];
+
     }
+
+
+    //QByteArray rawData((const char*)this->ptrimageGeoNight->constBits(), this->ptrimageGeoNight->sizeInBytes());
     qDebug() << "count countfillvalue = " << countfillvalue << " count = " << count;
 }
 
-int VideoMaker::serialMinMaxMTG(const int &index)
+int VideoMaker::serialMinMaxMTG(const int &findex)
 {
 
-    qDebug() << "serialMinMaxMTG for index = " << index;
+    qDebug() << "serialMinMaxMTG for findex = " << findex;
 
     for(int j = 0; j < (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1); j++)
     {
-        this->CalculateMinMaxMTG(j, index);
+        this->CalculateMinMaxMTG(j, findex);
     }
 
 
-    return(index);
+    return(findex);
 
 }
 
-void VideoMaker::CalculateMinMaxMTG(int colorindex, int index)
+void VideoMaker::CalculateMinMaxMTG(int colorindex, int findex)
 {
-    qDebug() << QString("CalculateMinMaxMTG colorindex = %1 index-1 = %2").arg(colorindex).arg(index-1);
+    qDebug() << QString("CalculateMinMaxMTG colorindex = %1 findex-1 = %2").arg(colorindex).arg(findex-1);
 
-    this->mtg_active_pixels[colorindex][index-1] = 0;
+    this->mtg_active_pixels[colorindex][findex-1] = 0;
 
-    this->mtg_stat_min[colorindex][index-1] = this->fillvalue[colorindex];
-    this->mtg_stat_max[colorindex][index-1] = 0;
+    this->mtg_stat_min[colorindex][findex-1] = this->fillvalue[colorindex];
+    this->mtg_stat_max[colorindex][findex-1] = 0;
 
-    quint16 *ptr = this->ptrMTG[colorindex][index-1];
-    for (int j = 0; j < this->mtg_nbr_of_rows[colorindex][index-1]; j++) {
-        for (int i = 0; i < this->mtg_nbr_of_columns[colorindex][index-1]; i++)
+    quint16 *ptr = this->ptrMTG[colorindex][findex-1];
+    for (int j = 0; j < this->mtg_nbr_of_rows[colorindex][findex-1]; j++) {
+        for (int i = 0; i < this->mtg_nbr_of_columns[colorindex][findex-1]; i++)
         {
-            quint16 val = ptr[j * this->mtg_nbr_of_columns[colorindex][index-1] + i];
+            quint16 val = ptr[j * this->mtg_nbr_of_columns[colorindex][findex-1] + i];
             if(val != this->fillvalue[colorindex])
             {
-                if(val >= this->mtg_stat_max[colorindex][index-1])
-                    this->mtg_stat_max[colorindex][index-1] = val;
-                if(val < this->mtg_stat_min[colorindex][index-1])
-                    this->mtg_stat_min[colorindex][index-1] = val;
+                if(val >= this->mtg_stat_max[colorindex][findex-1])
+                    this->mtg_stat_max[colorindex][findex-1] = val;
+                if(val < this->mtg_stat_min[colorindex][findex-1])
+                    this->mtg_stat_min[colorindex][findex-1] = val;
 
-                this->mtg_active_pixels[colorindex][index-1]++;
+                this->mtg_active_pixels[colorindex][findex-1]++;
             }
         }
     }
@@ -1530,42 +1874,42 @@ void VideoMaker::InitializeImageGeostationary( int imagewidth, int imageheight) 
 
 }
 
-int VideoMaker::serialLUTGeoMTG(const int &index)
+int VideoMaker::serialLUTGeoMTG(const int &findex)
 {
     for(int j = 0; j < (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1); j++)
     {
-        this->CalculateLUTGeoMTG(j, index);
+        this->CalculateLUTGeoMTG(j, findex);
     }
 
-    return(index);
+    return(findex);
 }
 
-void VideoMaker::CalculateLUTGeoMTG(int colorindex, int index)
+void VideoMaker::CalculateLUTGeoMTG(int colorindex, int findex)
 {
 
-    qDebug() << "start VideoMaker::CalculateLUTGeoMTG() colorindex = " << colorindex << " index = " << index;
+    qDebug() << "start VideoMaker::CalculateLUTGeoMTG() colorindex = " << colorindex << " findex = " << findex;
 
     //assert(colorindex == 0);
 
-    quint16 *ptr = this->ptrMTG[colorindex][index-1];
+    quint16 *ptr = this->ptrMTG[colorindex][findex-1];
 
     for (int j = 0; j < 4096; j++)
     {
-        this->mtg_histogram[colorindex][index-1][j] = 0;
+        this->mtg_histogram[colorindex][findex-1][j] = 0;
     }
 
     quint16 pixel;
-    for (int line = 0; line < this->mtg_nbr_of_rows[colorindex][index-1]; line++)
+    for (int line = 0; line < this->mtg_nbr_of_rows[colorindex][findex-1]; line++)
     {
-        for (int pixelx = 0; pixelx < this->mtg_nbr_of_columns[colorindex][index-1]; pixelx++)
+        for (int pixelx = 0; pixelx < this->mtg_nbr_of_columns[colorindex][findex-1]; pixelx++)
         {
-            pixel = ptr[line * this->mtg_nbr_of_columns[colorindex][index-1] + pixelx];
+            pixel = ptr[line * this->mtg_nbr_of_columns[colorindex][findex-1] + pixelx];
             if(pixel != this->fillvalue[colorindex])
             {
                 //quint16 indexout = (quint16)qMin(qMax(qRound(4095.0 * (float)(pixel - this->stat_min[colorindex]) /
                 //                      (float)(this->stat_max[colorindex] - this->stat_min[colorindex])), 0), 4095);
                 quint16 indexout = qMin(pixel, (quint16)4095);
-                this->mtg_histogram[colorindex][index-1][indexout]++;
+                this->mtg_histogram[colorindex][findex-1][indexout]++;
             }
         }
     }
@@ -2231,8 +2575,8 @@ void VideoMaker::ComposeVISIR(quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 
 }
 
 void VideoMaker::ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDayGreen, quint16 *ptrDayBlue,
-                           quint16 *ptrNightRed, QImage &imhrv, QString date,
-                           int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr)
+                             quint16 *ptrNightRed, QImage &imhrv, QString date,
+                             int leca, int lsla, int lwca, int lnla, int ueca, int usla, int uwca, int unla, int imagenbr)
 {
     QRgb *row_col;
     QRgb *row_col_day;
@@ -2545,7 +2889,7 @@ void VideoMaker::CalculateMinMax(int colorindex, int width, int height, quint16 
 }
 
 void VideoMaker::CalculateLUTGeo(int colorindex, int width, int height, quint16 *ptr, quint16 fillvalue, quint16 stat_min[], quint16 stat_max[],
-                               long active_pixels[], quint16 lut_ch[3][1024], int minRadianceIndex[], int maxRadianceIndex[])
+                                 long active_pixels[], quint16 lut_ch[3][1024], int minRadianceIndex[], int maxRadianceIndex[])
 {
     long stats_ch[3][1024];
 
@@ -2628,8 +2972,8 @@ void VideoMaker::CalculateLUTGeo(int colorindex, int width, int height, quint16 
 
 // Contrast Limited Adaptive Histogram Equalization
 int  VideoMaker::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned int uiYRes,
-                    unsigned short Min, unsigned short Max, unsigned int uiNrX, unsigned int uiNrY,
-                    unsigned int uiNrBins, float fCliplimit)
+                      unsigned short Min, unsigned short Max, unsigned int uiNrX, unsigned int uiNrY,
+                      unsigned int uiNrBins, float fCliplimit)
 /*   pImage - Pointer to the input/output image
                  *   uiXRes - Image resolution in the X direction
                  *   uiYRes - Image resolution in the Y direction
@@ -2744,7 +3088,7 @@ int  VideoMaker::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned in
 }
 
 void  VideoMaker::ClipHistogram (unsigned long* pulHistogram, unsigned int
-                                                              uiNrGreylevels, unsigned long ulClipLimit)
+                                                                uiNrGreylevels, unsigned long ulClipLimit)
 /* This function performs clipping of the histogram and redistribution of bins.
                  * The histogram is clipped and the number of excess pixels is counted. Afterwards
                  * the excess pixels are equally redistributed across the whole histogram (providing
@@ -2802,9 +3146,9 @@ void  VideoMaker::ClipHistogram (unsigned long* pulHistogram, unsigned int
 }
 
 void  VideoMaker::MakeHistogram (unsigned short* pImage, unsigned int uiXRes,
-                             unsigned int uiSizeX, unsigned int uiSizeY,
-                             unsigned long* pulHistogram,
-                             unsigned int uiNrGreylevels, unsigned short* pLookupTable)
+                               unsigned int uiSizeX, unsigned int uiSizeY,
+                               unsigned long* pulHistogram,
+                               unsigned int uiNrGreylevels, unsigned short* pLookupTable)
 /* This function classifies the greylevels present in the array image into
                  * a greylevel histogram. The pLookupTable specifies the relationship
                  * between the greyvalue of the pixel (typically between 0 and 4095) and
@@ -2826,7 +3170,7 @@ void  VideoMaker::MakeHistogram (unsigned short* pImage, unsigned int uiXRes,
 }
 
 void  VideoMaker::MapHistogram (unsigned long* pulHistogram, unsigned short Min, unsigned short Max,
-                            unsigned int uiNrGreylevels, unsigned long ulNrOfPixels)
+                              unsigned int uiNrGreylevels, unsigned long ulNrOfPixels)
 /* This function calculates the equalized lookup table (mapping) by
                  * cumulating the input histogram. Note: lookup table is rescaled in range [Min..Max].
                  */
@@ -2853,8 +3197,8 @@ void  VideoMaker::MakeLut (unsigned short * pLUT, unsigned short Min, unsigned s
 }
 
 void  VideoMaker::Interpolate (unsigned short *pImage, int uiXRes, unsigned long * pulMapLU,
-                           unsigned long * pulMapRU, unsigned long * pulMapLB,  unsigned long * pulMapRB,
-                           unsigned int uiXSize, unsigned int uiYSize, unsigned short *pLUT)
+                             unsigned long * pulMapRU, unsigned long * pulMapLB,  unsigned long * pulMapRB,
+                             unsigned int uiXSize, unsigned int uiYSize, unsigned short *pLUT)
 /* pImage      - pointer to input/output image
                  * uiXRes      - resolution of image in x-direction
                  * pulMap*     - mappings of greylevels from histograms
@@ -3216,4 +3560,19 @@ void VideoMaker::OverlayDate(QImage *im, QString date)
 
     painter.end();
 
+}
+
+void VideoMaker::getTimeFromIndex(int index, QString *strtime)
+{
+    QString mydate = reader->selectiondate;
+    QString yeardir = mydate.mid(0, 4);
+    QString monthdir = mydate.mid(4, 2);
+    QString daydir = mydate.mid(6, 2);
+
+    index--;
+    int m = index % 6;
+    int h = index / 6;
+    int hours = h;
+    int minutes = m*10;
+    *strtime = QString("%1-%2-%3 %4:%5").arg(yeardir).arg(monthdir).arg(daydir).arg(hours, 2, 10, QChar('0')).arg(minutes, 2, 10, QChar('0'));
 }

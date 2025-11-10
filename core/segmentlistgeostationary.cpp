@@ -4077,14 +4077,9 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                 }
             }
 
-            //            ret = pixconv.pixcoord2geocoord(sub_lon, opts.geosatellites[geoindex].imagewidthhrv0 - 1 - pixelx,
-            //                                            opts.geosatellites[geoindex].imageheighthrv0 - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
             if(this->spectrumvector.at(3).length() > 0)
             {
-
-                ret = pixconv.pixcoord2geocoord(sub_lon, pixelx, opts.geosatellites[geoindex].imageheighthrv0 - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
                 pixelout[3] = imageptrs->ptrimageGeoNight[5568 * (line/2) + (int)(pixelx/2)];
-
             }
 
             if(this->kindofimage == "VIS_IR")
@@ -4095,11 +4090,19 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                     pixelout[1] = pixelout[0];
                     pixelout[2] = pixelout[0];
                     row_col[pixelx] = qRgb(pixelout[0], pixelout[1], pixelout[2]);
+
                 }
                 else
                 {
                     row_col[pixelx] = qRgb(0, 0, 0);
                 }
+
+                // if(line == 0 || line == 1 || line == 3 || line == imageptrs->mtg_end_position_row[0][0] - 1)
+                // {
+                //     row_col[pixelx] = qRgb(255, 0 , 0);
+                // }
+
+
             }
             else if(this->kindofimage == "VIS_IR Color")
             {
@@ -4107,6 +4110,8 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
                 {
                     if(pixel[0] != imageptrs->fillvalue[0])
                     {
+                        ret = pixconv.pixcoord2geocoord(sub_lon, pixelx, opts.geosatellites[geoindex].imageheighthrv0 - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
+
                         if(ret > -1)
                         {
                             observer.SetLocation(latitude, longitude, 0.0);

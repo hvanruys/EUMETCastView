@@ -147,7 +147,6 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->rbViridis->setChecked(opts.colormapViridis);
 
     ui->rdbRemoveOLCIDirs->setChecked(opts.remove_OLCI_dirs);
-    ui->rdbRemoveSLSTRDirs->setChecked(opts.remove_SLSTR_dirs);
     ui->rdbSaturation->setChecked(opts.usesaturationmask);
 
     setupStationsTable();
@@ -160,7 +159,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupOLCIefrConfigTable();
     //setupSLSTRConfigTable();
     setupMERSIConfigTable();
-    setupDatahubConfig();
+    //setupDatahubConfig();
 
     POItablechanged = false;
 
@@ -177,7 +176,6 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     QString htmlstring = "When checked the created OLCI ERR and EFR directories will be removed";
     ui->rdbRemoveOLCIDirs->setWhatsThis(htmlstring);
     htmlstring = "When checked the created SLSTR directories will be removed";
-    ui->rdbRemoveSLSTRDirs->setWhatsThis(htmlstring);
     if (opts.bFciDecomp == true)
     {
         ui->lblFciDecomp->setText("The FCIDECOMP plugin was found.");
@@ -387,20 +385,6 @@ void DialogPreferences::setupMERSIConfigTable()
 
 }
 
-void DialogPreferences::setupDatahubConfig()
-{
-    ui->leDatahubUserId->setText(opts.datahubuser);
-//    ui->leEsaPassword->setText(opts.esapassword);
-//    ui->leEumetsatUser->setText(opts.eumetsatuser);
-//    ui->leEumetsatPassword->setText(opts.eumetsatpassword);
-    ui->leProductDirectory->setText(opts.productdirectory);
-    if(opts.provideresaoreumetsat)
-        ui->rdbUseScihub->setChecked(true);
-    else
-        ui->rdbUseEumetsat->setChecked(true);
-    ui->rdbXMLlogging->setChecked(opts.xmllogging);
-}
-
 void DialogPreferences::addStationRow()
 {
     myStationModel->insertRows(myStationModel->rowCount(), 1, QModelIndex());
@@ -535,19 +519,14 @@ void DialogPreferences::deleteOLCIefrConfigRow()
     myOLCIefrConfigModel->removeRow(row, QModelIndex());
 }
 
-void DialogPreferences::addSLSTRConfigRow()
-{
-    mySLSTRConfigModel->insertRows(mySLSTRConfigModel->rowCount(), 1, QModelIndex());
-}
-
-void DialogPreferences::deleteSLSTRConfigRow()
-{
-    int row = ui->tbvSLSTRConfig->currentIndex().row();
-    mySLSTRConfigModel->removeRow(row, QModelIndex());
-}
-
 void DialogPreferences::changePage(QListWidgetItem *current, QListWidgetItem *previous)
 {
+
+
+    if(current != NULL)
+        qDebug() << "changePage current = " << current->text();
+    if(previous != NULL)
+        qDebug() << "changePage previous = " << previous->text();
     if (!current)
         current = previous;
 
@@ -657,17 +636,12 @@ void DialogPreferences::dialogaccept()
     opts.colormapViridis = ui->rbViridis->isChecked();
 
     opts.remove_OLCI_dirs = ui->rdbRemoveOLCIDirs->isChecked();
-    opts.remove_SLSTR_dirs = ui->rdbRemoveSLSTRDirs->isChecked();
     opts.usesaturationmask = ui->rdbSaturation->isChecked();
 
-    opts.productdirectory = ui->leProductDirectory->text();
-    if(ui->rdbUseScihub->isChecked())
-        opts.provideresaoreumetsat = true;
-    else
-        opts.provideresaoreumetsat = false;
+    // opts.productdirectory = ui->leProductDirectory->text();
 
-    opts.xmllogging = ui->rdbXMLlogging->isChecked();
-    opts.datahubuser = ui->leDatahubUserId->text();
+    // opts.xmllogging = ui->rdbXMLlogging->isChecked();
+    // opts.datahubuser = ui->leDatahubUserId->text();
 
     if(POItablechanged)
         done(2);
@@ -686,11 +660,6 @@ void DialogPreferences::dialogreject()
 }
 
 
-
-void DialogPreferences::on_listWidget_itemChanged(QListWidgetItem *item)
-{
-
-}
 
 void DialogPreferences::on_btnLocalDirRemote_clicked()
 {
@@ -3655,28 +3624,6 @@ Qt::ItemFlags MERSIConfigModel::flags(const QModelIndex & /*index*/) const
 {
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
-
-
-void DialogPreferences::on_btnSearchProductDirectory_clicked()
-{
-    QFileInfo info(ui->leProductDirectory->text());
-
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                    ".",
-                                                    QFileDialog::ShowDirsOnly
-                                                    | QFileDialog::DontResolveSymlinks);
-//    QString proddir = QFileDialog::geto ::getOpenFileName( 0,
-//                    tr("Select the 3D image file"),
-//                    info.absoluteDir().absolutePath(),
-//                    tr("Image Files (*.png *.jpg *.bmp)"));
-
-    if ( !dir.isEmpty() )
-    {
-        ui->leProductDirectory->setText(dir);
-    }
-
-}
-
 
 
 void DialogPreferences::on_rdbDoLogging_toggled(bool checked)

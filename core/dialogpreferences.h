@@ -30,7 +30,7 @@ public:
     void setupOLCIefrConfigTable();
     //void setupSLSTRConfigTable();
     void setupMERSIConfigTable();
-    void setupDatahubConfig();
+    //void setupDatahubConfig();
 
     ~DialogPreferences();
 
@@ -41,7 +41,6 @@ private slots:
 
     void dialogaccept();
     void dialogreject();
-    void on_listWidget_itemChanged(QListWidgetItem *item);
     void addStationRow();
     void deleteStationRow();
     void addTLESourceRow();
@@ -58,8 +57,6 @@ private slots:
     void deleteGeoConfigRow();
     void addOLCIefrConfigRow();
     void deleteOLCIefrConfigRow();
-    void addSLSTRConfigRow();
-    void deleteSLSTRConfigRow();
     void addMERSIConfigRow();
     void deleteMERSIConfigRow();
 
@@ -114,10 +111,6 @@ private slots:
     void on_btnGeoImageOverlayColor3_clicked();
 
     void on_btnOLCIImageOverlayColor_clicked();
-
-
-    void on_btnSearchProductDirectory_clicked();
-
 
     void on_rdbDoLogging_toggled(bool checked);
 

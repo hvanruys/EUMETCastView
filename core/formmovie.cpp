@@ -1215,22 +1215,36 @@ void FormMovie::on_btnJson_clicked()
     else
     {
         QApplication::restoreOverrideCursor();
+        QMessageBox msgBox;
+        msgBox.setText("Select a satellite list.(MET-9/-10/-11/-12");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
         return;
     }
 
-    // QStringList datelist = segs->GetDatestampsList(geoindex);
+    QStringList datelist = segs->GetDatestampsList(geoindex);
 
-    // qDebug() << "datelist count = " << datelist.count();
+    qDebug() << "datelist count = " << datelist.count();
 
-    // for(int i = 0; i < datelist.count(); i++)
-    // {
-    //     qDebug() << datelist.at(i);
-    // }
+    for(int i = 0; i < datelist.count(); i++)
+    {
+        qDebug() << datelist.at(i);
+    }
 
-    // processmanager = new ProcessManager(datelist, ui->spbProcesscount->value(), this->shortname);
-    // connect(this->processmanager,SIGNAL(signalDeleteManager()), this, SLOT(deleteManager()));
 
-    // processmanager->start();
+    processmanager = new ProcessManager(datelist, ui->spbProcesscount->value(), this->shortname);
+    connect(this->processmanager,SIGNAL(signalDeleteManager()), this, SLOT(deleteManager()));
+
+    processmanager->start();
 
     QApplication::restoreOverrideCursor();
 }
@@ -1353,6 +1367,11 @@ void FormMovie::CreateVideoJson(QString shortname)
     {
         QMap<int, QMap<int, QFileInfo>> filteredmap;
         QSet<int> allowedsegments = this->getFilteredSet();
+        // QSetIterator<int> i(allowedsegments);
+        // while (i.hasNext()) {
+        //     int w = i.next();
+        //     qDebug() << w;
+        // }
         filteredmap = filterByKeys(segs->segmentlistmapgeomtgi1, allowedsegments);
         rootObject["files"] = getJasonObjectFromMap(filteredmap);
     }
@@ -1422,37 +1441,74 @@ QSet<int> FormMovie::getFilteredSet()
                    ui->leFalseEasting->text().toDouble(), ui->leFalseNorthing->text().toDouble(), ui->leVideoWidth->text().toUInt(), ui->leVideoHeight->text().toUInt());
 
     bool ok = gvp.map_inverse( 0, 0, lon_rad, lat_rad);
-    lon_deg_1 = 360 * lon_rad/TWOPI;
-    lat_deg_1 = 360 * lat_rad/TWOPI;
-    qDebug() << "ok = " << ok << "lon = " << lon_deg_1 << " lat = " << lat_deg_1;
+    if(ok)
+    {
+        lat_deg_1 = 360 * lat_rad/TWOPI;
+        qDebug() << "ok = " << ok << "lon = " << lon_deg_1 << " lat = " << lat_deg_1;
+    }
+    else
+    {
+        lat_deg_1 = 90.0;
+    }
 
     ok = gvp.map_inverse( ui->leVideoWidth->text().toUInt()/2, 0, lon_rad, lat_rad);
-    lon_deg_2 = 360 * lon_rad/TWOPI;
-    lat_deg_2 = 360 * lat_rad/TWOPI;
-    qDebug() << "ok = " << ok << "lon = " << lon_deg_2 << " lat = " << lat_deg_2;
+    if(ok)
+    {
+        lat_deg_2 = 360 * lat_rad/TWOPI;
+        qDebug() << "ok = " << ok << "lon = " << lon_deg_2 << " lat = " << lat_deg_2;
+    }
+    else
+    {
+        lat_deg_2 = 90.0;
+    }
 
     ok = gvp.map_inverse( ui->leVideoWidth->text().toUInt(), 0, lon_rad, lat_rad);
-    lon_deg_3 = 360 * lon_rad/TWOPI;
-    lat_deg_3 = 360 * lat_rad/TWOPI;
-    qDebug() << "ok = " << ok << "lon = " << lon_deg_3 << " lat = " << lat_deg_3;
+    if(ok)
+    {
+        lat_deg_3 = 360 * lat_rad/TWOPI;
+        qDebug() << "ok = " << ok << "lon = " << lon_deg_3 << " lat = " << lat_deg_3;
+    }
+    else
+    {
+        lat_deg_3 = 90.0;
+    }
 
     lat_deg_max = qMax(lat_deg_1, lat_deg_2);
     lat_deg_max = qMax(lat_deg_max, lat_deg_3);
 
+
     ok = gvp.map_inverse( 0, ui->leVideoHeight->text().toUInt(), lon_rad, lat_rad);
-    lon_deg_4 = 360 * lon_rad/TWOPI;
-    lat_deg_4 = 360 * lat_rad/TWOPI;
-    qDebug() << "ok = " << ok << "lon = " << lon_deg_4 << " lat = " << lat_deg_4;
+    if(ok)
+    {
+        lat_deg_4 = 360 * lat_rad/TWOPI;
+        qDebug() << "ok = " << ok << "lon = " << lon_deg_4 << " lat = " << lat_deg_4;
+    }
+    else
+    {
+        lat_deg_4 = -90.0;
+    }
 
     ok = gvp.map_inverse( ui->leVideoWidth->text().toUInt()/2, ui->leVideoHeight->text().toUInt(), lon_rad, lat_rad);
-    lon_deg_5 = 360 * lon_rad/TWOPI;
-    lat_deg_5 = 360 * lat_rad/TWOPI;
-    qDebug() << "ok = " << ok << "lon = " << lon_deg_5 << " lat = " << lat_deg_5;
+    if(ok)
+    {
+        lat_deg_5 = 360 * lat_rad/TWOPI;
+        qDebug() << "ok = " << ok << "lon = " << lon_deg_5 << " lat = " << lat_deg_5;
+    }
+    else
+    {
+        lat_deg_5 = -90.0;
+    }
 
     ok = gvp.map_inverse( ui->leVideoWidth->text().toUInt(), ui->leVideoHeight->text().toUInt(), lon_rad, lat_rad);
-    lon_deg_6 = 360 * lon_rad/TWOPI;
-    lat_deg_6 = 360 * lat_rad/TWOPI;
-    qDebug() << "ok = " << ok << "lon = " << lon_deg_6 << " lat = " << lat_deg_6;
+    if(ok)
+    {
+        lat_deg_6 = 360 * lat_rad/TWOPI;
+        qDebug() << "ok = " << ok << "lon = " << lon_deg_6 << " lat = " << lat_deg_6;
+    }
+    else
+    {
+        lat_deg_6 = -90.0;
+    }
 
     lat_deg_min = qMin(lat_deg_4, lat_deg_5);
     lat_deg_min = qMin(lat_deg_min, lat_deg_6);

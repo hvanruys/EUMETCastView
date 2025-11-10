@@ -67,8 +67,14 @@ private:
     void InitializeImageGeostationary( int imagewidth, int imageheight);
     // void CalculateImageMTGConcurrentNight(int index);
 
-    void CalculateImageMTG(int index);
-    void CalculateImageMTGNight(int index);
+    void CalculateImageMTG(int findex);
+
+    void TestCalculateImageMTG(int findex);
+
+    void CalculateImageMTGNight(int findex);
+
+    void getTimeFromIndex(int index, QString *strtime);
+
 
     double A1, B1, A2, B2, A3, B3;
     double d_x1, d_x2, d_x3, d_x4, d_y1, d_y2, d_y3, d_y4;
@@ -80,6 +86,7 @@ private:
     int mtg_end_position_row[4][40];
     int mtg_start_position_column[4][40];
     int mtg_end_position_column[4][40];
+    int mtg_total_rows_per_segment[4][40];
 
     int mtg_nbr_of_rows[4][40];
     int mtg_nbr_of_columns[4][40];
@@ -103,13 +110,21 @@ private:
     int maxRadianceIndex[5];
     quint16 lut_mtg[4][4096];
     QImage *ptrimageGeostationary;
-    QScopedArrayPointer<quint16> ptrimageGeoNight;
+//    QScopedArrayPointer<quint16> ptrimageGeoNight;
+    QImage *ptrimageGeoNight;
     bool alphazero;
 
     double COFF;
     double LOFF;
     double CFAC;
     double LFAC;
+
+    int total_rows[4];
+
+    int tot_rows[4];
+    int tot_rest_rows[4];
+    QList<int> vec;
+
 
 };
 

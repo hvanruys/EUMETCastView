@@ -1245,7 +1245,7 @@ void SegmentImage::showHistogram(QImage *ptr)
 /*
  *
  *
-Sure, here are the steps to convert from RGB color space to L*a*b* color space:
+convert from RGB color space to L*a*b* color space:
 
 1. **Normalize RGB values:** Divide each RGB value (red, green, blue) by 255 to normalize them to a range of 0 to 1.
 

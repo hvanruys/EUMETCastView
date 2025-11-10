@@ -121,7 +121,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
     int piccnt = 0;
     double sub_lon;
 
-    if(reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color")
+    if(reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color" || reader->shortname == "MET_12")
         hrvmap = 1;
 
     int LECAdiff = 0;
@@ -134,7 +134,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
     int UWCAdiff = 0;
     int UNLAdiff = 0;
 
-    if(reader->shortname == "MET_11" || reader->shortname == "MET_10" || reader->shortname == "MET_9")
+    if(reader->shortname == "MET_11" || reader->shortname == "MET_10" || reader->shortname == "MET_9" || reader->shortname == "MET_12")
     {
         LECAdiff = 11136 - leca;
         LSLAdiff = 11136 - lsla;
@@ -167,6 +167,35 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
     int ret;
     double fgf_x, fgf_y;
 
+    qDebug() << "leca = " << leca;
+
+    this->map_inverse(0, 0, lon_rad, lat_rad);
+    qDebug() << " 0, 0  lon = " << lon_rad*180.0/M_PI << " lat = " << lat_rad*180.0/M_PI;
+    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/M_PI, lon_rad*180.0/M_PI, coff, loff, cfac, lfac, &col, &row) == 0)
+    {
+        qDebug() << "col = " << col << " row = " << row;
+    }
+
+    this->map_inverse(imageProjection->width(), 0, lon_rad, lat_rad);
+    qDebug() << " imageProjection->width(), 0  lon = " << lon_rad*180.0/M_PI << " lat = " << lat_rad*180.0/M_PI;
+    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/M_PI, lon_rad*180.0/M_PI, coff, loff, cfac, lfac, &col, &row) == 0)
+    {
+        qDebug() << "col = " << col << " row = " << row;
+    }
+
+    this->map_inverse(0, imageProjection->height(), lon_rad, lat_rad);
+    qDebug() << " 0, imageProjection->height()  lon = " << lon_rad*180.0/M_PI << " lat = " << lat_rad*180.0/M_PI;
+    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/M_PI, lon_rad*180.0/M_PI, coff, loff, cfac, lfac, &col, &row) == 0)
+    {
+        qDebug() << "col = " << col << " row = " << row;
+    }
+
+    this->map_inverse(imageProjection->width(), imageProjection->height(), lon_rad, lat_rad);
+    qDebug() << " imageProjection->width(), imageProjection->height()  lon = " << lon_rad*180.0/M_PI << " lat = " << lat_rad*180.0/M_PI;
+    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/M_PI, lon_rad*180.0/M_PI, coff, loff, cfac, lfac, &col, &row) == 0)
+    {
+        qDebug() << "col = " << col << " row = " << row;
+    }
 
     for (int j = 0; j < imageProjection->height(); j++)
     {
@@ -248,20 +277,34 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary(QPainter *fb_painter
 
                     }
                 }
-                else
+                else if(reader->shortname == "MET_12")
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/M_PI, lon_rad*180.0/M_PI, coff, loff, cfac, lfac, &col, &row) == 0)
                     {
-                        picrow = row;
-                        if(picrow < imageGeostationary->height())
+//                        if(row - LECAdiff - 3 < imageGeostationary->height())
                         {
-
-                            scanl = (QRgb*)imageGeostationary->scanLine(picrow);
+                            //qDebug() << "leca = " << leca;
+                            scanl = (QRgb*)imageGeostationary->scanLine(row - LECAdiff - 3);   // 560 is ok
                             rgbval = scanl[col];
 
                             fb_painter->setPen(rgbval);
                             fb_painter->drawPoint(i,j);
 
+                        }
+                    }
+                }
+                else
+                {
+                    if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/M_PI, lon_rad*180.0/M_PI, coff, loff, cfac, lfac, &col, &row) == 0)
+                    {
+                        if(row < imageGeostationary->height())
+                        {
+
+                            scanl = (QRgb*)imageGeostationary->scanLine(row);
+                            rgbval = scanl[col];
+
+                            fb_painter->setPen(rgbval);
+                            fb_painter->drawPoint(i,j);
 
                         }
                     }
