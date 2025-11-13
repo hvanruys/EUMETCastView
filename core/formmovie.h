@@ -59,8 +59,6 @@ private slots:
 
     void on_btnOverlayGridColor_clicked();
 
-    void on_btnAddPath_clicked();
-
     void readPendingDatagrams();
 
     void on_btnClear_clicked();

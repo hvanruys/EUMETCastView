@@ -150,6 +150,11 @@ void JsonVideoReader::getTimestampData(const QJsonObject &timestampObj) {
         {
             getChannelData(channelObj, 3);
         }
+        else if(bhrv)
+        {
+            if( channelKey == "HRV")
+                getChannelDataHRV(channelObj);
+        }
     }
 }
 
@@ -165,6 +170,13 @@ void JsonVideoReader::getChannelData(const QJsonObject &channelObj, int color) {
     for (const QString &segmentKey : channelObj.keys()) {
         QJsonObject segmentObj = channelObj[segmentKey].toObject();
         segmentspathlist << segmentObj["absoluteFilePath"].toString();
+    }
+}
+
+void JsonVideoReader::getChannelDataHRV(const QJsonObject &channelObj) {
+    for (const QString &segmentKey : channelObj.keys()) {
+        QJsonObject segmentObj = channelObj[segmentKey].toObject();
+        segmentspathlisthrv << segmentObj["absoluteFilePath"].toString();
     }
 }
 

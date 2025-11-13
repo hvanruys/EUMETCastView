@@ -20,11 +20,11 @@ public:
     QString selectiondate;
     QString daykindofimage;
     QString shortname;
-    QString singleimage;
 
     QList<QString> gshhsoverlayfileslist;
     QList<QString> projectionoverlaycolorlist;
     QList<QString> segmentspathlist;
+    QList<QString> segmentspathlisthrv;
     QList<bool> gshhsoverlayOnlist;
     int videowidth;
     int videoheight;
@@ -82,6 +82,7 @@ private:
     void getTimestampData(const QJsonObject &timestampObj);
     void getTimestampDataMTG(const QJsonObject &timestampObj);
     void getChannelData(const QJsonObject &channelObj, int color);
+    void getChannelDataHRV(const QJsonObject &channelObj);
 
     void readVideoParameters();
     void readVideoPaths();

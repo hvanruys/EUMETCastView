@@ -294,10 +294,9 @@ public:
     QString appdir_env;
 
     //  Video form
-    int threadcount;
+    int processcount;
     QStringList pathlist;
     QString pattern;
-    QString singleimage;
     QString satname;
     double videogamma;
     bool rss;

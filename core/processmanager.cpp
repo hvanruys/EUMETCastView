@@ -10,14 +10,17 @@ ProcessManager::ProcessManager(QStringList datelist, int maxConcurrent, QString 
 
     if(isMTG)
     {
-        ProcessTask task;
-        task.taskId = 49;
+        for (int i = 0; i < datelist.length(); i++) {
+            {
+                ProcessTask task;
+                task.taskId = i;
 
-        task.program = "./EUMETCastVideo";
-        task.arguments = {QString("%1").arg(49), datelist.at(49)};
+                task.program = "./EUMETCastVideo";
+                task.arguments = {QString("%1").arg(i), datelist.at(i)};
 
-        taskQueue.enqueue(task);
-
+                taskQueue.enqueue(task);
+            }
+        }
     }
     else
     {

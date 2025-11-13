@@ -18,14 +18,11 @@ FormMovie::FormMovie(QWidget *parent, AVHRRSatellite *seglist) :
 
     segs = seglist;
 
-    ui->spbProcesscount->setValue(opts.threadcount);
+    ui->spbProcesscount->setValue(opts.processcount);
 
-    for(int i = 0; i < opts.pathlist.count(); i++)
-        ui->tePathlist->append(opts.pathlist.at(i));
 
     setupSpectrumMeteosat();
 
-    ui->leSingleImage->setText(opts.singleimage);
     ui->leGshhsOverlay1->setText(opts.videogshhsoverlayfile1);
     ui->leGshhsOverlay2->setText(opts.videogshhsoverlayfile2);
     ui->leGshhsOverlay3->setText(opts.videogshhsoverlayfile3);
@@ -311,41 +308,20 @@ void FormMovie::setupSpectrumMTG()
 
 bool FormMovie::saveFormToOptions()
 {
-    bool ret = false;
-
-    QString pathlistdata = ui->tePathlist->toPlainText();
-    qDebug() << pathlistdata;
-    QStringList list;
-    list = pathlistdata.split(QRegularExpression("\\s+"));
-
-    opts.pathlist.clear();
-    opts.pathlist = list;
 
     opts.videooverlaydatefontsize = ui->spbFontSize->value();
-    if(ui->leSingleImage->text().length() > 0 && ui->leSingleImage->text().length() != 12)
-    {
-        QMessageBox msgBox;
-        msgBox.setText("The 'SingleImage' string must be 12 digits long (YYYYMMDDHHmm) or empty.");
-        msgBox.exec();
-        ret = false;
-    }
-    else
-    {
-        opts.singleimage = ui->leSingleImage->text();
-        saveOverlayColorsToOptions();
-        saveSpectrumToOptions();
-        opts.videoresolutionheight = ui->leVideoHeight->text().toInt();
-        opts.videoresolutionwidth = ui->leVideoWidth->text().toInt();
-        opts.videogamma = ui->spbGamma->value();
-        opts.videooverlayborder = ui->chkOverlayBorder->isChecked();
-        opts.videooverlaydate = ui->chkOverlayDate->isChecked();
-        opts.videooverlaydatefontsize = ui->spbFontSize->value();
+    saveOverlayColorsToOptions();
+    saveSpectrumToOptions();
+    opts.videoresolutionheight = ui->leVideoHeight->text().toInt();
+    opts.videoresolutionwidth = ui->leVideoWidth->text().toInt();
+    opts.videogamma = ui->spbGamma->value();
+    opts.videooverlayborder = ui->chkOverlayBorder->isChecked();
+    opts.videooverlaydate = ui->chkOverlayDate->isChecked();
+    opts.videooverlaydatefontsize = ui->spbFontSize->value();
+    opts.processcount = ui->spbProcesscount->value();
 
 
-        ret = true;
-    }
-
-    return(ret);
+    return(true);
 
 }
 
@@ -886,19 +862,6 @@ void FormMovie::on_btnOverlayGridColor_clicked()
 }
 
 
-void FormMovie::on_btnAddPath_clicked()
-{
-    QString newpath;
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                    ".", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-
-    if ( !dir.isEmpty() )
-    {
-        ui->tePathlist->append(dir);
-    }
-
-}
-
 void FormMovie::setGVPlat(double latitude)
 {
     ui->leLatitude->setText(QString("%1").arg(latitude));
@@ -952,25 +915,18 @@ void FormMovie::on_btnClear_clicked()
 
 void FormMovie::on_btnffmpeg_clicked()
 {
-    QString datevideo;
-    QStringList datelist = segs->GetDatestampsList(geoindex);
-    if(datelist.count() > 0)
-    {
-        datevideo = datelist.at(0).mid(0, 8);
-    }
-    else
-        return;
+    writeTolistwidget("Starting creating video with FFMPEG");
+    QString datevideo = this->selectiondate.toString("yyyyMMdd");
 
-
-    QProcess process;
-    process.setProgram("ffmpeg");
 
     QString inputimagename = QString("tempvideo/%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_" + this->shortname + "_%04d.png" : "PROJ_" + this->shortname + "_%04d.png");
     QString outputvideoname = QString("%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_"  + this->shortname + "_" + datevideo:
                                                     "PROJ_" + this->shortname + "_" + datevideo) + ".mp4";
 
-    ui->lwTraffic->appendPlainText(QString("=== Start creation video %1 ! ===").arg(outputvideoname));
-    ui->lwTraffic->verticalScrollBar()->setValue(ui->lwTraffic->verticalScrollBar()->maximum());
+    QProcess process;
+    process.setProgram("ffmpeg");
+
+    writeTolistwidget(QString("=== Start creation video %1 ! ===").arg(outputvideoname));
 
     QCoreApplication::processEvents();
 
@@ -1011,9 +967,7 @@ void FormMovie::on_btnffmpeg_clicked()
 
     process.start();
     process.waitForFinished(-1);
-    ui->lwTraffic->appendPlainText(QString("=== The video %1 is created ! ===").arg(outputvideoname));
-    ui->lwTraffic->verticalScrollBar()->setValue(ui->lwTraffic->verticalScrollBar()->maximum());
-
+    writeTolistwidget(QString("=== The video %1 is created ! ===").arg(outputvideoname));
 }
 
 
@@ -1251,10 +1205,10 @@ void FormMovie::on_btnJson_clicked()
 
 void FormMovie::deleteManager()
 {
+    writeTolistwidget("== All processes are finished ! ==");
     qDebug() << "deleting processmanager";
     delete this->processmanager;
-    if(this->shortname != "MET_12")
-        this->on_btnffmpeg_clicked();
+    this->on_btnffmpeg_clicked();
 }
 
 void FormMovie::CreateVideoJson(QString shortname)

@@ -396,7 +396,7 @@ void VideoMaker::compileImage(QString date, int imagenbr)
 
     if(reader->daykindofimage == "HRV" || reader->daykindofimage == "HRV Color")
     {
-        llHRV = this->reader->segmentspathlist;
+        llHRV = this->reader->segmentspathlisthrv;
         if(llHRV.count() == 0)
         {
             sendMessages("Warning : no segments found for 'HRV'!");
@@ -466,6 +466,7 @@ void VideoMaker::compileImage(QString date, int imagenbr)
     {
         QFileInfo fileinfo(llVIS_IR.at(i));
         QString filename = fileinfo.baseName();
+
         getFilenameParameters(filename, filespectrum, filedate, filesequence);
         qDebug() << "filespectrum " << filespectrum << " filedate " << filedate << " sequence " << filesequence;
         bool sampleok = false;
@@ -506,7 +507,11 @@ void VideoMaker::compileImage(QString date, int imagenbr)
 
     for(int i = 0; i < llHRV.count(); i++)
     {
-        getFilenameParameters(llHRV.at(i), filespectrum, filedate, filesequence);
+        QFileInfo fileinfo(llHRV.at(i));
+        QString filename = fileinfo.baseName();
+
+        getFilenameParameters(filename, filespectrum, filedate, filesequence);
+        qDebug() << "filespectrum " << filespectrum << " filedate " << filedate << " sequence " << filesequence;
         bool sampleok = false;
         if(reader->brss)
         {
@@ -539,7 +544,7 @@ void VideoMaker::compileImage(QString date, int imagenbr)
         this->ComposeHRV1(ptrHRV, ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, imagehrv, date,
                           LECA, LSLA, LWCA, LNLA, UECA, USLA, UWCA, UNLA, imagenbr);
         imageGeostationary = imagehrv;
-        imagehrv.save(QString("tempimages/hrv%1.png").arg(imagenbr, 4, 10, QChar('0')));
+        //imagehrv.save(QString("tempimages/hrv%1.png").arg(imagenbr, 4, 10, QChar('0')));
 
         if(reader->projectiontype.length() == 0)
         {
@@ -553,7 +558,7 @@ void VideoMaker::compileImage(QString date, int imagenbr)
     {
         this->ComposeVISIR(ptrDayRed, ptrDayGreen, ptrDayBlue, ptrNightRed, imagevisir, date, imagenbr);
         imageGeostationary = imagevisir;
-        imagevisir.save(QString("tempimages/visir%1.png").arg(imagenbr, 4, 10, QChar('0')));
+        //imagevisir.save(QString("tempimages/visir%1.png").arg(imagenbr, 4, 10, QChar('0')));
 
         if(reader->projectiontype.length() == 0)
         {
@@ -600,10 +605,7 @@ void VideoMaker::compileImage(QString date, int imagenbr)
 
         QString prefixstr = reader->videooutputname;
 
-        if(reader->singleimage.length() > 0)
-            gvp->imageProjection->save("tempimages/" + QString(prefixstr + date + "_%1.png").arg(imagenbr, 4, 10, QChar('0')));
-        else
-            gvp->imageProjection->save("tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0')));
+        gvp->imageProjection->save("tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0')));
 
 
         delete gvp;
@@ -1095,7 +1097,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
             this->CalculateImageMTGNight(vec[i]);
         }
 
-        ptrimageGeoNight->save("ptrimagegeonight.png");
+        //ptrimageGeoNight->save("ptrimagegeonight.png");
     }
 
     for(int colorindex = 0; colorindex < (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
@@ -1109,7 +1111,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
         this->CalculateImageMTG(vec.at(i));
     }
 
-    this->ptrimageGeostationary->save("ptrimagegeo.png");
+    //this->ptrimageGeostationary->save("ptrimagegeo.png");
 
     QString year;
     QString month;
@@ -1147,10 +1149,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
 
         QString prefixstr = reader->videooutputname;
 
-        if(reader->singleimage.length() > 0)
-            gvp->imageProjection->save("tempimages/" + QString(prefixstr + date + "_%1.png").arg(imagenbr, 4, 10, QChar('0')));
-        else
-            gvp->imageProjection->save("tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0')));
+        gvp->imageProjection->save("tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0')));
 
 
         delete gvp;
@@ -1225,7 +1224,7 @@ void VideoMaker::CalculateImageMTG(int findex)
     day = this->reader->selectiondate.mid(6, 2).toInt();
 
     int ii = this->reader->timestamp.toUInt();
-    int totmin = (ii - 1) * 10;
+    int totmin = ii * 10;
     hours = (totmin - (totmin % 60))/60;
     minutes = totmin - (hours * 60);
 
@@ -2655,7 +2654,7 @@ void VideoMaker::ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDa
             }
         }
 
-        testimage.save("tempimages/ptrDayVIS.png");
+        //testimage.save("tempimages/ptrDayVIS.png");
     }
 
     if(reader->spectrum.at(3).length() > 0)
@@ -2675,7 +2674,7 @@ void VideoMaker::ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDa
 
         this->OverlayGeostationary(&testimage, false, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
 
-        testimage.save("tempimages/ptrNightIR.png");
+        //testimage.save("tempimages/ptrNightIR.png");
     }
 
     if(reader->bhrv)
@@ -2693,7 +2692,7 @@ void VideoMaker::ComposeHRV1(quint16 *ptrHRV, quint16 *ptrDayRed, quint16 *ptrDa
         }
         this->OverlayGeostationary(&testimage, true, leca, lsla, lwca, lnla, ueca, usla, uwca, unla);
 
-        testimage.save("tempimages/ptrHRV.png");
+        //testimage.save("tempimages/ptrHRV.png");
     }
     //#endif
 

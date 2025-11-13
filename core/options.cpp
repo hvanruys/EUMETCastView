@@ -269,10 +269,8 @@ void Options::Initialize()
 
     qDebug() << "APPDIR = " << appdir_env;
 
-    threadcount = settings.value("/video/threadcount", 8).toInt();
-    pathlist = settings.value("/video/pathlist").value<QStringList>();
+    processcount = settings.value("/video/processcount", 8).toInt();
     pattern = settings.value("/video/pattern", "H-000-MSG3__-MSG3_????___-??????___-??????___-????????????-?_").value<QString>();
-    singleimage = settings.value("/video/singleimage").value<QString>();
     satname = settings.value("/video/satname", "MET_10").value<QString>();
     videogamma = settings.value("/video/videogamma", 1.0).toDouble();
     rss = settings.value("/video/rss", 1).toBool();
@@ -626,10 +624,8 @@ void Options::Save()
     settings.setValue("/window/fontsize", fontsize);
     settings.setValue("/window/darkmode", darkmode);
 
-    settings.setValue("/video/threadcount", threadcount);
-    settings.setValue("/video/pathlist", pathlist);
+    settings.setValue("/video/processcount", processcount);
     settings.setValue("/video/pattern", pattern);
-    settings.setValue("/video/singleimage", singleimage);
     settings.setValue("/video/satname", satname);
     settings.setValue("/video/videogamma", videogamma);
     settings.setValue("/video/rss", rss);
