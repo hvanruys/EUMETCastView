@@ -36,11 +36,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED Core Gui Widgets Xml Concurrent Network PrintSupport)
 
 if(UNIX)
-    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
-	jsonvideoreader.h jsonvideoreader.cpp
-	videomaker.h videomaker.cpp)
+    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 elseif(WIN32)
-    #target_link_libraries(EUMETCastVideo PRIVATE Qt6::Core Qt6::Gui)
     add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES})
 endif()
 

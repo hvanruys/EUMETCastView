@@ -158,14 +158,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer")
 
 
 if(UNIX)
-    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
-
-    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc
-        rayleigh.h rayleigh.cpp)
-
-# target_link_libraries(EUMETCastView PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+    #find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
 elseif(WIN32)
-    #target_link_libraries(EUMETCastView PRIVATE Qt6::Core)
     add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
 endif()
 
