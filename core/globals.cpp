@@ -509,6 +509,8 @@ QString ImageTypeToString( eImageType imtype )
         return "IMAGE_OLCI";
     case IMAGE_MERSI:
         return "IMAGE_MERSI";
+    case IMAGE_VII:
+        return "IMAGE_VII";
     }
 }
 

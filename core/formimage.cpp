@@ -1412,7 +1412,7 @@ void FormImage::setupGshhs(int geoindex, int k)
             if (lon_deg > 180.0)
                 lon_deg -= 360.0;
 
-            if(lon_deg < 90.0 || lon_deg > -90.0)
+            if(lon_deg < 180.0 || lon_deg > -180.0)
             {
                 if(opts.geosatellites.at(geoindex).shortname == "GOES_19" || opts.geosatellites.at(geoindex).shortname == "GOES_18")
                 {
@@ -1426,29 +1426,32 @@ void FormImage::setupGshhs(int geoindex, int k)
                     else
                         ret = 1;
                 }
+                else if(opts.geosatellites.at(geoindex).shortname == "MET_12")
+                {
+                    ret = pixconv.geocoord2pixcoordFCI(sub_lon, lat_deg, lon_deg, &col, &row);
+                    save_row = row;
+                    row = 11136 - save_row;
+                }
                 else
                 {
                     ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, opts.geosatellites.at(geoindex).coff,
                                                     opts.geosatellites.at(geoindex).loff, opts.geosatellites.at(geoindex).cfac, opts.geosatellites.at(geoindex).lfac, &col, &row);
-
                 }
                 if(ret == 0)
                 {
                     if (first)
                     {
                         first = false;
-                        save_col = col;
-                        save_row = row;
+                        //save_col = col;
+                        //save_row = row;
                         this->geooverlay[k].append(QVector2D(-1, -1));
                     }
                     else
                     {
-                        save_col = col;
-                        save_row = row;
+                        //save_col = col;
+                        //save_row = row;
                     }
-
                     this->geooverlay[k].append(QVector2D(col, row));
-
                 }
                 else
                     first = true;
@@ -1457,6 +1460,7 @@ void FormImage::setupGshhs(int geoindex, int k)
         first = true;
     }
 }
+
 void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 {
 
@@ -1473,15 +1477,15 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
 
     drawOverlays(painter);
 
-//    QPoint center(m_image->width()/2, m_image->height()/2);
+    // QPoint center(m_image->width()/2, m_image->height()/2);
 
-//    if(m_image->width() == 3712)
-//    {
-//        int diameter = 3608;
-//        painter->setPen(QPen(QColor(255, 0, 0), 1));
-// //       painter->drawEllipse(center, 1804 - 3, 1804);
-//        painter->drawEllipse(center, 1804, 1804);
-//    }
+    // if(m_image->width() == 3712)
+    // {
+    //     int diameter = 3608;
+    //     painter->setPen(QPen(QColor(255, 0, 0), 1));
+    // //       painter->drawEllipse(center, 1804 - 3, 1804);
+    //     painter->drawEllipse(center, 1804, 1804);
+    // }
 
 }
 
@@ -1562,6 +1566,8 @@ void FormImage::drawOverlays(QPainter *painter)
 
             if(slgeo->getGeoSatellite() == eGeoSatellite::H9)
                 this->OverlayGeostationaryH9(painter, slgeo);
+            // else if(slgeo->getGeoSatellite() == eGeoSatellite::MET_12)
+            //     this->OverlayGeostationaryFCI(painter, slgeo);
             else
                 this->OverlayGeostationary(painter, slgeo);
         }
@@ -1578,6 +1584,56 @@ void FormImage::drawOverlays(QPainter *painter)
     }
 }
 
+void FormImage::OverlayGeostationaryFCI(QPainter *paint, SegmentListGeostationary *sl)
+{
+    // pixgeoConversion pixconv;
+
+    // int col, save_col;
+    // int row, save_row;
+    // bool first = true;
+
+    // double lat_deg;
+    // double lon_deg;
+    // int ret;
+
+    // for(int k = 0; k < 3; k++)
+    // {
+    //     if(k == 0) paint->setPen(opts.geoimageoverlaycolor1); //QColor(opts.projectionoverlaylonlatcolor));
+    //     if(k == 1) paint->setPen(opts.geoimageoverlaycolor2); //QColor(opts.projectionoverlaylonlatcolor));
+    //     if(k == 2) paint->setPen(opts.geoimageoverlaycolor3); //QColor(opts.projectionoverlaylonlatcolor));
+
+    //     for(int i = 0; i < this->geooverlay[k].count(); i++)
+    //     {
+    //         if (this->geooverlay[k].at(i).x() < 0)
+    //         {
+    //             first = true;
+    //         }
+    //         else if(first == true)
+    //         {
+    //             first = false;
+    //             save_col = (int)this->geooverlay[k].at(i).x()/factor;
+    //             save_row = (int)this->geooverlay[k].at(i).y()/factor;
+    //         }
+    //         else
+    //         {
+    //             col = this->geooverlay[k].at(i).x()/factor;
+    //             row = this->geooverlay[k].at(i).y()/factor;
+    //             if(row < m_image->height() && col < m_image->width())
+    //             {
+    //                 if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
+    //                     paint->drawLine(save_col, save_row - 3, col, row - 3);
+    //                 else
+    //                     paint->drawLine(save_col, save_row, col, row);
+
+    //             }
+
+    //             save_col = (int)this->geooverlay[k].at(i).x()/factor;
+    //             save_row = (int)this->geooverlay[k].at(i).y()/factor;
+    //         }
+    //     }
+    // }
+}
+
 void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl)
 {
 
@@ -1585,8 +1641,6 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         qDebug() << "m_image is null";
         return;
     }
-
-    //qDebug() << "FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *sl) image width = " << m_image->width();
 
     if(sl == NULL)
         return;
@@ -1634,154 +1688,28 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         lfac = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
     }
 
-    //qDebug() << "coff = " << coff << " loff = " << loff << " cfac = " << cfac << " lfac = " << lfac;
-
-    double sub_lon = sl->geosatlon;
-    lat_deg = opts.obslat;
-    lon_deg = opts.obslon;
-    if (lon_deg > 180.0)
-        lon_deg -= 360.0;
-
-    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
-    if(ret == 0)
-    {
-        if(hrvimage)
-        {
-            if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
-            {
-                col = col - (11136 - sl->LowerWestColumnActual);
-            }
-            else //UPPER
-            {
-                col = col - (11136 - sl->UpperWestColumnActual - 1);
-            }
-        }
-
-        QPoint pt(col, row);
-        QPoint ptleft(col-5, row);
-        QPoint ptright(col+5, row);
-        QPoint ptup(col, row-5);
-        QPoint ptdown(col, row+5);
-
-        paint->setPen(qRgb(255, 0, 0));
-        paint->drawLine(ptleft,ptright);
-        paint->drawLine(ptup,ptdown);
-        paint->drawEllipse(pt, 12, 12);
-    }
-
-    paint->setPen(QColor(opts.projectionoverlaylonlatcolor));
-
-    for(double lon = -180.0; lon < 180.0; lon+=10.0)
-    {
-        first = true;
-        {
-            for(double lat = -90.0; lat < 90.0; lat+=0.5)
-            {
-                ret =pixconv.geocoord2pixcoord(sub_lon, lat, lon, coff, loff, cfac, lfac, &col, &row);
-                if(hrvimage && sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
-                {
-                    if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
-                    {
-                        if( save_row <= 11136 - sl->LowerNorthLineActual )
-                            first = true;
-                        col = col - (11136 - sl->LowerWestColumnActual);
-                    }
-                    else //UPPER
-                    {
-                        if( save_row > 11136 - sl->LowerNorthLineActual )
-                            first = true;
-                        col = col - (11136 - sl->UpperWestColumnActual - 1);
-                    }
-                }
-
-
-                if(ret == 0)
-                {
-                    if (first)
-                    {
-                        first = false;
-                        save_col = col;
-                        save_row = row;
-                    }
-                    else
-                    {
-                        if(row < m_image->height() && col < m_image->width() && row > -1 && col > -1)
-                            paint->drawLine(save_col, save_row, col, row);
-                        save_col = col;
-                        save_row = row;
-                    }
-                }
-                else
-                    first = true;
-
-            }
-        }
-    }
-
-    for(double lat = -80.0; lat < 81.0; lat+=10.0)
-    {
-        first = true;
-        {
-            for(double lon = -180.0; lon < 180.0; lon+=1.0)
-            {
-                ret =pixconv.geocoord2pixcoord(sub_lon, lat, lon, coff, loff, cfac, lfac, &col, &row);
-                if(hrvimage && sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
-                {
-                    if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
-                    {
-                        if( save_row <= 11136 - sl->LowerNorthLineActual )
-                            first = true;
-                        col = col - (11136 - sl->LowerWestColumnActual);
-                    }
-                    else //UPPER
-                    {
-                        if( save_row > 11136 - sl->LowerNorthLineActual )
-                            first = true;
-                        col = col - (11136 - sl->UpperWestColumnActual - 1);
-                    }
-                }
-
-
-                if(ret == 0)
-                {
-                    if (first)
-                    {
-                        first = false;
-                        save_col = col;
-                        save_row = row;
-                    }
-                    else
-                    {
-                        if(row < m_image->height() && col < m_image->width() && row > -1 && col > -1)
-                            paint->drawLine(save_col, save_row, col, row);
-                        save_col = col;
-                        save_row = row;
-                    }
-                }
-                else
-                    first = true;
-
-            }
-        }
-    }
+    this->DrawLongLat(paint, sl, coff, loff, cfac, lfac, hrvimage);
 
     float factor = 1.0;
     if(m_image->width() == 3712)
-        factor = 1.5; //3.0;
+        factor = 3.0;
     else if(m_image->width() == 5568)
-        factor = 1.0;
+        factor = 2.0;
     else if(m_image->width() == 11136)
-        factor = 0.5;
+        factor = 1.0;
     else if(m_image->width() == 2288) // FY
         factor = 1.0;
     else if(m_image->width() == 9152) // FY - VIS
         factor = 0.25;
     else if(m_image->width() == 2784) // Electro
-        factor = 2.0; //4.0;
+        factor = 4.0;
     else if(m_image->width() == 5500) // Himawari-8
         factor = 1.975574713;
 
-
+    if(sl->getGeoSatellite() == eGeoSatellite::GOMS3)
+    {
+        OverlayGeostationaryHRV(paint, sl, geoindex);
+    }else
     if(!hrvimage || (sl->getGeoSatellite() == eGeoSatellite::FY2H || sl->getGeoSatellite() == eGeoSatellite::FY2G))
     {
         for(int k = 0; k < 3; k++)
@@ -1808,11 +1736,7 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
                     row = this->geooverlay[k].at(i).y()/factor;
                     if(row < m_image->height() && col < m_image->width())
                     {
-                        if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
-                            paint->drawLine(save_col, save_row - 3, col, row - 3);
-                        else
-                            paint->drawLine(save_col, save_row, col, row);
-
+                        paint->drawLine(save_col, save_row, col, row);
                     }
 
                     save_col = (int)this->geooverlay[k].at(i).x()/factor;
@@ -2080,7 +2004,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
 
     double sub_lon = sl->geosatlon;
 
-    qDebug() << "FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationary *sl) image width = " << m_image->width();
+    qDebug() << "FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationary *sl) image width = " << m_image->width() << " sub_lon = " << sub_lon;
 
 
     if(opts.gshhsglobe1On)
@@ -2096,7 +2020,7 @@ void FormImage::OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationar
                 if (lon_deg > 180.0)
                     lon_deg -= 360.0;
 
-                if((lon_deg < 90.0 || lon_deg > -90.0))
+                if((lon_deg < 180.0 || lon_deg > -180.0))
                 {
                     ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
                     row+=5; //3;

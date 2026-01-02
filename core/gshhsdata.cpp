@@ -10,6 +10,65 @@ extern Options opts;
 // h = high
 // f = full
 
+// These changes required us to enhance the GSHHG C-structure used to
+// read and write the data.  As of version 2.0 the header structure is
+
+// struct GSHHG {  /* Global Self-consistent Hierarchical High-resolution Shorelines */
+//         int id;         /* Unique polygon id number, starting at 0 */
+//         int n;          /* Number of points in this polygon */
+//         int flag;       /* = level + version << 8 + greenwich << 16 + source << 24 + river << 25 */
+//         /* flag contains 5 items, as follows:
+//          * low byte:    level = flag & 255: Values: 1 land, 2 lake, 3 island_in_lake, 4 pond_in_island_in_lake
+//          * 2nd byte:    version = (flag >> 8) & 255: Values: Should be 12 for GSHHG release 12 (i.e., version 2.2)
+//          * 3rd byte:    greenwich = (flag >> 16) & 1: Values: Greenwich is 1 if Greenwich is crossed
+//          * 4th byte:    source = (flag >> 24) & 1: Values: 0 = CIA WDBII, 1 = WVS
+//          * 4th byte:    river = (flag >> 25) & 1: Values: 0 = not set, 1 = river-lake and level = 2
+//          */
+//         int west, east, south, north;   /* min/max extent in micro-degrees */
+//         int area;       /* Area of polygon in 1/10 km^2 */
+//         int area_full;  /* Area of original full-resolution polygon in 1/10 km^2 */
+//         int container;  /* Id of container polygon that encloses this polygon (-1 if none) */
+//         int ancestor;   /* Id of ancestor polygon in the full resolution set that was the source of this polygon (-1 if none) */
+// };
+
+// Following each header structure is n structures of coordinates:
+
+// struct GSHHG_POINT {	/* Each lon, lat pair is stored in micro-degrees in 4-byte signed integer format */
+// 	int32_t x;
+// 	int32_t y;
+// };
+
+// Some useful information:
+
+// A) To avoid headaches the binary files were written to be big-endian.
+//    If you use the GMT supplement gshhg it will check for endian-ness and if needed will
+//    byte swab the data automatically. If not then you will need to deal with this yourself.
+
+// B) In addition to GSHHS we also distribute the files with political boundaries and
+//    river lines.  These derive from the WDBII data set.
+
+// C) As to the best of our knowledge, the GSHHG data are geodetic longitude, latitude
+//    locations on the WGS-84 ellipsoid.  This is certainly true of the WVS data (the coastlines).
+//    Lakes, riverlakes (and river lines and political borders) came from the WDBII data set
+//    which may have been on WGS072.  The difference in ellipsoid is way less then the data
+//    uncertainties.  Offsets have been noted between GSHHG and modern GPS positions.
+
+// D) Originally, the gshhs_dp tool was used on the full resolution data to produce the lower
+//    resolution versions.  However, the Douglas-Peucker algorithm often produce polygons with
+//    self-intersections as well as create segments that intersect other polygons.  These problems
+//    have been corrected in the GSHHG lower resolutions over the years.  If you use gshhs_dp to
+//    generate your own lower-resolution data set you should expect these problems.
+
+// E) The shapefiles release was made by formatting the GSHHG data using the extended GMT/GIS
+//    metadata understood by OGR, then using ogr2ogr to build the shapefiles.  Each resolution
+//    is stored in its own subdirectory (e.g., f, h, i, l, c) and each level (1-4) appears in
+//    its own shapefile.  Thus, GSHHS_h_L3.shp contains islands in lakes for the high res
+//    data. Because of GIS limitations some polygons that straddle the Dateline (including
+//    Antarctica) have been split into two parts (east and west).
+
+// F) The netcdf-formatted coastlines distributed with GMT derives directly from GSHHG; however
+//    the polygons have been broken into segments within tiles.  These files are not meant
+//    to be used by users other than via GMT tools (pscoast, grdlandmask, etc).
 
 gshhsData::gshhsData()
 {
@@ -247,7 +306,20 @@ int gshhsData::check_gshhs(char *pFileName)
     n_read = fread ((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
     version = (h.flag >> 8) & 255;
     flip = (version != GSHHS_DATA_RELEASE);	/* Take as sign that byte-swabbing is needed */
+    qDebug() << "====> flip = " << flip;
 
+    level = h.flag & 255;				/* Level is 1-4 */
+    version = (h.flag >> 8) & 255;			/* Version is 1-7 */
+    //if (first) fprintf (stderr, "gshhs %s - Found GSHHS version %d in file %s\n", GSHHS_PROG_VERSION, version, file);
+    greenwich = (h.flag >> 16) & 1;			/* Greenwich is 0 or 1 */
+    src = (h.flag >> 24) & 1;			/* Greenwich is 0 (WDBII) or 1 (WVS) */
+    river = (h.flag >> 25) & 1;			/* River is 0 (not river) or 1 (is river) */
+
+    qDebug() << "level = " << level;
+    qDebug() << "version = " << version;
+    qDebug() << "greenwich = " << greenwich;
+    qDebug() << "src = " << src;
+    qDebug() << "river = " << river;
 
     while (n_read == 1)
     {
@@ -284,7 +356,7 @@ void gshhsData::load_gshhs(char *pFileName, int nTotFeatures, Vxp *vxp)
     char source, kind[2] = {'P', 'L'}, c = '>'; //, *file = NULL;
     //char *name[2] = {"polygon", "line"};
     FILE *fp = NULL;
-    int k, line, max_east = 270000000, info, single, error, ID, flip;
+    int k, line, max_east = 270000000, flip;
     int  OK, level, version, greenwich, river, src, msformat = 0, first = 1;
     size_t n_read;
     struct POINT_GSHHS p;
@@ -293,12 +365,9 @@ void gshhsData::load_gshhs(char *pFileName, int nTotFeatures, Vxp *vxp)
 
     int nFeatures = 0;
 
-    info = single = error = ID = 0;
-
-
     if ((fp = fopen (pFileName, "rb")) == NULL ) {
-            qDebug() << QString( "gshhs:  Could not find file %1.").arg(pFileName);
-            return; // exit (EXIT_FAILURE);
+        qDebug() << QString( "gshhs:  Could not find file %1.").arg(pFileName);
+        return; // exit (EXIT_FAILURE);
     }
 
     n_read = fread ((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);

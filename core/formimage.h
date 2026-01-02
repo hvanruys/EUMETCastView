@@ -91,6 +91,8 @@ private:
     void OverlayGeostationaryHRV(QPainter *paint, SegmentListGeostationary *sl, int geoindex);
     void OverlayGeostationaryHRV1(QPainter *paint, SegmentListGeostationary *sl, int geoindex);
     void OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary *sl);
+    void OverlayGeostationaryFCI(QPainter *paint, SegmentListGeostationary *sl);
+
     void OverlayProjection(QPainter *paint);
     void OverlayOLCI(QPainter *paint);
     void DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int coff, int loff,

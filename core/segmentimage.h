@@ -175,6 +175,8 @@ public:
     quint16 *ptrNight[10];
 
     quint16 *ptrMTG[4][40];
+    quint16 *ptrIndex[4][40];
+
     int mtg_start_position_row[4][40];
     int mtg_end_position_row[4][40];
     int mtg_start_position_column[4][40];

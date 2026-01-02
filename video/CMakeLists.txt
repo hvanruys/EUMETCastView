@@ -40,9 +40,8 @@ if(UNIX)
 	jsonvideoreader.h jsonvideoreader.cpp
 	videomaker.h videomaker.cpp)
 elseif(WIN32)
-
-target_link_libraries(EUMETCastVideo PRIVATE Qt6::Core Qt6::Gui)
-add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES})
+    #target_link_libraries(EUMETCastVideo PRIVATE Qt6::Core Qt6::Gui)
+    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES})
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

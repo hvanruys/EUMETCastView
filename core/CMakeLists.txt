@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
 
-#SET(CMAKE_CXX_FLAGS_DEBUG "-O0")
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0")
 #SET(CMAKE_C_FLAGS_DEBUG "-O0")
+#set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 project(EUMETCastView)
 
@@ -21,7 +23,7 @@ set(PROJECT_SOURCES_CPP
     segmentlistmersi.cpp
     segmentmersi.cpp
     segmentmetop.cpp
-
+    rayleigh.cpp
     segmentlist.cpp
     segmentlisthrp.cpp
     segmentlistmetop.cpp
@@ -77,6 +79,8 @@ set(PROJECT_SOURCES_CPP
     ColorSpace.cpp
     Conversion.cpp
     moon.cpp
+    processmanager.cpp
+    processmanager.h
     mainwindow.ui
     dialogpreferences.ui
     formephem.ui
@@ -135,26 +139,51 @@ cmake_print_variables(HDF5_INCLUDE_DIRS)
 cmake_print_variables(NETCDF_INCLUDE_DIRS)
 cmake_print_variables(CMAKE_CURRENT_SOURCE_DIR)
 
-if(UNIX)
-    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc
-        processmanager.h processmanager.cpp)
-elseif(WIN32)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -ggdb")
+        # -O0 = No optimization
+        # -g3 = Maximum debug information (includes macro definitions)
+        # -ggdb = Produce debugging information for GDB
 
-target_link_libraries(EUMETCastView PRIVATE Qt6::Core)
-add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
+# Remove any optimization flags that might be added by default
+string(REPLACE "-O1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+string(REPLACE "-O2" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+string(REPLACE "-O3" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+string(REPLACE "-Os" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+
+# Additional helpful debug flags
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer")
+# -fno-omit-frame-pointer = Keep frame pointer for better stack traces
+
+
+
+
+if(UNIX)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+
+    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc
+        rayleigh.h rayleigh.cpp)
+
+# target_link_libraries(EUMETCastView PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+elseif(WIN32)
+    #target_link_libraries(EUMETCastView PRIVATE Qt6::Core)
+    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES_CPP} EUMETCastView.qrc shaders.qrc)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/aaplus")
 
 add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30)
+
+
+
+
 # sequence of libraries is important !
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Core5Compat
     my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} archive freeimage aaplus-static ws2_32)
 else()
 target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Core5Compat
-    my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} archive freeimage aaplus-static)
+    meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} archive freeimage aaplus-static)
 endif()
 #set_target_properties(${PROJECT_NAME}
 #  PROPERTIES

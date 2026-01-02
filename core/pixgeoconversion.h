@@ -86,17 +86,51 @@ enum SCAN_GEOMETRIES {
   GEOS
 };
 
+struct GridParams
+{
+    double lambda_0;
+    double phi_0;
+    double azimuth_sampling;
+    double elevation_sampling;
+};
+
+// Structure to hold lat/lon/row/col conversion result
+struct ConversionResult
+{
+    std::vector<double> values;
+    std::vector<bool> valid;
+};
+
+// Get grid parameters for given SSD
+
+// Convert latitude/longitude to FCI grid row/column
+struct LatLonToGridResult
+{
+    std::vector<double> rows;
+    std::vector<double> columns;
+};
+
+// Structure for grid to lat/lon conversion result
+struct GridToLatLonResult
+{
+    std::vector<double> lons;
+    std::vector<double> lats;
+    std::vector<bool> earth_mask;
+};
+
+const double NAN_VALUE = std::numeric_limits<double>::quiet_NaN();
+
 class pixgeoConversion
 {
 public:
     pixgeoConversion();
-    //int pixcoord2geocoord(double sub_lon_deg, int column, int row, long coff, long loff, long long cfac, long long lfac, double *latitude, double *longitude);
+
     int pixcoord2geocoord(double sub_lon_deg, int column, int row, int coff, int loff, double cfac, double lfac, double *latitude, double *longitude);
     double calc_sa(double sub_lon_deg, int column, int row, int coff, int loff, double cfac, double lfac, double *latitude, double *longitude);
-
-    //int geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, long coff, long loff, long long cfac, long long lfac, int *column, int *row);
-    //int geocoord2pixcoordrad(double sub_lon_deg, double lat_rad, double lon_rad, long coff, long loff, long long cfac, long long lfac, int *column, int *row);
     int geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, int coff, int loff, double cfac, double lfac, int *column, int *row);
+    int pixcoord2geocoordFCI(double sub_lon_deg, int column, int row, double *latitude, double *longitude);
+    int geocoord2pixcoordFCI(double sub_lon_deg, double latitude, double longitude, int *column, int *row);
+
 
     int nint(double val);
     void earth_to_fgf_(const int  *sat, const double *lon_degrees, const double *lat_degrees, const double *scale_x, const double *offset_x,
@@ -125,6 +159,15 @@ private:
     void sat_to_earth(const enum SCAN_GEOMETRIES scan_geom, const double lamda, const double theta, const double sub_lon_degrees,
                       double *lon_degrees, double *lat_degrees);
 
+
+
+    GridParams getGridParams(double ssd);
+    LatLonToGridResult fci_latlon_to_grid(const std::vector<double> &lats,
+                                          const std::vector<double> &lons,
+                                          double ssd = 1.0);
+    GridToLatLonResult fci_grid_to_latlon(const std::vector<double> &rows,
+                                                            const std::vector<double> &cols,
+                                                            double ssd = 1.0);
 
 
 };

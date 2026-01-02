@@ -7,12 +7,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#if(UNIX)
-#    set(CMAKE_PREFIX_PATH /home/hugo/Qt5.12.12/5.12.12/gcc_64)
-#elseif(WIN32)
-#    set(CMAKE_PREFIX_PATH /home/hugo/Data-Linux/Qt/5.15.2/gcc_64)
-#endif()
-
 add_library(my_compiler_flags_1 INTERFACE)
 target_compile_features(my_compiler_flags_1 INTERFACE cxx_std_11)
 
@@ -20,7 +14,7 @@ set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 
 target_compile_options(my_compiler_flags_1 INTERFACE
-  "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-O2;-Wno-conversion-null;-Wno-pragmas;-Wno-trigraphs;-Wformat;-Wformat-security;>>"
+  "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-O0;-Wno-conversion-null;-Wno-pragmas;-Wno-trigraphs;-Wformat;-Wformat-security;>>"
   "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>"
 )
 

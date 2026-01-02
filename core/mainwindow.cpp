@@ -248,25 +248,24 @@ MainWindow::MainWindow(QWidget *parent) :
     fail_read:;
     }
 
-    //char envvar[] = "HDF5_PLUGIN_PATH";
-#ifdef WIN32
-    char envvar[] = "HDF5_PLUGIN_PATH=.\\";
-#else
-    char envvar[] = "HDF5_PLUGIN_PATH=./";
-#endif
+// #ifdef WIN32
+//     char envvar[] = "HDF5_PLUGIN_PATH=.\\";
+// #else
+//     char envvar[] = "HDF5_PLUGIN_PATH=./";
+// #endif
 
     // Make sure envvar actually exists
-    if(!getenv("HDF5_PLUGIN_PATH")){
-        fprintf(stderr, "The environment variable HDF5_PLUGIN_PATH was not found.\n");
-        fprintf(stderr, "setting environment variable.\n");
-        //setenv(envvar, ".", 1);
-        putenv(envvar);
-    }
+    // if(!getenv("HDF5_PLUGIN_PATH")){
+    //     fprintf(stderr, "The environment variable HDF5_PLUGIN_PATH was not found.\n");
+    //     fprintf(stderr, "setting environment variable.\n");
+    //     //setenv(envvar, ".", 1);
+    //     putenv(envvar);
+    // }
 
     char *myptr = getenv("HDF5_PLUGIN_PATH");
     QString str = QString::fromLocal8Bit(myptr);
 
-    qDebug() << QString("getenv = %1").arg(str);
+    qDebug() << QString("getenv(HDF5_PLUGIN_PATH) = %1").arg(str);
 
     int avail = H5Zfilter_avail(32018);
     if (avail == 0) {

@@ -1093,3 +1093,185 @@ qreal MTGLatMinMax::getLatMin(int index)
     else
        return listlatminmax.at(index-1).min;
 }
+
+GridParams pixgeoConversion::getGridParams(double ssd)
+{
+    if (std::abs(ssd - 0.5) < 1e-6)
+    {
+        return {
+                8.9142405037 * PIE / 180,
+                -8.9142405037 * PIE / 180,
+                0.000800524494 * PIE / 180,
+                0.000800524494 * PIE / 180};
+    }
+    else if (std::abs(ssd - 1.0) < 1e-6)
+    {
+        return {
+                8.9138402398 * PIE / 180,
+                -8.9138402398 * PIE / 180,
+                0.001601048988 * PIE / 180,
+                0.001601048988 * PIE / 180};
+    }
+    else if (std::abs(ssd - 2.0) < 1e-6)
+    {
+        return {
+                8.9130397083 * PIE / 180,
+                -8.9130397083 * PIE / 180,
+                0.003202097973 * PIE / 180,
+                0.003202097973 * PIE / 180};
+    }
+    throw std::invalid_argument("SSD must be 0.5, 1.0, or 2.0 km");
+}
+
+LatLonToGridResult pixgeoConversion::fci_latlon_to_grid(const std::vector<double> &lats,
+                                      const std::vector<double> &lons, double ssd)
+{
+    GridParams params = getGridParams(ssd);
+
+    // Earth ellipsoid parameters
+    double r_eq = 6378.137;                          // km
+    double r_pol = r_eq * (1 - 1.0 / 298.257223563); // km
+    double h = 35786.4 + r_eq;                       // km
+
+    std::vector<double> result_rows, result_cols;
+
+    for (size_t i = 0; i < lats.size(); ++i)
+    {
+        double lat_rad = lats[i] * PIE / 180.0;
+        double lon_rad = lons[i] * PIE / 180.0;
+
+        double cos_lat = std::cos(lat_rad);
+        double sin_lat = std::sin(lat_rad);
+        double cos_lon = std::cos(lon_rad);
+        double sin_lon = std::sin(lon_rad);
+
+        // Calculate geocentric coordinates
+        double c = 1.0 / std::sqrt(cos_lat * cos_lat +
+                                   (r_pol / r_eq) * (r_pol / r_eq) * sin_lat * sin_lat);
+
+        double x = r_eq * c * cos_lat * cos_lon;
+        double y = r_eq * c * cos_lat * sin_lon;
+        double z = r_pol * c * (r_pol / r_eq) * sin_lat;
+
+        // Satellite position
+        double x_sat = h;
+        double y_sat = 0.0;
+        double z_sat = 0.0;
+
+        // Vector from satellite to point
+        double dx = x - x_sat;
+        double dy = y - y_sat;
+        double dz = z - z_sat;
+
+        // Check visibility
+        double distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+        double cos_angle = -dx / distance;
+        double horizon_angle = std::asin(r_eq / h);
+
+        double g = cos_lat * cos_lon;
+        bool visible = g >= (1.0/distance);
+
+
+        // Calculate viewing angles
+        double rho_c = std::sqrt(dx * dx + dy * dy);
+        double phi_s = std::atan(dz / rho_c);
+        double lambda_s = std::atan(dy / dx);
+
+        // Convert to grid coordinates
+        double col = (params.lambda_0 - lambda_s) / params.azimuth_sampling + 1.0;
+        double row = (phi_s - params.phi_0) / params.elevation_sampling + 1.0;
+
+        result_rows.push_back(visible ? row : NAN_VALUE);
+        result_cols.push_back(visible ? col : NAN_VALUE);
+    }
+
+    return {result_rows, result_cols};
+}
+
+// Convert FCI grid row/column to latitude/longitude
+GridToLatLonResult pixgeoConversion::fci_grid_to_latlon(const std::vector<double> &rows,
+                                      const std::vector<double> &cols, double ssd)
+{
+    GridParams params = getGridParams(ssd);
+
+    // Earth ellipsoid parameters
+    double r_eq = 6378.137;                          // km
+    double r_pol = r_eq * (1 - 1.0 / 298.257223563); // km
+    double h = 35786.4 + r_eq;                       // km
+    double lambda_D = 0.0;
+
+    std::vector<double> result_lons, result_lats;
+    std::vector<bool> result_earth_mask;
+
+    for (size_t i = 0; i < rows.size(); ++i)
+    {
+        // Calculate viewing angles
+        double lambda_s = params.lambda_0 - (cols[i] - 1.0) * params.azimuth_sampling;
+        double phi_s = params.phi_0 + (rows[i] - 1.0) * params.elevation_sampling;
+
+        double cos_lambda_s = std::cos(lambda_s);
+        double sin_lambda_s = std::sin(lambda_s);
+        double cos_phi_s = std::cos(phi_s);
+        double sin_phi_s = std::sin(phi_s);
+
+        double s5 = h * h - r_eq * r_eq;
+        double s4 = (r_eq / r_pol) * (r_eq / r_pol);
+
+        double s_d_2 = (h * cos_lambda_s * cos_phi_s) * (h * cos_lambda_s * cos_phi_s) -
+                       s5 * (cos_phi_s * cos_phi_s + s4 * sin_phi_s * sin_phi_s);
+
+        bool is_earth = s_d_2 >= 0;
+
+        if (!is_earth)
+        {
+            result_lons.push_back(NAN_VALUE);
+            result_lats.push_back(NAN_VALUE);
+            result_earth_mask.push_back(false);
+            continue;
+        }
+
+        double s_d = std::sqrt(s_d_2);
+
+        // Calculate s_n
+        double s_n = (h * cos_lambda_s * cos_phi_s - s_d) /
+                     (cos_phi_s * cos_phi_s + s4 * sin_phi_s * sin_phi_s);
+
+        // Calculate s1, s2, s3
+        double s1 = h - s_n * cos_lambda_s * cos_phi_s;
+        double s2 = -s_n * sin_lambda_s * cos_phi_s;
+        double s3 = s_n * sin_phi_s;
+
+        // Calculate s_xy
+        double s_xy = std::sqrt(s1 * s1 + s2 * s2);
+
+        // Calculate latitude and longitude
+        double lat = std::atan((s3 / s_xy) * s4);
+        double lon = std::atan(s2 / s1) + lambda_D * PIE / 180.0;
+
+        // Convert to degrees
+        result_lons.push_back(lon * 180.0 / PIE);
+        result_lats.push_back(lat * 180.0 / PIE);
+        result_earth_mask.push_back(true);
+    }
+
+    return {result_lons, result_lats, result_earth_mask};
+}
+
+int pixgeoConversion::pixcoord2geocoordFCI(double sub_lon_deg, int column, int row, double *latitude, double *longitude)
+{
+    // Structure to hold grid parameters
+    return 0;
+
+}
+
+int pixgeoConversion::geocoord2pixcoordFCI(double sub_lon_deg, double latitude, double longitude, int *column, int *row)
+{
+    std::vector<double> lats = {latitude};
+    std::vector<double> lons = {longitude};
+    auto res = fci_latlon_to_grid(lats, lons, 1.0);
+    int i_col = std::round(res.columns[0]);
+    int i_row = std::round(res.rows[0]);
+    *column = i_col;
+    *row = i_row;
+    return 0;
+}

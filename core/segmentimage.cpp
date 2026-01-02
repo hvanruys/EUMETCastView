@@ -50,6 +50,7 @@ SegmentImage::SegmentImage()
         for( int j = 0; j < 40; j++)
         {
             ptrMTG[i][j] = NULL;
+            ptrIndex[i][j] = NULL;
         }
     }
 

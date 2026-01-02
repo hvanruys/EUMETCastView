@@ -1264,6 +1264,7 @@ void SegmentListGeostationary::ComposeSegmentImageHDFInThread(QStringList fileli
         H5Fclose(h5_file_id[j]);
     }
 
+    QApplication::restoreOverrideCursor();
     emit signalcomposefinished(kindofimage, geoindex);
 
 }
@@ -2548,6 +2549,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     ushort total_number_of_rows;
     ushort total_number_of_columns;
 
+    ushort index_offset;
     double gamma = opts.meteosatgamma;
     double gammafactor = 255 / pow(255, gamma);
     quint16 valgamma;
@@ -2709,22 +2711,6 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     //     }
     // }
 
-//    2024-08-01 09:38:22.165 Debug: ===> in TRAIL File ==> groupname =  "vis_04" rows =  11136  columns =  11136
-//    2024-08-01 09:38:22.165 Debug: ===> in TRAIL File ==> groupname =  "vis_05" rows =  11136  columns =  11136
-//    2024-08-01 09:38:22.165 Debug: ===> in TRAIL File ==> groupname =  "vis_06" rows =  11136  columns =  11136
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "vis_08" rows =  11136  columns =  11136
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "vis_09" rows =  11136  columns =  11136
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "nir_13" rows =  11136  columns =  11136
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "nir_16" rows =  11136  columns =  11136
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "nir_22" rows =  11136  columns =  11136
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "ir_38" rows =  5568  columns =  5568
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "wv_63" rows =  5568  columns =  5568
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "wv_73" rows =  5568  columns =  5568
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "ir_87" rows =  5568  columns =  5568
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "ir_97" rows =  5568  columns =  5568
-//    2024-08-01 09:38:22.166 Debug: ===> in TRAIL File ==> groupname =  "ir_105" rows =  5568  columns =  5568
-//    2024-08-01 09:38:22.167 Debug: ===> in TRAIL File ==> groupname =  "ir_123" rows =  5568  columns =  5568
-//    2024-08-01 09:38:22.167 Debug: ===> in TRAIL File ==> groupname =  "ir_133" rows =  5568  columns =  5568
 
     trailfilefound = false;
     if(trailfilefound == false)
@@ -2815,14 +2801,20 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             retval = nc_inq(ncfileid, &ndimsp, &nvarsp, &ngattsp, &unlimdimidp);
             if(retval != NC_NOERR) qDebug() << "error nc_inq " << this->segmentfilelist.at(j);
 
+            if ((retval = nc_inq_varid(ncfileid, "index_offset", &varid)))
+                ERR(retval);
+            if ((retval = nc_get_var_ushort(ncfileid, varid, &index_offset)))
+                ERR(retval);
+
+
             retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_min", &geospatial_lat_min);
             if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_min";
 
             retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_max", &geospatial_lat_max);
             if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_max";
 
-            qDebug() << QString("index = %1 geospatial lat min = %2 lat max = %3 nbr of global att = %4").arg(j).arg(geospatial_lat_min)
-                        .arg(geospatial_lat_max).arg(ngattsp);
+            qDebug() << QString("index = %1 geospatial lat min = %2 lat max = %3 nbr of global att = %4 index_offset = %5").arg(j).arg(geospatial_lat_min)
+                        .arg(geospatial_lat_max).arg(ngattsp).arg(index_offset);
 
             latminmax lmm;
             lmm.max = geospatial_lat_max;
@@ -2875,7 +2867,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                     ERR(retval);
 
 
-                retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i]);
+                if ((retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i])))
+                    ERR(retval);
                 if (retval != NC_NOERR) qDebug() << "error reading _FillValue (2605)";
                 imageptrs->fillvalue[i] = fillvalue[i];
                 qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
@@ -2899,13 +2892,18 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                 imageptrs->mtg_nbr_of_columns[i][findex - 1] = end_position_column - start_position_column + 1;
 
                 imageptrs->ptrMTG[i][findex - 1] = new quint16[imageptrs->mtg_nbr_of_rows[i][findex - 1] * imageptrs->mtg_nbr_of_columns[i][findex - 1]];
+                imageptrs->ptrIndex[i][findex - 1] = new quint16[imageptrs->mtg_nbr_of_rows[i][findex - 1] * imageptrs->mtg_nbr_of_columns[i][findex - 1]];
 
                 retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
                 if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strspectrum << "/measured";
-
-
                 retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrMTG[i][findex - 1]);
                 if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strspectrum << "/measured" << " findex = " << findex << " error = " << retval;
+
+                retval = nc_inq_varid(grp_measured, "index_map", &varid);
+                if(retval != NC_NOERR) qDebug() << "error opening index_map from channel " << strspectrum << "/measured";
+                retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
+                if(retval != NC_NOERR) qDebug() << "error reading index_map from channel " << strspectrum << "/measured" << " findex = " << findex << " error = " << retval;
+
             }
             retval = nc_close(ncfileid);
             if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
@@ -3141,6 +3139,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             {
                 delete [] imageptrs->ptrMTG[i][vec[j]-1];
                 imageptrs->ptrMTG[i][vec[j]-1] = NULL;
+            }
+            if(imageptrs->ptrIndex[i][vec[j]-1] != NULL)
+            {
+                delete [] imageptrs->ptrIndex[i][vec[j]-1];
+                imageptrs->ptrIndex[i][vec[j]-1] = NULL;
             }
         }
     }
@@ -7628,8 +7631,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
         }
 
         if (i == 100) {
-            fprintf(stderr, "ERROR: Image time is out of range of supplied orbit "
-                            "polynomials\n");
+            fprintf(stderr, "ERROR: Image time is out of range of supplied orbit polynomials\n");
             return;
         }
 
