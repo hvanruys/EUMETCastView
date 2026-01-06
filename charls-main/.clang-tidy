@@ -1,0 +1,72 @@
+# SPDX-FileCopyrightText: © 2020 Team CharLS
+# SPDX-License-Identifier: BSD-3-Clause
+
+# The approach for using clang tidy is to enable warnings that add practical value to the CharLS projects
+# Some warnings are however to noisy and adding NO_LINT suppressions make the code less readable.
+
+Checks:
+  - 'bugprone-*' # Checks that target bug-prone code constructs.
+  - '-bugprone-easily-swappable-parameters' # Rationale: too many do not fix warnings, more an advice.
+
+  - 'readability-*' # Checks that target readability-related issues that don’t relate to any particular coding style.
+  - '-readability-magic-numbers' # Rationale: Too many false positives, most used numbers are logical in context.
+  - '-readability-identifier-length' # Rationale: Too many false positives, single characters names are used in formulas.
+  - '-readability-function-cognitive-complexity' # Rationale: manual review is preferred.
+
+  - 'portability-*' # Checks that target portability-related issues that don’t relate to any particular coding style.
+
+  - 'performance-*' # Checks that target performance-related issues.
+  - '-performance-enum-size' # Rationale: no real performance gain, enums are not used in arrays.
+
+  - 'concurrency-*' # Checks related to concurrent programming (including threads, fibers, coroutines, etc.).
+
+  - 'misc-*' # Checks that we didn’t have a better category for.
+  - '-misc-include-cleaner' # Rationale: also generates warnings when a direct include file is not used. Other tools are more practical.
+
+  - 'modernize-*' # Checks that advocate usage of modern (currently “modern” means “C++11”) language constructs.
+  - '-modernize-use-trailing-return-type' # Rationale: A style recommendation, this style is not selected for CharLS.
+
+  - 'clang-analyzer-*' # Clang Static Analyzer checks.
+  - '-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling' # Rationale: safe alternatives of memcpy are not always available.
+
+  - 'cppcoreguidelines-*' # Checks related to C++ Core Guidelines.
+  - '-cppcoreguidelines-avoid-magic-numbers' # Rationale: Alias for readability-magic-numbers.
+  - '-cppcoreguidelines-pro-bounds-pointer-arithmetic' # Rationale: usage is required in codec implementation.
+  - '-cppcoreguidelines-init-variables' # Rationale reports false warnings for out parameters (other checkers are better to detect these problems)
+  - '-cppcoreguidelines-pro-bounds-constant-array-index' # Rationale gsl:at is not used by design, memory access verified with other tools.
+
+  - 'cert-*' # Checks related to CERT Secure Coding Guidelines.
+  - '-cert-err58-cpp' # Rationale: Only exception that can be thrown is out of memory
+  - '-cert-msc32-c' # Rationale: predictable seed is by design (random is used only for testing)
+  - '-cert-msc51-cpp'# Rationale: alias for cert-msc32-c
+
+  - 'hicpp-*' # Checks related to High Integrity C++ Coding Standard.
+  - '-hicpp-signed-bitwise' # Rationale: Bad test, types are checked, not values.
+
+  - '-clang-diagnostic-ignored-gch' # Rationale: Ignore, triggered by compiling with GCC and running clang-tidy.
+  - '-clang-diagnostic-c++98-compat' # Rationale: Minimum C++ standard is C++17, so this check is not relevant.
+  - '-clang-diagnostic-c++98-compat-local-type-template-args' # Rationale: Minimum C++ standard is C++17, so this check is not relevant.
+  - '-clang-diagnostic-pre-c++14-compat' # Rationale: Minimum C++ standard is C++17, so this check is not relevant.
+  - '-clang-diagnostic-pre-c++17-compat' # Rationale: Minimum C++ standard is C++17, so this check is not relevant.
+  - '-clang-diagnostic-unsafe-buffer-usage' # Rationale: Many false positives.
+  - '-clang-diagnostic-exit-time-destructors' # Rationale: CharLS can be used a shared library/DLL: exit time destructors are required.
+  - '-clang-diagnostic-sign-conversion' # Rationale: warning is too noisy.
+  - '-clang-diagnostic-switch-enum' # Rationale: options are handled by default case.
+  - '-clang-diagnostic-switch-default' # Rationale: Al options ared handled.
+  - '-clang-diagnostic-declaration-after-statement' # Rationale: Minimum C standard is C17.
+  - '-clang-diagnostic-global-constructors' # Rationale: Just an informational message.
+
+WarningsAsErrors: false
+HeaderFilterRegex: ''
+FormatStyle:     none
+CheckOptions:
+  - key:             readability-braces-around-statements.ShortStatementLines
+    value:           '2'
+  - key:             readability-implicit-bool-conversion.AllowPointerConditions
+    value:           '1'
+  - key:             misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value:           '1'
+  - key:             hicpp-braces-around-statements.ShortStatementLines
+    value:           '2'
+  - key:             readability-simplify-boolean-expr.IgnoreMacros
+    value:           '1'

@@ -1,0 +1,53 @@
+// SPDX-FileCopyrightText: © 2011 Team CharLS
+// SPDX-License-Identifier: BSD-3-Clause
+
+#pragma code_page(65001)
+
+#include <charls/version.h>
+
+#include <winresrc.h>
+
+// Turn A into a string literal without expanding macro definitions
+// (however, if invoked from a macro, macro arguments are expanded).
+#define TO_STRING_NX(A) #A
+
+// Turn A into a string literal after macro-expanding it.
+#define TO_STRING(A) TO_STRING_NX(A)
+
+#define VERSION_STR TO_STRING(CHARLS_VERSION_MAJOR) \
+"." TO_STRING(CHARLS_VERSION_MINOR) "." TO_STRING(CHARLS_VERSION_PATCH) ".0"
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION CHARLS_VERSION_MAJOR, CHARLS_VERSION_MINOR, CHARLS_VERSION_PATCH, 0
+ PRODUCTVERSION CHARLS_VERSION_MAJOR, CHARLS_VERSION_MINOR, CHARLS_VERSION_PATCH, 0
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifndef NDEBUG
+ FILEFLAGS VS_FF_DEBUG
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_DLL
+ FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "Team CharLS"
+            VALUE "FileDescription", "CharLS JPEG-LS codec"
+            VALUE "FileVersion", VERSION_STR
+            VALUE "InternalName", "CharLS.dll"
+            VALUE "LegalCopyright", "Copyright (c) Team CharLS"
+            VALUE "OriginalFilename", "charls-3-x86/x64.dll"
+            VALUE "ProductName", "CharLS JPEG-LS codec"
+            VALUE "ProductVersion", VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END

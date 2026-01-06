@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: © 2020 Team CharLS
+# SPDX-License-Identifier: BSD-3-Clause
+
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: CharLS
+Description: JPEG-LS (ISO/IEC 14495-1 / ITU-T.87) library implementation.
+Version: @PROJECT_VERSION@
+URL: https://github.com/team-charls/charls/
+Cflags: -I${includedir}
+Libs: -L${libdir} -lcharls

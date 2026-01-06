@@ -58,6 +58,7 @@ public:
     void ComposeSegmentImagenetCDFInThread();
     void ComposeSegmentImagenetCDFMTGInThread();
     void ComposeSegmentImagenetCDFMTGInThread1();
+    void copy_ComposeSegmentImagenetCDFMTGInThread1();
     //void ComposeSegmentImagenetCDFMTGInThreadConcurrent();
     void ComposeSegmentImageXRITMSGInThreadConcurrent();
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2);
@@ -156,6 +157,12 @@ private:
 
     void equalizeHistogram(quint16* pdata, int width, int height, int max_val);
     void equalizeHistogram(quint16* pdata, int width, int height, int colorindex, quint16 fillvalue, int max_val);
+
+    int read_charls_compressed_ushort(const char *filename, const char *dataset_path, int ncid, int varid, ushort *data);
+    int read_compressed_chunks_hdf5(const char* filename, const char* dataset_path,
+                                    void *data, const size_t* dims, int ndims,
+                                    int bits_per_sample, int components);
+    int read_charls_compressed(const char* filename, const char* dataset_path,int ncid, int varid, uint8_t* data8);
 
 
     void CalculateLonLat();

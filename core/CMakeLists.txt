@@ -121,9 +121,8 @@ find_package(PkgConfig REQUIRED)
 
 
 pkg_check_modules(HDF5 REQUIRED hdf5)
-INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIRS})
-
 pkg_check_modules(NETCDF REQUIRED netcdf)
+
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Xml Core5Compat OpenGLWidgets)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Xml Concurrent Network PrintSupport OpenGL Core5Compat OpenGLWidgets)
@@ -131,7 +130,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 
 include(CMakePrintHelpers)
 cmake_print_variables(PROJECT_SOURCE_DIR)
-cmake_print_variables(CMAKE_C_COMPILER Qt5Widgets_VERSION_STRING)
+cmake_print_variables(CMAKE_C_COMPILER)
 cmake_print_variables(CMAKE_PREFIX_PATH)
 cmake_print_variables(HDF5_LINK_LIBRARIES)
 cmake_print_variables(NETCDF_LINK_LIBRARIES)
@@ -166,19 +165,20 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/aaplus")
+include_directories(${CMAKE_SOURCE_DIR}/charls-main/include/charls)
 
 add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30)
-
-
 
 
 # sequence of libraries is important !
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Core5Compat
-    my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} archive freeimage aaplus-static ws2_32)
+    my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} archive freeimage aaplus-static ws2_32
+    ${CMAKE_SOURCE_DIR}/libs/libcharls.a)
 else()
 target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Core5Compat
-    meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} archive freeimage aaplus-static)
+    meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} /home/hugo/fcidecomp/charls-main/bin/build/linux-release/libcharls.a archive freeimage aaplus-static
+    ${CMAKE_SOURCE_DIR}/libs/libcharls.a)
 endif()
 #set_target_properties(${PROJECT_NAME}
 #  PROPERTIES

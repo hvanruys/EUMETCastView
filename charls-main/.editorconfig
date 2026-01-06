@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: © 2016 Team CharLS
+# SPDX-License-Identifier: BSD-3-Clause
+
+root = true
+
+# Default settings
+[*]
+charset = utf-8
+indent_style = space
+trim_trailing_whitespace = true
+spelling_exclusion_path = spelling.dic
+
+[*.md]
+trim_trailing_whitespace = false
+insert_final_newline = true
+
+[*.{h,cpp,c}]
+indent_size = 4
+insert_final_newline = true
+
+[CMakeLists.txt]
+indent_size = 2
+
+[*.manifest]
+indent_size = 2
+
+[*.props, .runsettings]
+indent_size = 2

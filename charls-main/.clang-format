@@ -1,0 +1,45 @@
+# Copyright (c) Team CharLS.
+# SPDX-License-Identifier: BSD-3-Clause
+
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: Latest
+
+UseTab: Never
+IndentWidth: 4
+PointerAlignment: Left
+
+# Use the github de facto limit of 125
+ColumnLimit: 125
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: false
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+
+AccessModifierOffset: -4
+AlignTrailingComments: true
+AlignEscapedNewlines: DontAlign
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AlwaysBreakTemplateDeclarations: true
+BreakConstructorInitializers: AfterColon
+CompactNamespaces: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+SpaceAfterTemplateKeyword: false
+SpaceBeforeCpp11BracedList: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: None
+BreakAfterAttributes: Always
+
+StatementMacros: ['TEST_CLASS', 'TEST_METHOD']

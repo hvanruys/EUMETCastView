@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(my_compiler_flags_1 INTERFACE)
-target_compile_features(my_compiler_flags_1 INTERFACE cxx_std_11)
+target_compile_features(my_compiler_flags_1 INTERFACE cxx_std_17)
 
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
@@ -23,6 +23,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/libs)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 add_subdirectory(bz2)
+add_subdirectory(charls-main)
 add_subdirectory(PublicDecompWT-2.8.1)
 add_subdirectory(meteosatlib)
 add_subdirectory(QSgp4)

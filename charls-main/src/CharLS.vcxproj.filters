@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="make_scan_codec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jpegls_error.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg_stream_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg_stream_writer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="charls_jpegls_encoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="charls_jpegls_decoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="validate_spiff_header.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="golomb_lut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="quantization_lut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\charls\charls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\jpegls_error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\api_abi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\public_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\annotations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\charls_jpegls_decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\charls_jpegls_encoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\validate_spiff_header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="coding_parameters.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="color_transform.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="conditional_static_cast.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="constants.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="default_traits.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="golomb_lut.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg_marker_code.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg_stream_reader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg_stream_writer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jpegls_algorithm.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jpegls_preset_coding_parameters.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jpegls_preset_parameters_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lossless_traits.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="make_scan_codec.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="copy_from_line_buffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="copy_to_line_buffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quantization_lut.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="regular_mode_context.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="run_mode_context.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scan_codec.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scan_decoder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scan_decoder_impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scan_encoder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scan_encoder_impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="span.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\charls.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\jpegls_decoder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\jpegls_encoder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\jpegls_error.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\charls\undef_macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="assert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="charls.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\doc\style_and_design.md">
+      <Filter>Design</Filter>
+    </None>
+    <None Include="design\JpegStream.cd">
+      <Filter>Design</Filter>
+    </None>
+    <None Include="design\Strategy.cd">
+      <Filter>Design</Filter>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{5d25b211-7a6a-4e81-81b7-9fa989df7518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5878f549-2a1c-4453-b438-dc34c34aa9af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Design">
+      <UniqueIdentifier>{fa2c9109-3699-4d9b-a224-c59a1b549527}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

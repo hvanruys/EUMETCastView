@@ -1,0 +1,293 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Checked|ARM64">
+      <Configuration>Checked</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Checked|Win32">
+      <Configuration>Checked</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Checked|x64">
+      <Configuration>Checked</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7185AD7F-57BA-42C7-A715-239CEA8ADC31}</ProjectGuid>
+    <RootNamespace>test</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>CharLSTest</ProjectName>
+    <TargetName>CharLSTest</TargetName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Checked|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Checked|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Checked|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Checked|Win32'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Checked|x64'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Checked|ARM64'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="bitstreamdamage.cpp" />
+    <ClCompile Include="compliance.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="performance.cpp" />
+    <ClCompile Include="util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bitstreamdamage.hpp" />
+    <ClInclude Include="compliance.hpp" />
+    <ClInclude Include="portable_anymap_file.hpp" />
+    <ClInclude Include="performance.hpp" />
+    <ClInclude Include="util.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="0015.raw">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\test8.ppm">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="tulips-gray-8bit-512-512-hp-encoder.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="alphatest.raw">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="desktop.ppm">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t16e0.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t8c2e3.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t8c0e0.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t8c1e0.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t8c0e3.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t8c2e0.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t16e3.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t8c1e3.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t8nde0.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\t8nde3.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\test16.pgm">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="MR2_UNC">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="conformance\test8bs2.pgm">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\conformance</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="jlsimage\banny_HP1.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\jlsimage</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="jlsimage\banny_HP2.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\jlsimage</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="jlsimage\banny_HP3.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\jlsimage</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="jlsimage\banny_normal.jls">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\jlsimage</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="jlsimage\banny.ppm">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)test\jlsimage</DestinationFolders>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\CharLS.vcxproj">
+      <Project>{1e31f9f1-f175-4082-b3e2-b1f0eca3f44c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

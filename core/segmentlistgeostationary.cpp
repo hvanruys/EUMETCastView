@@ -29,9 +29,10 @@
 #ifdef _WIN32
 #include <hdf5.h>
 #else
-#include <hdf5.h>
+#include <hdf5/serial/hdf5.h>
 #endif
 #include <netcdf.h>
+#include "charls.hpp"
 
 #include "MSG_HRIT.h"
 #include <QMutex>
@@ -387,7 +388,7 @@ bool SegmentListGeostationary::ComposeImageHDFInThread(QStringList strlist, QVec
     qDebug() << QString("SegmentListGeostationary::ComposeImageHDFInThread spectrumvector = %1 %2 %3").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    QtConcurrent::run(doComposeGeostationaryHDFInThread, this, strlist, spectrumvector, inversevector);
+    QFuture<void> future = QtConcurrent::run(doComposeGeostationaryHDFInThread, this, strlist, spectrumvector, inversevector);
     return true;
 }
 
@@ -419,7 +420,7 @@ bool SegmentListGeostationary::ComposeImagenetCDFInThread(QStringList strlist, Q
     qDebug() << QString("SegmentListGeostationary::ComposeImagenetCDFInThread spectrumvector = %2 %3 %4").arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2));
 
     setThreadParametersnetCDF(strlist, spectrumvector, inversevector, histogrammethod, pseudocolor);
-    QtConcurrent::run(doComposeGeostationarynetCDFInThread, this); //, strlist, spectrumvector, inversevector, histogrammethod);
+    QFuture<void> future = QtConcurrent::run(doComposeGeostationarynetCDFInThread, this); //, strlist, spectrumvector, inversevector, histogrammethod);
     return true;
 }
 
@@ -432,7 +433,7 @@ bool SegmentListGeostationary::ComposeImagenetCDFMTGInThread(QStringList strlist
     //        qDebug() << i << " " << strlist.at(i);
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    QtConcurrent::run(doComposeGeostationarynetCDFMTGInThread, this);
+    QFuture<void> future = QtConcurrent::run(doComposeGeostationarynetCDFMTGInThread, this);
     return true;
 }
 
@@ -442,7 +443,7 @@ bool SegmentListGeostationary::ComposeImageXRITMSGInThread(QStringList strlistVI
                 .arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg(spectrumvector.at(3));
 
     setThreadParametersXRIT(strlistVIS_IR, strlistHVR, spectrumvector, inversevector, histogrammethod);
-    QtConcurrent::run(doComposeGeostationaryXRITMSGInThread, this);
+    QFuture<void> future = QtConcurrent::run(doComposeGeostationaryXRITMSGInThread, this);
     return true;
 }
 
@@ -1828,6 +1829,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
                 effective_radiance_data = new quint16[nbr_rows * nbr_col];
 
                 retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
+
                 if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strmeasured;
                 retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i]);
                 if (retval != NC_NOERR) qDebug() << "error reading _FillValue (1809)";
@@ -1899,7 +1901,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
 
     qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4 active_pixels = %5")
                 .arg(0).arg(imageptrs->minRadianceIndex[0]).arg(0).arg(imageptrs->maxRadianceIndex[0])
-            .arg(this->active_pixels[0]);
+                .arg(this->active_pixels[0]);
 
 
     quint16 rc, gc, bc;
@@ -2500,7 +2502,7 @@ void SegmentListGeostationary::concurrentReadFilelistHimawari(SegmentListGeostat
 }
 
 //No use of QtConcurrent
-void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
+void SegmentListGeostationary::copy_ComposeSegmentImagenetCDFMTGInThread1()
 {
     QString ncfile;
     QByteArray arrayncfile;
@@ -2828,7 +2830,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             {
                 qDebug() << "reading radiance from channel i = " << i << " spectrum = " << this->spectrumvector.at(i);
 
-//                QString strmeasured = "data/" + this->spectrumvector.at(i) + "/measured";
+                //                QString strmeasured = "data/" + this->spectrumvector.at(i) + "/measured";
                 // QString strmeasured = this->spectrumvector.at(i) + "/measured";
                 // ba = strmeasured.toLocal8Bit();
                 // const char *c_channel = ba.data();
@@ -2874,13 +2876,13 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                 qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
 
 
-//                if(retval == 0 && i == 0)
-//                {
-//                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
-//                    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
-//                    //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
-//                    //                end_position_column - start_position_column + 1);
-//                }
+                //                if(retval == 0 && i == 0)
+                //                {
+                //                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
+                //                    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
+                //                    //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
+                //                    //                end_position_column - start_position_column + 1);
+                //                }
 
                 imageptrs->mtg_start_position_row[i][findex - 1] = start_position_row;
                 imageptrs->mtg_end_position_row[i][findex - 1] = end_position_row;
@@ -2935,8 +2937,672 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     qDebug() << "Start Concurrent processing ...";
 
 #ifdef CONC
-     auto callbackMethod = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
-     QtConcurrent::blockingMap(vec, callbackMethod);
+    auto callbackMethod = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
+    QtConcurrent::blockingMap(vec, callbackMethod);
+#else
+    for(int i = 0; i < vec.length(); i++)
+    {
+        this->concurrentMinMaxMTG(this, vec[i]);
+    }
+#endif
+
+    emit this->progressCounter(progcounter += 10);
+
+    for(int i = 0; i < (this->spectrumvector.at(3).length() > 0 ? 4 : 3); i++)
+    {
+        stat_min[i] = 65535;
+        stat_max[i] = 0;
+    }
+
+    for(int i = 0; i < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++) {
+        for (int j = 0; j < vec.length(); j++)
+        {
+            quint16 val = imageptrs->mtg_stat_min[i][vec[j]-1];
+            if(val != imageptrs->fillvalue[i])
+            {
+                if(val < stat_min[i])
+                    stat_min[i] = val;
+            }
+            val = imageptrs->mtg_stat_max[i][vec[j]-1];
+            if(val != 0)
+            {
+                if(val > stat_max[i])
+                    stat_max[i] = val;
+            }
+
+        }
+        qDebug() << QString("stat_min [%1] = %2 stat_max [%3] = %4")
+                    .arg(i).arg(stat_min[i]).arg(i).arg(stat_max[i]);
+
+    }
+
+#ifdef CONC
+    auto callbackMethod1 = std::bind(this->concurrentLUTGeoMTG, this, std::placeholders::_1);
+    QtConcurrent::blockingMap(vec, callbackMethod1);
+#else
+    for(int i = 0; i < vec.length(); i++)
+    {
+        this->concurrentLUTGeoMTG(this, vec[i]);
+    }
+#endif
+
+    emit this->progressCounter(progcounter += 5);
+
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        this->active_pixels[colorindex] = 0;
+        for (int index = 0; index < vec.length(); index++)
+        {
+            this->active_pixels[colorindex] += imageptrs->mtg_active_pixels[colorindex][vec[index]-1];
+        }
+        qDebug() << QString("active_pixels[%1] = %2").arg(colorindex).arg(this->active_pixels[colorindex]);
+    }
+
+    //    for(int i = 0; i < (this->kindofimage == "VIS_IR Color" ? 3 : 1); i++)
+    //    {
+    //        qDebug() << QString("stat_min[%1] = %2 stat_max[%3] = %4 active_pixels[%5] = %6").arg(i).arg(stat_min[i]).arg(i).arg(stat_max[i]).arg(i).arg(this->active_pixels[i]);
+    //    }
+
+    double newscale;
+    long histogram[4][4096];
+
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        for (int i = 0; i < 4096; i++) {
+            histogram[colorindex][i] = 0;
+        }
+    }
+
+    long long totpixels[4];
+    for(int i = 0; i < 4; i++)
+        totpixels[i] = 0;
+
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        for (int index = 0; index < vec.length(); index++) {
+            for (int i = 0; i < 4096; i++) {
+                histogram[colorindex][i] += imageptrs->mtg_histogram[colorindex][vec[index]-1][i];
+                totpixels[colorindex] += imageptrs->mtg_histogram[colorindex][vec[index]-1][i];
+            }
+        }
+        qDebug() << QString("totpixels[%1] = %2 active_pixels[%3] = %4").arg(colorindex).arg(totpixels[colorindex]).arg(colorindex).arg(this->active_pixels[colorindex]);
+    }
+
+
+    //    for (int j = 0; j < 4096; j++)
+    //    {
+    //        qDebug() << "histogram " << j << " " << histogram[0][j];
+    //    }
+
+    emit this->progressCounter(progcounter += 10);
+
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        //        newscale = (double)(4095.0 / (double)(this->active_pixels[colorindex] - stat_min[colorindex]));
+        newscale = (double)(4095.0 / (double)(totpixels[colorindex] - stat_min[colorindex]));
+
+        qDebug() << QString("newscale = %1 active pixels = %2 11136*11136 = %3").arg(newscale).arg(this->active_pixels[colorindex]).arg(11136*11136);
+
+
+        unsigned long long sum_ch = 0;
+        bool okmin, okmax;
+
+        okmin = false;
+        okmax = false;
+
+        imageptrs->minRadianceIndex[colorindex] = 65535;
+        imageptrs->maxRadianceIndex[colorindex] = 65535;
+
+        // min/maxRadianceIndex = index of 95% ( 2.5% of 1024 = 25, 97.5% of 1024 = 997 )
+        // min/maxRadianceIndex = index of 95% ( 2.5% of 4096 = 102, 97.5% of 4096 = 3993 )
+
+        for( int i = 0; i < 4096; i++)
+        {
+            sum_ch += histogram[colorindex][i];
+            imageptrs->lut_mtg[colorindex][i] = qRound((sum_ch - stat_min[colorindex]) * newscale);
+            imageptrs->lut_mtg[colorindex][i] = (imageptrs->lut_mtg[colorindex][i] > 4095 ? 4095 : imageptrs->lut_mtg[colorindex][i]);
+            //        qDebug() << QString("stats_ch[0][%1] = %2 lut_ch[0][%3] = %4").arg(i).arg(stats_ch[0][i]).arg(i).arg(imageptrs->lut_ch[0][i]);
+            if(imageptrs->lut_mtg[colorindex][i] > 102 && okmin == false)
+            {
+                okmin = true;
+                imageptrs->minRadianceIndex[colorindex] = i;
+            }
+            if(imageptrs->lut_mtg[colorindex][i] > 3993 && okmax == false)
+            {
+                okmax = true;
+                imageptrs->maxRadianceIndex[colorindex] = i;
+            }
+        }
+
+
+        //        for (int j = 0; j < 4096; j++)
+        //        {
+        //            qDebug() << QString("histogram[%1][%2] = %3 LUT[%4][%5] = %6").arg(colorindex).arg(j).arg(histogram[colorindex][j])
+        //                        .arg(colorindex).arg(j).arg(imageptrs->lut_mtg[colorindex][j]);
+        //        }
+
+
+        qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4 active_pixels = %5")
+                    .arg(colorindex).arg(imageptrs->minRadianceIndex[colorindex]).arg(colorindex).arg(imageptrs->maxRadianceIndex[colorindex])
+                    .arg(this->active_pixels[colorindex]);
+
+    }
+
+    if(this->kindofimage == "VIS_IR Color")
+    {
+        imageptrs->InitializeImageGeostationary(imageptrs->mtg_total_number_of_columns[0], imageptrs->mtg_total_number_of_rows[0]);
+    }
+    else
+        imageptrs->InitializeImageGeostationary(imageptrs->mtg_total_number_of_columns[0], imageptrs->mtg_total_number_of_rows[0]);
+
+    this->COFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+    this->LOFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+    this->CFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+    this->LFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
+
+    emit this->progressCounter(progcounter += 10);
+
+    qDebug() << "progressCounter = " << progcounter;
+
+    this->SetupContrastStretch( 0, 0, 1023, 255);
+
+    if(this->spectrumvector.at(3).length() > 0)
+    {
+        imageptrs->ptrimageGeoNight.reset(new quint16[ 5568 * 5568 ]);
+
+#ifdef CONC
+        auto callbackMethod1 = std::bind(this->concurrentImageMTGNight, this, std::placeholders::_1);
+        QtConcurrent::blockingMap(vec, callbackMethod1);
+#else
+        for(int i = 0; i < vec.length(); i++)
+        {
+            this->concurrentImageMTGNight(this, vec[i]);
+        }
+#endif
+    }
+
+    emit this->progressCounter(progcounter += 10);
+
+#ifdef CONC
+    auto callbackMethod2 = std::bind(this->concurrentImageMTG, this, std::placeholders::_1);
+    QtConcurrent::blockingMap(vec, callbackMethod2);
+#else
+    for(int i = 0; i < vec.length(); i++)
+    {
+        this->concurrentImageMTG(this, vec[i]);
+    }
+#endif
+
+    for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+    {
+        for(int j = 0; j < vec.length(); j++)
+        {
+            if(imageptrs->ptrMTG[i][vec[j]-1] != NULL)
+            {
+                delete [] imageptrs->ptrMTG[i][vec[j]-1];
+                imageptrs->ptrMTG[i][vec[j]-1] = NULL;
+            }
+            if(imageptrs->ptrIndex[i][vec[j]-1] != NULL)
+            {
+                delete [] imageptrs->ptrIndex[i][vec[j]-1];
+                imageptrs->ptrIndex[i][vec[j]-1] = NULL;
+            }
+        }
+    }
+
+    imageptrs->ptrimageGeoNight.reset();
+
+    qDebug() << "===> The image process for concurrent took " << timer.elapsed() << "milliseconds";
+
+    emit signalcomposefinished(kindofimage, geoindex);
+    emit this->progressCounter(100);
+
+    QApplication::restoreOverrideCursor();
+
+    return;
+}
+
+//No use of QtConcurrent
+void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
+{
+    QString ncfile;
+    QByteArray arrayncfile;
+    const char* pncfile;
+    int ncfileid;
+    int grp_data;
+    int grp_channel;
+    int grp_measured;
+    int grp_spectrum;
+
+    int retval;
+    int varid;
+
+    float max_radiance_value_of_valid_pixels[4];
+    float mean_radiance_value_of_valid_pixels[4];
+    float min_radiance_value_of_valid_pixels[4];
+
+    int ndimsp, nvarsp, ngattsp, unlimdimidp;
+    //ndimsp	Pointer to location for returned number of dimensions defined for this netCDF dataset. Ignored if NULL.
+    //nvarsp	Pointer to location for returned number of variables defined for this netCDF dataset. Ignored if NULL.
+    //nattsp	Pointer to location for returned number of global attributes defined for this netCDF dataset. Ignored if NULL.
+    //unlimdimidp	Pointer to location for returned ID of the unlimited dimension, if there is one for this netCDF dataset.
+    //              If no unlimited length dimension has been defined, -1 is returned. Ignored if NULL.
+    //              If there are multiple unlimited dimensions (possible only for netCDF-4 files), only a pointer to the first is returned,
+    //              for backward compatibility. If you want them all, use nc_inq_unlimids().
+
+    double geospatial_lat_min, geospatial_lat_max;
+
+    emit this->progressCounter(10);
+
+    nc_type rh_type;
+    int rh_ndims;
+    int  rh_dimids[NC_MAX_VAR_DIMS];
+    int rh_natts;
+    size_t xdim=0, ydim=0;
+    float scale_factor[4];
+    float add_offset[4];
+    quint16 fillvalue[4];
+    float nominal_satellite_subpoint_lon;
+    bool trailfilefound = false;
+
+    ushort end_position_row;
+    ushort end_position_column;
+    ushort start_position_row;
+    ushort start_position_column;
+    ushort total_number_of_rows;
+    ushort total_number_of_columns;
+
+    ushort index_offset;
+    double gamma = opts.meteosatgamma;
+    double gammafactor = 255 / pow(255, gamma);
+    quint16 valgamma;
+    quint16 valcontrast;
+    int progcounter = 0;
+
+    QVector<int> vec;
+
+    int geoindex = this->getGeoSatelliteIndex();
+
+    QStringList spectrumlist = opts.geosatellites.at(geoindex).spectrumlist;
+
+    emit this->progressCounter(progcounter);
+
+    qDebug() << "Start SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1() size = " << this->segmentfilelist.size();
+    qDebug() << "Spectrum vector count = " << this->spectrumvector.count() << " kindofimage = " << kindofimage;
+    if(this->histogrammethod == CMB_HISTO_NONE_95)
+        qDebug() << "histgrammethod = CMB_HISTO_NONE_95";
+    else if(this->histogrammethod == CMB_HISTO_NONE_100)
+        qDebug() << "histgrammethod = CMB_HISTO_NONE_100";
+    else if(this->histogrammethod == CMB_HISTO_EQUALIZE)
+        qDebug() << "histgrammethod = CMB_HISTO_EQUALIZE";
+
+    QElapsedTimer timer;
+    timer.start();
+
+    qDebug() << "Nbr of MTG files = " << this->segmentfilelist.size();
+
+
+    for(int i = 0; i < 4; i++)
+    {
+        imageptrs->mtg_total_number_of_columns[i] = 0;
+        imageptrs->mtg_total_number_of_rows[i] = 0;
+    }
+
+
+    // in include file we have the following definition : quint 16 imageptrs->ptrRed[10];
+    // ptrBlue and ptrGreen are not used
+    //**********************************************
+    // the reading of the netcdf files is sequential
+    //**********************************************
+
+
+    // reading of the TRAIL file
+    // for(int j = 0; j < this->segmentfilelist.size(); j++)
+    // {
+    //     if(this->segmentfilelist.at(j).contains("TRAIL"))
+    //     {
+    //         trailfilefound = true;
+    //         ncfile = this->getImagePath() + "/" + this->segmentfilelist.at(j);
+    //         arrayncfile = ncfile.toUtf8();
+    //         pncfile = arrayncfile.constData();
+
+    //         qDebug() << "Starting netCDF file " + ncfile;
+
+    //         retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
+    //         if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
+
+
+    //         retval = nc_inq_ncid(ncfileid, "data", &grp_data);
+    //         if(retval != NC_NOERR) qDebug() << "error opening data group";
+
+    //         int numgrps;
+    //         int ncids[100];
+    //         char grpname[100];
+
+    //         retval = nc_inq_grps(grp_data, &numgrps, ncids);
+    //         if(retval != NC_NOERR) qDebug() << "error opening nc_inq_grps";
+    //         qDebug() << "Number of groups in data = " << numgrps;
+    //         for(int i = 0; i < numgrps; i++)
+    //         {
+    //             retval = nc_inq_grpname(ncids[i], grpname);
+    //             if(retval != NC_NOERR) qDebug() << "error nc_inq_grpname";
+    //             qDebug() << "grpname = " << QString::fromLocal8Bit(grpname);
+
+    //         }
+
+    //         for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+    //         {
+
+    //             QString strspectrum = "data/" + this->spectrumvector.at(i);
+    //             qDebug() << "strspectrum = " << strspectrum;
+
+    //             QByteArray ba = strspectrum.toLocal8Bit();
+    //             const char *c_channel = ba.data();
+    //             retval = nc_inq_grp_full_ncid(ncfileid, c_channel, &grp_spectrum);
+    //             if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum << " retval = " << retval;
+
+    //             if ((retval = nc_inq_varid(grp_spectrum, "number_of_rows", &varid)))
+    //                 ERR(retval);
+    //             if ((retval = nc_get_var_ushort(grp_spectrum, varid, &total_number_of_rows)))
+    //                 ERR(retval);
+    //             if ((retval = nc_inq_varid(grp_spectrum, "number_of_columns", &varid)))
+    //                 ERR(retval);
+    //             if ((retval = nc_get_var_ushort(grp_spectrum, varid, &total_number_of_columns)))
+    //                 ERR(retval);
+    //             imageptrs->mtg_total_number_of_columns[i] = total_number_of_columns;
+    //             imageptrs->mtg_total_number_of_rows[i] = total_number_of_rows;
+
+    //             qDebug() << QString("===> in TRAIL file ==> mtg_total_number_of_columns[%1] = %2 mtg_total_number_of_rows[%3] = %4")
+    //                         .arg(i).arg(imageptrs->mtg_total_number_of_columns[i]).arg(i).arg(imageptrs->mtg_total_number_of_rows[i]);
+    //         }
+    //         retval = nc_close(ncfileid);
+    //         if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
+
+    //     }
+    // }
+
+
+    trailfilefound = false;
+    if(trailfilefound == false)
+    {
+        QString groupnames[16];
+        int rows[16];
+        int columns[16];
+
+        groupnames[0] =  "vis_04";
+        groupnames[1] =  "vis_05";
+        groupnames[2] =  "vis_06";
+        groupnames[3] =  "vis_08";
+        groupnames[4] =  "vis_09";
+        groupnames[5] =  "nir_13";
+        groupnames[6] =  "nir_16";
+        groupnames[7] =  "nir_22";
+        groupnames[8] =  "ir_38";
+        groupnames[9] =  "wv_63";
+        groupnames[10] =  "wv_73";
+        groupnames[11] =  "ir_87";
+        groupnames[12] =  "ir_97";
+        groupnames[13] =  "ir_105";
+        groupnames[14] =  "ir_123";
+        groupnames[15] =  "ir_133";
+
+        rows[0] =  11136;  columns[0] =  11136;
+        rows[1] =  11136;  columns[1] =  11136;
+        rows[2] =  11136;  columns[2] =  11136;
+        rows[3] =  11136;  columns[3] =  11136;
+        rows[4] =  11136;  columns[4] =  11136;
+        rows[5] =  11136;  columns[5] =  11136;
+        rows[6] =  11136;  columns[6] =  11136;
+        rows[7] =  11136;  columns[7] =  11136;
+        rows[8] =  5568;  columns[8] =  5568;
+        rows[9] =  5568;  columns[9] =  5568;
+        rows[10] =  5568;  columns[10] =  5568;
+        rows[11] =  5568;  columns[11] =  5568;
+        rows[12] =  5568;  columns[12] =  5568;
+        rows[13] =  5568;  columns[13] =  5568;
+        rows[14] =  5568;  columns[14] =  5568;
+        rows[15] =  5568;  columns[15] =  5568;
+
+        for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+        {
+            for(int j = 0; j < 16; j++ )
+            {
+                if(this->spectrumvector.at(i) == groupnames[j])
+                {
+                    imageptrs->mtg_total_number_of_columns[i] = columns[j];
+                    imageptrs->mtg_total_number_of_rows[i] = rows[j];
+                }
+            }
+        }
+    }
+
+
+    progcounter += 10;
+    emit this->progressCounter(10);
+
+    QByteArray ba;
+
+    struct latminmax {
+        qreal max;
+        qreal min;
+    };
+
+    QList<latminmax> veclatminmax;
+
+
+
+    for(int j = 0; j < this->segmentfilelist.size(); j++)
+    {
+        if(this->segmentfilelist.at(j).contains("BODY"))
+        {
+            ncfile = this->getImagePath() + "/" + this->segmentfilelist.at(j);
+            arrayncfile = ncfile.toUtf8();
+            pncfile = arrayncfile.constData();
+
+            qDebug() << "Starting netCDF file " + ncfile;
+            int ind = ncfile.indexOf(".nc");
+            int findex = ncfile.mid(ind - 4, 4).toInt();
+
+            vec.append(findex);
+
+            retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
+            if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
+
+            //retval = nc_inq(ncfileid, &ndimsp, &nvarsp, &ngattsp, &unlimdimidp);
+            //if(retval != NC_NOERR) qDebug() << "error nc_inq " << this->segmentfilelist.at(j);
+
+            if ((retval = nc_inq_varid(ncfileid, "index_offset", &varid)))
+                ERR(retval);
+            if ((retval = nc_get_var_ushort(ncfileid, varid, &index_offset)))
+                ERR(retval);
+
+
+            retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_min", &geospatial_lat_min);
+            if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_min";
+
+            retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_max", &geospatial_lat_max);
+            if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_max";
+
+            qDebug() << QString("index = %1 geospatial lat min = %2 lat max = %3 nbr of global att = %4 index_offset = %5").arg(j).arg(geospatial_lat_min)
+                        .arg(geospatial_lat_max).arg(ngattsp).arg(index_offset);
+
+            latminmax lmm;
+            lmm.max = geospatial_lat_max;
+            lmm.min = geospatial_lat_min;
+            veclatminmax.append(lmm);
+
+            retval = nc_inq_ncid(ncfileid, "data", &grp_data);
+            if(retval != NC_NOERR) qDebug() << "error opening data group";
+
+            for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+            {
+                qDebug() << "reading radiance from channel i = " << i << " spectrum = " << this->spectrumvector.at(i);
+
+                // QString strspectrum = this->spectrumvector.at(i);
+                // ba = strspectrum.toLocal8Bit();
+                // const char *c_channel = ba.data();
+                // retval = nc_inq_ncid(grp_data, c_channel, &grp_spectrum);
+                // if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum;
+
+                // retval = nc_inq_ncid(grp_spectrum, "measured", &grp_measured);
+                // if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum << "/measured";
+
+                QString strmeasured = "/data/" + this->spectrumvector.at(i) + "/measured";
+                ba = strmeasured.toLocal8Bit();
+                const char *c_measured = ba.data();
+
+                retval = nc_inq_grp_full_ncid(ncfileid, c_measured, &grp_measured);
+                if (retval != NC_NOERR) {
+                    qDebug() << "group '" << strmeasured << "' not found";
+                    nc_close(ncfileid);
+                    return;
+                }
+
+                // // Get variable id by name
+                // retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
+                // if (retval != NC_NOERR) {
+                //     qDebug() << "Variable 'effective_radiance' not found";
+                //     nc_close(ncfileid);
+                //     return;
+                // }
+
+
+                // QString strspectrum = this->spectrumvector.at(i);
+                // ba = strspectrum.toLocal8Bit();
+                // const char *c_channel = ba.data();
+                // retval = nc_inq_ncid(grp_data, c_channel, &grp_spectrum);
+                // if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum;
+
+                // retval = nc_inq_ncid(grp_spectrum, "measured", &grp_measured);
+                // if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum << "/measured";
+
+
+                if ((retval = nc_inq_varid(grp_measured, "start_position_row", &varid)))
+                    ERR(retval);
+                if ((retval = nc_get_var_ushort(grp_measured, varid, &start_position_row)))
+                    ERR(retval);
+
+                if ((retval = nc_inq_varid(grp_measured, "start_position_column", &varid)))
+                    ERR(retval);
+                if ((retval = nc_get_var_ushort(grp_measured, varid, &start_position_column)))
+                    ERR(retval);
+
+                if ((retval = nc_inq_varid(grp_measured, "end_position_row", &varid)))
+                    ERR(retval);
+                if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_row)))
+                    ERR(retval);
+
+                if ((retval = nc_inq_varid(grp_measured, "end_position_column", &varid)))
+                    ERR(retval);
+                if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_column)))
+                    ERR(retval);
+
+
+                if ((retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i])))
+                    ERR(retval);
+                if (retval != NC_NOERR) qDebug() << "error reading _FillValue (2605)";
+                imageptrs->fillvalue[i] = fillvalue[i];
+                qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
+
+
+                //                if(retval == 0 && i == 0)
+                //                {
+                //                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
+                //                    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
+                //                    //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
+                //                    //                end_position_column - start_position_column + 1);
+                //                }
+
+                imageptrs->mtg_start_position_row[i][findex - 1] = start_position_row;
+                imageptrs->mtg_end_position_row[i][findex - 1] = end_position_row;
+
+                imageptrs->mtg_start_position_column[i][findex -1] = start_position_column;
+                imageptrs->mtg_end_position_column[i][findex - 1] = end_position_column;
+
+                imageptrs->mtg_nbr_of_rows[i][findex - 1] = end_position_row - start_position_row + 1;
+                imageptrs->mtg_nbr_of_columns[i][findex - 1] = end_position_column - start_position_column + 1;
+
+                // imageptrs->ptrMTG[i][findex - 1] = new quint16[imageptrs->mtg_nbr_of_rows[i][findex - 1] * imageptrs->mtg_nbr_of_columns[i][findex - 1]];
+                // imageptrs->ptrIndex[i][findex - 1] = new quint16[imageptrs->mtg_nbr_of_rows[i][findex - 1] * imageptrs->mtg_nbr_of_columns[i][findex - 1]];
+
+                qDebug() << "reading effective_radiance id ";
+                retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
+                if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strmeasured;
+                qDebug() << "effective_radiance id = " << varid;
+
+                // Get variable information
+                char var_name[NC_MAX_NAME + 1];
+                nc_type var_type;
+                int var_ndims, var_dimids[NC_MAX_VAR_DIMS], var_natts;
+                size_t dims[NC_MAX_VAR_DIMS];
+                size_t total_size = 1;
+
+
+                retval = nc_inq_var(grp_measured, varid, var_name, &var_type, &var_ndims, var_dimids, &var_natts);
+                if(retval != NC_NOERR) qDebug() << "error nc_inq_var id = " << varid;
+
+                for (int i = 0; i < var_ndims; i++) {
+                    nc_inq_dimlen(grp_measured, var_dimids[i], &dims[i]);
+                    total_size *= dims[i];
+                    qDebug() << "Dimension " << i << ": " << dims[i];
+                }
+
+                imageptrs->ptrMTG[i][findex - 1] = new quint16[total_size];
+                imageptrs->ptrIndex[i][findex - 1] = new quint16[total_size];
+
+                QString strradiance = "/data/" + this->spectrumvector.at(i) + "/measured/effective_radiance";
+                ba = strradiance.toLocal8Bit();
+                const char *c_radiance = ba.data();
+
+                retval = read_charls_compressed_ushort(pncfile, c_radiance, grp_measured,  varid, imageptrs->ptrMTG[i][findex - 1]);
+                // retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrMTG[i][findex - 1]);
+                if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strmeasured << " findex = " << findex << " error = " << retval;
+
+                retval = nc_inq_varid(grp_measured, "index_map", &varid);
+                if(retval != NC_NOERR) qDebug() << "error opening index_map from channel " << strmeasured;
+
+                QString strindex_map = "/data/" + this->spectrumvector.at(i) + "/measured/index_map";
+                ba = strradiance.toLocal8Bit();
+                const char *c_index_map = ba.data();
+
+                retval = read_charls_compressed_ushort(pncfile, c_index_map, grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
+                // retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
+
+                if(retval != NC_NOERR) qDebug() << "error reading index_map from channel " << strmeasured << " findex = " << findex << " error = " << retval;
+
+            }
+            retval = nc_close(ncfileid);
+            if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
+
+            emit this->progressCounter(progcounter += 1);
+
+        }
+
+    }
+
+    // qDebug() << "veclatminmax length = " << veclatminmax.length();
+    // for(int i = 0; i < veclatminmax.length() ; i++)
+    // {
+    //     qDebug() << "veclatminmax " << i << " ; max = " << veclatminmax.at(i).max << " min = " << veclatminmax.at(i).min;
+    // }
+
+    // MTGLatMinMax latminmax;
+    // for(int i = 1; i < 41; i++)
+    // {
+    //     qDebug() << "latminmax " << i << " ; max = " << latminmax.getLatMax(i) << " min = " << latminmax.getLatMin(i);
+    // }
+
+    //    for(int i = 0; i < 40 ; i++)
+    //    {
+    //        if(nbr_lines_MTG[i] != imageptrs->mtg_nbr_of_rows[0][i])
+    //            qDebug() << "===> imageptrs->mtg_nbr_of_rows != nbr_linesMTG";
+    //    }
+
+    qDebug() << "Start Concurrent processing ...";
+
+#ifdef CONC
+    auto callbackMethod = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
+    QtConcurrent::blockingMap(vec, callbackMethod);
 #else
     for(int i = 0; i < vec.length(); i++)
     {
@@ -4026,17 +4692,17 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
         {
             for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? 3 : 1); colorindex++)
             {
-//                if(colorindex < 3)
-                    pixel[colorindex] = *(imageptrs->ptrMTG[colorindex][index-1] + (imageptrs->mtg_nbr_of_columns[colorindex][index-1] * linelocal) + pixelx);
-//                else
-//                {
-//                    long tot = 5568 * (linelocal/2) + (int)(pixelx/2);
-//                    long nbr_rows_per_segment = imageptrs->mtg_end_position_row[3][index-1] - imageptrs->mtg_start_position_row[3][index-1] + 1;
-//                    if(nbr_rows_per_segment * 5568 < tot)
-//                    {
-//                        count_error++;
-//                    }
-//                }
+                //                if(colorindex < 3)
+                pixel[colorindex] = *(imageptrs->ptrMTG[colorindex][index-1] + (imageptrs->mtg_nbr_of_columns[colorindex][index-1] * linelocal) + pixelx);
+                //                else
+                //                {
+                //                    long tot = 5568 * (linelocal/2) + (int)(pixelx/2);
+                //                    long nbr_rows_per_segment = imageptrs->mtg_end_position_row[3][index-1] - imageptrs->mtg_start_position_row[3][index-1] + 1;
+                //                    if(nbr_rows_per_segment * 5568 < tot)
+                //                    {
+                //                        count_error++;
+                //                    }
+                //                }
 
                 if(this->histogrammethod == CMB_HISTO_NONE_95)
                 {
@@ -4175,11 +4841,11 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
         linelocal++;
     }
 
-//    qDebug() << QString("====> count_error for index %1 = %2 start_pos_row[0] = %3 end_pos_row[0] = %4 start_pos_row[3] = %5 end_pos_row[3] = %6  tot[0] = %7 tot[3] = %8")
-//                .arg(index).arg(count_error).arg(imageptrs->mtg_start_position_row[0][index - 1]).arg(imageptrs->mtg_end_position_row[0][index - 1])
-//            .arg(imageptrs->mtg_start_position_row[3][index - 1]).arg(imageptrs->mtg_end_position_row[3][index - 1])
-//            .arg(imageptrs->mtg_end_position_row[0][index - 1] - imageptrs->mtg_start_position_row[0][index - 1] + 1)
-//            .arg(imageptrs->mtg_end_position_row[3][index - 1] - imageptrs->mtg_start_position_row[3][index - 1] + 1);
+    //    qDebug() << QString("====> count_error for index %1 = %2 start_pos_row[0] = %3 end_pos_row[0] = %4 start_pos_row[3] = %5 end_pos_row[3] = %6  tot[0] = %7 tot[3] = %8")
+    //                .arg(index).arg(count_error).arg(imageptrs->mtg_start_position_row[0][index - 1]).arg(imageptrs->mtg_end_position_row[0][index - 1])
+    //            .arg(imageptrs->mtg_start_position_row[3][index - 1]).arg(imageptrs->mtg_end_position_row[3][index - 1])
+    //            .arg(imageptrs->mtg_end_position_row[0][index - 1] - imageptrs->mtg_start_position_row[0][index - 1] + 1)
+    //            .arg(imageptrs->mtg_end_position_row[3][index - 1] - imageptrs->mtg_start_position_row[3][index - 1] + 1);
 
 }
 
@@ -5180,7 +5846,7 @@ void SegmentListGeostationary::computeGeoImageVISIR(quint16 *pixelsRed, quint16 
                         row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgba(0, 0, 0, (imageptrs->alphazero == true ? 0 : 255));
                     else
                         row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] = qRgb(r, g, b);
-                 }
+                }
             }
         }
     }
@@ -5450,46 +6116,46 @@ void SegmentListGeostationary::computeGeoImageHimawari(quint16 *pixelsRed, quint
 
                 }
 
-                    //                                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
-                    //                                        {
-                    //                                            r = 255;
-                    //                                            g = 0;
-                    //                                            b = 0;
-                    //                                        }
-                    //                                        else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
-                    //                                        {
-                    //                                            r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
-                    //                                            g = quint16(this->inversevector[1] ? (g == 255 ? 0 : g) : g);
-                    //                                            b = quint16(this->inversevector[2] ? (b == 255 ? 0 : b) : b);
-                    //                                        }
-                    //                                        else
-                    {
-                        r = quint16(this->inversevector[0] ? (255 - r) : r);
-                        g = quint16(this->inversevector[1] ? (255 - g) : g);
-                        b = quint16(this->inversevector[2] ? (255 - b) : b);
-                        if(pixelsNight != NULL)
-                            n = quint16(this->inversevector[3] ? (255 - n) : n);
+                //                                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                //                                        {
+                //                                            r = 255;
+                //                                            g = 0;
+                //                                            b = 0;
+                //                                        }
+                //                                        else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                //                                        {
+                //                                            r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
+                //                                            g = quint16(this->inversevector[1] ? (g == 255 ? 0 : g) : g);
+                //                                            b = quint16(this->inversevector[2] ? (b == 255 ? 0 : b) : b);
+                //                                        }
+                //                                        else
+                {
+                    r = quint16(this->inversevector[0] ? (255 - r) : r);
+                    g = quint16(this->inversevector[1] ? (255 - g) : g);
+                    b = quint16(this->inversevector[2] ? (255 - b) : b);
+                    if(pixelsNight != NULL)
+                        n = quint16(this->inversevector[3] ? (255 - n) : n);
 
-                    }
+                }
 
-                    //                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
-                    //                    {
-                    //                        r = 255;
-                    //                        g = 0;
-                    //                        b = 0;
-                    //                    }
-                    //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
-                    //                    {
-                    //                        r = 0;
-                    //                        g = 255;
-                    //                        b = 255;
-                    //                    }
-                    //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 1)
-                    //                    {
-                    //                        r = 0;
-                    //                        g = 255;
-                    //                        b = 255;
-                    //                    }
+                //                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
+                //                    {
+                //                        r = 255;
+                //                        g = 0;
+                //                        b = 0;
+                //                    }
+                //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                //                    {
+                //                        r = 0;
+                //                        g = 255;
+                //                        b = 255;
+                //                    }
+                //                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 1)
+                //                    {
+                //                        r = 0;
+                //                        g = 255;
+                //                        b = 255;
+                //                    }
 
                 if(m_GeoSatellite != eGeoSatellite::H9)
                 {
@@ -5574,36 +6240,36 @@ void SegmentListGeostationary::computeGeoImageHimawari(quint16 *pixelsRed, quint
                 g = r;
                 b = r;
 
-                    if(m_GeoSatellite != eGeoSatellite::H9)
+                if(m_GeoSatellite != eGeoSatellite::H9)
+                {
+                    if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
                     {
-                        if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 0)
-                        {
-                            r = 0;
-                            g = 0;
-                            b = 0;
-                        }
-                        else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
-                        {
-                            r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
-                            g = r;
-                            b = r;
-                        }
-                        else
-                        {
-                            r = quint16(this->inversevector[0] ? (255 - r) : r);
-                            g = r;
-                            b = r;
-                        }
-
-                        row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] =  qRgb(r,g,b);
+                        r = 0;
+                        g = 0;
+                        b = 0;
+                    }
+                    else if(qRed(row_col_bitmap[opts.geosatellites[geoindex].imagewidth - 1 - pixelx]) == 255)
+                    {
+                        r = quint16(this->inversevector[0] ? (r == 255 ? 0 : r) : r);
+                        g = r;
+                        b = r;
                     }
                     else
                     {
                         r = quint16(this->inversevector[0] ? (255 - r) : r);
                         g = r;
                         b = r;
-                        row_col[pixelx] = qRgb(r,g,b);
                     }
+
+                    row_col[opts.geosatellites[geoindex].imagewidth - 1 - pixelx] =  qRgb(r,g,b);
+                }
+                else
+                {
+                    r = quint16(this->inversevector[0] ? (255 - r) : r);
+                    g = r;
+                    b = r;
+                    row_col[pixelx] = qRgb(r,g,b);
+                }
 
             }
         }
@@ -8981,4 +9647,342 @@ QImage *SegmentListGeostationary::CalculateBitMap(bool HRV)
 
 
     return(imageptrs->ptrimagebitmap);
+}
+
+// Error handling macro
+#define NC_CHECK(func) \
+    do { \
+        int status = (func); \
+        if (status != NC_NOERR) { \
+            std::cerr << "NetCDF Error: " << nc_strerror(status) << std::endl; \
+            return status; \
+        } \
+    } while(0)
+
+// Complete direct HDF5 chunk reading with decompression
+int SegmentListGeostationary::read_compressed_chunks_hdf5(const char* filename, const char* dataset_path,
+                                void* data, const size_t* dims, int ndims,
+                                int bits_per_sample, int components)
+{
+    herr_t status;
+
+    // Open HDF5 file
+    hid_t file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    if (file_id < 0) {
+        std::cerr << "Failed to open HDF5 file" << std::endl;
+        return -1;
+    }
+
+    // Open dataset
+    hid_t dataset_id = H5Dopen2(file_id, dataset_path, H5P_DEFAULT);
+    if (dataset_id < 0) {
+        std::cerr << "Failed to open dataset: " << dataset_path << std::endl;
+        H5Fclose(file_id);
+        return -1;
+    }
+
+    // Get dataset creation property list
+    hid_t dcpl_id = H5Dget_create_plist(dataset_id);
+    if (dcpl_id < 0) {
+        std::cerr << "Failed to get creation property list" << std::endl;
+        H5Dclose(dataset_id);
+        H5Fclose(file_id);
+        return -1;
+    }
+
+    // Check if dataset is chunked
+    H5D_layout_t layout = H5Pget_layout(dcpl_id);
+    if (layout != H5D_CHUNKED) {
+        std::cerr << "Dataset is not chunked" << std::endl;
+        H5Pclose(dcpl_id);
+        H5Dclose(dataset_id);
+        H5Fclose(file_id);
+        return -1;
+    }
+
+    // Get chunk dimensions
+    std::vector<hsize_t> chunk_dims(ndims);
+    status = H5Pget_chunk(dcpl_id, ndims, chunk_dims.data());
+    if (status < 0) {
+        std::cerr << "Failed to get chunk dimensions" << std::endl;
+        H5Pclose(dcpl_id);
+        H5Dclose(dataset_id);
+        H5Fclose(file_id);
+        return -1;
+    }
+
+    std::cout << "Chunk dimensions: ";
+    for (int i = 0; i < ndims; i++) {
+        std::cout << chunk_dims[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // Get datatype and element size
+    hid_t dtype_id = H5Dget_type(dataset_id);
+    size_t element_size = H5Tget_size(dtype_id);
+
+    std::cout << "Element size: " << element_size << " bytes" << std::endl;
+
+    // Calculate chunk size in bytes
+    size_t chunk_elements = 1;
+    for (int i = 0; i < ndims; i++) {
+        chunk_elements *= chunk_dims[i];
+    }
+    size_t uncompressed_chunk_size = chunk_elements * element_size;
+
+    // Calculate number of chunks
+    std::vector<hsize_t> num_chunks(ndims);
+    hsize_t total_chunks = 1;
+    for (int i = 0; i < ndims; i++) {
+        num_chunks[i] = (dims[i] + chunk_dims[i] - 1) / chunk_dims[i];
+        total_chunks *= num_chunks[i];
+    }
+
+    std::cout << "Total chunks: " << total_chunks << std::endl;
+
+    // Allocate buffers
+    std::vector<uint8_t> compressed_buffer(uncompressed_chunk_size * 2);
+    std::vector<uint8_t> decompressed_buffer(uncompressed_chunk_size);
+
+    // Iterate through all chunks
+    std::vector<hsize_t> chunk_offset(ndims, 0);
+
+    for (hsize_t chunk_idx = 0; chunk_idx < total_chunks; chunk_idx++) {
+        // Calculate chunk offset in dataset coordinates
+        std::vector<hsize_t> offset(ndims);
+        hsize_t temp = chunk_idx;
+        for (int i = ndims - 1; i >= 0; i--) {
+            offset[i] = (temp % num_chunks[i]) * chunk_dims[i];
+            temp /= num_chunks[i];
+        }
+
+        std::cout << "Reading chunk at offset (";
+        for (int i = 0; i < ndims; i++) {
+            std::cout << offset[i];
+            if (i < ndims - 1) std::cout << ", ";
+        }
+        std::cout << ")" << std::endl;
+
+        // Read compressed chunk directly
+        uint32_t filter_mask = 0;
+        status = H5Dread_chunk(dataset_id, H5P_DEFAULT, offset.data(),
+                               &filter_mask, compressed_buffer.data());
+
+        if (status < 0) {
+            std::cerr << "Failed to read chunk " << chunk_idx << std::endl;
+            continue;
+        }
+
+        // Check if chunk was filtered (compressed)
+        if (filter_mask == 0) {
+            std::cout << "Chunk was compressed, decompressing..." << std::endl;
+
+            // The compressed data doesn't include the size explicitly
+            // We need to parse the CharLS header or use a known size
+
+            // For simplicity, assume the entire buffer contains the compressed data
+            // In practice, H5Dread_chunk doesn't tell us the compressed size directly
+            // You might need to get this from the chunk index or file structure
+
+            // Attempt decompression
+            int width = chunk_dims[ndims - 1];
+            int height = (ndims >= 2) ? chunk_dims[ndims - 2] : 1;
+
+            // Decompress using CharLS
+            charls::jpegls_decoder decoder;
+
+            try {
+                decoder.source(compressed_buffer.data(), compressed_buffer.size());
+                decoder.read_header();
+
+                size_t decoded_size = decoder.get_destination_size();
+
+                if (decoded_size != uncompressed_chunk_size) {
+                    std::cerr << "Size mismatch: expected " << uncompressed_chunk_size
+                              << ", got " << decoded_size << std::endl;
+                }
+
+                decoder.decode(decompressed_buffer.data(), uncompressed_chunk_size);
+
+                std::cout << "Successfully decompressed chunk" << std::endl;
+
+            } catch (const std::exception& e) {
+                std::cerr << "Decompression failed: " << e.what() << std::endl;
+                continue;
+            }
+        } else {
+            std::cout << "Chunk was not compressed (filter_mask=" << filter_mask << ")" << std::endl;
+            // Data is already uncompressed
+            memcpy(decompressed_buffer.data(), compressed_buffer.data(),
+                   uncompressed_chunk_size);
+        }
+
+        // Copy decompressed chunk to output array
+        // Calculate destination position in output array
+        std::vector<size_t> start_pos(ndims);
+        std::vector<size_t> count(ndims);
+
+        for (int i = 0; i < ndims; i++) {
+            start_pos[i] = offset[i];
+            count[i] = std::min((size_t)chunk_dims[i], dims[i] - start_pos[i]);
+        }
+
+        // Copy data element by element (handling partial chunks at boundaries)
+        // This is a simplified version - for better performance, use memcpy for contiguous regions
+
+        uint8_t* dest = static_cast<uint8_t*>(data);
+        uint8_t* src = decompressed_buffer.data();
+
+        // For a 2D case (most common)
+        if (ndims == 2) {
+            for (size_t y = 0; y < count[0]; y++) {
+                for (size_t x = 0; x < count[1]; x++) {
+                    size_t src_idx = (y * chunk_dims[1] + x) * element_size;
+                    size_t dest_idx = ((start_pos[0] + y) * dims[1] +
+                                      (start_pos[1] + x)) * element_size;
+                    memcpy(dest + dest_idx, src + src_idx, element_size);
+                }
+            }
+            std::cout << "memcpy " << count[0] * count[1] << " bytes" << std::endl;
+        } else {
+            std::cout << "Generic N-dimensional copy";
+            std::vector<size_t> indices(ndims, 0);
+            bool done = false;
+
+            while (!done) {
+                // Calculate source and destination offsets
+                size_t src_offset = 0;
+                size_t dest_offset = 0;
+                size_t src_stride = 1;
+                size_t dest_stride = 1;
+
+                for (int i = ndims - 1; i >= 0; i--) {
+                    src_offset += indices[i] * src_stride;
+                    dest_offset += (start_pos[i] + indices[i]) * dest_stride;
+                    src_stride *= chunk_dims[i];
+                    dest_stride *= dims[i];
+                }
+
+                memcpy(dest + dest_offset * element_size,
+                       src + src_offset * element_size,
+                       element_size);
+
+                // Increment indices
+                for (int i = ndims - 1; i >= 0; i--) {
+                    indices[i]++;
+                    if (indices[i] < count[i]) {
+                        break;
+                    }
+                    indices[i] = 0;
+                    if (i == 0) {
+                        done = true;
+                    }
+                }
+            }
+        }
+
+    }
+
+    // Cleanup
+    H5Tclose(dtype_id);
+    H5Pclose(dcpl_id);
+    H5Dclose(dataset_id);
+    H5Fclose(file_id);
+
+    return 0;
+}
+
+int SegmentListGeostationary::read_charls_compressed_ushort(const char* filename, const char* dataset_path,int ncid, int varid, uint16_t* data16)
+{
+    // Get variable dimensions
+    int ndims, dimids[NC_MAX_VAR_DIMS];
+    int retval;
+    nc_type var_type;
+
+    NC_CHECK(nc_inq_var(ncid, varid, nullptr, &var_type, &ndims, dimids, nullptr));
+
+    std::cout << "Variable has " << ndims << " dimensions" << std::endl;
+
+    size_t dims[NC_MAX_VAR_DIMS];
+    size_t total_size = 1;
+
+    for (int i = 0; i < ndims; i++) {
+        NC_CHECK(nc_inq_dimlen(ncid, dimids[i], &dims[i]));
+        total_size *= dims[i];
+        std::cout << "Dimension " << i << ": " << dims[i] << std::endl;
+    }
+
+    // Allocate buffer based on variable type
+    size_t element_size;
+    switch (var_type) {
+    case NC_SHORT: element_size = sizeof(short); std::cout << "var_type = NC_SHORT" << std::endl; break;
+    case NC_INT: element_size = sizeof(int); std::cout << "var_type = NC_INT" << std::endl; break;
+    case NC_FLOAT: element_size = sizeof(float); std::cout << "var_type = NC_FLOAT" << std::endl; break;
+    case NC_DOUBLE: element_size = sizeof(double); std::cout << "var_type = NC_DOUBLE" << std::endl; break;
+    case NC_USHORT: element_size = sizeof(unsigned short); std::cout << "var_type = NC_USHORT" << std::endl; break;
+    case NC_UINT: element_size = sizeof(unsigned int); std::cout << "var_type = NC_UINT" << std::endl; break;
+    default:
+        std::cerr << "Unsupported data type" << std::endl;
+        nc_close(ncid);
+        return 1;
+    }
+
+    std::vector<uint8_t> data8(total_size * element_size);
+    NC_CHECK(read_charls_compressed(filename, dataset_path, ncid, varid, data8.data()));
+    std::memcpy(data16, data8.data(), total_size * sizeof(uint16_t));
+    return NC_NOERR;
+}
+
+int SegmentListGeostationary::read_charls_compressed(const char* filename, const char* dataset_path,int ncid, int varid, uint8_t* data8)
+{
+    // Check if variable has FCIDECOMP filter
+    unsigned int filter_id;
+    size_t nparams;
+    unsigned int params[32];
+
+
+    int has_filter = nc_inq_var_filter(ncid, varid, &filter_id, &nparams, params);
+    int bits_per_sample = (nparams > 1) ? params[1] : 16;
+    //int width = (nparams > 2) ? params[2] : dims[ndims-1];
+    //int height = (nparams > 3) ? params[3] : dims[ndims-2];
+    int components = (nparams > 4) ? params[4] : 1;
+
+
+    if (has_filter == NC_NOERR && filter_id == 32018) {
+        // Try direct read first (NetCDF should handle decompression automatically)
+        int status = nc_get_var(ncid, varid, data8);
+
+        if (status != NC_NOERR) {
+
+            // Get variable dimensions
+            int ndims, dimids[NC_MAX_VAR_DIMS];
+            nc_type var_type;
+
+            status = nc_inq_var(ncid, varid, nullptr, &var_type, &ndims, dimids, nullptr);
+            size_t dims[NC_MAX_VAR_DIMS];
+            size_t total_size = 1;
+
+            for (int i = 0; i < ndims; i++) {
+                nc_inq_dimlen(ncid, dimids[i], &dims[i]);
+                total_size *= dims[i];
+                std::cout << "Dimension " << i << ": " << dims[i] << std::endl;
+            }
+
+            if(status == NC_NOERR)
+            {
+                status = read_compressed_chunks_hdf5(filename, dataset_path, data8, dims, ndims, bits_per_sample, components);
+            }
+            return status;
+        }
+        else {
+            std::cout << "Using the plugin" << std::endl;
+        }
+    }
+    else {
+        // No filter, read normally
+        return nc_get_var(ncid, varid, data8);
+    }
+
+
+    return NC_NOERR;
 }

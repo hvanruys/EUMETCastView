@@ -1,0 +1,281 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Checked|ARM64">
+      <Configuration>Checked</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Checked|Win32">
+      <Configuration>Checked</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Checked|x64">
+      <Configuration>Checked</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{1E31F9F1-F175-4082-B3E2-B1F0ECA3F44C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>CharLS</ProjectName>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Checked|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Checked|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Checked|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Checked|Win32'">
+    <TargetName>charls-3-x86</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>charls-3-x86</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>charls-3-x86</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Checked|x64'">
+    <TargetName>charls-3-x64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Checked|ARM64'">
+    <TargetName>charls-3-arm64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>charls-3-x64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <TargetName>charls-3-arm64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>charls-3-x64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <TargetName>charls-3-arm64</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>CHARLS_LIBRARY_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Checked|Win32'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Checked|x64'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Checked|ARM64'">
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\doc\style_and_design.md" />
+    <None Include="design\JpegStream.cd" />
+    <None Include="design\Strategy.cd" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="golomb_lut.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="quantization_lut.cpp" />
+    <ClCompile Include="validate_spiff_header.cpp" />
+    <ClCompile Include="version.cpp" />
+    <ClCompile Include="charls_jpegls_decoder.cpp" />
+    <ClCompile Include="make_scan_codec.cpp" />
+    <ClCompile Include="charls_jpegls_encoder.cpp" />
+    <ClCompile Include="jpegls_error.cpp" />
+    <ClCompile Include="jpeg_stream_reader.cpp" />
+    <ClCompile Include="jpeg_stream_writer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\charls\annotations.h" />
+    <ClInclude Include="..\include\charls\api_abi.h" />
+    <ClInclude Include="..\include\charls\charls.h" />
+    <ClInclude Include="..\include\charls\charls.hpp" />
+    <ClInclude Include="..\include\charls\charls_jpegls_decoder.h" />
+    <ClInclude Include="..\include\charls\jpegls_decoder.hpp" />
+    <ClInclude Include="..\include\charls\charls_jpegls_encoder.h" />
+    <ClInclude Include="..\include\charls\jpegls_encoder.hpp" />
+    <ClInclude Include="..\include\charls\jpegls_error.h" />
+    <ClInclude Include="..\include\charls\jpegls_error.hpp" />
+    <ClInclude Include="..\include\charls\public_types.h" />
+    <ClInclude Include="..\include\charls\undef_macros.h" />
+    <ClInclude Include="..\include\charls\validate_spiff_header.h" />
+    <ClInclude Include="..\include\charls\version.h" />
+    <ClInclude Include="assert.hpp" />
+    <ClInclude Include="coding_parameters.hpp" />
+    <ClInclude Include="color_transform.hpp" />
+    <ClInclude Include="conditional_static_cast.hpp" />
+    <ClInclude Include="constants.hpp" />
+    <ClInclude Include="pch.hpp" />
+    <ClInclude Include="regular_mode_context.hpp" />
+    <ClInclude Include="run_mode_context.hpp" />
+    <ClInclude Include="copy_to_line_buffer.hpp" />
+    <ClInclude Include="scan_decoder.hpp" />
+    <ClInclude Include="default_traits.hpp" />
+    <ClInclude Include="scan_encoder.hpp" />
+    <ClInclude Include="golomb_lut.hpp" />
+    <ClInclude Include="make_scan_codec.hpp" />
+    <ClInclude Include="jpegls_algorithm.hpp" />
+    <ClInclude Include="jpegls_preset_coding_parameters.hpp" />
+    <ClInclude Include="jpeg_marker_code.hpp" />
+    <ClInclude Include="jpeg_stream_reader.hpp" />
+    <ClInclude Include="jpeg_stream_writer.hpp" />
+    <ClInclude Include="lossless_traits.hpp" />
+    <ClInclude Include="jpegls_preset_parameters_type.hpp" />
+    <ClInclude Include="copy_from_line_buffer.hpp" />
+    <ClInclude Include="quantization_lut.hpp" />
+    <ClInclude Include="scan_decoder_impl.hpp" />
+    <ClInclude Include="scan_encoder_impl.hpp" />
+    <ClInclude Include="span.hpp" />
+    <ClInclude Include="scan_codec.hpp" />
+    <ClInclude Include="util.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="charls.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(TargetPath)">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

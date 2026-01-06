@@ -1,0 +1,178 @@
+<!--
+  SPDX-FileCopyrightText: © 2017 Team CharLS
+  SPDX-License-Identifier: BSD-3-Clause
+-->
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- Build to a folder outside the source folders, making it easier to clean. -->
+    <OutDir>$(MSBuildThisFileDirectory)build\bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Platform)'=='Win32'">$(MSBuildThisFileDirectory)build\bin\x86\$(Configuration)\</OutDir>
+
+    <!-- C++ temp files can be redirected. -->
+    <IntDir>$(MSBuildThisFileDirectory)build\intermediate\$(MSBuildProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Platform)'=='Win32'">$(MSBuildThisFileDirectory)build\intermediate\$(MSBuildProjectName)\x86\$(Configuration)\</IntDir>
+
+    <!-- The C runtime is provided by the OS on the Windows platform (Universal C Runtime (CRT)) -->
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+
+    <!-- Default Windows API character set is Unicode (UTF16), defines _UNICODE and UNICODE. -->
+    <CharacterSet>Unicode</CharacterSet>
+
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)default.ruleset</CodeAnalysisRuleSet>
+
+    <VcpkgConfiguration Condition="'$(Configuration)' == 'Checked'">Debug</VcpkgConfiguration>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- To ensure high quality C++ code use Warning level 4 and treat warnings as errors to ensure warnings are fixed promptly. -->
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>true</UseFullPaths>
+
+      <!-- Explicit disable warnings from external files (Supported since Visual Studio 2019 16.10) -->
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+
+      <!-- For development purposes, All warnings can be used to discover useful compiler warnings.
+           This requires also that some warnings need to be disabled from this all warning list. -->
+      <WarningLevel Condition="'$(CHARLS_ALL_WARNINGS)'!=''">EnableAllWarnings</WarningLevel>
+
+      <!--
+        Disable level All warnings that are not useful:
+        C4061 = enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label [Handled by default case]
+        C4464 = A #include directive has a path that includes a '..' parent directory specifier. [Just informational]
+        C4514 = function' : unreferenced inline function has been removed [Just informational]
+        C4571 = Informational: catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught [Just informational]
+        C4623 = derived class`' : default constructor was implicitly defined as deleted because a base class default constructor is inaccessible or deleted [Just informational]
+        C4625 = derived class' : copy constructor was implicitly defined as deleted because a base class copy constructor is inaccessible or deleted [Just informational]
+        C4626 = derived class' : assignment operator was implicitly defined as deleted because a base class assignment operator is inaccessible or deleted [Just informational]
+        C4710 = function '' function not inlined [Just informational]
+        C4711 = function '' selected for automatic inline expansion [Just informational]
+        C4738 = storing 32-bit float result in memory, possible loss of performance [Just informational]
+        C4820 = bytes' bytes padding added after construct 'member_name' [Just informational]
+        C5026 = 'type': move constructor was implicitly defined as deleted [Just informational]
+        C5027 = 'type': move assignment operator was implicitly defined as deleted [Just informational]
+        C5045 = Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified [Just informational]
+        C5246 = the initialization of a sub-object should be wrapped in braces [prevents simple usage of std::byte]
+        C5264 = 'const' variable is not used [reported for const in header files]
+        C5258 = explicit capture of '' is not required for this use [VS 2019 requires capture of constexpr]
+      -->
+      <DisableSpecificWarnings Condition="'$(CHARLS_ALL_WARNINGS)'!=''">4061;4464;4514;4571;4623;4625;4626;4710;4711;4738;4820;5026;5027;5045;5246;5264;5258</DisableSpecificWarnings>
+
+      <!--
+        C6393 = A lookup table of size 365 is not sufficient to handle leap years [CharLS doesn't handle leap years]
+      -->
+      <DisableSpecificWarnings>6393;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+
+      <!--
+        __cplusplus = Use the correct value for the __cplusplus macro
+        throwingNew = Communicate with the compiler that only the throwing variant of operator new is used.
+        utf-8 = interpret all source files as UTF-8 (Required as MSVC relies on UTF-8 signature, which is not used)
+        ZH:SHA_256 = Use an SHA-256 hash for the checksum.in debug info
+      -->
+      <AdditionalOptions>/Zc:__cplusplus /Zc:throwingNew /utf-8 /ZH:SHA_256 %(AdditionalOptions)</AdditionalOptions>
+
+      <!-- Use all cores to speed up the compilation (MS recommended best practice). -->
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+
+      <!-- Explicit define that all projects are compiled according the latest official C++17 standard -->
+      <LanguageStandard>stdcpp17</LanguageStandard>
+
+      <!-- Explicit disable non-conforming MSVC compiler options that are not compatible with the C++ standard -->
+      <ConformanceMode>true</ConformanceMode>
+
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include</AdditionalIncludeDirectories>
+
+      <!-- Use by default precompiled headers with the modern name pch.hpp -->
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
+
+      <!-- For checked builds, enable the MS static analyzer build into the compiler. -->
+      <EnablePREfast Condition="'$(Configuration)'=='Checked'">true</EnablePREfast>
+
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+
+      <!-- Enables recommended Security Development Lifecycle (SDL) checks.
+           This checks consist of compile-time checks and runtime checks. -->
+      <SDLCheck>true</SDLCheck>
+
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+
+    <Link>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+
+      <!-- use FULL debug info to ensure code coverage works out of the box. -->
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+    </Link>
+
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Checked'">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <LinkIncremental Condition="'$(CHARLS_PROFILE)'!=''">false</LinkIncremental>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Checked'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <RandomizedBaseAddress Condition="'$(Platform)'!='ARM64'">false</RandomizedBaseAddress>
+      <Profile Condition="'$(CHARLS_PROFILE)'!=''">true</Profile>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Checked'">
+    <ClCompile>
+       <!-- Clang-tidy generates false clang-diagnostic-unused-command-line-argument warnings, use not all options.-->
+      <AdditionalOptions>/Zc:__cplusplus /utf-8 /ZH:SHA_256</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Checked'">
+    <RunCodeAnalysis Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" >true</RunCodeAnalysis>
+    <EnableCppCoreCheck>true</EnableCppCoreCheck>
+    <!-- Latest clang-tidy crashes during Win32 builds and clang-tidy doesn't run on ARM64 platform. -->
+    <EnableClangTidyCodeAnalysis Condition="'$(Platform)'!='Win32' AND '$(Platform)'!='ARM64'">true</EnableClangTidyCodeAnalysis>
+    <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+    </ClCompile>
+
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+
+      <!-- Store only the filename of the PDB file into the .exe/.dll for deterministic builds. -->
+      <AdditionalOptions>/PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
+
+      <!-- The MSVC C++ compiler has experimental support to create deterministic builds. Make it a build option. -->
+      <AdditionalOptions Condition="'$(CHARLS_DETERMINISTIC_BUILD)'=='true'">/experimental:deterministic %(AdditionalOptions)</AdditionalOptions>
+
+      <!-- Mark executable image compatible with the Control-flow Enforcement Technology (CET) Shadow Stack. -->
+      <CETCompat Condition="'$(Platform)'!='ARM64'">true</CETCompat>
+
+      <!-- On the ARM64 platform enable Pointer Authentication for return addresses. -->
+      <GuardSignedReturns Condition="'$(Platform)'=='ARM64'">true</GuardSignedReturns>
+    </Link>
+
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+</Project>

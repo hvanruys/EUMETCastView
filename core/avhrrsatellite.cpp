@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QStringView>
 
+
 template <typename T>
 struct PtrLess // public std::binary_function<bool, const T*, const T*>
 {
