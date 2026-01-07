@@ -10,7 +10,7 @@ The Open Source program **EUMETCastView** allows you to view
 - OLCI EFR/ERR from Sentinel-3A
 - HRIT/LRIT images from Meteosat-11, Meteosat-10, Meteosat-9, Electro L3, FengYun 2H/2G, GOES-18, GOES-19 and Himawari-9.
 - MERSI images from FY-3D
-- FCI images from MTG-I1
+- FCI images from Meteosat-12
 
 More details are found on http://hvanruys.github.io
 

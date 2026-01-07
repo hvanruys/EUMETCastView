@@ -58,8 +58,6 @@ public:
     void ComposeSegmentImagenetCDFInThread();
     void ComposeSegmentImagenetCDFMTGInThread();
     void ComposeSegmentImagenetCDFMTGInThread1();
-    void copy_ComposeSegmentImagenetCDFMTGInThread1();
-    //void ComposeSegmentImagenetCDFMTGInThreadConcurrent();
     void ComposeSegmentImageXRITMSGInThreadConcurrent();
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2);
     quint16 ContrastStretch(quint16 val);
