@@ -148,6 +148,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     ui->rdbRemoveOLCIDirs->setChecked(opts.remove_OLCI_dirs);
     ui->rdbSaturation->setChecked(opts.usesaturationmask);
+    ui->rdbCopyMTGfiles->setChecked(opts.copyMTGfiles);
 
     setupStationsTable();
     setupTLESourceTable();
@@ -637,7 +638,7 @@ void DialogPreferences::dialogaccept()
 
     opts.remove_OLCI_dirs = ui->rdbRemoveOLCIDirs->isChecked();
     opts.usesaturationmask = ui->rdbSaturation->isChecked();
-
+    opts.copyMTGfiles = ui->rdbCopyMTGfiles->isChecked();
     // opts.productdirectory = ui->leProductDirectory->text();
 
     // opts.xmllogging = ui->rdbXMLlogging->isChecked();
@@ -3625,12 +3626,13 @@ Qt::ItemFlags MERSIConfigModel::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
 
-
 void DialogPreferences::on_rdbDoLogging_toggled(bool checked)
 {
     opts.doLogging = checked;
 }
 
-
-
+void DialogPreferences::on_rdbCopyMTGfiles_toggled(bool checked)
+{
+    opts.copyMTGfiles =checked;
+}
 

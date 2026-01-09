@@ -89,23 +89,23 @@ void Options::Initialize()
     stationlistname=settings.value("/window/stationlistname").value<QStringList>();
     stationlistlon=settings.value("/window/stationlistlon").value<QStringList>();
     stationlistlat=settings.value("/window/stationlistlat").value<QStringList>();
-    backgroundimage2D=settings.value("/window/backgroundimage2D", "/usr/bin/images/Topography.jpg").value<QString>();
-    backgroundimage3D=settings.value("/window/backgroundimage3D", "/usr/bin/images/NE2_50M_SR_W_4096.jpg").value<QString>();
+    backgroundimage2D=settings.value("/window/backgroundimage2D", "./images/Topography.jpg").value<QString>();
+    backgroundimage3D=settings.value("/window/backgroundimage3D", "./images/NE2_50M_SR_W_4096.jpg").value<QString>();
     tlesources=settings.value("/satellite/tlesources").value<QStringList>();
 
-    gshhsglobe1=settings.value("/window/gshhsglobe1", "/usr/bin/gshhs2_3_7/gshhs_i.b").value<QString>();
-    gshhsglobe2=settings.value("/window/gshhsglobe2", "/usr/bin/gshhs2_3_7/wdb_borders_i.b").value<QString>();
-    gshhsglobe3=settings.value("/window/gshhsglobe3", "/usr/bin/gshhs2_3_7/wdb_rivers_i.b").value<QString>();
-    gshhsoverlay1=settings.value("/window/gshhsoverlay1", "/usr/bin/gshhs2_3_7/gshhs_i.b").value<QString>();
-    gshhsoverlay2=settings.value("/window/gshhsoverlay2", "/usr/bin/gshhs2_3_7/wdb_borders_i.b").value<QString>();
+    gshhsglobe1=settings.value("/window/gshhsglobe1", "./gshhs2_3_7/gshhs_i.b").value<QString>();
+    gshhsglobe2=settings.value("/window/gshhsglobe2", "./gshhs2_3_7/wdb_borders_i.b").value<QString>();
+    gshhsglobe3=settings.value("/window/gshhsglobe3", "./gshhs2_3_7/wdb_rivers_i.b").value<QString>();
+    gshhsoverlay1=settings.value("/window/gshhsoverlay1", "./gshhs2_3_7/gshhs_i.b").value<QString>();
+    gshhsoverlay2=settings.value("/window/gshhsoverlay2", "./gshhs2_3_7/wdb_borders_i.b").value<QString>();
     gshhsoverlay3=settings.value("/window/gshhsoverlay3", "").value<QString>();
 
-    skyboxup=settings.value("/window/skyboxup", "/usr/bin/images/ulukai/corona_up.png").value<QString>();
-    skyboxdown=settings.value("/window/skyboxdown", "/usr/bin/images/ulukai/corona_dn.png").value<QString>();
-    skyboxleft=settings.value("/window/skyboxleft", "/usr/bin/images/ulukai/corona_lf.png").value<QString>();
-    skyboxright=settings.value("/window/skyboxright", "/usr/bin/images/ulukai/corona_rt.png").value<QString>();
-    skyboxfront=settings.value("/window/skyboxfront", "/usr/bin/images/ulukai/corona_ft.png").value<QString>();
-    skyboxback=settings.value("/window/skyboxback", "/usr/bin/images/ulukai/corona_bk.png").value<QString>();
+    skyboxup=settings.value("/window/skyboxup", "./images/ulukai/corona_up.png").value<QString>();
+    skyboxdown=settings.value("/window/skyboxdown", "./images/ulukai/corona_dn.png").value<QString>();
+    skyboxleft=settings.value("/window/skyboxleft", "./images/ulukai/corona_lf.png").value<QString>();
+    skyboxright=settings.value("/window/skyboxright", "./images/ulukai/corona_rt.png").value<QString>();
+    skyboxfront=settings.value("/window/skyboxfront", "./images/ulukai/corona_ft.png").value<QString>();
+    skyboxback=settings.value("/window/skyboxback", "./images/ulukai/corona_bk.png").value<QString>();
 
     sathorizoncolor=settings.value("/window/sathorizoncolor", "#ffff00").value<QString>();
     sattrackcolor=settings.value("/window/sattrackcolor", "#dcdc00").value<QString>();
@@ -233,6 +233,7 @@ void Options::Initialize()
     remove_OLCI_dirs = settings.value("/parameters/removeolcidirs", false).toBool();
     remove_SLSTR_dirs = settings.value("/parameters/removeslstrdirs", false).toBool();
     usesaturationmask = settings.value("/parameters/usesaturationmask", true).toBool();
+    copyMTGfiles = settings.value("/parameters/copymtgfiles", false).toBool();
 
     checkStringListValues();
     fbo_changed = false;
@@ -608,6 +609,7 @@ void Options::Save()
     settings.setValue("/parameters/removeolcidirs", remove_OLCI_dirs);
     settings.setValue("/parameters/removeslstrdirs", remove_SLSTR_dirs);
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
+    settings.setValue("/parameters/copymtgfiles", copyMTGfiles);
 
     settings.setValue("/datahub/datahubuser", datahubuser);
     settings.setValue("/datahub/productdirectory", productdirectory);

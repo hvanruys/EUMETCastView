@@ -418,7 +418,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                     hashseqnbr.insert( seqnbr, fileInfo );
                     segmentlistmapgeomtgi1.insert(filenbr, hashseqnbr);
                 }
-                qDebug() << "A " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " << QString("%1").arg(seqnbr) << QString("%1").arg(filenbr);
+                // qDebug() << "A " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " << QString("%1").arg(seqnbr) << QString("%1").arg(filenbr);
             }
             else if((fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length())
                      == opts.geosatellites.at(i).searchstring) && fileInfo.isFile())
@@ -453,7 +453,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                         segmentlistmapgeo[i].insert( strdate, hashspectrum );
                     }
                 }
-                qDebug() << "B " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
+                // qDebug() << "B " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " <<  strspectrum << " " << QString("%1").arg(filenbr);
             }
         }
 
@@ -776,7 +776,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     //     QApplication::processEvents();
                     // }
 
-                    qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(*its);
+                    //qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(*its);
                     //for(int i= 0; i < fileinfolist.size(); i++)
                     //    qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
 
@@ -791,7 +791,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                         segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
                         segmentdir.setSorting(QDir::Name); //::Time);
                         fileinfolist.append(segmentdir.entryInfoList());
-                        qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
+                        //qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
                     }
 
 
@@ -879,7 +879,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                             segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
                             segmentdir.setSorting(QDir::Name); //::Time);
                             fileinfolist = segmentdir.entryInfoList();
-                            qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(pathbefore);
+                            //qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(pathbefore);
                             InsertToMap(fileinfolist, &map, &metopTle, &nppTle, &sentinel3Tle, &fy3dTle, seldate, hoursbefore);
 
                         }
@@ -975,7 +975,7 @@ void AVHRRSatellite::ReadDirectoriesDatahub(QDate seldate)
         segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
         segmentdir.setSorting(QDir::Name); //::Time);
         fileinfolist.append(segmentdir.entryInfoList());
-        qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
+        //qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
     }
 
     //                    for(int i= 0; i < fileinfolist.size(); i++)

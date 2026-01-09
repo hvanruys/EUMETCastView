@@ -167,18 +167,16 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/aaplus")
 include_directories(${CMAKE_SOURCE_DIR}/charls-main/include/charls)
 
-add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30)
+add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30 -DCHARLS_STATIC)
 
 
 # sequence of libraries is important !
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Core5Compat
-    my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} archive freeimage aaplus-static ws2_32
-    ${CMAKE_SOURCE_DIR}/libs/libcharls.a)
+    my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} ${CMAKE_SOURCE_DIR}/libs/libcharls.a archive freeimage aaplus-static ws2_32)
 else()
 target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Core5Compat
-    meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} /home/hugo/fcidecomp/charls-main/bin/build/linux-release/libcharls.a archive freeimage aaplus-static
-    ${CMAKE_SOURCE_DIR}/libs/libcharls.a)
+    meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} ${CMAKE_SOURCE_DIR}/libs/libcharls.a archive freeimage aaplus-static)
 endif()
 #set_target_properties(${PROJECT_NAME}
 #  PROPERTIES

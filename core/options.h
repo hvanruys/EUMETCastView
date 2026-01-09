@@ -274,6 +274,7 @@ public:
     bool remove_OLCI_dirs;
     bool remove_SLSTR_dirs;
     bool usesaturationmask;
+    bool copyMTGfiles;
 
     // Global variable not saved
     int channelontexture;

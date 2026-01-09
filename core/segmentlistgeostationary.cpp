@@ -2505,9 +2505,6 @@ void SegmentListGeostationary::concurrentReadFilelistHimawari(SegmentListGeostat
 //No use of QtConcurrent
 void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 {
-    QString ncfile;
-    QByteArray arrayncfile;
-    const char* pncfile;
     int ncfileid;
     int grp_data;
     int grp_channel;
@@ -2578,6 +2575,9 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     QElapsedTimer timer;
     timer.start();
+    elapsed_charls = 0;
+    timer_charls.start();
+
 
     qDebug() << "Nbr of MTG files = " << this->segmentfilelist.size();
 
@@ -2735,26 +2735,49 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     {
         if(this->segmentfilelist.at(j).contains("BODY"))
         {
-            ncfile = this->getImagePath() + "/" + this->segmentfilelist.at(j);
-            arrayncfile = ncfile.toUtf8();
+            QString network_filename = this->getImagePath() + "/" + this->segmentfilelist.at(j);
+            QFileInfo networkFile(network_filename);
+            QString tempDir = QDir::tempPath(); // Cross-platform temp directory
+            QString localPath = tempDir + "/" + networkFile.fileName();
+            QString filePath;
+
+            if(opts.copyMTGfiles)
+            {
+                filePath = localPath;
+                // Fast copy with Qt
+                QFile::remove(filePath); // Remove if exists
+                if (!QFile::copy(network_filename, localPath)) {
+                    // Handle error
+                    qWarning() << "Failed to copy file to temp ; network_filename = " << network_filename;
+                    return;
+                }
+            }
+            else
+                filePath = network_filename;
+
+            QByteArray arrayncfile;
+            const char* pncfile;
+
+
+            arrayncfile = filePath.toUtf8();
             pncfile = arrayncfile.constData();
 
-            qDebug() << "Starting netCDF file " + ncfile;
-            int ind = ncfile.indexOf(".nc");
-            int findex = ncfile.mid(ind - 4, 4).toInt();
+            qDebug() << "Starting netCDF file " + filePath;
+            int ind = filePath.indexOf(".nc");
+            int findex = filePath.mid(ind - 4, 4).toInt();
 
             vec.append(findex);
 
             retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
-            if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
+            if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << filePath;
 
             //retval = nc_inq(ncfileid, &ndimsp, &nvarsp, &ngattsp, &unlimdimidp);
             //if(retval != NC_NOERR) qDebug() << "error nc_inq " << this->segmentfilelist.at(j);
 
-            if ((retval = nc_inq_varid(ncfileid, "index_offset", &varid)))
-                ERR(retval);
-            if ((retval = nc_get_var_ushort(ncfileid, varid, &index_offset)))
-                ERR(retval);
+            // if ((retval = nc_inq_varid(ncfileid, "index_offset", &varid)))
+            //     ERR(retval);
+            // if ((retval = nc_get_var_ushort(ncfileid, varid, &index_offset)))
+            //     ERR(retval);
 
 
             retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_min", &geospatial_lat_min);
@@ -2763,8 +2786,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
             retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_max", &geospatial_lat_max);
             if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_max";
 
-            qDebug() << QString("index = %1 geospatial lat min = %2 lat max = %3 nbr of global att = %4 index_offset = %5").arg(j).arg(geospatial_lat_min)
-                        .arg(geospatial_lat_max).arg(ngattsp).arg(index_offset);
+            qDebug() << QString("index = %1 geospatial lat min = %2 lat max = %3 nbr of global att = %4").arg(j).arg(geospatial_lat_min)
+                        .arg(geospatial_lat_max).arg(ngattsp);
 
             latminmax lmm;
             lmm.max = geospatial_lat_max;
@@ -2891,8 +2914,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                 ba = strradiance.toLocal8Bit();
                 const char *c_radiance = ba.data();
 
-                retval = read_charls_compressed_ushort(pncfile, c_radiance, grp_measured,  varid, imageptrs->ptrMTG[i][findex - 1]);
-                // retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrMTG[i][findex - 1]);
+                if(opts.bFciDecomp)
+                    retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrMTG[i][findex - 1]);
+                else
+                    retval = read_charls_compressed_ushort(pncfile, c_radiance, grp_measured,  varid, imageptrs->ptrMTG[i][findex - 1]);
+
                 if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strmeasured << " findex = " << findex << " error = " << retval;
 
                 retval = nc_inq_varid(grp_measured, "index_map", &varid);
@@ -2902,14 +2928,20 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
                 ba = strradiance.toLocal8Bit();
                 const char *c_index_map = ba.data();
 
-                retval = read_charls_compressed_ushort(pncfile, c_index_map, grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
-                // retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
+                if(opts.bFciDecomp)
+                    retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
+                else
+                    retval = read_charls_compressed_ushort(pncfile, c_index_map, grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
 
                 if(retval != NC_NOERR) qDebug() << "error reading index_map from channel " << strmeasured << " findex = " << findex << " error = " << retval;
 
             }
             retval = nc_close(ncfileid);
-            if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
+            if (retval != NC_NOERR) qDebug() << "error closing file " << localPath;
+            qDebug() << "cleaning up " << localPath;
+
+            if(opts.copyMTGfiles)
+                QFile::remove(filePath);
 
             emit this->progressCounter(progcounter += 1);
 
@@ -2935,6 +2967,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     //            qDebug() << "===> imageptrs->mtg_nbr_of_rows != nbr_linesMTG";
     //    }
 
+    qDebug() << "==> Total elapsed time charls = " << elapsed_charls;
     qDebug() << "Start Concurrent processing ...";
 
 #ifdef CONC
@@ -8742,6 +8775,8 @@ int SegmentListGeostationary::read_compressed_chunks_hdf5(const char* filename, 
             // Decompress using CharLS
             charls::jpegls_decoder decoder;
 
+            timer_charls.restart();
+
             try {
                 decoder.source(compressed_buffer.data(), compressed_buffer.size());
                 decoder.read_header();
@@ -8761,6 +8796,9 @@ int SegmentListGeostationary::read_compressed_chunks_hdf5(const char* filename, 
                 std::cerr << "Decompression failed: " << e.what() << std::endl;
                 continue;
             }
+
+            elapsed_charls += timer_charls.restart();
+
         } else {
             std::cout << "Chunk was not compressed (filter_mask=" << filter_mask << ")" << std::endl;
             // Data is already uncompressed
@@ -8788,15 +8826,19 @@ int SegmentListGeostationary::read_compressed_chunks_hdf5(const char* filename, 
 
         // For a 2D case (most common)
         if (ndims == 2) {
-            for (size_t y = 0; y < count[0]; y++) {
-                for (size_t x = 0; x < count[1]; x++) {
-                    size_t src_idx = (y * chunk_dims[1] + x) * element_size;
-                    size_t dest_idx = ((start_pos[0] + y) * dims[1] +
-                                      (start_pos[1] + x)) * element_size;
-                    memcpy(dest + dest_idx, src + src_idx, element_size);
+            if(total_chunks == 1)
+                memcpy(dest, src, count[0] *count[1] * element_size);
+            else
+            {
+                for (size_t y = 0; y < count[0]; y++) {
+                    for (size_t x = 0; x < count[1]; x++) {
+                        size_t src_idx = (y * chunk_dims[1] + x) * element_size;
+                        size_t dest_idx = ((start_pos[0] + y) * dims[1] +
+                                           (start_pos[1] + x)) * element_size;
+                        memcpy(dest + dest_idx, src + src_idx, element_size);
+                    }
                 }
             }
-            // memcpy(dest, src, count[0] *count[1] * element_size);
             std::cout << "memcpy " << count[0] * count[1] << " bytes" << std::endl;
         } else {
             std::cout << "Generic N-dimensional copy";
@@ -8880,10 +8922,9 @@ int SegmentListGeostationary::read_charls_compressed_ushort(const char* filename
         nc_close(ncid);
         return 1;
     }
-
-    std::vector<uint8_t> data8(total_size * element_size);
-    NC_CHECK(read_charls_compressed(filename, dataset_path, ncid, varid, data8.data()));
-    std::memcpy(data16, data8.data(), total_size * sizeof(uint16_t));
+    uint8_t* data8 = reinterpret_cast<uint8_t*>(data16);
+    NC_CHECK(read_charls_compressed(filename, dataset_path, ncid, varid, data8));
+    data16 = reinterpret_cast<uint16_t*>(data8);
     return NC_NOERR;
 }
 
@@ -8913,18 +8954,18 @@ int SegmentListGeostationary::read_charls_compressed(const char* filename, const
             nc_type var_type;
 
             status = nc_inq_var(ncid, varid, nullptr, &var_type, &ndims, dimids, nullptr);
-            size_t dims[NC_MAX_VAR_DIMS];
-            size_t total_size = 1;
-
-            for (int i = 0; i < ndims; i++) {
-                nc_inq_dimlen(ncid, dimids[i], &dims[i]);
-                total_size *= dims[i];
-                std::cout << "Dimension " << i << ": " << dims[i] << std::endl;
-            }
-
             if(status == NC_NOERR)
             {
-                status = read_compressed_chunks_hdf5(filename, dataset_path, data8, dims, ndims, bits_per_sample, components);
+                size_t dims[NC_MAX_VAR_DIMS];
+                size_t total_size = 1;
+
+                for (int i = 0; i < ndims; i++) {
+                    nc_inq_dimlen(ncid, dimids[i], &dims[i]);
+                    total_size *= dims[i];
+                    std::cout << "Dimension " << i << ": " << dims[i] << std::endl;
+                }
+
+                NC_CHECK(read_compressed_chunks_hdf5(filename, dataset_path, data8, dims, ndims, bits_per_sample, components));
             }
             return status;
         }

@@ -149,7 +149,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>10</number>
+        <number>7</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -1796,6 +1796,13 @@
            </property>
            <property name="text">
             <string>Deleting the file 'GeoSatellites.ini' will recreate the file at startup with default values.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rdbCopyMTGfiles">
+           <property name="text">
+            <string>Copy MTG files to local temp directory</string>
            </property>
           </widget>
          </item>

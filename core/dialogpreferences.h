@@ -113,7 +113,7 @@ private slots:
     void on_btnOLCIImageOverlayColor_clicked();
 
     void on_rdbDoLogging_toggled(bool checked);
-
+    void on_rdbCopyMTGfiles_toggled(bool checked);
 
 private:
     Ui::DialogPreferences *ui;

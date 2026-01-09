@@ -1297,7 +1297,8 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
         else
         {
             sl->setThreadParametersnetCDF(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
-            sl->ComposeImagenetCDFMTGInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+            //sl->ComposeImagenetCDFMTGInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+            sl->ComposeSegmentImagenetCDFMTGInThread1();
         }
     }
 }

@@ -205,6 +205,11 @@ private:
     QString tex;
     int satid;
 
+    QElapsedTimer timer_charls;
+    quint64 elapsed_charls;
+
+
+
 //    QVector<int> nbr_lines_MTG;
 
 
