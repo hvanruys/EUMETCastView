@@ -7,6 +7,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLTexture>
 #include <QColor>
+#include <QQuaternion>
 
 #include "qsgp4globals.h"
 #define SEGMENTS 128

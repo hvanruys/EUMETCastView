@@ -3093,9 +3093,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
         for( int i = 0; i < 4096; i++)
         {
             sum_ch += histogram[colorindex][i];
-            imageptrs->lut_mtg[colorindex][i] = qRound((sum_ch - stat_min[colorindex]) * newscale);
+            imageptrs->lut_mtg[colorindex][i] = qRound(sum_ch * newscale);
             imageptrs->lut_mtg[colorindex][i] = (imageptrs->lut_mtg[colorindex][i] > 4095 ? 4095 : imageptrs->lut_mtg[colorindex][i]);
-            //        qDebug() << QString("stats_ch[0][%1] = %2 lut_ch[0][%3] = %4").arg(i).arg(stats_ch[0][i]).arg(i).arg(imageptrs->lut_ch[0][i]);
             if(imageptrs->lut_mtg[colorindex][i] > 102 && okmin == false)
             {
                 okmin = true;
