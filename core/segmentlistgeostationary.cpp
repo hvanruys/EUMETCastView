@@ -113,8 +113,8 @@ void SegmentListGeostationary::doComposeGeostationarynetCDFInThread(SegmentListG
 
 void SegmentListGeostationary::doComposeGeostationarynetCDFMTGInThread(SegmentListGeostationary *sm) //, QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
-    sm->ComposeSegmentImagenetCDFMTGInThread1();  //Concurrent();
-}
+    sm->ComposeSegmentImagenetCDFMTGInThreadConcurrent();  //Concurrent : ComposeSegmentImagenetCDFMTGInThreadConcurrent() ; Serial : ComposeSegmentImagenetCDFMTGInThreadSerial()
+}                                                 //             ComposeSegmentImagenetCDFMTGInThread1()
 
 void SegmentListGeostationary::doComposeGeostationaryXRITMSGInThread(SegmentListGeostationary *sm) //, QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod)
 {
@@ -424,10 +424,10 @@ bool SegmentListGeostationary::ComposeImagenetCDFInThread(QStringList strlist, Q
     return true;
 }
 
-bool SegmentListGeostationary::ComposeImagenetCDFMTGInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor)
+bool SegmentListGeostationary::ComposeImagenetCDFMTGInThread()  //QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor)
 {
-    qDebug() << QString("SegmentListGeostationary::ComposeImagenetCDFMTGInThread spectrumvector = %1 %2 %3 %4")
-                .arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg(spectrumvector.at(3));
+    //qDebug() << QString("SegmentListGeostationary::ComposeImagenetCDFMTGInThread spectrumvector = %1 %2 %3 %4")
+    //            .arg(spectrumvector.at(0)).arg(spectrumvector.at(1)).arg(spectrumvector.at(2)).arg(spectrumvector.at(3));
 
     //    for(int i = 0; i < strlist.length(); i++)
     //        qDebug() << i << " " << strlist.at(i);
@@ -1302,7 +1302,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread() //(QStringLis
     {
         for(int j = 0; j < this->segmentfilelist.count(); j++)
         {
-            if(this->segmentfilelist[j].mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length()) == this->spectrumvector.at(i))
+            if(this->segmentfilelist[j].mid(opts.geosatellites.at(geoindex).indexspectrum, opts.geosatellites.at(geoindex).spectrumlist.at(0).length()) ==
+                    this->spectrumvector.at(i))
                 filelistsorted.append(this->segmentfilelist[j]);
         }
     }
@@ -1654,7 +1655,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFInThread() //(QStringLis
     emit signalcomposefinished(kindofimage, geoindex);
 }
 
-void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
+void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadSerial() // Serial
 {
 
     QString ncfile;
@@ -1706,7 +1707,7 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
     effective_radiance_data = NULL;
 
 
-    qDebug() << "Start SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread() size = " << this->segmentfilelist.size();
+    qDebug() << "Start SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadSerial() size = " << this->segmentfilelist.size();
     qDebug() << "Spectrum vector count = " << this->spectrumvector.count() << " kindofimage = " << kindofimage;
     if(this->histogrammethod == CMB_HISTO_NONE_95)
         qDebug() << "histgrammethod = CMB_HISTO_NONE_95";
@@ -1774,7 +1775,6 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread()
             QString findex = ncfile.mid(ind - 4, 4);
 
             qDebug() << "Starting netCDF file : " + findex;
-            // Starting netCDF file : /media/hugo/Data-Linux/MTG_examples/compressed_full_TD-360/2017/09/20/W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY---NC4E_C_EUMT_20170920120515_GTT_DEV_20170920120008_20170920120015_N_JLS_T_0073_0001.nc
             retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
             if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->segmentfilelist.at(j);
 
@@ -2502,7 +2502,7 @@ void SegmentListGeostationary::concurrentReadFilelistHimawari(SegmentListGeostat
 }
 
 
-//No use of QtConcurrent
+//Use of QtConcurrent
 void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 {
     int ncfileid;
@@ -3195,6 +3195,661 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     return;
 }
 
+void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
+{
+    int ncfileid;
+    int grp_data;
+    int grp_channel;
+    int grp_measured;
+    int grp_spectrum;
+
+    int retval;
+    int varid;
+
+    float max_radiance_value_of_valid_pixels[4];
+    float mean_radiance_value_of_valid_pixels[4];
+    float min_radiance_value_of_valid_pixels[4];
+
+    int ndimsp, nvarsp, ngattsp, unlimdimidp;
+    //ndimsp	Pointer to location for returned number of dimensions defined for this netCDF dataset. Ignored if NULL.
+    //nvarsp	Pointer to location for returned number of variables defined for this netCDF dataset. Ignored if NULL.
+    //nattsp	Pointer to location for returned number of global attributes defined for this netCDF dataset. Ignored if NULL.
+    //unlimdimidp	Pointer to location for returned ID of the unlimited dimension, if there is one for this netCDF dataset.
+    //              If no unlimited length dimension has been defined, -1 is returned. Ignored if NULL.
+    //              If there are multiple unlimited dimensions (possible only for netCDF-4 files), only a pointer to the first is returned,
+    //              for backward compatibility. If you want them all, use nc_inq_unlimids().
+
+    double geospatial_lat_min, geospatial_lat_max;
+
+    emit this->progressCounter(10);
+
+    nc_type rh_type;
+    int rh_ndims;
+    int  rh_dimids[NC_MAX_VAR_DIMS];
+    int rh_natts;
+    size_t xdim=0, ydim=0;
+    float scale_factor[4];
+    float add_offset[4];
+    quint16 fillvalue[4];
+    float nominal_satellite_subpoint_lon;
+    bool trailfilefound = false;
+
+    ushort end_position_row;
+    ushort end_position_column;
+    ushort start_position_row;
+    ushort start_position_column;
+    ushort total_number_of_rows;
+    ushort total_number_of_columns;
+
+    ushort index_offset;
+    double gamma = opts.meteosatgamma;
+    double gammafactor = 255 / pow(255, gamma);
+    quint16 valgamma;
+    quint16 valcontrast;
+
+
+    this->progcounter = 0;
+
+    QVector<int> vec_findex;
+    QVector<QString> vec_fname;
+
+    int geoindex = this->getGeoSatelliteIndex();
+
+    QStringList spectrumlist = opts.geosatellites.at(geoindex).spectrumlist;
+
+    emit this->progressCounter(progcounter);
+
+    qDebug() << "Start SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1() size = " << this->segmentfilelist.size();
+    qDebug() << "Spectrum vector count = " << this->spectrumvector.count() << " kindofimage = " << kindofimage;
+    if(this->histogrammethod == CMB_HISTO_NONE_95)
+        qDebug() << "histgrammethod = CMB_HISTO_NONE_95";
+    else if(this->histogrammethod == CMB_HISTO_NONE_100)
+        qDebug() << "histgrammethod = CMB_HISTO_NONE_100";
+    else if(this->histogrammethod == CMB_HISTO_EQUALIZE)
+        qDebug() << "histgrammethod = CMB_HISTO_EQUALIZE";
+
+    QElapsedTimer timer;
+    timer.start();
+    elapsed_charls = 0;
+    timer_charls.start();
+
+
+    qDebug() << "Nbr of MTG files = " << this->segmentfilelist.size();
+
+
+    for(int i = 0; i < 4; i++)
+    {
+        imageptrs->mtg_total_number_of_columns[i] = 0;
+        imageptrs->mtg_total_number_of_rows[i] = 0;
+    }
+
+
+    // in include file we have the following definition : quint 16 imageptrs->ptrRed[10];
+    // ptrBlue and ptrGreen are not used
+    //**********************************************
+    // the reading of the netcdf files is sequential
+    //**********************************************
+
+
+
+
+    trailfilefound = false;
+    if(trailfilefound == false)
+    {
+        QString groupnames[16];
+        int rows[16];
+        int columns[16];
+
+        groupnames[0] =  "vis_04";
+        groupnames[1] =  "vis_05";
+        groupnames[2] =  "vis_06";
+        groupnames[3] =  "vis_08";
+        groupnames[4] =  "vis_09";
+        groupnames[5] =  "nir_13";
+        groupnames[6] =  "nir_16";
+        groupnames[7] =  "nir_22";
+        groupnames[8] =  "ir_38";
+        groupnames[9] =  "wv_63";
+        groupnames[10] =  "wv_73";
+        groupnames[11] =  "ir_87";
+        groupnames[12] =  "ir_97";
+        groupnames[13] =  "ir_105";
+        groupnames[14] =  "ir_123";
+        groupnames[15] =  "ir_133";
+
+        rows[0] =  11136;  columns[0] =  11136;
+        rows[1] =  11136;  columns[1] =  11136;
+        rows[2] =  11136;  columns[2] =  11136;
+        rows[3] =  11136;  columns[3] =  11136;
+        rows[4] =  11136;  columns[4] =  11136;
+        rows[5] =  11136;  columns[5] =  11136;
+        rows[6] =  11136;  columns[6] =  11136;
+        rows[7] =  11136;  columns[7] =  11136;
+        rows[8] =  5568;  columns[8] =  5568;
+        rows[9] =  5568;  columns[9] =  5568;
+        rows[10] =  5568;  columns[10] =  5568;
+        rows[11] =  5568;  columns[11] =  5568;
+        rows[12] =  5568;  columns[12] =  5568;
+        rows[13] =  5568;  columns[13] =  5568;
+        rows[14] =  5568;  columns[14] =  5568;
+        rows[15] =  5568;  columns[15] =  5568;
+
+        for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+        {
+            for(int j = 0; j < 16; j++ )
+            {
+                if(this->spectrumvector.at(i) == groupnames[j])
+                {
+                    imageptrs->mtg_total_number_of_columns[i] = columns[j];
+                    imageptrs->mtg_total_number_of_rows[i] = rows[j];
+                }
+            }
+        }
+    }
+
+
+    progcounter += 10;
+    emit this->progressCounter(10);
+
+    QByteArray ba;
+
+    struct latminmax {
+        qreal max;
+        qreal min;
+    };
+
+    QList<latminmax> veclatminmax;
+
+
+
+    for(int j = 0; j < this->segmentfilelist.size(); j++)
+    {
+        if(this->segmentfilelist.at(j).contains("BODY"))
+        {
+            QString network_filename = this->getImagePath() + "/" + this->segmentfilelist.at(j);
+            QFileInfo networkFile(network_filename);
+            QString tempDir = QDir::tempPath(); // Cross-platform temp directory
+            QString localPath = tempDir + "/" + networkFile.fileName();
+            QString filePath;
+
+            if(opts.copyMTGfiles)
+            {
+                filePath = localPath;
+                // Fast copy with Qt
+                QFile::remove(filePath); // Remove if exists
+                if (!QFile::copy(network_filename, localPath)) {
+                    // Handle error
+                    qWarning() << "Failed to copy file to temp ; network_filename = " << network_filename;
+                    return;
+                }
+            }
+            else
+                filePath = network_filename;
+
+            int ind = filePath.indexOf(".nc");
+            int findex = filePath.mid(ind - 4, 4).toInt();
+            vec_findex.append(findex);
+            vec_fname.append(filePath);
+
+        }
+    }
+
+// #ifdef CONC
+//     auto cbReadMTGfile = std::bind(this->ReadConcurrentMTGfile, this, std::placeholders::_1);
+//     QtConcurrent::blockingMap(vec_fname, cbReadMTGfile);
+// #else
+    for(int i = 0; i < vec_findex.length(); i++)
+    {
+        this->ReadConcurrentMTGfile(this, vec_fname[i]);
+    }
+//#endif
+
+    qDebug() << "==> Total elapsed time charls = " << elapsed_charls;
+    qDebug() << "Start Concurrent processing ...";
+
+#ifdef CONC
+    auto cbMinMaxMTG = std::bind(this->concurrentMinMaxMTG, this, std::placeholders::_1);
+    QtConcurrent::blockingMap(vec_findex, cbMinMaxMTG);
+#else
+    for(int i = 0; i < vec.length(); i++)
+    {
+        this->concurrentMinMaxMTG(this, vec_findex[i]);
+    }
+#endif
+
+    emit this->progressCounter(progcounter += 10);
+
+    for(int i = 0; i < (this->spectrumvector.at(3).length() > 0 ? 4 : 3); i++)
+    {
+        stat_min[i] = 65535;
+        stat_max[i] = 0;
+    }
+
+    for(int i = 0; i < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++) {
+        for (int j = 0; j < vec_findex.length(); j++)
+        {
+            quint16 val = imageptrs->mtg_stat_min[i][vec_findex[j]-1];
+            if(val != imageptrs->fillvalue[i])
+            {
+                if(val < stat_min[i])
+                    stat_min[i] = val;
+            }
+            val = imageptrs->mtg_stat_max[i][vec_findex[j]-1];
+            if(val != 0)
+            {
+                if(val > stat_max[i])
+                    stat_max[i] = val;
+            }
+
+        }
+        qDebug() << QString("stat_min [%1] = %2 stat_max [%3] = %4")
+                    .arg(i).arg(stat_min[i]).arg(i).arg(stat_max[i]);
+
+    }
+
+#ifdef CONC
+    auto cbLUTMTG = std::bind(this->concurrentLUTGeoMTG, this, std::placeholders::_1);
+    QtConcurrent::blockingMap(vec_findex, cbLUTMTG);
+#else
+    for(int i = 0; i < vec.length(); i++)
+    {
+        this->concurrentLUTGeoMTG(this, vec_findec[i]);
+    }
+#endif
+
+    emit this->progressCounter(progcounter += 5);
+
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        this->active_pixels[colorindex] = 0;
+        for (int index = 0; index < vec_findex.length(); index++)
+        {
+            this->active_pixels[colorindex] += imageptrs->mtg_active_pixels[colorindex][vec_findex[index]-1];
+        }
+        qDebug() << QString("active_pixels[%1] = %2").arg(colorindex).arg(this->active_pixels[colorindex]);
+    }
+
+    //    for(int i = 0; i < (this->kindofimage == "VIS_IR Color" ? 3 : 1); i++)
+    //    {
+    //        qDebug() << QString("stat_min[%1] = %2 stat_max[%3] = %4 active_pixels[%5] = %6").arg(i).arg(stat_min[i]).arg(i).arg(stat_max[i]).arg(i).arg(this->active_pixels[i]);
+    //    }
+
+    double newscale;
+    long histogram[4][4096];
+
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        for (int i = 0; i < 4096; i++) {
+            histogram[colorindex][i] = 0;
+        }
+    }
+
+    long long totpixels[4];
+    for(int i = 0; i < 4; i++)
+        totpixels[i] = 0;
+
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        for (int index = 0; index < vec_findex.length(); index++) {
+            for (int i = 0; i < 4096; i++) {
+                histogram[colorindex][i] += imageptrs->mtg_histogram[colorindex][vec_findex[index]-1][i];
+                totpixels[colorindex] += imageptrs->mtg_histogram[colorindex][vec_findex[index]-1][i];
+            }
+        }
+        qDebug() << QString("totpixels[%1] = %2 active_pixels[%3] = %4").arg(colorindex).arg(totpixels[colorindex]).arg(colorindex).arg(this->active_pixels[colorindex]);
+    }
+
+
+    //    for (int j = 0; j < 4096; j++)
+    //    {
+    //        qDebug() << "histogram " << j << " " << histogram[0][j];
+    //    }
+
+    emit this->progressCounter(progcounter += 10);
+
+    for(int colorindex = 0; colorindex < (this->kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); colorindex++)
+    {
+        //        newscale = (double)(4095.0 / (double)(this->active_pixels[colorindex] - stat_min[colorindex]));
+        newscale = (double)(4095.0 / (double)(totpixels[colorindex] - stat_min[colorindex]));
+
+        qDebug() << QString("newscale = %1 active pixels = %2 11136*11136 = %3").arg(newscale).arg(this->active_pixels[colorindex]).arg(11136*11136);
+
+
+        unsigned long long sum_ch = 0;
+        bool okmin, okmax;
+
+        okmin = false;
+        okmax = false;
+
+        imageptrs->minRadianceIndex[colorindex] = 65535;
+        imageptrs->maxRadianceIndex[colorindex] = 65535;
+
+        // min/maxRadianceIndex = index of 95% ( 2.5% of 1024 = 25, 97.5% of 1024 = 997 )
+        // min/maxRadianceIndex = index of 95% ( 2.5% of 4096 = 102, 97.5% of 4096 = 3993 )
+
+        for( int i = 0; i < 4096; i++)
+        {
+            sum_ch += histogram[colorindex][i];
+            imageptrs->lut_mtg[colorindex][i] = qRound(sum_ch * newscale);
+            imageptrs->lut_mtg[colorindex][i] = (imageptrs->lut_mtg[colorindex][i] > 4095 ? 4095 : imageptrs->lut_mtg[colorindex][i]);
+            if(imageptrs->lut_mtg[colorindex][i] > 102 && okmin == false)
+            {
+                okmin = true;
+                imageptrs->minRadianceIndex[colorindex] = i;
+            }
+            if(imageptrs->lut_mtg[colorindex][i] > 3993 && okmax == false)
+            {
+                okmax = true;
+                imageptrs->maxRadianceIndex[colorindex] = i;
+            }
+        }
+
+
+        //        for (int j = 0; j < 4096; j++)
+        //        {
+        //            qDebug() << QString("histogram[%1][%2] = %3 LUT[%4][%5] = %6").arg(colorindex).arg(j).arg(histogram[colorindex][j])
+        //                        .arg(colorindex).arg(j).arg(imageptrs->lut_mtg[colorindex][j]);
+        //        }
+
+
+        qDebug() << QString("minRadianceIndex [%1] = %2 maxRadianceIndex [%3] = %4 active_pixels = %5")
+                    .arg(colorindex).arg(imageptrs->minRadianceIndex[colorindex]).arg(colorindex).arg(imageptrs->maxRadianceIndex[colorindex])
+                    .arg(this->active_pixels[colorindex]);
+
+    }
+
+    if(this->kindofimage == "VIS_IR Color")
+    {
+        imageptrs->InitializeImageGeostationary(imageptrs->mtg_total_number_of_columns[0], imageptrs->mtg_total_number_of_rows[0]);
+    }
+    else
+        imageptrs->InitializeImageGeostationary(imageptrs->mtg_total_number_of_columns[0], imageptrs->mtg_total_number_of_rows[0]);
+
+    this->COFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+    this->LOFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+    this->CFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+    this->LFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
+
+    emit this->progressCounter(progcounter += 10);
+
+    qDebug() << "progressCounter = " << progcounter;
+
+    this->SetupContrastStretch( 0, 0, 1023, 255);
+
+    if(this->spectrumvector.at(3).length() > 0)
+    {
+        imageptrs->ptrimageGeoNight.reset(new quint16[ 5568 * 5568 ]);
+
+#ifdef CONC
+        auto cbImageNight = std::bind(this->concurrentImageMTGNight, this, std::placeholders::_1);
+        QtConcurrent::blockingMap(vec_findex, cbImageNight);
+#else
+        for(int i = 0; i < vec.length(); i++)
+        {
+            this->concurrentImageMTGNight(this, vec[i]);
+        }
+#endif
+    }
+
+    emit this->progressCounter(progcounter += 10);
+
+#ifdef CONC
+    auto cbImageMTG = std::bind(this->concurrentImageMTG, this, std::placeholders::_1);
+    QtConcurrent::blockingMap(vec_findex, cbImageMTG);
+#else
+    for(int i = 0; i < vec.length(); i++)
+    {
+        this->concurrentImageMTG(this, vec[i]);
+    }
+#endif
+
+    for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+    {
+        for(int j = 0; j < vec_findex.length(); j++)
+        {
+            if(imageptrs->ptrMTG[i][vec_findex[j]-1] != NULL)
+            {
+                delete [] imageptrs->ptrMTG[i][vec_findex[j]-1];
+                imageptrs->ptrMTG[i][vec_findex[j]-1] = NULL;
+            }
+            if(imageptrs->ptrIndex[i][vec_findex[j]-1] != NULL)
+            {
+                delete [] imageptrs->ptrIndex[i][vec_findex[j]-1];
+                imageptrs->ptrIndex[i][vec_findex[j]-1] = NULL;
+            }
+        }
+    }
+
+    imageptrs->ptrimageGeoNight.reset();
+
+    qDebug() << "===> The image process for concurrent took " << timer.elapsed() << "milliseconds";
+
+    emit signalcomposefinished(kindofimage, geoindex);
+    emit this->progressCounter(100);
+
+    QApplication::restoreOverrideCursor();
+
+    return;
+}
+
+void SegmentListGeostationary::ReadConcurrentMTGfile(SegmentListGeostationary *sm, const QString &filenamepath)
+{
+    int ncfileid;
+    int grp_data;
+    int grp_channel;
+    int grp_measured;
+    int grp_spectrum;
+
+    int retval;
+    int varid;
+    quint16 fillvalue[4];
+
+
+    ushort end_position_row;
+    ushort end_position_column;
+    ushort start_position_row;
+    ushort start_position_column;
+
+
+    double geospatial_lat_min, geospatial_lat_max;
+    QByteArray ba;
+
+    if(filenamepath.contains("BODY"))
+    {
+        QByteArray arrayncfile;
+        const char* pncfile;
+
+
+        arrayncfile = filenamepath.toUtf8();
+        pncfile = arrayncfile.constData();
+
+        qDebug() << "Starting netCDF file " + filenamepath;
+        int ind = filenamepath.indexOf(".nc");
+        int findex = filenamepath.mid(ind - 4, 4).toInt();
+
+        //vec.append(findex);
+
+        retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
+        if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << filenamepath;
+
+        //retval = nc_inq(ncfileid, &ndimsp, &nvarsp, &ngattsp, &unlimdimidp);
+        //if(retval != NC_NOERR) qDebug() << "error nc_inq " << this->segmentfilelist.at(j);
+
+        // if ((retval = nc_inq_varid(ncfileid, "index_offset", &varid)))
+        //     ERR(retval);
+        // if ((retval = nc_get_var_ushort(ncfileid, varid, &index_offset)))
+        //     ERR(retval);
+
+
+        retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_min", &geospatial_lat_min);
+        if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_min";
+
+        retval = nc_get_att_double(ncfileid, NC_GLOBAL, "geospatial_lat_max", &geospatial_lat_max);
+        if(retval != NC_NOERR) qDebug() << "error nc_get_att_double for geospatial_lat_max";
+
+        qDebug() << QString("geospatial lat min = %1 lat max = %2 ").arg(geospatial_lat_min).arg(geospatial_lat_max);
+
+        // latminmax lmm;
+        // lmm.max = geospatial_lat_max;
+        // lmm.min = geospatial_lat_min;
+        // veclatminmax.append(lmm);
+
+        retval = nc_inq_ncid(ncfileid, "data", &grp_data);
+        if(retval != NC_NOERR) qDebug() << "error opening data group";
+
+        for(int i = 0; i < (sm->kindofimage == "VIS_IR Color" ? (sm->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
+        {
+            qDebug() << "reading radiance from channel i = " << i << " spectrum = " << sm->spectrumvector.at(i);
+
+            // QString strspectrum = this->spectrumvector.at(i);
+            // ba = strspectrum.toLocal8Bit();
+            // const char *c_channel = ba.data();
+            // retval = nc_inq_ncid(grp_data, c_channel, &grp_spectrum);
+            // if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum;
+
+            // retval = nc_inq_ncid(grp_spectrum, "measured", &grp_measured);
+            // if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum << "/measured";
+
+            QString strmeasured = "/data/" + sm->spectrumvector.at(i) + "/measured";
+            ba = strmeasured.toLocal8Bit();
+            const char *c_measured = ba.data();
+
+            retval = nc_inq_grp_full_ncid(ncfileid, c_measured, &grp_measured);
+            if (retval != NC_NOERR) {
+                qDebug() << "group '" << strmeasured << "' not found";
+                nc_close(ncfileid);
+                return;
+            }
+
+            // // Get variable id by name
+            // retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
+            // if (retval != NC_NOERR) {
+            //     qDebug() << "Variable 'effective_radiance' not found";
+            //     nc_close(ncfileid);
+            //     return;
+            // }
+
+
+            // QString strspectrum = this->spectrumvector.at(i);
+            // ba = strspectrum.toLocal8Bit();
+            // const char *c_channel = ba.data();
+            // retval = nc_inq_ncid(grp_data, c_channel, &grp_spectrum);
+            // if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum;
+
+            // retval = nc_inq_ncid(grp_spectrum, "measured", &grp_measured);
+            // if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum << "/measured";
+
+
+            if ((retval = nc_inq_varid(grp_measured, "start_position_row", &varid)))
+                ERR(retval);
+            if ((retval = nc_get_var_ushort(grp_measured, varid, &start_position_row)))
+                ERR(retval);
+
+            if ((retval = nc_inq_varid(grp_measured, "start_position_column", &varid)))
+                ERR(retval);
+            if ((retval = nc_get_var_ushort(grp_measured, varid, &start_position_column)))
+                ERR(retval);
+
+            if ((retval = nc_inq_varid(grp_measured, "end_position_row", &varid)))
+                ERR(retval);
+            if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_row)))
+                ERR(retval);
+
+            if ((retval = nc_inq_varid(grp_measured, "end_position_column", &varid)))
+                ERR(retval);
+            if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_column)))
+                ERR(retval);
+
+
+            if ((retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i])))
+                ERR(retval);
+            if (retval != NC_NOERR) qDebug() << "error reading _FillValue (2605)";
+            imageptrs->fillvalue[i] = fillvalue[i];
+            qDebug() << QString("FillValue for color %1 = %2").arg(i).arg(fillvalue[i]);
+
+
+            //                if(retval == 0 && i == 0)
+            //                {
+            //                    qDebug() << QString("start position row = %1 column = %2").arg(start_position_row).arg(start_position_column);
+            //                    qDebug() << QString("end position row = %1 column = %2").arg(end_position_row).arg(end_position_column);
+            //                    //qDebug() << QString("j = %1 findex = %2 nbr of rows = %3 column = %4").arg(j).arg(findex).arg(end_position_row - start_position_row + 1).arg(
+            //                    //                end_position_column - start_position_column + 1);
+            //                }
+
+            imageptrs->mtg_start_position_row[i][findex - 1] = start_position_row;
+            imageptrs->mtg_end_position_row[i][findex - 1] = end_position_row;
+
+            imageptrs->mtg_start_position_column[i][findex -1] = start_position_column;
+            imageptrs->mtg_end_position_column[i][findex - 1] = end_position_column;
+
+            imageptrs->mtg_nbr_of_rows[i][findex - 1] = end_position_row - start_position_row + 1;
+            imageptrs->mtg_nbr_of_columns[i][findex - 1] = end_position_column - start_position_column + 1;
+
+            qDebug() << "reading effective_radiance id ";
+            retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
+            if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strmeasured;
+            qDebug() << "effective_radiance id = " << varid;
+
+            // Get variable information
+            char var_name[NC_MAX_NAME + 1];
+            nc_type var_type;
+            int var_ndims, var_dimids[NC_MAX_VAR_DIMS], var_natts;
+            size_t dims[NC_MAX_VAR_DIMS];
+            size_t total_size = 1;
+
+
+            retval = nc_inq_var(grp_measured, varid, var_name, &var_type, &var_ndims, var_dimids, &var_natts);
+            if(retval != NC_NOERR) qDebug() << "error nc_inq_var id = " << varid;
+
+            for (int i = 0; i < var_ndims; i++) {
+                nc_inq_dimlen(grp_measured, var_dimids[i], &dims[i]);
+                total_size *= dims[i];
+                qDebug() << "Dimension " << i << ": " << dims[i];
+            }
+
+            imageptrs->ptrMTG[i][findex - 1] = new quint16[total_size];
+            imageptrs->ptrIndex[i][findex - 1] = new quint16[total_size];
+
+            QString strradiance = "/data/" + sm->spectrumvector.at(i) + "/measured/effective_radiance";
+            ba = strradiance.toLocal8Bit();
+            const char *c_radiance = ba.data();
+
+            if(opts.bFciDecomp)
+                retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrMTG[i][findex - 1]);
+            else
+                retval = sm->read_charls_compressed_ushort(pncfile, c_radiance, grp_measured,  varid, imageptrs->ptrMTG[i][findex - 1]);
+
+            if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strmeasured << " findex = " << findex << " error = " << retval;
+
+            retval = nc_inq_varid(grp_measured, "index_map", &varid);
+            if(retval != NC_NOERR) qDebug() << "error opening index_map from channel " << strmeasured;
+
+            QString strindex_map = "/data/" + sm->spectrumvector.at(i) + "/measured/index_map";
+            ba = strradiance.toLocal8Bit();
+            const char *c_index_map = ba.data();
+
+            if(opts.bFciDecomp)
+                retval = nc_get_var_ushort(grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
+            else
+                retval = sm->read_charls_compressed_ushort(pncfile, c_index_map, grp_measured, varid, imageptrs->ptrIndex[i][findex - 1]);
+
+            if(retval != NC_NOERR) qDebug() << "error reading index_map from channel " << strmeasured << " findex = " << findex << " error = " << retval;
+
+        }
+        retval = nc_close(ncfileid);
+        if (retval != NC_NOERR) qDebug() << "error closing file " << filenamepath;
+        qDebug() << "cleaning up " << filenamepath;
+
+        if(opts.copyMTGfiles)
+            QFile::remove(filenamepath);
+
+        emit sm->progressCounter(sm->progcounter += 1);
+
+    }
+
+
+    return;
+}
 
 int SegmentListGeostationary::concurrentMinMaxMTG(SegmentListGeostationary *sm, const int &index)
 {
@@ -3231,6 +3886,12 @@ int SegmentListGeostationary::concurrentImageMTGNight(SegmentListGeostationary *
 {
     sm->CalculateImageMTGConcurrentNight(index);
     return(index);
+}
+
+QString SegmentListGeostationary::concurrentReadMTGfile(SegmentListGeostationary *sm, const QString &filename)
+{
+    sm->ReadConcurrentMTGfile(sm, filename);
+    return(filename);
 }
 
 

@@ -38,7 +38,7 @@ public:
     //bool ComposeImageHDFSerial(QFileInfo fileinfo, QVector<QString> spectrumvector, QVector<bool> inversevector);
     bool ComposeImageHDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector);
     bool ComposeImagenetCDFInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
-    bool ComposeImagenetCDFMTGInThread(QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
+    bool ComposeImagenetCDFMTGInThread(); //QStringList strlist, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
     bool ComposeImageXRITMSGInThread(QStringList strlistvis_ir, QStringList strlisthvr, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
 
     void displayMinMax();
@@ -55,10 +55,15 @@ public:
 
     void ComposeSegmentImageHDF(QFileInfo fileinfo, int channelindex, QVector<QString> spectrumvector, QVector<bool> inversevector );
     void ComposeSegmentImageHDFInThread(QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector );
+
     void ComposeSegmentImagenetCDFInThread();
-    void ComposeSegmentImagenetCDFMTGInThread();
+    void ComposeSegmentImagenetCDFMTGInThreadSerial();
     void ComposeSegmentImagenetCDFMTGInThread1();
+    void ComposeSegmentImagenetCDFMTGInThreadConcurrent();
+
+
     void ComposeSegmentImageXRITMSGInThreadConcurrent();
+
     void SetupContrastStretch(quint16 x1, quint16 y1, quint16 x2, quint16 y2);
     quint16 ContrastStretch(quint16 val);
     bool bActiveSegmentList;
@@ -122,6 +127,9 @@ public:
     QString geosatname;
     QString str_GeoSatellite;
 
+    int progcounter;
+
+
 private:
 
     void ComposeHRV();
@@ -148,6 +156,9 @@ private:
     static int concurrentImageMTG(SegmentListGeostationary *sm, const int &index);
     static int concurrentImageMTGNight(SegmentListGeostationary *sm, const int &index);
 
+    static QString concurrentReadMTGfile(SegmentListGeostationary *sm, const QString &filename);
+
+
     //static bool concurrentComposeImageXRIT(SegmentListGeostationary *sm, const QStringList files, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     static void concurrentReadFilelist(SegmentListGeostationary *sm, QString llFile);
     static void concurrentReadFilelistHimawari(SegmentListGeostationary *sm, QString llFile);
@@ -161,6 +172,8 @@ private:
                                     void *data, const size_t* dims, int ndims,
                                     int bits_per_sample, int components);
     int read_charls_compressed(const char* filename, const char* dataset_path,int ncid, int varid, uint8_t* data8);
+
+    static void ReadConcurrentMTGfile(SegmentListGeostationary *sm, const QString &filenamepath);
 
 
     void CalculateLonLat();
@@ -207,7 +220,6 @@ private:
 
     QElapsedTimer timer_charls;
     quint64 elapsed_charls;
-
 
 
 //    QVector<int> nbr_lines_MTG;

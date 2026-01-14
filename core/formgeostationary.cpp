@@ -1204,8 +1204,8 @@ void FormGeostationary::CreateGeoImagenetCDF(SegmentListGeostationary *sl, QStri
     //     filepattern = QString("OR_ABI-L1b-RadF-M????_G19_s") + filetiming_goes + QString("*.nc");
     else if((whichgeo == eGeoSatellite::GOES_18) && (type == "VIS_IR" || type == "VIS_IR Color"))
         filepattern = QString("OR_ABI-L1b-RadF-M????_G18_s") + filetiming_goes + QString("*.nc");
-    else if(whichgeo == eGeoSatellite::MET_12)
-        filepattern = QString("W_XX") + filetiming_mtg + QString("*.nc");
+    // else if(whichgeo == eGeoSatellite::MET_12)
+    //     filepattern = QString("W_XX") + filetiming_mtg + QString("*.nc");
     else
         return;
 
@@ -1297,7 +1297,7 @@ void FormGeostationary::CreateGeoImagenetCDFMTG(SegmentListGeostationary *sl, QS
         else
         {
             sl->setThreadParametersnetCDF(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
-            sl->ComposeImagenetCDFMTGInThread(llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
+            sl->ComposeImagenetCDFMTGInThread();//llVIS_IR, spectrumvector, inversevector, histogrammethod, pseudocolor);
             //sl->ComposeSegmentImagenetCDFMTGInThread1();
         }
     }

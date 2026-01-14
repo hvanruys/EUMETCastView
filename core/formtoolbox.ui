@@ -6440,7 +6440,7 @@
        <item>
         <widget class="QRadioButton" name="rdbPseudoColor">
          <property name="text">
-          <string>Pseudo True Color GOES-16/-18 ( C01 = B, C02 = R, C03 = G)</string>
+          <string>Pseudo True Color GOES-18/-19 ( C01 = B, C02 = R, C03 = G)</string>
          </property>
          <property name="autoExclusive">
           <bool>false</bool>
