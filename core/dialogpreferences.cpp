@@ -180,7 +180,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     if (opts.bFciDecomp == true)
     {
         ui->lblFciDecomp->setText("The FCIDECOMP plugin was found.");
-        ui->lblFciDecomp->setStyleSheet("QLabel { color: green; }");
+        ui->lblFciDecomp->setStyleSheet("QLabel { color: darkgreen; }");
     }
     else
     {

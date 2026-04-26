@@ -35,9 +35,9 @@ void moonCalc::CalcMoon(QDate selected, int geosatindex)
         for( int minutes = 0; minutes < 60; minutes += min)
         {
             timeindex = (hours * 6) + (minutes/min);
-//            double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes)/(24.0*60.0);
-            double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes-3)/(24.0*60.0) +
-                    static_cast<double>(50)/(24.0*60.0*60.0);
+            double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes)/(24.0*60.0);
+//            double dday =  static_cast<double>(day) + static_cast<double>(hours)/24.0 + static_cast<double>(minutes-3)/(24.0*60.0) +
+//                    static_cast<double>(50)/(24.0*60.0*60.0);
             double JD = CAADate::DateToJD(year, month, dday, true);
 
             double JDMoon = CAADynamicalTime::UTC2TT(JD);
@@ -70,7 +70,8 @@ void moonCalc::CalcMoon(QDate selected, int geosatindex)
             double HourAngleDegrees = MapToMinus180To180Range(CAACoordinateTransformation::HoursToDegrees(LHA));
             double DecLHA = sqrt(HourAngleDegrees * HourAngleDegrees + Equatorial.Y * Equatorial.Y);
 //            double parallax = 5.92 * sin(CAACoordinateTransformation::DegreesToRadians(DecLHA));
-            double parallax = 5.40 * sin(CAACoordinateTransformation::DegreesToRadians(DecLHA));
+//            double parallax = 5.40 * sin(CAACoordinateTransformation::DegreesToRadians(DecLHA));
+            double parallax = 6.9 * sin(CAACoordinateTransformation::DegreesToRadians(DecLHA));
             double deltaY = Equatorial.Y*parallax/DecLHA;
             double deltaX = HourAngleDegrees*parallax/DecLHA;
 

@@ -1564,10 +1564,8 @@ void FormImage::drawOverlays(QPainter *painter)
                 painter->drawText(0, 2 * font.pixelSize(), rowchosen[0] );
             }
 
-            if(slgeo->getGeoSatellite() == eGeoSatellite::H9)
+            if(slgeo->getGeoSatellite() == eGeoSatellite::H9 || slgeo->getGeoSatellite() == eGeoSatellite::MET_9)
                 this->OverlayGeostationaryH9(painter, slgeo);
-            // else if(slgeo->getGeoSatellite() == eGeoSatellite::MET_12)
-            //     this->OverlayGeostationaryFCI(painter, slgeo);
             else
                 this->OverlayGeostationary(painter, slgeo);
         }
@@ -2210,8 +2208,6 @@ void FormImage::OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary
     double lon_deg;
     int ret;
 
-    //qDebug() << "FormImage::OverlayGeostationaryH8";
-
     int geoindex = sl->getGeoSatelliteIndex();
     pixgeoConversion pixconv;
 
@@ -2371,7 +2367,7 @@ void FormImage::OverlayGeostationaryH9(QPainter *paint, SegmentListGeostationary
     moonCalc obj;
     float scale = 313.873;
 
-    QPen pen(Qt::yellow, 3);
+    QPen pen(Qt::yellow, 1);
     paint->setPen(pen);
     if(overlaymoon)
     {
