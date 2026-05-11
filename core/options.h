@@ -108,7 +108,7 @@ public:
     bool doLogging;
     bool doOpenGL;
 	struct tm utc;
-	QStringList tlelist;
+    QStringList tlelist;
 	QStringList catnbrlist;
     int zoomfactoravhrr;
     int zoomfactormeteosat;

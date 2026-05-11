@@ -165,7 +165,7 @@ void FormEphem::on_btnAdd_clicked()
 {
     QString fn = QFileDialog::getOpenFileName( this,
                                               tr("Select the tle file"),
-                                              ".",
+                                              QCoreApplication::applicationFilePath(),
                                               tr("Text files (*.txt *.tle)"));
 
     if ( !fn.isEmpty() )
@@ -1005,6 +1005,7 @@ void FormEphem::downloadTLE()
     ui->edtUpdateTLE->clear();
 
     ui->edtUpdateTLE->setPlainText("Start download \n");
+    qDebug() << "Number of tlesources = " << opts.tlesources.count();
     downloadmanager.append(opts.tlesources);
     QObject::connect(&downloadmanager, SIGNAL(finished(QString)), this, SLOT(tlefilesread(QString)));
     //QObject::connect(&downloadmanager, SIGNAL(progress(QString)), this, SLOT(showprogress(QString)));

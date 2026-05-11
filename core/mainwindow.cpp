@@ -299,8 +299,8 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i = 0; i < mainwindowthreadslist.count(); i++)
         qDebug() << mainwindowthreadslist.at(i)->currentThread()->currentThreadId();
 
-    if(!QFile::exists("weather.txt"))
-        formephem->downloadTLE();
+//    if(!QFile::exists("weather.tle"))
+//        formephem->downloadTLE();
 
     qDebug() << "DesktopLoacation     = " << QStandardPaths::standardLocations((QStandardPaths::DesktopLocation));
     qDebug() << "DocumentsLoacation   = " << QStandardPaths::standardLocations((QStandardPaths::DocumentsLocation));

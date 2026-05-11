@@ -45,8 +45,8 @@ void Options::Initialize()
     sattrackinimage=settings.value("/segments/sattrackinimage", false ).toBool();
 
     QStringList strl;
-    strl.append("weather.txt");
-    strl.append("resource.txt");
+    strl.append("weather.tle");
+    strl.append("resource.tle");
     tlelist = settings.value("/satellite/tlefiles", strl).value<QStringList>();
 
     QStringList catnbrlistcop;
@@ -380,15 +380,17 @@ void Options::checkStringListValues()
 
     if(tlesources.count() == 0)
     {
-        tlesources << "http://celestrak.org/NORAD/elements/weather.txt";
-        tlesources << "http://celestrak.org/NORAD/elements/resource.txt";
+        tlesources << "https://celestrak.org/NORAD/elements/gp.php?GROUP=weather&FORMAT=tle";
+        tlesources << "https://celestrak.org/NORAD/elements/gp.php?GROUP=resource&FORMAT=tle";
+        tlelist.clear();
+        tlelist << "weather.tle" << "resource.tle";
+    }
+    else {
+        for (const QString& s : tlesources) {
+            qDebug() << "From checkStringListValues :" << s;
+        }
     }
 
-    if(tlelist.count() == 0)
-    {
-        tlelist << "weather.txt";
-        tlelist << "resource.txt";
-    }
 
     //    if(ffmpeg_options.count() == 0)
     //    {

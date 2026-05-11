@@ -48,8 +48,10 @@
 #include <QTimer>
 #include <QDebug>
 #include <QDir>
+#include <qurlquery.h>
+#include <QApplication>
 
-#include <stdio.h>
+//#include <stdio.h>
 
 // https://celestrak.org/NORAD/elements/gp.php?GROUP=weather&FORMAT=tle
 
@@ -88,12 +90,17 @@ void DownloadManager::clearqueue()
 
 QString DownloadManager::saveFileName(const QUrl &url)
 {
-    QString path = url.path();
-    QString basename = QFileInfo(path).fileName();
-    if (basename.isEmpty())
-        basename = "download";
+    QString appDir = QCoreApplication::applicationDirPath();
+    QUrlQuery query(url);
 
-    return "./" + basename;
+    QString group  = query.queryItemValue("GROUP").toLower();  // "weather"
+    QString format = query.queryItemValue("FORMAT").toLower();  // "tle"
+
+    QString filename = group + "." + format;
+
+    qDebug() << "saving url file " << appDir << " " << filename;
+
+    return appDir + "/" + filename;
 }
 
 void DownloadManager::startNextDownload()
@@ -105,6 +112,7 @@ void DownloadManager::startNextDownload()
 
     QUrl url = downloadQueue.dequeue();
 
+    qDebug() << QString("Download from url = %1").arg(url.toEncoded().constData());
     QString filename = saveFileName(url);
 
     output.setFileName(filename);
