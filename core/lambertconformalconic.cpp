@@ -468,6 +468,22 @@ void LambertConformalConic::CreateMapFromGeostationary()
                         }
                     }
                 }
+                else if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
+                {
+                    // Use FCI-specific WGS-84 projection (matches setupGshhs overlay path)
+                    int save_row;
+                    if(pixconv.geocoord2pixcoordFCI(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, &col, &save_row) == 0)
+                    {
+                        picrow = 11136 - save_row;
+                        if(picrow >= 0 && picrow < imageptrs->ptrimageGeostationary->height())
+                        {
+                            scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
+                            rgbval = scanl[col];
+                            fb_painter.setPen(rgbval);
+                            fb_painter.drawPoint(i,j);
+                        }
+                    }
+                }
                 else
                 {
                     if(pixconv.geocoord2pixcoord(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, sl->COFF, sl->LOFF, sl->CFAC, sl->LFAC, &col, &row) == 0)
