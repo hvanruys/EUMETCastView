@@ -87,6 +87,8 @@ public:
 
     void ComposeGeoRGBRecipe(int recipe, QString tex);
     void ComposeGeoRGBRecipeInThread(int recipe);
+    void ComposeGeoRGBRecipeMTGInThread(int recipe);
+    static void doComposeGeoRGBRecipeMTG(SegmentListGeostationary *sm, int recipe);
     static void doComposeGeostationaryHDFInThread(SegmentListGeostationary *sm, QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector);
     static void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm);
     static void doComposeGeostationarynetCDFMTGInThread(SegmentListGeostationary *sm);

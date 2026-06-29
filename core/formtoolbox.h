@@ -156,6 +156,7 @@ signals:
     void overlaycorrection(int,int);
     void switchstackedwidget(int);
     void creatergbrecipe(int recipe);
+    void createfcirgbrecipe(int recipe);
     void colorValueRed(int red);
 
 
@@ -312,6 +313,7 @@ private slots:
 
     void on_cmbHistogramAVHRR_activated(int index);
     void on_btnRecipes_clicked();
+    void on_btnFCIRecipes_clicked();
     void on_btnCLAHE_RGBRecipe_clicked();
     void on_btnUpdateMERSIImage_clicked();
     void on_comboMERSIConfig_currentIndexChanged(int index);

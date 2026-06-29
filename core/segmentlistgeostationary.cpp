@@ -126,6 +126,11 @@ void SegmentListGeostationary::doComposeGeoRGBRecipe(SegmentListGeostationary *s
     sm->ComposeGeoRGBRecipeInThread(recipe);
 }
 
+void SegmentListGeostationary::doComposeGeoRGBRecipeMTG(SegmentListGeostationary *sm, int recipe)
+{
+    sm->ComposeGeoRGBRecipeMTGInThread(recipe);
+}
+
 SegmentListGeostationary::SegmentListGeostationary(QObject *parent, int geoindex) :
     QObject(parent)
 {
@@ -9640,4 +9645,279 @@ int SegmentListGeostationary::read_charls_compressed(const char* filename, const
 
 
     return NC_NOERR;
+}
+
+void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
+{
+    // FCI band names and their native resolutions
+    static const char* FCI_BANDS[16] = {
+        "vis_04", "vis_05", "vis_06", "vis_08", "vis_09",
+        "nir_13", "nir_16", "nir_22",
+        "ir_38", "wv_63", "wv_73", "ir_87", "ir_97", "ir_105", "ir_123", "ir_133"
+    };
+    static const int FCI_ROWS[16] = {
+        11136, 11136, 11136, 11136, 11136, 11136, 11136, 11136,
+        5568, 5568, 5568, 5568, 5568, 5568, 5568, 5568
+    };
+    // Solar irradiance (mW m-2 µm-1) at 1 AU, fallback values per solar band (indices 0-7)
+    static const float FCI_SOLAR_IRR[8] = {
+        1808.0f, 1844.0f, 1601.0f, 945.0f, 672.0f, 309.0f, 141.0f, 50.0f
+    };
+    // Central wavenumbers (cm-1) for IR bands (index 8-15 → offset 0-7)
+    static const double FCI_NU[8] = {
+        2631.6, 1587.3, 1369.9, 1149.4, 1030.9, 952.4, 813.0, 751.9
+    };
+    const double c1 = 1.19104e-5;
+    const double c2 = 1.43877;
+
+    (void)FCI_BANDS; // suppress unused warning; only FCI_ROWS and friends are used via bandIndex
+
+    const RGBRecipe& rec = imageptrs->fci_rgbrecipes.at(recipe);
+
+    // Collect unique bands needed by this recipe
+    QStringList uniqueBands;
+    QList<int> uniqueIdx;
+    for (int ci = 0; ci < 3; ci++) {
+        const RGBRecipeColor& col = rec.Colorvector.at(ci);
+        for (int k = 0; k < col.channels.size(); k++) {
+            if (!uniqueBands.contains(col.channels.at(k))) {
+                uniqueBands.append(col.channels.at(k));
+                uniqueIdx.append(col.spectral_channel_nbr.at(k));
+            }
+        }
+    }
+
+    // Use IR resolution (5568) if any IR band is required, else VIS (11136)
+    bool hasIR = false;
+    for (int idx : uniqueIdx)
+        if (idx >= 8) { hasIR = true; break; }
+    const int outRes = hasIR ? 5568 : 11136;
+    const long totalPix = (long)outRes * outRes;
+
+    int nBands = uniqueBands.size();
+    QVector<float*> bandBuf(nBands, nullptr);
+    for (int i = 0; i < nBands; i++) {
+        bandBuf[i] = new float[totalPix];
+        for (long p = 0; p < totalPix; p++) bandBuf[i][p] = FILL_VALUE_F;
+    }
+
+    progcounter = 0;
+    emit progressCounter(5);
+
+    QVector<float> bandScale(nBands, 1.0f);
+    QVector<float> bandOffset(nBands, 0.0f);
+    QVector<quint16> bandFill(nBands, 65535);
+    QVector<float> bandSolarIrr(nBands, 1.0f);
+    QVector<bool> bandMetaRead(nBands, false);
+
+    for (const QString& fname : segmentfilelist) {
+        if (!fname.contains("BODY")) continue;
+
+        QString network_path = this->getImagePath() + "/" + fname;
+        QString filePath = network_path;
+        if (opts.copyMTGfiles) {
+            QString localPath = QDir::tempPath() + "/" + QFileInfo(fname).fileName();
+            QFile::remove(localPath);
+            if (!QFile::copy(network_path, localPath)) {
+                qWarning() << "Failed to copy MTG file:" << network_path;
+                continue;
+            }
+            filePath = localPath;
+        }
+
+        QByteArray baFile = filePath.toUtf8();
+        const char* pncfile = baFile.constData();
+
+        int ncid;
+        if (nc_open(pncfile, NC_NOWRITE, &ncid) != NC_NOERR) {
+            qWarning() << "Cannot open:" << filePath;
+            if (opts.copyMTGfiles) QFile::remove(filePath);
+            continue;
+        }
+
+        for (int bi = 0; bi < nBands; bi++) {
+            int bandIndex = uniqueIdx.at(bi);
+            const QString& bandName = uniqueBands.at(bi);
+            bool isIR = (bandIndex >= 8);
+            int nativeRes = FCI_ROWS[bandIndex];
+
+            QString strmeasured = "/data/" + bandName + "/measured";
+            QByteArray baMeas = strmeasured.toLocal8Bit();
+            int grp_measured;
+            if (nc_inq_grp_full_ncid(ncid, baMeas.constData(), &grp_measured) != NC_NOERR) continue;
+
+            int varid;
+            if (nc_inq_varid(grp_measured, "effective_radiance", &varid) != NC_NOERR) continue;
+
+            if (!bandMetaRead.at(bi)) {
+                float sf = 1.0f, ao = 0.0f;
+                quint16 fv = 65535;
+                nc_get_att_float(grp_measured, varid, "scale_factor", &sf);
+                nc_get_att_float(grp_measured, varid, "add_offset", &ao);
+                nc_get_att_ushort(grp_measured, varid, "_FillValue", &fv);
+                bandScale[bi] = sf;
+                bandOffset[bi] = ao;
+                bandFill[bi] = fv;
+                if (!isIR) {
+                    float si = 0.0f;
+                    // solar_irradiance attribute (if present) is in same units as effective_radiance
+                    if (nc_get_att_float(grp_measured, varid, "solar_irradiance", &si) == NC_NOERR && si > 0.0f) {
+                        bandSolarIrr[bi] = si;
+                    } else {
+                        // Unit-independent fallback: solar_irr = 4095*sf*pi  →  reflectance = DN/4095
+                        bandSolarIrr[bi] = 4095.0f * sf * (float)M_PI;
+                    }
+                    qDebug() << QString("FCI solar_irradiance for %1 = %2 (sf=%3)").arg(bandName).arg(bandSolarIrr[bi]).arg(sf);
+                }
+                bandMetaRead[bi] = true;
+            }
+
+            ushort start_row = 0, end_row = 0, start_col = 0, end_col = 0;
+            int vid;
+            if (nc_inq_varid(grp_measured, "start_position_row",    &vid) != NC_NOERR) continue;
+            nc_get_var_ushort(grp_measured, vid, &start_row);
+            if (nc_inq_varid(grp_measured, "end_position_row",      &vid) != NC_NOERR) continue;
+            nc_get_var_ushort(grp_measured, vid, &end_row);
+            if (nc_inq_varid(grp_measured, "start_position_column", &vid) != NC_NOERR) continue;
+            nc_get_var_ushort(grp_measured, vid, &start_col);
+            if (nc_inq_varid(grp_measured, "end_position_column",   &vid) != NC_NOERR) continue;
+            nc_get_var_ushort(grp_measured, vid, &end_col);
+
+            int nRows = (int)end_row - (int)start_row + 1;
+            int nCols = (int)end_col - (int)start_col + 1;
+            if (nRows <= 0 || nCols <= 0) continue;
+
+            quint16* dnBuf = new quint16[(long)nRows * nCols];
+
+            QString strrad = "/data/" + bandName + "/measured/effective_radiance";
+            QByteArray baRad = strrad.toLocal8Bit();
+            int retval;
+            if (opts.bFciDecomp)
+                retval = nc_get_var_ushort(grp_measured, varid, dnBuf);
+            else
+                retval = read_charls_compressed_ushort(pncfile, baRad.constData(), grp_measured, varid, dnBuf);
+
+            if (retval != NC_NOERR) { delete[] dnBuf; continue; }
+
+            float sf = bandScale.at(bi);
+            float ao = bandOffset.at(bi);
+            quint16 fv = bandFill.at(bi);
+            float solarIrr = bandSolarIrr.at(bi);
+
+            for (int row = 0; row < nRows; row++) {
+                int abs_row = (int)start_row - 1 + row;
+                for (int col = 0; col < nCols; col++) {
+                    int abs_col = (int)start_col - 1 + col;
+                    quint16 dn = dnBuf[(long)row * nCols + col];
+                    if (dn == fv) continue;
+
+                    float L = (float)dn * sf + ao;
+                    if (L < 0.0f) continue;
+
+                    float physVal;
+                    if (isIR) {
+                        double nu = FCI_NU[bandIndex - 8];
+                        if (L <= 0.0f) continue;
+                        double nu3 = nu * nu * nu;
+                        physVal = (float)(c2 * nu / log(1.0 + c1 * nu3 / (double)L));
+                    } else {
+                        physVal = (float)(M_PI * (double)L / (double)solarIrr);
+                    }
+
+                    if (nativeRes == outRes) {
+                        long i_out = (long)abs_row * outRes + abs_col;
+                        if (i_out >= 0 && i_out < totalPix)
+                            bandBuf[bi][i_out] = physVal;
+                    } else {
+                        // VIS(11136) → output IR(5568): subsample 2:1
+                        int out_row = abs_row / 2;
+                        int out_col = abs_col / 2;
+                        long i_out = (long)out_row * outRes + out_col;
+                        if (i_out >= 0 && i_out < totalPix && bandBuf[bi][i_out] == FILL_VALUE_F)
+                            bandBuf[bi][i_out] = physVal;
+                    }
+                }
+            }
+            delete[] dnBuf;
+        }
+
+        nc_close(ncid);
+        if (opts.copyMTGfiles) QFile::remove(filePath);
+    }
+
+    emit progressCounter(70);
+
+    // Combine bands into R/G/B result channels per recipe formula
+    float* result[3];
+    for (int ci = 0; ci < 3; ci++) {
+        result[ci] = new float[totalPix];
+        for (long p = 0; p < totalPix; p++) result[ci][p] = FILL_VALUE_F;
+    }
+
+    for (int ci = 0; ci < 3; ci++) {
+        const RGBRecipeColor& col = rec.Colorvector.at(ci);
+        for (int k = 0; k < col.channels.size(); k++) {
+            int bi = uniqueBands.indexOf(col.channels.at(k));
+            bool subtract = col.subtract.at(k);
+            const float* src = bandBuf[bi];
+            for (long p = 0; p < totalPix; p++) {
+                if (src[p] == FILL_VALUE_F) {
+                    result[ci][p] = FILL_VALUE_F;
+                    continue;
+                }
+                if (result[ci][p] == FILL_VALUE_F)
+                    result[ci][p] = subtract ? -src[p] : src[p];
+                else {
+                    if (subtract) result[ci][p] -= src[p];
+                    else          result[ci][p] += src[p];
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < nBands; i++) { delete[] bandBuf[i]; bandBuf[i] = nullptr; }
+
+    emit progressCounter(80);
+
+    // Set navigation parameters
+    this->COFF = (outRes == 11136) ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+    this->LOFF = (outRes == 11136) ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+    this->CFAC = (outRes == 11136) ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+    this->LFAC = (outRes == 11136) ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
+
+    imageptrs->InitializeImageGeostationary(outRes, outRes);
+
+    for (int line = 0; line < outRes; line++) {
+        QRgb* row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(outRes - 1 - line);
+        for (int pixelx = 0; pixelx < outRes; pixelx++) {
+            long i_pix = (long)line * outRes + pixelx;
+            int r, g, b;
+            if (result[0][i_pix] == FILL_VALUE_F ||
+                result[1][i_pix] == FILL_VALUE_F ||
+                result[2][i_pix] == FILL_VALUE_F) {
+                r = g = b = 0;
+            } else {
+                int rgb[3];
+                for (int ci = 0; ci < 3; ci++) {
+                    const RGBRecipeColor& col = rec.Colorvector.at(ci);
+                    float from = col.rangefrom;
+                    float to   = col.rangeto;
+                    float val  = result[ci][i_pix];
+                    if (val < from) val = from;
+                    if (val > to)   val = to;
+                    float norm = (to != from) ? (val - from) / (to - from) : 0.0f;
+                    float gv = 255.0f * powf(norm, 1.0f / col.gamma);
+                    if (!col.inverse.isEmpty() && col.inverse.at(0)) gv = 255.0f - gv;
+                    rgb[ci] = (int)qBound(0.0f, gv, 255.0f);
+                }
+                r = rgb[0]; g = rgb[1]; b = rgb[2];
+            }
+            row_col[pixelx] = qRgb(r, g, b);
+        }
+    }
+
+    for (int ci = 0; ci < 3; ci++) { delete[] result[ci]; result[ci] = nullptr; }
+
+    emit signalcomposefinished(kindofimage, geoindex);
+    emit progressCounter(100);
 }

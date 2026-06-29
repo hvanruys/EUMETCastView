@@ -471,6 +471,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         QListWidgetItem* item = new QListWidgetItem(imageptrs->rgbrecipes.at(i).Name, ui->lstRGB);
     }
 
+    for(int i = 0; i < imageptrs->fci_rgbrecipes.count(); i++)
+    {
+        new QListWidgetItem(imageptrs->fci_rgbrecipes.at(i).Name, ui->lstFCIRGB);
+    }
+
     rowchosen.clear();
 
     opts.globalChangeFonts(this, opts.fontsize);
@@ -2436,6 +2441,43 @@ void FormToolbox::on_btnRecipes_clicked()
     QApplication::restoreOverrideCursor();
 
 
+}
+
+void FormToolbox::on_btnFCIRecipes_clicked()
+{
+    if(!checkSegmentDateTime())
+        return;
+
+    if(ui->lstFCIRGB->currentRow() == -1)
+        return;
+
+    if(geoindex != opts.GetGeoIndex("MET_12"))
+    {
+        QMessageBox msgBox;
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setText("FCI recipes are only available for Meteosat-12 (MTG)");
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
+        return;
+    }
+
+    imageptrs->ResetPtrImage();
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    ui->pbProgress->reset();
+    ui->pbProgress->setMaximum(100);
+
+    segs->seglgeo[geoindex]->areatype = 0;
+    segs->seglgeo[geoindex]->setKindofImage("VIS_IR");
+    formimage->setKindOfImage("VIS_IR");
+
+    setToolboxButtons(false);
+    emit switchstackedwidget(3);
+    emit createfcirgbrecipe(ui->lstFCIRGB->currentRow());
+    formimage->displayImage(IMAGE_GEOSTATIONARY, true);
+    setToolboxButtons(true);
+
+    QApplication::restoreOverrideCursor();
 }
 
 bool FormToolbox::checkSegmentDateTime()

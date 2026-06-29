@@ -97,6 +97,8 @@ public:
     void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine);
     void SetupRGBrecipes();
     int GetSpectralChannelNbr(QString channel);
+    void SetupFCIRGBrecipes();
+    int GetFCIBandIndex(const QString& bandname);
 
 
     QImage *ptrimagecomp_ch[5];
@@ -218,6 +220,7 @@ public:
     QScopedArrayPointer<float> data2;		/* array of image data of length n_bands * n_lines * n_columns */
 
     QList<RGBRecipe> rgbrecipes;
+    QList<RGBRecipe> fci_rgbrecipes;
 
 
 private:

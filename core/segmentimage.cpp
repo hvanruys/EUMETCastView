@@ -69,6 +69,7 @@ SegmentImage::SegmentImage()
         fillvalue[i] = 0;
     }
     SetupRGBrecipes();
+    SetupFCIRGBrecipes();
 }
 
 //void SegmentImage::SetupRGBrecipes()
@@ -774,6 +775,238 @@ void SegmentImage::SetupRGBrecipes()
         }
     }
 
+}
+
+int SegmentImage::GetFCIBandIndex(const QString& bandname)
+{
+    // Returns 0-15 for the 16 FCI bands, or -1 if not found
+    static const char* names[16] = {
+        "vis_04", "vis_05", "vis_06", "vis_08", "vis_09",
+        "nir_13", "nir_16", "nir_22",
+        "ir_38", "wv_63", "wv_73", "ir_87", "ir_97", "ir_105", "ir_123", "ir_133"
+    };
+    for (int i = 0; i < 16; i++)
+        if (bandname == names[i]) return i;
+    return -1;
+}
+
+// Helper: build one RGBRecipeColor for an FCI band
+// subtract=true means this band is subtracted from the previous
+static RGBRecipeColor makeFCIColor(const QString& band, int bandIdx,
+                                   bool subtract, bool inverse,
+                                   float from, float to, float gamma)
+{
+    RGBRecipeColor c;
+    c.channels.append(band);
+    c.spectral_channel_nbr.append(bandIdx);
+    c.subtract.append(false);   // first entry is never subtracted from itself
+    c.inverse.append(inverse);
+    c.reflective.append(false);
+    c.units = SEVIRI_UNIT_BT;
+    c.rangefrom = from;
+    c.rangeto   = to;
+    c.gamma     = gamma;
+    c.dimension = "K";
+    return c;
+}
+
+// Append a second band to an existing RGBRecipeColor (for difference channels)
+static void appendFCIBand(RGBRecipeColor& c, const QString& band, int bandIdx, bool subtract)
+{
+    c.channels.append(band);
+    c.spectral_channel_nbr.append(bandIdx);
+    c.subtract.append(subtract);
+    c.inverse.append(false);
+    c.reflective.append(false);
+}
+
+void SegmentImage::SetupFCIRGBrecipes()
+{
+    // Band indices (0-15): vis_04(0) vis_05(1) vis_06(2) vis_08(3) vis_09(4)
+    //                      nir_13(5) nir_16(6) nir_22(7)
+    //                      ir_38(8) wv_63(9) wv_73(10) ir_87(11) ir_97(12)
+    //                      ir_105(13) ir_123(14) ir_133(15)
+
+    // 0 - Airmass RGB
+    {
+        RGBRecipe r;
+        r.Name = "FCI Airmass RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("wv_63", 9, false, false, -25.0f, 0.0f, 1.0f);
+        appendFCIBand(R, "wv_73", 10, true);
+        RGBRecipeColor G = makeFCIColor("ir_97", 12, false, false, -40.0f, 5.0f, 1.0f);
+        appendFCIBand(G, "ir_105", 13, true);
+        RGBRecipeColor B = makeFCIColor("wv_63", 9, false, true, 208.0f, 243.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 1 - Dust RGB
+    {
+        RGBRecipe r;
+        r.Name = "FCI Dust RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("ir_123", 14, false, false, -4.0f, 2.0f, 1.0f);
+        appendFCIBand(R, "ir_105", 13, true);
+        RGBRecipeColor G = makeFCIColor("ir_105", 13, false, false, 0.0f, 15.0f, 2.5f);
+        appendFCIBand(G, "ir_87", 11, true);
+        RGBRecipeColor B = makeFCIColor("ir_105", 13, false, false, 261.0f, 289.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 2 - 24h Microphysics RGB
+    {
+        RGBRecipe r;
+        r.Name = "FCI 24h Microphysics RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("ir_123", 14, false, false, -4.0f, 2.0f, 1.0f);
+        appendFCIBand(R, "ir_105", 13, true);
+        RGBRecipeColor G = makeFCIColor("ir_105", 13, false, false, 0.0f, 6.0f, 1.2f);
+        appendFCIBand(G, "ir_87", 11, true);
+        RGBRecipeColor B = makeFCIColor("ir_105", 13, false, false, 248.0f, 303.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 3 - Ash RGB
+    {
+        RGBRecipe r;
+        r.Name = "FCI Ash RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("ir_123", 14, false, false, -4.0f, 2.0f, 1.0f);
+        appendFCIBand(R, "ir_105", 13, true);
+        RGBRecipeColor G = makeFCIColor("ir_105", 13, false, false, -4.0f, 5.0f, 1.0f);
+        appendFCIBand(G, "ir_87", 11, true);
+        RGBRecipeColor B = makeFCIColor("ir_105", 13, false, false, 243.0f, 303.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 4 - Day Severe Storms RGB
+    // R: wv_63-wv_73 (BT diff K), G: ir_38-ir_105 (BT diff K), B: nir_16-vis_06 (reflectance diff)
+    {
+        RGBRecipe r;
+        r.Name = "FCI Day Severe Storms RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("wv_63", 9, false, false, -30.0f, 0.0f, 1.0f);
+        appendFCIBand(R, "wv_73", 10, true);
+        RGBRecipeColor G = makeFCIColor("ir_38", 8, false, false, 0.0f, 55.0f, 0.5f);
+        appendFCIBand(G, "ir_105", 13, true);
+        RGBRecipeColor B = makeFCIColor("nir_16", 6, false, false, -0.7f, 0.2f, 1.0f);
+        appendFCIBand(B, "vis_06", 2, true);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 5 - Natural Colors RGB
+    // R: nir_16 (refl), G: vis_08 (refl), B: vis_06 (refl)
+    // EUMETSAT standard: [0, 1.0] all channels, gamma 1.8
+    {
+        RGBRecipe r;
+        r.Name = "FCI Natural Colors RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("nir_16", 6, false, false, 0.0f, 1.0f, 1.8f);
+        RGBRecipeColor G = makeFCIColor("vis_08", 3, false, false, 0.0f, 1.0f, 1.8f);
+        RGBRecipeColor B = makeFCIColor("vis_06", 2, false, false, 0.0f, 1.0f, 1.8f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 6 - Snow RGB
+    // R: vis_08 (refl), G: nir_16 (refl), B: ir_38 (solar refl approx)
+    {
+        RGBRecipe r;
+        r.Name = "FCI Snow RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("vis_08", 3, false, false, 0.0f, 1.0f, 1.7f);
+        RGBRecipeColor G = makeFCIColor("nir_16", 6, false, false, 0.0f, 0.7f, 1.7f);
+        RGBRecipeColor B = makeFCIColor("ir_38",  8, false, false, 0.0f, 0.3f, 1.7f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 7 - Cloud Phase RGB
+    // R: nir_16 (refl), G: nir_22 (refl), B: vis_06 (refl)
+    {
+        RGBRecipe r;
+        r.Name = "FCI Cloud Phase RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("nir_16", 6, false, false, 0.0f, 0.5f, 1.0f);
+        RGBRecipeColor G = makeFCIColor("nir_22", 7, false, false, 0.0f, 0.5f, 1.0f);
+        RGBRecipeColor B = makeFCIColor("vis_06", 2, false, false, 0.0f, 1.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 8 - Night Microphysics RGB
+    {
+        RGBRecipe r;
+        r.Name = "FCI Night Microphysics RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("ir_123", 14, false, false, -4.0f, 2.0f, 1.0f);
+        appendFCIBand(R, "ir_105", 13, true);
+        RGBRecipeColor G = makeFCIColor("ir_105", 13, false, false, 0.0f, 10.0f, 1.0f);
+        appendFCIBand(G, "ir_38", 8, true);
+        RGBRecipeColor B = makeFCIColor("ir_105", 13, false, false, 243.0f, 293.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 9 - Night Fog RGB (same channels as Night Microphysics, different G stretch)
+    {
+        RGBRecipe r;
+        r.Name = "FCI Night Fog RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("ir_123", 14, false, false, -4.0f, 2.0f, 1.0f);
+        appendFCIBand(R, "ir_105", 13, true);
+        RGBRecipeColor G = makeFCIColor("ir_105", 13, false, false, 0.0f, 6.0f, 2.0f);
+        appendFCIBand(G, "ir_38", 8, true);
+        RGBRecipeColor B = makeFCIColor("ir_105", 13, false, false, 243.0f, 293.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 10 - True Color RGB
+    // R: vis_06 (0.635 µm red), G: vis_05 (0.51 µm green), B: vis_04 (0.44 µm blue)
+    {
+        RGBRecipe r;
+        r.Name = "FCI True Color RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("vis_06", 2, false, false, 0.0f, 1.0f, 2.2f);
+        RGBRecipeColor G = makeFCIColor("vis_05", 1, false, false, 0.0f, 1.0f, 2.2f);
+        RGBRecipeColor B = makeFCIColor("vis_04", 0, false, false, 0.0f, 1.0f, 2.2f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 11 - Natural Colors Enhanced RGB
+    // Same channels as Natural Colors but tighter ranges to stretch land/sea contrast.
+    // Bright clouds clip to white; land features are spread across more of the display range.
+    {
+        RGBRecipe r;
+        r.Name = "FCI Natural Colors Enhanced";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("nir_16", 6, false, false, 0.0f, 0.7f, 1.8f);
+        RGBRecipeColor G = makeFCIColor("vis_08", 3, false, false, 0.0f, 0.6f, 1.8f);
+        RGBRecipeColor B = makeFCIColor("vis_06", 2, false, false, 0.0f, 0.5f, 1.8f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 12 - True Color Enhanced RGB
+    // Tighter range clips the brightest 30 % (clouds still white due to gamma), spreads
+    // the land portion further across the 0-255 display range.
+    {
+        RGBRecipe r;
+        r.Name = "FCI True Color Enhanced";
+        r.needsza = false;
+        RGBRecipeColor R = makeFCIColor("vis_06", 2, false, false, 0.0f, 0.7f, 2.2f);
+        RGBRecipeColor G = makeFCIColor("vis_05", 1, false, false, 0.0f, 0.7f, 2.2f);
+        RGBRecipeColor B = makeFCIColor("vis_04", 0, false, false, 0.0f, 0.7f, 2.2f);
+        r.Colorvector << R << G << B;
+        fci_rgbrecipes.append(r);
+    }
 }
 
 int SegmentImage::GetSpectralChannelNbr(QString channel)

@@ -181,6 +181,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( formtoolbox, SIGNAL(getgeosatchannel(QString,QVector<QString>,QVector<bool>,int,bool)), formgeostationary, SLOT(slotCreateGeoImage(QString,QVector<QString>,QVector<bool>,int,bool)));
     connect( formtoolbox, SIGNAL(switchstackedwidget(int)), this, SLOT(slotSwitchStackedWindow(int)));
     connect( formtoolbox, SIGNAL(creatergbrecipe(int)), formgeostationary, SLOT(slotCreateRGBrecipe(int)));
+    connect( formtoolbox, SIGNAL(createfcirgbrecipe(int)), formgeostationary, SLOT(slotCreateFCIRGBrecipe(int)));
 
     connect( formgeostationary, SIGNAL(enabletoolboxbuttons(bool)), formtoolbox, SLOT(setToolboxButtons(bool)));
 

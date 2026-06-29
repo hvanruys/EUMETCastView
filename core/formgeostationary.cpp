@@ -1542,3 +1542,37 @@ void FormGeostationary::slotCreateRGBrecipe(int recipe)
 
 //    return fResult;
 //  }
+
+void FormGeostationary::slotCreateFCIRGBrecipe(int recipe)
+{
+    int geoindex = opts.GetGeoIndex("MET_12");
+    if (geoindex < 0) return;
+
+    QList<QTreeWidgetItem*> selected = geotreewidgetlist.at(geoindex)->selectedItems();
+    if (selected.isEmpty()) {
+        QMessageBox::warning(this, "FCI Recipe", "Please select a date/time in the MTG/FCI tab first.");
+        return;
+    }
+
+    QTreeWidgetItem* it = selected.at(0);
+    QString tex  = it->text(0);          // "2024-01-01 11:00"
+    QString tex1 = it->text(1);          // filenbr as string
+    int filenbr = tex1.toInt();
+
+    SegmentListGeostationary* sl = setActiveSegmentList(geoindex);
+    sl->setFileDateString(tex.mid(0,4) + tex.mid(5,2) + tex.mid(8,2) + tex.mid(11,2) + tex.mid(14,2));
+    sl->setKindofImage("VIS_IR");
+
+    QStringList llVIS_IR = this->getGeostationarySegmentsMTG(geoindex, "VIS_IR", sl->getImagePath(), filenbr);
+    if (llVIS_IR.isEmpty()) {
+        QMessageBox::warning(this, "FCI Recipe", "No FCI segments found for the selected time slot.");
+        return;
+    }
+
+    QVector<QString> dummySpectrum = { "", "", "", "" };
+    QVector<bool>    dummyInverse  = { false, false, false, false };
+    sl->setThreadParametersnetCDF(llVIS_IR, dummySpectrum, dummyInverse, CMB_HISTO_NONE_95, false);
+
+    formtoolbox->setProgressMaximum(100);
+    sl->ComposeGeoRGBRecipeMTGInThread(recipe);
+}

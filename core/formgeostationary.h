@@ -65,6 +65,7 @@ public slots:
     void PopulateTree(QDate seldate);
     void slotCreateGeoImage(QString type, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod, bool pseudocolor);
     void slotCreateRGBrecipe(int recipe);
+    void slotCreateFCIRGBrecipe(int recipe);
 
 private slots:
     void ontreeWidgetitemClicked(QTreeWidgetItem *item, int column);
