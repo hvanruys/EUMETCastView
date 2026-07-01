@@ -48,6 +48,20 @@ for cmd in cmake qmake6; do
     fi
 done
 
+# These seed data files are external, per-machine data (see CLAUDE.md's
+# "External data requirements" section) — they are not produced by this
+# repo's build, so check for them up front rather than discovering a missing
+# one via a bare "cp: cannot stat" error after a full Release rebuild.
+for seed_src in "$BIN_DIR/gshhs2_3_7" "$BIN_DIR/weather.tle" "$BIN_DIR/resource.tle" \
+                "$BIN_DIR/GeoSatellites.ini" "$BIN_DIR/POI.ini"; do
+    if [ ! -e "$seed_src" ]; then
+        echo "Missing seed data file: $seed_src" >&2
+        echo "  This is external, per-machine data not produced by this repo's" >&2
+        echo "  build; see CLAUDE.md's \"External data requirements\" section." >&2
+        missing=1
+    fi
+done
+
 if [ "$missing" -ne 0 ]; then
     echo "One or more prerequisites are missing; see above. Aborting." >&2
     exit 1
@@ -96,6 +110,14 @@ else
     echo "Warning: $BIN_DIR/libh5fcidecomp.so not found; FCIDECOMP support will be unavailable in the AppImage." >&2
 fi
 
+# GeoSatellites.ini and POI.ini are generic, per-satellite/projection
+# metadata with no personal paths (confirmed via grep for /home/hugo), and
+# GeoSatellites.ini has no code-level fallback if absent: Options::InitializeGeo()
+# silently ends up with zero geostationary satellites configured. By
+# contrast, core/EUMETCastView.ini is deliberately NOT bundled here — it
+# holds this machine's real absolute data paths (NFS mounts, /home/hugo/...
+# directories), and Options has working relative-path defaults without it.
+# Do not add EUMETCastView.ini to this seed dir.
 SEED="$APPDIR/usr/share/EUMETCastView/seed"
 cp -r "$BIN_DIR/gshhs2_3_7" "$SEED/gshhs2_3_7"
 cp -r "$REPO_ROOT/core/images" "$SEED/images"
