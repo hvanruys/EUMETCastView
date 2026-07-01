@@ -240,3 +240,35 @@ directly to the AppDir root (`$APPDIR/gshhs2_3_7`, `$APPDIR/images`) at
 build time instead of into the CWD-seed dir, and
 `eumetcastview-start.sh` no longer seeds them into the CWD. The other four
 files continue to be seeded into the CWD exactly as originally designed.
+
+`EUMETCastVideo` (spawned by `EUMETCastView` via `processmanager.cpp` as the
+relative path `./EUMETCastVideo`, inheriting the parent's CWD) has its own
+independent GSHHS loader in `video/gshhsdata.cpp` with no `APPDIR`
+awareness — it does a plain CWD-relative lookup for
+`opts.videogshhsoverlayfile1/2/3` (default `gshhs2_3_7/gshhs_h.b` etc.,
+`options.cpp:278-280`). Since `gshhs2_3_7/` is no longer CWD-seeded,
+`eumetcastview-start.sh` now also creates `./gshhs2_3_7` as a symlink to the
+AppDir-root copy (`ln -sfn "$HERE/../../gshhs2_3_7" ./gshhs2_3_7`, refreshed
+unconditionally every launch since it's cheap and the target AppImage mount
+path differs per invocation — an earlier `[ -e ... ] ||`-guarded version was
+found in review to `exit 1` via `set -e` on every second launch from the
+same directory, once the first launch's symlink target had gone stale).
+
+## Known limitation: "Update TLE" writes to the wrong location when packaged
+
+Not fixed as part of this work (out of scope — would require a C++ change,
+not just packaging): `DownloadManager::saveFileName()`
+(`core/downloadmanager.cpp:93`) saves downloaded `weather.tle`/
+`resource.tle` to `QCoreApplication::applicationDirPath() + "/" + filename`,
+while the TLE reader (`core/satellite.cpp:583`, `QFile file(*it)`) opens
+them relative to the CWD. In a normal dev run these often coincide (e.g.
+running `./EUMETCastView` from within `bin/`), so this is easy to miss. In
+the packaged AppImage, `applicationDirPath()` resolves to `$APPDIR/usr/bin`
+(the read-only/ephemeral mount), which is not the CWD the wrapper script
+seeds and the reader consumes — so clicking "Update TLE" will silently fail
+to update the file the app actually reads. This is a pre-existing bug in
+`DownloadManager`, not something introduced by this packaging work, and
+affects the app outside the AppImage too whenever CWD and
+`applicationDirPath()` diverge; it's flagged here rather than fixed since
+fixing it means changing `core/downloadmanager.cpp`, not the packaging
+scripts.
