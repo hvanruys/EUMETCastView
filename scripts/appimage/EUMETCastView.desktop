@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=EUMETCastView
+Comment=Viewer for EUMETCast polar and geostationary satellite imagery
+Exec=eumetcastview-start %F
+Icon=EUMETCastView
+Categories=Science;Education;
+Terminal=false

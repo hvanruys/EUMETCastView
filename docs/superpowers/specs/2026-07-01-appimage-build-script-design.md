@@ -79,16 +79,16 @@ present on this machine (`~/AppImages/linuxdeploy-x86_64.AppImage`,
 
 ```
 AppDir/
+  gshhs2_3_7/                    # read via $APPDIR/gshhs2_3_7/... — see "Post-implementation correction"
+  images/                        # read via $APPDIR/images/... — see "Post-implementation correction"
   usr/bin/EUMETCastView          # real GUI binary — passed to linuxdeploy --executable
   usr/bin/EUMETCastVideo         # real video binary — passed to linuxdeploy --executable
   usr/bin/eumetcastview-start    # wrapper script; this is the desktop file's Exec target
   usr/lib/hdf5/plugin/libh5fcidecomp.so
   usr/share/applications/EUMETCastView.desktop     # Exec=eumetcastview-start %F
   usr/share/icons/hicolor/48x48/apps/EUMETCastView.png
-  usr/share/EUMETCastView/seed/gshhs2_3_7/         # auto-seeded into CWD if missing
   usr/share/EUMETCastView/seed/weather.tle         # auto-seeded into CWD if missing
   usr/share/EUMETCastView/seed/resource.tle        # auto-seeded into CWD if missing
-  usr/share/EUMETCastView/seed/images/             # auto-seeded into CWD if missing
   usr/share/EUMETCastView/seed/GeoSatellites.ini   # auto-seeded into CWD if missing
   usr/share/EUMETCastView/seed/POI.ini             # auto-seeded into CWD if missing
 ```
@@ -97,7 +97,9 @@ AppDir/
 `Options`'s built-in relative-path defaults are sufficient once the seed data
 exists. `GeoSatellites.ini` and `POI.ini` *are* bundled, from `bin/` (the
 generic, personal-path-free versions), since geostationary satellite support
-has no fallback without them.
+has no fallback without them. `gshhs2_3_7/` and `images/` are bundled at the
+AppDir root, not CWD-seeded — see "Post-implementation correction" below for
+why they're handled differently from the other four.
 
 ## Script flow (`scripts/build-appimage.sh`)
 
@@ -119,14 +121,17 @@ has no fallback without them.
    - Copy the two binaries into `usr/bin/`.
    - Write `usr/bin/eumetcastview-start` (see below), `chmod +x`.
    - Copy `bin/libh5fcidecomp.so` into `usr/lib/hdf5/plugin/`.
-   - Generate a corrected `.desktop` file (the checked-in
+   - Copy the pre-committed corrected `.desktop` file from
+     `scripts/appimage/EUMETCastView.desktop` (the checked-in top-level
      `EUMETCastView.desktop` has `Exec=AppRun %F`, invalid for linuxdeploy;
-     the script writes its own with `Exec=eumetcastview-start %F`,
+     the committed replacement uses `Exec=eumetcastview-start %F`,
      `Icon=EUMETCastView`, `Categories=Science;Education;`).
    - Copy `Globe_48x48.png` to the icon path (as `EUMETCastView.png`).
-   - Copy `bin/gshhs2_3_7/`, `bin/weather.tle`, `bin/resource.tle`,
-     `bin/GeoSatellites.ini`, `bin/POI.ini`, and `core/images/` into
-     `usr/share/EUMETCastView/seed/`.
+   - Copy `bin/gshhs2_3_7/` and `core/images/` directly to the AppDir root
+     (`AppDir/gshhs2_3_7`, `AppDir/images`) — see "Post-implementation
+     correction" below for why these two don't go in the seed dir.
+   - Copy `bin/weather.tle`, `bin/resource.tle`, `bin/GeoSatellites.ini`,
+     and `bin/POI.ini` into `usr/share/EUMETCastView/seed/`.
 6. Run `linuxdeploy` with `--appdir AppDir --executable usr/bin/EUMETCastView
    --executable usr/bin/EUMETCastVideo --desktop-file <generated> --icon-file
    <icon> --plugin qt`, using `--appimage-extract-and-run` to avoid FUSE
@@ -149,19 +154,20 @@ set -e
 HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 SEED="$HERE/../share/EUMETCastView/seed"
 
-[ -d ./gshhs2_3_7 ]   || cp -r "$SEED/gshhs2_3_7" ./gshhs2_3_7
-[ -d ./images ]       || cp -r "$SEED/images" ./images
-[ -f ./weather.tle ]  || cp "$SEED/weather.tle" ./weather.tle
-[ -f ./resource.tle ] || cp "$SEED/resource.tle" ./resource.tle
+[ -f ./weather.tle ]       || cp "$SEED/weather.tle" ./weather.tle
+[ -f ./resource.tle ]      || cp "$SEED/resource.tle" ./resource.tle
 [ -f ./GeoSatellites.ini ] || cp "$SEED/GeoSatellites.ini" ./GeoSatellites.ini
-[ -f ./POI.ini ] || cp "$SEED/POI.ini" ./POI.ini
-[ -x ./EUMETCastVideo ] || cp "$HERE/EUMETCastVideo" ./EUMETCastVideo
+[ -f ./POI.ini ]           || cp "$SEED/POI.ini" ./POI.ini
+[ -x ./EUMETCastVideo ]    || cp "$HERE/EUMETCastVideo" ./EUMETCastVideo
 
 : "${HDF5_PLUGIN_PATH:=$HERE/../lib/hdf5/plugin}"
 export HDF5_PLUGIN_PATH
 
 exec "$HERE/EUMETCastView" "$@"
 ```
+
+`gshhs2_3_7/` and `images/` are deliberately absent from this script — see
+"Post-implementation correction" below.
 
 ## Error handling
 
@@ -178,10 +184,14 @@ exec "$HERE/EUMETCastView" "$@"
 - Run the script end to end on this machine; confirm
   `EUMETCastView-x86_64.AppImage` is produced.
 - `./EUMETCastView-x86_64.AppImage --appimage-extract-and-run` (or direct
-  execution) from an empty scratch directory; confirm `gshhs2_3_7/`,
-  `images/`, `weather.tle`, `resource.tle`, `GeoSatellites.ini`, `POI.ini`,
-  and `EUMETCastVideo` get seeded into that directory on first launch, and
-  the GUI starts.
+  execution) from an empty scratch directory; confirm `weather.tle`,
+  `resource.tle`, `GeoSatellites.ini`, `POI.ini`, and `EUMETCastVideo` get
+  seeded into that directory on first launch, and the GUI starts.
+- Confirm GSHHS coastlines and background/skybox images load correctly
+  (no "Could not find file .../gshhs2_3_7/..." or "could not load map" in
+  the debug log) — these are read from `$APPDIR`, not the CWD, so they
+  should NOT appear in the scratch directory's file listing; see
+  "Post-implementation correction" below.
 - Confirm the geostationary satellite list (MET-9/10/11, MET-12, GOES,
   Himawari, FY-2H/G, GOMS3) is populated on first launch — i.e. that seeding
   `GeoSatellites.ini` actually prevented the empty-list case described above.
@@ -192,3 +202,73 @@ exec "$HERE/EUMETCastView" "$@"
 - Confirm `H5Zfilter_avail(32018)` reports the FCIDECOMP filter available
   (via the existing debug log line in `mainwindow.cpp`), showing
   `HDF5_PLUGIN_PATH` took effect.
+
+## Post-implementation correction
+
+The "Background / constraints discovered" section above states that all of
+`AVHRRSatellite`/`Options` config resolution is CWD-relative. During Task 7's
+real runtime verification — actually launching the packaged AppImage, both
+via `--appimage-extract-and-run` and via FUSE mount — this turned out to be
+only partially true.
+
+`Options` (`core/options.cpp:265-271`) reads the `APPDIR` environment
+variable. Every AppImage runtime sets `APPDIR` automatically for any process
+it launches — this is not something the wrapper script does; it happens
+regardless. When `appdir_env` is non-empty, `gshhsdata.cpp:89-93`,
+`mainwindow.cpp:48`, `globe.cpp:44`, `dialogpreferences.cpp:551,563`, and
+`skybox.cpp:68-73` all resolve their relative-path defaults (GSHHS files
+under `./gshhs2_3_7/`, background maps `./images/Topography.jpg` and
+`./images/NE2_50M_SR_W_4096.jpg`, and skybox textures
+`./images/ulukai/corona_*.png`) as `$APPDIR/<relative-path>` instead of
+relative to the CWD. Since `APPDIR` is always set for a packaged-AppImage
+launch, this path is always taken in that context — the opposite of what was
+assumed above for these two items. The observed symptom was a debug log
+showing `gshhs: Could not find file /tmp/.mount_.../gshhs2_3_7/gshhs_i.b`
+and `could not load map`, because the seed dir populated the CWD while the
+app was looking under `$APPDIR`.
+
+`weather.tle`, `resource.tle`, `GeoSatellites.ini`, and `POI.ini` are
+unaffected by this — grepping confirms no `appdir_env` usage anywhere for
+these four files — so the original CWD-relative analysis and the CWD-seeding
+design for them stands, and was confirmed working in the same test run (TLE
+parsing loaded 241 satellites; all 10 geostationary satellites loaded from
+`GeoSatellites.ini`).
+
+`scripts/build-appimage.sh` and `scripts/appimage/eumetcastview-start.sh`
+were corrected accordingly: `gshhs2_3_7/` and `images/` are now copied
+directly to the AppDir root (`$APPDIR/gshhs2_3_7`, `$APPDIR/images`) at
+build time instead of into the CWD-seed dir, and
+`eumetcastview-start.sh` no longer seeds them into the CWD. The other four
+files continue to be seeded into the CWD exactly as originally designed.
+
+`EUMETCastVideo` (spawned by `EUMETCastView` via `processmanager.cpp` as the
+relative path `./EUMETCastVideo`, inheriting the parent's CWD) has its own
+independent GSHHS loader in `video/gshhsdata.cpp` with no `APPDIR`
+awareness — it does a plain CWD-relative lookup for
+`opts.videogshhsoverlayfile1/2/3` (default `gshhs2_3_7/gshhs_h.b` etc.,
+`options.cpp:278-280`). Since `gshhs2_3_7/` is no longer CWD-seeded,
+`eumetcastview-start.sh` now also creates `./gshhs2_3_7` as a symlink to the
+AppDir-root copy (`ln -sfn "$HERE/../../gshhs2_3_7" ./gshhs2_3_7`, refreshed
+unconditionally every launch since it's cheap and the target AppImage mount
+path differs per invocation — an earlier `[ -e ... ] ||`-guarded version was
+found in review to `exit 1` via `set -e` on every second launch from the
+same directory, once the first launch's symlink target had gone stale).
+
+## Known limitation: "Update TLE" writes to the wrong location when packaged
+
+Not fixed as part of this work (out of scope — would require a C++ change,
+not just packaging): `DownloadManager::saveFileName()`
+(`core/downloadmanager.cpp:93`) saves downloaded `weather.tle`/
+`resource.tle` to `QCoreApplication::applicationDirPath() + "/" + filename`,
+while the TLE reader (`core/satellite.cpp:583`, `QFile file(*it)`) opens
+them relative to the CWD. In a normal dev run these often coincide (e.g.
+running `./EUMETCastView` from within `bin/`), so this is easy to miss. In
+the packaged AppImage, `applicationDirPath()` resolves to `$APPDIR/usr/bin`
+(the read-only/ephemeral mount), which is not the CWD the wrapper script
+seeds and the reader consumes — so clicking "Update TLE" will silently fail
+to update the file the app actually reads. This is a pre-existing bug in
+`DownloadManager`, not something introduced by this packaging work, and
+affects the app outside the AppImage too whenever CWD and
+`applicationDirPath()` diverge; it's flagged here rather than fixed since
+fixing it means changing `core/downloadmanager.cpp`, not the packaging
+scripts.
