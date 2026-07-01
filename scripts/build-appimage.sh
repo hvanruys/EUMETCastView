@@ -110,6 +110,20 @@ else
     echo "Warning: $BIN_DIR/libh5fcidecomp.so not found; FCIDECOMP support will be unavailable in the AppImage." >&2
 fi
 
+# gshhs2_3_7/ and images/ (background maps + ulukai/universe skybox
+# textures) are placed at the AppDir root, NOT in the CWD-seed dir below.
+# Options reads the APPDIR env var (core/options.cpp:265-271), which every
+# AppImage runtime sets automatically for any process it launches, and when
+# it's set, gshhsdata.cpp/mainwindow.cpp/globe.cpp/dialogpreferences.cpp/
+# skybox.cpp all resolve these specific relative paths as "$APPDIR/<path>"
+# instead of relative to the CWD — confirmed by actually launching the
+# packaged AppImage (both --appimage-extract-and-run and FUSE-mount modes
+# set APPDIR). Since APPDIR is always set for a packaged-AppImage launch,
+# seeding these into the CWD would be dead weight: the app would never read
+# them from there.
+cp -r "$BIN_DIR/gshhs2_3_7" "$APPDIR/gshhs2_3_7"
+cp -r "$REPO_ROOT/core/images" "$APPDIR/images"
+
 # GeoSatellites.ini and POI.ini are generic, per-satellite/projection
 # metadata with no personal paths (confirmed via grep for /home/hugo), and
 # GeoSatellites.ini has no code-level fallback if absent: Options::InitializeGeo()
@@ -117,10 +131,12 @@ fi
 # contrast, core/EUMETCastView.ini is deliberately NOT bundled here — it
 # holds this machine's real absolute data paths (NFS mounts, /home/hugo/...
 # directories), and Options has working relative-path defaults without it.
-# Do not add EUMETCastView.ini to this seed dir.
+# Do not add EUMETCastView.ini to this seed dir. Unlike gshhs2_3_7/images
+# above, these four files are NOT affected by the APPDIR-based resolution
+# (grep confirms no appdir_env usage for them) — they are genuinely always
+# CWD-relative, so they belong in the seed dir for eumetcastview-start.sh to
+# copy into the CWD on first run.
 SEED="$APPDIR/usr/share/EUMETCastView/seed"
-cp -r "$BIN_DIR/gshhs2_3_7" "$SEED/gshhs2_3_7"
-cp -r "$REPO_ROOT/core/images" "$SEED/images"
 cp "$BIN_DIR/weather.tle" "$SEED/weather.tle"
 cp "$BIN_DIR/resource.tle" "$SEED/resource.tle"
 cp "$BIN_DIR/GeoSatellites.ini" "$SEED/GeoSatellites.ini"
@@ -159,6 +175,7 @@ rm -f "$OUTPUT"
 
 echo "==> Done: $OUTPUT"
 echo "Launch it from a working directory where you want EUMETCastView's"
-echo "config/data files to live (GeoSatellites.ini, POI.ini, gshhs2_3_7/,"
-echo "images/, weather.tle, resource.tle will be seeded there on first run"
-echo "if not already present)."
+echo "config/data files to live (GeoSatellites.ini, POI.ini, weather.tle,"
+echo "resource.tle will be seeded there on first run if not already"
+echo "present). GSHHS coastline data and background/skybox images are"
+echo "bundled inside the AppImage itself and don't need seeding."

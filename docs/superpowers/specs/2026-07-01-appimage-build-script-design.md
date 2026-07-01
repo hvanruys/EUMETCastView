@@ -192,3 +192,41 @@ exec "$HERE/EUMETCastView" "$@"
 - Confirm `H5Zfilter_avail(32018)` reports the FCIDECOMP filter available
   (via the existing debug log line in `mainwindow.cpp`), showing
   `HDF5_PLUGIN_PATH` took effect.
+
+## Post-implementation correction
+
+The "Background / constraints discovered" section above states that all of
+`AVHRRSatellite`/`Options` config resolution is CWD-relative. During Task 7's
+real runtime verification — actually launching the packaged AppImage, both
+via `--appimage-extract-and-run` and via FUSE mount — this turned out to be
+only partially true.
+
+`Options` (`core/options.cpp:265-271`) reads the `APPDIR` environment
+variable. Every AppImage runtime sets `APPDIR` automatically for any process
+it launches — this is not something the wrapper script does; it happens
+regardless. When `appdir_env` is non-empty, `gshhsdata.cpp:89-93`,
+`mainwindow.cpp:48`, `globe.cpp:44`, `dialogpreferences.cpp:551,563`, and
+`skybox.cpp:68-73` all resolve their relative-path defaults (GSHHS files
+under `./gshhs2_3_7/`, background maps `./images/Topography.jpg` and
+`./images/NE2_50M_SR_W_4096.jpg`, and skybox textures
+`./images/ulukai/corona_*.png`) as `$APPDIR/<relative-path>` instead of
+relative to the CWD. Since `APPDIR` is always set for a packaged-AppImage
+launch, this path is always taken in that context — the opposite of what was
+assumed above for these two items. The observed symptom was a debug log
+showing `gshhs: Could not find file /tmp/.mount_.../gshhs2_3_7/gshhs_i.b`
+and `could not load map`, because the seed dir populated the CWD while the
+app was looking under `$APPDIR`.
+
+`weather.tle`, `resource.tle`, `GeoSatellites.ini`, and `POI.ini` are
+unaffected by this — grepping confirms no `appdir_env` usage anywhere for
+these four files — so the original CWD-relative analysis and the CWD-seeding
+design for them stands, and was confirmed working in the same test run (TLE
+parsing loaded 241 satellites; all 10 geostationary satellites loaded from
+`GeoSatellites.ini`).
+
+`scripts/build-appimage.sh` and `scripts/appimage/eumetcastview-start.sh`
+were corrected accordingly: `gshhs2_3_7/` and `images/` are now copied
+directly to the AppDir root (`$APPDIR/gshhs2_3_7`, `$APPDIR/images`) at
+build time instead of into the CWD-seed dir, and
+`eumetcastview-start.sh` no longer seeds them into the CWD. The other four
+files continue to be seeded into the CWD exactly as originally designed.
