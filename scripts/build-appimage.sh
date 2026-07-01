@@ -62,6 +62,18 @@ for seed_src in "$BIN_DIR/gshhs2_3_7" "$BIN_DIR/weather.tle" "$BIN_DIR/resource.
     fi
 done
 
+# Unlike the seed data above, these two are git-tracked repo assets, not
+# external per-machine data — but they're still checked here up front, for
+# the same reason: fail with a friendly message before a full Release
+# rebuild rather than via a raw "cp: cannot stat" error later.
+for repo_asset in "$REPO_ROOT/core/images" "$REPO_ROOT/Globe_48x48.png"; do
+    if [ ! -e "$repo_asset" ]; then
+        echo "Missing repo asset: $repo_asset" >&2
+        echo "  This file is expected to be checked into the repo." >&2
+        missing=1
+    fi
+done
+
 if [ "$missing" -ne 0 ]; then
     echo "One or more prerequisites are missing; see above. Aborting." >&2
     exit 1

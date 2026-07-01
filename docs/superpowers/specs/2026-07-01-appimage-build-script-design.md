@@ -121,9 +121,10 @@ why they're handled differently from the other four.
    - Copy the two binaries into `usr/bin/`.
    - Write `usr/bin/eumetcastview-start` (see below), `chmod +x`.
    - Copy `bin/libh5fcidecomp.so` into `usr/lib/hdf5/plugin/`.
-   - Generate a corrected `.desktop` file (the checked-in
+   - Copy the pre-committed corrected `.desktop` file from
+     `scripts/appimage/EUMETCastView.desktop` (the checked-in top-level
      `EUMETCastView.desktop` has `Exec=AppRun %F`, invalid for linuxdeploy;
-     the script writes its own with `Exec=eumetcastview-start %F`,
+     the committed replacement uses `Exec=eumetcastview-start %F`,
      `Icon=EUMETCastView`, `Categories=Science;Education;`).
    - Copy `Globe_48x48.png` to the icon path (as `EUMETCastView.png`).
    - Copy `bin/gshhs2_3_7/` and `core/images/` directly to the AppDir root
