@@ -138,6 +138,12 @@ ln -s "$LINUXDEPLOY_PLUGIN_QT" "$PLUGIN_LINK_DIR/linuxdeploy-plugin-qt"
 export PATH="$PLUGIN_LINK_DIR:$PATH"
 export ARCH=x86_64
 
+# Override any pre-existing (possibly broken) QMAKE env var from the ambient
+# shell — linuxdeploy-plugin-qt prefers QMAKE over its own PATH discovery,
+# and a QMAKE pointing at a directory instead of the qmake binary causes an
+# "exec() failed: Permission denied" error in the plugin.
+export QMAKE="$(command -v qmake6)"
+
 echo "==> Running linuxdeploy"
 "$LINUXDEPLOY" --appimage-extract-and-run \
     --appdir "$APPDIR" \
