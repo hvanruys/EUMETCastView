@@ -36,7 +36,14 @@ fi
 # core/gshhsdata.cpp which reads $APPDIR/gshhs2_3_7 directly — this symlink
 # lets the subprocess find the same data via the CWD without duplicating the
 # ~162MB directory.
-[ -e ./gshhs2_3_7 ] || ln -s "$HERE/../../gshhs2_3_7" ./gshhs2_3_7
+# This must be unconditional, not "[ -e ... ] || ln -s": AppImage's mount
+# point is per-invocation, so on a second launch from the same CWD the
+# symlink left by the first launch is dangling. `[ -e ]` is false for a
+# dangling symlink, but the dirent still exists, so a bare `ln -s` would
+# fail with "File exists" and (under set -e) abort the script before
+# EUMETCastView ever starts. -f forces the overwrite; -n stops -f from
+# dereferencing an existing symlink-to-directory and linking *inside* it.
+ln -sfn "$HERE/../../gshhs2_3_7" ./gshhs2_3_7
 
 : "${HDF5_PLUGIN_PATH:=$HERE/../lib/hdf5/plugin}"
 export HDF5_PLUGIN_PATH
