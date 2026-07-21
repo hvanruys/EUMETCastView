@@ -313,8 +313,6 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblCLAHEAVHRR->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHEAVHRR->setSliderPosition(opts.clahecliplimit * 10);
 
-    ui->lblCLAHE_RGBRecipe->setText(QString("%1").arg(1.8, 0, 'f', 1));
-    ui->sliCLAHE_RGBRecipe->setSliderPosition(18);
 
     ui->sbCentreBand->blockSignals(true);
 
@@ -4627,11 +4625,6 @@ void FormToolbox::on_sliCLAHEAVHRR_sliderMoved(int position)
     ui->lblCLAHEAVHRR->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
 }
 
-void FormToolbox::on_sliCLAHE_RGBRecipe_sliderMoved(int position)
-{
-    ui->lblCLAHE_RGBRecipe->setText(QString("%1").arg(float(position)/10, 0, 'f', 1));
-}
-
 void FormToolbox::createImageFilenamestring(QString sat, QString d, QVector<QString> spectrum)
 {
     QString outstring;
@@ -6107,21 +6100,6 @@ void FormToolbox::on_chkInverseGeo16_stateChanged(int arg1)
 {
     poi.strlInverseGeo16.replace(this->geoindex, QString("%1").arg(arg1));
 }
-
-void FormToolbox::on_btnCLAHE_RGBRecipe_clicked()
-{
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    this->setToolboxButtons(false);
-    QApplication::processEvents();
-    qDebug() << QString("ui->sliCLAHE_RGBRecipe value = %1").arg((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
-    formimage->CLAHERGBRecipe((float)ui->sliCLAHE_RGBRecipe->value()/10.0);
-    formimage->displayImage(IMAGE_GEOSTATIONARY, true);
-    this->setToolboxButtons(true);
-
-    QApplication::restoreOverrideCursor();
-
-}
-
 
 void FormToolbox::on_comboMERSIConfig_currentIndexChanged(int index)
 {

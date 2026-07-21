@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>615</width>
-    <height>1172</height>
+    <width>725</width>
+    <height>1496</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -6722,88 +6722,6 @@
               </item>
              </layout>
             </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_104">
-              <item>
-               <widget class="QPushButton" name="btnCLAHE_RGBRecipe">
-                <property name="font">
-                 <font>
-                  <pointsize>14</pointsize>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Contrast Limited Adaptive Histogram Equalization</string>
-                </property>
-                <property name="text">
-                 <string>CLAHE</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_64">
-                <property name="font">
-                 <font>
-                  <pointsize>14</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Clip Limit : </string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="lblCLAHE_RGBRecipe">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>20</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>14</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>TextLabel</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSlider" name="sliCLAHE_RGBRecipe">
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="minimum">
-                 <number>10</number>
-                </property>
-                <property name="maximum">
-                 <number>100</number>
-                </property>
-                <property name="singleStep">
-                 <number>1</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="tickPosition">
-                 <enum>QSlider::TickPosition::TicksAbove</enum>
-                </property>
-                <property name="tickInterval">
-                 <number>10</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
            </layout>
           </item>
           <item>
@@ -7127,8 +7045,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>301</width>
-                 <height>542</height>
+                 <width>380</width>
+                 <height>650</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -7934,8 +7852,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>525</width>
-                 <height>473</height>
+                 <width>615</width>
+                 <height>607</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8353,8 +8271,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>321</width>
-                 <height>290</height>
+                 <width>376</width>
+                 <height>347</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8739,8 +8657,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>383</width>
-                 <height>207</height>
+                 <width>480</width>
+                 <height>252</height>
                 </rect>
                </property>
                <attribute name="label">
