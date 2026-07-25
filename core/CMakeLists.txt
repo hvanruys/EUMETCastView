@@ -199,4 +199,11 @@ if(BUILD_TESTS)
         AUTOMOC OFF
         AUTOUIC OFF
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
+    add_executable(nav_util_test nav_util_test.cpp nav_util.cpp misc_util.cpp)
+    target_include_directories(nav_util_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    set_target_properties(nav_util_test PROPERTIES
+        AUTOMOC OFF
+        AUTOUIC OFF
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 endif()

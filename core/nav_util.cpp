@@ -399,21 +399,32 @@ static void solar_angles(double delta, double lat, double hour, double eot,
  *
  * Ref: The Astronomical Almanac, 2003
  ******************************************************************************/
-void snu_solar_params2(double jtime, double lat, double lon, double *mu0,
-                       double *theta0, double *phi0, double *solar_dist_fac)
+void snu_solar_epoch_init(double jtime, struct snu_solar_epoch *e)
 {
-     int year;
-     int month;
-     int day;
+     solar_coords_and_times(jtime, &e->delta,
+                            &e->gw_mean_sol_time, &e->gw_appar_sol_time);
+}
 
-     long jwhole;
 
+
+/*******************************************************************************
+ * Compute the cosine of the solar zenith angle, the solar zenith angle, and the
+ * solar azimuth angle for one position, reusing a precomputed epoch.
+ *
+ * e		: Input epoch from snu_solar_epoch_init()
+ * jtime	: Input Julian Day Number (must match the one used for the epoch)
+ * lat		: Input latitude (radians: -PI/2 -- PI/2)
+ * lon		: Input longitude (radians: -PI -- PI)
+ * mu0		: Output cosine of the solar zenith angle (-1.0 -- 1.0)
+ * theta0	: Output solar zenith angle (radians: 0.0 -- PI)
+ * phi0		: Output solar azimuth angle (radians: 0.0 -- 2PI)
+ ******************************************************************************/
+void snu_solar_params_at(const struct snu_solar_epoch *e, double jtime,
+                         double lat, double lon, double *mu0,
+                         double *theta0, double *phi0)
+{
      double jfrac;
 
-     double delta;
-
-     double gw_mean_sol_time;
-     double gw_appar_sol_time;
      double loc_mean_sol_time;
      double loc_appar_sol_time;
 
@@ -421,34 +432,57 @@ void snu_solar_params2(double jtime, double lat, double lon, double *mu0,
 
      double eot;
 
-     double jday;
+     loc_mean_sol_time  = greenwich_to_local_time(lon, e->gw_mean_sol_time);
+     loc_appar_sol_time = greenwich_to_local_time(lon, e->gw_appar_sol_time);
 
-
-     solar_coords_and_times(jtime, &delta,
-                            &gw_mean_sol_time, &gw_appar_sol_time);
-     loc_mean_sol_time  = greenwich_to_local_time(lon, gw_mean_sol_time);
-     loc_appar_sol_time = greenwich_to_local_time(lon, gw_appar_sol_time);
-
-
-     jwhole = (int) jtime;
-     jfrac  = jtime - jwhole;
+     jfrac = jtime - (long) jtime;
      if (jfrac < .5)
-          jfrac  = jfrac  + .5;
-     else {
-          jfrac  = jfrac  - .5;
-          jwhole = jwhole + 1;
-     }
-
+          jfrac = jfrac + .5;
+     else
+          jfrac = jfrac - .5;
 
      local_hour = jfrac * 24. + lon / (15.*D2R);
 
-
      eot = fmod(loc_mean_sol_time - loc_appar_sol_time,  1.);
 
-     solar_angles(delta, lat, local_hour, eot, mu0, theta0, phi0);
+     solar_angles(e->delta, lat, local_hour, eot, mu0, theta0, phi0);
+}
 
+
+
+void snu_solar_params2(double jtime, double lat, double lon, double *mu0,
+                       double *theta0, double *phi0, double *solar_dist_fac)
+{
+     struct snu_solar_epoch e;
+
+     snu_solar_epoch_init(jtime, &e);
+
+     snu_solar_params_at(&e, jtime, lat, lon, mu0, theta0, phi0);
 
      if (solar_dist_fac) {
+          int year;
+          int month;
+          int day;
+
+          long jwhole;
+
+          double jfrac;
+
+          double local_hour;
+
+          double jday;
+
+          jwhole = (int) jtime;
+          jfrac  = jtime - jwhole;
+          if (jfrac < .5)
+               jfrac  = jfrac  + .5;
+          else {
+               jfrac  = jfrac  - .5;
+               jwhole = jwhole + 1;
+          }
+
+          local_hour = jfrac * 24. + lon / (15.*D2R);
+
           snu_jul_to_cal_date(jwhole, &year, &month, &day);
 
           jday = (int) (jtime - (snu_cal_to_jul_day(year, 1, 1) - .5));
