@@ -47,6 +47,22 @@ public:
     static float sunZenithFactor(float szaDeg,
                                  float limitDeg  = SzaLimit,
                                  float maxSzaDeg = SzaMax);
+
+    /**
+     * Single-scattering Rayleigh path reflectance for a homogeneous layer.
+     * Subtract this from a sun-normalised BRF to remove molecular scattering.
+     *
+     * Both cosines are floored at cos(SzaLimit): from geostationary orbit the
+     * viewing zenith angle reaches 90 degrees at the visible disc edge, so the
+     * 1/(mu0+muv) term would otherwise diverge at the limb.
+     *
+     * @param tau    Rayleigh optical depth; <= 0 returns 0
+     * @param szaDeg solar zenith angle, degrees
+     * @param vzaDeg viewing zenith angle, degrees
+     * @param raaDeg relative azimuth angle, degrees, folded into [0, 180]
+     */
+    static float pathReflectance(double tau, float szaDeg,
+                                 float vzaDeg, float raaDeg);
 };
 
 #endif // RAYLEIGH_H

@@ -129,11 +129,66 @@ static void testSunZenithFactor()
     }
 }
 
+static void testPathReflectance()
+{
+    const double d2r = M_PI / 180.0;
+
+    check(RayleighCorrector::pathReflectance(0.0, 30.0f, 20.0f, 60.0f) == 0.0f,
+          "zero optical depth gives zero path reflectance");
+
+    // As tau -> 0 the layer solution reduces to tau*P(Theta)/(4*mu0*muv).
+    {
+        const double tau = 0.001;
+        const float sza = 30.0f, vza = 20.0f, raa = 60.0f;
+        const double mu0  = std::cos(sza * d2r);
+        const double muv  = std::cos(vza * d2r);
+        const double sin0 = std::sin(sza * d2r);
+        const double sinv = std::sin(vza * d2r);
+        const double cosT = -mu0 * muv + sin0 * sinv * std::cos(raa * d2r);
+        const double want = tau * RayleighCorrector::phaseFunction(cosT)
+                          / (4.0 * mu0 * muv);
+        checkClose(RayleighCorrector::pathReflectance(tau, sza, vza, raa),
+                   want, 0.01, "matches the small-tau single-scattering limit");
+    }
+
+    // Reciprocity: swapping sun and view geometry must leave rho unchanged.
+    checkClose(RayleighCorrector::pathReflectance(0.2339, 25.0f, 55.0f, 100.0f),
+               RayleighCorrector::pathReflectance(0.2339, 55.0f, 25.0f, 100.0f),
+               1e-6, "reciprocal under sun/view swap");
+
+    // Finite at the limb, where vza reaches 90 degrees from geostationary orbit.
+    const float limb = RayleighCorrector::pathReflectance(0.2339, 40.0f, 90.0f, 30.0f);
+    check(std::isfinite(limb), "finite at vza = 90 degrees");
+    check(limb > 0.0f, "positive at vza = 90 degrees");
+    check(limb < 1.0f, "below 1 at vza = 90 degrees");
+
+    // Monotonically increasing in tau across the FCI range.
+    float prev = 0.0f;
+    for (double tau = 0.0005; tau <= 0.24; tau *= 1.5) {
+        const float r = RayleighCorrector::pathReflectance(tau, 35.0f, 45.0f, 80.0f);
+        check(r > prev, "path reflectance increases with tau");
+        prev = r;
+    }
+
+    // The blue band must be corrected far more than the red one.
+    const float blue = RayleighCorrector::pathReflectance(
+        RayleighCorrector::opticalDepthFCI(0), 40.0f, 50.0f, 90.0f);
+    const float red = RayleighCorrector::pathReflectance(
+        RayleighCorrector::opticalDepthFCI(2), 40.0f, 50.0f, 90.0f);
+    check(blue > 3.0f * red, "vis_04 correction is much larger than vis_06");
+
+    // IR bands get no correction at all.
+    check(RayleighCorrector::pathReflectance(
+              RayleighCorrector::opticalDepthFCI(13), 40.0f, 50.0f, 90.0f) == 0.0f,
+          "ir_105 gets no path reflectance");
+}
+
 int main()
 {
     testOpticalDepth();
     testPhaseFunction();
     testSunZenithFactor();
+    testPathReflectance();
 
     if (g_failures) {
         std::printf("\n%d check(s) FAILED\n", g_failures);

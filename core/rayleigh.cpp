@@ -8,6 +8,7 @@
 #include "rayleigh.h"
 
 #include <cmath>
+#include <algorithm>
 
 namespace {
 
@@ -79,4 +80,31 @@ float RayleighCorrector::sunZenithFactor(float szaDeg, float limitDeg, float max
         grad = 0.0;
 
     return static_cast<float>(grad / limitCos);
+}
+
+float RayleighCorrector::pathReflectance(double tau, float szaDeg,
+                                         float vzaDeg, float raaDeg)
+{
+    if (tau <= 0.0)
+        return 0.0f;
+
+    const double d2r = M_PI / 180.0;
+
+    // Floor both cosines. vza reaches 90 degrees at the visible disc edge, so
+    // 1/(mu0+muv) would diverge there. Clamping saturates the correction over
+    // the last degree or two of an already-smeared limb; masking instead would
+    // leave a visible black ring around the disc.
+    const double muFloor = std::cos(SzaLimit * d2r);
+    const double mu0 = std::max(std::cos(szaDeg * d2r), muFloor);
+    const double muv = std::max(std::cos(vzaDeg * d2r), muFloor);
+
+    const double sin0 = std::sqrt(std::max(0.0, 1.0 - mu0 * mu0));
+    const double sinv = std::sqrt(std::max(0.0, 1.0 - muv * muv));
+
+    const double cosScatter = -mu0 * muv + sin0 * sinv * std::cos(raaDeg * d2r);
+
+    const double rho = phaseFunction(cosScatter) / (4.0 * (mu0 + muv))
+                     * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
+
+    return static_cast<float>(rho);
 }
