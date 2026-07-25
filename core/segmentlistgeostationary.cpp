@@ -20,6 +20,8 @@
 #include "qcompressor.h"
 #include "pixgeoconversion.h"
 #include "misc_util.h"
+#include "rayleigh.h"
+#include <QTimeZone>
 #include "internal.h"
 
 #include "qsun.h"
@@ -9647,6 +9649,149 @@ int SegmentListGeostationary::read_charls_compressed(const char* filename, const
     return NC_NOERR;
 }
 
+/*
+ * Sun-normalise and Rayleigh-correct every solar band of an FCI recipe.
+ *
+ * Runs once over the full disc, in place, between reading the netCDF segments
+ * and combining bands into R/G/B. Per-pixel geometry is computed and discarded
+ * rather than stored: six full-disc float arrays would cost about 3 GB at
+ * 11136 x 11136, on top of the ~3.5 GB the compose path already peaks at.
+ *
+ * See docs/superpowers/specs/2026-07-25-fci-rayleigh-correction-design.md
+ */
+void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
+                                                       const QList<int> &bandIndices,
+                                                       int outRes)
+{
+    // Which slots in bandBuf hold solar bands? IR bands get neither
+    // sun-normalisation nor a Rayleigh correction.
+    QList<int>    solarSlots;
+    QList<double> solarTau;
+    for (int bi = 0; bi < bandIndices.size(); ++bi) {
+        const int bandIndex = bandIndices.at(bi);
+        if (bandIndex >= 0 && bandIndex < RayleighCorrector::SolarBandCount) {
+            solarSlots.append(bi);
+            solarTau.append(RayleighCorrector::opticalDepthFCI(bandIndex));
+        }
+    }
+
+    if (solarSlots.isEmpty())
+        return;   // IR-only recipe
+
+    // Navigation parameters. Same convention FormImage::DrawLongLat uses for the
+    // MET_12 coastline overlay: positive INI factors with the display row.
+    const bool   hires = (outRes == 11136);
+    const long   coff  = hires ? opts.geosatellites.at(geoindex).coffhrv
+                               : opts.geosatellites.at(geoindex).coff;
+    const long   loff  = hires ? opts.geosatellites.at(geoindex).loffhrv
+                               : opts.geosatellites.at(geoindex).loff;
+    const double cfac  = hires ? opts.geosatellites.at(geoindex).cfachrv
+                               : opts.geosatellites.at(geoindex).cfac;
+    const double lfac  = hires ? opts.geosatellites.at(geoindex).lfachrv
+                               : opts.geosatellites.at(geoindex).lfac;
+
+    if (cfac == 0.0 || lfac == 0.0) {
+        qWarning() << "FCI Rayleigh: cfac/lfac missing in GeoSatellites.ini for geoindex"
+                   << geoindex << "- skipping correction";
+        return;
+    }
+
+    QDateTime dt = QDateTime::fromString(filedatestring, "yyyyMMddhhmm");
+    if (!dt.isValid()) {
+        qWarning() << "FCI Rayleigh: cannot parse filedatestring" << filedatestring
+                   << "- skipping correction";
+        return;
+    }
+    // fromString yields a local-time QDateTime; setTimeZone reinterprets the
+    // same wall-clock fields as UTC, which is what the slot name means.
+    dt.setTimeZone(QTimeZone::UTC);
+
+    // Nominal slot time, used as mid-scan for the whole disc.
+    const double jtime = dt.toMSecsSinceEpoch() / 86400000.0 + 2440587.5;
+
+    // Nominal geostationary satellite position in ECEF (km). FCI segments carry
+    // no orbit polynomials; station-keeping holds MTG-I1 within about 0.1 deg.
+    const double subLon = opts.geosatellites.at(geoindex).longitude;
+    const double satX   = SAT_HEIGHT * cos(subLon * D2R);
+    const double satY   = SAT_HEIGHT * sin(subLon * D2R);
+    const double satZ   = 0.0;
+
+    struct snu_solar_epoch epoch;
+    snu_solar_epoch_init(jtime, &epoch);
+
+    qDebug() << "FCI Rayleigh: res" << outRes << "jtime" << jtime
+             << "subLon" << subLon << "solar bands" << solarSlots.size();
+
+    QVector<int> lines(outRes);
+    for (int i = 0; i < outRes; ++i)
+        lines[i] = i;
+
+    QAtomicInt rowsDone(0);
+
+    QtConcurrent::blockingMap(lines, [&](int line) {
+        pixgeoConversion pixconv;
+
+        // The compose buffer is south-up; geolocation wants the display row.
+        const int display_row = outRes - 1 - line;
+
+        for (int pixelx = 0; pixelx < outRes; ++pixelx) {
+            double lat_deg = 0.0;
+            double lon_deg = 0.0;
+
+            if (pixconv.pixcoord2geocoord(subLon, pixelx, display_row,
+                                          (int)coff, (int)loff, cfac, lfac,
+                                          &lat_deg, &lon_deg) != 0)
+                continue;   // off-disc, stays FILL_VALUE_F
+
+            const long i_pix = (long)line * outRes + pixelx;
+
+            double mu0 = 0.0, theta0 = 0.0, phi0 = 0.0;
+            snu_solar_params_at(&epoch, jtime, lat_deg * D2R, lon_deg * D2R,
+                                &mu0, &theta0, &phi0);
+
+            const float szaDeg = (float)(theta0 * R2D);
+            const float saaDeg = (float)(phi0 * R2D);
+
+            float vzaDeg = 0.0f;
+            float vaaDeg = 0.0f;
+            snu_vza_and_vaa(lat_deg, lon_deg, 0.0, satX, satY, satZ,
+                            &vzaDeg, &vaaDeg);
+
+            // Relative azimuth folded into [0, 180]; the phase function is even
+            // in it, so the MSG path's matching 180 deg offsets would cancel.
+            float raaDeg = fmodf(saaDeg - vaaDeg, 360.0f);
+            if (raaDeg < 0.0f)
+                raaDeg += 360.0f;
+            if (raaDeg > 180.0f)
+                raaDeg = 360.0f - raaDeg;
+
+            const float f = RayleighCorrector::sunZenithFactor(szaDeg);
+
+            for (int k = 0; k < solarSlots.size(); ++k) {
+                float *buf = bandBuf[solarSlots.at(k)];
+
+                if (buf[i_pix] == FILL_VALUE_F)
+                    continue;
+
+                if (f == 0.0f) {
+                    buf[i_pix] = 0.0f;   // night
+                    continue;
+                }
+
+                const float brf = buf[i_pix] * f;
+                const float rho = RayleighCorrector::pathReflectance(
+                    solarTau.at(k), szaDeg, vzaDeg, raaDeg);
+
+                buf[i_pix] = qMax(0.0f, brf - rho);
+            }
+        }
+
+        const int done = rowsDone.fetchAndAddOrdered(1) + 1;
+        if ((done & 0x1FF) == 0)
+            emit progressCounter(70 + (8 * done) / outRes);
+    });
+}
+
 void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
 {
     // FCI band names and their native resolutions
@@ -9846,6 +9991,13 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
     }
 
     emit progressCounter(70);
+
+    // Sun-normalise and remove Rayleigh path reflectance from the solar bands,
+    // per band, before they are combined into R/G/B.
+    if (opts.bFciRayleigh)
+        applyFCISolarCorrection(bandBuf, uniqueIdx, outRes);
+
+    emit progressCounter(78);
 
     // Combine bands into R/G/B result channels per recipe formula
     float* result[3];
