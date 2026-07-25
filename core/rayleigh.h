@@ -20,6 +20,11 @@ public:
     /** Sun-zenith angle at which the correction reaches zero, degrees. */
     static constexpr float SzaMax   = 95.0f;
 
+    /** Viewing zenith angle above which the correction starts tapering, degrees. */
+    static constexpr float VzaTaperStart = 70.0f;
+    /** Viewing zenith angle at which the correction reaches zero, degrees. */
+    static constexpr float VzaTaperEnd   = 90.0f;
+
     /**
      * Rayleigh optical depth at sea level for an FCI band index (0..15).
      * Returns 0.0 for IR bands and for out-of-range indices.
@@ -63,6 +68,18 @@ public:
      */
     static float pathReflectance(double tau, float szaDeg,
                                  float vzaDeg, float raaDeg);
+
+    /**
+     * Limb taper weight applied to the path reflectance, 1.0 below
+     * VzaTaperStart falling smoothly to 0.0 at VzaTaperEnd.
+     *
+     * Single-scattering theory breaks down at large optical air mass: the
+     * (1 - exp) factor saturates at 1 while the 1/(mu0+muv) prefactor keeps
+     * growing, so the raw formula can return values above the physical bound of
+     * 1 near the disc edge and over-subtract dark scenes to black. Uses a
+     * smoothstep so there is no seam where the taper begins.
+     */
+    static double limbTaper(float vzaDeg);
 };
 
 #endif // RAYLEIGH_H

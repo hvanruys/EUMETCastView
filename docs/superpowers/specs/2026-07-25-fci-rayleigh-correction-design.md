@@ -131,6 +131,35 @@ visible disc edge**, so μ_v → 0 and the 1/(μ₀+μ_v) term would diverge at 
 limb. Clamping saturates the correction over the last degree or two of an
 already-smeared limb; masking instead would leave a visible black ring.
 
+### Limb taper and physical bound (added after numerical review)
+
+Flooring the cosines alone is not enough. Numerical sweeps over a real disc
+geometry showed ρ_ray reaching **1.66** at 70°N in a January slot, and exceeding
+1.0 generally wherever SZA > 85° coincides with vza > 70°. That is unphysical —
+an atmosphere cannot reflect more than it receives. The cause is inherent to
+single-scattering theory at large optical air mass: the `(1 − exp)` factor
+saturates at 1 while the 1/(μ₀+μ_v) prefactor keeps growing. Left alone it
+over-subtracts and drives dark scenes (ocean, especially in `vis_04`) to black
+around the outer disc.
+
+Two mitigations, applied in this order:
+
+1. **Physical bound.** ρ is clamped to ≤ 1.0 before tapering.
+2. **Limb taper.** ρ is multiplied by a smoothstep weight that is 1.0 below
+   `VzaTaperStart = 70°` and falls to 0.0 at `VzaTaperEnd = 90°`:
+   `w = 1 − t²(3 − 2t)`, `t = (vza − 70)/20`. Smoothstep is C1-continuous, so
+   there is no seam where the taper begins.
+
+The 70° threshold was chosen from geometry, not taste: **vza < 70° covers 88.2 %
+of the image area** of a geostationary disc, so the taper only affects the outer
+12 %, where the model is least trustworthy anyway. Starting at 60° would have
+affected 25 %.
+
+With both in place the worst case across all eight solar bands and the full
+SZA/vza/azimuth range is ρ = 0.976. Note the taper is a function of vza only, so
+it deliberately breaks the strict reciprocity of the underlying formula above
+70°; the regression test asserts reciprocity only below the taper.
+
 ### Sun-zenith correction
 
 Satpy `sunzen_corr_cos` with `limit = 88°`, `max_sza = 95°`:
@@ -335,8 +364,13 @@ default so normal and AppImage builds are unaffected):
   tolerance — the check that would have caught the existing bug
 - `sunZenithFactor`: equals 1/cos(SZA) below 88°; continuous across 88°; exactly
   0 at 95° and beyond; never negative
-- `pathReflectance`: → 0 as τ → 0; symmetric under μ₀ ↔ μ_v swap; agrees with the
-  small-τ limit τ·P(Θ)/(4μ₀μ_v) to within 1 % at τ = 0.001; finite at vza = 90°
+- `pathReflectance`: → 0 as τ → 0; symmetric under μ₀ ↔ μ_v swap below the taper;
+  agrees with the small-τ limit τ·P(Θ)/(4μ₀μ_v) to within 1 % at τ = 0.001;
+  continuous across the taper start; exactly 0 at vza = 90°
+- `limbTaper`: 1.0 below 70°, 0.5 at the midpoint, 0.0 at 90°, monotonic, in [0,1]
+- **Physical bound sweep**: ρ ≤ 1 across all eight solar bands × SZA 0–95° ×
+  vza 0–90° × azimuth 0–180°. This is the check that caught the unphysical
+  ρ = 1.66 in the first place, and it guards against anyone removing the clamp.
 - phase function normalizes to 1 over the sphere
 
 Acceptance is visual: compose True Color on a real FCI slot with the checkbox on
@@ -361,7 +395,13 @@ The other two channels are IR and unaffected. Physically the change is correct,
 but this recipe is the strongest candidate for range re-tuning as a follow-up.
 
 **Single-scattering underestimates at 444 nm** by roughly 5–10 % of the Rayleigh
-signal. Adding a second-order term later requires no interface change.
+signal near nadir, and *over*-estimates badly at high air mass (see the limb
+taper section). Adding a second-order term later requires no interface change.
+
+**The outer 12 % of the disc is progressively under-corrected** by design, as the
+price of not over-correcting it to black. Haze removal fades to nothing at the
+extreme limb, so that ring will still look bluer and hazier than the rest. A
+pyspectral-style LUT is the real fix if this becomes a problem.
 
 **`core/good_segmentlistgeostationary.cpp`** is an untracked working-tree copy of
 `segmentlistgeostationary.cpp`, not in the build. It is not modified and will

@@ -82,10 +82,25 @@ float RayleighCorrector::sunZenithFactor(float szaDeg, float limitDeg, float max
     return static_cast<float>(grad / limitCos);
 }
 
+double RayleighCorrector::limbTaper(float vzaDeg)
+{
+    if (vzaDeg <= VzaTaperStart)
+        return 1.0;
+    if (vzaDeg >= VzaTaperEnd)
+        return 0.0;
+
+    const double t = (vzaDeg - VzaTaperStart) / (VzaTaperEnd - VzaTaperStart);
+    return 1.0 - t * t * (3.0 - 2.0 * t);   // smoothstep: C1 continuous at both ends
+}
+
 float RayleighCorrector::pathReflectance(double tau, float szaDeg,
                                          float vzaDeg, float raaDeg)
 {
     if (tau <= 0.0)
+        return 0.0f;
+
+    const double taper = limbTaper(vzaDeg);
+    if (taper == 0.0)
         return 0.0f;
 
     const double d2r = M_PI / 180.0;
@@ -103,8 +118,15 @@ float RayleighCorrector::pathReflectance(double tau, float szaDeg,
 
     const double cosScatter = -mu0 * muv + sin0 * sinv * std::cos(raaDeg * d2r);
 
-    const double rho = phaseFunction(cosScatter) / (4.0 * (mu0 + muv))
-                     * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
+    double rho = phaseFunction(cosScatter) / (4.0 * (mu0 + muv))
+               * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
 
-    return static_cast<float>(rho);
+    // An atmosphere cannot reflect more than it receives. At very large air mass
+    // - deep twilight seen at a slant, roughly SZA > 85 with VZA > 70 - the
+    // single-scattering formula exceeds 1 because its (1 - exp) factor saturates
+    // while the 1/(mu0+muv) prefactor keeps growing. Bound it before tapering.
+    rho = std::min(rho, 1.0);
+
+    // Taper out toward the disc edge, where single scattering over-predicts.
+    return static_cast<float>(rho * taper);
 }
