@@ -26,6 +26,13 @@ public:
      * @param lambdaMicron wavelength in micrometres; <= 0 returns 0.0
      */
     static double opticalDepthAt(double lambdaMicron);
+
+    /**
+     * Rayleigh phase function, polarisation-corrected with the Young (1980)
+     * depolarisation factor. Normalised so that (1/2)*integral P dmu == 1.
+     * @param cosTheta cosine of the scattering angle
+     */
+    static double phaseFunction(double cosTheta);
 };
 
 #endif // RAYLEIGH_H

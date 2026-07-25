@@ -34,6 +34,9 @@ const double kFciSolarLambda[RayleighCorrector::SolarBandCount] = {
     2.250   // 7  nir_22
 };
 
+// Depolarisation factor for air, Young (1980), Appl. Opt. 19, 3427.
+constexpr double kDepolarization = 0.0279;
+
 } // namespace
 
 double RayleighCorrector::opticalDepthAt(double lambdaMicron)
@@ -48,4 +51,11 @@ double RayleighCorrector::opticalDepthFCI(int bandIndex)
     if (bandIndex < 0 || bandIndex >= SolarBandCount)
         return 0.0;   // IR bands are not Rayleigh-corrected
     return rayleighTau(kFciSolarLambda[bandIndex]);
+}
+
+double RayleighCorrector::phaseFunction(double cosTheta)
+{
+    const double gamma = kDepolarization / (2.0 - kDepolarization);
+    const double norm  = 3.0 / (4.0 * (1.0 + 2.0 * gamma));
+    return norm * ((1.0 + 3.0 * gamma) + (1.0 - gamma) * cosTheta * cosTheta);
 }

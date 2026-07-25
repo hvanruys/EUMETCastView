@@ -64,9 +64,41 @@ static void testOpticalDepth()
               "tau decreases with increasing wavelength");
 }
 
+static void testPhaseFunction()
+{
+    // Normalisation: (1/2) * integral of P(mu) dmu over mu in [-1, 1] == 1.
+    const int n = 200000;
+    double sum = 0.0;
+    for (int i = 0; i < n; ++i) {
+        const double mu = -1.0 + (2.0 * (i + 0.5)) / n;
+        sum += RayleighCorrector::phaseFunction(mu);
+    }
+    checkClose(0.5 * sum * (2.0 / n), 1.0, 1e-6,
+               "phase function normalises to 1 over the sphere");
+
+    // Even in cos(Theta).
+    checkClose(RayleighCorrector::phaseFunction(0.5),
+               RayleighCorrector::phaseFunction(-0.5), 1e-12,
+               "phase function is even in cos(Theta)");
+
+    // Peaks at forward and back scatter, minimum at 90 degrees.
+    check(RayleighCorrector::phaseFunction(1.0) >
+          RayleighCorrector::phaseFunction(0.0),
+          "phase function peaks at forward/back scatter");
+    check(RayleighCorrector::phaseFunction(-1.0) >
+          RayleighCorrector::phaseFunction(0.0),
+          "phase function peaks at back scatter too");
+
+    // Always positive.
+    for (double mu = -1.0; mu <= 1.0; mu += 0.1)
+        check(RayleighCorrector::phaseFunction(mu) > 0.0,
+              "phase function is positive");
+}
+
 int main()
 {
     testOpticalDepth();
+    testPhaseFunction();
 
     if (g_failures) {
         std::printf("\n%d check(s) FAILED\n", g_failures);
