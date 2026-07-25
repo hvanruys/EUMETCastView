@@ -95,10 +95,45 @@ static void testPhaseFunction()
               "phase function is positive");
 }
 
+static void testSunZenithFactor()
+{
+    const double d2r = M_PI / 180.0;
+
+    // Plain 1/cos below the limit.
+    const float below[] = { 0.0f, 30.0f, 60.0f, 85.0f, 87.9f };
+    for (float sza : below)
+        checkClose(RayleighCorrector::sunZenithFactor(sza),
+                   1.0 / std::cos(sza * d2r), 1e-5,
+                   "factor is 1/cos(SZA) below the 88 degree limit");
+
+    // Continuous across the limit: both branches meet at 1/cos(88).
+    checkClose(RayleighCorrector::sunZenithFactor(88.001f),
+               RayleighCorrector::sunZenithFactor(87.999f), 1e-3,
+               "factor is continuous across 88 degrees");
+    checkClose(RayleighCorrector::sunZenithFactor(88.0f),
+               1.0 / std::cos(88.0 * d2r), 1e-5,
+               "factor equals 1/cos(88) at the limit");
+
+    // Reaches exactly zero at max_sza and stays there.
+    check(RayleighCorrector::sunZenithFactor(95.0f)  == 0.0f, "factor is zero at 95 degrees");
+    check(RayleighCorrector::sunZenithFactor(110.0f) == 0.0f, "factor is zero past 95 degrees");
+    check(RayleighCorrector::sunZenithFactor(180.0f) == 0.0f, "factor is zero at the antisolar point");
+
+    // Monotonically decreasing through the falloff, never negative.
+    float prev = RayleighCorrector::sunZenithFactor(88.0f);
+    for (float sza = 88.5f; sza <= 95.0f; sza += 0.5f) {
+        const float f = RayleighCorrector::sunZenithFactor(sza);
+        check(f >= 0.0f, "falloff is never negative");
+        check(f <= prev, "falloff is monotonically decreasing");
+        prev = f;
+    }
+}
+
 int main()
 {
     testOpticalDepth();
     testPhaseFunction();
+    testSunZenithFactor();
 
     if (g_failures) {
         std::printf("\n%d check(s) FAILED\n", g_failures);

@@ -15,6 +15,11 @@ public:
     /** FCI solar (VIS/NIR) bands occupy indices 0..7; 8..15 are thermal IR. */
     static constexpr int SolarBandCount = 8;
 
+    /** Sun-zenith angle above which the 1/cos correction is capped, degrees. */
+    static constexpr float SzaLimit = 88.0f;
+    /** Sun-zenith angle at which the correction reaches zero, degrees. */
+    static constexpr float SzaMax   = 95.0f;
+
     /**
      * Rayleigh optical depth at sea level for an FCI band index (0..15).
      * Returns 0.0 for IR bands and for out-of-range indices.
@@ -33,6 +38,15 @@ public:
      * @param cosTheta cosine of the scattering angle
      */
     static double phaseFunction(double cosTheta);
+
+    /**
+     * Sun-zenith normalisation factor, equivalent to Satpy sunzen_corr_cos.
+     * Multiply a radiance-equivalent reflectance by this to get BRF.
+     * Returns 0.0 for night, i.e. szaDeg >= maxSzaDeg.
+     */
+    static float sunZenithFactor(float szaDeg,
+                                 float limitDeg  = SzaLimit,
+                                 float maxSzaDeg = SzaMax);
 };
 
 #endif // RAYLEIGH_H

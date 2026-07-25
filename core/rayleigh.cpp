@@ -59,3 +59,24 @@ double RayleighCorrector::phaseFunction(double cosTheta)
     const double norm  = 3.0 / (4.0 * (1.0 + 2.0 * gamma));
     return norm * ((1.0 + 3.0 * gamma) + (1.0 - gamma) * cosTheta * cosTheta);
 }
+
+float RayleighCorrector::sunZenithFactor(float szaDeg, float limitDeg, float maxSzaDeg)
+{
+    const double d2r      = M_PI / 180.0;
+    const double limitRad = limitDeg * d2r;
+    const double limitCos = std::cos(limitRad);
+
+    if (szaDeg < limitDeg)
+        return static_cast<float>(1.0 / std::cos(szaDeg * d2r));
+
+    // Satpy sunzen_corr_cos: logarithmic falloff from limitDeg to maxSzaDeg,
+    // reaching exactly zero at maxSzaDeg so the terminator fades smoothly
+    // instead of cutting hard at the limit.
+    const double maxRad = maxSzaDeg * d2r;
+    double grad = (szaDeg * d2r - limitRad) / (maxRad - limitRad);
+    grad = 1.0 - std::log(grad + 1.0) / std::log(2.0);
+    if (grad < 0.0)
+        grad = 0.0;
+
+    return static_cast<float>(grad / limitCos);
+}
