@@ -234,6 +234,7 @@ void Options::Initialize()
     remove_SLSTR_dirs = settings.value("/parameters/removeslstrdirs", false).toBool();
     usesaturationmask = settings.value("/parameters/usesaturationmask", true).toBool();
     copyMTGfiles = settings.value("/parameters/copymtgfiles", false).toBool();
+    bFciRayleigh = settings.value("/parameters/fcirayleigh", true).toBool();
 
     checkStringListValues();
     fbo_changed = false;
@@ -612,6 +613,7 @@ void Options::Save()
     settings.setValue("/parameters/removeslstrdirs", remove_SLSTR_dirs);
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
     settings.setValue("/parameters/copymtgfiles", copyMTGfiles);
+    settings.setValue("/parameters/fcirayleigh", bFciRayleigh);
 
     settings.setValue("/datahub/datahubuser", datahubuser);
     settings.setValue("/datahub/productdirectory", productdirectory);

@@ -6754,6 +6754,24 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="chkFciRayleigh">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string>Remove Rayleigh (molecular) scattering from the solar bands. Also sun-normalises the reflectance, which brightens the image away from the subsolar point.</string>
+              </property>
+              <property name="text">
+               <string>Rayleigh correction</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="btnFCIRecipes">
               <property name="font">
                <font>

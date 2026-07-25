@@ -474,6 +474,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         new QListWidgetItem(imageptrs->fci_rgbrecipes.at(i).Name, ui->lstFCIRGB);
     }
 
+    ui->chkFciRayleigh->setChecked(opts.bFciRayleigh);
+    connect(ui->chkFciRayleigh, &QCheckBox::toggled, this, [](bool checked) {
+        opts.bFciRayleigh = checked;
+    });
+
     rowchosen.clear();
 
     opts.globalChangeFonts(this, opts.fontsize);
