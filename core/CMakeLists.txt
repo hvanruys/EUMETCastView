@@ -185,3 +185,18 @@ endif()
 #    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
+
+# ---------------------------------------------------------------------------
+# Unit tests. Off by default; enable with: cmake -DBUILD_TESTS=ON ..
+# These are standalone main() programs, not linked against Qt.
+# ---------------------------------------------------------------------------
+option(BUILD_TESTS "Build core unit tests" OFF)
+
+if(BUILD_TESTS)
+    add_executable(rayleigh_test rayleigh_test.cpp rayleigh.cpp)
+    target_include_directories(rayleigh_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    set_target_properties(rayleigh_test PROPERTIES
+        AUTOMOC OFF
+        AUTOUIC OFF
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+endif()
