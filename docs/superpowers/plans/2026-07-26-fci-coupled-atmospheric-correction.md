@@ -222,10 +222,57 @@ Known limitation: the *view* path is still plane-parallel. That is the standard
 pseudo-spherical compromise and it is much the smaller error, since vza is capped
 at 85 by VzaLimit while sza runs to 95.
 
+## Stage 2 as built
+
+Subtracting the path term never left the surface — it left the surface seen
+*through* the atmosphere:
+
+```
+X = T(mu0)*T(muv) * rho_s / (1 - s*rho_s)
+```
+
+Inverting is closed-form, `rho_s = X / (T(mu0)T(muv) + s*X)`, and because
+`sunZenithFactor` is `1/mu0_eff` the mu0 that would otherwise appear cancels
+against it — so this needed no change to `pathReflectance`, only a step after it.
+`T` and `s` were already falling out of the doubling run since Stage 1.
+
+Pinned by a round trip rather than a tolerance: forward-model what the atmosphere
+leaves behind for a known `rho_s`, invert, require `rho_s` back. Exact to 1e-4
+across all eight bands and the whole geometry range.
+
+The recovered/left-behind amplification at sza 40:
+
+| vza | 0 | 40 | 60 | 70 | 80 |
+|---|---|---|---|---|---|
+| vis_04 | 1.261 | 1.301 | 1.391 | 1.508 | 1.832 |
+| vis_06 | 1.056 | 1.064 | 1.083 | 1.108 | 1.184 |
+
+**This changes the image's colour balance, by design.** The blue band is
+amplified 20–55 % more than the red, because that is where the atmosphere is
+thick — `T` at nadir is 0.895 for `vis_04` against 0.974 for `vis_06`. Leaving
+it out was leaving a blue attenuation in place that deepened toward the limb.
+Bright targets saturate rather than run away, via the `s*X` bounce term.
+
+The one stage with no measured validation. Round-tripping proves the algebra
+inverts the model; whether the model's transmittance suits real scenes is what
+an image will show. Over uniform surface the amplification should *flatten* a
+field that dips toward the limb — if instead the limb brightens, the pre-inversion
+field was already flat and something upstream is over-correcting.
+
 ## Status
 
-- [x] Stage 1
-- [x] Stage 1a
-- [ ] Stage 2 — Lambertian coupling over land, still a black boundary there
-- [x] Stage 3
-- [x] Stage 4
+- [x] Stage 1 — doubling solver
+- [x] Stage 1a — reflectance scale
+- [x] Stage 2 — surface coupling
+- [x] Stage 3 — sea surface
+- [x] Stage 4 — pseudo-spherical illumination
+
+All four stages of the target model are in. What remains open, in rough order of
+how much it would buy:
+
+- **Sun glint** — a Cox-Munk direct-beam term, and with it wind speed.
+- **A real land/sea mask** — the darkness test misreads dark vegetation at high
+  view angle as water.
+- **Vector RT** — polarisation, worth a few percent for Rayleigh.
+- **Spherical view path** — currently plane-parallel; the smaller half of the
+  pseudo-spherical compromise, and bounded by VzaLimit anyway.

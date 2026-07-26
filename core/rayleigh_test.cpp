@@ -185,6 +185,71 @@ static void testSphericalSolarPath()
     check(sphToa > 1.2 * ppToa, "spherical beats plane-parallel at sza 88");
 }
 
+static void testSurfaceReflectance()
+{
+    const double d2r = M_PI / 180.0;
+
+    check(RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, 0.0f) == 0.0f,
+          "nothing in, nothing out");
+    check(RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, -0.1f) == 0.0f,
+          "negative leftovers give zero, not a negative surface");
+
+    // Round trip. Forward-model what the atmosphere would leave behind for a
+    // known surface, invert it, and require the surface back. Exact by
+    // construction, so it pins the algebra rather than a tolerance.
+    for (int b = 0; b < RayleighCorrector::SolarBandCount; ++b) {
+        const RayleighRT::Solution &sol = RayleighRT::forBand(b);
+        for (float sza = 0.0f; sza <= 80.0f; sza += 20.0f) {
+            for (float vza = 0.0f; vza <= 80.0f; vza += 20.0f) {
+                const double t0 = RayleighRT::transmittance(sol, std::cos(sza * d2r));
+                const double tv = RayleighRT::transmittance(sol, std::cos(vza * d2r));
+                for (double rs = 0.02; rs <= 0.8; rs *= 2.0) {
+                    const double x = t0 * tv * rs / (1.0 - sol.sphericalAlbedo * rs);
+                    const double got = RayleighCorrector::surfaceReflectance(
+                        b, sza, vza, (float)x);
+                    if (std::fabs(got - rs) > 1e-4 * std::max(1.0, rs)) {
+                        std::printf("FAIL : round trip band %d sza %.0f vza %.0f "
+                                    "rho_s %.3f -> %.6f\n", b, sza, vza, rs, got);
+                        ++g_failures;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    check(true, "inverts the forward model exactly, every band and geometry");
+
+    // It has to brighten - the surface signal was attenuated on the way out and
+    // back - and brighten the blue band far more than the red, since that is
+    // where the atmosphere is thick.
+    const float x = 0.10f;
+    const float blue = RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, x);
+    const float red  = RayleighCorrector::surfaceReflectance(2, 40.0f, 40.0f, x);
+    check(blue > x && red > x, "recovering the surface brightens it");
+    check(blue > 1.15f * red, "vis_04 is amplified much more than vis_06");
+    std::printf("info : X = 0.10 recovers vis_04 %.4f, vis_06 %.4f\n", blue, red);
+
+    // The amplification must grow toward the limb, where the path out is longest.
+    check(RayleighCorrector::surfaceReflectance(0, 40.0f, 80.0f, x)
+              > RayleighCorrector::surfaceReflectance(0, 40.0f, 20.0f, x),
+          "amplification grows with viewing zenith angle");
+
+    // Bright targets saturate: the ground-to-sky bounce term keeps the recovered
+    // reflectance from running away as X approaches and passes 1.
+    check(RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, 1.0f) < 1.3f,
+          "bright targets do not run away");
+    float prev = 0.0f;
+    for (float v = 0.01f; v <= 2.0f; v += 0.01f) {
+        const float r = RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, v);
+        check(r > prev, "recovered surface increases with what was left behind");
+        prev = r;
+    }
+
+    // An IR band has no atmosphere to undo, so it must pass straight through.
+    check(RayleighCorrector::surfaceReflectance(13, 40.0f, 40.0f, 0.25f) == 0.25f,
+          "IR passes through untouched");
+}
+
 static void testTwilightFade()
 {
     for (float sza = 0.0f; sza <= RayleighCorrector::SzaLimit; sza += 10.0f)
@@ -292,6 +357,7 @@ int main()
     testPhaseFunction();
     testSunZenithFactor();
     testSphericalSolarPath();
+    testSurfaceReflectance();
     testTwilightFade();
     testPathReflectance();
 

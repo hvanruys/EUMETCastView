@@ -81,6 +81,34 @@ float RayleighCorrector::twilightFade(float szaDeg)
     return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep, C1 at both ends
 }
 
+float RayleighCorrector::surfaceReflectance(int bandIndex, float szaDeg,
+                                            float vzaDeg, float pathRemoved)
+{
+    if (pathRemoved <= 0.0f)
+        return 0.0f;
+    if (bandIndex < 0 || bandIndex >= SolarBandCount)
+        return pathRemoved;
+
+    const RayleighRT::Solution &s = RayleighRT::forBand(bandIndex);
+    const double d2r = M_PI / 180.0;
+
+    // The solar cosine is frozen at SzaLimit, exactly as sunZenithFactor freezes
+    // the amplification - and because that factor is 1/mu0_eff, the mu0 that
+    // would otherwise appear here cancels against it. What survives is the
+    // twilight dimming, carried by the shrinking signal rather than applied.
+    const double mu0 = std::cos(std::min(szaDeg, SzaLimit) * d2r);
+    const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
+
+    const double tt = RayleighRT::transmittance(s, mu0)
+                    * RayleighRT::transmittance(s, muv);
+
+    const double den = tt + s.sphericalAlbedo * (double)pathRemoved;
+    if (!(den > 0.0))
+        return pathRemoved;
+
+    return static_cast<float>(pathRemoved / den);
+}
+
 float RayleighCorrector::waterFraction(float longBandReflectance)
 {
     constexpr float lo = 0.05f;   // darker than this is certainly water

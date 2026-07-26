@@ -9803,10 +9803,12 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
             // decides whether the sea surface reflects sky into the view.
             float water = 0.0f;
             if (useOcean && w > 0.0f && bandBuf[maskSlot][i_pix] != FILL_VALUE_F) {
-                const float mb = bandBuf[maskSlot][i_pix] * f
-                               - RayleighCorrector::pathReflectance(
-                                     maskBand, szaDeg, vzaDeg, raaDeg);
-                water = RayleighCorrector::waterFraction(qMax(0.0f, mb));
+                const float mb = RayleighCorrector::surfaceReflectance(
+                    maskBand, szaDeg, vzaDeg,
+                    bandBuf[maskSlot][i_pix] * f
+                        - RayleighCorrector::pathReflectance(
+                              maskBand, szaDeg, vzaDeg, raaDeg));
+                water = RayleighCorrector::waterFraction(mb);
             }
 
             for (int k = 0; k < solarSlots.size(); ++k) {
@@ -9824,7 +9826,11 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
                 const float rho = RayleighCorrector::pathReflectance(
                     solarBands.at(k), szaDeg, vzaDeg, raaDeg, water);
 
-                buf[i_pix] = w * qMax(0.0f, brf - rho);
+                // Taking the path term off leaves the surface seen through the
+                // atmosphere, not the surface. Undo the two-way transmittance
+                // and the ground-to-sky bouncing to get there.
+                buf[i_pix] = w * RayleighCorrector::surfaceReflectance(
+                    solarBands.at(k), szaDeg, vzaDeg, brf - rho);
             }
         }
 

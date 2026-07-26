@@ -132,6 +132,33 @@ public:
                                  float water = 0.0f);
 
     /**
+     * Recover the surface reflectance from what is left after the path
+     * reflectance has been taken off.
+     *
+     * Subtracting the path term does not leave the surface. It leaves the
+     * surface seen *through* the atmosphere:
+     *
+     *     X = T(mu0)*T(muv) * rho_s / (1 - s*rho_s)
+     *
+     * with T the total (direct + diffuse) transmittance each way and s the
+     * atmosphere's spherical albedo, which accounts for light bouncing between
+     * ground and air. Inverting is closed-form, no iteration:
+     *
+     *     rho_s = X / (T(mu0)*T(muv) + s*X)
+     *
+     * Both T and s come out of the same doubling solution as the path term.
+     *
+     * The effect is a brightening that grows with air mass and with optical
+     * depth, so it is much stronger in vis_04 than vis_06 - which is the point.
+     * Skipping it leaves a residual blue attenuation that deepens toward the
+     * limb, because that is where the surface signal is most attenuated.
+     *
+     * @param pathRemoved X above; <= 0 returns 0
+     */
+    static float surfaceReflectance(int bandIndex, float szaDeg,
+                                    float vzaDeg, float pathRemoved);
+
+    /**
      * How much a pixel should be treated as open water, from its reflectance in
      * the longest-wavelength solar band available.
      *
