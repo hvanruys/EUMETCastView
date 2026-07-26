@@ -9765,7 +9765,11 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
             if (raaDeg > 180.0f)
                 raaDeg = 360.0f - raaDeg;
 
+            // Both of these freeze at SzaLimit, so past the terminator the
+            // amplification and the path reflectance keep describing the same
+            // sun and their difference stays meaningful.
             const float f = RayleighCorrector::sunZenithFactor(szaDeg);
+            const float w = RayleighCorrector::twilightFade(szaDeg);
 
             for (int k = 0; k < solarSlots.size(); ++k) {
                 float *buf = bandBuf[solarSlots.at(k)];
@@ -9773,7 +9777,7 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
                 if (buf[i_pix] == FILL_VALUE_F)
                     continue;
 
-                if (f == 0.0f) {
+                if (w == 0.0f) {
                     buf[i_pix] = 0.0f;   // night
                     continue;
                 }
@@ -9782,7 +9786,7 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
                 const float rho = RayleighCorrector::pathReflectance(
                     solarBands.at(k), szaDeg, vzaDeg, raaDeg);
 
-                buf[i_pix] = qMax(0.0f, brf - rho);
+                buf[i_pix] = w * qMax(0.0f, brf - rho);
             }
         }
 

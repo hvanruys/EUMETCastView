@@ -62,25 +62,23 @@ double RayleighCorrector::phaseFunction(double cosTheta)
     return norm * ((1.0 + 3.0 * gamma) + (1.0 - gamma) * cosTheta * cosTheta);
 }
 
-float RayleighCorrector::sunZenithFactor(float szaDeg, float limitDeg, float maxSzaDeg)
+float RayleighCorrector::sunZenithFactor(float szaDeg)
 {
-    const double d2r      = M_PI / 180.0;
-    const double limitRad = limitDeg * d2r;
-    const double limitCos = std::cos(limitRad);
+    const double d2r = M_PI / 180.0;
+    const double sza = std::min(static_cast<double>(szaDeg),
+                                static_cast<double>(SzaLimit));
+    return static_cast<float>(1.0 / std::cos(sza * d2r));
+}
 
-    if (szaDeg < limitDeg)
-        return static_cast<float>(1.0 / std::cos(szaDeg * d2r));
+float RayleighCorrector::twilightFade(float szaDeg)
+{
+    if (szaDeg <= SzaLimit)
+        return 1.0f;
+    if (szaDeg >= SzaMax)
+        return 0.0f;
 
-    // Satpy sunzen_corr_cos: logarithmic falloff from limitDeg to maxSzaDeg,
-    // reaching exactly zero at maxSzaDeg so the terminator fades smoothly
-    // instead of cutting hard at the limit.
-    const double maxRad = maxSzaDeg * d2r;
-    double grad = (szaDeg * d2r - limitRad) / (maxRad - limitRad);
-    grad = 1.0 - std::log(grad + 1.0) / std::log(2.0);
-    if (grad < 0.0)
-        grad = 0.0;
-
-    return static_cast<float>(grad / limitCos);
+    const float t = (szaDeg - SzaLimit) / (SzaMax - SzaLimit);
+    return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep, C1 at both ends
 }
 
 float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,

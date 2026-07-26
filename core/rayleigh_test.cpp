@@ -100,32 +100,62 @@ static void testSunZenithFactor()
     const double d2r = M_PI / 180.0;
 
     // Plain 1/cos below the limit.
-    const float below[] = { 0.0f, 30.0f, 60.0f, 85.0f, 87.9f };
+    const float below[] = { 0.0f, 30.0f, 60.0f, 80.0f, 82.9f };
     for (float sza : below)
         checkClose(RayleighCorrector::sunZenithFactor(sza),
                    1.0 / std::cos(sza * d2r), 1e-5,
-                   "factor is 1/cos(SZA) below the 88 degree limit");
+                   "factor is 1/cos(SZA) below the limit");
 
-    // Continuous across the limit: both branches meet at 1/cos(88).
-    checkClose(RayleighCorrector::sunZenithFactor(88.001f),
-               RayleighCorrector::sunZenithFactor(87.999f), 1e-3,
-               "factor is continuous across 88 degrees");
-    checkClose(RayleighCorrector::sunZenithFactor(88.0f),
-               1.0 / std::cos(88.0 * d2r), 1e-5,
-               "factor equals 1/cos(88) at the limit");
+    // Frozen at and beyond the limit, at exactly the value pathReflectance's
+    // own mu0 floor corresponds to. If these two ever diverge, the difference
+    // between the amplified signal and the subtracted rho stops meaning
+    // anything and a bright stripe appears along the terminator.
+    const double capped = 1.0 / std::cos(RayleighCorrector::SzaLimit * d2r);
+    for (float sza = RayleighCorrector::SzaLimit; sza <= 120.0f; sza += 3.0f)
+        checkClose(RayleighCorrector::sunZenithFactor(sza), capped, 1e-5,
+                   "factor is frozen at and past the limit");
 
-    // Reaches exactly zero at max_sza and stays there.
-    check(RayleighCorrector::sunZenithFactor(95.0f)  == 0.0f, "factor is zero at 95 degrees");
-    check(RayleighCorrector::sunZenithFactor(110.0f) == 0.0f, "factor is zero past 95 degrees");
-    check(RayleighCorrector::sunZenithFactor(180.0f) == 0.0f, "factor is zero at the antisolar point");
+    checkClose(RayleighCorrector::sunZenithFactor(
+                   RayleighCorrector::SzaLimit + 0.001f),
+               RayleighCorrector::sunZenithFactor(
+                   RayleighCorrector::SzaLimit - 0.001f),
+               1e-3, "factor is continuous across the limit");   // 1/cos slope is 1.2/deg here
 
-    // Monotonically decreasing through the falloff, never negative.
-    float prev = RayleighCorrector::sunZenithFactor(88.0f);
-    for (float sza = 88.5f; sza <= 95.0f; sza += 0.5f) {
+    // Never zero: night has to go black through the subtraction, not by
+    // switching the normalisation off.
+    check(RayleighCorrector::sunZenithFactor(179.0f) > 0.0f,
+          "factor stays positive at every angle");
+
+    // Monotonically non-decreasing, and bounded.
+    float prev = 0.0f;
+    for (float sza = 0.0f; sza <= 179.0f; sza += 0.5f) {
         const float f = RayleighCorrector::sunZenithFactor(sza);
-        check(f >= 0.0f, "falloff is never negative");
-        check(f <= prev, "falloff is monotonically decreasing");
+        check(f >= prev - 1e-6f, "factor never decreases with SZA");
+        check(f <= capped + 1e-6, "factor never exceeds the frozen value");
         prev = f;
+    }
+}
+
+static void testTwilightFade()
+{
+    for (float sza = 0.0f; sza <= RayleighCorrector::SzaLimit; sza += 10.0f)
+        check(RayleighCorrector::twilightFade(sza) == 1.0f,
+              "no fade below the limit");
+
+    check(RayleighCorrector::twilightFade(RayleighCorrector::SzaMax) == 0.0f,
+          "fully faded at SzaMax");
+    check(RayleighCorrector::twilightFade(150.0f) == 0.0f, "fully faded past SzaMax");
+
+    const float mid = 0.5f * (RayleighCorrector::SzaLimit + RayleighCorrector::SzaMax);
+    checkClose(RayleighCorrector::twilightFade(mid), 0.5, 1e-6,
+               "half faded at the midpoint");
+
+    float prev = 1.0f;
+    for (float sza = 0.0f; sza <= 100.0f; sza += 0.5f) {
+        const float w = RayleighCorrector::twilightFade(sza);
+        check(w >= 0.0f && w <= 1.0f, "fade stays within [0,1]");
+        check(w <= prev + 1e-7f, "fade is monotonically decreasing");
+        prev = w;
     }
 }
 
@@ -205,6 +235,7 @@ int main()
     testOpticalDepth();
     testPhaseFunction();
     testSunZenithFactor();
+    testTwilightFade();
     testPathReflectance();
 
     if (g_failures) {
