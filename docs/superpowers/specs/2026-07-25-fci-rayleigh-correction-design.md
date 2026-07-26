@@ -160,6 +160,53 @@ SZA/vza/azimuth range is ρ = 0.976. Note the taper is a function of vza only, s
 it deliberately breaks the strict reciprocity of the underlying formula above
 70°; the regression test asserts reciprocity only below the taper.
 
+### Superseded: the taper drew the ring it was meant to prevent (2026-07-26)
+
+Composing a real slot showed a **bright blue ring around the sunlit limb**. The
+taper caused it. Fading the correction to zero over vza 70–90° leaves the haze
+untouched exactly there, while the 88 % of the disc inside vza 70° is fully
+de-hazed — so the leftover reads as a bright rim, and it reads *blue* because
+Rayleigh is blue. Measured on a 2026-07-26 06:20 disc, along a profile through
+the north limb (`sin vza = r/R_disc`):
+
+| r/R | vza | R | G | B | B−R |
+|---|---|---|---|---|---|
+| 0.881 | 61.8° | 209 | 204 | 198 | −11 |
+| 0.955 | 72.7° | 203 | 199 | 196 | −7 |
+| 0.985 | 79.9° | 190 | 204 | 213 | **+23** |
+
+The colour flips from red-dominant to blue-dominant right where the taper bites.
+Numerically, at SZA 60°/vza 80° the taper left 0.147 of `vis_04` reflectance
+un-removed — comparable to the whole surface signal.
+
+The taper is therefore **removed** and replaced by two bounds that keep the
+correction rising toward the limb instead of collapsing:
+
+1. **View-angle clamp** — μ_v is floored at cos(`VzaLimit`), `VzaLimit = 80°`.
+   Past that the correction plateaus rather than following the diverging 1/μ_v.
+   80° is the largest angle where this model still agrees with 6S (0.098 against
+   ≈0.10 for `vis_06` at SZA 40°, backscatter), and it is r/R = 0.985, so the
+   entire visible ring annulus is corrected at full strength. Freezing rather
+   than extrapolating also limits over-reddening of the outermost pixels: the
+   correction removes molecular scattering only, and the unmodelled aerosol
+   contribution is largest at grazing view.
+2. **Reflectance ceiling** — `maxPathReflectance(τ) = ¾τM / (1 + ¾τM)` with
+   `M = HorizonAirMass = 38` (Kasten & Young), the conservative two-stream plane
+   albedo of the layer at horizon air mass. Rayleigh scattering has no
+   absorption, so this is the true physical ceiling, and being derived from τ it
+   is per-band rather than a tuned constant: 0.870 for `vis_04` down to 0.009 for
+   `nir_22`. ρ is eased into it with a fourth-power soft clip,
+   `ρ / (1 + (ρ/ρ_max)⁴)^¼`, which is within 0.2 % of ρ while ρ stays below half
+   the ceiling — the whole disc outside deep twilight — and saturates smoothly
+   above it, so there is no seam anywhere in the image.
+
+Worst case over all eight bands × SZA 0–95° × vza 0–90° × azimuth is now
+ρ = 0.857, still under the physical bound of 1. The weakest limb correction is
+**1.026×** its vza-70° value, where under the taper it was 0×.
+
+Reciprocity is still broken above `VzaLimit` (the clamp is a function of vza
+only), so the regression test continues to assert it only below that.
+
 ### Sun-zenith correction
 
 Satpy `sunzen_corr_cos` with `limit = 88°`, `max_sza = 95°`:
@@ -364,13 +411,20 @@ default so normal and AppImage builds are unaffected):
   tolerance — the check that would have caught the existing bug
 - `sunZenithFactor`: equals 1/cos(SZA) below 88°; continuous across 88°; exactly
   0 at 95° and beyond; never negative
-- `pathReflectance`: → 0 as τ → 0; symmetric under μ₀ ↔ μ_v swap below the taper;
-  agrees with the small-τ limit τ·P(Θ)/(4μ₀μ_v) to within 1 % at τ = 0.001;
-  continuous across the taper start; exactly 0 at vza = 90°
-- `limbTaper`: 1.0 below 70°, 0.5 at the midpoint, 0.0 at 90°, monotonic, in [0,1]
-- **Physical bound sweep**: ρ ≤ 1 across all eight solar bands × SZA 0–95° ×
-  vza 0–90° × azimuth 0–180°. This is the check that caught the unphysical
-  ρ = 1.66 in the first place, and it guards against anyone removing the clamp.
+- `pathReflectance`: → 0 as τ → 0; symmetric under μ₀ ↔ μ_v swap below
+  `VzaLimit`; agrees with the small-τ limit τ·P(Θ)/(4μ₀μ_v) to within 1 % at
+  τ = 0.001; still non-zero and rising at vza = 90°; equal to the raw
+  single-scattering value to within 2 % everywhere the model is trustworthy
+  (SZA ≤ 70°, vza ≤ 70°), so neither bound perturbs the disc interior
+- **Ring regression sweep**: across all eight bands × SZA 0–88° × azimuth
+  0–180°, ρ at every vza from 72° to 90° is ≥ ρ at vza 70°. This is the check
+  that the taper would fail (it drove the ratio to 0) and it is what keeps the
+  limb from being corrected less than the interior it sits next to.
+- `maxPathReflectance`: matches ¾τM/(1+¾τM), strictly increasing in τ, always in
+  (0,1), negligible for `nir_22` and > 0.5 for `vis_04`
+- **Physical bound sweep**: ρ ≤ its own band ceiling, and ≤ 1, across all eight
+  solar bands × SZA 0–95° × vza 0–90° × azimuth 0–180°. This is the check that
+  caught the unphysical ρ = 1.66 in the first place.
 - phase function normalizes to 1 over the sphere
 
 Acceptance is visual: compose True Color on a real FCI slot with the checkbox on

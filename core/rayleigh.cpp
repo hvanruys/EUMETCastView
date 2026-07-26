@@ -82,15 +82,13 @@ float RayleighCorrector::sunZenithFactor(float szaDeg, float limitDeg, float max
     return static_cast<float>(grad / limitCos);
 }
 
-double RayleighCorrector::limbTaper(float vzaDeg)
+double RayleighCorrector::maxPathReflectance(double tau)
 {
-    if (vzaDeg <= VzaTaperStart)
-        return 1.0;
-    if (vzaDeg >= VzaTaperEnd)
+    if (tau <= 0.0)
         return 0.0;
 
-    const double t = (vzaDeg - VzaTaperStart) / (VzaTaperEnd - VzaTaperStart);
-    return 1.0 - t * t * (3.0 - 2.0 * t);   // smoothstep: C1 continuous at both ends
+    const double x = 0.75 * tau * HorizonAirMass;
+    return x / (1.0 + x);
 }
 
 float RayleighCorrector::pathReflectance(double tau, float szaDeg,
@@ -99,34 +97,29 @@ float RayleighCorrector::pathReflectance(double tau, float szaDeg,
     if (tau <= 0.0)
         return 0.0f;
 
-    const double taper = limbTaper(vzaDeg);
-    if (taper == 0.0)
-        return 0.0f;
-
     const double d2r = M_PI / 180.0;
 
-    // Floor both cosines. vza reaches 90 degrees at the visible disc edge, so
-    // 1/(mu0+muv) would diverge there. Clamping saturates the correction over
-    // the last degree or two of an already-smeared limb; masking instead would
-    // leave a visible black ring around the disc.
-    const double muFloor = std::cos(SzaLimit * d2r);
-    const double mu0 = std::max(std::cos(szaDeg * d2r), muFloor);
-    const double muv = std::max(std::cos(vzaDeg * d2r), muFloor);
+    // Clamp both zenith angles. vza reaches 90 degrees at the visible disc edge,
+    // where 1/(mu0+muv) diverges and plane-parallel geometry no longer describes
+    // a curved atmosphere; past VzaLimit the correction plateaus rather than
+    // running away. sza is floored to match sunZenithFactor's own limit.
+    const double mu0 = std::max(std::cos(szaDeg * d2r), std::cos(SzaLimit * d2r));
+    const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
 
     const double sin0 = std::sqrt(std::max(0.0, 1.0 - mu0 * mu0));
     const double sinv = std::sqrt(std::max(0.0, 1.0 - muv * muv));
 
     const double cosScatter = -mu0 * muv + sin0 * sinv * std::cos(raaDeg * d2r);
 
-    double rho = phaseFunction(cosScatter) / (4.0 * (mu0 + muv))
-               * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
+    const double rho = phaseFunction(cosScatter) / (4.0 * (mu0 + muv))
+                     * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
 
-    // An atmosphere cannot reflect more than it receives. At very large air mass
-    // - deep twilight seen at a slant, roughly SZA > 85 with VZA > 70 - the
-    // single-scattering formula exceeds 1 because its (1 - exp) factor saturates
-    // while the 1/(mu0+muv) prefactor keeps growing. Bound it before tapering.
-    rho = std::min(rho, 1.0);
+    // Ease into the layer's reflectance ceiling. The fourth-power soft clip is
+    // within 0.2 % of rho while rho stays below half the ceiling - which covers
+    // the whole disc outside deep twilight - and saturates smoothly above it,
+    // so nothing anywhere in the image gets a discontinuity.
+    const double cap = maxPathReflectance(tau);
+    const double s   = rho / cap;
 
-    // Taper out toward the disc edge, where single scattering over-predicts.
-    return static_cast<float>(rho * taper);
+    return static_cast<float>(rho / std::pow(1.0 + s * s * s * s, 0.25));
 }

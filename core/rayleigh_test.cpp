@@ -152,22 +152,69 @@ static void testPathReflectance()
     }
 
     // Reciprocity: swapping sun and view geometry leaves rho unchanged, as long
-    // as both angles are below the limb taper (which is a function of vza only
-    // and so deliberately breaks strict reciprocity above VzaTaperStart).
+    // as both angles are below VzaLimit (the view-angle clamp is a function of
+    // vza only and so deliberately breaks strict reciprocity above it).
     checkClose(RayleighCorrector::pathReflectance(0.2339, 25.0f, 55.0f, 100.0f),
                RayleighCorrector::pathReflectance(0.2339, 55.0f, 25.0f, 100.0f),
-               1e-6, "reciprocal under sun/view swap below the taper");
+               1e-6, "reciprocal under sun/view swap below the view clamp");
 
-    // Fully tapered out at the limb, where vza reaches 90 degrees from
-    // geostationary orbit and single-scattering theory has broken down.
+    // Still correcting at the limb. Tapering the correction away toward the disc
+    // edge leaves the haze it was meant to remove in place, and because the
+    // interior around it *is* de-hazed the leftover shows up as a bright blue
+    // ring. rho must therefore keep rising with vza, not collapse.
     const float limb = RayleighCorrector::pathReflectance(0.2339, 40.0f, 90.0f, 30.0f);
     check(std::isfinite(limb), "finite at vza = 90 degrees");
-    check(limb == 0.0f, "fully tapered to zero at vza = 90 degrees");
+    check(limb > 0.0f, "still corrects at vza = 90 degrees");
+    check(limb >= RayleighCorrector::pathReflectance(0.2339, 40.0f, 80.0f, 30.0f),
+          "limb correction is at least as strong as at vza = 80");
 
-    // No discontinuity where the taper starts.
-    checkClose(RayleighCorrector::pathReflectance(0.2339, 40.0f, 70.001f, 30.0f),
-               RayleighCorrector::pathReflectance(0.2339, 40.0f, 69.999f, 30.0f),
-               1e-4, "continuous across the taper start");
+    // The ring regression, swept over every band and illumination. The disc
+    // interior out to vza 70 is de-hazed; if the outer annulus from there to the
+    // limb is corrected any *less* than that, the haze left behind draws a
+    // bright blue ring. The taper this replaced made the ratio below exactly
+    // zero over the outermost degrees.
+    double worstRatio = 1e9;
+    for (int b = 0; b < RayleighCorrector::SolarBandCount; ++b) {
+        const double tau = RayleighCorrector::opticalDepthFCI(b);
+        for (float sza = 0.0f; sza <= 88.0f; sza += 2.0f) {
+            for (float raa = 0.0f; raa <= 180.0f; raa += 10.0f) {
+                const float inner = RayleighCorrector::pathReflectance(tau, sza, 70.0f, raa);
+                if (inner <= 0.0f)
+                    continue;
+                for (float vza = 72.0f; vza <= 90.0f; vza += 2.0f) {
+                    const float r = RayleighCorrector::pathReflectance(tau, sza, vza, raa);
+                    if (r < inner) {
+                        std::printf("FAIL : limb under-corrected at band %d sza %.0f "
+                                    "vza %.0f raa %.0f (%.5f at vza 70 -> %.5f)\n",
+                                    b, sza, vza, raa, inner, r);
+                        ++g_failures;
+                        return;
+                    }
+                    worstRatio = std::min(worstRatio, (double)(r / inner));
+                }
+            }
+        }
+    }
+    std::printf("info : weakest limb correction is %.3fx the vza 70 value\n", worstRatio);
+    check(true, "the limb is never corrected less than the disc interior");
+
+    // The regime where single scattering is trustworthy must be left alone: no
+    // clamp or ceiling may perturb it, or the fix would darken the whole disc.
+    for (float sza = 0.0f; sza <= 70.0f; sza += 10.0f) {
+        for (float vza = 0.0f; vza <= 70.0f; vza += 10.0f) {
+            const double tau  = RayleighCorrector::opticalDepthFCI(0);
+            const double mu0  = std::cos(sza * d2r);
+            const double muv  = std::cos(vza * d2r);
+            const double cosT = -mu0 * muv
+                              + std::sin(sza * d2r) * std::sin(vza * d2r)
+                                * std::cos(120.0 * d2r);
+            const double raw  = RayleighCorrector::phaseFunction(cosT)
+                              / (4.0 * (mu0 + muv))
+                              * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
+            checkClose(RayleighCorrector::pathReflectance(tau, sza, vza, 120.0f),
+                       raw, 0.02, "untouched where single scattering holds");
+        }
+    }
 
     // Monotonically increasing in tau across the FCI range.
     float prev = 0.0f;
@@ -190,32 +237,36 @@ static void testPathReflectance()
           "ir_105 gets no path reflectance");
 }
 
-static void testLimbTaper()
+static void testMaxPathReflectance()
 {
-    // Full strength everywhere the single-scattering model is trustworthy.
-    for (float vza = 0.0f; vza <= RayleighCorrector::VzaTaperStart; vza += 5.0f)
-        check(RayleighCorrector::limbTaper(vza) == 1.0,
-              "taper is 1 below the taper start");
+    check(RayleighCorrector::maxPathReflectance(0.0) == 0.0,
+          "zero optical depth has a zero ceiling");
 
-    // Fully off at and beyond the end.
-    check(RayleighCorrector::limbTaper(RayleighCorrector::VzaTaperEnd) == 0.0,
-          "taper is 0 at the taper end");
-    check(RayleighCorrector::limbTaper(120.0f) == 0.0, "taper is 0 past the end");
-
-    // Smoothstep is symmetric about the midpoint.
-    const float mid = 0.5f * (RayleighCorrector::VzaTaperStart +
-                              RayleighCorrector::VzaTaperEnd);
-    checkClose(RayleighCorrector::limbTaper(mid), 0.5, 1e-9,
-               "taper is 0.5 at the midpoint");
-
-    // Monotonically decreasing, always within [0, 1].
-    double prev = 1.0;
-    for (float vza = 0.0f; vza <= 90.0f; vza += 0.5f) {
-        const double w = RayleighCorrector::limbTaper(vza);
-        check(w >= 0.0 && w <= 1.0, "taper stays within [0,1]");
-        check(w <= prev, "taper is monotonically decreasing");
-        prev = w;
+    // Conservative two-stream plane albedo of the layer at horizon air mass:
+    // R = (3/4)*tau*M / (1 + (3/4)*tau*M).
+    for (int b = 0; b < RayleighCorrector::SolarBandCount; ++b) {
+        const double tau = RayleighCorrector::opticalDepthFCI(b);
+        const double x   = 0.75 * tau * RayleighCorrector::HorizonAirMass;
+        checkClose(RayleighCorrector::maxPathReflectance(tau), x / (1.0 + x), 1e-9,
+                   "ceiling matches the conservative two-stream albedo");
     }
+
+    // Strictly increasing in tau and always a physical reflectance.
+    double prev = 0.0;
+    for (double tau = 0.0002; tau <= 0.25; tau *= 1.3) {
+        const double m = RayleighCorrector::maxPathReflectance(tau);
+        check(m > prev, "ceiling increases with tau");
+        check(m > 0.0 && m < 1.0, "ceiling stays a physical reflectance");
+        prev = m;
+    }
+
+    // A thin-atmosphere band can barely scatter; the blue band scatters a lot.
+    check(RayleighCorrector::maxPathReflectance(
+              RayleighCorrector::opticalDepthFCI(7)) < 0.05,
+          "nir_22 ceiling is negligible");
+    check(RayleighCorrector::maxPathReflectance(
+              RayleighCorrector::opticalDepthFCI(0)) > 0.5,
+          "vis_04 ceiling is substantial");
 }
 
 static void testPhysicalBound()
@@ -235,6 +286,14 @@ static void testPhysicalBound()
                     const double r = RayleighCorrector::pathReflectance(tau, sza, vza, raa);
                     if (!(r >= 0.0)) {
                         std::printf("FAIL : negative or NaN rho at band %d sza %.0f vza %.0f raa %.0f\n",
+                                    b, sza, vza, raa);
+                        ++g_failures;
+                        return;
+                    }
+                    if (r > RayleighCorrector::maxPathReflectance(tau) + 1e-6) {
+                        std::printf("FAIL : rho %.4f above the band ceiling %.4f "
+                                    "at band %d sza %.0f vza %.0f raa %.0f\n",
+                                    r, RayleighCorrector::maxPathReflectance(tau),
                                     b, sza, vza, raa);
                         ++g_failures;
                         return;
@@ -259,7 +318,7 @@ int main()
     testPhaseFunction();
     testSunZenithFactor();
     testPathReflectance();
-    testLimbTaper();
+    testMaxPathReflectance();
     testPhysicalBound();
 
     if (g_failures) {
