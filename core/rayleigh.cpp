@@ -81,6 +81,18 @@ float RayleighCorrector::twilightFade(float szaDeg)
     return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep, C1 at both ends
 }
 
+float RayleighCorrector::cloudFreeFraction(float longBandReflectance)
+{
+    constexpr float lo = 0.12f;   // clear sea, and thin haze over it
+    constexpr float hi = 0.30f;   // solid cloud
+
+    if (longBandReflectance <= lo) return 1.0f;
+    if (longBandReflectance >= hi) return 0.0f;
+
+    const float t = (longBandReflectance - lo) / (hi - lo);
+    return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep
+}
+
 float RayleighCorrector::surfaceReflectance(int bandIndex, float szaDeg,
                                             float vzaDeg, float pathRemoved)
 {

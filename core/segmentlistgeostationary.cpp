@@ -21,6 +21,7 @@
 #include "pixgeoconversion.h"
 #include "misc_util.h"
 #include "rayleigh.h"
+#include "landseamask.h"
 #include <QTimeZone>
 #include "internal.h"
 
@@ -9720,6 +9721,17 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
         qWarning() << "FCI Rayleigh: longest solar band in this recipe is too blue"
                    << "to separate water from land; sea surface not modelled";
 
+    // Geography decides land from sea; brightness is then left with only the
+    // question it is good at, whether cloud is sitting on the sea. Without a
+    // shoreline file we fall back to brightness alone, which cannot tell dark
+    // vegetation from ocean.
+    const QByteArray gshhsPath = opts.gshhsglobe1.toLocal8Bit();
+    const bool haveGeoMask = LandSeaMask::load(gshhsPath.constData());
+    if (!haveGeoMask)
+        qWarning() << "FCI Rayleigh: no shoreline mask at" << opts.gshhsglobe1
+                   << "- falling back to the brightness test, which reads dark"
+                   << "vegetation at high view angle as water";
+
     // Navigation parameters. Same convention FormImage::DrawLongLat uses for the
     // MET_12 coastline overlay: positive INI factors with the display row.
     const bool   hires = (outRes == 11136);
@@ -9844,13 +9856,15 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
             // far darker than land toward the red, and this is the term that
             // decides whether the sea surface reflects sky into the view.
             float water = 0.0f;
-            if (useOcean && w > 0.0f && bandBuf[maskSlot][i_pix] != FILL_VALUE_F) {
+            if (useOcean && w > 0.0f && bandBuf[maskSlot][i_pix] != FILL_VALUE_F
+                && (!haveGeoMask || LandSeaMask::isWater(lat_deg, lon_deg))) {
                 const float mb = RayleighCorrector::surfaceReflectance(
                     maskBand, szaDeg, vzaDeg,
                     bandBuf[maskSlot][i_pix] * f
                         - RayleighCorrector::pathReflectance(
                               maskBand, szaDeg, vzaDeg, raaDeg));
-                water = RayleighCorrector::waterFraction(mb);
+                water = haveGeoMask ? RayleighCorrector::cloudFreeFraction(mb)
+                                    : RayleighCorrector::waterFraction(mb);
             }
 
             for (int k = 0; k < solarSlots.size(); ++k) {
