@@ -9904,12 +9904,25 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                 bandOffset[bi] = ao;
                 bandFill[bi] = fv;
                 if (!isIR) {
+                    // channel_effective_solar_irradiance is a *variable* in the
+                    // measured group, not an attribute on effective_radiance, and
+                    // it is already in the radiance units (mW/(m2.(cm-1))). The
+                    // old code looked for an attribute of another name, never
+                    // found it, and always took the fallback below - which
+                    // assumes DN 4095 means reflectance 1.0. It does not: FCI
+                    // leaves headroom for bright cloud and glint, and 4095 is
+                    // reflectance 1.389. Every solar band was 39 % too dark.
                     float si = 0.0f;
-                    // solar_irradiance attribute (if present) is in same units as effective_radiance
-                    if (nc_get_att_float(grp_measured, varid, "solar_irradiance", &si) == NC_NOERR && si > 0.0f) {
+                    int sivid = -1;
+                    if (nc_inq_varid(grp_measured, "channel_effective_solar_irradiance",
+                                     &sivid) == NC_NOERR
+                        && nc_get_var_float(grp_measured, sivid, &si) == NC_NOERR
+                        && si > 0.0f && si < 1.0e30f) {
                         bandSolarIrr[bi] = si;
                     } else {
                         // Unit-independent fallback: solar_irr = 4095*sf*pi  →  reflectance = DN/4095
+                        qWarning() << "FCI: no channel_effective_solar_irradiance for"
+                                   << bandName << "- reflectance will be about 39 % low";
                         bandSolarIrr[bi] = 4095.0f * sf * (float)M_PI;
                     }
                     qDebug() << QString("FCI solar_irradiance for %1 = %2 (sf=%3)").arg(bandName).arg(bandSolarIrr[bi]).arg(sf);
