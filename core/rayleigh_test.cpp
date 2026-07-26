@@ -136,27 +136,44 @@ static void testSunZenithFactor()
     }
 }
 
-static void testTwilightFade()
+static void testPathReflectanceScale()
 {
     for (float sza = 0.0f; sza <= RayleighCorrector::SzaLimit; sza += 10.0f)
-        check(RayleighCorrector::twilightFade(sza) == 1.0f,
-              "no fade below the limit");
+        check(RayleighCorrector::pathReflectanceScale(sza) == 1.0f,
+              "no scaling below the limit");
 
-    check(RayleighCorrector::twilightFade(RayleighCorrector::SzaMax) == 0.0f,
-          "fully faded at SzaMax");
-    check(RayleighCorrector::twilightFade(150.0f) == 0.0f, "fully faded past SzaMax");
+    check(RayleighCorrector::pathReflectanceScale(90.0f) == 0.0f,
+          "zero at the terminator");
+    check(RayleighCorrector::pathReflectanceScale(120.0f) == 0.0f,
+          "zero past the terminator");
 
-    const float mid = 0.5f * (RayleighCorrector::SzaLimit + RayleighCorrector::SzaMax);
-    checkClose(RayleighCorrector::twilightFade(mid), 0.5, 1e-6,
-               "half faded at the midpoint");
+    // Continuous at the limit, and equal to cos(sza)/cos(limit) beyond it. That
+    // identity is what makes the corrected value scale*(BRF - rho) with every
+    // band dimmed alike, so the twilight zone fades without changing colour.
+    const double d2r = M_PI / 180.0;
+    checkClose(RayleighCorrector::pathReflectanceScale(
+                   RayleighCorrector::SzaLimit + 0.001f), 1.0, 1e-3,
+               "continuous at the limit");   // slope is 0.14/deg here
+    for (float sza = RayleighCorrector::SzaLimit + 1.0f; sza < 90.0f; sza += 1.0f)
+        checkClose(RayleighCorrector::pathReflectanceScale(sza),
+                   std::cos(sza * d2r) / std::cos(RayleighCorrector::SzaLimit * d2r),
+                   1e-5, "equals cos(sza)/cos(limit) past the limit");
 
     float prev = 1.0f;
     for (float sza = 0.0f; sza <= 100.0f; sza += 0.5f) {
-        const float w = RayleighCorrector::twilightFade(sza);
-        check(w >= 0.0f && w <= 1.0f, "fade stays within [0,1]");
-        check(w <= prev + 1e-7f, "fade is monotonically decreasing");
-        prev = w;
+        const float k = RayleighCorrector::pathReflectanceScale(sza);
+        check(k >= 0.0f && k <= 1.0f, "scale stays within [0,1]");
+        check(k <= prev + 1e-7f, "scale is monotonically decreasing");
+        prev = k;
     }
+
+    // The whole point: past the limit the subtraction must shrink with the
+    // signal. A fixed rho against a shrinking signal is what reddened twilight.
+    const float near = RayleighCorrector::pathReflectance(0, 84.0f, 40.0f, 90.0f);
+    const float far  = RayleighCorrector::pathReflectance(0, 89.0f, 40.0f, 90.0f);
+    check(far < 0.4f * near, "path reflectance shrinks steeply through twilight");
+    check(RayleighCorrector::pathReflectance(0, 91.0f, 40.0f, 90.0f) == 0.0f,
+          "no subtraction once the sun is down");
 }
 
 static void testPathReflectance()
@@ -235,7 +252,7 @@ int main()
     testOpticalDepth();
     testPhaseFunction();
     testSunZenithFactor();
-    testTwilightFade();
+    testPathReflectanceScale();
     testPathReflectance();
 
     if (g_failures) {

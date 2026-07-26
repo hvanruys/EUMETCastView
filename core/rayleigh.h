@@ -86,12 +86,21 @@ public:
     static float sunZenithFactor(float szaDeg);
 
     /**
-     * Twilight fade, 1.0 up to SzaLimit falling smoothly to 0.0 at SzaMax.
-     * Multiplies the corrected reflectance. Cosmetic only - the correction is
-     * already heading to zero on its own by then; this keeps the last stretch
-     * from ending on a visible step.
+     * Scale applied to the path reflectance past SzaLimit:
+     * min(1, cos(sza)/cos(SzaLimit)), and 0 once the sun is below the horizon.
+     *
+     * Freezing the amplification at SzaLimit means the signal handed to the
+     * subtraction is no longer a BRF but a BRF scaled by exactly this factor.
+     * What is taken away has to be scaled to match, or a fixed rho eats a
+     * shrinking signal - and it eats vis_04 first, since its rho is three times
+     * vis_06's, which turns the twilight zone red.
+     *
+     * With both scaled the corrected value is simply
+     * scale * (BRF - rho(SzaLimit)): every band dimmed by the same factor, so no
+     * colour shift, and reaching zero exactly at the terminator. That also makes
+     * a separate twilight fade unnecessary - the geometry supplies one.
      */
-    static float twilightFade(float szaDeg);
+    static float pathReflectanceScale(float szaDeg);
 
     /**
      * Rayleigh path reflectance for an FCI solar band, all scattering orders.

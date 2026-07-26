@@ -70,15 +70,15 @@ float RayleighCorrector::sunZenithFactor(float szaDeg)
     return static_cast<float>(1.0 / std::cos(sza * d2r));
 }
 
-float RayleighCorrector::twilightFade(float szaDeg)
+float RayleighCorrector::pathReflectanceScale(float szaDeg)
 {
     if (szaDeg <= SzaLimit)
         return 1.0f;
-    if (szaDeg >= SzaMax)
+    if (szaDeg >= 90.0f)
         return 0.0f;
 
-    const float t = (szaDeg - SzaLimit) / (SzaMax - SzaLimit);
-    return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep, C1 at both ends
+    const double d2r = M_PI / 180.0;
+    return static_cast<float>(std::cos(szaDeg * d2r) / std::cos(SzaLimit * d2r));
 }
 
 float RayleighCorrector::waterFraction(float longBandReflectance)
@@ -108,12 +108,16 @@ float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
     const double mu0 = std::max(std::cos(szaDeg * d2r), std::cos(SzaLimit * d2r));
     const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
 
+    const float scale = pathReflectanceScale(szaDeg);
+    if (scale <= 0.0f)
+        return 0.0f;
+
     const RayleighRT::Solution &s = RayleighRT::forBand(bandIndex);
     const double land = RayleighRT::reflectance(s, mu0, muv, raaDeg, false);
 
     if (water <= 0.0f)
-        return static_cast<float>(land);
+        return static_cast<float>(scale * land);
 
     const double ocean = RayleighRT::reflectance(s, mu0, muv, raaDeg, true);
-    return static_cast<float>(land + water * (ocean - land));
+    return static_cast<float>(scale * (land + water * (ocean - land)));
 }
