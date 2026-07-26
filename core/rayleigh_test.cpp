@@ -167,6 +167,13 @@ static void testPathReflectanceScale()
         prev = k;
     }
 
+    // The scale must die at the terminator, but the image must not - that is
+    // twilightFade's range, and it runs well past 90.
+    check(RayleighCorrector::SzaMax > 90.0f,
+          "the fade outlasts the geometric terminator");
+    check(RayleighCorrector::twilightFade(90.0f) > 0.0f,
+          "there is still image at the terminator");
+
     // The whole point: past the limit the subtraction must shrink with the
     // signal. A fixed rho against a shrinking signal is what reddened twilight.
     const float near = RayleighCorrector::pathReflectance(0, 84.0f, 40.0f, 90.0f);
@@ -174,6 +181,35 @@ static void testPathReflectanceScale()
     check(far < 0.4f * near, "path reflectance shrinks steeply through twilight");
     check(RayleighCorrector::pathReflectance(0, 91.0f, 40.0f, 90.0f) == 0.0f,
           "no subtraction once the sun is down");
+}
+
+static void testTwilightFade()
+{
+    for (float sza = 0.0f; sza <= RayleighCorrector::SzaLimit; sza += 10.0f)
+        check(RayleighCorrector::twilightFade(sza) == 1.0f, "no fade in daylight");
+
+    check(RayleighCorrector::twilightFade(RayleighCorrector::SzaMax) == 0.0f,
+          "fully faded at SzaMax");
+    check(RayleighCorrector::twilightFade(150.0f) == 0.0f, "fully faded at night");
+
+    const float mid = 0.5f * (RayleighCorrector::SzaLimit + RayleighCorrector::SzaMax);
+    checkClose(RayleighCorrector::twilightFade(mid), 0.5, 1e-6, "half faded at the midpoint");
+
+    // A visible ramp, not an edge: several degrees of partial brightness, and
+    // still lit where pathReflectanceScale has already reached zero.
+    int graded = 0;
+    float prev = 1.0f;
+    for (float sza = 0.0f; sza <= 100.0f; sza += 0.5f) {
+        const float w = RayleighCorrector::twilightFade(sza);
+        check(w >= 0.0f && w <= 1.0f, "fade stays within [0,1]");
+        check(w <= prev + 1e-7f, "fade is monotonically decreasing");
+        if (w > 0.02f && w < 0.98f) ++graded;
+        prev = w;
+    }
+    check(graded > 15, "the fade spans many degrees rather than cutting");
+    check(RayleighCorrector::twilightFade(92.0f) > 0.0f
+              && RayleighCorrector::pathReflectanceScale(92.0f) == 0.0f,
+          "image survives past the terminator where the subtraction has stopped");
 }
 
 static void testPathReflectance()
@@ -253,6 +289,7 @@ int main()
     testPhaseFunction();
     testSunZenithFactor();
     testPathReflectanceScale();
+    testTwilightFade();
     testPathReflectance();
 
     if (g_failures) {

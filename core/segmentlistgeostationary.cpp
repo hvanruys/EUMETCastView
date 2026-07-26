@@ -9790,10 +9790,12 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
             // amplification and the path reflectance keep describing the same
             // sun and their difference stays meaningful.
             const float f = RayleighCorrector::sunZenithFactor(szaDeg);
-            // Zero once the sun is down. Everything between SzaLimit and the
-            // terminator is dimmed by pathReflectanceScale inside
-            // pathReflectance, which fades signal and subtraction together.
-            const float w = RayleighCorrector::pathReflectanceScale(szaDeg);
+            // Two different jobs. pathReflectanceScale, inside pathReflectance,
+            // keeps the subtraction in step with the frozen amplification so
+            // twilight does not shift colour. twilightFade carries the image to
+            // black over SzaLimit..SzaMax, well past the terminator, so the
+            // transition is a ramp rather than an edge.
+            const float w = RayleighCorrector::twilightFade(szaDeg);
 
             // Decide how watery the pixel is before correcting anything, from
             // the longest solar band against a black lower boundary. Water is
@@ -9822,7 +9824,7 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
                 const float rho = RayleighCorrector::pathReflectance(
                     solarBands.at(k), szaDeg, vzaDeg, raaDeg, water);
 
-                buf[i_pix] = qMax(0.0f, brf - rho);
+                buf[i_pix] = w * qMax(0.0f, brf - rho);
             }
         }
 

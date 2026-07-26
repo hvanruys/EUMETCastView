@@ -81,6 +81,17 @@ float RayleighCorrector::pathReflectanceScale(float szaDeg)
     return static_cast<float>(std::cos(szaDeg * d2r) / std::cos(SzaLimit * d2r));
 }
 
+float RayleighCorrector::twilightFade(float szaDeg)
+{
+    if (szaDeg <= SzaLimit)
+        return 1.0f;
+    if (szaDeg >= SzaMax)
+        return 0.0f;
+
+    const float t = (szaDeg - SzaLimit) / (SzaMax - SzaLimit);
+    return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep, C1 at both ends
+}
+
 float RayleighCorrector::waterFraction(float longBandReflectance)
 {
     constexpr float lo = 0.05f;   // darker than this is certainly water

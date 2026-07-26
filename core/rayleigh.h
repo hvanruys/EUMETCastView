@@ -97,10 +97,29 @@ public:
      *
      * With both scaled the corrected value is simply
      * scale * (BRF - rho(SzaLimit)): every band dimmed by the same factor, so no
-     * colour shift, and reaching zero exactly at the terminator. That also makes
-     * a separate twilight fade unnecessary - the geometry supplies one.
+     * colour shift.
+     *
+     * This is about *what is subtracted*, not about when the image goes dark.
+     * It reaches zero at the geometric terminator, where there is no longer a
+     * sunlit surface to have a path reflectance for; the atmosphere above one is
+     * still lit, and how that last light fades out is twilightFade's job.
      */
     static float pathReflectanceScale(float szaDeg);
+
+    /**
+     * Twilight fade, 1.0 up to SzaLimit falling smoothly to 0.0 at SzaMax.
+     * Multiplies the corrected reflectance, so it dims every band alike and
+     * cannot tint anything.
+     *
+     * Needed as well as pathReflectanceScale, not instead of it. Past roughly
+     * sza 86 a plane-parallel model recovers only about a third of the observed
+     * radiance - the real atmosphere is lit through a curved shell and the flat
+     * one is not - so what is left over there is mostly model error, and it is
+     * blue, because Rayleigh is. This fades that stretch out rather than
+     * pretending to correct it, and carries the image to black across twelve
+     * degrees instead of stopping dead at 90.
+     */
+    static float twilightFade(float szaDeg);
 
     /**
      * Rayleigh path reflectance for an FCI solar band, all scattering orders.
