@@ -22,25 +22,15 @@ public:
 
     /**
      * Viewing zenith angle beyond which the geometry is frozen, degrees.
-     * Plane-parallel single scattering stops describing a real, curved
-     * atmosphere near grazing view; past this the correction plateaus at its
-     * VzaLimit value instead of following the diverging 1/muv.
      *
-     * Set from measurement, not taste. Recovered clear-ocean reflectance on a
-     * real disc still rises with vza past 80 degrees, so the correction is under-
-     * strength there, by about 1.3x in vis_04 - freezing at 80 was too cautious.
-     * 85 is as far as it is worth pushing: beyond it 1/muv runs away, the
-     * reflectance ceiling starts doing the work instead of the geometry, and the
-     * outermost pixels are heavily smeared anyway.
+     * No longer a numerical guard - the doubling solution is finite and
+     * reciprocal all the way to the horizon. It is a statement about trust: the
+     * layer is plane-parallel and the solver is scalar with 32 streams, and
+     * within a few degrees of the limb none of those hold well enough to justify
+     * subtracting what the model returns (rho exceeds 3 in the twilight corner).
+     * Past this the correction plateaus at its VzaLimit value.
      */
     static constexpr float VzaLimit = 85.0f;
-
-    /**
-     * Relative air mass at the horizon, Kasten & Young (1989). The plane-
-     * parallel 1/cos diverges at 90 degrees; the real spherical-shell value
-     * saturates near 38.
-     */
-    static constexpr double HorizonAirMass = 38.0;
 
     /**
      * Rayleigh optical depth at sea level for an FCI band index (0..15).
@@ -71,41 +61,28 @@ public:
                                  float maxSzaDeg = SzaMax);
 
     /**
-     * Single-scattering Rayleigh path reflectance for a homogeneous layer.
+     * Rayleigh path reflectance for an FCI solar band, all scattering orders.
      * Subtract this from a sun-normalised BRF to remove molecular scattering.
      *
-     * The solar cosine is floored at cos(SzaLimit) and the viewing cosine at
-     * cos(VzaLimit): from geostationary orbit the viewing zenith angle reaches
-     * 90 degrees at the visible disc edge, so 1/(mu0+muv) would otherwise
-     * diverge at the limb. The result is then eased smoothly into
-     * maxPathReflectance(tau) so it can never exceed what the layer is able to
-     * reflect. Both bounds leave the sub-VzaLimit result untouched to well
-     * within the model's own accuracy.
+     * Evaluates the doubling solution in RayleighRT, which supersedes the
+     * single-scattering formula this used to compute. Multiple scattering is not
+     * a small correction here: at tau 0.234 it adds 32 % at nadir and 44 % at
+     * grazing view, so the old formula under-removed haze everywhere and most at
+     * the limb.
      *
-     * The correction is deliberately *not* tapered away toward the limb.
-     * Fading it out leaves the haze it was meant to remove in place, and since
-     * the disc interior is de-hazed the leftover reads as a bright blue ring.
+     * The solar cosine is floored at cos(SzaLimit) to match sunZenithFactor's
+     * own limit, and the viewing cosine at cos(VzaLimit) - see that constant.
+     * The correction is deliberately never tapered away toward the limb: fading
+     * it out leaves the haze it was meant to remove in place, and since the disc
+     * interior is de-hazed the leftover reads as a bright blue ring.
      *
-     * @param tau    Rayleigh optical depth; <= 0 returns 0
-     * @param szaDeg solar zenith angle, degrees
-     * @param vzaDeg viewing zenith angle, degrees
-     * @param raaDeg relative azimuth angle, degrees, folded into [0, 180]
+     * @param bandIndex FCI band 0..7; IR and out-of-range indices return 0
+     * @param szaDeg    solar zenith angle, degrees
+     * @param vzaDeg    viewing zenith angle, degrees
+     * @param raaDeg    relative azimuth angle, degrees, folded into [0, 180]
      */
-    static float pathReflectance(double tau, float szaDeg,
+    static float pathReflectance(int bandIndex, float szaDeg,
                                  float vzaDeg, float raaDeg);
-
-    /**
-     * Largest path reflectance a Rayleigh layer of this optical depth can
-     * produce: the conservative two-stream plane albedo at horizon air mass,
-     * R = (3/4)*tau*M / (1 + (3/4)*tau*M), with M = HorizonAirMass.
-     *
-     * Single scattering has no such bound - its (1 - exp) factor saturates at 1
-     * while the 1/(mu0+muv) prefactor keeps growing - so at very large air mass
-     * it returns reflectances above 1. Rayleigh scattering is conservative
-     * (no absorption), so this is the true ceiling, and being derived from tau
-     * it is per-band rather than a tuned constant.
-     */
-    static double maxPathReflectance(double tau);
 };
 
 #endif // RAYLEIGH_H

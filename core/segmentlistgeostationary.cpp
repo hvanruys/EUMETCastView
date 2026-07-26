@@ -9665,13 +9665,13 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
 {
     // Which slots in bandBuf hold solar bands? IR bands get neither
     // sun-normalisation nor a Rayleigh correction.
-    QList<int>    solarSlots;
-    QList<double> solarTau;
+    QList<int> solarSlots;
+    QList<int> solarBands;
     for (int bi = 0; bi < bandIndices.size(); ++bi) {
         const int bandIndex = bandIndices.at(bi);
         if (bandIndex >= 0 && bandIndex < RayleighCorrector::SolarBandCount) {
             solarSlots.append(bi);
-            solarTau.append(RayleighCorrector::opticalDepthFCI(bandIndex));
+            solarBands.append(bandIndex);
         }
     }
 
@@ -9780,7 +9780,7 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
 
                 const float brf = buf[i_pix] * f;
                 const float rho = RayleighCorrector::pathReflectance(
-                    solarTau.at(k), szaDeg, vzaDeg, raaDeg);
+                    solarBands.at(k), szaDeg, vzaDeg, raaDeg);
 
                 buf[i_pix] = qMax(0.0f, brf - rho);
             }

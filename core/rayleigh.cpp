@@ -6,6 +6,7 @@
 //   https://pyspectral.readthedocs.io/en/master/rayleigh_correction.html
 
 #include "rayleigh.h"
+#include "rayleigh_rt.h"
 
 #include <cmath>
 #include <algorithm>
@@ -82,44 +83,20 @@ float RayleighCorrector::sunZenithFactor(float szaDeg, float limitDeg, float max
     return static_cast<float>(grad / limitCos);
 }
 
-double RayleighCorrector::maxPathReflectance(double tau)
-{
-    if (tau <= 0.0)
-        return 0.0;
-
-    const double x = 0.75 * tau * HorizonAirMass;
-    return x / (1.0 + x);
-}
-
-float RayleighCorrector::pathReflectance(double tau, float szaDeg,
+float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
                                          float vzaDeg, float raaDeg)
 {
-    if (tau <= 0.0)
+    if (bandIndex < 0 || bandIndex >= SolarBandCount)
         return 0.0f;
 
     const double d2r = M_PI / 180.0;
 
-    // Clamp both zenith angles. vza reaches 90 degrees at the visible disc edge,
-    // where 1/(mu0+muv) diverges and plane-parallel geometry no longer describes
-    // a curved atmosphere; past VzaLimit the correction plateaus rather than
-    // running away. sza is floored to match sunZenithFactor's own limit.
+    // Floor both cosines. sza matches sunZenithFactor's limit so the two halves
+    // of the chain agree; vza stops at VzaLimit because the model is not worth
+    // trusting nearer the limb than that.
     const double mu0 = std::max(std::cos(szaDeg * d2r), std::cos(SzaLimit * d2r));
     const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
 
-    const double sin0 = std::sqrt(std::max(0.0, 1.0 - mu0 * mu0));
-    const double sinv = std::sqrt(std::max(0.0, 1.0 - muv * muv));
-
-    const double cosScatter = -mu0 * muv + sin0 * sinv * std::cos(raaDeg * d2r);
-
-    const double rho = phaseFunction(cosScatter) / (4.0 * (mu0 + muv))
-                     * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
-
-    // Ease into the layer's reflectance ceiling. The fourth-power soft clip is
-    // within 0.2 % of rho while rho stays below half the ceiling - which covers
-    // the whole disc outside deep twilight - and saturates smoothly above it,
-    // so nothing anywhere in the image gets a discontinuity.
-    const double cap = maxPathReflectance(tau);
-    const double s   = rho / cap;
-
-    return static_cast<float>(rho / std::pow(1.0 + s * s * s * s, 0.25));
+    return static_cast<float>(
+        RayleighRT::reflectance(RayleighRT::forBand(bandIndex), mu0, muv, raaDeg));
 }
