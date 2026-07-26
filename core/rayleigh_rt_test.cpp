@@ -214,6 +214,65 @@ static void testMultipleScatteringMatters()
     check(ratioAt75 > 1.05, "multiple scattering adds materially at large air mass");
 }
 
+static void testOceanSurface()
+{
+    // Fresnel reflectance of water: nearly flat and small until it turns up
+    // steeply past 60 degrees. That turn-up is the whole mechanism.
+    checkClose(RayleighRT::fresnelWater(1.0), 0.0209, 1e-3, "Fresnel at normal incidence");
+    check(RayleighRT::fresnelWater(std::cos(80.0 * M_PI / 180.0)) > 0.3,
+          "Fresnel exceeds 0.3 at 80 degrees");
+    double prev = -1.0;
+    for (double v = 0.0; v <= 89.0; v += 1.0) {
+        const double r = RayleighRT::fresnelWater(std::cos(v * M_PI / 180.0));
+        check(r >= prev && r <= 1.0, "Fresnel rises monotonically and stays physical");
+        prev = r;
+    }
+
+    const RayleighRT::Solution &s = RayleighRT::forBand(0);
+    const double d2r = M_PI / 180.0;
+
+    // Adding a reflecting surface under the atmosphere can only send more light
+    // back up, never less, at every geometry.
+    double worstRatio = 1e9;
+    for (double sza = 0.0; sza <= 80.0; sza += 5.0)
+        for (double vza = 0.0; vza <= 85.0; vza += 5.0)
+            for (double raa = 0.0; raa <= 180.0; raa += 30.0) {
+                const double r  = RayleighRT::reflectance(s, std::cos(sza * d2r),
+                                                          std::cos(vza * d2r), raa, false);
+                const double ro = RayleighRT::reflectance(s, std::cos(sza * d2r),
+                                                          std::cos(vza * d2r), raa, true);
+                if (ro < r) {
+                    std::printf("FAIL : sea surface removes light at sza %.0f vza %.0f raa %.0f\n",
+                                sza, vza, raa);
+                    ++g_failures;
+                    return;
+                }
+                if (r > 0.0) worstRatio = std::min(worstRatio, ro / r);
+            }
+    check(worstRatio >= 1.0, "sea surface never reduces the reflectance");
+
+    // And the extra must grow with view angle the way Fresnel does - this is
+    // what flattens the ocean limb. Measured on a real disc, the residual the
+    // black-surface model left behind was 0.0085 / 0.0184 / 0.0446 at vza
+    // 60 / 70 / 80; the model must land in that region, not an order off.
+    const double mu0 = std::cos(50.0 * d2r);
+    const double d60 = RayleighRT::reflectance(s, mu0, std::cos(60.0 * d2r), 90.0, true)
+                     - RayleighRT::reflectance(s, mu0, std::cos(60.0 * d2r), 90.0, false);
+    const double d80 = RayleighRT::reflectance(s, mu0, std::cos(80.0 * d2r), 90.0, true)
+                     - RayleighRT::reflectance(s, mu0, std::cos(80.0 * d2r), 90.0, false);
+    std::printf("info : sea-surface term at vza 60 / 80 = %.4f / %.4f "
+                "(measured residual 0.0085 / 0.0446)\n", d60, d80);
+    check(d80 > 2.5 * d60, "sea-surface term ramps steeply with view angle");
+    check(d60 > 0.004 && d60 < 0.02, "sea-surface term at vza 60 is the right size");
+    check(d80 > 0.02  && d80 < 0.08, "sea-surface term at vza 80 is the right size");
+
+    // A thinner atmosphere sends less skylight down, so there is less to reflect.
+    const RayleighRT::Solution &red = RayleighRT::forBand(2);
+    const double dRed = RayleighRT::reflectance(red, mu0, std::cos(80.0 * d2r), 90.0, true)
+                      - RayleighRT::reflectance(red, mu0, std::cos(80.0 * d2r), 90.0, false);
+    check(dRed < d80, "vis_06 gets less sky glint than vis_04");
+}
+
 int main()
 {
     testQuadrature();
@@ -222,6 +281,7 @@ int main()
     testThinLimit();
     testPhysicalBounds();
     testMultipleScatteringMatters();
+    testOceanSurface();
 
     std::printf("\n%s\n", g_failures ? "FAILED" : "all checks passed");
     return g_failures ? 1 : 0;

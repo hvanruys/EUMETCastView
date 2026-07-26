@@ -113,9 +113,29 @@ public:
      * @param szaDeg    solar zenith angle, degrees
      * @param vzaDeg    viewing zenith angle, degrees
      * @param raaDeg    relative azimuth angle, degrees, folded into [0, 180]
+     * @param water     0 for a black lower boundary, 1 for a Fresnel sea
+     *                  surface, blended in between
      */
     static float pathReflectance(int bandIndex, float szaDeg,
-                                 float vzaDeg, float raaDeg);
+                                 float vzaDeg, float raaDeg,
+                                 float water = 0.0f);
+
+    /**
+     * How much a pixel should be treated as open water, from its reflectance in
+     * the longest-wavelength solar band available.
+     *
+     * Water absorbs strongly toward the red and near-infrared, so it is far
+     * darker there than land, cloud or snow. Blended rather than thresholded:
+     * a hard mask would draw its own edges into the image, and a misjudged
+     * pixel degrades gradually instead of jumping.
+     *
+     * Thresholds sit in the gap measured on a real disc - recovered vis_06 runs
+     * about 0.03-0.05 over clear ocean against 0.18-0.32 over land.
+     */
+    static float waterFraction(float longBandReflectance);
+
+    /** Shortest wavelength usable for waterFraction, micrometres. */
+    static constexpr double MinWaterTestLambda = 0.6;
 };
 
 #endif // RAYLEIGH_H

@@ -122,9 +122,59 @@ The disc interior is now fully corrected — what remains there is water-leaving
 reflectance, which is the right answer. The limb ramp is untouched, as expected:
 it is Stage 3's to remove.
 
+## Stage 3 as built
+
+Not a term bolted onto the correction: the sea surface becomes the **lower
+boundary of the radiative transfer**, which is how SeaDAS does it. A flat
+Fresnel interface reflects each direction into its mirror and nowhere else, so
+as an operator it is exactly **diagonal** — and a diagonal is identical in every
+Fourier mode, so it enters the adding equations with no truncation error in the
+three-mode framework:
+
+```
+R_ocean = R + T_up (I - Rs R)^-1 Rs T_down,    Rs = diag(rF(mu))
+```
+
+The water below the interface stays black, so subtracting `R_ocean` leaves the
+water-leaving reflectance — the ocean colour one wants to see.
+
+Validated against the residual the black-surface model left behind, with no
+fitted parameter anywhere:
+
+| vza | model `R_ocean - R` | measured residual |
+|---|---|---|
+| 60° | 0.0117 | 0.0085 |
+| 70° | 0.0214 | 0.0184 |
+| 80° | 0.0372 | 0.0446 |
+
+**Sun glint is not modelled.** A flat surface reflects the direct beam
+specularly, and a delta in azimuth cannot live in three Fourier modes — it would
+smear an oscillating ghost across the disc. So `T_down` excludes the direct
+beam. Glint is a separate analytic Cox–Munk term; skylight, which is smooth and
+is what draws the limb ramp, is handled exactly. This also means wind speed does
+not enter yet.
+
+### The water test, and what is weak about it
+
+`waterFraction` blends the boundary from the recipe's longest-wavelength solar
+band, since water is far darker than land toward the red. Blended, not
+thresholded, so a misjudged pixel degrades gradually instead of drawing its own
+edge into the image. Thresholds 0.05–0.13 sit in the measured gap: recovered
+`vis_06` runs 0.03–0.05 over clear ocean against 0.18–0.32 over land.
+
+The weak case is **dark vegetation seen at high view angle**, which a `vis_06`
+test reads as water. Congo is near nadir where the term is only 0.005, so it
+does not matter there; Amazon at the west limb is the real exposure, and would
+be over-corrected by roughly 0.02 in `vis_04`. Recipes carrying `nir_16` or
+`vis_08` separate cleanly and are unaffected.
+
+A GSHHS-rasterised land/sea mask is the robust answer and remains open. Note it
+is not strictly better: a geographic mask applies the sea surface underneath
+cloud, where it is wrong, and the darkness test does not.
+
 ## Status
 
 - [x] Stage 1
 - [x] Stage 1a
-- [ ] Stage 2
-- [ ] Stage 3 — the one that removes the remaining ring
+- [ ] Stage 2 — Lambertian coupling over land, still a black boundary there
+- [x] Stage 3

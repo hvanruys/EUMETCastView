@@ -9678,6 +9678,27 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
     if (solarSlots.isEmpty())
         return;   // IR-only recipe
 
+    // Longest-wavelength solar band in this recipe drives the water test. Band
+    // indices run blue to infrared, so that is simply the largest. Bands below
+    // MinWaterTestLambda cannot separate water from dark vegetation, and rather
+    // than guess we fall back to a black lower boundary everywhere - which is
+    // what the correction did before the sea surface was modelled at all.
+    int maskSlot = -1, maskBand = -1;
+    for (int k = 0; k < solarSlots.size(); ++k) {
+        if (solarBands.at(k) > maskBand) {
+            maskBand = solarBands.at(k);
+            maskSlot = solarSlots.at(k);
+        }
+    }
+    const bool useOcean =
+        RayleighCorrector::opticalDepthFCI(maskBand) > 0.0 &&
+        RayleighCorrector::opticalDepthAt(RayleighCorrector::MinWaterTestLambda)
+            >= RayleighCorrector::opticalDepthFCI(maskBand);
+
+    if (!useOcean)
+        qWarning() << "FCI Rayleigh: longest solar band in this recipe is too blue"
+                   << "to separate water from land; sea surface not modelled";
+
     // Navigation parameters. Same convention FormImage::DrawLongLat uses for the
     // MET_12 coastline overlay: positive INI factors with the display row.
     const bool   hires = (outRes == 11136);
@@ -9771,6 +9792,18 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
             const float f = RayleighCorrector::sunZenithFactor(szaDeg);
             const float w = RayleighCorrector::twilightFade(szaDeg);
 
+            // Decide how watery the pixel is before correcting anything, from
+            // the longest solar band against a black lower boundary. Water is
+            // far darker than land toward the red, and this is the term that
+            // decides whether the sea surface reflects sky into the view.
+            float water = 0.0f;
+            if (useOcean && w > 0.0f && bandBuf[maskSlot][i_pix] != FILL_VALUE_F) {
+                const float mb = bandBuf[maskSlot][i_pix] * f
+                               - RayleighCorrector::pathReflectance(
+                                     maskBand, szaDeg, vzaDeg, raaDeg);
+                water = RayleighCorrector::waterFraction(qMax(0.0f, mb));
+            }
+
             for (int k = 0; k < solarSlots.size(); ++k) {
                 float *buf = bandBuf[solarSlots.at(k)];
 
@@ -9784,7 +9817,7 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
 
                 const float brf = buf[i_pix] * f;
                 const float rho = RayleighCorrector::pathReflectance(
-                    solarBands.at(k), szaDeg, vzaDeg, raaDeg);
+                    solarBands.at(k), szaDeg, vzaDeg, raaDeg, water);
 
                 buf[i_pix] = w * qMax(0.0f, brf - rho);
             }

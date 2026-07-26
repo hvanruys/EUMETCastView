@@ -37,6 +37,18 @@ public:
          */
         double R[3][Nodes][Nodes];
 
+        /**
+         * Same, but with a Fresnel-reflecting water surface as the lower
+         * boundary instead of a black one. The difference between this and R is
+         * skylight reflected off the sea and transmitted back out - the term
+         * that ramps with view angle and brightens the ocean limb.
+         *
+         * The water body below the interface is treated as black, so
+         * subtracting this leaves the water-leaving reflectance, which is the
+         * ocean colour one actually wants to see.
+         */
+        double Rocean[3][Nodes][Nodes];
+
         double Ttot[Nodes];            /**< total (direct + diffuse) transmittance */
         double planeAlbedo[Nodes];     /**< reflected flux fraction per incidence  */
         double sphericalAlbedo;        /**< albedo for isotropic illumination      */
@@ -52,8 +64,19 @@ public:
      */
     static const Solution &forBand(int bandIndex);
 
-    /** Bidirectional reflectance, bilinear in both cosines, exact in azimuth. */
-    static double reflectance(const Solution &s, double mu0, double muv, double raaDeg);
+    /** Refractive index of sea water in the visible. */
+    static constexpr double WaterRefractiveIndex = 1.34;
+
+    /** Fresnel reflectance of the water surface for unpolarised light. */
+    static double fresnelWater(double mu);
+
+    /**
+     * Bidirectional reflectance, bilinear in both cosines, exact in azimuth.
+     * @param ocean subtract over water: adds the sea surface as the lower
+     *              boundary rather than a black one
+     */
+    static double reflectance(const Solution &s, double mu0, double muv,
+                              double raaDeg, bool ocean = false);
 
     /** Total transmittance along one path. */
     static double transmittance(const Solution &s, double mu);

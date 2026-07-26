@@ -81,8 +81,21 @@ float RayleighCorrector::twilightFade(float szaDeg)
     return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep, C1 at both ends
 }
 
+float RayleighCorrector::waterFraction(float longBandReflectance)
+{
+    constexpr float lo = 0.05f;   // darker than this is certainly water
+    constexpr float hi = 0.13f;   // brighter than this is certainly not
+
+    if (longBandReflectance <= lo) return 1.0f;
+    if (longBandReflectance >= hi) return 0.0f;
+
+    const float t = (longBandReflectance - lo) / (hi - lo);
+    return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep
+}
+
 float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
-                                         float vzaDeg, float raaDeg)
+                                         float vzaDeg, float raaDeg,
+                                         float water)
 {
     if (bandIndex < 0 || bandIndex >= SolarBandCount)
         return 0.0f;
@@ -95,6 +108,12 @@ float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
     const double mu0 = std::max(std::cos(szaDeg * d2r), std::cos(SzaLimit * d2r));
     const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
 
-    return static_cast<float>(
-        RayleighRT::reflectance(RayleighRT::forBand(bandIndex), mu0, muv, raaDeg));
+    const RayleighRT::Solution &s = RayleighRT::forBand(bandIndex);
+    const double land = RayleighRT::reflectance(s, mu0, muv, raaDeg, false);
+
+    if (water <= 0.0f)
+        return static_cast<float>(land);
+
+    const double ocean = RayleighRT::reflectance(s, mu0, muv, raaDeg, true);
+    return static_cast<float>(land + water * (ocean - land));
 }

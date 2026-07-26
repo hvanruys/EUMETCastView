@@ -120,6 +120,19 @@ void doubleLayer(double *Rh, double *Th, int n)
     std::copy(Q, Q + n * n, Th);
 }
 
+double fresnelUnpolarised(double mu, double n)
+{
+    mu = std::max(0.0, std::min(1.0, mu));
+    const double sin_i = std::sqrt(std::max(0.0, 1.0 - mu * mu));
+    const double sin_t = sin_i / n;
+    if (sin_t >= 1.0) return 1.0;                     // cannot happen entering water
+    const double cos_t = std::sqrt(std::max(0.0, 1.0 - sin_t * sin_t));
+
+    const double rs = (mu - n * cos_t) / (mu + n * cos_t);
+    const double rp = (n * mu - cos_t) / (n * mu + cos_t);
+    return 0.5 * (rs * rs + rp * rp);
+}
+
 const double *bandTauTable()
 {
     static double t[RayleighCorrector::SolarBandCount];
@@ -141,7 +154,11 @@ void RayleighRT::solve(double tau, Solution &out)
     if (tau <= 0.0) {
         for (int m = 0; m < 3; ++m)
             for (int i = 0; i < N; ++i)
-                for (int j = 0; j < N; ++j) out.R[m][i][j] = 0.0;
+                for (int j = 0; j < N; ++j) {
+                    out.R[m][i][j] = 0.0;
+                    // No atmosphere, but the sea surface still reflects the sun.
+                    out.Rocean[m][i][j] = 0.0;
+                }
         for (int i = 0; i < N; ++i) { out.Ttot[i] = 1.0; out.planeAlbedo[i] = 0.0; }
         out.sphericalAlbedo = 0.0;
         return;
@@ -180,6 +197,47 @@ void RayleighRT::solve(double tau, Solution &out)
 
         for (int k = 0; k < kDoublings; ++k)
             doubleLayer(Rh, Th, N);
+
+        // Add the sea surface as a lower boundary. A flat Fresnel interface
+        // reflects each direction into its mirror and nowhere else, so as an
+        // operator it is exactly diagonal - and a diagonal is the same in every
+        // Fourier mode, which means it drops into the adding equations here
+        // with no truncation error at all.
+        //
+        //   R_ocean = R + T_up (I - Rs R)^-1 Rs T_down,   Rs = diag(rF)
+        //
+        // T_down deliberately excludes the direct solar beam. A flat surface
+        // reflects that beam specularly, and a delta in azimuth cannot be
+        // represented in three Fourier modes - it would smear an oscillating
+        // ghost across the whole disc. So sun glint is not modelled; it is a
+        // separate analytic Cox-Munk term. Skylight, which is smooth and is
+        // what draws the limb ramp, is handled exactly.
+        {
+            double Rs[N], Td[N * N], B[N * N], Q[N * N], S[N * N], X[N * N];
+            for (int i = 0; i < N; ++i)
+                Rs[i] = fresnelWater(out.mu[i]);
+
+            for (int i = 0; i < N; ++i)
+                for (int j = 0; j < N; ++j)
+                    Td[i * N + j] = Th[i * N + j]
+                                  - (i == j ? std::exp(-tau / out.mu[i]) : 0.0);
+
+            for (int i = 0; i < N; ++i)
+                for (int j = 0; j < N; ++j) {
+                    B[i * N + j] = -Rs[i] * Rh[i * N + j];
+                    S[i * N + j] =  Rs[i] * Td[i * N + j];
+                }
+            for (int i = 0; i < N; ++i) B[i * N + i] += 1.0;
+            invert(B, N);                       // B = (I - Rs R)^-1
+
+            matmul(Th, B, X, N);
+            matmul(X, S, Q, N);                 // Q = T_up (I - Rs R)^-1 Rs T_down
+
+            for (int i = 0; i < N; ++i)
+                for (int j = 0; j < N; ++j)
+                    out.Rocean[m][i][j] = (Rh[i * N + j] + Q[i * N + j])
+                                        / (2.0 * out.mu[j] * out.wt[j]);
+        }
 
         for (int i = 0; i < N; ++i)
             for (int j = 0; j < N; ++j)
@@ -223,7 +281,13 @@ const RayleighRT::Solution &RayleighRT::forBand(int bandIndex)
     return sols[bandIndex];
 }
 
-double RayleighRT::reflectance(const Solution &s, double mu0, double muv, double raaDeg)
+double RayleighRT::fresnelWater(double mu)
+{
+    return fresnelUnpolarised(mu, WaterRefractiveIndex);
+}
+
+double RayleighRT::reflectance(const Solution &s, double mu0, double muv,
+                               double raaDeg, bool ocean)
 {
     if (s.tau <= 0.0)
         return 0.0;
@@ -247,8 +311,9 @@ double RayleighRT::reflectance(const Solution &s, double mu0, double muv, double
 
     double rho = 0.0;
     for (int m = 0; m < 3; ++m) {
-        const double a = s.R[m][iv][i0v]     * (1 - fv) + s.R[m][iv + 1][i0v]     * fv;
-        const double b = s.R[m][iv][i0v + 1] * (1 - fv) + s.R[m][iv + 1][i0v + 1] * fv;
+        const double (*T)[Nodes] = ocean ? s.Rocean[m] : s.R[m];
+        const double a = T[iv][i0v]     * (1 - fv) + T[iv + 1][i0v]     * fv;
+        const double b = T[iv][i0v + 1] * (1 - fv) + T[iv + 1][i0v + 1] * fv;
         rho += az[m] * (a * (1 - f0) + b * f0);
     }
     return std::max(0.0, rho);
