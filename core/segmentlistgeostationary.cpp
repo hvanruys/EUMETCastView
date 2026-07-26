@@ -9659,9 +9659,30 @@ int SegmentListGeostationary::read_charls_compressed(const char* filename, const
  *
  * See docs/superpowers/specs/2026-07-25-fci-rayleigh-correction-design.md
  */
+/**
+ * Mid-acquisition time of one FCI segment, from the OPE_<start>_<end> fields of
+ * its filename. Invalid if they cannot be read.
+ */
+static QDateTime fciSegmentMidTime(const QString &fname)
+{
+    const int k = fname.indexOf("_OPE_");
+    if (k < 0)
+        return QDateTime();
+
+    QDateTime t0 = QDateTime::fromString(fname.mid(k + 5, 14), "yyyyMMddhhmmss");
+    QDateTime t1 = QDateTime::fromString(fname.mid(k + 20, 14), "yyyyMMddhhmmss");
+    if (!t0.isValid() || !t1.isValid())
+        return QDateTime();
+
+    t0.setTimeZone(QTimeZone::UTC);
+    t1.setTimeZone(QTimeZone::UTC);
+    return t0.addMSecs(t0.msecsTo(t1) / 2);
+}
+
 void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
                                                        const QList<int> &bandIndices,
-                                                       int outRes)
+                                                       int outRes,
+                                                       const QVector<double> &rowJd)
 {
     // Which slots in bandBuf hold solar bands? IR bands get neither
     // sun-normalisation nor a Rayleigh correction.
@@ -9737,8 +9758,23 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
     const double satY   = SAT_HEIGHT * sin(subLon * D2R);
     const double satZ   = 0.0;
 
-    struct snu_solar_epoch epoch;
-    snu_solar_epoch_init(jtime, &epoch);
+    // FCI takes about ten minutes to sweep the disc south to north, so a single
+    // slot time is wrong by up to that much at the northern edge - roughly 2.4
+    // degrees of solar hour angle. Near the terminator, where rho changes fast
+    // with sza, that is enough to over- or under-remove by more than the whole
+    // blue signal. Worse, it is one-signed: the modelled sun always lags, so a
+    // sunrise terminator is under-corrected and a sunset one over-corrected,
+    // which is why evening twilight came out red while morning did not.
+    double jtimeFallback = jtime;
+    int validRows = 0;
+    double jdSum = 0.0;
+    for (int i = 0; i < rowJd.size(); ++i)
+        if (rowJd.at(i) > 0.0) { jdSum += rowJd.at(i); ++validRows; }
+    if (validRows > 0)
+        jtimeFallback = jdSum / validRows;
+    else
+        qWarning() << "FCI Rayleigh: no per-segment acquisition times;"
+                   << "falling back to the nominal slot time for the whole disc";
 
     qDebug() << "FCI Rayleigh: res" << outRes << "jtime" << jtime
              << "subLon" << subLon << "solar bands" << solarSlots.size();
@@ -9751,6 +9787,12 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
 
     QtConcurrent::blockingMap(lines, [&](int line) {
         pixgeoConversion pixconv;
+
+        // Sun position for when this row was actually scanned, not for the slot.
+        const double jrow = (line < rowJd.size() && rowJd.at(line) > 0.0)
+                          ? rowJd.at(line) : jtimeFallback;
+        struct snu_solar_epoch epoch;
+        snu_solar_epoch_init(jrow, &epoch);
 
         // The compose buffer is south-up; geolocation wants the display row.
         const int display_row = outRes - 1 - line;
@@ -9767,7 +9809,7 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
             const long i_pix = (long)line * outRes + pixelx;
 
             double mu0 = 0.0, theta0 = 0.0, phi0 = 0.0;
-            snu_solar_params_at(&epoch, jtime, lat_deg * D2R, lon_deg * D2R,
+            snu_solar_params_at(&epoch, jrow, lat_deg * D2R, lon_deg * D2R,
                                 &mu0, &theta0, &phi0);
 
             const float szaDeg = (float)(theta0 * R2D);
@@ -9897,6 +9939,10 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
     progcounter = 0;
     emit progressCounter(5);
 
+    // Julian date each output row was scanned, filled from the segments as they
+    // are read. Negative means not yet known.
+    QVector<double> rowJd(outRes, -1.0);
+
     QVector<float> bandScale(nBands, 1.0f);
     QVector<float> bandOffset(nBands, 0.0f);
     QVector<quint16> bandFill(nBands, 65535);
@@ -9917,6 +9963,11 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
             }
             filePath = localPath;
         }
+
+        const QDateTime segMid = fciSegmentMidTime(fname);
+        const double segJd = segMid.isValid()
+            ? segMid.toMSecsSinceEpoch() / 86400000.0 + 2440587.5
+            : -1.0;
 
         QByteArray baFile = filePath.toUtf8();
         const char* pncfile = baFile.constData();
@@ -9993,6 +10044,14 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
             int nCols = (int)end_col - (int)start_col + 1;
             if (nRows <= 0 || nCols <= 0) continue;
 
+            // Stamp these output rows with when the segment was scanned. Bands
+            // of a segment share a time, so repeats are harmless.
+            if (segJd > 0.0) {
+                const int r0 = qBound(0, ((int)start_row - 1) * outRes / nativeRes, outRes - 1);
+                const int r1 = qBound(0, ((int)end_row   - 1) * outRes / nativeRes, outRes - 1);
+                for (int r = r0; r <= r1; ++r) rowJd[r] = segJd;
+            }
+
             quint16* dnBuf = new quint16[(long)nRows * nCols];
 
             QString strrad = "/data/" + bandName + "/measured/effective_radiance";
@@ -10056,7 +10115,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
     // Sun-normalise and remove Rayleigh path reflectance from the solar bands,
     // per band, before they are combined into R/G/B.
     if (opts.bFciRayleigh)
-        applyFCISolarCorrection(bandBuf, uniqueIdx, outRes);
+        applyFCISolarCorrection(bandBuf, uniqueIdx, outRes, rowJd);
 
     emit progressCounter(78);
 

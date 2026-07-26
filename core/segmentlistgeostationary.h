@@ -135,7 +135,8 @@ public:
 private:
     void applyFCISolarCorrection(QVector<float*> &bandBuf,
                                  const QList<int> &bandIndices,
-                                 int outRes);
+                                 int outRes,
+                                 const QVector<double> &rowJd);
 
     void ComposeHRV();
     void ComposeHRV_Alt();
