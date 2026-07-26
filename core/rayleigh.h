@@ -169,8 +169,24 @@ public:
      *
      * Thresholds sit in the gap measured on a real disc - recovered vis_06 runs
      * about 0.03-0.05 over clear ocean against 0.18-0.32 over land.
+     *
+     * Only a fallback now, for when no shoreline file is available. It cannot
+     * tell dark vegetation from ocean, which is what LandSeaMask is for.
      */
     static float waterFraction(float longBandReflectance);
+
+    /**
+     * How much of a pixel geography already calls water is actually open sea
+     * rather than cloud on top of it.
+     *
+     * With a shoreline mask deciding land from water, brightness is left with
+     * only the second question, and can be far more permissive: it no longer
+     * has to hold a line against land at 0.18, only against cloud. Clear ocean
+     * sits at 0.03-0.05 in vis_06 and stays fully water, while thick cloud
+     * switches the sea surface off, because a cloud is what the satellite sees
+     * instead of the sea, not as well as it.
+     */
+    static float cloudFreeFraction(float longBandReflectance);
 
     /** Shortest wavelength usable for waterFraction, micrometres. */
     static constexpr double MinWaterTestLambda = 0.6;
