@@ -99,8 +99,32 @@ Verification: the clear-ocean profile that currently runs 0.011 → 0.066 across
 vza 20 → 85 must come back flat, without land or cloud at the same limb getting
 darker.
 
+## Stage 1a — reflectance scale (unplanned, found during Stage 1)
+
+Stage 1 could not be validated until this was fixed: the solver put the Rayleigh
+path reflectance over clear ocean at 0.13 where the measured total was 0.10,
+which cannot happen, because a surface only adds to the path term. The model was
+right; the data scale was wrong by 1.3892 in every solar band, because
+`channel_effective_solar_irradiance` was never read. Fixed.
+
+This invalidates the *absolute* numbers in the spec's earlier limb analysis —
+the recovered ocean reflectances there were all 39 % low. The *shape* arguments
+survive untouched, since a constant factor cannot create a vza-dependent ramp,
+and so does the conclusion that the residual is a surface term.
+
+Where it leaves the clear-ocean profile, with Stage 1 and 1a both in:
+
+| vza | 20–65 | 65–70 | 70–75 | 75–80 |
+|---|---|---|---|---|
+| recovered vis_04 | 0.000–0.015 | 0.018 | 0.045 | 0.064 |
+
+The disc interior is now fully corrected — what remains there is water-leaving
+reflectance, which is the right answer. The limb ramp is untouched, as expected:
+it is Stage 3's to remove.
+
 ## Status
 
 - [x] Stage 1
+- [x] Stage 1a
 - [ ] Stage 2
-- [ ] Stage 3
+- [ ] Stage 3 — the one that removes the remaining ring
