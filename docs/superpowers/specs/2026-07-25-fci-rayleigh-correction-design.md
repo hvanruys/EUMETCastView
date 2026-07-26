@@ -182,14 +182,13 @@ un-removed — comparable to the whole surface signal.
 The taper is therefore **removed** and replaced by two bounds that keep the
 correction rising toward the limb instead of collapsing:
 
-1. **View-angle clamp** — μ_v is floored at cos(`VzaLimit`), `VzaLimit = 80°`.
+1. **View-angle clamp** — μ_v is floored at cos(`VzaLimit`), `VzaLimit = 85°`.
    Past that the correction plateaus rather than following the diverging 1/μ_v.
-   80° is the largest angle where this model still agrees with 6S (0.098 against
-   ≈0.10 for `vis_06` at SZA 40°, backscatter), and it is r/R = 0.985, so the
-   entire visible ring annulus is corrected at full strength. Freezing rather
-   than extrapolating also limits over-reddening of the outermost pixels: the
-   correction removes molecular scattering only, and the unmodelled aerosol
-   contribution is largest at grazing view.
+   (Initially set to 80° out of caution about over-reddening the outermost
+   pixels, since the correction removes molecular scattering only. Measurement
+   on a real disc contradicted that — see below — so it was raised to 85°, as
+   far as it is worth pushing before the reflectance ceiling rather than the
+   geometry starts doing the work.)
 2. **Reflectance ceiling** — `maxPathReflectance(τ) = ¾τM / (1 + ¾τM)` with
    `M = HorizonAirMass = 38` (Kasten & Young), the conservative two-stream plane
    albedo of the layer at horizon air mass. Rayleigh scattering has no
@@ -206,6 +205,46 @@ Worst case over all eight bands × SZA 0–95° × vza 0–90° × azimuth is no
 
 Reciprocity is still broken above `VzaLimit` (the clamp is a function of vza
 only), so the regression test continues to assert it only below that.
+
+### What is left at the limb, and why this model cannot remove it
+
+After the taper was removed a weaker limb brightening remained, so the corrected
+disc was measured directly: invert the recipe stretch (`val = (v/255)^2.2`,
+ranges 0–1) to recover BRF per band, compute exact per-pixel geometry, and
+select clear ocean (dark at 0.64 µm, glint angle > 25°). Over clear ocean the
+surface reflectance is near-constant, so a complete correction should leave a
+flat profile in vza. Median recovered `vis_04`:
+
+| vza | 20–55 | 60–65 | 65–70 | 70–75 | 75–80 | 80–85 |
+|---|---|---|---|---|---|---|
+| corrected | ~0.011 | 0.018 | 0.030 | 0.040 | 0.062 | 0.066 |
+
+Flat to VZA 60°, then a 6× climb. Three measurements identify it:
+
+1. **It scales with vza, not air mass.** At vza 12°/SZA 75° (air mass 4.8) the
+   correction is already right (needs 1.01×); at vza 72°/SZA 40° (air mass 4.6)
+   it needs 1.27×. A 2-D SZA×vza table rises monotonically along every row and
+   only weakly, inconsistently, down the columns. Path radiance is symmetric in
+   μ₀ and μ_v, so this is not un-removed path radiance and not multiple
+   scattering along the path.
+2. **It is ~4× stronger in the blue than the red.** `vis_04` rises by 0.055 over
+   the same span where `vis_06` rises by 0.014 — a ratio of 3.9 against the
+   τ ratio of 4.45. So it is Rayleigh in origin.
+3. **It is an ocean effect.** Over land the same span gives only ~1.8×
+   (0.037 → 0.066) versus ~6× over ocean.
+
+Together: downwelling **skylight reflected by the sea surface**, whose
+reflectance rises steeply with view angle. It is Rayleigh-blue because skylight
+is, it depends on μ_v alone because the Fresnel reflectance does, and it is
+absent over land because a diffuse land surface has no such angular ramp. This
+is real upwelling signal, not path radiance — subtracting a larger ρ to flatten
+it would over-correct land and cloud at the same limb, which do not have it.
+
+Removing it needs surface–atmosphere coupling,
+`ρ_toa = ρ_ray + T(μ₀)T(μ_v)ρ_surf/(1 − s·ρ_surf)`, with a sea-surface BRDF —
+i.e. the 6S/pyspectral LUT route this design deliberately did not take. Note the
+transmittance term alone does not help: T(μ_v) falls with vza, so dividing by it
+would brighten the limb further.
 
 ### Sun-zenith correction
 

@@ -26,15 +26,14 @@ public:
      * atmosphere near grazing view; past this the correction plateaus at its
      * VzaLimit value instead of following the diverging 1/muv.
      *
-     * 80 degrees is the largest angle at which this model still agrees with 6S
-     * (0.098 against about 0.10 for vis_06 at sza 40, backscatter), and it is
-     * r/R = 0.985 on the disc, so the whole visible limb annulus is corrected at
-     * full strength. Freezing rather than extrapolating past it also limits how
-     * far the correction can over-redden the outermost pixels: it removes
-     * molecular scattering only, while at grazing view the unmodelled aerosol
-     * contribution is largest.
+     * Set from measurement, not taste. Recovered clear-ocean reflectance on a
+     * real disc still rises with vza past 80 degrees, so the correction is under-
+     * strength there, by about 1.3x in vis_04 - freezing at 80 was too cautious.
+     * 85 is as far as it is worth pushing: beyond it 1/muv runs away, the
+     * reflectance ceiling starts doing the work instead of the geometry, and the
+     * outermost pixels are heavily smeared anyway.
      */
-    static constexpr float VzaLimit = 80.0f;
+    static constexpr float VzaLimit = 85.0f;
 
     /**
      * Relative air mass at the horizon, Kasten & Young (1989). The plane-
