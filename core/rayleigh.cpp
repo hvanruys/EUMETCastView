@@ -6,6 +6,7 @@
 //   https://pyspectral.readthedocs.io/en/master/rayleigh_correction.html
 
 #include "rayleigh.h"
+#include "rayleigh_rt.h"
 
 #include <cmath>
 #include <algorithm>
@@ -61,72 +62,104 @@ double RayleighCorrector::phaseFunction(double cosTheta)
     return norm * ((1.0 + 3.0 * gamma) + (1.0 - gamma) * cosTheta * cosTheta);
 }
 
-float RayleighCorrector::sunZenithFactor(float szaDeg, float limitDeg, float maxSzaDeg)
+float RayleighCorrector::sunZenithFactor(float szaDeg)
 {
-    const double d2r      = M_PI / 180.0;
-    const double limitRad = limitDeg * d2r;
-    const double limitCos = std::cos(limitRad);
-
-    if (szaDeg < limitDeg)
-        return static_cast<float>(1.0 / std::cos(szaDeg * d2r));
-
-    // Satpy sunzen_corr_cos: logarithmic falloff from limitDeg to maxSzaDeg,
-    // reaching exactly zero at maxSzaDeg so the terminator fades smoothly
-    // instead of cutting hard at the limit.
-    const double maxRad = maxSzaDeg * d2r;
-    double grad = (szaDeg * d2r - limitRad) / (maxRad - limitRad);
-    grad = 1.0 - std::log(grad + 1.0) / std::log(2.0);
-    if (grad < 0.0)
-        grad = 0.0;
-
-    return static_cast<float>(grad / limitCos);
+    const double d2r = M_PI / 180.0;
+    const double sza = std::min(static_cast<double>(szaDeg),
+                                static_cast<double>(SzaLimit));
+    return static_cast<float>(1.0 / std::cos(sza * d2r));
 }
 
-double RayleighCorrector::limbTaper(float vzaDeg)
+float RayleighCorrector::twilightFade(float szaDeg)
 {
-    if (vzaDeg <= VzaTaperStart)
-        return 1.0;
-    if (vzaDeg >= VzaTaperEnd)
-        return 0.0;
-
-    const double t = (vzaDeg - VzaTaperStart) / (VzaTaperEnd - VzaTaperStart);
-    return 1.0 - t * t * (3.0 - 2.0 * t);   // smoothstep: C1 continuous at both ends
-}
-
-float RayleighCorrector::pathReflectance(double tau, float szaDeg,
-                                         float vzaDeg, float raaDeg)
-{
-    if (tau <= 0.0)
+    if (szaDeg <= SzaLimit)
+        return 1.0f;
+    if (szaDeg >= SzaMax)
         return 0.0f;
 
-    const double taper = limbTaper(vzaDeg);
-    if (taper == 0.0)
+    const float t = (szaDeg - SzaLimit) / (SzaMax - SzaLimit);
+    return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep, C1 at both ends
+}
+
+float RayleighCorrector::surfaceReflectance(int bandIndex, float szaDeg,
+                                            float vzaDeg, float pathRemoved)
+{
+    if (pathRemoved <= 0.0f)
+        return 0.0f;
+    if (bandIndex < 0 || bandIndex >= SolarBandCount)
+        return pathRemoved;
+
+    const RayleighRT::Solution &s = RayleighRT::forBand(bandIndex);
+    const double d2r = M_PI / 180.0;
+
+    // The solar cosine is frozen at SzaLimit, exactly as sunZenithFactor freezes
+    // the amplification - and because that factor is 1/mu0_eff, the mu0 that
+    // would otherwise appear here cancels against it. What survives is the
+    // twilight dimming, carried by the shrinking signal rather than applied.
+    const double mu0 = std::cos(std::min(szaDeg, SzaLimit) * d2r);
+    const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
+
+    const double tt = RayleighRT::transmittance(s, mu0)
+                    * RayleighRT::transmittance(s, muv);
+
+    const double den = tt + s.sphericalAlbedo * (double)pathRemoved;
+    if (!(den > 0.0))
+        return pathRemoved;
+
+    return static_cast<float>(pathRemoved / den);
+}
+
+float RayleighCorrector::waterFraction(float longBandReflectance)
+{
+    constexpr float lo = 0.05f;   // darker than this is certainly water
+    constexpr float hi = 0.13f;   // brighter than this is certainly not
+
+    if (longBandReflectance <= lo) return 1.0f;
+    if (longBandReflectance >= hi) return 0.0f;
+
+    const float t = (longBandReflectance - lo) / (hi - lo);
+    return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep
+}
+
+float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
+                                         float vzaDeg, float raaDeg,
+                                         float water)
+{
+    if (bandIndex < 0 || bandIndex >= SolarBandCount)
+        return 0.0f;
+
+    // Deep night. The spherical path never returns exactly zero - there is
+    // always some sunlit air somewhere above - but by SzaMax it is down eight
+    // orders of magnitude and the pixel is being faded out anyway.
+    if (twilightFade(szaDeg) <= 0.0f)
         return 0.0f;
 
     const double d2r = M_PI / 180.0;
 
-    // Floor both cosines. vza reaches 90 degrees at the visible disc edge, so
-    // 1/(mu0+muv) would diverge there. Clamping saturates the correction over
-    // the last degree or two of an already-smeared limb; masking instead would
-    // leave a visible black ring around the disc.
-    const double muFloor = std::cos(SzaLimit * d2r);
-    const double mu0 = std::max(std::cos(szaDeg * d2r), muFloor);
-    const double muv = std::max(std::cos(vzaDeg * d2r), muFloor);
+    // Only the view cosine is floored. The solar angle is passed through
+    // untouched, because the spherical treatment is defined at every angle -
+    // including past the terminator, where a plane-parallel model has nothing
+    // to say and twilight is exactly what we are trying to get right.
+    const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
 
-    const double sin0 = std::sqrt(std::max(0.0, 1.0 - mu0 * mu0));
-    const double sinv = std::sqrt(std::max(0.0, 1.0 - muv * muv));
+    const RayleighRT::Solution &s = RayleighRT::forBand(bandIndex);
 
-    const double cosScatter = -mu0 * muv + sin0 * sinv * std::cos(raaDeg * d2r);
+    // Work in TOA units and convert with the same frozen factor that scales the
+    // signal. Below SzaLimit this is exactly the plane-parallel BRF; past it,
+    // toaPathReflectance keeps falling as the real illumination does, which is
+    // what the old pathReflectanceScale was approximating by hand.
+    // Only blend where the water test is actually undecided. Almost every pixel
+    // is plainly one or the other, and each branch costs a full solve lookup.
+    double toa;
+    if (water <= 0.0f) {
+        toa = RayleighRT::toaPathReflectance(s, szaDeg, muv, raaDeg, false);
+    } else if (water >= 1.0f) {
+        toa = RayleighRT::toaPathReflectance(s, szaDeg, muv, raaDeg, true);
+    } else {
+        const double land  = RayleighRT::toaPathReflectance(s, szaDeg, muv, raaDeg, false);
+        const double ocean = RayleighRT::toaPathReflectance(s, szaDeg, muv, raaDeg, true);
+        toa = land + water * (ocean - land);
+    }
 
-    double rho = phaseFunction(cosScatter) / (4.0 * (mu0 + muv))
-               * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
-
-    // An atmosphere cannot reflect more than it receives. At very large air mass
-    // - deep twilight seen at a slant, roughly SZA > 85 with VZA > 70 - the
-    // single-scattering formula exceeds 1 because its (1 - exp) factor saturates
-    // while the 1/(mu0+muv) prefactor keeps growing. Bound it before tapering.
-    rho = std::min(rho, 1.0);
-
-    // Taper out toward the disc edge, where single scattering over-predicts.
-    return static_cast<float>(rho * taper);
+    return static_cast<float>(sunZenithFactor(szaDeg) * toa);
 }

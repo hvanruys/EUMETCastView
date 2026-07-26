@@ -9665,18 +9665,39 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
 {
     // Which slots in bandBuf hold solar bands? IR bands get neither
     // sun-normalisation nor a Rayleigh correction.
-    QList<int>    solarSlots;
-    QList<double> solarTau;
+    QList<int> solarSlots;
+    QList<int> solarBands;
     for (int bi = 0; bi < bandIndices.size(); ++bi) {
         const int bandIndex = bandIndices.at(bi);
         if (bandIndex >= 0 && bandIndex < RayleighCorrector::SolarBandCount) {
             solarSlots.append(bi);
-            solarTau.append(RayleighCorrector::opticalDepthFCI(bandIndex));
+            solarBands.append(bandIndex);
         }
     }
 
     if (solarSlots.isEmpty())
         return;   // IR-only recipe
+
+    // Longest-wavelength solar band in this recipe drives the water test. Band
+    // indices run blue to infrared, so that is simply the largest. Bands below
+    // MinWaterTestLambda cannot separate water from dark vegetation, and rather
+    // than guess we fall back to a black lower boundary everywhere - which is
+    // what the correction did before the sea surface was modelled at all.
+    int maskSlot = -1, maskBand = -1;
+    for (int k = 0; k < solarSlots.size(); ++k) {
+        if (solarBands.at(k) > maskBand) {
+            maskBand = solarBands.at(k);
+            maskSlot = solarSlots.at(k);
+        }
+    }
+    const bool useOcean =
+        RayleighCorrector::opticalDepthFCI(maskBand) > 0.0 &&
+        RayleighCorrector::opticalDepthAt(RayleighCorrector::MinWaterTestLambda)
+            >= RayleighCorrector::opticalDepthFCI(maskBand);
+
+    if (!useOcean)
+        qWarning() << "FCI Rayleigh: longest solar band in this recipe is too blue"
+                   << "to separate water from land; sea surface not modelled";
 
     // Navigation parameters. Same convention FormImage::DrawLongLat uses for the
     // MET_12 coastline overlay: positive INI factors with the display row.
@@ -9765,7 +9786,30 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
             if (raaDeg > 180.0f)
                 raaDeg = 360.0f - raaDeg;
 
+            // Both of these freeze at SzaLimit, so past the terminator the
+            // amplification and the path reflectance keep describing the same
+            // sun and their difference stays meaningful.
             const float f = RayleighCorrector::sunZenithFactor(szaDeg);
+            // pathReflectance now works in TOA units with a spherical solar
+            // path, so it stays in step with the frozen amplification by
+            // construction and keeps falling past the terminator the way the
+            // real illumination does. twilightFade remains as a backstop,
+            // carrying the image to black over SzaLimit..SzaMax.
+            const float w = RayleighCorrector::twilightFade(szaDeg);
+
+            // Decide how watery the pixel is before correcting anything, from
+            // the longest solar band against a black lower boundary. Water is
+            // far darker than land toward the red, and this is the term that
+            // decides whether the sea surface reflects sky into the view.
+            float water = 0.0f;
+            if (useOcean && w > 0.0f && bandBuf[maskSlot][i_pix] != FILL_VALUE_F) {
+                const float mb = RayleighCorrector::surfaceReflectance(
+                    maskBand, szaDeg, vzaDeg,
+                    bandBuf[maskSlot][i_pix] * f
+                        - RayleighCorrector::pathReflectance(
+                              maskBand, szaDeg, vzaDeg, raaDeg));
+                water = RayleighCorrector::waterFraction(mb);
+            }
 
             for (int k = 0; k < solarSlots.size(); ++k) {
                 float *buf = bandBuf[solarSlots.at(k)];
@@ -9773,16 +9817,20 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
                 if (buf[i_pix] == FILL_VALUE_F)
                     continue;
 
-                if (f == 0.0f) {
+                if (w == 0.0f) {
                     buf[i_pix] = 0.0f;   // night
                     continue;
                 }
 
                 const float brf = buf[i_pix] * f;
                 const float rho = RayleighCorrector::pathReflectance(
-                    solarTau.at(k), szaDeg, vzaDeg, raaDeg);
+                    solarBands.at(k), szaDeg, vzaDeg, raaDeg, water);
 
-                buf[i_pix] = qMax(0.0f, brf - rho);
+                // Taking the path term off leaves the surface seen through the
+                // atmosphere, not the surface. Undo the two-way transmittance
+                // and the ground-to-sky bouncing to get there.
+                buf[i_pix] = w * RayleighCorrector::surfaceReflectance(
+                    solarBands.at(k), szaDeg, vzaDeg, brf - rho);
             }
         }
 
@@ -9904,12 +9952,25 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                 bandOffset[bi] = ao;
                 bandFill[bi] = fv;
                 if (!isIR) {
+                    // channel_effective_solar_irradiance is a *variable* in the
+                    // measured group, not an attribute on effective_radiance, and
+                    // it is already in the radiance units (mW/(m2.(cm-1))). The
+                    // old code looked for an attribute of another name, never
+                    // found it, and always took the fallback below - which
+                    // assumes DN 4095 means reflectance 1.0. It does not: FCI
+                    // leaves headroom for bright cloud and glint, and 4095 is
+                    // reflectance 1.389. Every solar band was 39 % too dark.
                     float si = 0.0f;
-                    // solar_irradiance attribute (if present) is in same units as effective_radiance
-                    if (nc_get_att_float(grp_measured, varid, "solar_irradiance", &si) == NC_NOERR && si > 0.0f) {
+                    int sivid = -1;
+                    if (nc_inq_varid(grp_measured, "channel_effective_solar_irradiance",
+                                     &sivid) == NC_NOERR
+                        && nc_get_var_float(grp_measured, sivid, &si) == NC_NOERR
+                        && si > 0.0f && si < 1.0e30f) {
                         bandSolarIrr[bi] = si;
                     } else {
                         // Unit-independent fallback: solar_irr = 4095*sf*pi  →  reflectance = DN/4095
+                        qWarning() << "FCI: no channel_effective_solar_irradiance for"
+                                   << bandName << "- reflectance will be about 39 % low";
                         bandSolarIrr[bi] = 4095.0f * sf * (float)M_PI;
                     }
                     qDebug() << QString("FCI solar_irradiance for %1 = %2 (sf=%3)").arg(bandName).arg(bandSolarIrr[bi]).arg(sf);

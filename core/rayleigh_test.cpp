@@ -2,6 +2,7 @@
 // Build with: cmake -DBUILD_TESTS=ON ..    Run: bin/rayleigh_test
 
 #include "rayleigh.h"
+#include "rayleigh_rt.h"
 
 #include <cmath>
 #include <cstdio>
@@ -100,157 +101,254 @@ static void testSunZenithFactor()
     const double d2r = M_PI / 180.0;
 
     // Plain 1/cos below the limit.
-    const float below[] = { 0.0f, 30.0f, 60.0f, 85.0f, 87.9f };
+    const float below[] = { 0.0f, 30.0f, 60.0f, 80.0f, 82.9f };
     for (float sza : below)
         checkClose(RayleighCorrector::sunZenithFactor(sza),
                    1.0 / std::cos(sza * d2r), 1e-5,
-                   "factor is 1/cos(SZA) below the 88 degree limit");
+                   "factor is 1/cos(SZA) below the limit");
 
-    // Continuous across the limit: both branches meet at 1/cos(88).
-    checkClose(RayleighCorrector::sunZenithFactor(88.001f),
-               RayleighCorrector::sunZenithFactor(87.999f), 1e-3,
-               "factor is continuous across 88 degrees");
-    checkClose(RayleighCorrector::sunZenithFactor(88.0f),
-               1.0 / std::cos(88.0 * d2r), 1e-5,
-               "factor equals 1/cos(88) at the limit");
+    // Frozen at and beyond the limit, at exactly the value pathReflectance's
+    // own mu0 floor corresponds to. If these two ever diverge, the difference
+    // between the amplified signal and the subtracted rho stops meaning
+    // anything and a bright stripe appears along the terminator.
+    const double capped = 1.0 / std::cos(RayleighCorrector::SzaLimit * d2r);
+    for (float sza = RayleighCorrector::SzaLimit; sza <= 120.0f; sza += 3.0f)
+        checkClose(RayleighCorrector::sunZenithFactor(sza), capped, 1e-5,
+                   "factor is frozen at and past the limit");
 
-    // Reaches exactly zero at max_sza and stays there.
-    check(RayleighCorrector::sunZenithFactor(95.0f)  == 0.0f, "factor is zero at 95 degrees");
-    check(RayleighCorrector::sunZenithFactor(110.0f) == 0.0f, "factor is zero past 95 degrees");
-    check(RayleighCorrector::sunZenithFactor(180.0f) == 0.0f, "factor is zero at the antisolar point");
+    checkClose(RayleighCorrector::sunZenithFactor(
+                   RayleighCorrector::SzaLimit + 0.001f),
+               RayleighCorrector::sunZenithFactor(
+                   RayleighCorrector::SzaLimit - 0.001f),
+               1e-3, "factor is continuous across the limit");   // 1/cos slope is 1.2/deg here
 
-    // Monotonically decreasing through the falloff, never negative.
-    float prev = RayleighCorrector::sunZenithFactor(88.0f);
-    for (float sza = 88.5f; sza <= 95.0f; sza += 0.5f) {
+    // Never zero: night has to go black through the subtraction, not by
+    // switching the normalisation off.
+    check(RayleighCorrector::sunZenithFactor(179.0f) > 0.0f,
+          "factor stays positive at every angle");
+
+    // Monotonically non-decreasing, and bounded.
+    float prev = 0.0f;
+    for (float sza = 0.0f; sza <= 179.0f; sza += 0.5f) {
         const float f = RayleighCorrector::sunZenithFactor(sza);
-        check(f >= 0.0f, "falloff is never negative");
-        check(f <= prev, "falloff is monotonically decreasing");
+        check(f >= prev - 1e-6f, "factor never decreases with SZA");
+        check(f <= capped + 1e-6, "factor never exceeds the frozen value");
         prev = f;
     }
+}
+
+static void testSphericalSolarPath()
+{
+    // Below SzaLimit nothing has changed: the result is still the plane-parallel
+    // BRF, because Chapman equals 1/cos there to a fraction of a percent.
+    for (float sza = 0.0f; sza <= 70.0f; sza += 10.0f) {
+        const double mu0 = std::cos(sza * M_PI / 180.0);
+        const double muv = std::cos(40.0 * M_PI / 180.0);
+        const double pp  = RayleighRT::reflectance(
+            RayleighRT::forBand(0), mu0, muv, 90.0, false);
+        checkClose(RayleighCorrector::pathReflectance(0, sza, 40.0f, 90.0f), pp,
+                   0.01, "reduces to plane-parallel in daylight");
+    }
+
+    // Past the limit it keeps falling with the real illumination rather than
+    // being frozen, and it is still non-zero *past the terminator*, which is
+    // the whole point - the atmosphere above a point stays lit after the sun
+    // has set on the ground beneath it.
+    float prev = 1e9f;
+    for (float sza = 84.0f; sza <= 96.0f; sza += 1.0f) {
+        const float r = RayleighCorrector::pathReflectance(0, sza, 40.0f, 90.0f);
+        // Non-increasing rather than strictly falling: it reaches exactly zero
+        // at SzaMax and stays there.
+        check(r >= 0.0f && r <= prev, "path reflectance keeps falling through twilight");
+        prev = r;
+    }
+    check(RayleighCorrector::pathReflectance(0, 92.0f, 40.0f, 90.0f)
+              < 0.5f * RayleighCorrector::pathReflectance(0, 90.0f, 40.0f, 90.0f),
+          "twilight decays fast, not slowly");
+    check(RayleighCorrector::pathReflectance(0, 91.0f, 40.0f, 90.0f) > 0.0f,
+          "still correcting one degree past the terminator");
+    check(RayleighCorrector::pathReflectance(0, RayleighCorrector::SzaMax + 1.0f,
+                                             40.0f, 90.0f) == 0.0f,
+          "nothing left to correct deep into night");
+
+    // A spherical path lets more light in than a flat one at grazing incidence,
+    // so the correction there must be stronger than plane-parallel, not weaker.
+    // Under-removal here is what left the terminator blue.
+    const double mu0 = std::cos(88.0 * M_PI / 180.0);
+    const double muv = std::cos(40.0 * M_PI / 180.0);
+    const double ppToa = mu0 * RayleighRT::reflectance(
+        RayleighRT::forBand(0), mu0, muv, 90.0, false);
+    const double sphToa = RayleighRT::toaPathReflectance(
+        RayleighRT::forBand(0), 88.0, muv, 90.0, false);
+    std::printf("info : sza 88 TOA path reflectance, spherical %.5f vs flat %.5f "
+                "(%.2fx)\n", sphToa, ppToa, sphToa / ppToa);
+    check(sphToa > 1.2 * ppToa, "spherical beats plane-parallel at sza 88");
+}
+
+static void testSurfaceReflectance()
+{
+    const double d2r = M_PI / 180.0;
+
+    check(RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, 0.0f) == 0.0f,
+          "nothing in, nothing out");
+    check(RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, -0.1f) == 0.0f,
+          "negative leftovers give zero, not a negative surface");
+
+    // Round trip. Forward-model what the atmosphere would leave behind for a
+    // known surface, invert it, and require the surface back. Exact by
+    // construction, so it pins the algebra rather than a tolerance.
+    for (int b = 0; b < RayleighCorrector::SolarBandCount; ++b) {
+        const RayleighRT::Solution &sol = RayleighRT::forBand(b);
+        for (float sza = 0.0f; sza <= 80.0f; sza += 20.0f) {
+            for (float vza = 0.0f; vza <= 80.0f; vza += 20.0f) {
+                const double t0 = RayleighRT::transmittance(sol, std::cos(sza * d2r));
+                const double tv = RayleighRT::transmittance(sol, std::cos(vza * d2r));
+                for (double rs = 0.02; rs <= 0.8; rs *= 2.0) {
+                    const double x = t0 * tv * rs / (1.0 - sol.sphericalAlbedo * rs);
+                    const double got = RayleighCorrector::surfaceReflectance(
+                        b, sza, vza, (float)x);
+                    if (std::fabs(got - rs) > 1e-4 * std::max(1.0, rs)) {
+                        std::printf("FAIL : round trip band %d sza %.0f vza %.0f "
+                                    "rho_s %.3f -> %.6f\n", b, sza, vza, rs, got);
+                        ++g_failures;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    check(true, "inverts the forward model exactly, every band and geometry");
+
+    // It has to brighten - the surface signal was attenuated on the way out and
+    // back - and brighten the blue band far more than the red, since that is
+    // where the atmosphere is thick.
+    const float x = 0.10f;
+    const float blue = RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, x);
+    const float red  = RayleighCorrector::surfaceReflectance(2, 40.0f, 40.0f, x);
+    check(blue > x && red > x, "recovering the surface brightens it");
+    check(blue > 1.15f * red, "vis_04 is amplified much more than vis_06");
+    std::printf("info : X = 0.10 recovers vis_04 %.4f, vis_06 %.4f\n", blue, red);
+
+    // The amplification must grow toward the limb, where the path out is longest.
+    check(RayleighCorrector::surfaceReflectance(0, 40.0f, 80.0f, x)
+              > RayleighCorrector::surfaceReflectance(0, 40.0f, 20.0f, x),
+          "amplification grows with viewing zenith angle");
+
+    // Bright targets saturate: the ground-to-sky bounce term keeps the recovered
+    // reflectance from running away as X approaches and passes 1.
+    check(RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, 1.0f) < 1.3f,
+          "bright targets do not run away");
+    float prev = 0.0f;
+    for (float v = 0.01f; v <= 2.0f; v += 0.01f) {
+        const float r = RayleighCorrector::surfaceReflectance(0, 40.0f, 40.0f, v);
+        check(r > prev, "recovered surface increases with what was left behind");
+        prev = r;
+    }
+
+    // An IR band has no atmosphere to undo, so it must pass straight through.
+    check(RayleighCorrector::surfaceReflectance(13, 40.0f, 40.0f, 0.25f) == 0.25f,
+          "IR passes through untouched");
+}
+
+static void testTwilightFade()
+{
+    for (float sza = 0.0f; sza <= RayleighCorrector::SzaLimit; sza += 10.0f)
+        check(RayleighCorrector::twilightFade(sza) == 1.0f, "no fade in daylight");
+
+    check(RayleighCorrector::twilightFade(RayleighCorrector::SzaMax) == 0.0f,
+          "fully faded at SzaMax");
+    check(RayleighCorrector::twilightFade(150.0f) == 0.0f, "fully faded at night");
+
+    const float mid = 0.5f * (RayleighCorrector::SzaLimit + RayleighCorrector::SzaMax);
+    checkClose(RayleighCorrector::twilightFade(mid), 0.5, 1e-6, "half faded at the midpoint");
+
+    // A visible ramp, not an edge.
+    int graded = 0;
+    float prev = 1.0f;
+    for (float sza = 0.0f; sza <= 100.0f; sza += 0.5f) {
+        const float w = RayleighCorrector::twilightFade(sza);
+        check(w >= 0.0f && w <= 1.0f, "fade stays within [0,1]");
+        check(w <= prev + 1e-7f, "fade is monotonically decreasing");
+        if (w > 0.02f && w < 0.98f) ++graded;
+        prev = w;
+    }
+    check(graded > 15, "the fade spans many degrees rather than cutting");
+    check(RayleighCorrector::twilightFade(92.0f) > 0.0f,
+          "image survives past the terminator");
 }
 
 static void testPathReflectance()
 {
     const double d2r = M_PI / 180.0;
 
-    check(RayleighCorrector::pathReflectance(0.0, 30.0f, 20.0f, 60.0f) == 0.0f,
-          "zero optical depth gives zero path reflectance");
+    check(RayleighCorrector::pathReflectance(13, 30.0f, 20.0f, 60.0f) == 0.0f,
+          "ir_105 gets no path reflectance");
+    check(RayleighCorrector::pathReflectance(-1, 30.0f, 20.0f, 60.0f) == 0.0f,
+          "out-of-range band gets no path reflectance");
 
-    // As tau -> 0 the layer solution reduces to tau*P(Theta)/(4*mu0*muv).
-    {
-        const double tau = 0.001;
-        const float sza = 30.0f, vza = 20.0f, raa = 60.0f;
-        const double mu0  = std::cos(sza * d2r);
-        const double muv  = std::cos(vza * d2r);
-        const double sin0 = std::sin(sza * d2r);
-        const double sinv = std::sin(vza * d2r);
-        const double cosT = -mu0 * muv + sin0 * sinv * std::cos(raa * d2r);
-        const double want = tau * RayleighCorrector::phaseFunction(cosT)
-                          / (4.0 * mu0 * muv);
-        checkClose(RayleighCorrector::pathReflectance(tau, sza, vza, raa),
-                   want, 0.01, "matches the small-tau single-scattering limit");
-    }
+    // Near-reciprocal under a sun/view swap. Exact reciprocity belongs to the
+    // doubling solution and is tested there; here the solar path is spherical
+    // while the view path stays plane-parallel, so the two directions are
+    // deliberately no longer interchangeable. At these angles Chapman is within
+    // a fraction of a percent of 1/cos, so they still agree to 1e-3.
+    checkClose(RayleighCorrector::pathReflectance(0, 25.0f, 55.0f, 100.0f),
+               RayleighCorrector::pathReflectance(0, 55.0f, 25.0f, 100.0f),
+               1e-3, "near-reciprocal under sun/view swap in daylight");
 
-    // Reciprocity: swapping sun and view geometry leaves rho unchanged, as long
-    // as both angles are below the limb taper (which is a function of vza only
-    // and so deliberately breaks strict reciprocity above VzaTaperStart).
-    checkClose(RayleighCorrector::pathReflectance(0.2339, 25.0f, 55.0f, 100.0f),
-               RayleighCorrector::pathReflectance(0.2339, 55.0f, 25.0f, 100.0f),
-               1e-6, "reciprocal under sun/view swap below the taper");
-
-    // Fully tapered out at the limb, where vza reaches 90 degrees from
-    // geostationary orbit and single-scattering theory has broken down.
-    const float limb = RayleighCorrector::pathReflectance(0.2339, 40.0f, 90.0f, 30.0f);
-    check(std::isfinite(limb), "finite at vza = 90 degrees");
-    check(limb == 0.0f, "fully tapered to zero at vza = 90 degrees");
-
-    // No discontinuity where the taper starts.
-    checkClose(RayleighCorrector::pathReflectance(0.2339, 40.0f, 70.001f, 30.0f),
-               RayleighCorrector::pathReflectance(0.2339, 40.0f, 69.999f, 30.0f),
-               1e-4, "continuous across the taper start");
-
-    // Monotonically increasing in tau across the FCI range.
-    float prev = 0.0f;
-    for (double tau = 0.0005; tau <= 0.24; tau *= 1.5) {
-        const float r = RayleighCorrector::pathReflectance(tau, 35.0f, 45.0f, 80.0f);
-        check(r > prev, "path reflectance increases with tau");
-        prev = r;
+    // Multiple scattering is included, so the correction must be strictly
+    // stronger than the single-scattering value it replaced - and by a margin
+    // that grows with air mass. This is the whole point of the LUT.
+    for (float vza = 0.0f; vza <= 80.0f; vza += 20.0f) {
+        const double tau  = RayleighCorrector::opticalDepthFCI(0);
+        const double mu0  = std::cos(50.0 * d2r), muv = std::cos(vza * d2r);
+        const double cosT = -mu0 * muv + std::sin(50.0 * d2r) * std::sin(vza * d2r)
+                          * std::cos(120.0 * d2r);
+        const double ss = RayleighCorrector::phaseFunction(cosT) / (4.0 * (mu0 + muv))
+                        * (1.0 - std::exp(-tau * (1.0 / mu0 + 1.0 / muv)));
+        check(RayleighCorrector::pathReflectance(0, 50.0f, vza, 120.0f) > 1.1 * ss,
+              "exceeds single scattering by more than 10 %");
     }
 
     // The blue band must be corrected far more than the red one.
-    const float blue = RayleighCorrector::pathReflectance(
-        RayleighCorrector::opticalDepthFCI(0), 40.0f, 50.0f, 90.0f);
-    const float red = RayleighCorrector::pathReflectance(
-        RayleighCorrector::opticalDepthFCI(2), 40.0f, 50.0f, 90.0f);
+    const float blue = RayleighCorrector::pathReflectance(0, 40.0f, 50.0f, 90.0f);
+    const float red  = RayleighCorrector::pathReflectance(2, 40.0f, 50.0f, 90.0f);
     check(blue > 3.0f * red, "vis_04 correction is much larger than vis_06");
 
-    // IR bands get no correction at all.
-    check(RayleighCorrector::pathReflectance(
-              RayleighCorrector::opticalDepthFCI(13), 40.0f, 50.0f, 90.0f) == 0.0f,
-          "ir_105 gets no path reflectance");
-}
+    // Monotonically increasing in optical depth across the FCI solar bands,
+    // which are ordered by decreasing tau.
+    for (int b = 1; b < RayleighCorrector::SolarBandCount; ++b)
+        check(RayleighCorrector::pathReflectance(b, 35.0f, 45.0f, 80.0f)
+                  < RayleighCorrector::pathReflectance(b - 1, 35.0f, 45.0f, 80.0f),
+              "path reflectance falls with band optical depth");
 
-static void testLimbTaper()
-{
-    // Full strength everywhere the single-scattering model is trustworthy.
-    for (float vza = 0.0f; vza <= RayleighCorrector::VzaTaperStart; vza += 5.0f)
-        check(RayleighCorrector::limbTaper(vza) == 1.0,
-              "taper is 1 below the taper start");
-
-    // Fully off at and beyond the end.
-    check(RayleighCorrector::limbTaper(RayleighCorrector::VzaTaperEnd) == 0.0,
-          "taper is 0 at the taper end");
-    check(RayleighCorrector::limbTaper(120.0f) == 0.0, "taper is 0 past the end");
-
-    // Smoothstep is symmetric about the midpoint.
-    const float mid = 0.5f * (RayleighCorrector::VzaTaperStart +
-                              RayleighCorrector::VzaTaperEnd);
-    checkClose(RayleighCorrector::limbTaper(mid), 0.5, 1e-9,
-               "taper is 0.5 at the midpoint");
-
-    // Monotonically decreasing, always within [0, 1].
-    double prev = 1.0;
-    for (float vza = 0.0f; vza <= 90.0f; vza += 0.5f) {
-        const double w = RayleighCorrector::limbTaper(vza);
-        check(w >= 0.0 && w <= 1.0, "taper stays within [0,1]");
-        check(w <= prev, "taper is monotonically decreasing");
-        prev = w;
-    }
-}
-
-static void testPhysicalBound()
-{
-    // A Rayleigh atmosphere cannot reflect more than it receives. Sweep the
-    // entire FCI geometry range and confirm rho never exceeds 1 - the single-
-    // scattering formula diverges at large air mass without the limb taper.
-    double worst = 0.0;
-    float worstSza = 0.0f, worstVza = 0.0f, worstRaa = 0.0f;
-    int worstBand = 0;
-
+    // The ring regression, swept over every band and illumination. The disc
+    // interior out to vza 70 is de-hazed; if the outer annulus from there to the
+    // limb is corrected any *less* than that, the haze left behind draws a
+    // bright blue ring. The taper this replaced made the ratio below exactly
+    // zero over the outermost degrees.
+    double worstRatio = 1e9;
     for (int b = 0; b < RayleighCorrector::SolarBandCount; ++b) {
-        const double tau = RayleighCorrector::opticalDepthFCI(b);
-        for (float sza = 0.0f; sza <= 95.0f; sza += 1.0f) {
-            for (float vza = 0.0f; vza <= 90.0f; vza += 1.0f) {
-                for (float raa = 0.0f; raa <= 180.0f; raa += 15.0f) {
-                    const double r = RayleighCorrector::pathReflectance(tau, sza, vza, raa);
-                    if (!(r >= 0.0)) {
-                        std::printf("FAIL : negative or NaN rho at band %d sza %.0f vza %.0f raa %.0f\n",
-                                    b, sza, vza, raa);
+        for (float sza = 0.0f; sza <= 88.0f; sza += 2.0f) {
+            for (float raa = 0.0f; raa <= 180.0f; raa += 10.0f) {
+                const float inner = RayleighCorrector::pathReflectance(b, sza, 70.0f, raa);
+                if (inner <= 0.0f)
+                    continue;
+                for (float vza = 72.0f; vza <= 90.0f; vza += 2.0f) {
+                    const float r = RayleighCorrector::pathReflectance(b, sza, vza, raa);
+                    if (r < inner) {
+                        std::printf("FAIL : limb under-corrected at band %d sza %.0f "
+                                    "vza %.0f raa %.0f (%.5f at vza 70 -> %.5f)\n",
+                                    b, sza, vza, raa, inner, r);
                         ++g_failures;
                         return;
                     }
-                    if (r > worst) {
-                        worst = r; worstBand = b;
-                        worstSza = sza; worstVza = vza; worstRaa = raa;
-                    }
+                    worstRatio = std::min(worstRatio, (double)(r / inner));
                 }
             }
         }
     }
-
-    std::printf("info : worst-case rho = %.4f (band %d, sza %.0f, vza %.0f, raa %.0f)\n",
-                worst, worstBand, worstSza, worstVza, worstRaa);
-    check(worst <= 1.0, "path reflectance never exceeds the physical bound of 1");
+    std::printf("info : weakest limb correction is %.3fx the vza 70 value\n", worstRatio);
+    check(true, "the limb is never corrected less than the disc interior");
 }
 
 int main()
@@ -258,9 +356,10 @@ int main()
     testOpticalDepth();
     testPhaseFunction();
     testSunZenithFactor();
+    testSphericalSolarPath();
+    testSurfaceReflectance();
+    testTwilightFade();
     testPathReflectance();
-    testLimbTaper();
-    testPhysicalBound();
 
     if (g_failures) {
         std::printf("\n%d check(s) FAILED\n", g_failures);

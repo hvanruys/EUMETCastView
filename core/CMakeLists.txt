@@ -24,6 +24,7 @@ set(PROJECT_SOURCES_CPP
     segmentmersi.cpp
     segmentmetop.cpp
     rayleigh.cpp
+    rayleigh_rt.cpp
     segmentlist.cpp
     segmentlisthrp.cpp
     segmentlistmetop.cpp
@@ -193,8 +194,14 @@ endif()
 option(BUILD_TESTS "Build core unit tests" OFF)
 
 if(BUILD_TESTS)
-    add_executable(rayleigh_test rayleigh_test.cpp rayleigh.cpp)
+    add_executable(rayleigh_test rayleigh_test.cpp rayleigh.cpp rayleigh_rt.cpp)
     target_include_directories(rayleigh_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    add_executable(rayleigh_rt_test rayleigh_rt_test.cpp rayleigh_rt.cpp rayleigh.cpp)
+    target_include_directories(rayleigh_rt_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    set_target_properties(rayleigh_rt_test PROPERTIES
+        AUTOMOC OFF AUTOUIC OFF
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
     set_target_properties(rayleigh_test PROPERTIES
         AUTOMOC OFF
         AUTOUIC OFF
