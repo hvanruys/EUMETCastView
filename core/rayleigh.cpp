@@ -70,17 +70,6 @@ float RayleighCorrector::sunZenithFactor(float szaDeg)
     return static_cast<float>(1.0 / std::cos(sza * d2r));
 }
 
-float RayleighCorrector::pathReflectanceScale(float szaDeg)
-{
-    if (szaDeg <= SzaLimit)
-        return 1.0f;
-    if (szaDeg >= 90.0f)
-        return 0.0f;
-
-    const double d2r = M_PI / 180.0;
-    return static_cast<float>(std::cos(szaDeg * d2r) / std::cos(SzaLimit * d2r));
-}
-
 float RayleighCorrector::twilightFade(float szaDeg)
 {
     if (szaDeg <= SzaLimit)
@@ -111,24 +100,38 @@ float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
     if (bandIndex < 0 || bandIndex >= SolarBandCount)
         return 0.0f;
 
-    const double d2r = M_PI / 180.0;
-
-    // Floor both cosines. sza matches sunZenithFactor's limit so the two halves
-    // of the chain agree; vza stops at VzaLimit because the model is not worth
-    // trusting nearer the limb than that.
-    const double mu0 = std::max(std::cos(szaDeg * d2r), std::cos(SzaLimit * d2r));
-    const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
-
-    const float scale = pathReflectanceScale(szaDeg);
-    if (scale <= 0.0f)
+    // Deep night. The spherical path never returns exactly zero - there is
+    // always some sunlit air somewhere above - but by SzaMax it is down eight
+    // orders of magnitude and the pixel is being faded out anyway.
+    if (twilightFade(szaDeg) <= 0.0f)
         return 0.0f;
 
+    const double d2r = M_PI / 180.0;
+
+    // Only the view cosine is floored. The solar angle is passed through
+    // untouched, because the spherical treatment is defined at every angle -
+    // including past the terminator, where a plane-parallel model has nothing
+    // to say and twilight is exactly what we are trying to get right.
+    const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
+
     const RayleighRT::Solution &s = RayleighRT::forBand(bandIndex);
-    const double land = RayleighRT::reflectance(s, mu0, muv, raaDeg, false);
 
-    if (water <= 0.0f)
-        return static_cast<float>(scale * land);
+    // Work in TOA units and convert with the same frozen factor that scales the
+    // signal. Below SzaLimit this is exactly the plane-parallel BRF; past it,
+    // toaPathReflectance keeps falling as the real illumination does, which is
+    // what the old pathReflectanceScale was approximating by hand.
+    // Only blend where the water test is actually undecided. Almost every pixel
+    // is plainly one or the other, and each branch costs a full solve lookup.
+    double toa;
+    if (water <= 0.0f) {
+        toa = RayleighRT::toaPathReflectance(s, szaDeg, muv, raaDeg, false);
+    } else if (water >= 1.0f) {
+        toa = RayleighRT::toaPathReflectance(s, szaDeg, muv, raaDeg, true);
+    } else {
+        const double land  = RayleighRT::toaPathReflectance(s, szaDeg, muv, raaDeg, false);
+        const double ocean = RayleighRT::toaPathReflectance(s, szaDeg, muv, raaDeg, true);
+        toa = land + water * (ocean - land);
+    }
 
-    const double ocean = RayleighRT::reflectance(s, mu0, muv, raaDeg, true);
-    return static_cast<float>(scale * (land + water * (ocean - land)));
+    return static_cast<float>(sunZenithFactor(szaDeg) * toa);
 }

@@ -172,9 +172,60 @@ A GSHHS-rasterised land/sea mask is the robust answer and remains open. Note it
 is not strictly better: a geographic mask applies the sea surface underneath
 cloud, where it is wrong, and the darkness test does not.
 
+## Stage 4 — pseudo-spherical illumination
+
+The terminator kept coming out wrong in one direction or another because a
+plane-parallel model recovers only about a third of the observed radiance past
+sza 86: it attenuates the solar beam by `exp(-tau/mu0)`, which diverges at 90 and
+shadows the entire column past it, when the real atmosphere is lit through a
+curved shell.
+
+Textbook pseudo-spherical: **single scattering along the true spherical path,
+multiple scattering left plane-parallel**. Two things make it fit here.
+
+First, work in **TOA units**, `pi*L/E0`, dropping the `1/mu0` of a BRF. The
+`mu0` cancels out of the single-scattering term exactly, so the quantity stays
+finite and meaningful past the terminator — where a BRF is not merely large but
+undefined.
+
+Second, the spherical single-scatter integral
+
+```
+Iss(muv) = integral 0..tau of exp(-t*Ch(z(t)) - t/muv) dt,   z(t) = H*ln(tau/t)
+```
+
+is one-dimensional in `t` and depends on geometry only through `sza` and `muv`,
+so it tabulates: 201 solar zeniths x 32 quadrature nodes per band, built with the
+solution. `Ch` is the Chapman air mass; past 90 the integration range is cut at
+the altitude below which the ray no longer clears the Earth, which is what makes
+the upper atmosphere glow after local sunset.
+
+Multiple scattering is taken from the plane-parallel solution at
+`min(sza, MsSzaLimit)` and scaled by `Iss(sza)/Iss(clamped)` — it follows the
+light that actually gets in. Below the limit the ratio is 1 and the whole thing
+reduces to `mu0 * reflectance()` exactly, which is the test that pins it.
+
+Chapman against `1/cos` at sea level: 0.995 at 60 degrees, 0.963 at 80, 0.65 at
+88, and **finite (35.4) at 90 where `1/cos` is infinite**. The resulting TOA path
+reflectance runs 1.01x plane-parallel at sza 78, 1.12x at 86, 1.48x at 88, and
+where plane-parallel gives 2e-17 at 90 the spherical value is 9.8e-3, decaying
+smoothly to 2e-8 by sza 100. That decay *is* the twilight.
+
+`pathReflectanceScale` is gone: the physics now supplies what it approximated.
+`twilightFade` stays as a backstop, since nothing is trustworthy within a few
+degrees of the terminator.
+
+Cost: 39 ms to build all nine solutions, 99 KB each, and 82 ns per pixel-band —
+about 2.5 s of a full-resolution compose across twelve threads.
+
+Known limitation: the *view* path is still plane-parallel. That is the standard
+pseudo-spherical compromise and it is much the smaller error, since vza is capped
+at 85 by VzaLimit while sza runs to 95.
+
 ## Status
 
 - [x] Stage 1
 - [x] Stage 1a
 - [ ] Stage 2 — Lambertian coupling over land, still a black boundary there
 - [x] Stage 3
+- [x] Stage 4

@@ -23,6 +23,22 @@ public:
     /** Gauss-Legendre quadrature points per hemisphere. */
     static constexpr int Nodes = 32;
 
+    /** Solar-zenith sampling of the spherical single-scattering table. */
+    static constexpr int    SzaGridPoints = 201;
+    static constexpr double SzaGridStep   = 0.5;   /**< degrees; covers 0..100 */
+
+    static constexpr double EarthRadiusKm  = 6371.0;
+    /** Rayleigh scale height. Sets how fast the air thins, hence Chapman's X. */
+    static constexpr double ScaleHeightKm  = 8.0;
+
+    /**
+     * Solar zenith beyond which the plane-parallel multiple-scattering term is
+     * frozen and merely scaled by how much light still gets in. Single
+     * scattering stays spherical at every angle; it is the part that matters
+     * near the terminator, and the part a flat atmosphere gets badly wrong.
+     */
+    static constexpr double MsSzaLimit = 85.0;
+
     struct Solution
     {
         double tau;
@@ -48,6 +64,23 @@ public:
          * ocean colour one actually wants to see.
          */
         double Rocean[3][Nodes][Nodes];
+
+        /**
+         * Spherical single-scattering integral, Iss[sza][muv]:
+         *
+         *     Iss = integral over t of exp(-t*Ch(z(t),sza) - t/muv) dt, 0..tau
+         *
+         * with Ch the Chapman air mass at the altitude whose vertical optical
+         * depth is t. Plane-parallel would use t/mu0 in place of t*Ch, which
+         * diverges at the terminator and shadows the whole column past it; the
+         * Chapman path stays finite and keeps the upper atmosphere lit, which
+         * is what twilight is.
+         *
+         * Tabulated because the integral is far too costly per pixel. Sampled
+         * every SzaGridStep degrees from 0 to the last row, at the quadrature
+         * nodes in muv.
+         */
+        double Iss[SzaGridPoints][Nodes];
 
         double Ttot[Nodes];            /**< total (direct + diffuse) transmittance */
         double planeAlbedo[Nodes];     /**< reflected flux fraction per incidence  */
@@ -80,6 +113,39 @@ public:
 
     /** Total transmittance along one path. */
     static double transmittance(const Solution &s, double mu);
+
+    /**
+     * Chapman air mass: the slant column to the sun through a spherical,
+     * exponentially stratified atmosphere, in units of the vertical column
+     * above the same point. Replaces the plane-parallel 1/cos(sza).
+     *
+     * Equal to 1/cos to within a fraction of a percent below 80 degrees, 0.65
+     * of it at 88, and finite - about 35 - at 90, where 1/cos is infinite.
+     * Past 90 it stays finite for altitudes the sunlight still clears, and
+     * returns infinity below that, where the solid Earth blocks the path. That
+     * transition is what makes the upper atmosphere glow after local sunset.
+     *
+     * @return HUGE_VAL when the path to the sun is blocked by the Earth
+     */
+    static double chapman(double altitudeKm, double szaDeg);
+
+    /**
+     * Atmospheric path reflectance in TOA units, pi*L/E0, *without* the 1/mu0
+     * normalisation.
+     *
+     * This is the quantity to work in near the terminator. A BRF carries a
+     * 1/mu0 that blows up as the sun sets and is meaningless past it, whereas
+     * this stays finite and well defined at every angle - the mu0 cancels out
+     * of the single-scattering term exactly.
+     *
+     * Pseudo-spherical: single scattering integrated along the true Chapman
+     * path, multiple scattering taken from the plane-parallel solution at
+     * min(sza, MsSzaLimit) and scaled by the ratio of the spherical
+     * single-scattering integrals, so it follows the light that actually gets
+     * in. Reduces to exactly mu0 * reflectance() wherever Chapman equals 1/cos.
+     */
+    static double toaPathReflectance(const Solution &s, double szaDeg,
+                                     double muv, double raaDeg, bool ocean);
 };
 
 #endif // RAYLEIGH_RT_H

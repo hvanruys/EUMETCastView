@@ -133,6 +133,22 @@ double fresnelUnpolarised(double mu, double n)
     return 0.5 * (rs * rs + rp * rp);
 }
 
+/**
+ * Scaled complementary error function, exp(y^2)*erfc(y). Computed as a product
+ * only while that is safe: exp(y^2) overflows past y ~ 26 and erfc has lost
+ * most of its significant digits well before then, so switch to the asymptotic
+ * series, which is good to 1e-5 by y = 4 and improves from there.
+ */
+double erfcx(double y)
+{
+    if (y < 4.0)
+        return std::exp(y * y) * std::erfc(y);
+
+    const double z = 1.0 / (y * y);
+    return (1.0 / (y * std::sqrt(M_PI)))
+         * (1.0 + z * (-0.5 + z * (0.75 + z * (-1.875 + z * 6.5625))));
+}
+
 const double *bandTauTable()
 {
     static double t[RayleighCorrector::SolarBandCount];
@@ -141,7 +157,94 @@ const double *bandTauTable()
     return t;
 }
 
+/**
+ * Tabulate the spherical single-scattering integral for one solar zenith:
+ *
+ *     Iss(muv) = integral 0..tau of exp(-t*Ch(z(t)) - t/muv) dt
+ *
+ * For an exponential atmosphere the vertical optical depth above altitude z is
+ * tau*exp(-z/H), so a depth t corresponds to z = H*ln(tau/t).
+ */
+void tabulateIss(double tau, double szaDeg, const double *mu, double *out)
+{
+    // Past 90 degrees the sun is below the local horizon for everything under
+    // the height at which the ray still clears the Earth. Integrating through
+    // that would be integrating through the planet, and the sharp edge would
+    // defeat Gauss-Legendre, so cut the range at it instead.
+    double tMax = tau;
+    if (szaDeg > 90.0) {
+        const double s = std::sin(szaDeg * M_PI / 180.0);
+        if (s <= 0.0) { for (int i = 0; i < N; ++i) out[i] = 0.0; return; }
+        const double zMin = RayleighRT::EarthRadiusKm * (1.0 / s - 1.0);
+        tMax = tau * std::exp(-zMin / RayleighRT::ScaleHeightKm);
+        if (!(tMax > 0.0)) { for (int i = 0; i < N; ++i) out[i] = 0.0; return; }
+    }
+
+    // 64-point Gauss-Legendre on (0, tMax). At grazing incidence the integrand
+    // collapses within t ~ 1/Ch, which is an order below tau, so the range
+    // needs the resolution.
+    constexpr int NQ = 64;
+    struct Quad {
+        double x[NQ], w[NQ];
+        Quad() { gaussLegendre01(x, w, NQ); }
+    };
+    static const Quad q64;            // thread-safe: initialised once, C++11 statics
+    const double *qx = q64.x, *qw = q64.w;
+
+    for (int i = 0; i < N; ++i) out[i] = 0.0;
+
+    for (int q = 0; q < NQ; ++q) {
+        const double t = qx[q] * tMax;
+        const double w = qw[q] * tMax;
+        if (t <= 0.0) continue;
+
+        // Altitude whose vertical optical depth above it is t. Capped so the
+        // top of the table stays finite; above 120 km there is no air left to
+        // scatter anyway.
+        double z = RayleighRT::ScaleHeightKm * std::log(tau / t);
+        z = std::max(0.0, std::min(120.0, z));
+
+        const double ch = RayleighRT::chapman(z, szaDeg);
+        if (!std::isfinite(ch)) continue;             // blocked by the Earth
+
+        const double beam = std::exp(-t * ch);
+        if (beam < 1e-12) continue;
+
+        for (int i = 0; i < N; ++i)
+            out[i] += w * beam * std::exp(-t / mu[i]);
+    }
+}
+
 } // namespace
+
+double RayleighRT::chapman(double altitudeKm, double szaDeg)
+{
+    const double d2r = M_PI / 180.0;
+    const double X   = (EarthRadiusKm + altitudeKm) / ScaleHeightKm;
+    const double chi = szaDeg * d2r;
+    const double mu  = std::cos(chi);
+    const double y   = std::sqrt(X / 2.0) * std::fabs(mu);
+
+    // The standard form is off by O(1/X) at vertical incidence - it returns
+    // 1 - 1/X where the slant column must equal the vertical one exactly.
+    // Normalising by its own zenith value removes that bias, and with it the
+    // 0.13 % floor that would otherwise stop this reducing cleanly to
+    // plane-parallel where it should.
+    const double norm = std::sqrt(M_PI * X / 2.0) * erfcx(std::sqrt(X / 2.0));
+
+    if (szaDeg <= 90.0)
+        return std::sqrt(M_PI * X / 2.0) * erfcx(y) / norm;
+
+    // Grazing branch. Only valid while the ray to the sun clears the surface;
+    // below that the Earth is in the way and no sunlight arrives at all.
+    const double sinChi = std::sin(chi);
+    if ((EarthRadiusKm + altitudeKm) * sinChi < EarthRadiusKm)
+        return HUGE_VAL;
+
+    return std::sqrt(2.0 * M_PI * X)
+         * (std::sqrt(sinChi) * std::exp(X * (1.0 - sinChi)) - 0.5 * erfcx(y))
+         / norm;
+}
 
 void RayleighRT::solve(double tau, Solution &out)
 {
@@ -160,6 +263,8 @@ void RayleighRT::solve(double tau, Solution &out)
                     out.Rocean[m][i][j] = 0.0;
                 }
         for (int i = 0; i < N; ++i) { out.Ttot[i] = 1.0; out.planeAlbedo[i] = 0.0; }
+        for (int k = 0; k < SzaGridPoints; ++k)
+            for (int i = 0; i < N; ++i) out.Iss[k][i] = 0.0;
         out.sphericalAlbedo = 0.0;
         return;
     }
@@ -263,6 +368,71 @@ void RayleighRT::solve(double tau, Solution &out)
             out.sphericalAlbedo = s;
         }
     }
+
+    // Spherical single-scattering table. Costs one 64-point quadrature per
+    // solar-zenith row, so a few hundred microseconds per band - worth it to
+    // keep the per-pixel path a table lookup.
+    for (int k = 0; k < SzaGridPoints; ++k)
+        tabulateIss(tau, k * SzaGridStep, out.mu, out.Iss[k]);
+}
+
+double RayleighRT::toaPathReflectance(const Solution &s, double szaDeg,
+                                      double muv, double raaDeg, bool ocean)
+{
+    if (s.tau <= 0.0)
+        return 0.0;
+
+    const double d2r = M_PI / 180.0;
+    muv = std::max(s.mu[0], std::min(s.mu[N - 1], muv));
+
+    // Interpolate the spherical integral at the true solar zenith, in both the
+    // sza row and the muv column.
+    auto issAt = [&s, muv](double sza) {
+        sza = std::max(0.0, std::min((SzaGridPoints - 1) * SzaGridStep, sza));
+        const double g  = sza / SzaGridStep;
+        int k = (int)g;
+        if (k > SzaGridPoints - 2) k = SzaGridPoints - 2;
+        const double fk = g - k;
+
+        int i = 0;
+        while (i < N - 2 && s.mu[i + 1] < muv) ++i;
+        const double fi = (muv - s.mu[i]) / (s.mu[i + 1] - s.mu[i]);
+
+        const double a = s.Iss[k][i]     * (1 - fi) + s.Iss[k][i + 1]     * fi;
+        const double b = s.Iss[k + 1][i] * (1 - fi) + s.Iss[k + 1][i + 1] * fi;
+        return a * (1 - fk) + b * fk;
+    };
+
+    const double iss = issAt(szaDeg);
+    if (iss <= 0.0)
+        return 0.0;                       // sun fully below the local horizon
+
+    // Single scattering, in TOA units. The 1/mu0 of a BRF cancels against the
+    // mu0 that converts back, which is exactly why this stays finite past 90.
+    const double mu0  = std::cos(szaDeg * d2r);
+    const double sin0 = std::sqrt(std::max(0.0, 1.0 - mu0 * mu0));
+    const double sinv = std::sqrt(std::max(0.0, 1.0 - muv * muv));
+    const double cosT = -mu0 * muv + sin0 * sinv * std::cos(raaDeg * d2r);
+    const double ssSph = RayleighCorrector::phaseFunction(cosT) / (4.0 * muv) * iss;
+
+    // Multiple scattering from the plane-parallel solution, frozen past
+    // MsSzaLimit and scaled by how much light still reaches the atmosphere.
+    // Below the limit the ratio is 1 and this reduces to mu0 * reflectance().
+    const double szaC = std::min(szaDeg, MsSzaLimit);
+    const double mu0C = std::cos(szaC * d2r);
+    const double sinC = std::sqrt(std::max(0.0, 1.0 - mu0C * mu0C));
+    const double cosC = -mu0C * muv + sinC * sinv * std::cos(raaDeg * d2r);
+
+    const double ssPp = mu0C * RayleighCorrector::phaseFunction(cosC)
+                      / (4.0 * (mu0C + muv))
+                      * (1.0 - std::exp(-s.tau * (1.0 / mu0C + 1.0 / muv)));
+    const double totPp = mu0C * reflectance(s, mu0C, muv, raaDeg, ocean);
+    const double msPp  = std::max(0.0, totPp - ssPp);
+
+    const double issC  = (szaDeg > MsSzaLimit) ? issAt(szaC) : iss;
+    const double ratio = (issC > 0.0) ? std::min(1.0, iss / issC) : 0.0;
+
+    return ssSph + msPp * ratio;
 }
 
 const RayleighRT::Solution &RayleighRT::forBand(int bandIndex)

@@ -72,11 +72,10 @@ public:
      * Sun-zenith normalisation factor: 1/cos of the effective solar zenith.
      * Multiply a radiance-equivalent reflectance by this to get BRF.
      *
-     * Bounded at 1/cos(SzaLimit), which is the same angle pathReflectance
-     * floors mu0 at, so the amplification and the thing being subtracted always
-     * describe the same sun. Never zero - night goes black because the frozen
-     * path reflectance outgrows the collapsing signal, not because the factor
-     * is switched off.
+     * Bounded at 1/cos(SzaLimit). pathReflectance converts its TOA-unit result
+     * back through this same factor, so the amplification and the thing being
+     * subtracted always describe the same sun. Never zero - night goes black
+     * because the illumination collapses, not because the factor is switched off.
      *
      * This deliberately drops the logarithmic roll-off of Satpy's
      * sunzen_corr_cos. Satpy fades the normalisation because it has nothing to
@@ -86,38 +85,16 @@ public:
     static float sunZenithFactor(float szaDeg);
 
     /**
-     * Scale applied to the path reflectance past SzaLimit:
-     * min(1, cos(sza)/cos(SzaLimit)), and 0 once the sun is below the horizon.
-     *
-     * Freezing the amplification at SzaLimit means the signal handed to the
-     * subtraction is no longer a BRF but a BRF scaled by exactly this factor.
-     * What is taken away has to be scaled to match, or a fixed rho eats a
-     * shrinking signal - and it eats vis_04 first, since its rho is three times
-     * vis_06's, which turns the twilight zone red.
-     *
-     * With both scaled the corrected value is simply
-     * scale * (BRF - rho(SzaLimit)): every band dimmed by the same factor, so no
-     * colour shift.
-     *
-     * This is about *what is subtracted*, not about when the image goes dark.
-     * It reaches zero at the geometric terminator, where there is no longer a
-     * sunlit surface to have a path reflectance for; the atmosphere above one is
-     * still lit, and how that last light fades out is twilightFade's job.
-     */
-    static float pathReflectanceScale(float szaDeg);
-
-    /**
      * Twilight fade, 1.0 up to SzaLimit falling smoothly to 0.0 at SzaMax.
      * Multiplies the corrected reflectance, so it dims every band alike and
      * cannot tint anything.
      *
-     * Needed as well as pathReflectanceScale, not instead of it. Past roughly
-     * sza 86 a plane-parallel model recovers only about a third of the observed
-     * radiance - the real atmosphere is lit through a curved shell and the flat
-     * one is not - so what is left over there is mostly model error, and it is
-     * blue, because Rayleigh is. This fades that stretch out rather than
-     * pretending to correct it, and carries the image to black across twelve
-     * degrees instead of stopping dead at 90.
+     * Kept as a backstop now that the solar path is spherical. The reason it
+     * existed - a plane-parallel model recovering only a third of the observed
+     * radiance past sza 86, leaving blue error behind - is what the Chapman
+     * treatment addresses directly. What remains is that nothing is trustworthy
+     * within a few degrees of the terminator, so the image is still carried to
+     * black rather than left to whatever the model last said.
      */
     static float twilightFade(float szaDeg);
 
@@ -131,8 +108,10 @@ public:
      * grazing view, so the old formula under-removed haze everywhere and most at
      * the limb.
      *
-     * The solar cosine is floored at cos(SzaLimit) to match sunZenithFactor's
-     * own limit, and the viewing cosine at cos(VzaLimit) - see that constant.
+     * Only the viewing cosine is floored, at cos(VzaLimit) - see that constant.
+     * The solar angle is passed through untouched, because the spherical solar
+     * path is defined at every angle including past the terminator.
+     *
      * The correction is deliberately never tapered away toward the limb: fading
      * it out leaves the haze it was meant to remove in place, and since the disc
      * interior is de-hazed the leftover reads as a bright blue ring.
@@ -143,6 +122,10 @@ public:
      * @param raaDeg    relative azimuth angle, degrees, folded into [0, 180]
      * @param water     0 for a black lower boundary, 1 for a Fresnel sea
      *                  surface, blended in between
+     *
+     * Evaluated through RayleighRT::toaPathReflectance, so the solar path is
+     * spherical (Chapman) rather than plane-parallel and the result stays
+     * meaningful past the terminator.
      */
     static float pathReflectance(int bandIndex, float szaDeg,
                                  float vzaDeg, float raaDeg,

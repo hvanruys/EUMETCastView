@@ -2,6 +2,7 @@
 // Build with: cmake -DBUILD_TESTS=ON ..    Run: bin/rayleigh_test
 
 #include "rayleigh.h"
+#include "rayleigh_rt.h"
 
 #include <cmath>
 #include <cstdio>
@@ -136,51 +137,52 @@ static void testSunZenithFactor()
     }
 }
 
-static void testPathReflectanceScale()
+static void testSphericalSolarPath()
 {
-    for (float sza = 0.0f; sza <= RayleighCorrector::SzaLimit; sza += 10.0f)
-        check(RayleighCorrector::pathReflectanceScale(sza) == 1.0f,
-              "no scaling below the limit");
-
-    check(RayleighCorrector::pathReflectanceScale(90.0f) == 0.0f,
-          "zero at the terminator");
-    check(RayleighCorrector::pathReflectanceScale(120.0f) == 0.0f,
-          "zero past the terminator");
-
-    // Continuous at the limit, and equal to cos(sza)/cos(limit) beyond it. That
-    // identity is what makes the corrected value scale*(BRF - rho) with every
-    // band dimmed alike, so the twilight zone fades without changing colour.
-    const double d2r = M_PI / 180.0;
-    checkClose(RayleighCorrector::pathReflectanceScale(
-                   RayleighCorrector::SzaLimit + 0.001f), 1.0, 1e-3,
-               "continuous at the limit");   // slope is 0.14/deg here
-    for (float sza = RayleighCorrector::SzaLimit + 1.0f; sza < 90.0f; sza += 1.0f)
-        checkClose(RayleighCorrector::pathReflectanceScale(sza),
-                   std::cos(sza * d2r) / std::cos(RayleighCorrector::SzaLimit * d2r),
-                   1e-5, "equals cos(sza)/cos(limit) past the limit");
-
-    float prev = 1.0f;
-    for (float sza = 0.0f; sza <= 100.0f; sza += 0.5f) {
-        const float k = RayleighCorrector::pathReflectanceScale(sza);
-        check(k >= 0.0f && k <= 1.0f, "scale stays within [0,1]");
-        check(k <= prev + 1e-7f, "scale is monotonically decreasing");
-        prev = k;
+    // Below SzaLimit nothing has changed: the result is still the plane-parallel
+    // BRF, because Chapman equals 1/cos there to a fraction of a percent.
+    for (float sza = 0.0f; sza <= 70.0f; sza += 10.0f) {
+        const double mu0 = std::cos(sza * M_PI / 180.0);
+        const double muv = std::cos(40.0 * M_PI / 180.0);
+        const double pp  = RayleighRT::reflectance(
+            RayleighRT::forBand(0), mu0, muv, 90.0, false);
+        checkClose(RayleighCorrector::pathReflectance(0, sza, 40.0f, 90.0f), pp,
+                   0.01, "reduces to plane-parallel in daylight");
     }
 
-    // The scale must die at the terminator, but the image must not - that is
-    // twilightFade's range, and it runs well past 90.
-    check(RayleighCorrector::SzaMax > 90.0f,
-          "the fade outlasts the geometric terminator");
-    check(RayleighCorrector::twilightFade(90.0f) > 0.0f,
-          "there is still image at the terminator");
+    // Past the limit it keeps falling with the real illumination rather than
+    // being frozen, and it is still non-zero *past the terminator*, which is
+    // the whole point - the atmosphere above a point stays lit after the sun
+    // has set on the ground beneath it.
+    float prev = 1e9f;
+    for (float sza = 84.0f; sza <= 96.0f; sza += 1.0f) {
+        const float r = RayleighCorrector::pathReflectance(0, sza, 40.0f, 90.0f);
+        // Non-increasing rather than strictly falling: it reaches exactly zero
+        // at SzaMax and stays there.
+        check(r >= 0.0f && r <= prev, "path reflectance keeps falling through twilight");
+        prev = r;
+    }
+    check(RayleighCorrector::pathReflectance(0, 92.0f, 40.0f, 90.0f)
+              < 0.5f * RayleighCorrector::pathReflectance(0, 90.0f, 40.0f, 90.0f),
+          "twilight decays fast, not slowly");
+    check(RayleighCorrector::pathReflectance(0, 91.0f, 40.0f, 90.0f) > 0.0f,
+          "still correcting one degree past the terminator");
+    check(RayleighCorrector::pathReflectance(0, RayleighCorrector::SzaMax + 1.0f,
+                                             40.0f, 90.0f) == 0.0f,
+          "nothing left to correct deep into night");
 
-    // The whole point: past the limit the subtraction must shrink with the
-    // signal. A fixed rho against a shrinking signal is what reddened twilight.
-    const float near = RayleighCorrector::pathReflectance(0, 84.0f, 40.0f, 90.0f);
-    const float far  = RayleighCorrector::pathReflectance(0, 89.0f, 40.0f, 90.0f);
-    check(far < 0.4f * near, "path reflectance shrinks steeply through twilight");
-    check(RayleighCorrector::pathReflectance(0, 91.0f, 40.0f, 90.0f) == 0.0f,
-          "no subtraction once the sun is down");
+    // A spherical path lets more light in than a flat one at grazing incidence,
+    // so the correction there must be stronger than plane-parallel, not weaker.
+    // Under-removal here is what left the terminator blue.
+    const double mu0 = std::cos(88.0 * M_PI / 180.0);
+    const double muv = std::cos(40.0 * M_PI / 180.0);
+    const double ppToa = mu0 * RayleighRT::reflectance(
+        RayleighRT::forBand(0), mu0, muv, 90.0, false);
+    const double sphToa = RayleighRT::toaPathReflectance(
+        RayleighRT::forBand(0), 88.0, muv, 90.0, false);
+    std::printf("info : sza 88 TOA path reflectance, spherical %.5f vs flat %.5f "
+                "(%.2fx)\n", sphToa, ppToa, sphToa / ppToa);
+    check(sphToa > 1.2 * ppToa, "spherical beats plane-parallel at sza 88");
 }
 
 static void testTwilightFade()
@@ -195,8 +197,7 @@ static void testTwilightFade()
     const float mid = 0.5f * (RayleighCorrector::SzaLimit + RayleighCorrector::SzaMax);
     checkClose(RayleighCorrector::twilightFade(mid), 0.5, 1e-6, "half faded at the midpoint");
 
-    // A visible ramp, not an edge: several degrees of partial brightness, and
-    // still lit where pathReflectanceScale has already reached zero.
+    // A visible ramp, not an edge.
     int graded = 0;
     float prev = 1.0f;
     for (float sza = 0.0f; sza <= 100.0f; sza += 0.5f) {
@@ -207,9 +208,8 @@ static void testTwilightFade()
         prev = w;
     }
     check(graded > 15, "the fade spans many degrees rather than cutting");
-    check(RayleighCorrector::twilightFade(92.0f) > 0.0f
-              && RayleighCorrector::pathReflectanceScale(92.0f) == 0.0f,
-          "image survives past the terminator where the subtraction has stopped");
+    check(RayleighCorrector::twilightFade(92.0f) > 0.0f,
+          "image survives past the terminator");
 }
 
 static void testPathReflectance()
@@ -221,11 +221,14 @@ static void testPathReflectance()
     check(RayleighCorrector::pathReflectance(-1, 30.0f, 20.0f, 60.0f) == 0.0f,
           "out-of-range band gets no path reflectance");
 
-    // Reciprocity, inherited from the doubling solution. Holds below VzaLimit;
-    // the view-angle floor is a function of vza only and breaks it above.
+    // Near-reciprocal under a sun/view swap. Exact reciprocity belongs to the
+    // doubling solution and is tested there; here the solar path is spherical
+    // while the view path stays plane-parallel, so the two directions are
+    // deliberately no longer interchangeable. At these angles Chapman is within
+    // a fraction of a percent of 1/cos, so they still agree to 1e-3.
     checkClose(RayleighCorrector::pathReflectance(0, 25.0f, 55.0f, 100.0f),
                RayleighCorrector::pathReflectance(0, 55.0f, 25.0f, 100.0f),
-               1e-5, "reciprocal under sun/view swap below the view floor");
+               1e-3, "near-reciprocal under sun/view swap in daylight");
 
     // Multiple scattering is included, so the correction must be strictly
     // stronger than the single-scattering value it replaced - and by a margin
@@ -288,7 +291,7 @@ int main()
     testOpticalDepth();
     testPhaseFunction();
     testSunZenithFactor();
-    testPathReflectanceScale();
+    testSphericalSolarPath();
     testTwilightFade();
     testPathReflectance();
 
