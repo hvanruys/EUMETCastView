@@ -10083,14 +10083,27 @@ void SegmentListGeostationary::composeFCIGeoColor(const QVector<float*> &bandBuf
         for (int pixelx = 0; pixelx < outRes; ++pixelx) {
             const long i_pix = (long)line * outRes + pixelx;
 
-            const float r = bR[i_pix];
-            const float g = bG[i_pix];
-            const float b = bB[i_pix];
+            // What counts as being on the disc. The infrared window is the only
+            // band that means anything at every hour, so where it exists it
+            // decides. Letting a visible band decide instead punched the night
+            // side full of holes: it carries no signal there, so any pixel it
+            // failed to report took the whole composite with it.
+            const bool onDisc = haveNight
+                ? (b105[i_pix] != FILL_VALUE_F)
+                : (bR[i_pix] != FILL_VALUE_F && bG[i_pix] != FILL_VALUE_F
+                                             && bB[i_pix] != FILL_VALUE_F);
 
-            if (r == FILL_VALUE_F || g == FILL_VALUE_F || b == FILL_VALUE_F) {
-                row_col[pixelx] = qRgb(0, 0, 0);      // off the disc
+            if (!onDisc) {
+                row_col[pixelx] = qRgb(0, 0, 0);
                 continue;
             }
+
+            // A missing visible band is darkness, not absence. Past the
+            // terminator that is exactly right, and on the day side the
+            // night weight is zero, so such a pixel comes out black either way.
+            const float r = (bR[i_pix] != FILL_VALUE_F) ? bR[i_pix] : 0.0f;
+            const float g = (bG[i_pix] != FILL_VALUE_F) ? bG[i_pix] : 0.0f;
+            const float b = (bB[i_pix] != FILL_VALUE_F) ? bB[i_pix] : 0.0f;
 
             const bool isWater = (water[i_pix] != 0);
 
@@ -10360,16 +10373,30 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                     if (dn == fv) continue;
 
                     float L = (float)dn * sf + ao;
-                    if (L < 0.0f) continue;
 
                     float physVal;
                     if (isIR) {
-                        double nu = FCI_NU[bandIndex - 8];
+                        // The Planck inversion has nothing to say about a
+                        // non-positive radiance.
                         if (L <= 0.0f) continue;
+                        double nu = FCI_NU[bandIndex - 8];
                         double nu3 = nu * nu * nu;
                         physVal = (float)(c2 * nu / log(1.0 + c1 * nu3 / (double)L));
                     } else {
-                        physVal = (float)(M_PI * (double)L / (double)solarIrr);
+                        // FCI puts zero radiance at DN 204 in every band, so on
+                        // the night side the visible channels sit right on that
+                        // point with noise either side. Measured on a night
+                        // segment, 11.6 % of valid pixels land below it.
+                        //
+                        // Discarding those treated a perfectly good measurement
+                        // of a dark scene as missing data, and each one came out
+                        // as an off-disc black pixel - the speckle over
+                        // night-side cloud. A negative radiance here means zero
+                        // plus noise; _FillValue above is what actually marks
+                        // data that is not there.
+                        physVal = (L > 0.0f)
+                                ? (float)(M_PI * (double)L / (double)solarIrr)
+                                : 0.0f;
                     }
 
                     if (nativeRes == outRes) {
