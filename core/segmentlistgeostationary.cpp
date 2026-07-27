@@ -9728,10 +9728,16 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
     // question it is good at, whether cloud is sitting on the sea. Without a
     // shoreline file we fall back to brightness alone, which cannot tell dark
     // vegetation from ocean.
-    const QByteArray gshhsPath = opts.gshhsglobe1.toLocal8Bit();
+    // Same resolution rule as gshhsdata.cpp: packaged as an AppImage the
+    // shoreline data sits under APPDIR rather than the working directory, and
+    // an unset path has to stay unset rather than becoming the AppDir itself.
+    const QString gshhsFile = (opts.gshhsglobe1.isEmpty() || opts.appdir_env.isEmpty())
+                            ? opts.gshhsglobe1
+                            : opts.appdir_env + "/" + opts.gshhsglobe1;
+    const QByteArray gshhsPath = gshhsFile.toLocal8Bit();
     const bool haveGeoMask = LandSeaMask::load(gshhsPath.constData());
     if (!haveGeoMask)
-        qWarning() << "FCI Rayleigh: no shoreline mask at" << opts.gshhsglobe1
+        qWarning() << "FCI Rayleigh: no shoreline mask at" << gshhsFile
                    << "- falling back to the brightness test, which reads dark"
                    << "vegetation at high view angle as water";
 
