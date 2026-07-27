@@ -26,6 +26,11 @@ typedef struct {
     double offset;
 } bandstorage;
 
+// segmentimage.h includes this header back through avhrrsatellite.h, so by the
+// time we get here RGBRecipe may not be defined yet even though it lives there.
+// A reference to an incomplete type is all the declarations below need.
+struct RGBRecipe;
+
 
 class SegmentListGeostationary : public QObject
 {
@@ -133,10 +138,35 @@ public:
 
 
 private:
+    /**
+     * @param outFade  optional, one per pixel: the twilight fade already folded
+     *                 into the corrected reflectances. GeoColor needs it to
+     *                 know how much night to lay underneath, and recovering it
+     *                 here is free - the alternative is geolocating and
+     *                 sun-positioning all 124 million pixels a second time.
+     * @param outWater optional, one per pixel: non-zero where the shoreline
+     *                 mask says sea. Same reasoning.
+     */
     void applyFCISolarCorrection(QVector<float*> &bandBuf,
                                  const QList<int> &bandIndices,
                                  int outRes,
-                                 const QVector<double> &rowJd);
+                                 const QVector<double> &rowJd,
+                                 float *outFade = nullptr,
+                                 quint8 *outWater = nullptr);
+
+    /**
+     * Build the GeoColor layered composite straight into ptrimageGeostationary.
+     *
+     * Does not go through the per-colour result buffers: no formula over three
+     * colours describes a day layer, a night layer and a terminator between
+     * them, so this reads the bands it needs by name and writes pixels.
+     */
+    void composeFCIGeoColor(const QVector<float*> &bandBuf,
+                            const QStringList &uniqueBands,
+                            int outRes,
+                            const RGBRecipe &rec,
+                            const float *fade,
+                            const quint8 *water);
 
     void ComposeHRV();
     void ComposeHRV_Alt();

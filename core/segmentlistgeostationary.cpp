@@ -22,6 +22,7 @@
 #include "misc_util.h"
 #include "rayleigh.h"
 #include "landseamask.h"
+#include "geocolor.h"
 #include <QTimeZone>
 #include "internal.h"
 
@@ -9683,7 +9684,9 @@ static QDateTime fciSegmentMidTime(const QString &fname)
 void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
                                                        const QList<int> &bandIndices,
                                                        int outRes,
-                                                       const QVector<double> &rowJd)
+                                                       const QVector<double> &rowJd,
+                                                       float *outFade,
+                                                       quint8 *outWater)
 {
     // Which slots in bandBuf hold solar bands? IR bands get neither
     // sun-normalisation nor a Rayleigh correction.
@@ -9855,9 +9858,15 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
             // the longest solar band against a black lower boundary. Water is
             // far darker than land toward the red, and this is the term that
             // decides whether the sea surface reflects sky into the view.
+            // Hand the geometry on to any layered composite that follows, so it
+            // does not have to be derived twice.
+            const bool geoWater = haveGeoMask && LandSeaMask::isWater(lat_deg, lon_deg);
+            if (outFade)  outFade[i_pix]  = w;
+            if (outWater) outWater[i_pix] = geoWater ? 1 : 0;
+
             float water = 0.0f;
             if (useOcean && w > 0.0f && bandBuf[maskSlot][i_pix] != FILL_VALUE_F
-                && (!haveGeoMask || LandSeaMask::isWater(lat_deg, lon_deg))) {
+                && (!haveGeoMask || geoWater)) {
                 const float mb = RayleighCorrector::surfaceReflectance(
                     maskBand, szaDeg, vzaDeg,
                     bandBuf[maskSlot][i_pix] * f
@@ -9893,6 +9902,266 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
         const int done = rowsDone.fetchAndAddOrdered(1) + 1;
         if ((done & 0x1FF) == 0)
             emit progressCounter(70 + (8 * done) / outRes);
+    });
+}
+
+namespace {
+
+/** A full-globe equirectangular image, kept as 8-bit luminance. */
+struct GlobeLuminance
+{
+    QVector<quint8> lum;
+    int w = 0, h = 0;
+
+    bool valid() const { return w > 0 && h > 0 && lum.size() == (qsizetype)w * h; }
+
+    /**
+     * Bilinear sample, 0..1. Longitude wraps, latitude clamps.
+     *
+     * Interpolated rather than nearest because a lights image is typically
+     * coarser than the FCI grid - a 8192-wide Black Marble is about 5 km at the
+     * equator against 1 km for vis_06 - and nearest-neighbour would turn every
+     * city into a visible rectangle.
+     */
+    float sample(double latDeg, double lonDeg) const
+    {
+        if (!valid())
+            return 0.0f;
+
+        const double fx = (lonDeg + 180.0) / 360.0 * (double)w - 0.5;
+        const double fy = (90.0 - latDeg) / 180.0 * (double)h - 0.5;
+
+        const int x0 = (int)std::floor(fx);
+        const int y0 = (int)std::floor(fy);
+        const double tx = fx - (double)x0;
+        const double ty = fy - (double)y0;
+
+        auto wrapX  = [this](int x) { x %= w; return x < 0 ? x + w : x; };
+        auto clampY = [this](int y) { return y < 0 ? 0 : (y >= h ? h - 1 : y); };
+
+        const int xa = wrapX(x0), xb = wrapX(x0 + 1);
+        const int ya = clampY(y0), yb = clampY(y0 + 1);
+
+        const double v00 = lum.at((qsizetype)ya * w + xa);
+        const double v10 = lum.at((qsizetype)ya * w + xb);
+        const double v01 = lum.at((qsizetype)yb * w + xa);
+        const double v11 = lum.at((qsizetype)yb * w + xb);
+
+        const double top = v00 + tx * (v10 - v00);
+        const double bot = v01 + tx * (v11 - v01);
+        return (float)((top + ty * (bot - top)) / 255.0);
+    }
+};
+
+GlobeLuminance loadGlobeLuminance(const QString &path)
+{
+    GlobeLuminance g;
+    if (path.isEmpty())
+        return g;
+
+    QImage src(path);
+    if (src.isNull()) {
+        qWarning() << "FCI GeoColor: cannot read the city-lights image at" << path
+                   << "- the night side will be unlit";
+        return g;
+    }
+
+    const QImage grey = src.convertToFormat(QImage::Format_Grayscale8);
+    g.w = grey.width();
+    g.h = grey.height();
+    g.lum.resize((qsizetype)g.w * g.h);
+    for (int y = 0; y < g.h; ++y)
+        memcpy(g.lum.data() + (qsizetype)y * g.w, grey.constScanLine(y), (size_t)g.w);
+
+    if (g.w != 2 * g.h)
+        qWarning() << "FCI GeoColor: city-lights image is" << g.w << "x" << g.h
+                   << "- a full-globe equirectangular image should be 2:1,"
+                   << "so this one will be sampled in the wrong place";
+    else
+        qDebug() << "FCI GeoColor: city lights" << g.w << "x" << g.h << "from" << path;
+
+    return g;
+}
+
+/** Range-clip and gamma, the same mapping the additive recipes use. */
+inline float stretchDisplay(float v, float from, float to, float gamma)
+{
+    if (v < from) v = from;
+    if (v > to)   v = to;
+
+    const float norm = (to != from) ? (v - from) / (to - from) : 0.0f;
+    return (gamma == 1.0f) ? norm : std::pow(norm, 1.0f / gamma);
+}
+
+} // namespace
+
+void SegmentListGeostationary::composeFCIGeoColor(const QVector<float*> &bandBuf,
+                                                  const QStringList &uniqueBands,
+                                                  int outRes,
+                                                  const RGBRecipe &rec,
+                                                  const float *fade,
+                                                  const quint8 *water)
+{
+    const int iRed = uniqueBands.indexOf(rec.Colorvector.at(0).channels.at(0));
+    const int iGrn = uniqueBands.indexOf(rec.Colorvector.at(1).channels.at(0));
+    const int iBlu = uniqueBands.indexOf(rec.Colorvector.at(2).channels.at(0));
+
+    if (iRed < 0 || iGrn < 0 || iBlu < 0) {
+        qWarning() << "FCI GeoColor: a day band is missing - nothing to compose";
+        return;
+    }
+
+    // The rest are dependencies. Each one missing costs a layer, not the image.
+    const int iNir = uniqueBands.indexOf("vis_08");
+    const int i38  = uniqueBands.indexOf("ir_38");
+    const int i105 = uniqueBands.indexOf("ir_105");
+
+    const bool haveNdvi  = (iNir >= 0);
+    const bool haveNight = (i38 >= 0 && i105 >= 0);
+
+    if (!haveNdvi)
+        qWarning() << "FCI GeoColor: no vis_08 - vegetation enhancement is off";
+    if (!haveNight)
+        qWarning() << "FCI GeoColor: no ir_38/ir_105 - the night side will be"
+                   << "bare ground with no cloud";
+
+    const float *bR   = bandBuf.at(iRed);
+    const float *bG   = bandBuf.at(iGrn);
+    const float *bB   = bandBuf.at(iBlu);
+    const float *bNir = haveNdvi  ? bandBuf.at(iNir) : nullptr;
+    const float *b38  = haveNight ? bandBuf.at(i38)  : nullptr;
+    const float *b105 = haveNight ? bandBuf.at(i105) : nullptr;
+
+    const RGBRecipeColor &cR = rec.Colorvector.at(0);
+    const RGBRecipeColor &cG = rec.Colorvector.at(1);
+    const RGBRecipeColor &cB = rec.Colorvector.at(2);
+
+    // One gamma drives the terminator, because the night weight is a single
+    // number per pixel. Three different day gammas would need three, and the
+    // recipe has no reason to want them.
+    if (cR.gamma != cG.gamma || cR.gamma != cB.gamma)
+        qWarning() << "FCI GeoColor: the three day gammas differ"
+                   << cR.gamma << cG.gamma << cB.gamma
+                   << "- the terminator blend will use the red one, so green and"
+                   << "blue may tint slightly across it";
+    const float dayGamma = cR.gamma;
+
+    const GlobeLuminance lights = loadGlobeLuminance(opts.fcinightlights);
+    if (!lights.valid() && !opts.fcinightlights.isEmpty())
+        qWarning() << "FCI GeoColor: night side will be unlit";
+
+    // Geolocation is only needed to place the lights, so it is only paid for
+    // when there are lights to place.
+    const bool needGeo = lights.valid();
+
+    const long coff  = opts.geosatellites.at(geoindex).coffhrv;
+    const long loff  = opts.geosatellites.at(geoindex).loffhrv;
+    const double cfac = opts.geosatellites.at(geoindex).cfachrv;
+    const double lfac = opts.geosatellites.at(geoindex).lfachrv;
+    const double subLon = opts.geosatellites.at(geoindex).longitude;
+
+    QVector<int> lines(outRes);
+    for (int i = 0; i < outRes; ++i)
+        lines[i] = i;
+
+    QAtomicInt rowsDone(0);
+
+    // Take the base pointer once. QImage::scanLine is non-const and runs
+    // detach(), which bumps a plain non-atomic counter - harmless from one
+    // thread, a data race from many. Rows never overlap, so indexing the buffer
+    // directly is both safe and one call cheaper per row.
+    uchar *const imgBits = imageptrs->ptrimageGeostationary->bits();
+    const qsizetype imgStride = imageptrs->ptrimageGeostationary->bytesPerLine();
+
+    QtConcurrent::blockingMap(lines, [&](int line) {
+        pixgeoConversion pixconv;
+
+        // The compose buffer is south-up; the image is stored display-up.
+        const int display_row = outRes - 1 - line;
+        QRgb *row_col = (QRgb *)(imgBits + (qsizetype)display_row * imgStride);
+
+        for (int pixelx = 0; pixelx < outRes; ++pixelx) {
+            const long i_pix = (long)line * outRes + pixelx;
+
+            // What counts as being on the disc. The infrared window is the only
+            // band that means anything at every hour, so where it exists it
+            // decides. Letting a visible band decide instead punched the night
+            // side full of holes: it carries no signal there, so any pixel it
+            // failed to report took the whole composite with it.
+            const bool onDisc = haveNight
+                ? (b105[i_pix] != FILL_VALUE_F)
+                : (bR[i_pix] != FILL_VALUE_F && bG[i_pix] != FILL_VALUE_F
+                                             && bB[i_pix] != FILL_VALUE_F);
+
+            if (!onDisc) {
+                row_col[pixelx] = qRgb(0, 0, 0);
+                continue;
+            }
+
+            // A missing visible band is darkness, not absence. Past the
+            // terminator that is exactly right, and on the day side the
+            // night weight is zero, so such a pixel comes out black either way.
+            const float r = (bR[i_pix] != FILL_VALUE_F) ? bR[i_pix] : 0.0f;
+            const float g = (bG[i_pix] != FILL_VALUE_F) ? bG[i_pix] : 0.0f;
+            const float b = (bB[i_pix] != FILL_VALUE_F) ? bB[i_pix] : 0.0f;
+
+            const bool isWater = (water[i_pix] != 0);
+
+            // ---- day ----------------------------------------------------
+            // NDVI from the corrected reflectances. Both bands carry the same
+            // twilight fade and a ratio cancels it, so the index stays valid
+            // right through the terminator even as the signal dies away.
+            GeoColorRGB day = { r, g, b };
+            if (haveNdvi && !isWater) {
+                const float nir = bNir[i_pix];
+                if (nir != FILL_VALUE_F) {
+                    const float den = nir + r;
+                    if (den > 1.0e-4f) {
+                        const float veg =
+                            GeoColor::vegetationFraction((nir - r) / den);
+                        if (veg > 0.0f)
+                            day = GeoColor::greenVegetation(day, nir, veg);
+                    }
+                }
+            }
+
+            const GeoColorRGB dayDisp = {
+                stretchDisplay(day.r, cR.rangefrom, cR.rangeto, cR.gamma),
+                stretchDisplay(day.g, cG.rangefrom, cG.rangeto, cG.gamma),
+                stretchDisplay(day.b, cB.rangefrom, cB.rangeto, cB.gamma)
+            };
+
+            // ---- night --------------------------------------------------
+            GeoColorRGB night = GeoColor::nightBase(isWater);
+
+            if (needGeo) {
+                double lat_deg = 0.0, lon_deg = 0.0;
+                if (pixconv.pixcoord2geocoord(subLon, pixelx, display_row,
+                                              (int)coff, (int)loff, cfac, lfac,
+                                              &lat_deg, &lon_deg) == 0)
+                    night = GeoColor::addCityLights(night,
+                                                    lights.sample(lat_deg, lon_deg));
+            }
+
+            if (haveNight) {
+                const float t105 = b105[i_pix];
+                const float t38  = b38[i_pix];
+                if (t105 != FILL_VALUE_F && t38 != FILL_VALUE_F)
+                    night = GeoColor::nightClouds(night, t105, t38);
+            }
+
+            // ---- terminator ---------------------------------------------
+            const GeoColorRGB out = GeoColor::blend(
+                dayDisp, night, GeoColor::nightWeight(fade[i_pix], dayGamma));
+
+            row_col[pixelx] = qRgb((int)(out.r * 255.0f + 0.5f),
+                                   (int)(out.g * 255.0f + 0.5f),
+                                   (int)(out.b * 255.0f + 0.5f));
+        }
+
+        const int done = rowsDone.fetchAndAddOrdered(1) + 1;
+        if ((done & 0x1FF) == 0)
+            emit progressCounter(78 + (20 * done) / outRes);
     });
 }
 
@@ -9935,12 +10204,25 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
             }
         }
     }
+    // Bands a composite depends on without them being a colour of their own.
+    for (int k = 0; k < rec.auxchannels.size() && k < rec.auxbands.size(); k++) {
+        if (!uniqueBands.contains(rec.auxchannels.at(k))) {
+            uniqueBands.append(rec.auxchannels.at(k));
+            uniqueIdx.append(rec.auxbands.at(k));
+        }
+    }
 
     // Use IR resolution (5568) if any IR band is required, else VIS (11136)
     bool hasIR = false;
     for (int idx : uniqueIdx)
         if (idx >= 8) { hasIR = true; break; }
-    const int outRes = hasIR ? 5568 : 11136;
+
+    // GeoColor keeps the full visible grid even though it needs two infrared
+    // windows. Dropping to 5568 would halve the resolution of the daylit half -
+    // the half people actually look at - to suit a night cloud layer that is
+    // broad and soft and loses nothing by being doubled up instead.
+    const int outRes = (rec.compose == RECIPE_GEOCOLOR) ? 11136
+                                                        : (hasIR ? 5568 : 11136);
     const long totalPix = (long)outRes * outRes;
 
     int nBands = uniqueBands.size();
@@ -10091,29 +10373,60 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                     if (dn == fv) continue;
 
                     float L = (float)dn * sf + ao;
-                    if (L < 0.0f) continue;
 
                     float physVal;
                     if (isIR) {
-                        double nu = FCI_NU[bandIndex - 8];
+                        // The Planck inversion has nothing to say about a
+                        // non-positive radiance.
                         if (L <= 0.0f) continue;
+                        double nu = FCI_NU[bandIndex - 8];
                         double nu3 = nu * nu * nu;
                         physVal = (float)(c2 * nu / log(1.0 + c1 * nu3 / (double)L));
                     } else {
-                        physVal = (float)(M_PI * (double)L / (double)solarIrr);
+                        // FCI puts zero radiance at DN 204 in every band, so on
+                        // the night side the visible channels sit right on that
+                        // point with noise either side. Measured on a night
+                        // segment, 11.6 % of valid pixels land below it.
+                        //
+                        // Discarding those treated a perfectly good measurement
+                        // of a dark scene as missing data, and each one came out
+                        // as an off-disc black pixel - the speckle over
+                        // night-side cloud. A negative radiance here means zero
+                        // plus noise; _FillValue above is what actually marks
+                        // data that is not there.
+                        physVal = (L > 0.0f)
+                                ? (float)(M_PI * (double)L / (double)solarIrr)
+                                : 0.0f;
                     }
 
                     if (nativeRes == outRes) {
                         long i_out = (long)abs_row * outRes + abs_col;
                         if (i_out >= 0 && i_out < totalPix)
                             bandBuf[bi][i_out] = physVal;
-                    } else {
+                    } else if (nativeRes > outRes) {
                         // VIS(11136) → output IR(5568): subsample 2:1
                         int out_row = abs_row / 2;
                         int out_col = abs_col / 2;
                         long i_out = (long)out_row * outRes + out_col;
                         if (i_out >= 0 && i_out < totalPix && bandBuf[bi][i_out] == FILL_VALUE_F)
                             bandBuf[bi][i_out] = physVal;
+                    } else {
+                        // IR(5568) → output VIS(11136): replicate into the 2x2
+                        // block. Nearest-neighbour rather than interpolated,
+                        // because a brightness temperature smeared across a
+                        // cloud edge is a temperature nothing in the scene has,
+                        // and the thresholds downstream would read it as a
+                        // cloud type that is not there.
+                        const int f = outRes / nativeRes;
+                        for (int dy = 0; dy < f; dy++) {
+                            const long out_row = (long)abs_row * f + dy;
+                            if (out_row < 0 || out_row >= outRes) continue;
+                            for (int dx = 0; dx < f; dx++) {
+                                const long out_col = (long)abs_col * f + dx;
+                                if (out_col < 0 || out_col >= outRes) continue;
+                                bandBuf[bi][out_row * outRes + out_col] = physVal;
+                            }
+                        }
                     }
                 }
             }
@@ -10126,12 +10439,52 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
 
     emit progressCounter(70);
 
+    const bool geocolor = (rec.compose == RECIPE_GEOCOLOR);
+
+    // GeoColor is defined in terms of the corrected reflectances and of the
+    // twilight fade that joins its two halves, so the correction is not
+    // optional there the way it is for a plain RGB.
+    if (geocolor && !opts.bFciRayleigh)
+        qInfo() << "FCI GeoColor: applying the solar correction regardless of the"
+                << "preference - the composite is defined on corrected"
+                << "reflectances and the terminator blend comes from its"
+                << "twilight fade";
+
+    // Geometry recovered from the correction pass for the layered composite.
+    // Defaults stand in if the correction bails out early: full day, all land,
+    // which degrades to a plain daylit disc rather than to nonsense.
+    QScopedArrayPointer<float>  fade;
+    QScopedArrayPointer<quint8> water;
+    if (geocolor) {
+        fade.reset(new float[totalPix]);
+        water.reset(new quint8[totalPix]);
+        for (long p = 0; p < totalPix; p++) { fade[p] = 1.0f; water[p] = 0; }
+    }
+
     // Sun-normalise and remove Rayleigh path reflectance from the solar bands,
     // per band, before they are combined into R/G/B.
-    if (opts.bFciRayleigh)
-        applyFCISolarCorrection(bandBuf, uniqueIdx, outRes, rowJd);
+    if (opts.bFciRayleigh || geocolor)
+        applyFCISolarCorrection(bandBuf, uniqueIdx, outRes, rowJd,
+                                fade.data(), water.data());
 
     emit progressCounter(78);
+
+    if (geocolor) {
+        this->COFF = opts.geosatellites.at(geoindex).coffhrv;
+        this->LOFF = opts.geosatellites.at(geoindex).loffhrv;
+        this->CFAC = opts.geosatellites.at(geoindex).cfachrv;
+        this->LFAC = opts.geosatellites.at(geoindex).lfachrv;
+
+        imageptrs->InitializeImageGeostationary(outRes, outRes);
+        composeFCIGeoColor(bandBuf, uniqueBands, outRes, rec,
+                           fade.data(), water.data());
+
+        for (int i = 0; i < nBands; i++) { delete[] bandBuf[i]; bandBuf[i] = nullptr; }
+
+        emit signalcomposefinished(kindofimage, geoindex);
+        emit progressCounter(100);
+        return;
+    }
 
     // Combine bands into R/G/B result channels per recipe formula
     float* result[3];
@@ -10140,7 +10493,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
         for (long p = 0; p < totalPix; p++) result[ci][p] = FILL_VALUE_F;
     }
 
-    if (rec.normdiff) {
+    if (rec.compose == RECIPE_NORMDIFF) {
         // Index recipes need the sum as well as the signed difference. Gather
         // both in one pass per colour so no second full-size buffer is needed -
         // at 11136 squared each one would cost half a gigabyte.
@@ -10216,8 +10569,8 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                 // available downstream to mean "no value here", and rounds
                 // instead of truncating - the number carries meaning of its own,
                 // it is not just how bright the pixel looks.
-                const float outmax = rec.normdiff ? 254.0f : 255.0f;
-                const float bias   = rec.normdiff ? 0.5f : 0.0f;
+                const float outmax = (rec.compose == RECIPE_NORMDIFF) ? 254.0f : 255.0f;
+                const float bias   = (rec.compose == RECIPE_NORMDIFF) ? 0.5f : 0.0f;
 
                 int rgb[3];
                 for (int ci = 0; ci < 3; ci++) {

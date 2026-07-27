@@ -277,6 +277,19 @@ public:
     bool copyMTGfiles;
     bool bFciRayleigh;
 
+    /**
+     * Equirectangular city-lights image for the GeoColor night side, or empty.
+     *
+     * Nothing suitable ships with this program - a VIIRS DNB annual composite
+     * such as NASA's Black Marble is the usual source, and it is far too large
+     * to bundle. Left unset, GeoColor draws an unlit dark earth instead, which
+     * is complete in itself; this only ever adds to it.
+     *
+     * Any full-globe image works: -180..180 in longitude, 90..-90 in latitude,
+     * any size. Brightness is read as luminance, so a colour original is fine.
+     */
+    QString fcinightlights;
+
     // Global variable not saved
     int channelontexture;
     bool fbo_changed;

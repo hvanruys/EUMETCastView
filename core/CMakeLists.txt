@@ -26,6 +26,7 @@ set(PROJECT_SOURCES_CPP
     rayleigh.cpp
     rayleigh_rt.cpp
     landseamask.cpp
+    geocolor.cpp
     segmentlist.cpp
     segmentlisthrp.cpp
     segmentlistmetop.cpp
@@ -211,6 +212,13 @@ if(BUILD_TESTS)
     add_executable(landseamask_test landseamask_test.cpp landseamask.cpp)
     target_include_directories(landseamask_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     set_target_properties(landseamask_test PROPERTIES
+        AUTOMOC OFF
+        AUTOUIC OFF
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
+    add_executable(geocolor_test geocolor_test.cpp geocolor.cpp rayleigh.cpp rayleigh_rt.cpp)
+    target_include_directories(geocolor_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    set_target_properties(geocolor_test PROPERTIES
         AUTOMOC OFF
         AUTOUIC OFF
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")

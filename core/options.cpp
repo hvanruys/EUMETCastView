@@ -235,6 +235,7 @@ void Options::Initialize()
     usesaturationmask = settings.value("/parameters/usesaturationmask", true).toBool();
     copyMTGfiles = settings.value("/parameters/copymtgfiles", false).toBool();
     bFciRayleigh = settings.value("/parameters/fcirayleigh", true).toBool();
+    fcinightlights = settings.value("/parameters/fcinightlights", "").value<QString>();
 
     checkStringListValues();
     fbo_changed = false;
@@ -614,6 +615,7 @@ void Options::Save()
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
     settings.setValue("/parameters/copymtgfiles", copyMTGfiles);
     settings.setValue("/parameters/fcirayleigh", bFciRayleigh);
+    settings.setValue("/parameters/fcinightlights", fcinightlights);
 
     settings.setValue("/datahub/datahubuser", datahubuser);
     settings.setValue("/datahub/productdirectory", productdirectory);
