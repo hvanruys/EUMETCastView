@@ -54,21 +54,47 @@ struct RGBRecipeColor {
 
 };
 
+/** How a recipe turns its bands into a picture. */
+enum eRecipeCompose {
+    /**
+     * Each colour is a signed sum of its bands. Covers every classic EUMETSAT
+     * RGB, where a colour is one band or the difference of two.
+     */
+    RECIPE_ADDITIVE = 0,
+
+    /**
+     * Each colour is a normalised difference: the signed combination over the
+     * unsigned one, so a colour listing A and B-with-subtract yields
+     * (A-B)/(A+B). That covers the whole family of band-ratio indices - NDVI,
+     * NDSI, NDWI - which the additive form cannot express at all.
+     *
+     * An index is a datum, not a brightness, so these render linearly onto
+     * 0..254 (rounded, not truncated), leaving 255 free to mark no data.
+     */
+    RECIPE_NORMDIFF,
+
+    /**
+     * Layered day/night composite, built by composeFCIGeoColor rather than by
+     * any per-colour formula. The Colorvector still names the three day bands
+     * and carries their stretch; everything else the composite needs is listed
+     * in auxchannels and resolved by name.
+     */
+    RECIPE_GEOCOLOR
+};
+
 struct RGBRecipe {
   QString Name;
   bool needsza;
+  eRecipeCompose compose = RECIPE_ADDITIVE;
   /**
-   * Combine the bands of each colour as a normalised difference rather than a
-   * plain sum: the signed combination over the unsigned one, so a colour listing
-   * A and B-with-subtract yields (A-B)/(A+B). That covers the whole family of
-   * band-ratio indices - NDVI, NDSI, NDWI - which the additive form cannot
-   * express at all.
+   * Bands a composer needs beyond the ones the three colours name.
    *
-   * An index is a datum, not a brightness, so these recipes are rendered
-   * linearly onto 0..254 (rounded, not truncated), leaving 255 free to mark
-   * no data.
+   * The reader loads whatever appears here, so a composite can depend on a band
+   * that is never a colour in its own right - NDVI's near infrared, or the two
+   * infrared windows that build the night side.
    */
-  bool normdiff = false;
+  QStringList auxchannels;
+  QList<int>  auxbands;
   QVector<RGBRecipeColor> Colorvector;
 };
 

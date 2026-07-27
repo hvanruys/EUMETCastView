@@ -1025,10 +1025,36 @@ void SegmentImage::SetupFCIRGBrecipes()
         RGBRecipe r;
         r.Name = "FCI NDVI";
         r.needsza = false;
-        r.normdiff = true;
+        r.compose = RECIPE_NORMDIFF;
         RGBRecipeColor R = makeFCIColor("vis_08", 3, false, false, -1.0f, 1.0f, 1.0f);
         appendFCIBand(R, "vis_06", 2, true);
         r.Colorvector << R << R << R;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 14 - GeoColor
+    // Layered day/night composite after Miller et al. (2020). Daytime is the
+    // Rayleigh-corrected true colour with an NDVI-driven vegetation
+    // enhancement; night is an infrared cloud layer over a dark earth, with
+    // city lights if an image is configured. The two are joined across the
+    // terminator by the same twilight fade the correction already applies.
+    //
+    // The colours name the three day bands and set the day stretch, matching
+    // FCI True Color RGB so the lit half looks like the picture it grew out of.
+    // The near infrared and the two infrared windows are dependencies rather
+    // than colours, so they go in auxchannels and composeFCIGeoColor resolves
+    // them by name.
+    {
+        RGBRecipe r;
+        r.Name = "FCI GeoColor RGB";
+        r.needsza = true;
+        r.compose = RECIPE_GEOCOLOR;
+        RGBRecipeColor R = makeFCIColor("vis_06", 2, false, false, 0.0f, 1.0f, 2.2f);
+        RGBRecipeColor G = makeFCIColor("vis_05", 1, false, false, 0.0f, 1.0f, 2.2f);
+        RGBRecipeColor B = makeFCIColor("vis_04", 0, false, false, 0.0f, 1.0f, 2.2f);
+        r.Colorvector << R << G << B;
+        r.auxchannels << "vis_08" << "ir_38" << "ir_105";
+        r.auxbands    << 3       << 8       << 13;
         fci_rgbrecipes.append(r);
     }
 }
