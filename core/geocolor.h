@@ -108,6 +108,22 @@ public:
     static constexpr float LowCloudBtdLo = 1.0f;
     static constexpr float LowCloudBtdHi = 4.0f;
 
+    /**
+     * Brightness of a fully opaque night cloud.
+     *
+     * Scales both cloud colours together, so their balance against each other
+     * is fixed and this is the only thing to turn.
+     *
+     * The ceiling is not a matter of taste. Sunlit cloud leaves the day side at
+     * about 0.94 once the display gamma has been applied, and a cloud top at
+     * night is lit by nothing at all - it is thermal emission being rendered.
+     * At 0.97 the blue channel was brighter than daylight, which made the
+     * terminator read inverted wherever cloud crossed it. 0.65 puts the
+     * brightest night top at roughly two thirds of a sunlit one, which is the
+     * right way round and still stands well clear of the unlit sea beneath it.
+     */
+    static constexpr float NightCloudGain = 0.65f;
+
     /** Unlit surface colour: deep navy sea, very dark warm grey land. */
     static GeoColorRGB nightBase(bool water);
 

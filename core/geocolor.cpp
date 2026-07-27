@@ -42,11 +42,22 @@ inline float clamp01(float v)
 constexpr GeoColorRGB kSeaBase  = { 0.020f, 0.045f, 0.095f };
 constexpr GeoColorRGB kLandBase = { 0.058f, 0.052f, 0.043f };
 
-// Cloud colours. High cloud is near-white with a cool cast, the way a moonlit
-// anvil reads; low cloud is the cyan the night fog product has used since
-// SEVIRI, and keeping it means the same scene is recognisable in both.
-constexpr GeoColorRGB kHighCloud = { 0.86f, 0.90f, 0.97f };
-constexpr GeoColorRGB kLowCloud  = { 0.42f, 0.72f, 0.78f };
+// Cloud hues, normalised so the brighter of the two peaks at 1 and scaled by
+// GeoColor::NightCloudGain. High cloud is near-white with a cool cast, the way
+// a moonlit anvil reads; low cloud is the cyan the night fog product has used
+// since SEVIRI, and keeping it means the same scene is recognisable in both.
+// Low sits at about four fifths of high, which is what separates a shallow
+// stratus deck from an anvil once both are fully opaque.
+constexpr GeoColorRGB kHighCloudHue = { 0.887f, 0.928f, 1.000f };
+constexpr GeoColorRGB kLowCloudHue  = { 0.433f, 0.742f, 0.804f };
+
+constexpr GeoColorRGB scaled(GeoColorRGB c, float k)
+{
+    return { c.r * k, c.g * k, c.b * k };
+}
+
+const GeoColorRGB kHighCloud = scaled(kHighCloudHue, GeoColor::NightCloudGain);
+const GeoColorRGB kLowCloud  = scaled(kLowCloudHue,  GeoColor::NightCloudGain);
 
 } // namespace
 
