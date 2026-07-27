@@ -1007,6 +1007,30 @@ void SegmentImage::SetupFCIRGBrecipes()
         r.Colorvector << R << G << B;
         fci_rgbrecipes.append(r);
     }
+
+    // 13 - NDVI
+    // (vis_08 - vis_06) / (vis_08 + vis_06). Vegetation is dark in the red and
+    // bright in the near infrared, so the index separates it from soil, water
+    // and cloud far better than either band alone.
+    //
+    // Grey: all three colours carry the same index, mapped linearly from -1 to
+    // +1 onto 0..254. Being a ratio it is insensitive to the sun-zenith
+    // normalisation, so it stays meaningful whether or not the Rayleigh
+    // correction is switched on - with it on this is a surface NDVI, without it
+    // a top-of-atmosphere one.
+    //
+    // Groundwork for the GeoColor composite, which uses NDVI to decide how land
+    // should be tinted.
+    {
+        RGBRecipe r;
+        r.Name = "FCI NDVI";
+        r.needsza = false;
+        r.normdiff = true;
+        RGBRecipeColor R = makeFCIColor("vis_08", 3, false, false, -1.0f, 1.0f, 1.0f);
+        appendFCIBand(R, "vis_06", 2, true);
+        r.Colorvector << R << R << R;
+        fci_rgbrecipes.append(r);
+    }
 }
 
 int SegmentImage::GetSpectralChannelNbr(QString channel)
