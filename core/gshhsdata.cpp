@@ -86,11 +86,19 @@ gshhsData::gshhsData()
         vxp_data_overlay[i]->nFeatures = 0;
     }
 
-    if(opts.appdir_env == "")
-        Initialize(opts.gshhsglobe1, opts.gshhsglobe2, opts.gshhsglobe3, opts.gshhsoverlay1, opts.gshhsoverlay2, opts.gshhsoverlay3);
-    else
-        Initialize(opts.appdir_env + "/" + opts.gshhsglobe1, opts.appdir_env + "/" + opts.gshhsglobe2, opts.appdir_env + "/" + opts.gshhsglobe3,
-                   opts.appdir_env + "/" + opts.gshhsoverlay1, opts.appdir_env + "/" + opts.gshhsoverlay2, opts.appdir_env + "/" + opts.gshhsoverlay3);
+    // An unset overlay must stay unset. Prefixing APPDIR onto an empty setting
+    // turns "not configured" into the AppDir directory itself, which is not
+    // empty, so Initialize below stops skipping it and tries to read it - and
+    // fopen on a directory succeeds in read mode on Linux, so it gets all the
+    // way to reporting phantom features. gshhsoverlay3 defaults to empty, which
+    // made this fire on every AppImage launch.
+    auto resolve = [](const QString &p) {
+        return (p.isEmpty() || opts.appdir_env.isEmpty()) ? p
+                                                          : opts.appdir_env + "/" + p;
+    };
+
+    Initialize(resolve(opts.gshhsglobe1),   resolve(opts.gshhsglobe2),   resolve(opts.gshhsglobe3),
+               resolve(opts.gshhsoverlay1), resolve(opts.gshhsoverlay2), resolve(opts.gshhsoverlay3));
 
 
 }
@@ -304,6 +312,18 @@ int gshhsData::check_gshhs(char *pFileName)
     }
 
     n_read = fread ((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
+
+    // Opening is not the same as being readable. A directory opens perfectly
+    // well in read mode on Linux and only fails here, and so does a truncated
+    // or empty file. Without this the header below is read uninitialised and,
+    // worse, the count returned is 1 rather than 0 - one feature that was never
+    // loaded, which the caller then walks straight off the end of.
+    if (n_read != 1) {
+        qDebug() << QString("gshhs: no readable header in %1 - ignoring it.").arg(pFileName);
+        fclose (fp);
+        return 0;
+    }
+
     version = (h.flag >> 8) & 255;
     flip = (version != GSHHS_DATA_RELEASE);	/* Take as sign that byte-swabbing is needed */
     qDebug() << "====> flip = " << flip;
@@ -371,6 +391,16 @@ void gshhsData::load_gshhs(char *pFileName, int nTotFeatures, Vxp *vxp)
     }
 
     n_read = fread ((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, fp);
+
+    // See check_gshhs. Claiming features here that the loop below will never
+    // fill is what turns an unreadable file into a crash rather than an empty
+    // overlay.
+    if (n_read != 1) {
+        qDebug() << QString("gshhs: no readable header in %1 - ignoring it.").arg(pFileName);
+        fclose (fp);
+        return;
+    }
+
     version = (h.flag >> 8) & 255;
     flip = (version != GSHHS_DATA_RELEASE);	/* Take as sign that byte-swabbing is needed */
 
