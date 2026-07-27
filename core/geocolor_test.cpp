@@ -204,11 +204,24 @@ static void testNightLayer()
     check(clear.r == land.r && clear.g == land.g && clear.b == land.b,
           "clear warm ground returns the night base exactly");
 
-    // Deep convection must read as bright cloud.
+    // Deep convection must read as cloud - well clear of the sea under it.
     const GeoColorRGB deep = GeoColor::nightClouds(sea, 205.0f, 203.0f);
-    check(deep.r > 0.7f && deep.g > 0.7f && deep.b > 0.7f,
-          "a cold cloud top is bright");
+    check(deep.r > 3.0f * sea.r && deep.g > 3.0f * sea.g && deep.b > 3.0f * sea.b,
+          "a cold cloud top stands well clear of the unlit sea");
     check(deep.b >= deep.r, "high cloud carries a cool cast");
+
+    // And it must stay under daylight. A cloud top at night is lit by nothing -
+    // it is thermal emission being rendered - so out-shining a sunlit cloud is
+    // not a matter of taste but a wrong ordering, and it showed up as an
+    // inverted terminator wherever cloud crossed it. The blue channel used to
+    // reach 0.97 against daylight's 0.94.
+    const float sunlitCloud = std::pow(0.88f, 1.0f / 2.2f);
+    check(deep.r < sunlitCloud && deep.g < sunlitCloud && deep.b < sunlitCloud,
+          "night cloud never out-shines sunlit cloud");
+    check(deep.b < 0.8f * sunlitCloud,
+          "night cloud is clearly dimmer than daylight, not marginally so");
+    std::printf("info : sunlit cloud %.3f, brightest night top %.3f (%.0f %%)\n",
+                sunlitCloud, deep.b, 100.0f * deep.b / sunlitCloud);
 
     // Fog must be distinguishable from both, and cyan.
     const GeoColorRGB fog = GeoColor::nightClouds(sea, 283.0f, 278.0f);
