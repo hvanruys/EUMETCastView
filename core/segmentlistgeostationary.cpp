@@ -10140,22 +10140,51 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
         for (long p = 0; p < totalPix; p++) result[ci][p] = FILL_VALUE_F;
     }
 
-    for (int ci = 0; ci < 3; ci++) {
-        const RGBRecipeColor& col = rec.Colorvector.at(ci);
-        for (int k = 0; k < col.channels.size(); k++) {
-            int bi = uniqueBands.indexOf(col.channels.at(k));
-            bool subtract = col.subtract.at(k);
-            const float* src = bandBuf[bi];
+    if (rec.normdiff) {
+        // Index recipes need the sum as well as the signed difference. Gather
+        // both in one pass per colour so no second full-size buffer is needed -
+        // at 11136 squared each one would cost half a gigabyte.
+        for (int ci = 0; ci < 3; ci++) {
+            const RGBRecipeColor& col = rec.Colorvector.at(ci);
+            QVector<const float*> src;
+            QVector<float> sign;
+            for (int k = 0; k < col.channels.size(); k++) {
+                src.append(bandBuf[uniqueBands.indexOf(col.channels.at(k))]);
+                sign.append(col.subtract.at(k) ? -1.0f : 1.0f);
+            }
+            const int n = src.size();
             for (long p = 0; p < totalPix; p++) {
-                if (src[p] == FILL_VALUE_F) {
-                    result[ci][p] = FILL_VALUE_F;
-                    continue;
+                float num = 0.0f, den = 0.0f;
+                bool ok = true;
+                for (int k = 0; k < n; k++) {
+                    const float v = src.at(k)[p];
+                    if (v == FILL_VALUE_F) { ok = false; break; }
+                    num += sign.at(k) * v;
+                    den += v;
                 }
-                if (result[ci][p] == FILL_VALUE_F)
-                    result[ci][p] = subtract ? -src[p] : src[p];
-                else {
-                    if (subtract) result[ci][p] -= src[p];
-                    else          result[ci][p] += src[p];
+                // Both bands fall to zero on the night side, and 0/0 is not an
+                // index. Treat that as no data, exactly like off the disc.
+                result[ci][p] = (ok && den > 1.0e-4f) ? num / den : FILL_VALUE_F;
+            }
+        }
+    } else {
+        for (int ci = 0; ci < 3; ci++) {
+            const RGBRecipeColor& col = rec.Colorvector.at(ci);
+            for (int k = 0; k < col.channels.size(); k++) {
+                int bi = uniqueBands.indexOf(col.channels.at(k));
+                bool subtract = col.subtract.at(k);
+                const float* src = bandBuf[bi];
+                for (long p = 0; p < totalPix; p++) {
+                    if (src[p] == FILL_VALUE_F) {
+                        result[ci][p] = FILL_VALUE_F;
+                        continue;
+                    }
+                    if (result[ci][p] == FILL_VALUE_F)
+                        result[ci][p] = subtract ? -src[p] : src[p];
+                    else {
+                        if (subtract) result[ci][p] -= src[p];
+                        else          result[ci][p] += src[p];
+                    }
                 }
             }
         }
@@ -10183,6 +10212,13 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                 result[2][i_pix] == FILL_VALUE_F) {
                 r = g = b = 0;
             } else {
+                // An index recipe stops one short of full scale, so 255 stays
+                // available downstream to mean "no value here", and rounds
+                // instead of truncating - the number carries meaning of its own,
+                // it is not just how bright the pixel looks.
+                const float outmax = rec.normdiff ? 254.0f : 255.0f;
+                const float bias   = rec.normdiff ? 0.5f : 0.0f;
+
                 int rgb[3];
                 for (int ci = 0; ci < 3; ci++) {
                     const RGBRecipeColor& col = rec.Colorvector.at(ci);
@@ -10192,9 +10228,9 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                     if (val < from) val = from;
                     if (val > to)   val = to;
                     float norm = (to != from) ? (val - from) / (to - from) : 0.0f;
-                    float gv = 255.0f * powf(norm, 1.0f / col.gamma);
-                    if (!col.inverse.isEmpty() && col.inverse.at(0)) gv = 255.0f - gv;
-                    rgb[ci] = (int)qBound(0.0f, gv, 255.0f);
+                    float gv = outmax * powf(norm, 1.0f / col.gamma);
+                    if (!col.inverse.isEmpty() && col.inverse.at(0)) gv = outmax - gv;
+                    rgb[ci] = (int)qBound(0.0f, gv + bias, outmax);
                 }
                 r = rgb[0]; g = rgb[1]; b = rgb[2];
             }

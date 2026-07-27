@@ -57,6 +57,18 @@ struct RGBRecipeColor {
 struct RGBRecipe {
   QString Name;
   bool needsza;
+  /**
+   * Combine the bands of each colour as a normalised difference rather than a
+   * plain sum: the signed combination over the unsigned one, so a colour listing
+   * A and B-with-subtract yields (A-B)/(A+B). That covers the whole family of
+   * band-ratio indices - NDVI, NDSI, NDWI - which the additive form cannot
+   * express at all.
+   *
+   * An index is a datum, not a brightness, so these recipes are rendered
+   * linearly onto 0..254 (rounded, not truncated), leaving 255 free to mark
+   * no data.
+   */
+  bool normdiff = false;
   QVector<RGBRecipeColor> Colorvector;
 };
 
