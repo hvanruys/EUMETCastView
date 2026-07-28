@@ -90,17 +90,40 @@ void DownloadManager::clearqueue()
 
 QString DownloadManager::saveFileName(const QUrl &url)
 {
-    QString appDir = QCoreApplication::applicationDirPath();
     QUrlQuery query(url);
 
-    QString group  = query.queryItemValue("GROUP").toLower();  // "weather"
-    QString format = query.queryItemValue("FORMAT").toLower();  // "tle"
+    // Celestrak's gp.php names the set in the query rather than the path, so
+    // GROUP=weather&FORMAT=tle is what makes the file weather.tle - which is
+    // the name Options puts in tlelist by default.
+    const QString group  = query.queryItemValue("GROUP").toLower();
+    const QString format = query.queryItemValue("FORMAT").toLower();
 
-    QString filename = group + "." + format;
+    // Any other source names the file the ordinary way. Without this a plain
+    // URL - anything not gp.php - has neither query item, and the two would
+    // join into a file called ".".
+    QString filename = (group.isEmpty() || format.isEmpty())
+                     ? QFileInfo(url.path()).fileName()
+                     : group + "." + format;
 
-    qDebug() << "saving url file " << appDir << " " << filename;
+    if (filename.isEmpty())
+        filename = "download.tle";
 
-    return appDir + "/" + filename;
+    // Save beside the settings, not beside the executable.
+    //
+    // Everything else the application keeps per installation is relative to the
+    // working directory: QSettings opens "EUMETCastView.ini" by that name and
+    // writes it back there, and Satellite::ReReadTLE opens the tlelist entries
+    // the same way. The download was the one thing resolved against
+    // applicationDirPath instead, so it wrote a file nothing would ever read
+    // back - invisible in a normal build unless you happened to run from bin/.
+    //
+    // Packaged as an AppImage it stopped being invisible: applicationDirPath is
+    // the read-only squashfs mount, so the download could not even be created.
+    QString filepath = QDir::current().absoluteFilePath(filename);
+
+    qDebug() << "saving url" << url.toString() << "to" << filepath;
+
+    return filepath;
 }
 
 void DownloadManager::startNextDownload()
