@@ -10500,6 +10500,38 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
     }
 
     if (rec.compose == RECIPE_NORMDIFF) {
+        // Smallest denominator an index is still allowed to have, in the same
+        // reflectance units the bands are held in.
+        //
+        // A normalised difference is a ratio, and its noise is set by the
+        // denominator alone: with a per-band noise of sigma, d(index) works out
+        // at between sqrt(2) and 2 sigma / den whatever the split between the
+        // bands. So the sum is exactly the right thing to gate on, and the only
+        // question is where.
+        //
+        // FCI quantises to 3.39e-4 of reflectance per count - the same step in
+        // vis_06 and vis_08, since the two scale factors are set against their
+        // own solar irradiances. Zero radiance sits at count 204 with the night
+        // noise a count or two either side of it, so on the unlit half both
+        // bands hold nothing but that noise and the ratio of the two is
+        // arbitrary: it lands on +1 or -1 and paints black-and-white speckle
+        // over what should be an empty disc.
+        //
+        // Measured over three chunks of a real disc, day, night and terminator:
+        // every pixel that saturated to +/-1 had a sum below 0.002, and the
+        // darkest genuinely sunlit pixel anywhere had a sum of 0.03. The gap
+        // between those two spans a factor of fifteen and nothing lives in it
+        // but twilight. 0.01 sits in the middle - five times above the last
+        // saturated pixel, three times below the first daylit one - and holds
+        // the index noise there to 2 sigma / 0.01 = 0.07, under nine levels of
+        // the 254 the index is drawn on.
+        //
+        // The solar correction, when it runs, already sets the night side to
+        // exactly zero, so this changes nothing there. It ends the disc about a
+        // degree and a half of solar zenith earlier in deep twilight, which is
+        // well past sunset and no place to be reading a vegetation index.
+        constexpr float MinIndexSignal = 0.01f;
+
         // Index recipes need the sum as well as the signed difference. Gather
         // both in one pass per colour so no second full-size buffer is needed -
         // at 11136 squared each one would cost half a gigabyte.
@@ -10521,9 +10553,10 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                     num += sign.at(k) * v;
                     den += v;
                 }
-                // Both bands fall to zero on the night side, and 0/0 is not an
-                // index. Treat that as no data, exactly like off the disc.
-                result[ci][p] = (ok && den > 1.0e-4f) ? num / den : FILL_VALUE_F;
+                // Too little light to divide by. Treat it as no data, exactly
+                // like off the disc, which is what draws it black.
+                result[ci][p] = (ok && den > MinIndexSignal) ? num / den
+                                                             : FILL_VALUE_F;
             }
         }
     } else {
