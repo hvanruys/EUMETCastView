@@ -191,7 +191,10 @@ endif()
 
 # ---------------------------------------------------------------------------
 # Unit tests. Off by default; enable with: cmake -DBUILD_TESTS=ON ..
-# These are standalone main() programs, not linked against Qt.
+# Standalone main() programs. Most need no Qt at all - that is deliberate, it
+# is what lets the image maths be tested without a display or a data file.
+# downloadmanager_test is the exception: what it tests is where a QObject puts
+# a file, so it links Qt Core and Network and needs moc.
 # ---------------------------------------------------------------------------
 option(BUILD_TESTS "Build core unit tests" OFF)
 
@@ -227,6 +230,14 @@ if(BUILD_TESTS)
     target_include_directories(nav_util_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     set_target_properties(nav_util_test PROPERTIES
         AUTOMOC OFF
+        AUTOUIC OFF
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
+    add_executable(downloadmanager_test downloadmanager_test.cpp downloadmanager.cpp)
+    target_include_directories(downloadmanager_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(downloadmanager_test Qt6::Core Qt6::Network Qt6::Widgets)
+    set_target_properties(downloadmanager_test PROPERTIES
+        AUTOMOC ON
         AUTOUIC OFF
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 endif()
