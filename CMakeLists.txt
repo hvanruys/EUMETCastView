@@ -24,6 +24,21 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 add_subdirectory(bz2)
 add_subdirectory(charls-main)
+
+# CharLS sets no optimisation level of its own, and these builds are configured
+# without CMAKE_BUILD_TYPE, so the JPEG-LS decoder was being compiled at -O0.
+# That decoder is nearly the whole cost of reading an FCI disc: decoding the 40
+# chunks of three visible bands took 18.9 s at -O0, 5.3 s at -O3, and 3.7 s once
+# NDEBUG also compiles out the codec's internal asserts. Those are the flags
+# upstream's own Release build uses, and the asserts are invariant checks only -
+# a malformed stream is rejected by throw_jpegls_error, which NDEBUG leaves
+# alone. Set here rather than in charls-main/ so the vendored tree stays as
+# upstream ships it.
+target_compile_options(charls PRIVATE
+  "$<${gcc_like_cxx}:-O3>"
+  "$<${msvc_cxx}:/O2>"
+)
+target_compile_definitions(charls PRIVATE NDEBUG)
 add_subdirectory(PublicDecompWT-2.8.1)
 add_subdirectory(meteosatlib)
 add_subdirectory(QSgp4)
