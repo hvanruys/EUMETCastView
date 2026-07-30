@@ -951,8 +951,9 @@ bool SegmentList::ComposeAVHRRImageInThread()
     ptrimagebusy = false;
 
     emit progressCounter(100);
-    QApplication::restoreOverrideCursor();
-    emit segmentlistfinished(true);
+    // Moved to finishedavhrr: unlike the other sensors this was the only
+    // emit, so it could not just be dropped. From the finished slot it runs
+    // on the GUI thread, after the compose state is consistent.
 
     return true;
 
@@ -962,6 +963,15 @@ void SegmentList::finishedavhrr()
 {
     qDebug() << "SegmentList::finishedavhrr()";
 
+    // Balances the wait cursor ComposeAVHRRImage sets before starting the
+    // thread. It used to be restored at the end of ComposeAVHRRImageInThread,
+    // which is a GUI call from a QtConcurrent worker; here it is on the GUI
+    // thread and still runs once per composed image.
+    QApplication::restoreOverrideCursor();
+
+    // Likewise moved out of the worker. This slot is where the other sensors
+    // announce a finished compose, and it runs after the state the GUI reads.
+    emit segmentlistfinished(true);
 }
 
 

@@ -56,8 +56,9 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
     // invertlist 15 items
     qDebug() << "bool SegmentListMERSI::ComposeMERSIImageInThread() started";
 
+    // No QApplication calls on a QtConcurrent worker: ComposeMERSIImage sets the
+    // wait cursor before starting this and finishedmersi restores it.
     progressresultready = 0;
-    QApplication::setOverrideCursor( Qt::WaitCursor );
 
     this->totalnbroflines = 0;
 
@@ -269,15 +270,16 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
         segm->ComposeSegmentImage(bandindex, colorarrayindex, invertarrayindex, this->histogrammethod, this->normalized, this->totalnbroflines);
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
-        QApplication::processEvents();
+        // processEvents drives the calling thread's event loop, and this thread
+        // has nothing in one.
         ++segsel;
     }
 
     qDebug() << " SegmentListMERSI::ComposeMERSIImageInThread Finished !!";
 
-    QApplication::restoreOverrideCursor();
-
-    emit segmentlistfinished(true);
+    // The finished slot emits this, on the GUI thread and after the
+    // compose state is consistent. Emitting it here as well made every
+    // composed image reproject and redraw twice.
     emit progressCounter(100);
     return true;
 }
