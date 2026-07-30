@@ -45,7 +45,11 @@ bool SegmentListVIIRSM::ComposeVIIRSImage(QList<bool> bandlist, QList<int> color
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
 
-    connect(&watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
+    // Composing an image connects the watcher, and this runs once per image, so
+    // without UniqueConnection the connections pile up and finishedviirs() is
+    // called once for every image composed this session - the fifth compose runs
+    // it five times, each one reprojecting and redrawing from the start.
+    connect(&watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()), Qt::UniqueConnection);
 
     QFuture<void> future;
     future = QtConcurrent::run(doComposeVIIRSMImageInThread, this, bandlist, colorlist, invertlist);

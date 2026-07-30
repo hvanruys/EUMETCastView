@@ -41,7 +41,9 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImage(QList<bool> bandlist, QList<int> col
     ptrimagebusy = true;
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
-    connect(&watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()));
+    // Once per composed image, so without UniqueConnection the connections pile
+    // up and finishedviirs() runs once for every image composed this session.
+    connect(&watcherviirs, SIGNAL(finished()), this, SLOT(finishedviirs()), Qt::UniqueConnection);
 
     QFuture<void> future;
     future = QtConcurrent::run(doComposeVIIRSDNBImageInThread, this);

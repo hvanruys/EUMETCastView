@@ -640,7 +640,9 @@ bool SegmentList::ComposeAVHRRImage()
 
     QApplication::setOverrideCursor(( Qt::WaitCursor));
 
-    connect(&watcheravhrr, SIGNAL(finished()), this, SLOT(finishedavhrr()));
+    // Once per composed image, so without UniqueConnection the connections pile
+    // up and finishedavhrr() runs once for every image composed this session.
+    connect(&watcheravhrr, SIGNAL(finished()), this, SLOT(finishedavhrr()), Qt::UniqueConnection);
 
     QFuture<void> future;
     future = QtConcurrent::run(doComposeAVHRRImageInThread, this);
