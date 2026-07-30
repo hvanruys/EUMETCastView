@@ -8,6 +8,8 @@
 #include <QtConcurrent/QtConcurrent>
 #include <qmessagebox.h>
 
+#include <QCoreApplication>
+#include <QThread>
 #include <QDebug>
 
 extern Options opts;
@@ -31,7 +33,35 @@ ObliqueMercator::~ObliqueMercator()
 
 void ObliqueMercator::Initialize(double r_maj, double r_min, eProjectionType projtype, int imgwidth, int imgheight)
 {
-    qDebug() << "ObliqueMercator::Initialize";
+    qDebug() << "ObliqueMercator::Initialize" << imgwidth << "x" << imgheight;
+
+    // Every call here throws away ptrimageProjection and the four projection
+    // buffers and allocates them again. A degenerate size allocates them zero
+    // length while leaving the projection geometry looking perfectly valid, so
+    // the next thing to plot a pixel writes off the end of the heap block and
+    // the crash lands somewhere else entirely.
+    //
+    // It happens because setOMimagesize sets the width and the height spinbox
+    // one at a time and each setValue calls straight back in here, so one call
+    // always arrives with a new width and the previous height - zero, the first
+    // time round. Refuse it: the buffers already in place stay valid, and the
+    // call that arrives with both values set does the work.
+    if(imgwidth <= 0 || imgheight <= 0)
+    {
+        qWarning() << "ObliqueMercator::Initialize refused a degenerate canvas"
+                   << imgwidth << "x" << imgheight << "- keeping"
+                   << image_width << "x" << image_height;
+        return;
+    }
+
+    // This object and the buffers it reallocates are shared and nothing here is
+    // locked, so it has to stay on the GUI thread. Kept as a standing check
+    // rather than because it has ever fired: ComposeVIIRSImageInThread does call
+    // QApplication::setOverrideCursor and QApplication::processEvents from a
+    // QtConcurrent worker, so a second flow reaching here is not far-fetched.
+    if(QThread::currentThread() != QCoreApplication::instance()->thread())
+        qWarning() << "ObliqueMercator::Initialize called off the GUI thread"
+                   << QThread::currentThread() << "- projection buffers are unprotected";
 
     if(opts.bellipsoid)
     {

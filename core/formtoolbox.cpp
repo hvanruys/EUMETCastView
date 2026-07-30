@@ -4034,8 +4034,35 @@ void FormToolbox::getOMimagesize(int *width, int *height)
 
 void FormToolbox::setOMimagesize(int width, int height)
 {
+    // Both spinboxes have to reach their new value before either takes effect.
+    // Setting them one at a time called ObliqueMercator::Initialize twice, and
+    // the first of those calls carried the new width with the previous height -
+    // zero for the first image of a session. Initialize reallocates the
+    // projection image and its four buffers on every call, so a zero height
+    // allocated them zero length and the next pixel plotted into the projection
+    // ran off the end of the heap block. That was the VIIRS M crash.
+    if(ui->spbOMwidth->value() == width && ui->spbOMheight->value() == height)
+        return;
+
+    const bool blockedwidth  = ui->spbOMwidth->blockSignals(true);
+    const bool blockedheight = ui->spbOMheight->blockSignals(true);
+
     ui->spbOMwidth->setValue(width);
     ui->spbOMheight->setValue(height);
+
+    ui->spbOMwidth->blockSignals(blockedwidth);
+    ui->spbOMheight->blockSignals(blockedheight);
+
+    reinitializeOMProjection();
+}
+
+// Reproject onto the canvas the two spinboxes describe, and show the result.
+// Shared so that the spinboxes and setOMimagesize cannot drift apart.
+void FormToolbox::reinitializeOMProjection()
+{
+    imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType,
+                              ui->spbOMwidth->value(), ui->spbOMheight->value());
+    formimage->displayImage(IMAGE_PROJECTION, true);
 }
 
 int FormToolbox::getTabWidgetIndex()
@@ -6262,14 +6289,14 @@ void FormToolbox::slotChangeAspectRatio(QPoint vec)
 
 void FormToolbox::on_spbOMwidth_valueChanged(int arg1)
 {
-    imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
-    formimage->displayImage(IMAGE_PROJECTION, true);
+    Q_UNUSED(arg1)
+    reinitializeOMProjection();
 }
 
 void FormToolbox::on_spbOMheight_valueChanged(int arg1)
 {
-    imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
-    formimage->displayImage(IMAGE_PROJECTION, true);
+    Q_UNUSED(arg1)
+    reinitializeOMProjection();
 }
 
 int FormToolbox::getGVPMapWidth()

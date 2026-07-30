@@ -32,6 +32,7 @@ public:
     void setGeoIndex(int geo) { this->geoindex = geo; }
     void getOMimagesize(int *width, int *height );
     void setOMimagesize(int width, int height);
+    void reinitializeOMProjection();
     QVector<QString> getSpectrumVector() { return spectrumvector; };
     QVector<bool> getInverseVector() { return inversevector; };
 
