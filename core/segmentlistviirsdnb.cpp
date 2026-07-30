@@ -59,8 +59,9 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
 
     qDebug() << "bool SegmentListVIIRS::ComposeVIIRSImageInThread() started";
 
+    // No QApplication calls on a QtConcurrent worker: ComposeVIIRSImage sets the
+    // wait cursor before starting this and finishedviirs restores it.
     progressresultready = 0;
-    QApplication::setOverrideCursor( Qt::WaitCursor );
 
     emit progressCounter(10);
 
@@ -170,9 +171,9 @@ bool SegmentListVIIRSDNB::ComposeVIIRSImageInThread()
 
     qDebug() << " SegmentListVIIRS::ComposeVIIRSDNBImageInThread Finished !!";
 
-    QApplication::restoreOverrideCursor();
-
-    emit segmentlistfinished(true);
+    // The finished slot emits this, on the GUI thread and after the
+    // compose state is consistent. Emitting it here as well made every
+    // composed image reproject and redraw twice.
 
     return true;
 }

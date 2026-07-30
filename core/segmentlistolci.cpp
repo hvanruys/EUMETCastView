@@ -352,8 +352,9 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
 
     qDebug() << "bool SegmentListOLCIefr::ComposeOLCIImageInThread() started decompressfiles = " << decompressfiles;
 
+    // No QApplication calls on a QtConcurrent worker: ComposeOLCIImage sets the
+    // wait cursor before starting this and finishedolci restores it.
     progressresultready = 0;
-    QApplication::setOverrideCursor( Qt::WaitCursor );
 
     this->totalnbroflines = 0;
 
@@ -535,15 +536,16 @@ bool SegmentListOLCI::ComposeOLCIImageInThread(QList<bool> bandlist, QList<int> 
         segm->ComposeSegmentImage(this->histogrammethod, this->normalized);
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
-        QApplication::processEvents();
+        // processEvents drives the calling thread's event loop, and this thread
+        // has nothing in one.
         ++segsel;
     }
 
     qDebug() << " SegmentListOLCI::ComposeOLCIImageInThread Finished !!";
 
-    QApplication::restoreOverrideCursor();
-
-    emit segmentlistfinished(true);
+    // The finished slot emits this, on the GUI thread and after the
+    // compose state is consistent. Emitting it here as well made every
+    // composed image reproject and redraw twice.
     emit progressCounter(100);
     return true;
 }

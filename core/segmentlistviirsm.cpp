@@ -65,8 +65,12 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
 
     qDebug() << "bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<int> colorlist) started";
 
+    // No QApplication calls in here. This runs on a QtConcurrent worker, and
+    // the override cursor is GUI state: ComposeVIIRSImage sets the wait cursor
+    // before starting the thread and finishedviirs restores it, so the pair
+    // that used to sit in this function was both a threading violation and
+    // redundant.
     progressresultready = 0;
-    QApplication::setOverrideCursor( Qt::WaitCursor );
 
     emit progressCounter(10);
 
@@ -202,7 +206,10 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
         segm->ComposeSegmentImage();
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
-        QApplication::processEvents();
+        // processEvents drives the calling thread's event loop, and this thread
+        // has nothing in one. The interface stays responsive because the work is
+        // off the GUI thread to begin with; progressCounter is queued across to
+        // it and arrives on its own.
         ++segsel;
     }
 
@@ -223,9 +230,9 @@ bool SegmentListVIIRSM::ComposeVIIRSImageInThread(QList<bool> bandlist, QList<in
 //    }
 
 
-    QApplication::restoreOverrideCursor();
-
-    emit segmentlistfinished(true);
+    // The finished slot emits this, on the GUI thread and after the
+    // compose state is consistent. Emitting it here as well made every
+    // composed image reproject and redraw twice.
     emit progressCounter(100);
 
 
