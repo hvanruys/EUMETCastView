@@ -621,20 +621,28 @@ void AVHRRSatellite::setAbsolutePathFromMap(int geoindex, QString strdate)
     QMap<int, QFileInfo> hashfile;
     QMap<QString, QMap<int, QFileInfo> > hashspectrum;
 
-    for(int i = 0; i < opts.geosatellites.count(); i++)
+    if (segmentlistmapgeo.at(geoindex).contains(strdate))
     {
-        if(geoindex == i)
-        {
-            if (segmentlistmapgeo.at(i).contains(strdate))
-            {
-                hashspectrum = segmentlistmapgeo[i].value(strdate);
-                hashfile = hashspectrum.first();
-                QFileInfo fileinfo = hashfile.first();
-                seglgeo[i]->setImagePath(fileinfo.absolutePath());
-            }
-            break;
-        }
+        hashspectrum = segmentlistmapgeo[geoindex].value(strdate);
+        hashfile = hashspectrum.first();
+        QFileInfo fileinfo = hashfile.first();
+        seglgeo[geoindex]->setImagePath(fileinfo.absolutePath());
     }
+
+    // for(int i = 0; i < opts.geosatellites.count(); i++)
+    // {
+    //     if(geoindex == i)
+    //     {
+    //         if (segmentlistmapgeo.at(i).contains(strdate))
+    //         {
+    //             hashspectrum = segmentlistmapgeo[i].value(strdate);
+    //             hashfile = hashspectrum.first();
+    //             QFileInfo fileinfo = hashfile.first();
+    //             seglgeo[i]->setImagePath(fileinfo.absolutePath());
+    //         }
+    //         break;
+    //     }
+    // }
 }
 
 void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)

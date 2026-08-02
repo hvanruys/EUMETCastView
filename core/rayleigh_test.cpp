@@ -162,11 +162,31 @@ static void testSphericalSolarPath()
         check(r >= 0.0f && r <= prev, "path reflectance keeps falling through twilight");
         prev = r;
     }
-    check(RayleighCorrector::pathReflectance(0, 92.0f, 40.0f, 90.0f)
-              < 0.5f * RayleighCorrector::pathReflectance(0, 90.0f, 40.0f, 90.0f),
-          "twilight decays fast, not slowly");
-    check(RayleighCorrector::pathReflectance(0, 91.0f, 40.0f, 90.0f) > 0.0f,
-          "still correcting one degree past the terminator");
+    // These two used to assert that the correction is never tapered and is
+    // still working past the terminator. Measured on real MSG discs, that is
+    // where it does damage: by sza 85 the modelled path reflectance exceeds the
+    // measured BRF, so the subtraction consumes the whole signal and leaves the
+    // deepest band at zero while the shallow ones are untouched - a red band
+    // along the terminator. pathTrust now retires the path term over
+    // SzaTrustFull..SzaTrustNone, before it can claim more light than arrived.
+    // The taper is opt-in and reaches only the caller that asks for it. FCI,
+    // which uses the band-index form, must still be correcting here - fading it
+    // leaves tau 0.234 of haze in place and turns its twilight blue.
+    check(RayleighCorrector::pathReflectance(0, RayleighCorrector::SzaTrustNone,
+                                             40.0f, 90.0f) > 0.0f,
+          "the untapered path is untouched past the trust limit");
+    {
+        const RayleighRT::Solution &b0 = RayleighRT::forBand(0);
+        const float sza = RayleighCorrector::SzaTrustNone;
+        check(RayleighCorrector::pathReflectance(b0, sza, 40.0f, 90.0f, 0.0f,
+                  RayleighCorrector::pathTrust(sza)) == 0.0f,
+              "a caller that asks for the taper gets it");
+        const float lit = RayleighCorrector::SzaTrustFull - 0.1f;
+        checkClose(RayleighCorrector::pathReflectance(b0, lit, 40.0f, 90.0f, 0.0f,
+                       RayleighCorrector::pathTrust(lit)),
+                   RayleighCorrector::pathReflectance(b0, lit, 40.0f, 90.0f),
+                   1e-6, "and below the trust limit the two agree exactly");
+    }
     check(RayleighCorrector::pathReflectance(0, RayleighCorrector::SzaMax + 1.0f,
                                              40.0f, 90.0f) == 0.0f,
           "nothing left to correct deep into night");
@@ -197,11 +217,15 @@ static void testSurfaceReflectance()
     // Round trip. Forward-model what the atmosphere would leave behind for a
     // known surface, invert it, and require the surface back. Exact by
     // construction, so it pins the algebra rather than a tolerance.
+    //
+    // The solar leg of the forward model is spherical, because that is the leg
+    // the inversion undoes. It used to be a plane-parallel cosine on both sides,
+    // which agreed with itself but not with the path term being subtracted.
     for (int b = 0; b < RayleighCorrector::SolarBandCount; ++b) {
         const RayleighRT::Solution &sol = RayleighRT::forBand(b);
         for (float sza = 0.0f; sza <= 80.0f; sza += 20.0f) {
             for (float vza = 0.0f; vza <= 80.0f; vza += 20.0f) {
-                const double t0 = RayleighRT::transmittance(sol, std::cos(sza * d2r));
+                const double t0 = RayleighRT::transmittanceSpherical(sol, sza);
                 const double tv = RayleighRT::transmittance(sol, std::cos(vza * d2r));
                 for (double rs = 0.02; rs <= 0.8; rs *= 2.0) {
                     const double x = t0 * tv * rs / (1.0 - sol.sphericalAlbedo * rs);
@@ -351,6 +375,193 @@ static void testPathReflectance()
     check(true, "the limb is never corrected less than the disc interior");
 }
 
+static void testSeviri()
+{
+    // SEVIRI's bluest channel sits where FCI's least-corrected true-colour band
+    // sits, which is the whole story of how much there is to remove here.
+    checkClose(RayleighCorrector::opticalDepthSEVIRI(1),
+               RayleighCorrector::opticalDepthAt(0.635), 1e-12, "VIS006 tau is at 0.635 um");
+    checkClose(RayleighCorrector::opticalDepthSEVIRI(1), 0.0542, 0.01, "VIS006 tau near 0.054");
+    checkClose(RayleighCorrector::opticalDepthSEVIRI(2), 0.0203, 0.01, "VIS008 tau near 0.020");
+    checkClose(RayleighCorrector::opticalDepthSEVIRI(3), 0.0012, 0.05, "IR_016 tau near 0.001");
+
+    check(RayleighCorrector::opticalDepthSEVIRI(1) < RayleighCorrector::opticalDepthFCI(0),
+          "VIS006 has less to remove than FCI vis_04");
+    check(RayleighCorrector::opticalDepthSEVIRI(1) > RayleighCorrector::opticalDepthSEVIRI(2) &&
+          RayleighCorrector::opticalDepthSEVIRI(2) > RayleighCorrector::opticalDepthSEVIRI(3),
+          "tau falls with wavelength across the three solar channels");
+
+    // Thermal channels, HRV and nonsense channel numbers are not corrected.
+    check(RayleighCorrector::wavelengthSEVIRI(4)  == 0.0, "IR_039 has no Rayleigh wavelength");
+    check(RayleighCorrector::wavelengthSEVIRI(9)  == 0.0, "IR_108 has no Rayleigh wavelength");
+    check(RayleighCorrector::wavelengthSEVIRI(12) == 0.0, "broadband HRV is not corrected");
+    check(RayleighCorrector::opticalDepthSEVIRI(0)  == 0.0, "channel 0 is not corrected");
+    check(RayleighCorrector::opticalDepthSEVIRI(99) == 0.0, "out-of-range channel is not corrected");
+
+    // The solution-keyed overloads have to agree with the band-keyed ones, or
+    // the two instruments are silently running different physics. FCI vis_06 at
+    // 0.640 um is close enough to VIS006 to compare directly.
+    const RayleighRT::Solution &s6 = RayleighRT::forTau(RayleighCorrector::opticalDepthFCI(2));
+    checkClose(RayleighCorrector::pathReflectance(s6, 40.0f, 30.0f, 70.0f),
+               RayleighCorrector::pathReflectance(2, 40.0f, 30.0f, 70.0f),
+               1e-6, "solution-keyed path reflectance matches the band-keyed one");
+    checkClose(RayleighCorrector::surfaceReflectance(s6, 40.0f, 30.0f, 0.12f),
+               RayleighCorrector::surfaceReflectance(2, 40.0f, 30.0f, 0.12f),
+               1e-6, "solution-keyed surface reflectance matches the band-keyed one");
+
+    // forTau caches by value: the same tau must hand back the same object, or
+    // every band would pay a 12 Mflop solve on every lookup.
+    check(&RayleighRT::forTau(0.0542) == &RayleighRT::forTau(0.0542),
+          "forTau returns the cached solution for a repeated tau");
+    check(&RayleighRT::forTau(0.0542) != &RayleighRT::forTau(0.0203),
+          "forTau keeps distinct taus apart");
+
+    // A zero-tau solution must leave a reflectance exactly as it found it, so
+    // that a channel with no Rayleigh term is a no-op rather than a small edit.
+    const RayleighRT::Solution &s0 = RayleighRT::forTau(0.0);
+    check(RayleighCorrector::pathReflectance(s0, 40.0f, 30.0f, 70.0f) == 0.0f,
+          "no optical depth means no path reflectance");
+    check(RayleighCorrector::surfaceReflectance(s0, 40.0f, 30.0f, 0.2f) == 0.2f,
+          "no optical depth means no surface recovery");
+
+    // Ordering that decides whether the correction helps or hurts: what is
+    // removed from VIS006 must exceed what is removed from VIS008, and IR_016
+    // must be left essentially untouched.
+    const RayleighRT::Solution &v6 = RayleighRT::forTau(RayleighCorrector::opticalDepthSEVIRI(1));
+    const RayleighRT::Solution &v8 = RayleighRT::forTau(RayleighCorrector::opticalDepthSEVIRI(2));
+    const RayleighRT::Solution &i16 = RayleighRT::forTau(RayleighCorrector::opticalDepthSEVIRI(3));
+    const float r6  = RayleighCorrector::pathReflectance(v6,  50.0f, 45.0f, 90.0f);
+    const float r8  = RayleighCorrector::pathReflectance(v8,  50.0f, 45.0f, 90.0f);
+    const float r16 = RayleighCorrector::pathReflectance(i16, 50.0f, 45.0f, 90.0f);
+    check(r6 > r8 && r8 > r16, "the correction is strongest in the bluest channel");
+    check(r16 < 0.002f, "IR_016 is left essentially untouched");
+    check(r6 > 0.01f && r6 < 0.10f, "VIS006 path reflectance is a few percent");
+}
+
+// The terminator must not acquire a colour. Recovering the surface divides by a
+// two-way transmittance, and that divisor has to describe the same sun the path
+// term was integrated along - if it does not, the two disagree by more in the
+// blue than in the red, which is a cast rather than a brightness error.
+//
+// Tested as a round trip: synthesise the measurement from a known surface with
+// the forward model, push it through the correction, and ask for the surface
+// back. Any per-channel drift is exactly the cast.
+static void testTerminatorNeutrality()
+{
+    const double d2r = M_PI / 180.0;
+
+    auto roundTrip = [&](const RayleighRT::Solution &s, double rs, double sza,
+                         double vza, double raa, bool ocean) {
+        const double mu0 = std::cos(sza * d2r);
+        const double muv = std::max(std::cos(vza * d2r),
+                                    std::cos((double)RayleighCorrector::VzaLimit * d2r));
+        const double Ts  = RayleighRT::transmittanceSpherical(s, sza);
+        const double Tv  = RayleighRT::transmittance(s, muv);
+        const double toa = RayleighRT::toaPathReflectance(s, sza, muv, raa, ocean)
+                         + mu0 * Ts * Tv * rs / (1.0 - s.sphericalAlbedo * rs);
+        const float  f   = RayleighCorrector::sunZenithFactor(sza);
+        const float  rho = RayleighCorrector::pathReflectance(s, sza, vza, raa,
+                                                              ocean ? 1.0f : 0.0f);
+        const float  rec = RayleighCorrector::surfaceReflectance(s, sza, vza,
+                                                                 (float)(toa * f) - rho);
+        // Divide out the grey twilight dimming, mu0_true/mu0_frozen, which is
+        // intended and identical in every channel.
+        return rec / (mu0 * f) / rs;
+    };
+
+    // The two extremes of optical depth in play: FCI's blue at 0.234 and
+    // SEVIRI's near infrared at 0.001. If the chain is neutral for these it is
+    // neutral for everything between.
+    const RayleighRT::Solution &deep    = RayleighRT::forBand(0);
+    const RayleighRT::Solution &shallow =
+        RayleighRT::forTau(RayleighCorrector::opticalDepthSEVIRI(3));
+
+    // Exact only where the correction is applied in full. Past SzaTrustFull it
+    // deliberately retreats toward the identity, which is tested separately.
+    int worst = 0;
+    double worstTilt = 1.0;
+    for (double sza = 20.0; sza <= RayleighCorrector::SzaTrustFull; sza += 1.0) {
+        const double b = roundTrip(deep,    0.03, sza, 65.0, 90.0, true);
+        const double r = roundTrip(shallow, 0.02, sza, 65.0, 90.0, true);
+        if (std::fabs(b / r - 1.0) > std::fabs(worstTilt - 1.0)) {
+            worstTilt = b / r;
+            worst = (int)sza;
+        }
+    }
+    std::printf("info : worst blue/red tilt is %.4f, at sza %d\n", worstTilt, worst);
+    check(std::fabs(worstTilt - 1.0) < 0.01,
+          "no blue/red tilt anywhere the correction is applied in full");
+
+    // Same over land, and at a view angle near the limb where the air mass is
+    // longest and a mismatch would show first.
+    //
+    // 2 % rather than 1 % because a residual of that size is real and belongs
+    // here: the ground-to-sky bounce couples the spherical albedo to the
+    // twilight dimming, as 1/(1 - s*rho_s*(1-dimming)), and s depends on optical
+    // depth. It is second order in s*rho_s - about 1 % over bright land at sza
+    // 88 - against the 17 % the mismatched transmittance was costing.
+    for (double sza = 60.0; sza <= RayleighCorrector::SzaTrustFull; sza += 4.0) {
+        const double b = roundTrip(deep,    0.10, sza, 80.0, 30.0, false);
+        const double r = roundTrip(shallow, 0.30, sza, 80.0, 30.0, false);
+        checkClose(b / r, 1.0, 0.02, "no tilt over land near the limb");
+    }
+
+    // Past SzaTrustNone both halves of the correction have retired, so what
+    // comes back is what went in - sun-normalised and dimmed, but not recoloured.
+    // This is the property that keeps the terminator grey rather than red.
+    for (double sza = RayleighCorrector::SzaTrustNone; sza <= 94.0; sza += 2.0) {
+        const float t = RayleighCorrector::pathTrust(sza);
+        check(RayleighCorrector::pathReflectance(deep, sza, 70.0f, 90.0f, 0.0f, t) == 0.0f,
+              "nothing is subtracted past the trust limit");
+        checkClose(RayleighCorrector::surfaceReflectance(deep, sza, 70.0f, 0.20f, t), 0.20,
+                   1e-6, "nothing is amplified past the trust limit");
+        checkClose(RayleighCorrector::surfaceReflectance(shallow, sza, 70.0f, 0.20f, t), 0.20,
+                   1e-6, "and the shallow band is left alone identically");
+    }
+
+    // The retreat has to be gradual in both halves, or it draws its own edge.
+    double prevGain = 0.0;
+    for (double sza = 70.0; sza <= 92.0; sza += 0.5) {
+        const float x = 0.05f;
+        const double g = RayleighCorrector::surfaceReflectance(
+            deep, sza, 70.0f, x, RayleighCorrector::pathTrust(sza)) / x;
+        if (sza > 70.0)
+            check(std::fabs(g - prevGain) < 0.20, "the recovery retires smoothly");   // slope peaks at 0.125
+        prevGain = g;
+    }
+
+    // The recovery is a division by a transmittance that goes to zero past the
+    // terminator, so it has to stay bounded, and it has to stay continuous -
+    // a step in the gain draws a ring along the shadow line.
+    double prev = 0.0;
+    for (double sza = 0.0; sza <= 110.0; sza += 0.5) {
+        const float x = 0.02f;
+        const double gain = RayleighCorrector::surfaceReflectance(deep, sza, 65.0f, x) / x;
+        check(gain <= RayleighCorrector::MaxSurfaceGain + 1e-6, "recovery gain stays capped");
+        // The gain climbs by at most 0.07 per half degree through the steepest
+        // part of twilight, so a step twice that is a discontinuity, not a slope.
+        if (sza > 0.0)
+            check(gain - prev < 0.14, "recovery gain has no step across the terminator");
+        prev = gain;
+    }
+
+    // Daylight must be untouched by any of this: the spherical and the flat
+    // solar path agree to a fraction of a percent while the sun is up.
+    for (double sza = 0.0; sza <= 75.0; sza += 5.0) {
+        checkClose(RayleighRT::transmittanceSpherical(deep, sza),
+                   RayleighRT::transmittance(deep, std::cos(sza * d2r)),
+                   1e-2, "spherical and flat transmittance agree in daylight");
+    }
+
+    // Past local sunset the ground is in the Earth's shadow and the direct-beam
+    // transmittance is frozen rather than allowed to collapse.
+    checkClose(RayleighRT::transmittanceSpherical(deep, 95.0),
+               RayleighRT::transmittanceSpherical(deep, 90.0),
+               1e-9, "solar transmittance freezes at local sunset");
+    check(RayleighRT::transmittanceSpherical(deep, 90.0) > 0.0,
+          "solar transmittance is still positive at local sunset");
+}
+
 int main()
 {
     testOpticalDepth();
@@ -360,6 +571,8 @@ int main()
     testSurfaceReflectance();
     testTwilightFade();
     testPathReflectance();
+    testSeviri();
+    testTerminatorNeutrality();
 
     if (g_failures) {
         std::printf("\n%d check(s) FAILED\n", g_failures);

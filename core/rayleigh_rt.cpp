@@ -10,7 +10,9 @@
 
 #include <cmath>
 #include <algorithm>
+#include <memory>
 #include <mutex>
+#include <vector>
 
 namespace {
 
@@ -451,6 +453,27 @@ const RayleighRT::Solution &RayleighRT::forBand(int bandIndex)
     return sols[bandIndex];
 }
 
+const RayleighRT::Solution &RayleighRT::forTau(double tau)
+{
+    // A linear scan under a lock, because this is resolved once per band and
+    // the table never holds more than a handful of entries. Solutions live on
+    // the heap and are never moved: callers hold the reference across a whole
+    // image, so a vector of values that reallocates would dangle.
+    static std::mutex mtx;
+    static std::vector<std::unique_ptr<Solution>> cache;
+
+    const double t = std::max(tau, 0.0);
+
+    std::lock_guard<std::mutex> lock(mtx);
+    for (const auto &s : cache)
+        if (s->tau == t)
+            return *s;
+
+    cache.push_back(std::make_unique<Solution>());
+    solve(t, *cache.back());
+    return *cache.back();
+}
+
 double RayleighRT::fresnelWater(double mu)
 {
     return fresnelUnpolarised(mu, WaterRefractiveIndex);
@@ -498,4 +521,22 @@ double RayleighRT::transmittance(const Solution &s, double mu)
     while (i < N - 2 && s.mu[i + 1] < mu) ++i;
     const double f = (mu - s.mu[i]) / (s.mu[i + 1] - s.mu[i]);
     return s.Ttot[i] * (1 - f) + s.Ttot[i + 1] * f;
+}
+
+double RayleighRT::transmittanceSpherical(const Solution &s, double szaDeg)
+{
+    if (s.tau <= 0.0)
+        return 1.0;
+
+    // Past local sunset the ground is lit by skylight alone, and a direct-beam
+    // transmittance has nothing to say about it - Chapman is infinite there,
+    // because the solid Earth is in the way. Freeze at the last angle where the
+    // ground still sees the sun rather than letting the value fall off a cliff:
+    // the alternative draws a ring along the shadow line, and the twilight fade
+    // is already carrying these pixels to black over the next few degrees.
+    const double ch = chapman(0.0, std::min(szaDeg, 90.0));
+    if (!(ch > 0.0) || !std::isfinite(ch))
+        return 0.0;
+
+    return transmittance(s, 1.0 / ch);
 }

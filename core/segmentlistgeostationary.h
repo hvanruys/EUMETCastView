@@ -92,7 +92,9 @@ public:
 
     void ComposeGeoRGBRecipe(int recipe, QString tex);
     void ComposeGeoRGBRecipeInThread(int recipe);
+    void ComposeGeoRGBRecipeMTG(int recipe, QString tex);
     void ComposeGeoRGBRecipeMTGInThread(int recipe);
+
     static void doComposeGeoRGBRecipeMTG(SegmentListGeostationary *sm, int recipe);
     static void doComposeGeostationaryHDFInThread(SegmentListGeostationary *sm, QStringList filelist, QVector<QString> spectrumvector, QVector<bool> inversevector);
     static void doComposeGeostationarynetCDFInThread(SegmentListGeostationary *sm);
@@ -153,6 +155,20 @@ private:
                                  const QVector<double> &rowJd,
                                  float *outFade = nullptr,
                                  quint8 *outWater = nullptr);
+
+    /**
+     * Rayleigh-correct the SEVIRI solar channels of the image being composed.
+     *
+     * Works in place on the reflectance channels of `bands`, using the lat/lon
+     * and angle images the needsza pass has already filled. Only channels held
+     * as SEVIRI_UNIT_REF are touched: that is plain top-of-atmosphere
+     * reflectance, which is what the correction expects, where BRF has already
+     * been divided by cos(sza) and would be counted twice.
+     *
+     * @return false if the recipe has no correctable channel, in which case
+     *         nothing was changed and the caller should compose as before
+     */
+    bool applySEVIRISolarCorrection();
 
     /**
      * Build the GeoColor layered composite straight into ptrimageGeostationary.

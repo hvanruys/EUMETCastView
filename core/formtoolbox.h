@@ -88,6 +88,7 @@ public:
     void setProgressMaximum(int max);
     void setProgressValue(int val);
     void setupChannelGeoCombo(int geoindex);
+    void setupRGBRecipeList(int geoindex);
 
     QStringList getRowchosen() { return rowchosen; }
     eProjectionType currentProjectionType;
@@ -129,6 +130,12 @@ private:
     void setTabSelectedColor(int tabnbr);
 
     AVHRRSatellite *segs;
+
+    // Which family of RGB recipes lstRGB is currently showing. Follows the
+    // geostationary tab: MET_12 has the FCI recipes, the three SEVIRI Meteosats
+    // the SEVIRI ones, and every other satellite has none.
+    enum eRecipeFamily { RECIPE_NONE, RECIPE_SEVIRI, RECIPE_FCI };
+    eRecipeFamily recipefamily = RECIPE_NONE;
 
     QVector<QString> spectrumvector;
     QVector<bool> inversevector;
@@ -313,7 +320,6 @@ private slots:
 
     void on_cmbHistogramAVHRR_activated(int index);
     void on_btnRecipes_clicked();
-    void on_btnFCIRecipes_clicked();
     void on_btnUpdateMERSIImage_clicked();
     void on_comboMERSIConfig_currentIndexChanged(int index);
     void on_btnAddMERSIConfig_clicked();

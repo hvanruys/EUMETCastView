@@ -217,6 +217,7 @@ public:
 
     int currenttoolbox; // LLC - GVP - Stereographic
     int currenttabwidget; // AVHRR - VIIRS - OLCI - Geostationary - Projections
+    int currentgeotab; //Meteosat-12/-11/-10/-9 -
     int parallel1;
     int parallel2;
     int centralmeridian;
@@ -276,6 +277,13 @@ public:
     bool usesaturationmask;
     bool copyMTGfiles;
     bool bFciRayleigh;
+
+    /**
+     * Rayleigh-correct the SEVIRI recipes that ask for it, currently Natural
+     * Colours. Separate from bFciRayleigh: SEVIRI has no blue channel, so there
+     * is a quarter of the haze to remove and the choice is a different one.
+     */
+    bool bSeviriRayleigh;
 
     /**
      * Equirectangular city-lights image for the GeoColor night side, or empty.

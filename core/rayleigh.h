@@ -1,8 +1,10 @@
 #ifndef RAYLEIGH_H
 #define RAYLEIGH_H
 
+#include "rayleigh_rt.h"
+
 /**
- * Rayleigh scattering correction for MTG FCI solar bands.
+ * Rayleigh scattering correction for MTG FCI and MSG SEVIRI solar bands.
  *
  * Pure, stateless functions with no Qt, netCDF or image dependencies, so they
  * can be unit-tested without satellite data.
@@ -60,6 +62,22 @@ public:
      * @param lambdaMicron wavelength in micrometres; <= 0 returns 0.0
      */
     static double opticalDepthAt(double lambdaMicron);
+
+    /**
+     * Centre wavelength of a SEVIRI solar channel, micrometres.
+     *
+     * SEVIRI has no blue channel, so there is far less to remove than on FCI:
+     * its bluest channel, VIS006, sits at the wavelength of FCI's *least*
+     * corrected true-colour band. Returns 0 for the thermal channels, for HRV -
+     * which is broadband from 0.4 to 1.1 um and has no single tau - and for
+     * channel numbers outside 1..12.
+     *
+     * @param channelNbr SEVIRI channel number as GetSpectralChannelNbr gives it
+     */
+    static double wavelengthSEVIRI(int channelNbr);
+
+    /** Rayleigh optical depth at sea level for a SEVIRI channel number. */
+    static double opticalDepthSEVIRI(int channelNbr);
 
     /**
      * Rayleigh phase function, polarisation-corrected with the Young (1980)
@@ -132,6 +150,18 @@ public:
                                  float water = 0.0f);
 
     /**
+     * As above, for a solution the caller has already resolved.
+     *
+     * This is the form to use for an instrument outside the FCI band table:
+     * resolve once with RayleighRT::forTau, outside the pixel loop, and hand
+     * the same reference to every pixel. The band-index form is a wrapper
+     * around this one, so the physics is shared.
+     */
+    static float pathReflectance(const RayleighRT::Solution &s, float szaDeg,
+                                 float vzaDeg, float raaDeg,
+                                 float water = 0.0f, float trust = 1.0f);
+
+    /**
      * Recover the surface reflectance from what is left after the path
      * reflectance has been taken off.
      *
@@ -157,6 +187,20 @@ public:
      */
     static float surfaceReflectance(int bandIndex, float szaDeg,
                                     float vzaDeg, float pathRemoved);
+
+    /**
+     * As above, for a solution the caller has already resolved.
+     *
+     * @param trust how much of the model to believe, from pathTrust. Both
+     *              halves of the correction have to retreat together: a pixel
+     *              that keeps its full transmittance recovery after the
+     *              subtraction has been faded is left too blue by exactly the
+     *              amount the subtraction was going to remove. At trust 0 this
+     *              is the identity. Default 1 leaves the physics untouched.
+     */
+    static float surfaceReflectance(const RayleighRT::Solution &s, float szaDeg,
+                                    float vzaDeg, float pathRemoved,
+                                    float trust = 1.0f);
 
     /**
      * How much a pixel should be treated as open water, from its reflectance in
@@ -190,6 +234,56 @@ public:
 
     /** Shortest wavelength usable for waterFraction, micrometres. */
     static constexpr double MinWaterTestLambda = 0.6;
+
+    /**
+     * Sun angles between which the path term is progressively distrusted.
+     *
+     * Measured on real discs: the ratio of modelled path reflectance to
+     * measured BRF sits around 0.3 while the sun is up, reaches 0.74 by sza 83
+     * and passes 1.0 by sza 85 - the model claims more light than the satellite
+     * recorded, so the whole measurement is consumed and the deepest band is
+     * left at zero. Since the shallow bands are barely touched, that is a red
+     * cast along the terminator, which is exactly what it looked like.
+     *
+     * The cure is to stop trusting the path term where it stops being credible,
+     * and to stop trusting it in every band at once, so what remains keeps its
+     * colour. This is deliberately not the roll-off the design rejected: that
+     * one faded the correction in broad daylight, where the haze it left behind
+     * stood next to corrected pixels and read as a ring. Here the twilight fade
+     * is already carrying the same pixels to black.
+     */
+    static constexpr float SzaTrustFull = 80.0f;
+    static constexpr float SzaTrustNone = 88.0f;
+
+    /**
+     * How much of the modelled path reflectance to believe, 1 down to 0 across
+     * SzaTrustFull..SzaTrustNone.
+     *
+     * Calibrated on MSG discs and passed in explicitly by the SEVIRI path,
+     * rather than applied inside pathReflectance where it would reach every
+     * instrument. It does not transfer: what a taper leaves behind is the haze
+     * itself, which scales with optical depth, and FCI's bluest band is at tau
+     * 0.234 against SEVIRI's 0.054. Tapering FCI on these thresholds turned its
+     * twilight blue - the very failure the no-roll-off rule in pathReflectance
+     * was written to prevent. Do not enable it for another instrument without
+     * measuring that instrument's own path-to-measured ratio first.
+     */
+    static float pathTrust(float szaDeg);
+
+    /**
+     * Largest factor by which surfaceReflectance may amplify what is left after
+     * the path term has been taken off.
+     *
+     * Undoing the two-way transmittance is a division, and past the terminator
+     * the divisor goes to zero - the ground is in the Earth's shadow, so no
+     * amount of algebra recovers what it reflected. Without a cap a dark
+     * twilight pixel comes back bright, which is worse than leaving it dark.
+     *
+     * 4 is chosen to be inert where the model is trustworthy: the gain is about
+     * 1.1 at nadir, 1.7 at sza 88 and 3 at sza 90 in the deepest band, so this
+     * only ever engages in the last couple of degrees before the shadow.
+     */
+    static constexpr double MaxSurfaceGain = 4.0;
 };
 
 #endif // RAYLEIGH_H

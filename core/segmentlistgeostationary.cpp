@@ -7767,27 +7767,224 @@ void SegmentListGeostationary::SetupContrastStretch(quint16 x1, quint16 y1, quin
     //qDebug() << QString("A1 = %1;B1 = %2;A2 = %3;B2 = %4;A3 = %5;B3 = %6").arg(A1).arg(B1).arg(A2).arg(B2).arg(A3).arg(B3);
 }
 
+/**
+ * One coordinate of the MSG satellite position, km, from its orbit polynomial.
+ *
+ * These are Chebyshev series over the polynomial's own validity window, mapped
+ * to t in [-1, 1]:  f(t) = c0/2 + sum over k >= 1 of c_k * T_k(t).  Evaluated by
+ * Clenshaw recurrence, which is both cheaper and better conditioned than summing
+ * the T_k directly.
+ */
+static double msgOrbitChebyshev(const double *c, double t)
+{
+    // MSG_orbit_coefficient carries eight per axis.
+    constexpr int MSG_ORBIT_COEFFS = 8;
+
+    double b0 = 0.0, b1 = 0.0;
+    for (int k = MSG_ORBIT_COEFFS - 1; k >= 1; --k) {
+        const double b = 2.0 * t * b0 - b1 + c[k];
+        b1 = b0;
+        b0 = b;
+    }
+    return t * b0 - b1 + 0.5 * c[0];
+}
+
+/**
+ * Rayleigh correction for the SEVIRI solar channels. See the declaration.
+ *
+ * The same chain as applyFCISolarCorrection, deliberately so: sun-normalise,
+ * take off the atmospheric path term, then undo the two-way transmittance to
+ * arrive at a surface reflectance. Only where the numbers come from differs.
+ * SEVIRI channels are not in the FCI band table, so each resolves its own
+ * solution by optical depth; and the geometry is already in hand, computed from
+ * the prologue's orbit polynomials and the real forward-scan times, which is
+ * better than what the FCI path manages with a nominal sub-satellite point.
+ */
+bool SegmentListGeostationary::applySEVIRISolarCorrection()
+{
+    // Reflectance channels only. A brightness temperature has no Rayleigh term,
+    // and a BRF has already been divided by cos(sza), which the correction is
+    // about to do again. IR_016 qualifies but has an optical depth of 0.001 -
+    // it is here for the water test, not for its own sake.
+    QList<int>                           solarSlots;
+    QVector<float*>                      solarData;
+    QVector<const RayleighRT::Solution*> solarSol;
+
+    int    maskIdx    = -1;
+    double maskLambda = 0.0;
+    const RayleighRT::Solution *maskSol = nullptr;
+
+    for (int k = 0; k < bands.length(); ++k) {
+        if (bands.at(k).units != SEVIRI_UNIT_REF)
+            continue;
+
+        const int    chan   = bands.at(k).spectral_channel_nbr;
+        const double lambda = RayleighCorrector::wavelengthSEVIRI(chan);
+        if (lambda <= 0.0)
+            continue;
+
+        const RayleighRT::Solution &s =
+            RayleighRT::forTau(RayleighCorrector::opticalDepthSEVIRI(chan));
+
+        solarSlots.append(k);
+        solarData.append(bands.at(k).data);
+        solarSol.append(&s);
+
+        // Longest wavelength drives the water test, as on FCI: water is far
+        // darker than land toward the red, and that is the term deciding
+        // whether the sea surface reflects sky into the view. Snow-covered sea
+        // ice reads as open water at 1.64 um, which is wrong but rare on this
+        // disc and worth less than having one rule for both instruments.
+        if (lambda > maskLambda) {
+            maskLambda = lambda;
+            maskIdx    = solarSlots.size() - 1;
+            maskSol    = &s;
+        }
+    }
+
+    if (solarSlots.isEmpty()) {
+        qDebug() << "SEVIRI Rayleigh: no reflectance channel in this recipe,"
+                 << "nothing to correct";
+        return false;
+    }
+
+    const bool useOcean = maskLambda >= RayleighCorrector::MinWaterTestLambda;
+    if (!useOcean)
+        qWarning() << "SEVIRI Rayleigh: longest solar channel in this recipe is too"
+                   << "blue to separate water from land; sea surface not modelled";
+
+    // Geography decides land from sea; brightness is then left with only the
+    // question it is good at, whether cloud is sitting on the sea. Same
+    // resolution rule as gshhsdata.cpp for where the shoreline file lives.
+    const QString gshhsFile = (opts.gshhsglobe1.isEmpty() || opts.appdir_env.isEmpty())
+                            ? opts.gshhsglobe1
+                            : opts.appdir_env + "/" + opts.gshhsglobe1;
+    const QByteArray gshhsPath = gshhsFile.toLocal8Bit();
+    const bool haveGeoMask = LandSeaMask::load(gshhsPath.constData());
+    if (!haveGeoMask)
+        qWarning() << "SEVIRI Rayleigh: no shoreline mask at" << gshhsFile
+                   << "- falling back to the brightness test, which reads dark"
+                   << "vegetation at high view angle as water";
+
+    qDebug() << "SEVIRI Rayleigh: correcting" << solarSlots.size()
+             << "channels, water test on" << maskLambda << "um";
+
+    QVector<int> lines(3712);
+    for (int i = 0; i < 3712; ++i)
+        lines[i] = i;
+
+    QtConcurrent::blockingMap(lines, [&](int line) {
+        for (int pixelx = 0; pixelx < 3712; ++pixelx) {
+            const int i_image = line * 3712 + pixelx;
+
+            if (lat[i_image] == FILL_VALUE_F || lon[i_image] == FILL_VALUE_F)
+                continue;   // off-disc
+
+            const float szaDeg = sza[i_image];
+            const float vzaDeg = vza[i_image];
+            if (szaDeg == FILL_VALUE_F || vzaDeg == FILL_VALUE_F)
+                continue;
+
+            // Relative azimuth folded into [0, 180]; the phase function is even
+            // in it, so the matching 180 degree offsets the geometry pass adds
+            // to both azimuths cancel here.
+            float raaDeg = fmodf(saa[i_image] - vaa[i_image], 360.0f);
+            if (raaDeg < 0.0f)
+                raaDeg += 360.0f;
+            if (raaDeg > 180.0f)
+                raaDeg = 360.0f - raaDeg;
+
+            // Both freeze at SzaLimit, so past the terminator the amplification
+            // and the path reflectance keep describing the same sun.
+            const float f = RayleighCorrector::sunZenithFactor(szaDeg);
+            const float w = RayleighCorrector::twilightFade(szaDeg);
+
+            // How much of the path model to believe at this sun angle. Measured
+            // on MSG discs and passed in here rather than applied inside
+            // pathReflectance, because the thresholds do not carry to an
+            // instrument with a different optical depth - see pathTrust.
+            const float trust = RayleighCorrector::pathTrust(szaDeg);
+
+            const bool geoWater = haveGeoMask
+                                && LandSeaMask::isWater(lat[i_image], lon[i_image]);
+
+            // How watery the pixel is, decided before anything is corrected,
+            // from the longest channel against a black lower boundary.
+            float water = 0.0f;
+            if (useOcean && w > 0.0f
+                && solarData.at(maskIdx)[i_image] != FILL_VALUE_F
+                && (!haveGeoMask || geoWater)) {
+                const float mb = RayleighCorrector::surfaceReflectance(
+                    *maskSol, szaDeg, vzaDeg,
+                    solarData.at(maskIdx)[i_image] * f
+                        - RayleighCorrector::pathReflectance(
+                              *maskSol, szaDeg, vzaDeg, raaDeg, 0.0f, trust),
+                    trust);
+                water = haveGeoMask ? RayleighCorrector::cloudFreeFraction(mb)
+                                    : RayleighCorrector::waterFraction(mb);
+            }
+
+            for (int k = 0; k < solarData.size(); ++k) {
+                float *buf = solarData.at(k);
+
+                if (buf[i_image] == FILL_VALUE_F)
+                    continue;
+
+                if (w == 0.0f) {
+                    buf[i_image] = 0.0f;   // night
+                    continue;
+                }
+
+                const float brf = buf[i_image] * f;
+                const float rho = RayleighCorrector::pathReflectance(
+                    *solarSol.at(k), szaDeg, vzaDeg, raaDeg, water, trust);
+
+                // Taking the path term off leaves the surface seen through the
+                // atmosphere, not the surface. Undo the two-way transmittance
+                // and the ground-to-sky bouncing to get there.
+                buf[i_image] = w * RayleighCorrector::surfaceReflectance(
+                    *solarSol.at(k), szaDeg, vzaDeg, brf - rho, trust);
+            }
+        }
+    });
+
+    return true;
+}
+
 void SegmentListGeostationary::ComposeGeoRGBRecipe(int recipe, QString tex)
 {
     this->tex = tex;
-    // QtConcurrent::run(doComposeGeoRGBRecipe, this, recipe);
+    //QtConcurrent::run(doComposeGeoRGBRecipe, this, recipe);
     this->ComposeGeoRGBRecipeInThread(recipe);
 }
 
 
 void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 {
+    //geoindex = opts.GetGeoIndex("MET_11");
+    geoindex = opts.currentgeotab;
+
+
     qDebug() << "start SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)";
     qDebug() << "geoindex = " << geoindex;
     emit progressCounter(10);
 
-    QStringList redbandlist = imageptrs->rgbrecipes[recipe].Colorvector.at(0).channels;
-    QStringList greenbandlist = imageptrs->rgbrecipes[recipe].Colorvector.at(1).channels;
-    QStringList bluebandlist = imageptrs->rgbrecipes[recipe].Colorvector.at(2).channels;
+    // The correction needs the same per-pixel geometry needsza asks for, so a
+    // recipe that wants it gets that pass whether or not it asked for it - and
+    // only while the option is on, so switching it off costs nothing.
+    const bool rayleighwanted = opts.bSeviriRayleigh
+                             && imageptrs->seviri_rgbrecipes[recipe].rayleigh;
+    const bool needgeometry   = imageptrs->seviri_rgbrecipes[recipe].needsza
+                             || rayleighwanted;
+    bool rayleighapplied = false;
+
+    QStringList redbandlist = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).channels;
+    QStringList greenbandlist = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).channels;
+    QStringList bluebandlist = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).channels;
     QList<seviriunits> uniqueunitlist;
-    seviriunits redunits = imageptrs->rgbrecipes[recipe].Colorvector.at(0).units;
-    seviriunits greenunits = imageptrs->rgbrecipes[recipe].Colorvector.at(1).units;
-    seviriunits blueunits = imageptrs->rgbrecipes[recipe].Colorvector.at(2).units;
+    seviriunits redunits = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).units;
+    seviriunits greenunits = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).units;
+    seviriunits blueunits = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).units;
     QList<int> uniquechannelnbrlist;
 
     QStringList uniquebandlist;
@@ -7798,7 +7995,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
         {
             uniquebandlist.append(redbandlist.at(i));
             uniqueunitlist.append(redunits);
-            uniquechannelnbrlist.append(imageptrs->rgbrecipes[recipe].Colorvector.at(0).spectral_channel_nbr.at(i));
+            uniquechannelnbrlist.append(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).spectral_channel_nbr.at(i));
         }
     }
     for(int i = 0; i < greenbandlist.length(); i++)
@@ -7807,7 +8004,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
         {
             uniquebandlist.append(greenbandlist.at(i));
             uniqueunitlist.append(greenunits);
-            uniquechannelnbrlist.append(imageptrs->rgbrecipes[recipe].Colorvector.at(1).spectral_channel_nbr.at(i));
+            uniquechannelnbrlist.append(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).spectral_channel_nbr.at(i));
         }
     }
     for(int i = 0; i < bluebandlist.length(); i++)
@@ -7816,12 +8013,12 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
         {
             uniquebandlist.append(bluebandlist.at(i));
             uniqueunitlist.append(blueunits);
-            uniquechannelnbrlist.append(imageptrs->rgbrecipes[recipe].Colorvector.at(2).spectral_channel_nbr.at(i));
+            uniquechannelnbrlist.append(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).spectral_channel_nbr.at(i));
         }
     }
 
 
-    QString recipename = imageptrs->rgbrecipes[recipe].Name;
+    QString recipename = imageptrs->seviri_rgbrecipes[recipe].Name;
     qDebug() << "recipename = " << recipename;
     qDebug() << "uniquebandlist contains = " << uniquebandlist.count();
     for(int i = 0; i < uniquebandlist.length(); i++)
@@ -7847,7 +8044,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 
     int totalpixels = 3712 * 3712;
 
-    if(imageptrs->rgbrecipes[recipe].needsza)
+    if(needgeometry)
     {
         time = new double[totalpixels];
         lat = new float[totalpixels];
@@ -7889,6 +8086,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 
     QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
 
+    qDebug() << "directory = " << directory;
     da.scan(fa, prodata, epidata, header);
     emit progressCounter(20);
 
@@ -7935,7 +8133,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
         bands.append(newband);
     }
 
-    if(imageptrs->rgbrecipes[recipe].needsza)
+    if(needgeometry)
     {
 
         /*-------------------------------------------------------------------------
@@ -7957,12 +8155,18 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
         double t, X, Y, Z;
         t = (jtime - (jtime_start2 + jtime_end2) / 2.) / ((jtime_end2   - jtime_start2) / 2.);
 
-        X = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X[0] +
-                prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X[1] * t;
-        Y = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y[0] +
-                prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y[1] * t;
-        Z = prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z[0] +
-                prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z[1] * t;
+        // The prologue holds these as Chebyshev series, not as ordinary
+        // polynomials: the constant term is halved and there are eight
+        // coefficients, not two. Read as c0 + c1*t the satellite came out at
+        // 84300 km, twice the geostationary radius, which tilted every viewing
+        // zenith angle on the disc.
+        X = msgOrbitChebyshev(prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].X, t);
+        Y = msgOrbitChebyshev(prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Y, t);
+        Z = msgOrbitChebyshev(prodata.prologue->sat_status.Orbit.OrbitPoliniomal[i].Z, t);
+
+        qDebug() << "satellite position" << X << Y << Z << "km, radius"
+                 << sqrt(X * X + Y * Y + Z * Z)
+                 << "sub-satellite longitude" << atan2(Y, X) * R2D;
         /*-------------------------------------------------------------------------
         * Compute latitude and longitude and solar and sensor zenith and azimuth
         * angles.
@@ -8040,21 +8244,30 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 
         //Printbands();
 
+        // Between the radiances and the colours: the channels are physical
+        // reflectances here, and still separate, which is the only point where
+        // an atmospheric correction can be applied to them.
+        if (rayleighwanted)
+        {
+            rayleighapplied = applySEVIRISolarCorrection();
+            emit progressCounter(38);
+        }
+
         bool pixelok = false;
 
         for(int colorindex = 0; colorindex < 3; colorindex++)
         {
             emit progressCounter(40 + colorindex * 10);
 
-            for(int i = 0; i < imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).channels.length(); i++)
+            for(int i = 0; i < imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).channels.length(); i++)
             {
                 for(int j = 0; j < bands.length(); j++)
                 {
-                    if(bands[j].spectral_channel_nbr == imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).spectral_channel_nbr.at(i))
+                    if(bands[j].spectral_channel_nbr == imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).spectral_channel_nbr.at(i))
                     {
-                        qDebug() << colorindex << " " << imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).channels.at(i) << " " <<
-                                    imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).spectral_channel_nbr.at(i) << " " <<
-                                    imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).subtract.at(i);
+                        qDebug() << colorindex << " " << imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).channels.at(i) << " " <<
+                                    imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).spectral_channel_nbr.at(i) << " " <<
+                                    imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).subtract.at(i);
                         for (int line = 0; line < 3712; line++)
                         {
                             for (int pixelx = 0; pixelx < 3712; pixelx++)
@@ -8071,7 +8284,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
                                 }
                                 if(pixelok)
                                 {
-                                    if(imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).subtract.at(i))
+                                    if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).subtract.at(i))
                                     {
                                         if(result[colorindex][i_image] == FILL_VALUE_F)
                                             result[colorindex][i_image] = - bands[j].data[i_image];
@@ -8161,6 +8374,14 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 
     for(int colorindex = 0; colorindex < 3; colorindex++)
     {
+        // A corrected colour is a physical surface reflectance, so it is
+        // stretched over the recipe's own range instead of over the scene
+        // min/max. Scene-relative would be actively wrong here: the sun-zenith
+        // normalisation amplifies a twilight cloud by up to eight times, and
+        // that one pixel would set the white point for the whole disc.
+        const bool absolutestretch = rayleighapplied ||
+            imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "K";
+
         for (int line = 0; line < 3712; line++)
         {
             for (int pixelx = 0; pixelx < 3712; pixelx++)
@@ -8168,20 +8389,20 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
                 int i_image = line * 3712 + pixelx;
                 if(result[colorindex][i_image] != FILL_VALUE_F )
                 {
-                    if(imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "K")
+                    if(absolutestretch)
                     {
-                        if(result[colorindex][i_image] > imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangeto )
-                            result[colorindex][i_image] = imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangeto;
-                        if(result[colorindex][i_image] < imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom )
-                            result[colorindex][i_image] = imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom;
+                        if(result[colorindex][i_image] > imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangeto )
+                            result[colorindex][i_image] = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangeto;
+                        if(result[colorindex][i_image] < imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom )
+                            result[colorindex][i_image] = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom;
                     }
-                    if(imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "%")
+                    if(!absolutestretch && imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "%")
                     {
                         //both positive
-                        resultmin_perc[colorindex] = resultmin[colorindex]*imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom;
-                        resultmax_perc[colorindex] = resultmax[colorindex]*imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangeto;
+                        resultmin_perc[colorindex] = resultmin[colorindex]*imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom;
+                        resultmax_perc[colorindex] = resultmax[colorindex]*imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangeto;
 
-                        if(imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom == 0)
+                        if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom == 0)
                         {
                             if(result[colorindex][i_image] > resultmax_perc[colorindex])
                                 result[colorindex][i_image] = resultmax_perc[colorindex];
@@ -8205,12 +8426,15 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 
     for(int colorindex = 0; colorindex < 3; colorindex++ )
     {
-        if(imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "K")
+        const bool absolutestretch = rayleighapplied ||
+            imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "K";
+
+        if(absolutestretch)
         {
-            resultmin[colorindex] = imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom;
-            resultmax[colorindex] = imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).rangeto;
+            resultmin[colorindex] = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangefrom;
+            resultmax[colorindex] = imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).rangeto;
         }
-        if(imageptrs->rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "%")
+        else if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(colorindex).dimension == "%")
         {
             resultmin[colorindex] = - resultmin_perc[colorindex];
             resultmax[colorindex] = resultmax_perc[colorindex];
@@ -8238,18 +8462,18 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
     //            }
     //            else
     //            {
-    //                if(imageptrs->rgbrecipes[recipe].Colorvector.at(0).inverse.at(0))
-    //                    red   = 255.0 - 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(0).gamma);
+    //                if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).inverse.at(0))
+    //                    red   = 255.0 - 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).gamma);
     //                else
-    //                    red   = 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(0).gamma);
-    //                if(imageptrs->rgbrecipes[recipe].Colorvector.at(1).inverse.at(0))
-    //                    green = 255.0 - 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(1).gamma);
+    //                    red   = 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).gamma);
+    //                if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).inverse.at(0))
+    //                    green = 255.0 - 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).gamma);
     //                else
-    //                    green = 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(1).gamma);
-    //                if(imageptrs->rgbrecipes[recipe].Colorvector.at(2).inverse.at(0))
-    //                    blue  = 255 - 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(2).gamma);
+    //                    green = 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).gamma);
+    //                if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).inverse.at(0))
+    //                    blue  = 255 - 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).gamma);
     //                else
-    //                    blue  = 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(2).gamma);
+    //                    blue  = 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).gamma);
     //            }
     //            int i_image1 = (3711 - line) * 3712 + (3711 - pixelx);
 
@@ -8277,18 +8501,18 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
             }
             else
             {
-                if(imageptrs->rgbrecipes[recipe].Colorvector.at(0).inverse.at(0))
-                    red   = 255.0 - 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(0).gamma);
+                if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).inverse.at(0))
+                    red   = 255.0 - 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).gamma);
                 else
-                    red   = 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(0).gamma);
-                if(imageptrs->rgbrecipes[recipe].Colorvector.at(1).inverse.at(0))
-                    green = 255.0 - 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(1).gamma);
+                    red   = 255.0 * pow((result[0][i_image] - resultmin[0]) / (resultmax[0] - resultmin[0]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(0).gamma);
+                if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).inverse.at(0))
+                    green = 255.0 - 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).gamma);
                 else
-                    green = 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(1).gamma);
-                if(imageptrs->rgbrecipes[recipe].Colorvector.at(2).inverse.at(0))
-                    blue  = 255 - 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(2).gamma);
+                    green = 255.0 * pow((result[1][i_image] - resultmin[1]) / (resultmax[1] - resultmin[1]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(1).gamma);
+                if(imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).inverse.at(0))
+                    blue  = 255 - 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).gamma);
                 else
-                    blue  = 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->rgbrecipes[recipe].Colorvector.at(2).gamma);
+                    blue  = 255.0 * pow((result[2][i_image] - resultmin[2]) / (resultmax[2] - resultmin[2]), 1.0/imageptrs->seviri_rgbrecipes[recipe].Colorvector.at(2).gamma);
             }
             int i_image1 = (3711 - line) * 3712 + (3711 - pixelx);
 
@@ -8320,7 +8544,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeInThread(int recipe)
 
     bands.clear();
 
-    if(imageptrs->rgbrecipes[recipe].needsza)
+    if(needgeometry)
     {
         delete [] time;
         delete [] lat;
@@ -10433,8 +10657,18 @@ static void readFCISegment(const FCISegmentRead &seg,
         QFile::remove(localCopy);
 }
 
+void SegmentListGeostationary::ComposeGeoRGBRecipeMTG(int recipe, QString tex)
+{
+    this->tex = tex;
+    //QtConcurrent::run(doComposeGeoRGBRecipe, this, recipe);
+    this->ComposeGeoRGBRecipeMTGInThread(recipe);
+}
+
+
 void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
 {
+    geoindex = opts.currentgeotab;
+
     const RGBRecipe& rec = imageptrs->fci_rgbrecipes.at(recipe);
 
     // Collect unique bands needed by this recipe
