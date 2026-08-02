@@ -36,6 +36,15 @@ const double kFciSolarLambda[RayleighCorrector::SolarBandCount] = {
     2.250   // 7  nir_22
 };
 
+// SEVIRI solar channel centre wavelengths in micrometres, channel number 1..3.
+// PDF_MSG_SEVIRI_RAD2REFL nominal band centres. The thermal channels and HRV
+// are not in the table; see wavelengthSEVIRI.
+const double kSeviriSolarLambda[3] = {
+    0.635,  // 1  VIS006
+    0.810,  // 2  VIS008
+    1.640   // 3  IR_016
+};
+
 // Depolarisation factor for air, Young (1980), Appl. Opt. 19, 3427.
 constexpr double kDepolarization = 0.0279;
 
@@ -55,6 +64,18 @@ double RayleighCorrector::opticalDepthFCI(int bandIndex)
     return rayleighTau(kFciSolarLambda[bandIndex]);
 }
 
+double RayleighCorrector::wavelengthSEVIRI(int channelNbr)
+{
+    if (channelNbr < 1 || channelNbr > 3)
+        return 0.0;   // thermal channels, HRV, and anything out of range
+    return kSeviriSolarLambda[channelNbr - 1];
+}
+
+double RayleighCorrector::opticalDepthSEVIRI(int channelNbr)
+{
+    return opticalDepthAt(wavelengthSEVIRI(channelNbr));
+}
+
 double RayleighCorrector::phaseFunction(double cosTheta)
 {
     const double gamma = kDepolarization / (2.0 - kDepolarization);
@@ -68,6 +89,17 @@ float RayleighCorrector::sunZenithFactor(float szaDeg)
     const double sza = std::min(static_cast<double>(szaDeg),
                                 static_cast<double>(SzaLimit));
     return static_cast<float>(1.0 / std::cos(sza * d2r));
+}
+
+float RayleighCorrector::pathTrust(float szaDeg)
+{
+    if (szaDeg <= SzaTrustFull)
+        return 1.0f;
+    if (szaDeg >= SzaTrustNone)
+        return 0.0f;
+
+    const float t = (szaDeg - SzaTrustFull) / (SzaTrustNone - SzaTrustFull);
+    return 1.0f - t * t * (3.0f - 2.0f * t);   // smoothstep, C1 at both ends
 }
 
 float RayleighCorrector::twilightFade(float szaDeg)
@@ -101,20 +133,50 @@ float RayleighCorrector::surfaceReflectance(int bandIndex, float szaDeg,
     if (bandIndex < 0 || bandIndex >= SolarBandCount)
         return pathRemoved;
 
-    const RayleighRT::Solution &s = RayleighRT::forBand(bandIndex);
+    return surfaceReflectance(RayleighRT::forBand(bandIndex),
+                              szaDeg, vzaDeg, pathRemoved);
+}
+
+float RayleighCorrector::surfaceReflectance(const RayleighRT::Solution &s,
+                                            float szaDeg, float vzaDeg,
+                                            float pathRemoved, float trust)
+{
+    if (pathRemoved <= 0.0f)
+        return 0.0f;
+    if (s.tau <= 0.0)
+        return pathRemoved;   // no atmosphere to see through
+
     const double d2r = M_PI / 180.0;
 
-    // The solar cosine is frozen at SzaLimit, exactly as sunZenithFactor freezes
-    // the amplification - and because that factor is 1/mu0_eff, the mu0 that
-    // would otherwise appear here cancels against it. What survives is the
-    // twilight dimming, carried by the shrinking signal rather than applied.
-    const double mu0 = std::cos(std::min(szaDeg, SzaLimit) * d2r);
+    // The solar leg is spherical, like the path term it is undoing. It used to
+    // be a plane-parallel cosine frozen at SzaLimit, on the argument that the
+    // mu0 cancels against the amplification - which is true of the geometric
+    // cosine, but not of the transmittance, which never entered that
+    // cancellation. Freezing it understated how much light reaches the ground
+    // past 83 degrees, and understated it in proportion to optical depth: at
+    // sza 88 the recovered VIS006 kept 83 % of its true value against 99 % for
+    // IR_016. A blue deficit that grows with sun angle and shows up wherever
+    // the scene is dark and neutral - which is why the terminator went red over
+    // water and nowhere else.
+    //
+    // What survives is still only the grey twilight dimming, mu0_true/mu0_eff,
+    // carried by the shrinking signal rather than applied here.
     const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
 
-    const double tt = RayleighRT::transmittance(s, mu0)
-                    * RayleighRT::transmittance(s, muv);
+    double tt = RayleighRT::transmittanceSpherical(s, szaDeg)
+              * RayleighRT::transmittance(s, muv);
 
-    const double den = tt + s.sphericalAlbedo * (double)pathRemoved;
+    // Both halves of the correction retreat together; see the declaration.
+    tt = 1.0 + trust * (tt - 1.0);
+
+    // Dividing by a transmittance is ill-conditioned once that transmittance
+    // gets small, and past the terminator it goes to zero: nothing bounds the
+    // recovery, and a dark twilight pixel would come back as a bright one. Cap
+    // the amplification. In daylight, and well into twilight, this never binds
+    // - the gain is 1.1 at nadir and about 3 at sza 90 in the worst band.
+    tt = std::max(tt, 1.0 / MaxSurfaceGain);
+
+    const double den = tt + trust * s.sphericalAlbedo * (double)pathRemoved;
     if (!(den > 0.0))
         return pathRemoved;
 
@@ -140,6 +202,17 @@ float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
     if (bandIndex < 0 || bandIndex >= SolarBandCount)
         return 0.0f;
 
+    return pathReflectance(RayleighRT::forBand(bandIndex),
+                           szaDeg, vzaDeg, raaDeg, water);
+}
+
+float RayleighCorrector::pathReflectance(const RayleighRT::Solution &s,
+                                         float szaDeg, float vzaDeg,
+                                         float raaDeg, float water, float trust)
+{
+    if (s.tau <= 0.0)
+        return 0.0f;   // nothing to scatter
+
     // Deep night. The spherical path never returns exactly zero - there is
     // always some sunlit air somewhere above - but by SzaMax it is down eight
     // orders of magnitude and the pixel is being faded out anyway.
@@ -153,8 +226,6 @@ float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
     // including past the terminator, where a plane-parallel model has nothing
     // to say and twilight is exactly what we are trying to get right.
     const double muv = std::max(std::cos(vzaDeg * d2r), std::cos(VzaLimit * d2r));
-
-    const RayleighRT::Solution &s = RayleighRT::forBand(bandIndex);
 
     // Work in TOA units and convert with the same frozen factor that scales the
     // signal. Below SzaLimit this is exactly the plane-parallel BRF; past it,
@@ -173,5 +244,5 @@ float RayleighCorrector::pathReflectance(int bandIndex, float szaDeg,
         toa = land + water * (ocean - land);
     }
 
-    return static_cast<float>(sunZenithFactor(szaDeg) * toa);
+    return static_cast<float>(sunZenithFactor(szaDeg) * toa * trust);
 }

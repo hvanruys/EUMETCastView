@@ -464,20 +464,17 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     setAllWhatsThis();
 
-    for(int i = 0; i < imageptrs->rgbrecipes.count(); i++ )
-    {
-        QListWidgetItem* item = new QListWidgetItem(imageptrs->rgbrecipes.at(i).Name, ui->lstRGB);
-    }
-
-    for(int i = 0; i < imageptrs->fci_rgbrecipes.count(); i++)
-    {
-        new QListWidgetItem(imageptrs->fci_rgbrecipes.at(i).Name, ui->lstFCIRGB);
-    }
-
-    ui->chkFciRayleigh->setChecked(opts.bFciRayleigh);
-    connect(ui->chkFciRayleigh, &QCheckBox::toggled, this, [](bool checked) {
-        opts.bFciRayleigh = checked;
+    // One checkbox for both instruments, writing to whichever option the list
+    // currently belongs to. setupRGBRecipeList blocks this signal when it sets
+    // the box from the other family's option.
+    connect(ui->chkGeoRayleigh, &QCheckBox::toggled, this, [this](bool checked) {
+        if(recipefamily == RECIPE_FCI)
+            opts.bFciRayleigh = checked;
+        else if(recipefamily == RECIPE_SEVIRI)
+            opts.bSeviriRayleigh = checked;
     });
+
+    setupRGBRecipeList(opts.currentgeotab);
 
     rowchosen.clear();
 
@@ -713,6 +710,52 @@ bool FormToolbox::eventFilter(QObject *target, QEvent *event)
 void FormToolbox::setValueProgressBar(int val)
 {
     ui->pbProgress->setValue(val);
+}
+
+// Fill the single RGB recipe list with the recipes that belong to the
+// geostationary satellite of tab 'geoindex'. Called whenever that tab changes.
+// The recipes of the two instruments are not interchangeable - they name their
+// channels differently and are composed by different code paths - so the list
+// shows one family or the other, never both, and nothing at all for the
+// satellites that have no recipes.
+void FormToolbox::setupRGBRecipeList(int geoindex)
+{
+    const QString shortname = (geoindex >= 0 && geoindex < opts.geosatellites.count() ?
+                                   opts.geosatellites.at(geoindex).shortname : QString());
+
+    if(shortname == "MET_12")
+        recipefamily = RECIPE_FCI;
+    else if(shortname == "MET_11" || shortname == "MET_10" || shortname == "MET_9")
+        recipefamily = RECIPE_SEVIRI;
+    else
+        recipefamily = RECIPE_NONE;
+
+    ui->lstRGB->clear();
+
+    if(recipefamily == RECIPE_FCI)
+    {
+        for(int i = 0; i < imageptrs->fci_rgbrecipes.count(); i++)
+            new QListWidgetItem(imageptrs->fci_rgbrecipes.at(i).Name, ui->lstRGB);
+
+        ui->label_63->setText("MTG/FCI recipes");
+    }
+    else if(recipefamily == RECIPE_SEVIRI)
+    {
+        for(int i = 0; i < imageptrs->seviri_rgbrecipes.count(); i++)
+            new QListWidgetItem(imageptrs->seviri_rgbrecipes.at(i).Name, ui->lstRGB);
+
+        ui->label_63->setText("Meteosat/Seviri recipes");
+    }
+    else
+        ui->label_63->setText("No RGB recipes for this satellite");
+
+    ui->btnRecipes->setEnabled(recipefamily != RECIPE_NONE);
+
+    // Each instrument keeps its own Rayleigh setting; show the one that applies.
+    ui->chkGeoRayleigh->setEnabled(recipefamily != RECIPE_NONE);
+    QSignalBlocker block(ui->chkGeoRayleigh);
+    ui->chkGeoRayleigh->setChecked(recipefamily == RECIPE_FCI ? opts.bFciRayleigh :
+                                   recipefamily == RECIPE_SEVIRI ? opts.bSeviriRayleigh : false);
 }
 
 void FormToolbox::setupChannelGeoCombo(int geoindex)
@@ -2397,27 +2440,16 @@ void FormToolbox::on_btnGeoColor_clicked()
 
 void FormToolbox::on_btnRecipes_clicked()
 {
+    // The button is disabled for the satellites without recipes, so the list
+    // always belongs to the satellite of the current tab.
+    if(recipefamily == RECIPE_NONE)
+        return;
+
     if(!checkSegmentDateTime())
         return;
 
     if(ui->lstRGB->currentRow() == -1)
         return;
-
-    if(!(geoindex == opts.GetGeoIndex("MET_11") || geoindex == opts.GetGeoIndex("MET_10") ||
-         geoindex == opts.GetGeoIndex("MET_9")))
-    {
-
-        QMessageBox  msgBox;
-        msgBox.setStandardButtons( QMessageBox::Ok );
-        QSpacerItem* horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-        msgBox.setText( "Only for Meteosat-9 ,Meteosat-10 and Meteosat-11" );
-        msgBox.setIcon(QMessageBox::Critical);
-        QGridLayout* layout = (QGridLayout*)msgBox.layout();
-        layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
-        msgBox.exec();
-
-        return;
-    }
 
     imageptrs->ResetPtrImage();
     QApplication::setOverrideCursor(Qt::WaitCursor); // restore in FormImage::slotUpdateGeosat()
@@ -2429,58 +2461,27 @@ void FormToolbox::on_btnRecipes_clicked()
     segs->seglgeo[geoindex]->setKindofImage("VIS_IR");
     formimage->setKindOfImage("VIS_IR");
 
-    QString recipename = imageptrs->rgbrecipes[ui->lstRGB->currentRow()].Name;
-    this->resetSpectrumInverse();
-    this->spectrumvector[0] = recipename;
-    setToolboxButtons(false);
-
-    emit switchstackedwidget(3);
-
-    emit creatergbrecipe(ui->lstRGB->currentRow());
-
-    formimage->displayImage(IMAGE_GEOSTATIONARY, true);
-    setToolboxButtons(true);
-
-    QApplication::restoreOverrideCursor();
-
-
-}
-
-void FormToolbox::on_btnFCIRecipes_clicked()
-{
-    if(!checkSegmentDateTime())
-        return;
-
-    if(ui->lstFCIRGB->currentRow() == -1)
-        return;
-
-    if(geoindex != opts.GetGeoIndex("MET_12"))
+    if(recipefamily == RECIPE_SEVIRI)
     {
-        QMessageBox msgBox;
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.setText("FCI recipes are only available for Meteosat-12 (MTG)");
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.exec();
-        return;
+        this->resetSpectrumInverse();
+        this->spectrumvector[0] = imageptrs->seviri_rgbrecipes[ui->lstRGB->currentRow()].Name;
     }
 
-    imageptrs->ResetPtrImage();
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-
-    ui->pbProgress->reset();
-    ui->pbProgress->setMaximum(100);
-
-    segs->seglgeo[geoindex]->areatype = 0;
-    segs->seglgeo[geoindex]->setKindofImage("VIS_IR");
-    formimage->setKindOfImage("VIS_IR");
-
     setToolboxButtons(false);
+
     emit switchstackedwidget(3);
-    emit createfcirgbrecipe(ui->lstFCIRGB->currentRow());
+
+    if(recipefamily == RECIPE_FCI)
+        emit createfcirgbrecipe(ui->lstRGB->currentRow());
+    else
+        emit creatergbrecipe(ui->lstRGB->currentRow());
+
     formimage->displayImage(IMAGE_GEOSTATIONARY, true);
     setToolboxButtons(true);
 
     QApplication::restoreOverrideCursor();
+
+
 }
 
 bool FormToolbox::checkSegmentDateTime()

@@ -68,7 +68,7 @@ SegmentImage::SegmentImage()
     {
         fillvalue[i] = 0;
     }
-    SetupRGBrecipes();
+    SetupSEVIRIRGBrecipes();
     SetupFCIRGBrecipes();
 }
 
@@ -88,693 +88,202 @@ SegmentImage::SegmentImage()
 
 //}
 
-void SegmentImage::SetupRGBrecipes()
+// Helper: build one RGBRecipeColor for a SEVIRI channel.
+// The channel number follows from the name, so a recipe never spells it out.
+// So does the dimension: a brightness temperature is stretched between two
+// absolute kelvin bounds, everything else between two fractions of the scene
+// min/max, which is what the compose loop reads "K" and "%" to mean.
+static RGBRecipeColor makeSEVIRIColor(const QString& band, seviriunits units,
+                                      float from, float to, float gamma,
+                                      bool inverse = false, bool reflective = false)
 {
- //0 "Airmass RGB"
- //1 "Dust RGB"
- //2 "24 hours Microphysics RGB"
- //3 "Ash RGB"
- //4 "Day Microphysics RGB Summer"
- //5 "Severe Storms RGB"
- //6 "Snow RGB"
- //7 "Natural Colors RGB"
- //8 "Night Microphysics RGB";
- //9 "IR_39 sun reflected";
- //10 "Day Microphysics RGB Winter"
-
-
-    //***********
-    //Airmass RGB
-    //***********
-    RGBRecipe airmass;
-    airmass.Name = "Airmass RGB";
-    airmass.needsza = false;
-
-    RGBRecipeColor Red1;
-    RGBRecipeColor Green1;
-    RGBRecipeColor Blue1;
-
-    Red1.channels.append("WV_062");
-    Red1.channels.append("WV_073");
-    Red1.spectral_channel_nbr.append(GetSpectralChannelNbr("WV_062"));
-    Red1.spectral_channel_nbr.append(GetSpectralChannelNbr("WV_073"));
-    Red1.subtract.append(false);
-    Red1.subtract.append(true);
-    Red1.inverse.append(false);
-    Red1.inverse.append(false);
-    Red1.reflective.append(false);
-    Red1.reflective.append(false);
-    Red1.rangefrom = -25.0;
-    Red1.rangeto = 0.0;
-    Red1.dimension = "K";
-    Red1.gamma = 1.0;
-    Red1.units = SEVIRI_UNIT_BT;
-    airmass.Colorvector.append(Red1);
-
-    Green1.channels.append("IR_097");
-    Green1.channels.append("IR_108");
-    Green1.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_097"));
-    Green1.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Green1.subtract.append(false);
-    Green1.subtract.append(true);
-    Green1.inverse.append(false);
-    Green1.inverse.append(false);
-    Green1.reflective.append(false);
-    Green1.reflective.append(false);
-    Green1.rangefrom = -40.0;
-    Green1.rangeto = 5.0;
-    Green1.dimension = "K";
-    Green1.gamma = 1.0;
-    Green1.units = SEVIRI_UNIT_BT;
-    airmass.Colorvector.append(Green1);
-
-    Blue1.channels.append("WV_062");
-    Blue1.spectral_channel_nbr.append(GetSpectralChannelNbr("WV_062"));
-    Blue1.subtract.append(false);
-    Blue1.inverse.append(true);
-    Blue1.reflective.append(false);
-    Blue1.rangefrom = 208.0;
-    Blue1.rangeto = 243.0;
-    Blue1.dimension = "K";
-    Blue1.gamma = 1.0;
-    Blue1.units = SEVIRI_UNIT_BT;
-    airmass.Colorvector.append(Blue1);
-
-    rgbrecipes.append(airmass);
-
-    //*********
-    // Dust RGB
-    //*********
-    RGBRecipe dust;
-    dust.Name = "Dust RGB";
-    dust.needsza = false;
-
-    RGBRecipeColor Red2;
-    RGBRecipeColor Green2;
-    RGBRecipeColor Blue2;
-
-    Red2.channels.append("IR_120");
-    Red2.channels.append("IR_108");
-    Red2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_120"));
-    Red2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Red2.subtract.append(false);
-    Red2.subtract.append(true);
-    Red2.inverse.append(false);
-    Red2.inverse.append(false);
-    Red2.reflective.append(false);
-    Red2.reflective.append(false);
-    Red2.rangefrom = -4.0;
-    Red2.rangeto = +2.0;
-    Red2.dimension = "K";
-    Red2.gamma = 1.0;
-    Red2.units = SEVIRI_UNIT_BT;
-    dust.Colorvector.append(Red2);
-
-    Green2.channels.append("IR_108");
-    Green2.channels.append("IR_087");
-    Green2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Green2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_087"));
-    Green2.subtract.append(false);
-    Green2.subtract.append(true);
-    Green2.inverse.append(false);
-    Green2.inverse.append(false);
-    Green2.reflective.append(false);
-    Green2.reflective.append(false);
-    Green2.rangefrom = 0.0;
-    Green2.rangeto = 15.0;
-    Green2.dimension = "K";
-    Green2.gamma = 2.5;
-    Green2.units = SEVIRI_UNIT_BT;
-    dust.Colorvector.append(Green2);
-
-    Blue2.channels.append("IR_108");
-    Blue2.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Blue2.subtract.append(false);
-    Blue2.inverse.append(false);
-    Blue2.reflective.append(false);
-    Blue2.rangefrom = 261.0;
-    Blue2.rangeto = 289.0;
-    Blue2.dimension = "K";
-    Blue2.gamma = 1.0;
-    Blue2.units = SEVIRI_UNIT_BT;
-    dust.Colorvector.append(Blue2);
-
-    rgbrecipes.append(dust);
-
-    //******************
-    //24 hours Microphysics RGB
-    //******************
-
-    RGBRecipe micro24;
-    micro24.Name = "24 hours Microphysics RGB";
-    micro24.needsza = false;
-
-    RGBRecipeColor Red3;
-    RGBRecipeColor Green3;
-    RGBRecipeColor Blue3;
-
-    Red3.channels.append("IR_120");
-    Red3.channels.append("IR_108");
-    Red3.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_120"));
-    Red3.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Red3.subtract.append(false);
-    Red3.subtract.append(true);
-    Red3.inverse.append(false);
-    Red3.inverse.append(false);
-    Red3.reflective.append(false);
-    Red3.reflective.append(false);
-    Red3.rangefrom = -4.0;
-    Red3.rangeto = +2.0;
-    Red3.dimension = "K";
-    Red3.gamma = 1.0;
-    Red3.units = SEVIRI_UNIT_BT;
-    micro24.Colorvector.append(Red3);
-
-    Green3.channels.append("IR_108");
-    Green3.channels.append("IR_087");
-    Green3.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Green3.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_087"));
-    Green3.subtract.append(false);
-    Green3.subtract.append(true);
-    Green3.inverse.append(false);
-    Green3.inverse.append(false);
-    Green3.reflective.append(false);
-    Green3.reflective.append(false);
-    Green3.rangefrom = 0.0;
-    Green3.rangeto = 6.0;
-    Green3.dimension = "K";
-    Green3.gamma = 1.2;
-    Green3.units = SEVIRI_UNIT_BT;
-    micro24.Colorvector.append(Green3);
-
-    Blue3.channels.append("IR_108");
-    Blue3.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Blue3.subtract.append(false);
-    Blue3.inverse.append(false);
-    Blue3.reflective.append(false);
-    Blue3.rangefrom = 248.0;
-    Blue3.rangeto = 303.0;
-    Blue3.dimension = "K";
-    Blue3.gamma = 1.0;
-    Blue3.units = SEVIRI_UNIT_BT;
-    micro24.Colorvector.append(Blue3);
-
-    rgbrecipes.append(micro24);
-
-
-    //******************
-    // Ash RGB
-    //******************
-
-    RGBRecipe ash;
-    ash.Name = "Ash RGB";
-    ash.needsza = false;
-
-    RGBRecipeColor Red4;
-    RGBRecipeColor Green4;
-    RGBRecipeColor Blue4;
-
-    Red4.channels.append("IR_120");
-    Red4.channels.append("IR_108");
-    Red4.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_120"));
-    Red4.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Red4.subtract.append(false);
-    Red4.subtract.append(true);
-    Red4.inverse.append(false);
-    Red4.inverse.append(false);
-    Red4.reflective.append(false);
-    Red4.reflective.append(false);
-    Red4.rangefrom = -4.0;
-    Red4.rangeto = +2.0;
-    Red4.dimension = "K";
-    Red4.gamma = 1.0;
-    Red4.units = SEVIRI_UNIT_BT;
-    ash.Colorvector.append(Red4);
-
-    Green4.channels.append("IR_108");
-    Green4.channels.append("IR_087");
-    Green4.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Green4.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_087"));
-    Green4.subtract.append(false);
-    Green4.subtract.append(true);
-    Green4.inverse.append(false);
-    Green4.inverse.append(false);
-    Green4.reflective.append(false);
-    Green4.reflective.append(false);
-    Green4.rangefrom = -4.0;
-    Green4.rangeto = 5.0;
-    Green4.dimension = "K";
-    Green4.gamma = 1.0;
-    Green4.units = SEVIRI_UNIT_BT;
-    ash.Colorvector.append(Green4);
-
-    Blue4.channels.append("IR_108");
-    Blue4.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Blue4.subtract.append(false);
-    Blue4.inverse.append(false);
-    Blue4.reflective.append(false);
-    Blue4.rangefrom = 243.0;
-    Blue4.rangeto = 303.0;
-    Blue4.dimension = "K";
-    Blue4.gamma = 1.0;
-    Blue4.units = SEVIRI_UNIT_BT;
-    ash.Colorvector.append(Blue4);
-
-    rgbrecipes.append(ash);
-
-    //******************
-    //Day Microphysics RGB Summer
-    //******************
-    RGBRecipe day;
-    day.Name = "Day Microphysics RGB Summer";
-    day.needsza = true;
-
-    RGBRecipeColor Red5;
-    RGBRecipeColor Green5;
-    RGBRecipeColor Blue5;
-
-    Red5.channels.append("VIS008");
-    Red5.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS008"));
-    Red5.subtract.append(false);
-    Red5.inverse.append(false);
-    Red5.reflective.append(false);
-    Red5.rangefrom = 0.0;
-    Red5.rangeto = 1.0;
-    Red5.dimension = "%";
-    Red5.gamma = 1.0;
-    Red5.units = SEVIRI_UNIT_REF;
-    day.Colorvector.append(Red5);
-
-    Green5.channels.append("IR_039");
-    Green5.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-    Green5.subtract.append(false);
-    Green5.inverse.append(false);
-    Green5.reflective.append(true);
-    Green5.rangefrom = 0.0;
-    Green5.rangeto = 0.6;
-    Green5.dimension = "%";
-    Green5.gamma = 2.5;
-    Green5.units = SEVIRI_UNIT_REFL39;
-    day.Colorvector.append(Green5);
-
-    Blue5.channels.append("IR_108");
-    Blue5.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Blue5.subtract.append(false);
-    Blue5.inverse.append(false);
-    Blue5.reflective.append(false);
-    Blue5.rangefrom = 203.0;
-    Blue5.rangeto = 323.0;
-    Blue5.dimension = "K";
-    Blue5.gamma = 1.0;
-    Blue5.units = SEVIRI_UNIT_BT;
-    day.Colorvector.append(Blue5);
-
-    rgbrecipes.append(day);
-
-    //******************
-    // Severe Storms RGB
-    //******************
-
-    RGBRecipe storm;
-    storm.Name = "Severe Storms RGB";
-    storm.needsza = false;
-
-    RGBRecipeColor Red6;
-    RGBRecipeColor Green6;
-    RGBRecipeColor Blue6;
-
-    Red6.channels.append("WV_062");
-    Red6.channels.append("WV_073");
-    Red6.spectral_channel_nbr.append(GetSpectralChannelNbr("WV_062"));
-    Red6.spectral_channel_nbr.append(GetSpectralChannelNbr("WV_073"));
-    Red6.subtract.append(false);
-    Red6.subtract.append(true);
-    Red6.inverse.append(false);
-    Red6.inverse.append(false);
-    Red6.reflective.append(false);
-    Red6.reflective.append(false);
-    Red6.rangefrom = -35.0;
-    Red6.rangeto = +5.0;
-    Red6.dimension = "K";
-    Red6.gamma = 1.0;
-    Red6.units = SEVIRI_UNIT_BT;
-    storm.Colorvector.append(Red6);
-
-    Green6.channels.append("IR_039");
-    Green6.channels.append("IR_108");
-    Green6.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-    Green6.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Green6.subtract.append(false);
-    Green6.subtract.append(true);
-    Green6.inverse.append(false);
-    Green6.inverse.append(false);
-    Green6.reflective.append(false);
-    Green6.reflective.append(false);
-    Green6.rangefrom = -5.0;
-    Green6.rangeto = 60.0;
-    Green6.dimension = "K";
-    Green6.gamma = 0.5;
-    Green6.units = SEVIRI_UNIT_BT;
-    storm.Colorvector.append(Green6);
-
-    Blue6.channels.append("IR_016");
-    Blue6.channels.append("VIS006");
-    Blue6.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_016"));
-    Blue6.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS006"));
-    Blue6.subtract.append(false);
-    Blue6.subtract.append(true);
-    Blue6.inverse.append(false);
-    Blue6.inverse.append(false);
-    Blue6.reflective.append(false);
-    Blue6.reflective.append(false);
-    Blue6.rangefrom = -0.75;
-    Blue6.rangeto = 0.25;
-    Blue6.dimension = "%";
-    Blue6.gamma = 1.0;
-    Blue6.units = SEVIRI_UNIT_REF;
-    storm.Colorvector.append(Blue6);
-
-    rgbrecipes.append(storm);
-
-    //******************
-    //Snow RGB
-    //******************
-    RGBRecipe snow;
-    snow.Name = "Snow RGB";
-    snow.needsza = true;
-
-    RGBRecipeColor Red7;
-    RGBRecipeColor Green7;
-    RGBRecipeColor Blue7;
-
-    Red7.channels.append("VIS008");
-    Red7.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS008"));
-    Red7.subtract.append(false);
-    Red7.inverse.append(false);
-    Red7.reflective.append(false);
-    Red7.rangefrom = 0.0;
-    Red7.rangeto = 1.0;
-    Red7.dimension = "%";
-    Red7.gamma = 1.7;
-    Red7.units = SEVIRI_UNIT_BRF;
-    snow.Colorvector.append(Red7);
-
-    Green7.channels.append("IR_016");
-    Green7.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_016"));
-    Green7.subtract.append(false);
-    Green7.inverse.append(false);
-    Green7.reflective.append(false);
-    Green7.rangefrom = 0.0;
-    Green7.rangeto = 0.7;
-    Green7.dimension = "%";
-    Green7.gamma = 1.7;
-    Green7.units = SEVIRI_UNIT_BRF;
-    snow.Colorvector.append(Green7);
-
-    Blue7.channels.append("IR_039");
-    Blue7.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-    Blue7.subtract.append(false);
-    Blue7.inverse.append(false);
-    Blue7.reflective.append(true);
-    Blue7.rangefrom = 0.0;
-    Blue7.rangeto = 0.3;
-    Blue7.dimension = "%";
-    Blue7.gamma = 1.7;
-    Blue7.units = SEVIRI_UNIT_REFL39;
-    snow.Colorvector.append(Blue7);
-
-    rgbrecipes.append(snow);
-
-    //******************
-    //Natual Colours RGB
-    //******************
-    RGBRecipe natural;
-    natural.Name = "Natural Colours RGB";
-    natural.needsza = false;
-
-    RGBRecipeColor Red8;
-    RGBRecipeColor Green8;
-    RGBRecipeColor Blue8;
-
-    Red8.channels.append("IR_016");
-    Red8.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_016"));
-    Red8.subtract.append(false);
-    Red8.inverse.append(false);
-    Red8.reflective.append(false);
-    Red8.rangefrom = 0.0;
-    Red8.rangeto = 0.9;
-    Red8.dimension = "%";
-    Red8.gamma = 1.8;
-    Red8.units = SEVIRI_UNIT_REF;
-    natural.Colorvector.append(Red8);
-
-    Green8.channels.append("VIS008");
-    Green8.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS008"));
-    Green8.subtract.append(false);
-    Green8.inverse.append(false);
-    Green8.reflective.append(false);
-    Green8.rangefrom = 0.0;
-    Green8.rangeto = 0.9;
-    Green8.dimension = "%";
-    Green8.gamma = 1.8;
-    Green8.units = SEVIRI_UNIT_REF;
-    natural.Colorvector.append(Green8);
-
-    Blue8.channels.append("VIS006");
-    Blue8.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS006"));
-    Blue8.subtract.append(false);
-    Blue8.inverse.append(false);
-    Blue8.reflective.append(false);
-    Blue8.rangefrom = 0.0;
-    Blue8.rangeto = 0.9;
-    Blue8.dimension = "%";
-    Blue8.gamma = 1.8;
-    Blue8.units = SEVIRI_UNIT_REF;
-    natural.Colorvector.append(Blue8);
-
-    rgbrecipes.append(natural);
-
-    //***********
-    //Night Microphysics RGB
-    //***********
-    RGBRecipe night;
-    night.Name = "Night Microphysics RGB";
-    night.needsza = false;
-
-    RGBRecipeColor Red9;
-    RGBRecipeColor Green9;
-    RGBRecipeColor Blue9;
-
-    Red9.channels.append("IR_120");
-    Red9.channels.append("IR_108");
-    Red9.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_120"));
-    Red9.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Red9.subtract.append(false);
-    Red9.subtract.append(true);
-    Red9.inverse.append(false);
-    Red9.inverse.append(false);
-    Red9.reflective.append(false);
-    Red9.reflective.append(false);
-    Red9.rangefrom = -4.0;
-    Red9.rangeto = 2.0;
-    Red9.dimension = "K";
-    Red9.gamma = 1.0;
-    Red9.units = SEVIRI_UNIT_BT;
-    night.Colorvector.append(Red9);
-
-    Green9.channels.append("IR_108");
-    Green9.channels.append("IR_039");
-    Green9.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Green9.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-    Green9.subtract.append(false);
-    Green9.subtract.append(true);
-    Green9.inverse.append(false);
-    Green9.inverse.append(false);
-    Green9.reflective.append(false);
-    Green9.reflective.append(false);
-    Green9.rangefrom = 0.0;
-    Green9.rangeto = 10.0;
-    Green9.dimension = "K";
-    Green9.gamma = 1.0;
-    Green9.units = SEVIRI_UNIT_BT;
-    night.Colorvector.append(Green9);
-
-    Blue9.channels.append("IR_108");
-    Blue9.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Blue9.subtract.append(false);
-    Blue9.inverse.append(false);
-    Blue9.reflective.append(false);
-    Blue9.rangefrom = 243.0;
-    Blue9.rangeto = 293.0;
-    Blue9.dimension = "K";
-    Blue9.gamma = 1.0;
-    Blue9.units = SEVIRI_UNIT_BT;
-    night.Colorvector.append(Blue9);
-
-    rgbrecipes.append(night);
-
-    //******************
-    //IR_039 sun reflecetd
-    //******************
-    RGBRecipe sunrefl;
-    sunrefl.Name = "IR_039 sun reflected";
-    sunrefl.needsza = true;
-
-    RGBRecipeColor Red10;
-    RGBRecipeColor Green10;
-    RGBRecipeColor Blue10;
-
-    Red10.channels.append("IR_039");
-    Red10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-    Red10.subtract.append(false);
-    Red10.inverse.append(false);
-    Red10.reflective.append(false);
-    Red10.rangefrom = 0.0;
-    Red10.rangeto = 1.0;
-    Red10.dimension = "%";
-    Red10.gamma = 1.0;
-    Red10.units = SEVIRI_UNIT_REFL39;
-    sunrefl.Colorvector.append(Red10);
-
-    Green10.channels.append("IR_039");
-    Green10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-    Green10.subtract.append(false);
-    Green10.inverse.append(false);
-    Green10.reflective.append(false);
-    Green10.rangefrom = 0.0;
-    Green10.rangeto = 1.0;
-    Green10.dimension = "%";
-    Green10.gamma = 1.0;
-    Green10.units = SEVIRI_UNIT_REFL39;
-    sunrefl.Colorvector.append(Green10);
-
-    Blue10.channels.append("IR_039");
-    Blue10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-    Blue10.subtract.append(false);
-    Blue10.inverse.append(false);
-    Blue10.reflective.append(false);
-    Blue10.rangefrom = 0.0;
-    Blue10.rangeto = 1.0;
-    Blue10.dimension = "%";
-    Blue10.gamma = 1.0;
-    Blue10.units = SEVIRI_UNIT_REFL39;
-    sunrefl.Colorvector.append(Blue10);
-
-    rgbrecipes.append(sunrefl);
-
-    //******************
-    //Day Microphysics RGB Winter
-    //******************
-    RGBRecipe winter;
-    winter.Name = "Day Microphysics RGB Winter";
-    winter.needsza = true;
-
-    RGBRecipeColor Red11;
-    RGBRecipeColor Green11;
-    RGBRecipeColor Blue11;
-
-    Red11.channels.append("VIS008");
-    Red11.spectral_channel_nbr.append(GetSpectralChannelNbr("VIS008"));
-    Red11.subtract.append(false);
-    Red11.inverse.append(false);
-    Red11.reflective.append(false);
-    Red11.rangefrom = 0.0;
-    Red11.rangeto = 1.0;
-    Red11.dimension = "%";
-    Red11.gamma = 1.0;
-    Red11.units = SEVIRI_UNIT_REF;
-    winter.Colorvector.append(Red11);
-
-    Green11.channels.append("IR_039");
-    Green11.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-    Green11.subtract.append(false);
-    Green11.inverse.append(false);
-    Green11.reflective.append(true);
-    Green11.rangefrom = 0.0;
-    Green11.rangeto = 0.25;
-    Green11.dimension = "%";
-    Green11.gamma = 1.5;
-    Green11.units = SEVIRI_UNIT_REFL39;
-    winter.Colorvector.append(Green11);
-
-    Blue11.channels.append("IR_108");
-    Blue11.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_108"));
-    Blue11.subtract.append(false);
-    Blue11.inverse.append(false);
-    Blue11.reflective.append(false);
-    Blue11.rangefrom = 213.0;
-    Blue11.rangeto = 303.0;
-    Blue11.dimension = "K";
-    Blue11.gamma = 1.0;
-    Blue11.units = SEVIRI_UNIT_BT;
-    winter.Colorvector.append(Blue11);
-
-    rgbrecipes.append(winter);
-
-
-
-    //******************
-    //Test RGB
-    //******************
-//    RGBRecipe test;
-//    test.Name = "Test RGB";
-//    test.reflectivechannel = false;
-
-//    RGBRecipeColor Red10;
-//    RGBRecipeColor Green10;
-//    RGBRecipeColor Blue10;
-
-//    Red10.channels.append("IR_039");
-//    Red10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-//    Red10.subtract.append(false);
-//    Red10.inverse.append(false);
-//    Red10.reflective.append(false);
-//    Red10.rangefrom = 250.0;
-//    Red10.rangeto = 355.55;
-//    Red10.dimension = "K";
-//    Red10.gamma = 1.0;
-//    Red10.units = SEVIRI_UNIT_BT;
-//    test.Colorvector.append(Red10);
-
-//    Green10.channels.append("IR_039");
-//    Green10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-//    Green10.subtract.append(false);
-//    Green10.inverse.append(false);
-//    Green10.reflective.append(false);
-//    Green10.rangefrom = 250.0;
-//    Green10.rangeto = 355.55;
-//    Green10.dimension = "K";
-//    Green10.gamma = 1.0;
-//    Green10.units = SEVIRI_UNIT_BT;
-//    test.Colorvector.append(Green10);
-
-//    Blue10.channels.append("IR_039");
-//    Blue10.spectral_channel_nbr.append(GetSpectralChannelNbr("IR_039"));
-//    Blue10.subtract.append(false);
-//    Blue10.inverse.append(false);
-//    Blue10.reflective.append(false);
-//    Blue10.rangefrom = 250.0;
-//    Blue10.rangeto = 355.55;
-//    Blue10.dimension = "K";
-//    Blue10.gamma = 1.0;
-//    Blue10.units = SEVIRI_UNIT_BT;
-//    test.Colorvector.append(Blue10);
-
-//    rgbrecipes.append(test);
-
-    for( int recipe = 0; recipe < rgbrecipes.size(); recipe++)
+    RGBRecipeColor c;
+    c.channels.append(band);
+    c.spectral_channel_nbr.append(SegmentImage::GetSpectralChannelNbr(band));
+    c.subtract.append(false);   // first entry is never subtracted from itself
+    c.inverse.append(inverse);
+    c.reflective.append(reflective);
+    c.units     = units;
+    c.rangefrom = from;
+    c.rangeto   = to;
+    c.gamma     = gamma;
+    c.dimension = (units == SEVIRI_UNIT_BT) ? "K" : "%";
+    return c;
+}
+
+// Append a second channel to an existing RGBRecipeColor (for difference channels)
+static void appendSEVIRIBand(RGBRecipeColor& c, const QString& band, bool subtract)
+{
+    c.channels.append(band);
+    c.spectral_channel_nbr.append(SegmentImage::GetSpectralChannelNbr(band));
+    c.subtract.append(subtract);
+    c.inverse.append(false);
+    c.reflective.append(false);
+}
+
+void SegmentImage::SetupSEVIRIRGBrecipes()
+{
+    // Channel numbers (1-12): VIS006(1) VIS008(2) IR_016(3) IR_039(4)
+    //                         WV_062(5) WV_073(6) IR_087(7) IR_097(8)
+    //                         IR_108(9) IR_120(10) IR_134(11) HRV(12)
+    //
+    // The order of this list is an interface: ComposeGeoRGBRecipeInThread
+    // dispatches the recipes that need their own composer by index, so a recipe
+    // may be appended but not moved.
+
+    // 0 - Airmass RGB
     {
-        for(int colorindex = 0; colorindex < 3; colorindex++)
-        {
-            for(int i = 0; i < rgbrecipes[recipe].Colorvector.at(colorindex).channels.length(); i++)
-            {
-                qDebug() << rgbrecipes[recipe].Name << " " << colorindex << " " << rgbrecipes[recipe].Colorvector.at(colorindex).channels.at(i) << " " <<
-                            rgbrecipes[recipe].Colorvector.at(colorindex).spectral_channel_nbr.at(i) << " " <<
-                            rgbrecipes[recipe].Colorvector.at(colorindex).subtract.at(i);
-            }
-        }
+        RGBRecipe r;
+        r.Name = "SEVIRI Airmass RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeSEVIRIColor("WV_062", SEVIRI_UNIT_BT, -25.0f, 0.0f, 1.0f);
+        appendSEVIRIBand(R, "WV_073", true);
+        RGBRecipeColor G = makeSEVIRIColor("IR_097", SEVIRI_UNIT_BT, -40.0f, 5.0f, 1.0f);
+        appendSEVIRIBand(G, "IR_108", true);
+        RGBRecipeColor B = makeSEVIRIColor("WV_062", SEVIRI_UNIT_BT, 208.0f, 243.0f, 1.0f, true);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
     }
 
+    // 1 - Dust RGB
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI Dust RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeSEVIRIColor("IR_120", SEVIRI_UNIT_BT, -4.0f, 2.0f, 1.0f);
+        appendSEVIRIBand(R, "IR_108", true);
+        RGBRecipeColor G = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT, 0.0f, 15.0f, 2.5f);
+        appendSEVIRIBand(G, "IR_087", true);
+        RGBRecipeColor B = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT, 261.0f, 289.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 2 - 24 hours Microphysics RGB
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI 24 hours Microphysics RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeSEVIRIColor("IR_120", SEVIRI_UNIT_BT, -4.0f, 2.0f, 1.0f);
+        appendSEVIRIBand(R, "IR_108", true);
+        RGBRecipeColor G = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT, 0.0f, 6.0f, 1.2f);
+        appendSEVIRIBand(G, "IR_087", true);
+        RGBRecipeColor B = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT, 248.0f, 303.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 3 - Ash RGB
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI Ash RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeSEVIRIColor("IR_120", SEVIRI_UNIT_BT, -4.0f, 2.0f, 1.0f);
+        appendSEVIRIBand(R, "IR_108", true);
+        RGBRecipeColor G = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT, -4.0f, 5.0f, 1.0f);
+        appendSEVIRIBand(G, "IR_087", true);
+        RGBRecipeColor B = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT, 243.0f, 303.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 4 - Day Microphysics RGB Summer
+    // Composed by ComposeDayMicrophysicsRGB: the green is the solar part of
+    // IR_039, which has to be separated from the thermal part first.
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI Day Microphysics RGB Summer";
+        r.needsza = true;
+        RGBRecipeColor R = makeSEVIRIColor("VIS008", SEVIRI_UNIT_REF,    0.0f, 1.0f, 1.0f);
+        RGBRecipeColor G = makeSEVIRIColor("IR_039", SEVIRI_UNIT_REFL39, 0.0f, 0.6f, 2.5f, false, true);
+        RGBRecipeColor B = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT,   203.0f, 323.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 5 - Severe Storms RGB
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI Severe Storms RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeSEVIRIColor("WV_062", SEVIRI_UNIT_BT, -35.0f, 5.0f, 1.0f);
+        appendSEVIRIBand(R, "WV_073", true);
+        RGBRecipeColor G = makeSEVIRIColor("IR_039", SEVIRI_UNIT_BT, -5.0f, 60.0f, 0.5f);
+        appendSEVIRIBand(G, "IR_108", true);
+        RGBRecipeColor B = makeSEVIRIColor("IR_016", SEVIRI_UNIT_REF, -0.75f, 0.25f, 1.0f);
+        appendSEVIRIBand(B, "VIS006", true);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 6 - Snow RGB
+    // Composed by ComposeSnowRGB, for the same reason as Day Microphysics.
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI Snow RGB";
+        r.needsza = true;
+        RGBRecipeColor R = makeSEVIRIColor("VIS008", SEVIRI_UNIT_BRF,    0.0f, 1.0f, 1.7f);
+        RGBRecipeColor G = makeSEVIRIColor("IR_016", SEVIRI_UNIT_BRF,    0.0f, 0.7f, 1.7f);
+        RGBRecipeColor B = makeSEVIRIColor("IR_039", SEVIRI_UNIT_REFL39, 0.0f, 0.3f, 1.7f, false, true);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 7 - Natural Colours RGB
+    // The one SEVIRI recipe read as a picture rather than as a diagnostic, so
+    // the only one worth Rayleigh-correcting. It acts almost entirely on the
+    // blue, VIS006 being the only channel here with any appreciable optical
+    // depth, which lifts the haze off ocean and dark land.
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI Natural Colours RGB";
+        r.needsza = false;
+        r.rayleigh = true;
+        RGBRecipeColor R = makeSEVIRIColor("IR_016", SEVIRI_UNIT_REF, 0.0f, 0.9f, 1.8f);
+        RGBRecipeColor G = makeSEVIRIColor("VIS008", SEVIRI_UNIT_REF, 0.0f, 0.9f, 1.8f);
+        RGBRecipeColor B = makeSEVIRIColor("VIS006", SEVIRI_UNIT_REF, 0.0f, 0.9f, 1.8f);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 8 - Night Microphysics RGB
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI Night Microphysics RGB";
+        r.needsza = false;
+        RGBRecipeColor R = makeSEVIRIColor("IR_120", SEVIRI_UNIT_BT, -4.0f, 2.0f, 1.0f);
+        appendSEVIRIBand(R, "IR_108", true);
+        RGBRecipeColor G = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT, 0.0f, 10.0f, 1.0f);
+        appendSEVIRIBand(G, "IR_039", true);
+        RGBRecipeColor B = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT, 243.0f, 293.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 9 - IR_039 sun reflected
+    // Grey: the solar part of IR_039 on all three colours.
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI IR_039 sun reflected";
+        r.needsza = true;
+        RGBRecipeColor C = makeSEVIRIColor("IR_039", SEVIRI_UNIT_REFL39, 0.0f, 1.0f, 1.0f);
+        r.Colorvector << C << C << C;
+        seviri_rgbrecipes.append(r);
+    }
+
+    // 10 - Day Microphysics RGB Winter
+    // Same channels as the summer recipe; the green is stretched over a quarter
+    // of the range because a low winter sun reflects that much less.
+    {
+        RGBRecipe r;
+        r.Name = "SEVIRI Day Microphysics RGB Winter";
+        r.needsza = true;
+        RGBRecipeColor R = makeSEVIRIColor("VIS008", SEVIRI_UNIT_REF,    0.0f, 1.0f, 1.0f);
+        RGBRecipeColor G = makeSEVIRIColor("IR_039", SEVIRI_UNIT_REFL39, 0.0f, 0.25f, 1.5f, false, true);
+        RGBRecipeColor B = makeSEVIRIColor("IR_108", SEVIRI_UNIT_BT,   213.0f, 303.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        seviri_rgbrecipes.append(r);
+    }
 }
 
 int SegmentImage::GetFCIBandIndex(const QString& bandname)

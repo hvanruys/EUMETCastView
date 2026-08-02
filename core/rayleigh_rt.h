@@ -97,6 +97,16 @@ public:
      */
     static const Solution &forBand(int bandIndex);
 
+    /**
+     * Cached solution for an arbitrary optical depth, for instruments whose
+     * bands are not in the FCI table.
+     *
+     * Thread-safe, but it takes a lock and a miss costs a full solve. Resolve
+     * once per band outside the pixel loop and hold the reference, which stays
+     * valid for the lifetime of the process.
+     */
+    static const Solution &forTau(double tau);
+
     /** Refractive index of sea water in the visible. */
     static constexpr double WaterRefractiveIndex = 1.34;
 
@@ -113,6 +123,21 @@ public:
 
     /** Total transmittance along one path. */
     static double transmittance(const Solution &s, double mu);
+
+    /**
+     * Total transmittance along the solar path, spherical.
+     *
+     * The same quantity as transmittance(), evaluated at the effective cosine
+     * 1/Chapman rather than at cos(sza), so it describes the same sun that
+     * toaPathReflectance already integrates along. Below about 80 degrees the
+     * two agree to a fraction of a percent; past that the flat-atmosphere
+     * cosine understates how much light gets through, and it understates it
+     * most at large optical depth - which makes the disagreement a colour cast
+     * rather than a brightness error.
+     *
+     * @return 0 where the Earth blocks the path to the sun at ground level
+     */
+    static double transmittanceSpherical(const Solution &s, double szaDeg);
 
     /**
      * Chapman air mass: the slant column to the sun through a spherical,

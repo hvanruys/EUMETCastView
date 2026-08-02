@@ -85,6 +85,18 @@ enum eRecipeCompose {
 struct RGBRecipe {
   QString Name;
   bool needsza;
+  /**
+   * Correct the solar channels for Rayleigh scattering before composing.
+   *
+   * Only for recipes meant to look like a photograph. The classic diagnostic
+   * RGBs - Dust, Airmass, Severe Storms - are defined on uncorrected
+   * top-of-atmosphere reflectance, and correcting them would move the colours
+   * away from the reference images they are read against.
+   *
+   * Implies the per-pixel geometry that needsza asks for, since the correction
+   * needs the same solar and viewing angles.
+   */
+  bool rayleigh = false;
   eRecipeCompose compose = RECIPE_ADDITIVE;
   /**
    * Bands a composer needs beyond the ones the three colours name.
@@ -133,8 +145,8 @@ public:
     bool bhm_line(int x1, int y1, int x2, int y2, QRgb rgb1, QRgb rgb2, QRgb *canvas, int dimx);
     void MapInterpolation(QRgb *canvas, quint16 dimx, quint16 dimy);
     void MapCanvas(QRgb *canvas, qint32 anchorX, qint32 anchorY, quint16 dimx, quint16 dimy, bool combine);
-    void SetupRGBrecipes();
-    int GetSpectralChannelNbr(QString channel);
+    void SetupSEVIRIRGBrecipes();
+    static int GetSpectralChannelNbr(QString channel);
     void SetupFCIRGBrecipes();
     int GetFCIBandIndex(const QString& bandname);
 
@@ -257,7 +269,7 @@ public:
     QScopedArrayPointer<float> *data;		/* array of pointers to images of length n_bands */
     QScopedArrayPointer<float> data2;		/* array of image data of length n_bands * n_lines * n_columns */
 
-    QList<RGBRecipe> rgbrecipes;
+    QList<RGBRecipe> seviri_rgbrecipes;
     QList<RGBRecipe> fci_rgbrecipes;
 
 

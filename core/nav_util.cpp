@@ -551,9 +551,15 @@ int snu_vza_and_vaa(double lat, double lon, double height,
      qv[1] = Y - y;
      qv[2] = Z - z;
 
+     /* Local east-north-up. The up axis is (cos_lat*cos_lon, cos_lat*sin_lon,
+        sin_lat); the sin_lon term used to carry a minus sign, which left the
+        zenith angle right only where sin_lon is small. A satellite over the
+        Greenwich meridian therefore looked almost correct while one at 45.5 E
+        reported 180 degrees at its own sub-satellite point. North and east were
+        never affected, which is why the azimuth always came out right. */
      u [0] = -sin_lat * cos_lon * qv[0] + -sin_lat * sin_lon * qv[1] + cos_lat * qv[2];
      u [1] = -sin_lon *           qv[0] +  cos_lon           * qv[1];
-     u [2] =  cos_lat * cos_lon * qv[0] + -cos_lat * sin_lon * qv[1] + sin_lat * qv[2];
+     u [2] =  cos_lat * cos_lon * qv[0] +  cos_lat * sin_lon * qv[1] + sin_lat * qv[2];
 
      *vza = acos(u[2] / sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])) * R2D;
 
