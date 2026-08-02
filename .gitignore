@@ -1,4 +1,6 @@
 build/
+build-test/
+build-verify/
 bin/
 libs/
 hugostoken
