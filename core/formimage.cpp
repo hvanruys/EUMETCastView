@@ -1747,6 +1747,32 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         OverlayGeostationaryHRV(paint, sl, geoindex);
 }
 
+// Geographic position to a pixel of the geostationary image on display.
+// MET-12 needs the FCI grid navigation : the CGMS scaling constants in the
+// settings only approximate it, which shows as a latitude dependent north/south
+// offset against the imagery. Its grid also runs south to north and counts
+// columns from one, so the row is flipped and the column shifted, the same way
+// the composition writes its scanlines.
+int FormImage::geoToImagePixel(SegmentListGeostationary *sl, double lat_deg, double lon_deg,
+                               int coff, int loff, double cfac, double lfac, int *col, int *row)
+{
+    pixgeoConversion pixconv;
+
+    if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
+    {
+        int grid_row;
+        if(pixconv.geocoord2pixcoordFCI(sl->geosatlon, lat_deg, lon_deg, col, &grid_row,
+                                        fciSsdFromImageWidth(m_image->width())) != 0)
+            return (-1);
+
+        *col = *col - 1;
+        *row = m_image->height() - grid_row;
+        return 0;
+    }
+
+    return pixconv.geocoord2pixcoord(sl->geosatlon, lat_deg, lon_deg, coff, loff, cfac, lfac, col, row);
+}
+
 void FormImage::DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int coff, int loff, double cfac, double lfac, bool hrvimage)
 {
     int col, save_col;
@@ -1757,15 +1783,12 @@ void FormImage::DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int c
     double lon_deg;
     int ret;
 
-    pixgeoConversion pixconv;
-
-    double sub_lon = sl->geosatlon;
     lat_deg = opts.obslat;
     lon_deg = opts.obslon;
     if (lon_deg > 180.0)
         lon_deg -= 360.0;
 
-    ret = pixconv.geocoord2pixcoord(sub_lon, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
+    ret = this->geoToImagePixel(sl, lat_deg, lon_deg, coff, loff, cfac, lfac, &col, &row);
     if(ret == 0)
     {
         if(hrvimage)
@@ -1800,7 +1823,7 @@ void FormImage::DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int c
         {
             for(double lat = -90.0; lat < 90.0; lat+=0.5)
             {
-                ret =pixconv.geocoord2pixcoord(sub_lon, lat, lon, coff, loff, cfac, lfac, &col, &row);
+                ret = this->geoToImagePixel(sl, lat, lon, coff, loff, cfac, lfac, &col, &row);
                 if(hrvimage && sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
                 {
                     if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
@@ -1847,7 +1870,7 @@ void FormImage::DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int c
         {
             for(double lon = -180.0; lon < 180.0; lon+=1.0)
             {
-                ret =pixconv.geocoord2pixcoord(sub_lon, lat, lon, coff, loff, cfac, lfac, &col, &row);
+                ret = this->geoToImagePixel(sl, lat, lon, coff, loff, cfac, lfac, &col, &row);
                 if(hrvimage && sl->getGeoSatellite() != eGeoSatellite::FY2H && sl->getGeoSatellite() != eGeoSatellite::FY2G)
                 {
                     if (row > 11136 - sl->LowerNorthLineActual ) //LOWER
