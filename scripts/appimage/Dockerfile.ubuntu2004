@@ -1,0 +1,104 @@
+# Build environment for an AppImage that runs on older systems than this one.
+#
+# glibc is backward compatible but never forward compatible: a binary compiled
+# on Ubuntu 24.04 asks for symbols like fmod@GLIBC_2.38 that an older host
+# simply does not have, and an AppImage cannot paper over that by bundling
+# glibc - the loader, NSS and the graphics drivers have to come from the host.
+# The only real fix is to compile on the oldest distribution the AppImage has
+# to run on, which is what this image is for.
+#
+# Ubuntu 20.04 gives glibc 2.31, and g++-10 gives GLIBCXX_3.4.28. Those are
+# exactly the ceilings the failing machine reported: it was missing GLIBC_2.32
+# and up, and GLIBCXX_3.4.29 and up, so it has 2.31 and 3.4.28 itself. g++-10
+# rather than the default g++-9 because the project asks for C++20; it needs
+# nothing at runtime that 20.04 does not already ship, since 20.04's own
+# libstdc++6 comes from GCC 10.
+#
+# Qt is deliberately not installed here. Ubuntu 20.04 has no Qt 6 packages at
+# all, and the host's Qt 6.9.2 is portable on its own account - its libraries
+# only need glibc 2.28 - so the wrapper script bind mounts it at the same path
+# it has on the host.
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        gcc-10 \
+        g++-10 \
+        make \
+        pkg-config \
+        ca-certificates \
+        curl \
+        file \
+        desktop-file-utils \
+        libhdf5-dev \
+        libnetcdf-dev \
+        libarchive-dev \
+        libfreeimage-dev \
+        mesa-common-dev \
+        libgl1-mesa-dev \
+        libglu1-mesa-dev \
+        libegl1-mesa-dev \
+        libxkbcommon-dev \
+        libxkbcommon-x11-dev \
+        libfontconfig1-dev \
+        libfreetype6-dev \
+        libcups2 \
+        libdbus-1-dev \
+        libglib2.0-dev \
+        libx11-xcb-dev \
+        libxcb1-dev \
+        libxcb-cursor0 \
+        libxcb-glx0 \
+        libxcb-icccm4 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-randr0 \
+        libxcb-render-util0 \
+        libxcb-shape0 \
+        libxcb-sync1 \
+        libxcb-xfixes0 \
+        libxcb-xinerama0 \
+        libxcb-xkb1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 20.04 ships CMake 3.16, and PublicDecompWT's sub-projects ask for 3.18. This
+# is the same version Ubuntu 24.04 ships, so a container build and a native one
+# run identical CMake logic and only the toolchain below them differs. Into
+# /usr/local because that is on PATH for the container even when the wrapper
+# script sets PATH explicitly.
+ARG CMAKE_VERSION=3.28.3
+RUN curl -fsSL "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz" \
+    | tar -xz -C /usr/local --strip-components=1
+
+# Qt 6.9's OpenSSL TLS backend links libssl.so.3, and 20.04 only has OpenSSL
+# 1.1.1. Without it linuxdeploy quietly deploys the certificate-only backend
+# instead, which leaves the AppImage unable to speak HTTPS - and this
+# application downloads its TLE files from Celestrak over HTTPS. The 24.04
+# build bundles libssl.so.3 and libcrypto.so.3 into the AppDir for the same
+# reason; it just gets them from the distribution.
+#
+# Built from source rather than borrowed from a newer Ubuntu, because a libssl3
+# package from jammy needs glibc 2.34 and would put the floor straight back
+# where it started. Compiled here it links against 20.04's own glibc 2.31.
+ARG OPENSSL_VERSION=3.0.16
+RUN curl -fsSL "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" \
+        -o /tmp/openssl.tar.gz \
+    && mkdir -p /tmp/openssl && tar -xzf /tmp/openssl.tar.gz -C /tmp/openssl --strip-components=1 \
+    && cd /tmp/openssl \
+    && ./Configure linux-x86_64 --prefix=/usr/local --libdir=lib --openssldir=/usr/local/ssl shared no-tests \
+    && make -j"$(nproc)" \
+    && make install_sw \
+    && ldconfig \
+    && rm -rf /tmp/openssl /tmp/openssl.tar.gz
+
+# CMake picks these up, so the build uses GCC 10 without the build script or
+# CMakeLists having to know anything about the container.
+ENV CC=gcc-10 \
+    CXX=g++-10
+
+# linuxdeploy, its Qt plugin and appimagetool are AppImages themselves, and
+# mounting them needs FUSE, which is not available in a rootless container.
+# All three honour this variable by unpacking themselves instead.
+ENV APPIMAGE_EXTRACT_AND_RUN=1
