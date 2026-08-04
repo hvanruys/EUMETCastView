@@ -8,4 +8,6 @@ CMakeLists.txt.user
 .worktrees/
 build-appimage/
 AppDir/
+build-appimage-ubuntu2004/
+AppDir-ubuntu2004/
 *.AppImage

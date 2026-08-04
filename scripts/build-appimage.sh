@@ -6,9 +6,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-BUILD_DIR="$REPO_ROOT/build-appimage"
-APPDIR="$REPO_ROOT/AppDir"
-OUTPUT="$REPO_ROOT/EUMETCastView-x86_64.AppImage"
+# Overridable so a build in the Ubuntu 20.04 container (see
+# build-appimage-container.sh) can keep its own CMake cache and AppDir: those
+# hold absolute paths to a compiler and libraries that only exist on one side
+# of the container boundary, and reusing them across a boundary fails in
+# confusing ways.
+BUILD_DIR="${BUILD_DIR:-$REPO_ROOT/build-appimage}"
+APPDIR="${APPDIR:-$REPO_ROOT/AppDir}"
+OUTPUT="${OUTPUT:-$REPO_ROOT/EUMETCastView-x86_64.AppImage}"
 BIN_DIR="$REPO_ROOT/bin"
 
 LINUXDEPLOY="${LINUXDEPLOY:-$HOME/AppImages/linuxdeploy-x86_64.AppImage}"
@@ -180,6 +185,25 @@ echo "==> Running linuxdeploy"
     --desktop-file "$APPDIR/usr/share/applications/EUMETCastView.desktop" \
     --icon-file "$APPDIR/usr/share/icons/hicolor/48x48/apps/EUMETCastView.png" \
     --plugin qt
+
+# Qt reaches OpenSSL through dlopen instead of linking it — libqopensslbackend.so
+# has no NEEDED entry for libssl — so linuxdeploy cannot see the dependency and
+# never bundles it. On a host whose OpenSSL is already 3.x the libraries come
+# along anyway, as a transitive dependency of something else that does link
+# them, which is why this has never needed saying. In the Ubuntu 20.04
+# container they do not: 20.04 carries OpenSSL 1.1.1 and Qt 6.9 dlopens
+# libssl.so.3 by name. Without these two the TLS backend falls back to
+# certificate-only and the TLE download from Celestrak fails over HTTPS.
+if [ -n "${OPENSSL3_LIB_DIR:-}" ]; then
+    echo "==> Bundling OpenSSL 3 from $OPENSSL3_LIB_DIR"
+    for lib in libssl.so.3 libcrypto.so.3; do
+        if [ ! -f "$OPENSSL3_LIB_DIR/$lib" ]; then
+            echo "Missing $OPENSSL3_LIB_DIR/$lib; the AppImage would have no HTTPS support." >&2
+            exit 1
+        fi
+        cp "$OPENSSL3_LIB_DIR/$lib" "$APPDIR/usr/lib/$lib"
+    done
+fi
 
 echo "==> Running appimagetool"
 rm -f "$OUTPUT"
