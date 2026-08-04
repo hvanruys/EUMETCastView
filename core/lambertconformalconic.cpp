@@ -316,6 +316,13 @@ void LambertConformalConic::CreateMapFromGeostationary()
     if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
         hrvmap = 1;
 
+    // MET-12 composes either the 1 km (11136) or the 2 km (5568) FCI grid,
+    // depending on the channels in the image, so the grid to reproject from
+    // follows the image that was actually composed.
+    int fciwidth = imageptrs->ptrimageGeostationary->width();
+    int fciheight = imageptrs->ptrimageGeostationary->height();
+    double fcissd = fciSsdFromImageWidth(fciwidth);
+
     int LECA = 0;
     int LSLA = 0;
     int LWCA = 0;
@@ -472,13 +479,14 @@ void LambertConformalConic::CreateMapFromGeostationary()
                 {
                     // Use FCI-specific WGS-84 projection (matches setupGshhs overlay path)
                     int save_row;
-                    if(pixconv.geocoord2pixcoordFCI(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, &col, &save_row) == 0)
+                    if(pixconv.geocoord2pixcoordFCI(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, &col, &save_row, fcissd) == 0)
                     {
-                        picrow = 11136 - save_row;
-                        if(picrow >= 0 && picrow < imageptrs->ptrimageGeostationary->height())
+                        picrow = fciheight - save_row;
+                        piccol = col - 1;
+                        if(picrow >= 0 && picrow < fciheight && piccol >= 0 && piccol < fciwidth)
                         {
                             scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
-                            rgbval = scanl[col];
+                            rgbval = scanl[piccol];
                             fb_painter.setPen(rgbval);
                             fb_painter.drawPoint(i,j);
                         }

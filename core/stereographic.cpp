@@ -20,7 +20,6 @@ StereoGraphic::StereoGraphic(QObject *parent, AVHRRSatellite *seglist) :
     false_northing = 0;
     false_easting = 0;
     scale = opts.mapsgscale;
-    double map_x,map_y;
 
     image_width = 0;
     image_height = 0;
@@ -29,12 +28,7 @@ StereoGraphic::StereoGraphic(QObject *parent, AVHRRSatellite *seglist) :
 //    Initialize(opts.mapsglon, opts.mapsglat, opts.mapsgscale, opts.mapwidth, opts.mapheight);
     Initialize(0.0, 0.0, 1.0, opts.mapwidth, opts.mapheight, 0, 0);
     qDebug() << "mapwidth = " << opts.mapwidth << " mapheight = " << opts.mapheight;
-    if(forward(0, opts.mapsgradius*PIE/180.0, map_x, map_y))
-        map_radius = fabs(map_y);
-    else
-        qDebug() << "wrong map_radius";
     qDebug() << "StereoGraphic::StereoGraphic =======> " << map_radius;
-    map_radius =1000000;
 }
 
 
@@ -51,6 +45,18 @@ void StereoGraphic::Initialize(double center_lon, double center_lat, double insc
 #else
     sincos(lat_origin, &sin_p10, &cos_p10);
 #endif
+
+    // The map disc has to end at the configured radius, so take the distance
+    // the forward projection gives for a point that far from the centre.
+    // Straight north of the centre will do : a stereographic map only depends
+    // on the angular distance to the centre, so the result is the same in any
+    // direction. Keeps the previous radius when the point cannot be projected,
+    // which is the antipode at 180 degrees.
+    double radius_x, radius_y;
+    if(forward(lon_center, lat_origin + opts.mapsgradius*PIE/180.0, radius_x, radius_y))
+        map_radius = sqrt(radius_x * radius_x + radius_y * radius_y);
+    else
+        qDebug() << "wrong map_radius";
 
     image_width = imagewidth;
     image_height = imageheight;
@@ -146,6 +152,13 @@ void StereoGraphic::CreateMapFromGeostationary()
 
     if(sl->getKindofImage() == "HRV" || sl->getKindofImage() == "HRV Color")
         hrvmap = 1;
+
+    // MET-12 composes either the 1 km (11136) or the 2 km (5568) FCI grid,
+    // depending on the channels in the image, so the grid to reproject from
+    // follows the image that was actually composed.
+    int fciwidth = imageptrs->ptrimageGeostationary->width();
+    int fciheight = imageptrs->ptrimageGeostationary->height();
+    double fcissd = fciSsdFromImageWidth(fciwidth);
 
     int LECA = 0;
     int LSLA = 0;
@@ -292,13 +305,14 @@ void StereoGraphic::CreateMapFromGeostationary()
                 {
                     // Use FCI-specific WGS-84 projection (matches setupGshhs overlay path)
                     int save_row;
-                    if(pixconv.geocoord2pixcoordFCI(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, &col, &save_row) == 0)
+                    if(pixconv.geocoord2pixcoordFCI(sub_lon, lat_rad*180.0/PIE, lon_rad*180.0/PIE, &col, &save_row, fcissd) == 0)
                     {
-                        picrow = 11136 - save_row;
-                        if(picrow >= 0 && picrow < imageptrs->ptrimageGeostationary->height())
+                        picrow = fciheight - save_row;
+                        piccol = col - 1;
+                        if(picrow >= 0 && picrow < fciheight && piccol >= 0 && piccol < fciwidth)
                         {
                             scanl = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(picrow);
-                            rgbval = scanl[col];
+                            rgbval = scanl[piccol];
                             fb_painter.setPen(rgbval);
                             fb_painter.drawPoint(i,j);
                         }

@@ -1163,14 +1163,13 @@ LatLonToGridResult pixgeoConversion::fci_latlon_to_grid(const std::vector<double
         double dy = y - y_sat;
         double dz = z - z_sat;
 
-        // Check visibility
-        double distance = std::sqrt(dx * dx + dy * dy + dz * dz);
-        double cos_angle = -dx / distance;
-        double horizon_angle = std::asin(r_eq / h);
-
-        double g = cos_lat * cos_lon;
-        bool visible = g >= (1.0/distance);
-
+        // Check visibility : dot product between the vector from the point to
+        // the satellite and the ellipsoid normal in that point. Positive means
+        // the point faces the satellite, so it lies on the visible disc. Same
+        // criterion as geocoord2pixcoord, page 24 of the CGMS LRIT/HRIT global
+        // specification.
+        double dotprod = -dx * x - y * y - z * z * (r_eq / r_pol) * (r_eq / r_pol);
+        bool visible = dotprod > 0.0;
 
         // Calculate viewing angles
         double rho_c = std::sqrt(dx * dx + dy * dy);
@@ -1264,14 +1263,23 @@ int pixgeoConversion::pixcoord2geocoordFCI(double sub_lon_deg, int column, int r
 
 }
 
-int pixgeoConversion::geocoord2pixcoordFCI(double sub_lon_deg, double latitude, double longitude, int *column, int *row)
+int pixgeoConversion::geocoord2pixcoordFCI(double sub_lon_deg, double latitude, double longitude, int *column, int *row, double ssd)
 {
     std::vector<double> lats = {latitude};
     std::vector<double> lons = {longitude};
-    auto res = fci_latlon_to_grid(lats, lons, 1.0);
-    int i_col = std::round(res.columns[0]);
-    int i_row = std::round(res.rows[0]);
-    *column = i_col;
-    *row = i_row;
+    auto res = fci_latlon_to_grid(lats, lons, ssd);
+
+    // Points behind the limb come back as NaN. Rounding those to an int is
+    // undefined behaviour, so they have to be rejected here, the same way
+    // geocoord2pixcoord rejects invisible points.
+    if(std::isnan(res.columns[0]) || std::isnan(res.rows[0]))
+    {
+        *column = -999;
+        *row = -999;
+        return (-1);
+    }
+
+    *column = std::round(res.columns[0]);
+    *row = std::round(res.rows[0]);
     return 0;
 }

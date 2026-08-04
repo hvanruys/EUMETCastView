@@ -129,7 +129,7 @@ public:
     double calc_sa(double sub_lon_deg, int column, int row, int coff, int loff, double cfac, double lfac, double *latitude, double *longitude);
     int geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, int coff, int loff, double cfac, double lfac, int *column, int *row);
     int pixcoord2geocoordFCI(double sub_lon_deg, int column, int row, double *latitude, double *longitude);
-    int geocoord2pixcoordFCI(double sub_lon_deg, double latitude, double longitude, int *column, int *row);
+    int geocoord2pixcoordFCI(double sub_lon_deg, double latitude, double longitude, int *column, int *row, double ssd = 1.0);
 
 
     int nint(double val);
@@ -217,6 +217,19 @@ static GridParams get_grid_2km() {
             0.1555618893, -0.1555618893, GRID_SAMPLING_2KM};
 }
 };
+
+// Each FCI sample separation distance has exactly one full disc size, so the
+// width of a composed FCI image tells which grid its columns and rows belong
+// to : 5568 columns is the 2 km grid, 11136 the 1 km grid, 22272 the 0.5 km one.
+inline double fciSsdFromImageWidth(int imagewidth)
+{
+    if (imagewidth >= 22272)
+        return 0.5;
+    else if (imagewidth >= 11136)
+        return 1.0;
+    else
+        return 2.0;
+}
 
 // Structure to hold geographic coordinates
 struct GeoCoord {
