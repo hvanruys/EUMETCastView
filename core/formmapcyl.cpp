@@ -256,7 +256,6 @@ void FormMapCyl::showSegmentCount()
     int cntolcierr = segs->seglolcierr->NbrOfSegments();
     int cntmersi = segs->seglmersi->NbrOfSegments();
 
-    qDebug() << "1";
     long totsegsel = cntselmetop + cntselmetopsga1 + cntselhrp + cntselviirsm + cntselviirsdnb  + cntselviirsmnoaa20 + cntselviirsdnbnoaa20 + cntselviirsmnoaa21 + cntselviirsdnbnoaa21
                      + cntselolciefr + cntselolcierr + cntselmersi;
 
@@ -268,8 +267,6 @@ void FormMapCyl::showSegmentCount()
     {
         ui->btnRemoveSelected->setText(" No selected segments ");
     }
-
-    qDebug() << "2";
 
     ui->btnMetop->setText((QString(" Metop A/B/C # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
     ui->btnHRP->setText((QString(" Metop A/B/C HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
@@ -287,7 +284,6 @@ void FormMapCyl::showSegmentCount()
     ui->btnOLCIerr->setText((QString(" OLCI ERR # %1/%2 ").arg(cntselolcierr).arg(cntolcierr)));
 
     ui->btnMERSI->setText((QString(" FY-3D # %1/%2 ").arg(cntselmersi).arg(cntmersi)));
-    qDebug() << "3";
 
 }
 
@@ -316,46 +312,50 @@ void FormMapCyl::updatesatmap(int index)
         {
             segs->seglmetop->ShowSegment(ui->verticalScrollBar->value());
         } else
-            if (opts.buttonHRP)
+            if (opts.buttonMetopSGA1)
             {
-                segs->seglhrp->ShowSegment(ui->verticalScrollBar->value());
+                segs->seglmetopsga1->ShowSegment(ui->verticalScrollBar->value());
             } else
-                if (opts.buttonVIIRSM)
+                if (opts.buttonHRP)
                 {
-                    segs->seglviirsm->ShowSegment(ui->verticalScrollBar->value());
+                    segs->seglhrp->ShowSegment(ui->verticalScrollBar->value());
                 } else
-                    if (opts.buttonVIIRSDNB)
+                    if (opts.buttonVIIRSM)
                     {
-                        segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
+                        segs->seglviirsm->ShowSegment(ui->verticalScrollBar->value());
                     } else
-                        if (opts.buttonVIIRSMNOAA20)
+                        if (opts.buttonVIIRSDNB)
                         {
-                            segs->seglviirsmnoaa20->ShowSegment(ui->verticalScrollBar->value());
+                            segs->seglviirsdnb->ShowSegment(ui->verticalScrollBar->value());
                         } else
-                            if (opts.buttonVIIRSDNBNOAA20)
+                            if (opts.buttonVIIRSMNOAA20)
                             {
-                                segs->seglviirsdnbnoaa20->ShowSegment(ui->verticalScrollBar->value());
+                                segs->seglviirsmnoaa20->ShowSegment(ui->verticalScrollBar->value());
                             } else
-                                if (opts.buttonVIIRSMNOAA21)
+                                if (opts.buttonVIIRSDNBNOAA20)
                                 {
-                                    segs->seglviirsmnoaa21->ShowSegment(ui->verticalScrollBar->value());
+                                    segs->seglviirsdnbnoaa20->ShowSegment(ui->verticalScrollBar->value());
                                 } else
-                                    if (opts.buttonVIIRSDNBNOAA21)
+                                    if (opts.buttonVIIRSMNOAA21)
                                     {
-                                        segs->seglviirsdnbnoaa21->ShowSegment(ui->verticalScrollBar->value());
+                                        segs->seglviirsmnoaa21->ShowSegment(ui->verticalScrollBar->value());
                                     } else
-                                        if (opts.buttonOLCIefr)
+                                        if (opts.buttonVIIRSDNBNOAA21)
                                         {
-                                            segs->seglolciefr->ShowSegment(ui->verticalScrollBar->value());
+                                            segs->seglviirsdnbnoaa21->ShowSegment(ui->verticalScrollBar->value());
                                         } else
-                                            if (opts.buttonOLCIerr)
+                                            if (opts.buttonOLCIefr)
                                             {
-                                                segs->seglolcierr->ShowSegment(ui->verticalScrollBar->value());
+                                                segs->seglolciefr->ShowSegment(ui->verticalScrollBar->value());
                                             } else
-                                                if (opts.buttonMERSI)
+                                                if (opts.buttonOLCIerr)
                                                 {
-                                                    segs->seglmersi->ShowSegment(ui->verticalScrollBar->value());
-                                                }
+                                                    segs->seglolcierr->ShowSegment(ui->verticalScrollBar->value());
+                                                } else
+                                                    if (opts.buttonMERSI)
+                                                    {
+                                                        segs->seglmersi->ShowSegment(ui->verticalScrollBar->value());
+                                                    }
 
         mapcyl->update();
     }
@@ -366,6 +366,9 @@ void FormMapCyl::updatesatmap(int index)
         if (opts.buttonMetop )
         {
             tit = "Metop ";
+        } else if (opts.buttonMetopSGA1)
+        {
+            tit = "METIMAGE ";
         } else if (opts.buttonHRP)
         {
             tit = "HRP ";
@@ -394,6 +397,7 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
 {
 
     opts.buttonMetop = segtype == eSegmentType::SEG_METOP ? true : false;
+    opts.buttonMetopSGA1 = segtype == eSegmentType::SEG_METOPSGA1 ? true : false;
     opts.buttonHRP = segtype == eSegmentType::SEG_HRP ? true : false;
     opts.buttonVIIRSM = segtype == eSegmentType::SEG_VIIRSM ? true : false;
     opts.buttonVIIRSDNB = segtype == eSegmentType::SEG_VIIRSDNB ? true : false;
@@ -407,9 +411,8 @@ void FormMapCyl::toggleButton(eSegmentType segtype)
     opts.buttonMERSI = segtype == eSegmentType::SEG_MERSI ? true : false;
 
     ui->btnMetop->setChecked(opts.buttonMetop);
+    ui->btnMetopSGA1->setChecked(opts.buttonMetopSGA1);
     ui->btnHRP->setChecked(opts.buttonHRP);
-
-
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
     ui->btnVIIRSDNB->setChecked(opts.buttonVIIRSDNB);
     ui->btnVIIRSMNOAA20->setChecked(opts.buttonVIIRSMNOAA20);
@@ -444,6 +447,11 @@ void FormMapCyl::setScrollBarMaximum()
     {
         ui->verticalScrollBar->setMaximum(segs->seglmetop->NbrOfSegments());
         qDebug() << QString("setscrollbarmaximum metop = %1").arg(segs->seglmetop->NbrOfSegments());
+    }
+    else if (opts.buttonMetopSGA1)
+    {
+        ui->verticalScrollBar->setMaximum(segs->seglmetopsga1->NbrOfSegments());
+        qDebug() << QString("setscrollbarmaximum metop = %1").arg(segs->seglmetopsga1->NbrOfSegments());
     }
     else if (opts.buttonHRP)
     {
@@ -517,6 +525,14 @@ void FormMapCyl::showSegmentList(int value)
         nbrseg = segs->seglmetop->NbrOfSegments();
 
         outp = QString("Metop From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
+    }
+    else if(opts.buttonMetopSGA1)
+    {
+        segs->seglmetopsga1->ShowSegment(value);
+        segs->seglmetopsga1->GetFirstLastVisible(&first, &last);
+        nbrseg = segs->seglmetopsga1->NbrOfSegments();
+
+        outp = QString("Metop SGA1 From %1 to %2  #Segments %3").arg(first.toString(Qt::TextDate)).arg(last.toString(Qt::TextDate)).arg(nbrseg);
     }
     else if(opts.buttonHRP)
     {
@@ -611,6 +627,7 @@ void FormMapCyl::showSegmentList(int value)
 void FormMapCyl::RemoveAllSelected()
 {
     segs->RemoveAllSelectedAVHRR();
+    segs->RemoveAllSelectedMETIMAGE();
     segs->RemoveAllSelectedVIIRSM();
     segs->RemoveAllSelectedVIIRSDNB();
     segs->RemoveAllSelectedVIIRSMNOAA20();
@@ -642,6 +659,8 @@ bool FormMapCyl::AreThereSelectedSegments()
 {
 
     if(opts.buttonMetop && segs->seglmetop->NbrOfSegmentsSelected() > 0)
+        return true;
+    if(opts.buttonMetopSGA1 && segs->seglmetopsga1->NbrOfSegmentsSelected() > 0)
         return true;
     if(opts.buttonHRP && segs->seglhrp->NbrOfSegmentsSelected() > 0)
         return true;
@@ -764,25 +783,6 @@ void FormMapCyl::on_btnVIIRSM_clicked() // M-Bands
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
 
-
-    // segs->RemoveAllSelectedAVHRR();
-    // segs->RemoveAllSelectedOLCIefr();
-    // segs->RemoveAllSelectedOLCIerr();
-    // segs->RemoveAllSelectedSLSTR();
-    // segs->RemoveAllSelectedDatahubOLCIefr();
-    // segs->RemoveAllSelectedDatahubOLCIerr();
-    // segs->RemoveAllSelectedDatahubSLSTR();
-    // segs->RemoveAllSelectedVIIRSDNB();
-    // segs->RemoveAllSelectedVIIRSMNOAA20();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
-    // segs->RemoveAllSelectedVIIRSMNOAA21();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
-
-
-    // mapcyl->update();
-    // this->showSegmentCount();
-    // this->setScrollBarMaximum();
-    // return;
 }
 
 void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
@@ -794,25 +794,6 @@ void FormMapCyl::on_btnVIIRSDNB_clicked() // DNB Bands
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
 
-    // segs->RemoveAllSelectedAVHRR();
-    // segs->RemoveAllSelectedOLCIefr();
-    // segs->RemoveAllSelectedOLCIerr();
-    // segs->RemoveAllSelectedSLSTR();
-    // segs->RemoveAllSelectedDatahubOLCIefr();
-    // segs->RemoveAllSelectedDatahubOLCIerr();
-    // segs->RemoveAllSelectedDatahubSLSTR();
-    // segs->RemoveAllSelectedVIIRSM();
-    // segs->RemoveAllSelectedVIIRSMNOAA20();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
-    // segs->RemoveAllSelectedVIIRSMNOAA21();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
-
-
-
-    // mapcyl->update();
-    // this->showSegmentCount();
-    // this->setScrollBarMaximum();
-    // return;
 }
 
 void FormMapCyl::on_btnVIIRSMNOAA20_clicked() // M-Bands
@@ -825,23 +806,6 @@ void FormMapCyl::on_btnVIIRSMNOAA20_clicked() // M-Bands
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
 
-    // segs->RemoveAllSelectedAVHRR();
-    // segs->RemoveAllSelectedOLCIefr();
-    // segs->RemoveAllSelectedOLCIerr();
-    // segs->RemoveAllSelectedSLSTR();
-    // segs->RemoveAllSelectedDatahubOLCIefr();
-    // segs->RemoveAllSelectedDatahubOLCIerr();
-    // segs->RemoveAllSelectedDatahubSLSTR();
-    // segs->RemoveAllSelectedVIIRSM();
-    // segs->RemoveAllSelectedVIIRSDNB();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
-    // segs->RemoveAllSelectedVIIRSMNOAA21();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
-
-    // mapcyl->update();
-    // this->showSegmentCount();
-    // this->setScrollBarMaximum();
-    // return;
 }
 
 void FormMapCyl::on_btnVIIRSDNBNOAA20_clicked() // DNB Bands
@@ -853,23 +817,7 @@ void FormMapCyl::on_btnVIIRSDNBNOAA20_clicked() // DNB Bands
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
 
-    // segs->RemoveAllSelectedAVHRR();
-    // segs->RemoveAllSelectedOLCIefr();
-    // segs->RemoveAllSelectedOLCIerr();
-    // segs->RemoveAllSelectedSLSTR();
-    // segs->RemoveAllSelectedDatahubOLCIefr();
-    // segs->RemoveAllSelectedDatahubOLCIerr();
-    // segs->RemoveAllSelectedDatahubSLSTR();
-    // segs->RemoveAllSelectedVIIRSM();
-    // segs->RemoveAllSelectedVIIRSDNB();
-    // segs->RemoveAllSelectedVIIRSMNOAA20();
-    // segs->RemoveAllSelectedVIIRSMNOAA21();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
 
-    // mapcyl->update();
-    // this->showSegmentCount();
-    // this->setScrollBarMaximum();
-    // return;
 }
 
 void FormMapCyl::on_btnVIIRSMNOAA21_clicked() // M-Bands
@@ -1328,7 +1276,7 @@ void FormMapCyl::RenderQuicklookinTexture(QString completebasename)
 bool FormMapCyl::WriteNetCDFFile(int *longitude_img, int *latitude_img, int tierowslength, int columnslength)
 {
     int ncid, x_dimid, y_dimid, varid1, varid2;
-    int retval;
+    int retval = 0;
     int dimids[2];
     //int data_out[tierowslength][columnslength];
 
@@ -1378,6 +1326,8 @@ bool FormMapCyl::WriteNetCDFFile(int *longitude_img, int *latitude_img, int tier
     /* Close the file. */
     if ((retval = nc_close(ncid)))
         ERR(retval);
+
+    return retval;
 
 
 }

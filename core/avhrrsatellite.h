@@ -58,6 +58,7 @@ public:
     bool SelectedMERSISegments();
 
     void RemoveAllSelectedAVHRR();
+    void RemoveAllSelectedMETIMAGE();
     void RemoveAllSelectedVIIRSM();
     void RemoveAllSelectedVIIRSDNB();
     void RemoveAllSelectedVIIRSMNOAA20();
