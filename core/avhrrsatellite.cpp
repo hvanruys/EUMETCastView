@@ -1559,6 +1559,15 @@ void AVHRRSatellite::RemoveAllSelectedVIIRSDNB()
     seglviirsdnb->GetSegsSelectedptr()->clear();
 }
 
+void AVHRRSatellite::RemoveAllSelectedMETIMAGE()
+{
+    qDebug() << "AVHRRSatellite::RemoveAllSelectedMETIMAGE()";
+
+    QList<Segment*> *slmetopsga1 = seglmetopsga1->GetSegmentlistptr();
+    RemoveFromList(slmetopsga1);
+    seglmetopsga1->GetSegsSelectedptr()->clear();
+}
+
 void AVHRRSatellite::RemoveAllSelectedVIIRSMNOAA20()
 {
     qDebug() << "AVHRRSatellite::RemoveAllSelectedVIIRSMNOAA20()";

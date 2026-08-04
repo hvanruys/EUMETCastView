@@ -1,8 +1,0 @@
-Version 2.0.8
--------------
-- The program is using the new Qt6 API.
-- Images from SUOMI NPP, NOAA-20 and NOAA-21.
-- You can choose between a light mode and a dark mode.
-- The font size can be adjusted.
-- NOAA-19 is completely removed.
-- 
