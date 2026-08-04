@@ -97,6 +97,8 @@ private:
     void OverlayOLCI(QPainter *paint);
     void DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int coff, int loff,
                      double cfac, double lfac, bool hrvimage);
+    int geoToImagePixel(SegmentListGeostationary *sl, double lat_deg, double lon_deg,
+                        int coff, int loff, double cfac, double lfac, int *col, int *row);
 
 
     void displayAVHRRImageInfo();
