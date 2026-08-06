@@ -56,13 +56,18 @@ public:
      * the composite: it exists because a forest looks green to a person
      * standing in it, not because 0.51 um says so.
      *
-     * Tuned on real discs rather than derived. 0.12 was the first guess and
-     * read as too timid; 0.20 lifts that same forest to about (59, 102, 56).
-     * Desert, ocean and cloud are untouched at any setting, since all three
-     * have veg = 0 - so this trades only against how green vegetation looks,
-     * and nothing else in the image moves with it.
+     * Tuned on real discs rather than derived. 0.12 lifts that same forest to
+     * about (59, 91, 56) - green enough to read as vegetation, restrained
+     * enough that the scene still looks photographed; 0.20 pushes it on to about
+     * (59, 102, 56), which starts to look painted. Desert, ocean and cloud are
+     * untouched at any setting, since all three have veg = 0 - so this trades
+     * only against how green vegetation looks, and nothing else in the image
+     * moves with it.
+     *
+     * Shared by the day side of GeoColor and by the FCI True Color NDVI recipe,
+     * so changing it moves both.
      */
-    static constexpr float VegGreenGain = 0.20f;
+    static constexpr float VegGreenGain = 0.12f;
 
     /** How vegetated a pixel is, 0..1, smoothstepped over the NDVI band above. */
     static float vegetationFraction(float ndvi);

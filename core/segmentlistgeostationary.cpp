@@ -10940,6 +10940,7 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
     emit progressCounter(70);
 
     const bool geocolor = (rec.compose == RECIPE_GEOCOLOR);
+    const bool veggreen = (rec.compose == RECIPE_VEGGREEN);
 
     // GeoColor is defined in terms of the corrected reflectances and of the
     // twilight fade that joins its two halves, so the correction is not
@@ -10959,6 +10960,16 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
         fade.reset(new float[totalPix]);
         water.reset(new quint8[totalPix]);
         for (long p = 0; p < totalPix; p++) { fade[p] = 1.0f; water[p] = 0; }
+    }
+
+    // The vegetation enhancement wants the same land/sea mask, but it does not
+    // force the correction the way GeoColor does, so it only gets one when the
+    // preference has the correction running anyway. Without it the enhancement
+    // falls back to the index alone, which reads open water as bare of
+    // vegetation because it is - the near infrared drowns in it.
+    if (veggreen && opts.bFciRayleigh) {
+        water.reset(new quint8[totalPix]);
+        for (long p = 0; p < totalPix; p++) water[p] = 0;
     }
 
     // Sun-normalise and remove Rayleigh path reflectance from the solar bands,
@@ -11072,6 +11083,48 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
                         else          result[ci][p] += src[p];
                     }
                 }
+            }
+        }
+    }
+
+    // Green the vegetation, on the linear reflectances and before the stretch.
+    // Doing it here rather than on the finished pixels is the whole reason it is
+    // a compose mode: past the gamma the numbers are brightnesses, not
+    // reflectances, and neither the index nor the headroom would mean anything.
+    if (veggreen) {
+        const int iNir = uniqueBands.indexOf(rec.auxchannels.value(0));
+        if (iNir < 0) {
+            qWarning() << "FCI True Color NDVI: no"
+                       << rec.auxchannels.value(0)
+                       << "- vegetation enhancement is off, this is plain true colour";
+        } else {
+            const float *bNir = bandBuf.at(iNir);
+            const quint8 *wmask = water.data();   // null unless the correction ran
+
+            for (long p = 0; p < totalPix; p++) {
+                if (result[0][p] == FILL_VALUE_F || result[1][p] == FILL_VALUE_F)
+                    continue;
+                if (wmask && wmask[p] != 0)
+                    continue;
+
+                const float nir = bNir[p];
+                if (nir == FILL_VALUE_F)
+                    continue;
+
+                // Same guard the layered composite uses: below this there is not
+                // enough light in either band for the ratio to mean anything.
+                const float den = nir + result[0][p];
+                if (den <= 1.0e-4f)
+                    continue;
+
+                const float veg = GeoColor::vegetationFraction(
+                    (nir - result[0][p]) / den);
+                if (veg <= 0.0f)
+                    continue;
+
+                const GeoColorRGB in  = { result[0][p], result[1][p], result[2][p] };
+                const GeoColorRGB out = GeoColor::greenVegetation(in, nir, veg);
+                result[1][p] = out.g;
             }
         }
     }
