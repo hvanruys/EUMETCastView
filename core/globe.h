@@ -12,6 +12,13 @@
 #ifdef OPENGL30
 #include <QOpenGLFunctions_3_0>
 #endif
+// The one that matches the shaders: they are all #version 330, which is
+// OpenGL 3.3. The 3_0 class above is a compatibility class - it carries the
+// deprecated entry points and cannot be initialised on a core profile context
+// at all, which is why asking for one requires this instead.
+#ifdef OPENGL33
+#include <QOpenGLFunctions_3_3_Core>
+#endif
 #ifdef OPENGL40
 #include <QOpenGLFunctions_4_0_Core>
 #endif
@@ -38,6 +45,9 @@
 
 #ifdef OPENGL30
 class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_0
+#endif
+#ifdef OPENGL33
+class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 #endif
 #ifdef OPENGL40
 class Globe  : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core

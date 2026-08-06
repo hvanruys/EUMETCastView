@@ -170,7 +170,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/aaplus")
 include_directories(${CMAKE_SOURCE_DIR}/charls-main/include/charls)
 
-add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30 -DCHARLS_STATIC)
+add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL33 -DCHARLS_STATIC)
 
 
 # sequence of libraries is important !

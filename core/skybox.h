@@ -1,36 +1,44 @@
 #ifndef SKYBOX_H
 #define SKYBOX_H
-// Minimum OpenGL version = 3.0
-// for glGenVertexArrays glBindVertexArray
-#include <QOpenGLFunctions_3_0>
+
+// The only drawing class that calls glGenVertexArrays and glBindVertexArray
+// itself rather than through QOpenGLVertexArrayObject, so it is the only one
+// that needs a versioned functions class - the rest get by on plain
+// QOpenGLFunctions, which has no VAO entry points.
+//
+// It must follow the same OPENGL* define as Globe. This used to be pinned to
+// QOpenGLFunctions_3_0 whatever Globe was built with, and that is a
+// compatibility class: on the core profile the context now asks for, its
+// initializeOpenGLFunctions() fails and every call below it silently does
+// nothing. Moving Globe to core without moving this would have traded a globe
+// that refuses to start for one that starts with no sky in it.
 #include <QOpenGLShaderProgram>
 
-//#ifdef OPENGL21
-//#include <QOpenGLFunctions_2_1>
-//#endif
-//#ifdef OPENGL32
-//#include <QOpenGLFunctions_3_2_Core>
-//#endif
-//#ifdef OPENGL40
-//#include <QOpenGLFunctions_4_0_Core>
-//#endif
-//#ifdef OPENGL43
-//#include <QOpenGLFunctions_4_3_Core>
-//#endif
+#ifdef OPENGL30
+#include <QOpenGLFunctions_3_0>
+#endif
+#ifdef OPENGL33
+#include <QOpenGLFunctions_3_3_Core>
+#endif
+#ifdef OPENGL40
+#include <QOpenGLFunctions_4_0_Core>
+#endif
+#ifdef OPENGL43
+#include <QOpenGLFunctions_4_3_Core>
+#endif
 
-//#ifdef OPENGL21
-//class SkyBox  : protected QOpenGLFunctions_2_1_CoreBackend
-//#endif
-//#ifdef OPENGL32
-//class SkyBox  : protected QOpenGLFunctions_3_2_Core
-//#endif
-//#ifdef OPENGL40
-//class SkyBox  : protected QOpenGLFunctions_4_0_Core
-//#endif
-//#ifdef OPENGL43
-//class SkyBox  : protected QOpenGLFunctions_4_3_Core
-//#endif
+#ifdef OPENGL30
 class SkyBox  : protected QOpenGLFunctions_3_0
+#endif
+#ifdef OPENGL33
+class SkyBox  : protected QOpenGLFunctions_3_3_Core
+#endif
+#ifdef OPENGL40
+class SkyBox  : protected QOpenGLFunctions_4_0_Core
+#endif
+#ifdef OPENGL43
+class SkyBox  : protected QOpenGLFunctions_4_3_Core
+#endif
 {
 
 public:

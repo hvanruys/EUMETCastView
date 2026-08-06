@@ -144,6 +144,21 @@ int main(int argc, char *argv[])
     //if (QCoreApplication::arguments().contains(QStringLiteral("--multisample")))
         format.setSamples(4);
 
+    // Ask for the context the shaders were written against. Every shader under
+    // core/shader is #version 330, which is OpenGL 3.3, and without this the
+    // driver hands out whatever it likes by default - on Linux a compatibility
+    // profile, which Mesa capped at OpenGL 3.0 and GLSL 1.30 for years. The
+    // globe then failed on 20.04 with "GLSL 3.30 is not supported" while
+    // working on newer distributions whose Mesa happens to offer a higher
+    // compatibility profile. It was never a driver limit: the same machine
+    // reported core profile 4.5.
+    //
+    // Core rather than compatibility because that is the profile drivers have
+    // offered 3.3 on the longest. Nothing here needs the fixed-function
+    // pipeline - the drawing classes are all VAO, VBO and shader already.
+    format.setVersion(3, 3);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+
     QSurfaceFormat::setDefaultFormat(format);
 
     app.setApplicationName("EUMETCastView");
