@@ -18,8 +18,19 @@ target_compile_options(my_compiler_flags_1 INTERFACE
   "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>"
 )
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/libs)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/libs)
+# Libraries go in the build tree, one set per configuration, and must stay
+# there. They used to be written to a single libs/ beside the source, which two
+# build trees then shared - and an archive is not relinked the way an executable
+# is. Make only re-creates a .a when it is older than its objects, so a native
+# build overwriting libs/ left the Ubuntu 20.04 AppImage build linking archives
+# full of glibc 2.38 symbols against a glibc 2.31 runtime. It failed at the very
+# last link, on undefined references to __isoc23_sscanf and
+# __throw_bad_array_new_length, with nothing pointing at the cause.
+#
+# Executables stay in bin/. They are relinked whenever any input is newer, so
+# they cannot go stale the same way, and build-appimage.sh reads them from there.
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 add_subdirectory(bz2)

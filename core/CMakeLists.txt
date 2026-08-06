@@ -176,10 +176,10 @@ add_definitions(-DHDF5_DISABLE_VERSION_CHECK=1 -DOPENGL30 -DCHARLS_STATIC)
 # sequence of libraries is important !
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Core5Compat
-    my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} ${CMAKE_SOURCE_DIR}/libs/libcharls.a archive freeimage aaplus-static ws2_32)
+    my_compiler_flags_1 meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} charls archive freeimage aaplus-static ws2_32)
 else()
 target_link_libraries(${PROJECT_NAME} z pthread Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Xml Qt6::Concurrent Qt6::Network Qt6::PrintSupport Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Core5Compat
-    meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} ${CMAKE_SOURCE_DIR}/libs/libcharls.a archive freeimage aaplus-static)
+    meteosatlib QSgp4 bz2 JPEG T4 WT DISE COMP ${HDF5_LINK_LIBRARIES} ${NETCDF_LINK_LIBRARIES} charls archive freeimage aaplus-static)
 endif()
 #set_target_properties(${PROJECT_NAME}
 #  PROPERTIES
