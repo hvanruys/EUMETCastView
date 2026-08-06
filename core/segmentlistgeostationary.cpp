@@ -9974,23 +9974,14 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
                    << "- falling back to the brightness test, which reads dark"
                    << "vegetation at high view angle as water";
 
-    // Navigation parameters. Same convention FormImage::DrawLongLat uses for the
-    // MET_12 coastline overlay: positive INI factors with the display row.
-    const bool   hires = (outRes == 11136);
-    const long   coff  = hires ? opts.geosatellites.at(geoindex).coffhrv
-                               : opts.geosatellites.at(geoindex).coff;
-    const long   loff  = hires ? opts.geosatellites.at(geoindex).loffhrv
-                               : opts.geosatellites.at(geoindex).loff;
-    const double cfac  = hires ? opts.geosatellites.at(geoindex).cfachrv
-                               : opts.geosatellites.at(geoindex).cfac;
-    const double lfac  = hires ? opts.geosatellites.at(geoindex).lfachrv
-                               : opts.geosatellites.at(geoindex).lfac;
-
-    if (cfac == 0.0 || lfac == 0.0) {
-        qWarning() << "FCI Rayleigh: cfac/lfac missing in GeoSatellites.ini for geoindex"
-                   << geoindex << "- skipping correction";
-        return;
-    }
+    // Sampling of the output grid, in km, which is what selects the FCI grid
+    // definition. Geolocation comes from that definition rather than from the
+    // INI's COFF/CFAC: those describe an MSG-shaped grid on the MSG ellipsoid,
+    // and driving FCI from them lands two to four kilometres out - which put
+    // the shoreline mask a few pixels off every coast. pixcoord2geocoordFCI is
+    // the same transform the MET_12 coastline overlay is drawn with, so the
+    // mask and the drawn coast now agree by construction.
+    const double ssd = (outRes == 11136) ? 1.0 : 2.0;
 
     QDateTime dt = QDateTime::fromString(filedatestring, "yyyyMMddhhmm");
     if (!dt.isValid()) {
@@ -10048,16 +10039,18 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
         struct snu_solar_epoch epoch;
         snu_solar_epoch_init(jrow, &epoch);
 
-        // The compose buffer is south-up; geolocation wants the display row.
-        const int display_row = outRes - 1 - line;
+        // The compose buffer counts rows the way the files do - row 1 at the
+        // south limb - because the reader places each segment straight from
+        // start_position_row. So the FCI grid row is just the buffer row plus
+        // one, and no flip is involved.
+        const int grid_row = line + 1;
 
         for (int pixelx = 0; pixelx < outRes; ++pixelx) {
             double lat_deg = 0.0;
             double lon_deg = 0.0;
 
-            if (pixconv.pixcoord2geocoord(subLon, pixelx, display_row,
-                                          (int)coff, (int)loff, cfac, lfac,
-                                          &lat_deg, &lon_deg) != 0)
+            if (pixconv.pixcoord2geocoordFCI(subLon, pixelx + 1, grid_row,
+                                             &lat_deg, &lon_deg, ssd) != 0)
                 continue;   // off-disc, stays FILL_VALUE_F
 
             const long i_pix = (long)line * outRes + pixelx;
@@ -10293,11 +10286,11 @@ void SegmentListGeostationary::composeFCIGeoColor(const QVector<float*> &bandBuf
     // when there are lights to place.
     const bool needGeo = lights.valid();
 
-    const long coff  = opts.geosatellites.at(geoindex).coffhrv;
-    const long loff  = opts.geosatellites.at(geoindex).loffhrv;
-    const double cfac = opts.geosatellites.at(geoindex).cfachrv;
-    const double lfac = opts.geosatellites.at(geoindex).lfachrv;
     const double subLon = opts.geosatellites.at(geoindex).longitude;
+
+    // GeoColor always composes on the visible grid, so the sampling is 1 km.
+    // Same FCI grid definition the mask and the coastline overlay use.
+    const double ssd = 1.0;
 
     QVector<int> lines(outRes);
     for (int i = 0; i < outRes; ++i)
@@ -10375,9 +10368,8 @@ void SegmentListGeostationary::composeFCIGeoColor(const QVector<float*> &bandBuf
 
             if (needGeo) {
                 double lat_deg = 0.0, lon_deg = 0.0;
-                if (pixconv.pixcoord2geocoord(subLon, pixelx, display_row,
-                                              (int)coff, (int)loff, cfac, lfac,
-                                              &lat_deg, &lon_deg) == 0)
+                if (pixconv.pixcoord2geocoordFCI(subLon, pixelx + 1, line + 1,
+                                                 &lat_deg, &lon_deg, ssd) == 0)
                     night = GeoColor::addCityLights(night,
                                                     lights.sample(lat_deg, lon_deg));
             }

@@ -128,7 +128,24 @@ public:
     int pixcoord2geocoord(double sub_lon_deg, int column, int row, int coff, int loff, double cfac, double lfac, double *latitude, double *longitude);
     double calc_sa(double sub_lon_deg, int column, int row, int coff, int loff, double cfac, double lfac, double *latitude, double *longitude);
     int geocoord2pixcoord(double sub_lon_deg, double latitude, double longitude, int coff, int loff, double cfac, double lfac, int *column, int *row);
-    int pixcoord2geocoordFCI(double sub_lon_deg, int column, int row, double *latitude, double *longitude);
+    /**
+     * FCI grid column/row to latitude/longitude - the exact inverse of
+     * geocoord2pixcoordFCI, and the only correct way to geolocate an FCI pixel.
+     *
+     * Both indices are 1-based, as the files count them: column 1 is the west
+     * limb, row 1 the south. That is the same convention start_position_row and
+     * start_position_column arrive in, so the reader's placement and this agree
+     * without a flip.
+     *
+     * Do not reach for the generic pixcoord2geocoord here. It describes the MSG
+     * grid on the MSG ellipsoid, and driving it from the INI's COFF/CFAC lands
+     * two to four kilometres away from where FCI actually puts a pixel - which
+     * is what once put the land/sea mask a few pixels off every shoreline.
+     *
+     * @param ssd sampling in km: 1.0 for the 11136 grid, 2.0 for the 5568 one
+     * @return 0 on the disc, -1 behind the limb (lat/lon set to -999.999)
+     */
+    int pixcoord2geocoordFCI(double sub_lon_deg, int column, int row, double *latitude, double *longitude, double ssd = 1.0);
     int geocoord2pixcoordFCI(double sub_lon_deg, double latitude, double longitude, int *column, int *row, double ssd = 1.0);
 
 

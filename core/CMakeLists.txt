@@ -233,6 +233,15 @@ if(BUILD_TESTS)
         AUTOUIC OFF
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
+    add_executable(fcinav_test fcinav_test.cpp pixgeoconversion.cpp)
+    target_include_directories(fcinav_test PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/QSgp4")
+    target_link_libraries(fcinav_test Qt6::Core Qt6::Gui)
+    set_target_properties(fcinav_test PROPERTIES
+        AUTOMOC OFF
+        AUTOUIC OFF
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
     add_executable(downloadmanager_test downloadmanager_test.cpp downloadmanager.cpp)
     target_include_directories(downloadmanager_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     target_link_libraries(downloadmanager_test Qt6::Core Qt6::Network Qt6::Widgets)

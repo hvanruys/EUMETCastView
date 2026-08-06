@@ -1256,11 +1256,27 @@ GridToLatLonResult pixgeoConversion::fci_grid_to_latlon(const std::vector<double
     return {result_lons, result_lats, result_earth_mask};
 }
 
-int pixgeoConversion::pixcoord2geocoordFCI(double sub_lon_deg, int column, int row, double *latitude, double *longitude)
+int pixgeoConversion::pixcoord2geocoordFCI(double sub_lon_deg, int column, int row, double *latitude, double *longitude, double ssd)
 {
-    // Structure to hold grid parameters
-    return 0;
+    std::vector<double> rows = { (double)row };
+    std::vector<double> cols = { (double)column };
+    auto res = fci_grid_to_latlon(rows, cols, ssd);
 
+    // Behind the limb there is no surface to name, so this has to be reported
+    // rather than returned as a plausible-looking number - the same contract
+    // geocoord2pixcoordFCI keeps for points it cannot see.
+    if (!res.earth_mask[0] || std::isnan(res.lats[0]) || std::isnan(res.lons[0]))
+    {
+        *latitude  = -999.999;
+        *longitude = -999.999;
+        return (-1);
+    }
+
+    // fci_grid_to_latlon works in the projection's own frame, where the
+    // sub-satellite point is the zero of longitude.
+    *latitude  = res.lats[0];
+    *longitude = res.lons[0] + sub_lon_deg;
+    return 0;
 }
 
 int pixgeoConversion::geocoord2pixcoordFCI(double sub_lon_deg, double latitude, double longitude, int *column, int *row, double ssd)
