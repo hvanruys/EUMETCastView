@@ -14,7 +14,7 @@
 
 #include <QMutex>
 
-#define APPVERSION "2.1.1"
+#define APPVERSION "2.1.2"
 
 
 using namespace std;

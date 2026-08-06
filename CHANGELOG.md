@@ -1,5 +1,31 @@
 # Changelog
 
+## 2.1.2
+
+One fix: the 3D globe would not start on systems whose default OpenGL context
+is a compatibility profile below 3.3, failing with *GLSL 3.30 is not
+supported*. This affected the 2.1.1 AppImage on Ubuntu 20.04.
+
+The application asked for no particular OpenGL version or profile, so the
+driver handed out its default — on Linux a compatibility profile, which Mesa
+capped at OpenGL 3.0 and GLSL 1.30 for years. Every shader in `core/shader` is
+`#version 330`. Newer distributions offer a high enough compatibility profile
+that it worked there, which is why it went unnoticed.
+
+It now requests **3.3 core** explicitly. This was never a hardware or driver
+limit: the machine that failed reports core profile 4.5. Nothing in the drawing
+code needs the fixed-function pipeline — every class already builds its geometry
+from VAOs, VBOs and shaders.
+
+`Globe` and `SkyBox` move to `QOpenGLFunctions_3_3_Core` with the build's new
+`-DOPENGL33`, since the old `QOpenGLFunctions_3_0` is a compatibility class that
+cannot be initialised on a core context. `SkyBox` had been pinned to it
+regardless of the build setting; left alone it would have failed silently and
+drawn no sky.
+
+If you build with a different `OPENGL*` define, `Globe` and `SkyBox` must use
+the same one, and the profile requested in `main.cpp` has to match.
+
 ## 2.1.1
 
 Mostly MTG FCI: the imagery was being navigated on a grid that was not quite
