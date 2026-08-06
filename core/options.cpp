@@ -99,6 +99,11 @@ void Options::Initialize()
     gshhsoverlay1=settings.value("/window/gshhsoverlay1", "./gshhs2_3_7/gshhs_i.b").value<QString>();
     gshhsoverlay2=settings.value("/window/gshhsoverlay2", "./gshhs2_3_7/wdb_borders_i.b").value<QString>();
     gshhsoverlay3=settings.value("/window/gshhsoverlay3", "").value<QString>();
+    // High resolution by default: the mask is a bitmap of fixed size, so a
+    // denser shoreline costs only the one-off build and nothing per image.
+    // Missing files fall back to gshhsglobe1, so this is safe where only the
+    // intermediate set is installed.
+    gshhsmask=settings.value("/window/gshhsmask", "./gshhs2_3_7/gshhs_h.b").value<QString>();
 
     skyboxup=settings.value("/window/skyboxup", "./images/ulukai/corona_up.png").value<QString>();
     skyboxdown=settings.value("/window/skyboxdown", "./images/ulukai/corona_dn.png").value<QString>();
@@ -495,6 +500,7 @@ void Options::Save()
     settings.setValue("/window/gshhsoverlay1", gshhsoverlay1 );
     settings.setValue("/window/gshhsoverlay2", gshhsoverlay2 );
     settings.setValue("/window/gshhsoverlay3", gshhsoverlay3 );
+    settings.setValue("/window/gshhsmask", gshhsmask );
 
     settings.setValue("/window/skyboxup", skyboxup );
     settings.setValue("/window/skyboxdown", skyboxdown );

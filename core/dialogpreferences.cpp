@@ -24,6 +24,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->edtGshhsOverlay1->setText(opts.gshhsoverlay1);
     ui->edtGshhsOverlay2->setText(opts.gshhsoverlay2);
     ui->edtGshhsOverlay3->setText(opts.gshhsoverlay3);
+    ui->edtGshhsMask->setText(opts.gshhsmask);
 
     ui->edtSkyboxUp->setText(opts.skyboxup);
     ui->edtSkyboxDown->setText(opts.skyboxdown);
@@ -577,6 +578,7 @@ void DialogPreferences::dialogaccept()
     opts.gshhsoverlay1 = ui->edtGshhsOverlay1->text();
     opts.gshhsoverlay2 = ui->edtGshhsOverlay2->text();
     opts.gshhsoverlay3 = ui->edtGshhsOverlay3->text();
+    opts.gshhsmask = ui->edtGshhsMask->text();
 
     opts.skyboxup = ui->edtSkyboxUp->text();
     opts.skyboxdown = ui->edtSkyboxDown->text();
@@ -688,6 +690,20 @@ void DialogPreferences::on_btnGshhsGlobe1_clicked()
         ui->edtGshhsGlobe1->setText(fn);
     }
 
+
+}
+
+void DialogPreferences::on_btnGshhsMask_clicked()
+{
+    QString fn = QFileDialog::getOpenFileName( this,
+                    tr("Select the Gshhs shoreline file for the land/sea mask"),
+                    ".",
+                    tr("Gshhs files (*.b)"));
+
+    if ( !fn.isEmpty() )
+    {
+        ui->edtGshhsMask->setText(fn);
+    }
 
 }
 

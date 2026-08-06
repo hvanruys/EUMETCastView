@@ -1428,9 +1428,18 @@ void FormImage::setupGshhs(int geoindex, int k)
                 }
                 else if(opts.geosatellites.at(geoindex).shortname == "MET_12")
                 {
+                    // Bring the files' 1-based grid into image pixels, exactly
+                    // as geoToImagePixel does it for the graticule: the reader
+                    // writes FCI column c at image column c-1 and row r at
+                    // image row 11136-r. These coordinates stay in the 1 km
+                    // grid and are divided by factor when they are drawn, so
+                    // the row uses the grid height rather than the image's.
+                    //
+                    // The column shift was missing, which drew every coastline
+                    // one pixel east of the coast it traces.
                     ret = pixconv.geocoord2pixcoordFCI(sub_lon, lat_deg, lon_deg, &col, &row);
-                    save_row = row;
-                    row = 11136 - save_row;
+                    row = 11136 - row;
+                    col = col - 1;
                 }
                 else
                 {

@@ -20,10 +20,19 @@
 class LandSeaMask
 {
 public:
-    /** Grid step in degrees. 0.02 is about 2.2 km, against 1 km FCI pixels. */
-    static constexpr double GridStep = 0.02;
-    static constexpr int    GridW    = (int)(360.0 / GridStep);   // 18000
-    static constexpr int    GridH    = (int)(180.0 / GridStep);   // 9000
+    /**
+     * Grid step in degrees. 0.01 is about 1.1 km, matching FCI's 1 km pixels at
+     * nadir; a coastline then lands within half a cell, some 550 m.
+     *
+     * Costs 77 MB at one bit per cell, and about two seconds to rasterise the
+     * high-resolution shoreline into it - once per run, against the half
+     * gigabyte each band buffer of a single FCI compose already takes. Halving
+     * the step again would quadruple both for a quarter of the error, which is
+     * well under what a 1 km instrument can see.
+     */
+    static constexpr double GridStep = 0.01;
+    static constexpr int    GridW    = (int)(360.0 / GridStep);   // 36000
+    static constexpr int    GridH    = (int)(180.0 / GridStep);   // 18000
 
     /**
      * Load and rasterise. Safe to call repeatedly; only the first call for a

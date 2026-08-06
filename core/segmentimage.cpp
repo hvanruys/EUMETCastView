@@ -375,7 +375,35 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 2 - True Color Enhanced RGB
+    // 2 - True Color NDVI RGB
+    // True Color RGB with the GeoColor vegetation enhancement over the top: the
+    // same three bands and the same stretch, but green is pulled toward the near
+    // infrared in proportion to NDVI before the display gamma.
+    //
+    // It exists because a strictly true-colour render puts dense forest at a
+    // dark olive - chlorophyll absorbs at 0.51 um as well as in the red - so
+    // vegetation reads greener here than the instrument says, and closer to how
+    // it looks to a person standing in it. Desert, ocean and cloud all sit at an
+    // index near zero and are left exactly as True Color RGB draws them.
+    //
+    // vis_08 is the near infrared NDVI needs. It is never a colour of its own,
+    // so it goes in auxchannels; being a visible band it also keeps the disc at
+    // 11136 rather than dropping it to the infrared grid.
+    {
+        RGBRecipe r;
+        r.Name = "FCI True Color NDVI RGB";
+        r.needsza = false;
+        r.compose = RECIPE_VEGGREEN;
+        RGBRecipeColor R = makeFCIColor("vis_06", 2, false, false, 0.0f, 1.0f, 2.2f);
+        RGBRecipeColor G = makeFCIColor("vis_05", 1, false, false, 0.0f, 1.0f, 2.2f);
+        RGBRecipeColor B = makeFCIColor("vis_04", 0, false, false, 0.0f, 1.0f, 2.2f);
+        r.Colorvector << R << G << B;
+        r.auxchannels << "vis_08";
+        r.auxbands    << 3;
+        fci_rgbrecipes.append(r);
+    }
+
+    // 3 - True Color Enhanced RGB
     // Tighter range clips the brightest 30 % (clouds still white due to gamma), spreads
     // the land portion further across the 0-255 display range.
     {
@@ -389,7 +417,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 3 - Natural Colors RGB
+    // 4 - Natural Colors RGB
     // R: nir_16 (refl), G: vis_08 (refl), B: vis_06 (refl)
     // EUMETSAT standard: [0, 1.0] all channels, gamma 1.8
     {
@@ -403,7 +431,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 4 - Natural Colors Enhanced RGB
+    // 5 - Natural Colors Enhanced RGB
     // Same channels as Natural Colors but tighter ranges to stretch land/sea contrast.
     // Bright clouds clip to white; land features are spread across more of the display range.
     {
@@ -417,7 +445,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 5 - Airmass RGB
+    // 6 - Airmass RGB
     {
         RGBRecipe r;
         r.Name = "FCI Airmass RGB";
@@ -431,7 +459,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 6 - Dust RGB
+    // 7 - Dust RGB
     {
         RGBRecipe r;
         r.Name = "FCI Dust RGB";
@@ -445,7 +473,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 7 - 24h Microphysics RGB
+    // 8 - 24h Microphysics RGB
     {
         RGBRecipe r;
         r.Name = "FCI 24h Microphysics RGB";
@@ -459,7 +487,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 8 - Ash RGB
+    // 9 - Ash RGB
     {
         RGBRecipe r;
         r.Name = "FCI Ash RGB";
@@ -473,7 +501,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 9 - Day Severe Storms RGB
+    // 10 - Day Severe Storms RGB
     // R: wv_63-wv_73 (BT diff K), G: ir_38-ir_105 (BT diff K), B: nir_16-vis_06 (reflectance diff)
     {
         RGBRecipe r;
@@ -489,7 +517,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 10 - Snow RGB
+    // 11 - Snow RGB
     // R: vis_08 (refl), G: nir_16 (refl), B: ir_38 (solar refl approx)
     {
         RGBRecipe r;
@@ -502,7 +530,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 11 - Cloud Phase RGB
+    // 12 - Cloud Phase RGB
     // R: nir_16 (refl), G: nir_22 (refl), B: vis_06 (refl)
     {
         RGBRecipe r;
@@ -515,7 +543,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 12 - Night Microphysics RGB
+    // 13 - Night Microphysics RGB
     {
         RGBRecipe r;
         r.Name = "FCI Night Microphysics RGB";
@@ -529,7 +557,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 13 - Night Fog RGB (same channels as Night Microphysics, different G stretch)
+    // 14 - Night Fog RGB (same channels as Night Microphysics, different G stretch)
     {
         RGBRecipe r;
         r.Name = "FCI Night Fog RGB";
@@ -543,7 +571,7 @@ void SegmentImage::SetupFCIRGBrecipes()
         fci_rgbrecipes.append(r);
     }
 
-    // 14 - NDVI
+    // 15 - NDVI
     // (vis_08 - vis_06) / (vis_08 + vis_06). Vegetation is dark in the red and
     // bright in the near infrared, so the index separates it from soil, water
     // and cloud far better than either band alone.

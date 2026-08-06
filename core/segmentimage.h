@@ -74,6 +74,21 @@ enum eRecipeCompose {
     RECIPE_NORMDIFF,
 
     /**
+     * Additive, then the NDVI vegetation enhancement laid over the result.
+     *
+     * The colours combine exactly as RECIPE_ADDITIVE does, and the stretch that
+     * follows is the same one; the only extra step happens in between, on the
+     * linear reflectances, where GeoColor::greenVegetation pulls the green
+     * channel toward the near infrared over vegetated ground. That is the same
+     * enhancement the day side of RECIPE_GEOCOLOR carries, without the night
+     * layers or the terminator blend.
+     *
+     * The near infrared NDVI needs is not a colour of its own, so it is listed
+     * in auxchannels and resolved by name.
+     */
+    RECIPE_VEGGREEN,
+
+    /**
      * Layered day/night composite, built by composeFCIGeoColor rather than by
      * any per-colour formula. The Colorvector still names the three day bands
      * and carries their stretch; everything else the composite needs is listed

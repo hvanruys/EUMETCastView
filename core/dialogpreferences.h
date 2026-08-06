@@ -68,6 +68,7 @@ private slots:
     void on_btnGshhsOverlay3_clicked();
 
     void on_btnGshhsGlobe1_clicked();
+    void on_btnGshhsMask_clicked();
     void on_btnGshhsGlobe2_clicked();
     void on_btnGshhsGlobe3_clicked();
 
