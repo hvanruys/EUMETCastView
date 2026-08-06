@@ -97,6 +97,46 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 extern gshhsData *gshhsdata;
 
+namespace {
+
+/**
+ * Load the land/sea mask, and report which shoreline file it came from.
+ *
+ * The mask prefers gshhsmask, which exists so it can be rasterised from a
+ * denser shoreline than the globe overlay wants to draw. It falls back to
+ * gshhsglobe1 when that is unset or absent - where it used to get its shoreline
+ * from - so an installation carrying only the intermediate set keeps a mask
+ * rather than losing it to a filename it never had.
+ *
+ * The file has to be checked before loading rather than after: LandSeaMask::load
+ * deliberately remembers a failure, so a second call with a better path would
+ * not rebuild.
+ *
+ * Same resolution rule as gshhsdata.cpp for where the data lives - packaged as
+ * an AppImage the shoreline sits under APPDIR rather than the working
+ * directory, and an unset path has to stay unset rather than becoming the
+ * AppDir itself.
+ */
+bool loadShorelineMask(QString *usedFile)
+{
+    auto resolve = [](const QString &p) {
+        return (p.isEmpty() || opts.appdir_env.isEmpty()) ? p
+                                                          : opts.appdir_env + "/" + p;
+    };
+
+    QString file = resolve(opts.gshhsmask);
+    if (file.isEmpty() || !QFileInfo::exists(file))
+        file = resolve(opts.gshhsglobe1);
+
+    if (usedFile)
+        *usedFile = file;
+
+    const QByteArray path = file.toLocal8Bit();
+    return LandSeaMask::load(path.constData());
+}
+
+} // namespace
+
 // Meteosat
 // Height = 3712 / 8 = 464 Width = 3712
 // Height = 11136 / 24 = 464 Width = 7502
@@ -7854,13 +7894,9 @@ bool SegmentListGeostationary::applySEVIRISolarCorrection()
                    << "blue to separate water from land; sea surface not modelled";
 
     // Geography decides land from sea; brightness is then left with only the
-    // question it is good at, whether cloud is sitting on the sea. Same
-    // resolution rule as gshhsdata.cpp for where the shoreline file lives.
-    const QString gshhsFile = (opts.gshhsglobe1.isEmpty() || opts.appdir_env.isEmpty())
-                            ? opts.gshhsglobe1
-                            : opts.appdir_env + "/" + opts.gshhsglobe1;
-    const QByteArray gshhsPath = gshhsFile.toLocal8Bit();
-    const bool haveGeoMask = LandSeaMask::load(gshhsPath.constData());
+    // question it is good at, whether cloud is sitting on the sea.
+    QString gshhsFile;
+    const bool haveGeoMask = loadShorelineMask(&gshhsFile);
     if (!haveGeoMask)
         qWarning() << "SEVIRI Rayleigh: no shoreline mask at" << gshhsFile
                    << "- falling back to the brightness test, which reads dark"
@@ -9931,14 +9967,8 @@ void SegmentListGeostationary::applyFCISolarCorrection(QVector<float*> &bandBuf,
     // question it is good at, whether cloud is sitting on the sea. Without a
     // shoreline file we fall back to brightness alone, which cannot tell dark
     // vegetation from ocean.
-    // Same resolution rule as gshhsdata.cpp: packaged as an AppImage the
-    // shoreline data sits under APPDIR rather than the working directory, and
-    // an unset path has to stay unset rather than becoming the AppDir itself.
-    const QString gshhsFile = (opts.gshhsglobe1.isEmpty() || opts.appdir_env.isEmpty())
-                            ? opts.gshhsglobe1
-                            : opts.appdir_env + "/" + opts.gshhsglobe1;
-    const QByteArray gshhsPath = gshhsFile.toLocal8Bit();
-    const bool haveGeoMask = LandSeaMask::load(gshhsPath.constData());
+    QString gshhsFile;
+    const bool haveGeoMask = loadShorelineMask(&gshhsFile);
     if (!haveGeoMask)
         qWarning() << "FCI Rayleigh: no shoreline mask at" << gshhsFile
                    << "- falling back to the brightness test, which reads dark"

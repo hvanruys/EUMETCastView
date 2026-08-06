@@ -171,6 +171,19 @@ public:
     QString gshhsoverlay1;
     QString gshhsoverlay2;
     QString gshhsoverlay3;
+    /**
+     * Shoreline file the land/sea mask is rasterised from.
+     *
+     * Separate from gshhsglobe1 because the two want opposite things. The globe
+     * overlay is drawn as vectors every frame, so it wants few points; the mask
+     * is rasterised once into a bitmap whose size does not depend on the polygon
+     * count, so it wants all the detail it can get and pays for it only at
+     * startup. Sharing one setting meant the mask inherited whatever was chosen
+     * to keep the globe responsive.
+     *
+     * Falls back to gshhsglobe1 when unset or when the file is not there.
+     */
+    QString gshhsmask;
     QString sathorizoncolor;
     QString sattrackcolor;
     QString satsegmentcolor;
