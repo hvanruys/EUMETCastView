@@ -34,8 +34,6 @@ SegmentVII::SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
     //0         1         2         3         4         5         6         7         8         9         10
     //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210219013949_G_D_20070912084303_20070912084403_T_B____.nc
 
-    qDebug() << fileInfo.fileName();
-
     QStringView fname = QStringView{fileInfo.fileName()};
     int sensing_start_year = fname.mid(70, 4).toInt( &ok , 10);
     int sensing_start_month = fname.mid(74, 2).toInt( &ok, 10);
