@@ -7,16 +7,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(my_compiler_flags_1 INTERFACE)
-target_compile_features(my_compiler_flags_1 INTERFACE cxx_std_17)
-
-set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
-set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
-
-target_compile_options(my_compiler_flags_1 INTERFACE
-  "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-O0;-Wno-conversion-null;-Wno-pragmas;-Wno-trigraphs;-Wformat;-Wformat-security;>>"
-  "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>"
-)
+# Defines my_compiler_flags_1, gcc_like_cxx and msvc_cxx. Shared with video/,
+# which can also be configured as a top-level project on its own.
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/compilerflags.cmake)
 
 # Libraries go in the build tree, one set per configuration, and must stay
 # there. They used to be written to a single libs/ beside the source, which two

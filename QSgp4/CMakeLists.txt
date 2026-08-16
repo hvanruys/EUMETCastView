@@ -30,8 +30,11 @@ add_library(
 include(CMakePrintHelpers)
 cmake_print_variables(PROJECT_SOURCE_DIR)
 
+# Relative to this directory, not to CMAKE_SOURCE_DIR: video/ can be
+# configured as a top-level project of its own, and then CMAKE_SOURCE_DIR is
+# video/ rather than the root of the tree.
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/core")
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../core")
 
 target_link_libraries(QSgp4 my_compiler_flags_1 Qt6::Gui)
 

@@ -5,11 +5,11 @@ project(xRITDecompress)
 add_executable(${PROJECT_NAME} xRITDecompress.cpp)
 
 target_include_directories(xRITDecompress PUBLIC 
-	"${CMAKE_SOURCE_DIR}/DISE"
-	"${CMAKE_SOURCE_DIR}/COMP/Inc"
-	"${CMAKE_SOURCE_DIR}/COMP/JPEG/Inc"
-	"${CMAKE_SOURCE_DIR}/COMP/T4/Inc"
-	"${CMAKE_SOURCE_DIR}/COMP/WT/Inc"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../DISE"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../COMP/Inc"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../COMP/JPEG/Inc"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../COMP/T4/Inc"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../COMP/WT/Inc"
 )
 
 # sequence of libraries is important !

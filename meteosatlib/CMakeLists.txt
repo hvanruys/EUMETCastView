@@ -50,11 +50,16 @@ add_library(
 include(CMakePrintHelpers)
 cmake_print_variables(PROJECT_SOURCE_DIR)
 
+# Relative to this directory, not to CMAKE_SOURCE_DIR: video/ can be
+# configured as a top-level project of its own, and then CMAKE_SOURCE_DIR is
+# video/ rather than the root of the tree.
+set(DECOMPWT "${CMAKE_CURRENT_SOURCE_DIR}/../PublicDecompWT-2.8.1")
+
 target_include_directories(meteosatlib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_include_directories(meteosatlib PUBLIC "${CMAKE_SOURCE_DIR}/PublicDecompWT-2.8.1/DISE")
-target_include_directories(meteosatlib PUBLIC "${CMAKE_SOURCE_DIR}/PublicDecompWT-2.8.1/COMP/Inc")
-target_include_directories(meteosatlib PUBLIC "${CMAKE_SOURCE_DIR}/PublicDecompWT-2.8.1/COMP/JPEG/Inc")
-target_include_directories(meteosatlib PUBLIC "${CMAKE_SOURCE_DIR}/PublicDecompWT-2.8.1/COMP/WT/Inc")
-target_include_directories(meteosatlib PUBLIC "${CMAKE_SOURCE_DIR}/PublicDecompWT-2.8.1/COMP/T4/Inc")
+target_include_directories(meteosatlib PUBLIC "${DECOMPWT}/DISE")
+target_include_directories(meteosatlib PUBLIC "${DECOMPWT}/COMP/Inc")
+target_include_directories(meteosatlib PUBLIC "${DECOMPWT}/COMP/JPEG/Inc")
+target_include_directories(meteosatlib PUBLIC "${DECOMPWT}/COMP/WT/Inc")
+target_include_directories(meteosatlib PUBLIC "${DECOMPWT}/COMP/T4/Inc")
 target_link_libraries(meteosatlib my_compiler_flags_1)
 

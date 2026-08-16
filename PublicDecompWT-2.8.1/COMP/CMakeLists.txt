@@ -14,6 +14,6 @@ add_library(
 )
 
 target_include_directories(COMP PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Inc")
-target_include_directories(COMP PUBLIC "${CMAKE_SOURCE_DIR}/PublicDecompWT-2.8.1/DISE")
+target_include_directories(COMP PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../DISE")
 target_link_libraries(COMP my_compiler_flags)
 
