@@ -101,7 +101,7 @@ private:
     void saveSpectrumToOptions();
     void writeTolistwidget(QString txt);
     void listWidgets();
-    void CreateVideoJson(QString shortname);
+    QJsonObject CreateVideoJson(QString shortname);
     bool convertToJson(const QMap<int, QMap<int, QFileInfo>>& segmentlistmap, const QString& outputFilePath);
     QJsonObject getJasonObjectFromMap(const QMap<int, QMap<int, QFileInfo>>& segmentlistmap);
     QJsonObject getJasonObjectFromMap(const QMap<QString, QMap<QString, QMap< int, QFileInfo > > >& segmentlistmap);

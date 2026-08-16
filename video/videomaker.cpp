@@ -35,6 +35,9 @@ VideoMaker::VideoMaker(QString jsonfile, QString timestamp, QObject *parent)
 {
 
     reader = new JsonVideoReader(jsonfile, timestamp, parent);
+
+    //reader->dumpJsonFile();
+
     gshhs = new gshhsData(reader->gshhsoverlayfileslist);
 
     gshhs->setupGeoOverlay(reader->satlon, reader->coff, reader->loff, reader->cfac, reader->lfac);
@@ -633,10 +636,10 @@ void VideoMaker::compileImage(QString date, int imagenbr)
 
 }
 
-void VideoMaker::compileImageMTG(QString date, int imagenbr)
+void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
 {
-    // date = "001" "002" ..."144" for MET_12
-    // date = "YYYYMMDDhhmm" for MET_11/10/9
+    // timestamp = "001" "002" ..."144" for MET_12
+    // timestamp = "YYYYMMDDhhmm" for MET_11/10/9
 
     QString ncfile;
     QByteArray arrayncfile;
@@ -696,11 +699,15 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
 
     QStringList spectrumlist = this->reader->spectrum;
 
-    sendMessages(QString("Start compileImage nbr %1").arg(imagenbr));
+    sendMessages(QString("Start compileImageMTG nbr %1 with timestamp = %2 ; nbr of segments = %3").arg(imagenbr).arg(timestamp).arg(this->reader->segmentspathlist.size()));
 
 
-    qDebug() << "Start compileImageMTG" << this->reader->segmentspathlist.size();
+    qDebug() << "Start compileImageMTG length segmentspathlist = " << this->reader->segmentspathlist.size();
     qDebug() << "Spectrum vector count = " << this->reader->spectrum.count() << " kindofimage = " << this->reader->daykindofimage;
+
+    if(this->reader->segmentspathlist.size() == 0)
+        return;
+
 
     QElapsedTimer timer;
     timer.start();
@@ -772,7 +779,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
     QByteArray ba;
 
 
-    for(int j = 0; j < this->reader->segmentspathlist.size(); j++)
+     for(int j = 0; j < this->reader->segmentspathlist.size(); j++)
     {
         if(this->reader->segmentspathlist.at(j).contains("BODY"))
         {
@@ -1134,7 +1141,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
             painter.setPen(Qt::yellow);
             painter.setBrush(Qt::NoBrush);
             QString subscript;
-            this->getTimeFromIndex(imagenbr, &subscript);
+            this->getTimeFromIndex(timestamp.toInt(), &subscript);
             painter.drawText(20, gvp->imageProjection->height() - 20, subscript);
         }
 
@@ -1149,6 +1156,7 @@ void VideoMaker::compileImageMTG(QString date, int imagenbr)
 
         QString prefixstr = reader->videooutputname;
 
+        qDebug() << "Saving image " << QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0'));
         gvp->imageProjection->save("tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0')));
 
 

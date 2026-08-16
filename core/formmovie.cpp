@@ -1142,29 +1142,30 @@ void FormMovie::on_btnJson_clicked()
 
     this->geoindex = 99;
 
+    QJsonObject root;
     if(ui->rdbMeteosat_12->isChecked())
     {
         this->geoindex = opts.GetGeoIndex("MET_12");
         this->shortname = "MET_12";
-        CreateVideoJson("MET_12");
+        root = CreateVideoJson("MET_12");
     }
     else if(ui->rdbMeteosat_11->isChecked())
     {
         this->geoindex = opts.GetGeoIndex("MET_11");
         this->shortname = "MET_11";
-        CreateVideoJson("MET_11");
+        root = CreateVideoJson("MET_11");
     }
     else if(ui->rdbMeteosat_10->isChecked())
     {
         this->geoindex = opts.GetGeoIndex("MET_10");
         this->shortname = "MET_10";
-        CreateVideoJson("MET_10");
+        root = CreateVideoJson("MET_10");
     }
     else if(ui->rdbMeteosat_9->isChecked())
     {
         this->geoindex = opts.GetGeoIndex("MET_9");
         this->shortname = "MET_9";
-        CreateVideoJson("MET_9");
+        root = CreateVideoJson("MET_9");
     }
     else
     {
@@ -1185,7 +1186,17 @@ void FormMovie::on_btnJson_clicked()
         return;
     }
 
-    QStringList datelist = segs->GetDatestampsList(geoindex);
+    // get datelist ("001","002", ...) from Json files
+    //QStringList datelist = segs->GetDatestampsList(geoindex);
+    QStringList datelist;
+
+    if (root.contains("files") && root["files"].isObject()) {
+        QJsonObject filesObj = root["files"].toObject();
+
+        for (const QString &timestampKey : filesObj.keys()) {
+            datelist << timestampKey;
+        }
+    }
 
     qDebug() << "datelist count = " << datelist.count();
 
@@ -1211,7 +1222,7 @@ void FormMovie::deleteManager()
     this->on_btnffmpeg_clicked();
 }
 
-void FormMovie::CreateVideoJson(QString shortname)
+QJsonObject FormMovie::CreateVideoJson(QString shortname)
 {
     QJsonObject rootObject;
     rootObject["shortname"] = shortname;
@@ -1367,11 +1378,14 @@ void FormMovie::CreateVideoJson(QString shortname)
     if (!jsonFile.open(QIODevice::WriteOnly))
     {
         qWarning() << "Could not open file for writing output.json";
-        return;
+    }
+    else
+    {
+        jsonFile.write(jsonDoc.toJson(QJsonDocument::Indented));
+        jsonFile.close();
     }
 
-    jsonFile.write(jsonDoc.toJson(QJsonDocument::Indented));
-    jsonFile.close();
+    return rootObject;
 
 }
 

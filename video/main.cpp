@@ -46,8 +46,8 @@ int main(int argc, char *argv[]) {
     }
     qDebug() << arglist;
 
-    // date = "001" "002" ..."144" for MET_12
-    // date = "YYYYMMDDhhmm" for MET_11/10/9
+    // timestamp = "001" "002" ..."144" for MET_12
+    // timestamp = "YYYYMMDDhhmm" for MET_11/10/9
     // arglist => "89" "090" for MET_12
     // arglist => "50" "202511081320"
     VideoMaker video("EUMETCastVideo.json", timestamp);
