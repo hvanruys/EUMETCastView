@@ -11,3 +11,7 @@ AppDir/
 build-appimage-ubuntu2004/
 AppDir-ubuntu2004/
 *.AppImage
+
+# Reference material kept beside the source: EUMETSAT training decks, papers.
+*.ppt
+*.pdf
