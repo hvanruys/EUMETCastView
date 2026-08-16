@@ -619,6 +619,7 @@ void FormMapCyl::showSegmentList(int value)
         outp = QString("Real time");
     }
 
+    qDebug() << outp;
     emit signalSegmentChanged(outp);
     mapcyl->update();
 
