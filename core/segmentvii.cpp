@@ -34,19 +34,22 @@ SegmentVII::SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
     //0         1         2         3         4         5         6         7         8         9         10
     //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210219013949_G_D_20070912084303_20070912084403_T_B____.nc
 
-    int sensing_start_year = fileInfo.fileName().mid(16, 4).toInt( &ok , 10);
-    int sensing_start_month = fileInfo.fileName().mid(20, 2).toInt( &ok, 10);
-    int sensing_start_day = fileInfo.fileName().mid(22, 2).toInt( &ok, 10);
-    int sensing_start_hour = fileInfo.fileName().mid(25, 2).toInt( &ok, 10);
-    int sensing_start_minute = fileInfo.fileName().mid(27, 2).toInt( &ok, 10);
-    int sensing_start_second = fileInfo.fileName().mid(29, 2).toInt( &ok, 10);
+    qDebug() << fileInfo.fileName();
 
-    int sensing_end_year = fileInfo.fileName().mid(32, 4).toInt( &ok , 10);
-    int sensing_end_month = fileInfo.fileName().mid(36, 2).toInt( &ok, 10);
-    int sensing_end_day = fileInfo.fileName().mid(38, 2).toInt( &ok, 10);
-    int sensing_end_hour = fileInfo.fileName().mid(41, 2).toInt( &ok, 10);
-    int sensing_end_minute = fileInfo.fileName().mid(43, 2).toInt( &ok, 10);
-    int sensing_end_second = fileInfo.fileName().mid(45, 2).toInt( &ok, 10);
+    QStringView fname = QStringView{fileInfo.fileName()};
+    int sensing_start_year = fname.mid(70, 4).toInt( &ok , 10);
+    int sensing_start_month = fname.mid(74, 2).toInt( &ok, 10);
+    int sensing_start_day = fname.mid(76, 2).toInt( &ok, 10);
+    int sensing_start_hour = fname.mid(78, 2).toInt( &ok, 10);
+    int sensing_start_minute = fname.mid(80, 2).toInt( &ok, 10);
+    int sensing_start_second = fname.mid(82, 2).toInt( &ok, 10);
+
+    int sensing_end_year = fname.mid(85, 4).toInt( &ok , 10);
+    int sensing_end_month = fname.mid(89, 2).toInt( &ok, 10);
+    int sensing_end_day = fname.mid(91, 2).toInt( &ok, 10);
+    int sensing_end_hour = fname.mid(93, 2).toInt( &ok, 10);
+    int sensing_end_minute = fname.mid(95, 2).toInt( &ok, 10);
+    int sensing_end_second = fname.mid(97, 2).toInt( &ok, 10);
 
     double d_sensing_start_second = (double)sensing_start_second;
     double d_sensing_end_second = (double)sensing_end_second;
