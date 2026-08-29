@@ -510,8 +510,16 @@ void SegmentListVII::RecalculateCLAHEVII()
         ++segsel;
     }
 
+    // CLAHE reports a refused geometry through its return value and leaves the
+    // buffer untouched, which would come out as a plain linear stretch with
+    // nothing to say why.
     for(int k = 0; k < (iscolor ? 3 : 1); k++)
-        imageptrs->CLAHE(pixels[k], width, nbroflinesreduced, 0, 1024, kClaheRegionsX, kClaheRegionsY, 256, 6.9);
+    {
+        const int ret = imageptrs->CLAHE(pixels[k], width, nbroflinesreduced, 0, 1024, kClaheRegionsX, kClaheRegionsY, 256, 6.9);
+        if(ret != 0)
+            qWarning() << QString("SegmentListVII::RecalculateCLAHEVII : CLAHE refused channel %1 with %2 for %3 x %4")
+                          .arg(k).arg(ret).arg(width).arg(nbroflinesreduced);
+    }
 
     for (int line = 0; line < nbroflinesreduced; line++)
     {

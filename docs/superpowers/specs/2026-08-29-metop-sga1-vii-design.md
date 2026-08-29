@@ -196,6 +196,28 @@ swath over them.
 Not verified: the GVP, LCC and SG projection buttons, the histogram methods
 including CLAHE, the overlay toggle and the 48-bit PNG export.
 
+### CLAHE had no way to be selected
+
+`CMB_HISTO_CLAHE` is 4, but every sensor histogram combo - OLCI, Geo, AVHRR,
+MERSI and the VII one added here - is filled from a three item list, and only
+`cmbHistogramProj` gets a fourth entry, `Equalize Projection` at 3. Index 4 was
+therefore unreachable from anywhere in the UI, so `RecalculateCLAHEOLCI` has
+always been dead and `RecalculateCLAHEVII`, written to mirror it, was dead the
+moment it was added.
+
+`cmbHistogramVII` now offers CLAHE. Row order cannot be the method, because 3
+is `Equalize Projection` and means nothing for a flat image, so the combo
+carries the `CMB_HISTO_*` value as item data and `getVIIHistogrammethod()`
+reads `currentData()`.
+
+The parameters check out against `SegmentImage::CLAHE`'s guard clauses: 8 x 16
+regions against a `uiMAX_REG_X` of 16, 3144 % 8 and the reduced height % 16
+both zero, `Max` of 1024 under `uiNR_OF_GREY` of 4096, and `MakeLut(0, 1024,
+256)` giving a bin size of 5 and a top bin of 204 inside 256. The return value
+is now logged, since CLAHE signals a refused geometry that way and leaves the
+buffer alone, which would otherwise show up as a plain linear stretch with
+nothing to explain it.
+
 ## Oblique Mercator (added after the original scope)
 
 OM is a fourth projection that OLCI does not have, so it was outside the

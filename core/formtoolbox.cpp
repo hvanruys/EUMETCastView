@@ -463,8 +463,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->cmbHistogramAVHRR->setCurrentIndex(CMB_HISTO_NONE_95);
     ui->cmbHistogramMERSI->addItems(lsthistogram);
     ui->cmbHistogramMERSI->setCurrentIndex(CMB_HISTO_NONE_95);
-    ui->cmbHistogramVII->addItems(lsthistogram);
-    ui->cmbHistogramVII->setCurrentIndex(CMB_HISTO_NONE_95);
+    ui->cmbHistogramVII->addItem("None 95%",  CMB_HISTO_NONE_95);
+    ui->cmbHistogramVII->addItem("None 100%", CMB_HISTO_NONE_100);
+    ui->cmbHistogramVII->addItem("Equalize",  CMB_HISTO_EQUALIZE);
+    ui->cmbHistogramVII->addItem("CLAHE",     CMB_HISTO_CLAHE);
+    ui->cmbHistogramVII->setCurrentIndex(0);
 
     lsthistogram.clear();
     lsthistogram << "None 95%" << "None 100%" << "Equalize" << "Equalize Projection";
@@ -1235,7 +1238,7 @@ bool FormToolbox::getOLCINormalized()
 
 int FormToolbox::getVIIHistogrammethod()
 {
-    return ui->cmbHistogramVII->currentIndex();
+    return ui->cmbHistogramVII->currentData().toInt();
 }
 
 bool FormToolbox::getVIINormalized()
@@ -4900,13 +4903,15 @@ void FormToolbox::on_btnUpdateVIIImage_clicked()
     if(segs->seglmetopsga1->NbrOfSegmentsSelected() > 0)
     {
         ui->pbProgress->reset();
-        formimage->ShowVIIImage(ui->cmbHistogramVII->currentIndex(), ui->rdbVIINormalized->isChecked());
+        formimage->ShowVIIImage(getVIIHistogrammethod(), ui->rdbVIINormalized->isChecked());
     }
 }
 
 void FormToolbox::on_cmbHistogramVII_currentIndexChanged(int index)
 {
-    segs->seglmetopsga1->setHistogramMethod(index, ui->rdbVIINormalized->isChecked());
+    Q_UNUSED(index)
+
+    segs->seglmetopsga1->setHistogramMethod(getVIIHistogrammethod(), ui->rdbVIINormalized->isChecked());
 
     if(segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() > 0)
     {
@@ -4917,7 +4922,7 @@ void FormToolbox::on_cmbHistogramVII_currentIndexChanged(int index)
 
 void FormToolbox::on_rdbVIINormalized_toggled(bool checked)
 {
-    segs->seglmetopsga1->setHistogramMethod(ui->cmbHistogramVII->currentIndex(), checked);
+    segs->seglmetopsga1->setHistogramMethod(getVIIHistogrammethod(), checked);
 
     if(segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() > 0)
     {
