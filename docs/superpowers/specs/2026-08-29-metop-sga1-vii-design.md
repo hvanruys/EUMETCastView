@@ -282,3 +282,37 @@ the central line (62.372, 27.797) -> (45.188, 18.479) gives an azimuth of
 8352 swath-edge points with none rejected as projecting to infinity. The extent
 is 2751.4 km across track against the 2697 km swath arc measured from the tie
 grid, and 2064.8 km along track against 5 minutes at roughly 6.7 km/s.
+
+### The flat image came out mirrored
+
+VII scans from the port side: measured with great-circle bearings over 13
+granules spread across a full orbit, pixel 0 lies 90.1 to 90.6 degrees to the
+**left** of the flight direction, the same on ascending and descending passes,
+including polar granules and ones crossing the dateline. (A first attempt at
+this measurement compared raw longitude differences and gave self-contradictory
+answers, because that breaks either side of 180 degrees.)
+
+The composed image puts line 0 at the top, so the flight direction runs down
+the page and the port-side edge belongs on the right. Writing array column 0 to
+image x = 0 therefore drew the swath mirrored - for a descending granule, line 0
+ran 48.8 E on the left to 0.8 E on the right, east on the left under a north-up
+image. Because the handedness is fixed relative to the spacecraft, one reversal
+corrects ascending and descending alike.
+
+`ReadSegmentInMemory` now reverses the across-track axis of the radiances, the
+geolocation, the interpolated solar zenith and the duplication mask as they are
+read. Doing it there rather than at draw time keeps the flat image, the globe
+texture, the graticule, `searchLatLon` and the 48-bit PNG on a single indexing
+convention; a flip applied at draw time would have had to be repeated,
+consistently, in five places.
+
+The projections are unaffected: the radiances and their geolocation turn
+together, so every (lat, lon, value) triple is unchanged and only the order they
+are visited in differs.
+
+None of the other sensor classes reverses anything, so their products evidently
+deliver the across-track axis the other way round.
+
+After the change, the new pixel 0 measures 89.9 to 90.1 degrees to the right of
+the flight direction across the same 13 granules, and the granule above reads
+0.8 E on the left to 48.8 E on the right.

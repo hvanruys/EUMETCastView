@@ -3,11 +3,28 @@
 #include "options.h"
 #include <QDebug>
 
+#include <algorithm>
 #include <cmath>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern SatelliteList satellitelist;
+
+// VII scans from the port side: pixel 0 lies 90 degrees to the left of the
+// flight direction, measured the same on ascending and descending passes alike.
+// The composed image runs the flight direction down the page, which puts that
+// edge on the right, so leaving the array order alone draws the swath mirrored.
+// Reversing across track here rather than at draw time keeps the image, the
+// globe texture, the graticule, searchLatLon and the 48-bit PNG on one indexing
+// convention, and leaves the projections untouched, since the radiances and
+// their geolocation turn together.
+template<typename T>
+static void reverseAcrossTrack(QVector<T> *v, int rows, int cols)
+{
+    T *p = v->data();
+    for(int r = 0; r < rows; r++)
+        std::reverse(p + (qsizetype)r * cols, p + (qsizetype)(r + 1) * cols);
+}
 
 SegmentVII::SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
   Segment(parent)
@@ -237,6 +254,9 @@ Segment *SegmentVII::ReadSegmentInMemory()
             qDebug() << "SegmentVII::ReadSegmentInMemory no DEM orthorectification : " << reader.lastError();
     }
 
+    reverseAcrossTrack(&lat, geom.nlines, geom.npixels);
+    reverseAcrossTrack(&lon, geom.nlines, geom.npixels);
+
     geolatitude.reset(new float[npix]);
     geolongitude.reset(new float[npix]);
     memcpy(geolatitude.data(), lat.constData(), npix * sizeof(float));
@@ -249,6 +269,7 @@ Segment *SegmentVII::ReadSegmentInMemory()
     QScopedArrayPointer<float> secSZA(new float[npix]);
     if(reader.interpolateTiePointVariable(QStringLiteral("solar_zenith"), &sza))
     {
+        reverseAcrossTrack(&sza, geom.nlines, geom.npixels);
         for(int i = 0; i < npix; i++)
         {
             const float c = cos(sza.at(i) * PIE / 180.0);
@@ -264,7 +285,9 @@ Segment *SegmentVII::ReadSegmentInMemory()
             secSZA[i] = 1.0f;
     }
 
-    if(!reader.readDuplicationMask(&duplicationmask))
+    if(reader.readDuplicationMask(&duplicationmask))
+        reverseAcrossTrack(&duplicationmask, geom.nd, geom.npixels);
+    else
         qDebug() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
 
     // Every channel is packed onto 0..65534 against its own valid range as the
@@ -282,6 +305,8 @@ Segment *SegmentVII::ReadSegmentInMemory()
             reader.close();
             return this;
         }
+
+        reverseAcrossTrack(&rad, geom.nlines, geom.npixels);
 
         const double scale = 65534.0 / (radmax - radmin);
 
