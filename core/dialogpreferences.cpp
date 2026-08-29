@@ -117,6 +117,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->chkImageOnTextureVIIRS->setChecked(opts.imageontextureOnVIIRS);
     ui->chkImageOnTextureOLCI->setChecked(opts.imageontextureOnOLCI);
     ui->chkImageOnTextureVII->setChecked(opts.imageontextureOnVII);
+    ui->chkVIIDemOrthorectify->setChecked(opts.viidemorthorectify);
     ui->chkWindowVectors->setChecked(opts.windowvectors);
     ui->chkUDPMessages->setChecked(opts.udpmessages);
 
@@ -617,6 +618,7 @@ void DialogPreferences::dialogaccept()
     opts.imageontextureOnVIIRS = ui->chkImageOnTextureVIIRS->isChecked();
     opts.imageontextureOnOLCI = ui->chkImageOnTextureOLCI->isChecked();
     opts.imageontextureOnVII = ui->chkImageOnTextureVII->isChecked();
+    opts.viidemorthorectify = ui->chkVIIDemOrthorectify->isChecked();
     opts.windowvectors = ui->chkWindowVectors->isChecked();
     opts.udpmessages = ui->chkUDPMessages->isChecked();
 

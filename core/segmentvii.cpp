@@ -3,38 +3,28 @@
 #include "options.h"
 #include <QDebug>
 
-#include <netcdf.h>
-#include <QMutex>
+#include <algorithm>
+#include <cmath>
 
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern SatelliteList satellitelist;
 
-//void doCalcOverlayLatLon(SegmentOLCI *t, int collength, int rowlength)
-//{
-//    t->CalcOverlayLatLon(collength, rowlength);
-//}
-
-#define CHECK(expr)                                                       \
-do {                                                                  \
-        int _e = (expr);                                                  \
-        if (_e != NC_NOERR) {                                             \
-            fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__,            \
-                    nc_strerror(_e));                                     \
-            exit(EXIT_FAILURE);                                           \
-    }                                                                 \
-} while (0)
-
-typedef struct {
-    size_t nscans;    /* Nl        num_scans          */
-    size_t nd;        /* N_D       num_pixels_alt  24 */
-    size_t nlines;    /* N_ALT     num_lines      840 */
-    size_t npixels;   /* N_ACT     num_pixels    3144 */
-    size_t zact;      /* Z_ACT     zone_size_act    8 */
-    size_t zalt;      /* Z_ALT     zone_size_alt    8 */
-    size_t ntie_act;  /* N_TIE_ACT num_tie_points_act 394 */
-    size_t ntie_alt;  /* N_TIE_ALT num_tie_points_alt 4*Nl */
-} vii_geom;
+// VII scans from the port side: pixel 0 lies 90 degrees to the left of the
+// flight direction, measured the same on ascending and descending passes alike.
+// The composed image runs the flight direction down the page, which puts that
+// edge on the right, so leaving the array order alone draws the swath mirrored.
+// Reversing across track here rather than at draw time keeps the image, the
+// globe texture, the graticule, searchLatLon and the 48-bit PNG on one indexing
+// convention, and leaves the projections untouched, since the radiances and
+// their geolocation turn together.
+template<typename T>
+static void reverseAcrossTrack(QVector<T> *v, int rows, int cols)
+{
+    T *p = v->data();
+    for(int r = 0; r < rows; r++)
+        std::reverse(p + (qsizetype)r * cols, p + (qsizetype)(r + 1) * cols);
+}
 
 SegmentVII::SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
   Segment(parent)
@@ -92,9 +82,21 @@ SegmentVII::SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
     qsensingend = QSgp4Date(sensing_end_year, sensing_end_month, sensing_end_day, sensing_end_hour, sensing_end_minute, d_sensing_end_second);
 
 
-    this->earth_views_per_scanline = 4865;
-    this->NbrOfLines = 4091;
+    // The real dimensions come from the product in ReadSegmentInMemory; these
+    // are the nominal ones, needed before the file is ever opened because the
+    // map and globe views draw the footprint of every segment in the list.
+    this->earth_views_per_scanline = 3144;
+    this->NbrOfLines = 840;
+    this->num_pixels_alt = 24;
 
+    this->nbrsaturatedpixels = 0;
+    this->active_pixels_projection = 0;
+    for(int k = 0; k < 3; k++)
+    {
+        this->invertthissegment[k] = false;
+        this->stat_max_projection[k] = 0;
+        this->stat_min_projection[k] = 0;
+    }
 
     Satellite *sga1_sat;
 
@@ -148,397 +150,184 @@ SegmentVII::SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
 
 }
 
-size_t SegmentVII::dim_len(int gid, const char *name)
+// The band radio buttons and the colour combos both number the VII channels
+// 1..20 in the order they appear in the product, so one loop replaces the
+// twenty-way if chain the other sensors use.
+QString SegmentVII::getChannelNameFromColor(int colorindex)
 {
-    int    dimid;
-    size_t len;
-    CHECK(nc_inq_dimid(gid, name, &dimid));   /* searches parents too */
-    CHECK(nc_inq_dimlen(gid, dimid, &len));
-    return len;
+    Q_ASSERT(colorindex >= 0 && colorindex < 3);
+
+    for(int band = 0; band < colorlist.count(); band++)
+    {
+        if(colorlist.at(band) == colorindex + 1)   // combo index 1, 2 or 3 = R, G or B
+        {
+            invertthissegment[colorindex] = invertlist.at(band);
+            return ViiL1BReader::channelVariableName(band + 1);
+        }
+    }
+    return QString();
+}
+
+QString SegmentVII::getChannelNameFromBand()
+{
+    for(int band = 1; band < bandlist.count(); band++)  // bandlist.at(0) = the colour radio button
+    {
+        if(bandlist.at(band))
+        {
+            invertthissegment[0] = invertlist.at(band - 1);
+            return ViiL1BReader::channelVariableName(band);
+        }
+    }
+    return QString();
+}
+
+bool SegmentVII::isDuplicatedPixel(int line, int pixelx) const
+{
+    if(duplicationmask.isEmpty())
+        return false;
+    return duplicationmask.at((line % num_pixels_alt) * earth_views_per_scanline + pixelx) != 0;
 }
 
 Segment *SegmentVII::ReadSegmentInMemory()
 {
+    bool iscolorimage = this->bandlist.at(0);
 
-    // QString fname1;
-    // QString fname2;
-    // QString fname3;
-    // QByteArray array1;
-    // QByteArray array2;
-    // QByteArray array3;
-    // const char* pfile1;
-    // const char* pfile2;
-    // const char* pfile3;
-    // QString var1;
-    // QString var2;
-    // QString var3;
-    // const char* pvar1;
-    // const char* pvar2;
-    // const char* pvar3;
-
-    // int retval;
-    // int ncid;
-
-    // /* group handles: a full path is resolved in one call */
-    // int data_gid, meas_gid;
-
-    // int nctieviifileid, ncfileid1, ncfileid2, ncfileid3;
-    // int radianceid1, radianceid2, radianceid3;
-    // int ncqualityflagsid, qualityflagsid;
-    // float scale_factor[3], add_offset[3];
-
-
-    // int dataid;
-    // int num_scansid;
-    // int tiecolumnsid, tierowsid;
-    // size_t columnslength, rowslength;
-    // size_t tiecolumnslength, tierowslength;
-
-    // int longitudeid, latitudeid;
-    // int SZAid;
-    // QScopedArrayPointer<int> tieSZA;
-    // QScopedArrayPointer<float> secSZA;
-
-    // bool iscolorimage = this->bandlist.at(0);
-
-    int ncid;
-    QString viifile = fileInfo.absoluteFilePath();
-    QByteArray arrayvii = viifile.toUtf8();
-    const char *pviifile = arrayvii.constData();
-    qDebug() << "Starting netCDF " << viifile;
-    CHECK(nc_open(pviifile, NC_NOWRITE, &ncid));
-
-    /* group handles: a full path is resolved in one call */
-    int data_gid, meas_gid;
-    CHECK(nc_inq_grp_full_ncid(ncid, "/data", &data_gid));
-    CHECK(nc_inq_grp_full_ncid(ncid, "/data/measurement_data", &meas_gid));
-
-    // data/measurement_data -- 11 dimensions (incl. inherited)
-    //     num_scans              = 35
-    //     num_chan               = 20
-    //     num_chan_solar         = 11
-    //     num_chan_thermal       = 9
-    //     num_pixels             = 3144
-    //     num_pixels_alt         = 24
-    //     num_lines              = 840
-    //     zone_size_act          = 8
-    //     zone_size_alt          = 8
-    //     num_tie_points_act     = 394
-    //     num_tie_points_alt     = 140
-
-
-    int num_scans = dim_len(meas_gid, "num_scans");
-    int num_chan = dim_len(meas_gid, "num_chan");
-    int num_chan_solar = dim_len(meas_gid, "num_chan_solar");
-    int num_chan_thermal = dim_len(meas_gid, "num_chan_thermal");
-    int num_pixels = dim_len(meas_gid, "num_pixels");
-    int num_pixels_alt = dim_len(meas_gid, "num_pixels_alt");
-    int num_lines = dim_len(meas_gid, "num_lines");
-    int zone_size_act = dim_len(meas_gid, "zone_size_act");
-    int zone_size_alt = dim_len(meas_gid, "zone_size_alt");
-    int num_tie_points_act = dim_len(meas_gid, "num_tie_points_act");
-    int num_tie_points_alt = dim_len(meas_gid, "num_tie_points_alt");
-
-    qDebug() << "num_scans        = " << num_scans;
-    qDebug() << "num_chan         = " << num_chan;
-    qDebug() << "num_chan_solar   = " << num_chan_solar;
-    qDebug() << "num_chan_thermal = " << num_chan_thermal;
-    qDebug() << "num_pixels       = " << num_pixels;
-    qDebug() << "num_lines        = " << num_lines;
-
-    // retval = nc_inq_dimid(ncgeofileid, "rows", &rowsid);
-    // if(retval != NC_NOERR) qDebug() << "error reading rows id geofile";
-    // retval = nc_inq_dimlen(ncgeofileid, rowsid, &rowslength);
-    // if(retval != NC_NOERR) qDebug() << "error reading rows length geofile";
-
-
-    // this->longitude.reset(new int[columnslength * rowslength]);
-    // this->latitude.reset(new int[columnslength * rowslength]);
-
-
-    // retval = nc_inq_varid(ncgeofileid, "longitude", &longitudeid);
-    // if (retval != NC_NOERR) qDebug() << "error reading longitude id";
-    // retval = nc_get_var_int(ncgeofileid, longitudeid, this->longitude.data());
-    // if (retval != NC_NOERR) qDebug() << "error reading longitude values";
-
-    // retval = nc_inq_varid(ncgeofileid, "latitude", &latitudeid);
-    // if (retval != NC_NOERR) qDebug() << "error reading latitude id";
-    // retval = nc_get_var_int(ncgeofileid, latitudeid, this->latitude.data());
-    // if (retval != NC_NOERR) qDebug() << "error reading latitude values";
-
-    CHECK(nc_close(ncid));
-
-    //QFuture<void> future = QtConcurrent::run(doCalcOverlayLatLon, this, columnslength, rowslength);
-    //CalcOverlayLatLon(columnslength, rowslength);
-/*
-    // tie_geometries.nc
-    QString tiegeofile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/tie_geometries.nc" : fileInfo.baseName() + ".SEN3/tie_geometries.nc";
-    QByteArray arraytiegeo = tiegeofile.toUtf8();
-    const char *ptiegeofile = arraytiegeo.constData();
-
-    qDebug() << "Starting netCDF tie_geometries";
-    retval = nc_open(ptiegeofile, NC_NOWRITE, &nctiegeofileid);
-    if(retval != NC_NOERR) qDebug() << "error opening tie_geometries";
-
-    retval = nc_inq_dimid(nctiegeofileid, "tie_columns", &tiecolumnsid);
-    if(retval != NC_NOERR) qDebug() << "error reading tie_columns id";
-    retval = nc_inq_dimlen(nctiegeofileid, tiecolumnsid, &tiecolumnslength);
-    if(retval != NC_NOERR) qDebug() << "error reading tie_columns length";
-
-    retval = nc_inq_dimid(nctiegeofileid, "tie_rows", &tierowsid);
-    if(retval != NC_NOERR) qDebug() << "error reading tie_rows id";
-    retval = nc_inq_dimlen(nctiegeofileid, tierowsid, &tierowslength);
-    if(retval != NC_NOERR) qDebug() << "error reading tie_rows length";
-
-    secSZA.reset(new float[columnslength * rowslength]);
-    tieSZA.reset(new int[tiecolumnslength * tierowslength]);
-
-
-    retval = nc_inq_varid(nctiegeofileid, "SZA", &SZAid);
-    if (retval != NC_NOERR) qDebug() << "error reading SZA id";
-    retval = nc_get_var_int(nctiegeofileid, SZAid, tieSZA.data());
-    if (retval != NC_NOERR) qDebug() << "error reading SZA values";
-
-    retval = nc_close(nctiegeofileid);
-    if (retval != NC_NOERR) qDebug() << "error closing tie_geometries";
-
-//    for(int i = 0; i < tiecolumnslength; i++)
-//         qDebug() << i << " " << tieSZA[i];
-
-
-    QString qualityflagfile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/qualityFlags.nc" : this->fileInfo.baseName() + ".SEN3/qualityFlags.nc";
-    QByteArray arrayquality = qualityflagfile.toUtf8();
-    const char *pqualityflagfile = arrayquality.constData();
-
-    qDebug() << "Starting netCDF qualityFlags";
-    retval = nc_open(pqualityflagfile, NC_NOWRITE, &ncqualityflagsid);
-    if(retval != NC_NOERR) qDebug() << "error opening qualitytieFlags";
-
-    retval = nc_inq_dimid(ncqualityflagsid, "columns", &columnsid);
-    if(retval != NC_NOERR) qDebug() << "error reading columns id";
-    retval = nc_inq_dimlen(ncqualityflagsid, columnsid, &columnslength);
-    if(retval != NC_NOERR) qDebug() << "error reading columns length";
-
-    retval = nc_inq_dimid(ncqualityflagsid, "rows", &rowsid);
-    if(retval != NC_NOERR) qDebug() << "error reading rows id";
-    retval = nc_inq_dimlen(ncqualityflagsid, rowsid, &rowslength);
-    if(retval != NC_NOERR) qDebug() << "error reading rows length";
-
-    quality_flags.reset(new quint32[columnslength * rowslength]);
-
-    retval = nc_inq_varid(ncqualityflagsid, "quality_flags", &qualityflagsid);
-    if (retval != NC_NOERR) qDebug() << "error reading qualityflags id";
-    retval = nc_get_var_uint(ncqualityflagsid, qualityflagsid, quality_flags.data());
-    if (retval != NC_NOERR) qDebug() << "error reading quality_flags values";
-
-    nbrsaturatedpixels = 0;
-    nbrcoastlinepixels = 0;
-    for (int line = 0; line < rowslength; line++)
+    if(!reader.open(fileInfo.absoluteFilePath()))
     {
-        for (int pixelx = 0; pixelx < columnslength; pixelx++)
-        {
-            if(0x001fffff & quality_flags[line * columnslength + pixelx])
-            {
-                nbrsaturatedpixels++;
-            }
-            if(1073741824 & quality_flags[line * columnslength + pixelx])
-            {
-                coastline << QPoint(pixelx, line);
-                nbrcoastlinepixels++;
-            }
+        qCritical() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
+        return this;
+    }
 
+    const ViiGeometry geom = reader.geometry();
+    this->earth_views_per_scanline = geom.npixels;
+    this->NbrOfLines = geom.nlines;
+    this->num_pixels_alt = geom.nd;
+
+    QString channel[3];
+    if(iscolorimage)
+    {
+        for(int k = 0; k < 3; k++)
+            channel[k] = getChannelNameFromColor(k);
+    }
+    else
+        channel[0] = getChannelNameFromBand();
+
+    if(channel[0].isEmpty() || (iscolorimage && (channel[1].isEmpty() || channel[2].isEmpty())))
+    {
+        qCritical() << "SegmentVII::ReadSegmentInMemory no VII band selected";
+        reader.close();
+        return this;
+    }
+
+    qDebug() << QString("SegmentVII::ReadSegmentInMemory %1 x %2 channels %3 %4 %5")
+                .arg(earth_views_per_scanline).arg(NbrOfLines)
+                .arg(channel[0]).arg(channel[1]).arg(channel[2]);
+
+    this->initializeMemory();
+
+    const int npix = geom.pixelCount();
+
+    // 65535 is the no-data marker; setting it up front means an error further
+    // down leaves a transparent segment instead of uninitialised memory
+    for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
+    {
+        for(int i = 0; i < npix; i++)
+        {
+            ptrbaVII[k][i] = 65535;
+            ptrbaVIInormalized[k][i] = 65535;
         }
     }
 
-
-    size_t attlen = 0;
-    retval = nc_inq_attlen(ncqualityflagsid, qualityflagsid, "flag_meanings", &attlen);
-    if (retval != NC_NOERR) qDebug() << "error reading att len flag_meanings";
-
-    qDebug() << "attlen = " << attlen;
-
-    char *string_attr = NULL;
-    string_attr = new char[attlen];
-
-    retval = nc_get_att_text(ncqualityflagsid, qualityflagsid, "flag_meanings", string_attr);
-    if (retval != NC_NOERR) qDebug() << "error reading att string flag_meanings retval = " << retval ;
-
-    QString strflagmeanings(string_attr);
-    this->strlflagmeanings = strflagmeanings.split(" ", Qt::SkipEmptyParts);
-    for (int i = 0; i < strlflagmeanings.size(); i++)
+    // The product only carries geolocation on the tie point grid, so every
+    // full resolution position has to be reconstructed from it.
+    QVector<float> lat, lon;
+    if(!reader.interpolateGeolocation(&lat, &lon))
     {
-        qDebug() << i << " " << strlflagmeanings.at(i);
+        qCritical() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
+        reader.close();
+        return this;
     }
 
-    size_t flagmaskslen;
-    retval = nc_inq_attlen(ncqualityflagsid, qualityflagsid, "flag_masks", &flagmaskslen);
-    if (retval != NC_NOERR) qDebug() << "error reading att flag masks len retval = " << retval ;
-
-    masks.reset(new quint32[flagmaskslen]);
-
-    retval = nc_get_att_uint(ncqualityflagsid, qualityflagsid, "flag_masks", masks.data());
-    if (retval != NC_NOERR) qDebug() << "error reading att flag_masks retval = " << retval ;
-
-    for (int i = 0; i < flagmaskslen; i++)
+    if(opts.viidemorthorectify)
     {
-        qDebug() << i << " " << masks[i];
+        if(!reader.orthorectify(&lat, &lon))
+            qDebug() << "SegmentVII::ReadSegmentInMemory no DEM orthorectification : " << reader.lastError();
     }
 
-    qDebug() << "Nbr of saturated pixels = " << nbrsaturatedpixels << " nbr of coastline pixels = " << nbrcoastlinepixels;
+    reverseAcrossTrack(&lat, geom.nlines, geom.npixels);
+    reverseAcrossTrack(&lon, geom.nlines, geom.npixels);
 
-    delete [] string_attr;
-    retval = nc_close(ncqualityflagsid);
-    if (retval != NC_NOERR) qDebug() << "error closing qualityFlags";
+    geolatitude.reset(new float[npix]);
+    geolongitude.reset(new float[npix]);
+    memcpy(geolatitude.data(), lat.constData(), npix * sizeof(float));
+    memcpy(geolongitude.data(), lon.constData(), npix * sizeof(float));
 
-    int val1, val2, diff;
-    int factor = (columnslength-1)/(tiecolumnslength-1);
+    CalcOverlayLatLon();
 
-
-
-    if(iscolorimage)
+    // sec(SZA), the same normalization SegmentOLCI does from tie_geometries.nc
+    QVector<float> sza;
+    QScopedArrayPointer<float> secSZA(new float[npix]);
+    if(reader.interpolateTiePointVariable(QStringLiteral("solar_zenith"), &sza))
     {
-        qDebug() << "Starting netCDF color";
-        getDatasetNameFromColor(0, &fname1, &var1, &saturationindex[0]);
-        getDatasetNameFromColor(1, &fname2, &var2, &saturationindex[1]);
-        getDatasetNameFromColor(2, &fname3, &var3, &saturationindex[2]);
-
-        qDebug() << "getDatasetNameFromBand fname1 = " << fname1 << " var1 = " << var1;
-        qDebug() << "getDatasetNameFromBand fname2 = " << fname2 << " var2 = " << var2;
-        qDebug() << "getDatasetNameFromBand fname3 = " << fname3 << " var3 = " << var3;
-
-
-        array1 = fname1.toUtf8();
-        array2 = fname2.toUtf8();
-        array3 = fname3.toUtf8();
-        pfile1 = array1.constData();
-        pfile2 = array2.constData();
-        pfile3 = array3.constData();
-
-        retval = nc_open(pfile1, NC_NOWRITE, &ncfileid1);
-        if(retval != NC_NOERR) qDebug() << "error opening file1";
-        retval = nc_open(pfile2, NC_NOWRITE, &ncfileid2);
-        if(retval != NC_NOERR) qDebug() << "error opening file2";
-        retval = nc_open(pfile3, NC_NOWRITE, &ncfileid3);
-        if(retval != NC_NOERR) qDebug() << "error opening file3";
-
-        retval = nc_inq_dimid(ncfileid1, "columns", &columnsid);
-        if(retval != NC_NOERR) qDebug() << "error reading columns id file1";
-        retval = nc_inq_dimlen(ncfileid1, columnsid, &columnslength);
-        if(retval != NC_NOERR) qDebug() << "error reading columns length file1";
-
-        retval = nc_inq_dimid(ncfileid1, "rows", &rowsid);
-        if(retval != NC_NOERR) qDebug() << "error reading rows id file1";
-        retval = nc_inq_dimlen(ncfileid1, rowsid, &rowslength);
-        if(retval != NC_NOERR) qDebug() << "error reading rows length file1";
-
-        this->earth_views_per_scanline = columnslength;
-        this->NbrOfLines = rowslength;
-
-        this->initializeMemory();
-
-        array1 = var1.toUtf8();
-        array2 = var2.toUtf8();
-        array3 = var3.toUtf8();
-        pvar1 = array1.constData();
-        pvar2 = array2.constData();
-        pvar3 = array3.constData();
-
-        retval = nc_inq_varid(ncfileid1, pvar1, &radianceid1);
-        if (retval != NC_NOERR) qDebug() << "error reading radiance1 id";
-        retval = nc_get_var_ushort(ncfileid1, radianceid1, ptrbaOLCI[0].data());
-        if (retval != NC_NOERR) qDebug() << "error reading radiance1 values";
-
-        retval = nc_inq_varid(ncfileid2, pvar2, &radianceid2);
-        if (retval != NC_NOERR) qDebug() << "error reading radiance2 id";
-        retval = nc_get_var_ushort(ncfileid2, radianceid2, ptrbaOLCI[1].data());
-        if (retval != NC_NOERR) qDebug() << "error reading radiance2 values";
-
-        retval = nc_inq_varid(ncfileid3, pvar3, &radianceid3);
-        if (retval != NC_NOERR) qDebug() << "error reading radiance3 id";
-        retval = nc_get_var_ushort(ncfileid3, radianceid3, ptrbaOLCI[2].data());
-        if (retval != NC_NOERR) qDebug() << "error reading radiance3 values";
-
-        retval = nc_get_att_float(ncfileid1, radianceid1, "scale_factor", &scale_factor[0]);
-        if (retval != NC_NOERR) qDebug() << "error reading scale_factor[0]";
-
-        retval = nc_get_att_float(ncfileid2, radianceid2, "scale_factor", &scale_factor[1]);
-        if (retval != NC_NOERR) qDebug() << "error reading scale_factor[1]";
-
-        retval = nc_get_att_float(ncfileid3, radianceid3, "scale_factor", &scale_factor[2]);
-        if (retval != NC_NOERR) qDebug() << "error reading scale_factor[2]";
-
-        retval = nc_get_att_float(ncfileid1, radianceid1, "add_offset", &add_offset[0]);
-        if (retval != NC_NOERR) qDebug() << "error reading add_offset[0]";
-
-        retval = nc_get_att_float(ncfileid2, radianceid2, "add_offset", &add_offset[1]);
-        if (retval != NC_NOERR) qDebug() << "error reading add_offset[1]";
-
-        retval = nc_get_att_float(ncfileid3, radianceid3, "add_offset", &add_offset[2]);
-        if (retval != NC_NOERR) qDebug() << "error reading add_offset[2]";
-
-
-        for(int i = 0; i < 3; i++)
-            qDebug() << QString("scale_factor %1 = %2").arg(i).arg(scale_factor[i]);
-
-        retval = nc_close(ncfileid1);
-        if (retval != NC_NOERR) qDebug() << "error closing file1";
-
-        retval = nc_close(ncfileid2);
-        if (retval != NC_NOERR) qDebug() << "error closing file2";
-
-        retval = nc_close(ncfileid3);
-        if (retval != NC_NOERR) qDebug() << "error closing file3";
-
-
+        reverseAcrossTrack(&sza, geom.nlines, geom.npixels);
+        for(int i = 0; i < npix; i++)
+        {
+            const float c = cos(sza.at(i) * PIE / 180.0);
+            // beyond the terminator sec(SZA) runs away, so hold it at the
+            // grazing value rather than letting it blow the stretch apart
+            secSZA[i] = (std::isnan(sza.at(i)) || c < 0.01f) ? 100.0f : 1.0f / c;
+        }
     }
     else
     {
-        qDebug() << "Starting netCDF mono";
-        getDatasetNameFromBand(&fname1, &var1, &saturationindex[0]);
-
-        qDebug() << "getDatasetNameFromBand fname1 = " << fname1 << " var1 = " << var1;
-
-        array1 = fname1.toUtf8();
-        pfile1 = array1.constData();
-
-        retval = nc_open(pfile1, NC_NOWRITE, &ncfileid1);
-        if(retval != NC_NOERR) qDebug() << "error opening file1";
-
-        retval = nc_inq_dimid(ncfileid1, "columns", &columnsid);
-        if(retval != NC_NOERR) qDebug() << "error reading columns id file1";
-        retval = nc_inq_dimlen(ncfileid1, columnsid, &columnslength);
-        if(retval != NC_NOERR) qDebug() << "error reading columns length file1";
-
-        retval = nc_inq_dimid(ncfileid1, "rows", &rowsid);
-        if(retval != NC_NOERR) qDebug() << "error reading rows id file1";
-        retval = nc_inq_dimlen(ncfileid1, rowsid, &rowslength);
-        if(retval != NC_NOERR) qDebug() << "error reading rows length file1";
-
-        this->earth_views_per_scanline = columnslength;
-        this->NbrOfLines = rowslength;
-
-        this->initializeMemory();
-
-        array1 = var1.toUtf8();
-        pvar1 = array1.constData();
-
-        retval = nc_inq_varid(ncfileid1, pvar1, &radianceid1);
-        if (retval != NC_NOERR) qDebug() << "error reading radiance1 id";
-        retval = nc_get_var_ushort(ncfileid1, radianceid1, ptrbaOLCI[0].data());
-        if (retval != NC_NOERR) qDebug() << "error reading radiance1 values";
-
-        retval = nc_get_att_float(ncfileid1, radianceid1, "scale_factor", &scale_factor[0]);
-        if (retval != NC_NOERR) qDebug() << "error reading scale_factor[0]";
-
-        retval = nc_get_att_float(ncfileid1, radianceid1, "add_offset", &add_offset[0]);
-        if (retval != NC_NOERR) qDebug() << "error reading add_offset[0]";
-
-        retval = nc_close(ncfileid1);
-        if (retval != NC_NOERR) qDebug() << "error closing file1";
-
-
+        qDebug() << "SegmentVII::ReadSegmentInMemory no solar_zenith : " << reader.lastError();
+        for(int i = 0; i < npix; i++)
+            secSZA[i] = 1.0f;
     }
 
+    if(reader.readDuplicationMask(&duplicationmask))
+        reverseAcrossTrack(&duplicationmask, geom.nd, geom.npixels);
+    else
+        qDebug() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
+
+    // Every channel is packed onto 0..65534 against its own valid range as the
+    // product states it, with 65535 kept free as the no data marker. The range
+    // is a property of the channel and not of this granule, so the per channel
+    // statistics of different segments stay comparable and can be merged.
+    QVector<float> rad;
+    for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
+    {
+        double radmin, radmax;
+        if(!reader.radianceRange(channel[k], &radmin, &radmax)
+           || !reader.readFullGridVariable(channel[k], &rad))
+        {
+            qCritical() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
+            reader.close();
+            return this;
+        }
+
+        reverseAcrossTrack(&rad, geom.nlines, geom.npixels);
+
+        const double scale = 65534.0 / (radmax - radmin);
+
+        for(int i = 0; i < npix; i++)
+        {
+            const float val = rad.at(i);
+            if(std::isnan(val))
+            {
+                ptrbaVII[k][i] = 65535;
+                ptrbaVIInormalized[k][i] = 65535;
+            }
+            else
+            {
+                ptrbaVII[k][i] = (quint16)qBound(0, qRound((val - radmin) * scale), 65534);
+                // clamped at 65534, not 65535, which is the no data marker
+                ptrbaVIInormalized[k][i] = (quint16)qBound(0, qRound((val * secSZA[i] - radmin) * scale), 65534);
+            }
+        }
+    }
+
+    reader.close();
 
     for(int k = 0; k < 3; k++)
     {
@@ -549,462 +338,90 @@ Segment *SegmentVII::ReadSegmentInMemory()
         active_pixels[k] = 0;
     }
 
-    qDebug() << QString("rowslength = %1 columnslength : %2 earth_views_per_scanline = %3").arg(rowslength).arg(columnslength).arg(earth_views_per_scanline);
-    qDebug() << QString("tierowslength = %1 tiecolumnslength : %2 NbrOfLines = %3").arg(tierowslength).arg(tiecolumnslength).arg(NbrOfLines);
-
-    factor = (columnslength-1)/(tiecolumnslength-1);
-
-    qDebug() << QString("rowslength * columnslength = %1 factor = %2 ").arg(rowslength*columnslength).arg(factor);
-
-    // Linear interpolation
-    for(int j=0; j < NbrOfLines; j++)
-    {
-        for(int i=0; i < tiecolumnslength-1; i++) // tiecolumnslength = 77
-        {
-            val1 = tieSZA[j*tiecolumnslength + i];
-            val2 = tieSZA[j*tiecolumnslength + i+1];
-            diff = (val2 - val1)/factor;
-
-            for(int k=0; k < factor; k++)
-            {
-               secSZA[j*earth_views_per_scanline + i*factor + k] = 1.0/cos(((float)(val1 + diff*k)/1000000.0f)*PIE/180.0);
-            }
-        }
-        secSZA[j*earth_views_per_scanline + 76*factor] = 1.0/cos(((float)val2/1000000.0f)*PIE/180.0);
-    }
-
-    float val, valnormalized;
-
-    for(int j=0; j < NbrOfLines; j++)
-    {
-        for(int i=0; i < earth_views_per_scanline; i++)
-        {
-            for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
-            {
-                if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < 65535)
-                {
-                    val = ((float)ptrbaOLCI[k][j*earth_views_per_scanline + i] * scale_factor[k] + add_offset[k]) * 10;
-                    valnormalized = val*secSZA[j*earth_views_per_scanline + i];
-                    ptrbaOLCI[k][j*earth_views_per_scanline + i]  = (quint16)qMin(qMax(qRound(val),0),65535);
-                    ptrbaOLCInormalized[k][j*earth_views_per_scanline + i]  = (quint16)qMin(qMax(qRound(valnormalized),0),65535);
-                }
-                else
-                {
-                    ptrbaOLCI[k][j*earth_views_per_scanline + i] = 65535;
-                    ptrbaOLCInormalized[k][j*earth_views_per_scanline + i] = 65535;
-                }
-
-            }
-        }
-    }
+    nbrsaturatedpixels = 0;
 
     for(int k = 0; k < (iscolorimage ? 3 : 1); k++)
     {
-        for(int j=0; j < NbrOfLines; j++)
+        for(int i = 0; i < npix; i++)
         {
-            for(int i=0; i < earth_views_per_scanline; i++)
+            const quint16 pix = ptrbaVII[k][i];
+            if(pix < 65535)
             {
-                if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < 65535)
-                {
-                    if(ptrbaOLCI[k][j*earth_views_per_scanline + i] > stat_max_ch[k])
-                        stat_max_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
-                    if(ptrbaOLCI[k][j*earth_views_per_scanline + i] < stat_min_ch[k])
-                        stat_min_ch[k] = ptrbaOLCI[k][j*earth_views_per_scanline + i];
-                    if(ptrbaOLCInormalized[k][j*earth_views_per_scanline + i] > stat_max_norm_ch[k])
-                        stat_max_norm_ch[k] = ptrbaOLCInormalized[k][j*earth_views_per_scanline + i];
-                    if(ptrbaOLCInormalized[k][j*earth_views_per_scanline + i] < stat_min_norm_ch[k])
-                        stat_min_norm_ch[k] = ptrbaOLCInormalized[k][j*earth_views_per_scanline + i];
-
-                    active_pixels[k]++;
-                }
+                if(pix > stat_max_ch[k])
+                    stat_max_ch[k] = pix;
+                if(pix < stat_min_ch[k])
+                    stat_min_ch[k] = pix;
+                if(ptrbaVIInormalized[k][i] > stat_max_norm_ch[k])
+                    stat_max_norm_ch[k] = ptrbaVIInormalized[k][i];
+                if(ptrbaVIInormalized[k][i] < stat_min_norm_ch[k])
+                    stat_min_norm_ch[k] = ptrbaVIInormalized[k][i];
+                if(pix == 65534)  // sitting on the channel's valid_max
+                    nbrsaturatedpixels++;
+                active_pixels[k]++;
             }
         }
     }
 
-
-    qDebug() << QString("ptrbaOLCI min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
+    qDebug() << QString("ptrbaVII min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_ch[0]).arg(stat_max_ch[0]);
     if(iscolorimage)
     {
-        qDebug() << QString("ptrbaOLCI min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
-        qDebug() << QString("ptrbaOLCI min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
-
+        qDebug() << QString("ptrbaVII min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_ch[1]).arg(stat_max_ch[1]);
+        qDebug() << QString("ptrbaVII min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_ch[2]).arg(stat_max_ch[2]);
     }
-    qDebug() << QString("ptrbaOLCInormalized min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_norm_ch[0]).arg(stat_max_norm_ch[0]);
+    qDebug() << QString("ptrbaVIInormalized min_ch[0] = %1 max_ch[0] = %2").arg(stat_min_norm_ch[0]).arg(stat_max_norm_ch[0]);
     if(iscolorimage)
     {
-        qDebug() << QString("ptrbaOLCInormalized min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_norm_ch[1]).arg(stat_max_norm_ch[1]);
-        qDebug() << QString("ptrbaOLCInormalized min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_norm_ch[2]).arg(stat_max_norm_ch[2]);
+        qDebug() << QString("ptrbaVIInormalized min_ch[1] = %1 max_ch[1] = %2").arg(stat_min_norm_ch[1]).arg(stat_max_norm_ch[1]);
+        qDebug() << QString("ptrbaVIInormalized min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_norm_ch[2]).arg(stat_max_norm_ch[2]);
     }
+    qDebug() << QString("Nbr of saturated pixels = %1").arg(nbrsaturatedpixels);
 
-*/
     return this;
 
 }
 
-/*
-// There is no difference between a linear interpolation and the Lagrange interpolation
-float SegmentOLCI::getTieValue(QScopedArrayPointer<int> *tiefile, int navpoint, int intpoint, int nbrLine) //navpoint = [0, 76] intpoint = [0, 63] nbrLine = [0, this->NbrOfLines]
+// Mark every pixel where the whole-degree part of the latitude or the longitude
+// changes, which traces the parallels and meridians across the swath.
+void SegmentVII::CalcOverlayLatLon()
 {
-    // second order Lagrange interpolation ==> 3 points
-    //  from pt 0 --> pt 4864
-    //    = 64 * 76 = 4864
+    latlonline.clear();
 
-    float a, k, s, t;
-    float x[3];
-    float y[3];
+    if(geolatitude.isNull() || geolongitude.isNull())
+        return;
 
-    int n = 3;
-    if(navpoint == 0)
+    for (int line = 1; line < NbrOfLines; line++)
     {
-        y[0] = (float)*tiefile[nbrLine*77];
-        y[1] = (float)*tiefile[nbrLine*77 + 1];
-        y[2] = (float)*tiefile[nbrLine*77 + 2];
-        x[0] = 0.0f;
-        x[1] = 64.0f;
-        x[2] = 128.0f;
-    }
-    else
-    {
-        y[0] = (float)*tiefile[nbrLine*77 + navpoint - 1];
-        y[1] = (float)*tiefile[nbrLine*77 + navpoint];
-        y[2] = (float)*tiefile[nbrLine*77 + navpoint + 1];
-        x[0] = (float)(navpoint-1) * 64;
-        x[1] = (float)navpoint * 64;
-        x[2] = (float)(navpoint+1) * 64;
-    }
-
-    k = 0;
-    a = navpoint * 64 + intpoint;
-
-    for(int i=0; i<n; i++)
-    {
-        s=1;
-        t=1;
-        for(int j=0; j<n; j++)
+        for (int pixelx = 1; pixelx < earth_views_per_scanline; pixelx++)
         {
-            if(j!=i)
+            const int idx = line * earth_views_per_scanline + pixelx;
+            const float lat = geolatitude[idx];
+            const float lon = geolongitude[idx];
+            if(std::isnan(lat) || std::isnan(lon))
+                continue;
+
+            const float latleft = geolatitude[idx - 1];
+            const float lonleft = geolongitude[idx - 1];
+            const float latup = geolatitude[idx - earth_views_per_scanline];
+            const float lonup = geolongitude[idx - earth_views_per_scanline];
+            if(std::isnan(latleft) || std::isnan(lonleft) || std::isnan(latup) || std::isnan(lonup))
+                continue;
+
+            // the dateline puts a 360 degree step between neighbours, which is
+            // not a meridian crossing
+            const bool lonwrap = fabs(lon - lonleft) > 180.0f || fabs(lon - lonup) > 180.0f;
+
+            if(floor(lat) != floor(latleft) || floor(lat) != floor(latup)
+               || (!lonwrap && (floor(lon) != floor(lonleft) || floor(lon) != floor(lonup))))
             {
-                s=s*(a-x[j]);
-                t=t*(x[i]-x[j]);
+                latlonline << QPoint(pixelx, line);
             }
         }
-        k=k+((s/t)*y[i]);
     }
-    return k;
 
+    qDebug() << QString("SegmentVII::CalcOverlayLatLon %1 graticule points").arg(latlonline.count());
 }
 
-
-void SegmentOLCI::getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename, int *saturationindex)
-{
-    qDebug() << "getDatasetNameFromColor colorindex = " << colorindex;
-
-    Q_ASSERT(colorindex >=0 && colorindex < 3);
-    colorindex++; // 1, 2 or 3
-
-    if(colorlist.at(0) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(0);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa01_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa01_radiance.nc";
-        *variablename = "Oa01_radiance";
-        *saturationindex = 11;
-    }
-    else if(colorlist.at(1) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(1);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa02_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa02_radiance.nc";
-        *variablename = "Oa02_radiance";
-        *saturationindex = 12;
-    }
-    else if(colorlist.at(2) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(2);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa03_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa03_radiance.nc";
-        *variablename = "Oa03_radiance";
-        *saturationindex = 13;
-    }
-    else if(colorlist.at(3) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(3);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa04_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa04_radiance.nc";
-        *variablename = "Oa04_radiance";
-        *saturationindex = 14;
-    }
-    else if(colorlist.at(4) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(4);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa05_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa05_radiance.nc";
-        *variablename = "Oa05_radiance";
-        *saturationindex = 15;
-    }
-    else if(colorlist.at(5) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(5);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa06_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa06_radiance.nc";
-        *variablename = "Oa06_radiance";
-        *saturationindex = 16;
-    }
-    else if(colorlist.at(6) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(6);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa07_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa07_radiance.nc";
-        *variablename = "Oa07_radiance";
-        *saturationindex = 17;
-    }
-    else if(colorlist.at(7) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(7);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa08_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa08_radiance.nc";
-        *variablename = "Oa08_radiance";
-        *saturationindex = 18;
-    }
-    else if(colorlist.at(8) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(8);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa09_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa09_radiance.nc";
-        *variablename = "Oa09_radiance";
-        *saturationindex = 19;
-    }
-    else if(colorlist.at(9) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(9);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa10_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa10_radiance.nc";
-        *variablename = "Oa10_radiance";
-        *saturationindex = 20;
-   }
-    else if(colorlist.at(10) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(10);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa11_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa11_radiance.nc";
-        *variablename = "Oa11_radiance";
-        *saturationindex = 21;
-    }
-    else if(colorlist.at(11) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(11);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa12_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa12_radiance.nc";
-        *variablename = "Oa12_radiance";
-        *saturationindex = 22;
-    }
-    else if(colorlist.at(12) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(12);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa13_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa13_radiance.nc";
-        *variablename = "Oa13_radiance";
-        *saturationindex = 23;
-    }
-    else if(colorlist.at(13) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(13);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa14_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa14_radiance.nc";
-        *variablename = "Oa14_radiance";
-        *saturationindex = 24;
-    }
-    else if(colorlist.at(14) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(14);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa15_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa15_radiance.nc";
-        *variablename = "Oa15_radiance";
-        *saturationindex = 25;
-    }
-    else if(colorlist.at(15) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(15);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa16_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa16_radiance.nc";
-        *variablename = "Oa16_radiance";
-        *saturationindex = 26;
-    }
-    else if(colorlist.at(16) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(16);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa17_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa17_radiance.nc";
-        *variablename = "Oa17_radiance";
-        *saturationindex = 27;
-    }
-    else if(colorlist.at(17) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(17);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa18_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa18_radiance.nc";
-        *variablename = "Oa18_radiance";
-        *saturationindex = 28;
-    }
-    else if(colorlist.at(18) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(18);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa19_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa19_radiance.nc";
-        *variablename = "Oa19_radiance";
-        *saturationindex = 29;
-    }
-    else if(colorlist.at(19) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(19);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa20_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa20_radiance.nc";
-        *variablename = "Oa20_radiance";
-        *saturationindex = 30;
-    }
-    else if(colorlist.at(20) == colorindex)
-    {
-        invertthissegment[colorindex-1] = invertlist.at(20);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa21_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa21_radiance.nc";
-        *variablename = "Oa21_radiance";
-        *saturationindex = 31;
-    }
-}
-
-void SegmentOLCI::getDatasetNameFromBand(QString *datasetname, QString *variablename, int *saturationindex)
-{
-    if(bandlist.at(1))
-    {
-        invertthissegment[0] = invertlist.at(0);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa01_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa01_radiance.nc";
-        *variablename = "Oa01_radiance";
-        *saturationindex = 11;
-    }
-    else if(bandlist.at(2))
-    {
-        invertthissegment[0] = invertlist.at(1);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa02_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa02_radiance.nc";
-        *variablename = "Oa02_radiance";
-        *saturationindex = 12;
-    }
-    else if(bandlist.at(3))
-    {
-        invertthissegment[0] = invertlist.at(2);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa03_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa03_radiance.nc";
-        *variablename = "Oa03_radiance";
-        *saturationindex = 13;
-    }
-    else if(bandlist.at(4))
-    {
-        invertthissegment[0] = invertlist.at(3);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa04_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa04_radiance.nc";
-        *variablename = "Oa04_radiance";
-        *saturationindex = 14;
-    }
-    else if(bandlist.at(5))
-    {
-        invertthissegment[0] = invertlist.at(4);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa05_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa05_radiance.nc";
-        *variablename = "Oa05_radiance";
-        *saturationindex = 15;
-    }
-    else if(bandlist.at(6))
-    {
-       invertthissegment[0] = invertlist.at(5);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa06_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa06_radiance.nc";
-        *variablename = "Oa06_radiance";
-       *saturationindex = 16;
-    }
-    else if(bandlist.at(7))
-    {
-        invertthissegment[0] = invertlist.at(6);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa07_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa07_radiance.nc";
-        *variablename = "Oa07_radiance";
-        *saturationindex = 17;
-    }
-    else if(bandlist.at(8))
-    {
-        invertthissegment[0] = invertlist.at(7);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa08_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa08_radiance.nc";
-        *variablename = "Oa08_radiance";
-        *saturationindex = 18;
-    }
-    else if(bandlist.at(9))
-    {
-        invertthissegment[0] = invertlist.at(8);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa09_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa09_radiance.nc";
-        *variablename = "Oa09_radiance";
-        *saturationindex = 19;
-    }
-    else if(bandlist.at(10))
-    {
-        invertthissegment[0] = invertlist.at(9);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa10_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa10_radiance.nc";
-        *variablename = "Oa10_radiance";
-        *saturationindex = 20;
-    }
-    else if(bandlist.at(11))
-    {
-        invertthissegment[0] = invertlist.at(10);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa11_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa11_radiance.nc";
-        *variablename = "Oa11_radiance";
-        *saturationindex = 21;
-    }
-    else if(bandlist.at(12))
-    {
-        invertthissegment[0] = invertlist.at(11);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa12_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa12_radiance.nc";
-        *variablename = "Oa12_radiance";
-        *saturationindex = 22;
-    }
-    else if(bandlist.at(13))
-    {
-        invertthissegment[0] = invertlist.at(12);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa13_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa13_radiance.nc";
-        *variablename = "Oa13_radiance";
-        *saturationindex = 23;
-    }
-    else if(bandlist.at(14))
-    {
-        invertthissegment[0] = invertlist.at(13);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa14_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa14_radiance.nc";
-        *variablename = "Oa14_radiance";
-        *saturationindex = 24;
-    }
-    else if(bandlist.at(15))
-    {
-        invertthissegment[0] = invertlist.at(14);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa15_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa15_radiance.nc";
-        *variablename = "Oa15_radiance";
-        *saturationindex = 25;
-    }
-    else if(bandlist.at(16))
-    {
-        invertthissegment[0] = invertlist.at(15);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa16_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa16_radiance.nc";
-        *variablename = "Oa16_radiance";
-        *saturationindex = 26;
-    }
-    else if(bandlist.at(17))
-    {
-        invertthissegment[0] = invertlist.at(16);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa17_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa17_radiance.nc";
-        *variablename = "Oa17_radiance";
-        *saturationindex = 27;
-    }
-    else if(bandlist.at(18))
-    {
-        invertthissegment[0] = invertlist.at(17);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa18_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa18_radiance.nc";
-        *variablename = "Oa18_radiance";
-        *saturationindex = 28;
-    }
-    else if(bandlist.at(19))
-    {
-        invertthissegment[0] = invertlist.at(18);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa19_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa19_radiance.nc";
-        *variablename = "Oa19_radiance";
-        *saturationindex = 29;
-    }
-    else if(bandlist.at(20))
-    {
-        invertthissegment[0] = invertlist.at(19);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa20_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa20_radiance.nc";
-        *variablename = "Oa20_radiance";
-        *saturationindex = 30;
-    }
-    else if(bandlist.at(21))
-    {
-        invertthissegment[0] = invertlist.at(20);
-        *datasetname = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/Oa21_radiance.nc" : this->fileInfo.baseName() + ".SEN3/Oa21_radiance.nc";
-        *variablename = "Oa21_radiance";
-        *saturationindex = 31;
-    }
-
-}
-
-
-void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
+void SegmentVII::RenderSegmentlineInTextureVII( int nbrLine, QRgb *row )
 {
 
     QColor rgb;
@@ -1024,28 +441,31 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
     bool valok[3];
     bool color = bandlist.at(0);
 
-    float flon, flat, fflon, fflat;
+    float flon, flat;
 
     for (int pix = 0 ; pix < earthviews; pix+=8)
     {
-        pixval[0] = (int)ptrbaOLCI[0][nbrLine * earthviews + pix];
+        pixval[0] = (int)ptrbaVII[0][nbrLine * earthviews + pix];
         valok[0] = pixval[0] < 65535;
         if(color)
         {
-            pixval[1] = (int)ptrbaOLCI[1][nbrLine * earthviews + pix];
-            pixval[2] = (int)ptrbaOLCI[2][nbrLine * earthviews + pix];
+            pixval[1] = (int)ptrbaVII[1][nbrLine * earthviews + pix];
+            pixval[2] = (int)ptrbaVII[2][nbrLine * earthviews + pix];
             valok[1] = pixval[1] < 65535;
             valok[2] = pixval[2] < 65535;
         }
 
+        if(isDuplicatedPixel(nbrLine, pix))
+            continue;
 
         if( valok[0] && (color ? valok[1] && valok[2] : true))
         {
-            fflon = (float)(this->longitude[nbrLine * earthviews + pix])/1000000.0;
-            fflat = (float)(this->latitude[nbrLine * earthviews + pix])/1000000.0;
-            flon = fflon * PIE/180.0;
-            flat = fflat * PIE/180.0;
-            sphericalToPixel( flon, flat, posx, posy, devwidth, devheight );
+            flat = geolatitude[nbrLine * earthviews + pix];
+            flon = geolongitude[nbrLine * earthviews + pix];
+            if(std::isnan(flat) || std::isnan(flon))
+                continue;
+
+            sphericalToPixel( flon * PIE/180.0, flat * PIE/180.0, posx, posy, devwidth, devheight );
             rgb.setRgb(qRed(row[pix]), qGreen(row[pix]), qBlue(row[pix]));
             fb_painter.setPen(rgb);
             fb_painter.drawPoint( posx , posy );
@@ -1055,8 +475,6 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
     fb_painter.end();
 
 }
-
-*/
 
 void SegmentVII::initializeMemory()
 {
@@ -1086,9 +504,6 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
 
     qDebug() << QString("SegmentVII::ComposeSegmentImage() segm->startLineNbr = %1").arg(this->startLineNbr);
     qDebug() << QString("SegmentVII::ComposeSegmentImage() color = %1 ").arg(bandlist.at(0));
-    // qDebug() << QString("SegmentVII::ComposeSegmentImage() invertthissegment[0] = %1").arg(invertthissegment[0]);
-    // qDebug() << QString("SegmentVII::ComposeSegmentImage() invertthissegment[1] = %1").arg(invertthissegment[1]);
-    // qDebug() << QString("SegmentVII::ComposeSegmentImage() invertthissegment[2] = %1").arg(invertthissegment[2]);
 
     int color[3];
     quint16 pixval[3];
@@ -1096,11 +511,6 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
 
     bool iscolor = bandlist.at(0);
     bool valok[3];
-
-    double gamma = 0.9;
-    double gammafactor = 1023 / pow(1023.0, gamma);
-
-    double valgamma = pow( 100, 0.7) * gammafactor;
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
@@ -1118,20 +528,12 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
                 else pixval[2] = this->ptrbaVII[2][line * earth_views_per_scanline + pixelx];
             }
 
-            if(opts.usesaturationmask)
-            {
-                // use of QPolygon saturatedpixels ?
-                if(0x001fffff & quality_flags[line * earth_views_per_scanline + pixelx])
-                {
-                    pixval[0] = imageptrs->stat_max_ch[0];
-                    pixval[1] = imageptrs->stat_max_ch[1];
-                    pixval[2] = imageptrs->stat_max_ch[2];
-                }
-            }
-
             valok[0] = pixval[0] < 65535;
-            valok[1] = pixval[1] < 65535;
-            valok[2] = pixval[2] < 65535;
+            if(iscolor)
+            {
+                valok[1] = pixval[1] < 65535;
+                valok[2] = pixval[2] < 65535;
+            }
 
             if( valok[0] && (iscolor ? valok[1] && valok[2] : true))
             {
@@ -1150,13 +552,13 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
                             indexout[k] =  pixval1024[k];
                     }
 
-                    // if(invertthissegment[k])
-                    // {
-                    //     if(normalized) color[k] = 255 - imageptrs->lut_norm_ch[k][indexout[k]]/4;
-                    //     else color[k] = 255 - imageptrs->lut_ch[k][indexout[k]]/4;
-                    // }
-                    // else
-                    // {
+                    if(invertthissegment[k])
+                    {
+                        if(normalized) color[k] = 255 - imageptrs->lut_norm_ch[k][indexout[k]]/4;
+                        else color[k] = 255 - imageptrs->lut_ch[k][indexout[k]]/4;
+                    }
+                    else
+                    {
                         if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
                         {
                             color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
@@ -1166,7 +568,7 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
                             if(normalized) color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
                             else color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
                         }
-                    // }
+                    }
                 }
 
                 row[pixelx] = qRgba(color[0], iscolor ? color[1] : color[0], iscolor ? color[2] : color[0], 255 );
@@ -1178,36 +580,80 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
             }
 
         }
-        // if(opts.imageontextureOnVII && line % 2 == 0)
-        // {
-        //     this->RenderSegmentlineInTextureVII( line, row );
-        //     opts.texture_changed = true;
-        // }
+        if(opts.imageontextureOnVII && line % 2 == 0)
+        {
+            this->RenderSegmentlineInTextureVII( line, row );
+            opts.texture_changed = true;
+        }
 
     }
 }
-/*
 
 
-void SegmentOLCI::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
+
+void SegmentVII::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(GVP, histogrammethod, normalized);
 }
 
-void SegmentOLCI::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
+void SegmentVII::ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(LCC, histogrammethod, normalized);
 }
 
-void SegmentOLCI::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
+void SegmentVII::ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized)
 {
     ComposeProjection(SG, histogrammethod, normalized);
 }
 
-void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
+void SegmentVII::ComposeSegmentOMProjection(int inputchannel, int histogrammethod, bool normalized)
+{
+    ComposeProjection(OM, histogrammethod, normalized);
+}
+
+// First and last usable centre pixel of the segment. The oblique mercator puts
+// its central line through these, so they have to follow the ground track.
+void SegmentVII::getCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat)
+{
+    *startlon = 65535.0;
+    *startlat = 65535.0;
+    *endlon = 65535.0;
+    *endlat = 65535.0;
+
+    if(geolatitude.isNull() || geolongitude.isNull())
+        return;
+
+    const int centre = earth_views_per_scanline / 2;
+
+    for(int i = 0; i < this->NbrOfLines; i++)
+    {
+        const float lo = geolongitude[i * earth_views_per_scanline + centre];
+        const float la = geolatitude[i * earth_views_per_scanline + centre];
+        if(!std::isnan(lo) && !std::isnan(la))
+        {
+            *startlon = lo;
+            *startlat = la;
+            break;
+        }
+    }
+
+    for(int i = this->NbrOfLines - 1; i >= 0; i--)
+    {
+        const float lo = geolongitude[i * earth_views_per_scanline + centre];
+        const float la = geolatitude[i * earth_views_per_scanline + centre];
+        if(!std::isnan(lo) && !std::isnan(la))
+        {
+            *endlon = lo;
+            *endlat = la;
+            break;
+        }
+    }
+}
+
+void SegmentVII::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
 {
 
-    qDebug() << "ComposeProjection(eProjections proj, int histogrammethod, bool normalized) hist = " << histogrammethod << " " << normalized;
+    qDebug() << "SegmentVII::ComposeProjection() hist = " << histogrammethod << " " << normalized;
 
     double map_x, map_y;
 
@@ -1242,31 +688,32 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
     {
         for( int j = 0; j < this->earth_views_per_scanline ; j++ )
         {
-            if(normalized) pixval[0] = ptrbaOLCInormalized[0][i * earth_views_per_scanline + j];
-            else pixval[0] = ptrbaOLCI[0][i * earth_views_per_scanline + j];
-            valok[0] = pixval[0] >= 0 && pixval[0] < 65535;
+            if(normalized) pixval[0] = ptrbaVIInormalized[0][i * earth_views_per_scanline + j];
+            else pixval[0] = ptrbaVII[0][i * earth_views_per_scanline + j];
+            valok[0] = pixval[0] < 65535;
 
             if(color)
             {
-                if(normalized) pixval[1] = ptrbaOLCInormalized[1][i * earth_views_per_scanline + j];
-                else pixval[1] = ptrbaOLCI[1][i * earth_views_per_scanline + j];
+                if(normalized) pixval[1] = ptrbaVIInormalized[1][i * earth_views_per_scanline + j];
+                else pixval[1] = ptrbaVII[1][i * earth_views_per_scanline + j];
 
-                if(normalized) pixval[2] = ptrbaOLCInormalized[2][i * earth_views_per_scanline + j];
-                else pixval[2] = ptrbaOLCI[2][i * earth_views_per_scanline + j];
+                if(normalized) pixval[2] = ptrbaVIInormalized[2][i * earth_views_per_scanline + j];
+                else pixval[2] = ptrbaVII[2][i * earth_views_per_scanline + j];
 
-                valok[1] = pixval[1] > 0 && pixval[1] < 65535;
-                valok[2] = pixval[2] > 0 && pixval[2] < 65535;
+                valok[1] = pixval[1] < 65535;
+                valok[2] = pixval[2] < 65535;
             }
 
-            if( valok[0] && (color ? valok[1] && valok[2] : true))
+            latpos1 = geolatitude[i * earth_views_per_scanline + j];
+            lonpos1 = geolongitude[i * earth_views_per_scanline + j];
+
+            // The bow-tie overlap hands the same ground twice; keeping both
+            // copies would let the duplicate overwrite the pixel that the
+            // scan actually owns.
+            if( valok[0] && (color ? valok[1] && valok[2] : true)
+                && !std::isnan(latpos1) && !std::isnan(lonpos1)
+                && !isDuplicatedPixel(i, j))
             {
-
-                latpos1 = (float)latitude[i * earth_views_per_scanline + j]/1000000.0;
-                lonpos1 = (float)longitude[i * earth_views_per_scanline + j]/1000000.0;
-
-//                if((i == 1830 || i == 1831 || i == 1832 || i == 1833) && (j == 2482 || j == 2483 || j == 2484 || j == 2485))
-//                    qDebug() << QString("-------------> i = %1 j = %2 latpos1 = %3 lonpos1 = %4").arg(i).arg(j).arg(latpos1).arg(lonpos1);
-
                 if(proj == LCC) // Lambert
                 {
                     if(imageptrs->lcc->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
@@ -1289,6 +736,13 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
                         MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
                     }
                 }
+                else if(proj == OM) // Oblique Mercator
+                {
+                    if(imageptrs->om->map_forward(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
+                    {
+                        MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
+                    }
+                }
             } else
             {
                 projectionCoordX[i * earth_views_per_scanline + j] = 65535;
@@ -1304,7 +758,7 @@ void SegmentOLCI::ComposeProjection(eProjections proj, int histogrammethod, bool
 
 }
 
-void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, bool iscolor, int histogrammethod, bool normalized)
+void SegmentVII::MapPixel(int lines, int views, double map_x, double map_y, bool iscolor, int histogrammethod, bool normalized)
 {
     int indexout[3];
     quint16 pixval[3];
@@ -1315,16 +769,16 @@ void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, boo
     int color12[3];
     QRgb rgbvalue = qRgba(0,0,0,0);
 
-    if(normalized) pixval[0] = ptrbaOLCInormalized[0][lines * earth_views_per_scanline + views];
-    else pixval[0] = ptrbaOLCI[0][lines * earth_views_per_scanline + views];
+    if(normalized) pixval[0] = ptrbaVIInormalized[0][lines * earth_views_per_scanline + views];
+    else pixval[0] = ptrbaVII[0][lines * earth_views_per_scanline + views];
 
     if(iscolor)
     {
-        if(normalized) pixval[1] = ptrbaOLCInormalized[1][lines * earth_views_per_scanline + views];
-        else pixval[1] = ptrbaOLCI[1][lines * earth_views_per_scanline + views];
+        if(normalized) pixval[1] = ptrbaVIInormalized[1][lines * earth_views_per_scanline + views];
+        else pixval[1] = ptrbaVII[1][lines * earth_views_per_scanline + views];
 
-        if(normalized) pixval[2] = ptrbaOLCInormalized[2][lines * earth_views_per_scanline + views];
-        else pixval[2] = ptrbaOLCI[2][lines * earth_views_per_scanline + views];
+        if(normalized) pixval[2] = ptrbaVIInormalized[2][lines * earth_views_per_scanline + views];
+        else pixval[2] = ptrbaVII[2][lines * earth_views_per_scanline + views];
     }
 
     if (map_x > -15 && map_x < imageptrs->ptrimageProjection->width() + 15 && map_y > -15 && map_y < imageptrs->ptrimageProjection->height() + 15)
@@ -1396,59 +850,39 @@ void SegmentOLCI::MapPixel(int lines, int views, double map_x, double map_y, boo
 
         rgbvalue = qRgba(color8[0], iscolor ? color8[1] : color8[0], iscolor ? color8[2] : color8[0], 255 );
 
-
-//        if(opts.sattrackinimage)
-//        {
-//            if(views == 1598 || views == 1599 || views == 1600 || views == 1601 )
-//            {
-//                rgbvalue = qRgb(250, 0, 0);
-//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-//            }
-//            else
-//            {
-//                if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-//                    imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-//                projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
-
-//            }
-//        }
-//        else
-//        {
-            if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
-                imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
-            projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
-            projectionCoordValueRed[lines * earth_views_per_scanline + views] = color12[0];
-            if(iscolor)
-            {
-                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[1];
-                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[2];
-            }
-            else
-            {
-                projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[0];
-                projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[0];
-            }
-//        }
+        if (map_x >= 0 && map_x < imageptrs->ptrimageProjection->width() && map_y >= 0 && map_y < imageptrs->ptrimageProjection->height())
+            imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
+        projectionCoordValue[lines * earth_views_per_scanline + views] = rgbvalue;
+        projectionCoordValueRed[lines * earth_views_per_scanline + views] = color12[0];
+        if(iscolor)
+        {
+            projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[1];
+            projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[2];
+        }
+        else
+        {
+            projectionCoordValueGreen[lines * earth_views_per_scanline + views] = color12[0];
+            projectionCoordValueBlue[lines * earth_views_per_scanline + views] = color12[0];
+        }
     }
 }
 
 
-void SegmentOLCI::recalculateStatsInProjection(bool normalized)
+void SegmentVII::recalculateStatsInProjection(bool normalized)
 {
     int x, y;
 
     int statmax[3], statmin[3];
-    long active_pixels[3];
+    long activepixels[3];
     quint16 pixval[3];
 
-    qDebug() << "SegmentOLCI::recalculateStatsInProjection()";
+    qDebug() << "SegmentVII::recalculateStatsInProjection()";
 
     for(int k = 0; k < 3; k++)
     {
         statmax[k] = 0;
         statmin[k] = 999999;
-        active_pixels[k] = 0;
+        activepixels[k] = 0;
     }
 
     for(int k = 0; k < (this->bandlist.at(0) ? 3 : 1); k++)
@@ -1461,14 +895,14 @@ void SegmentOLCI::recalculateStatsInProjection(bool normalized)
                 y = *(this->projectionCoordY.data() + j * this->earth_views_per_scanline + i);
                 if(x >= 0 && x < imageptrs->ptrimageProjection->width() && y >= 0 && y < imageptrs->ptrimageProjection->height())
                 {
-                    if(normalized) pixval[k] = this->ptrbaOLCInormalized[k][j * earth_views_per_scanline + i];
-                    else pixval[k] = this->ptrbaOLCI[k][j * earth_views_per_scanline + i];
+                    if(normalized) pixval[k] = this->ptrbaVIInormalized[k][j * earth_views_per_scanline + i];
+                    else pixval[k] = this->ptrbaVII[k][j * earth_views_per_scanline + i];
 
                     if(pixval[k] >= statmax[k])
                         statmax[k] = pixval[k];
                     if(pixval[k] < statmin[k])
                         statmin[k] = pixval[k];
-                    active_pixels[k]++;
+                    activepixels[k]++;
                 }
             }
         }
@@ -1479,16 +913,13 @@ void SegmentOLCI::recalculateStatsInProjection(bool normalized)
         stat_max_projection[k] = statmax[k];
         stat_min_projection[k] = statmin[k];
         qDebug() << QString("stat_min_projection[%1] = %2 stat_max_projection[%3] = %4").arg(k).arg(stat_min_projection[k]).arg(k).arg(stat_max_projection[k]);
-
     }
-    active_pixels_projection = active_pixels[0];
+    active_pixels_projection = activepixels[0];
     qDebug() << QString("active_pixels_projection = %1").arg(active_pixels_projection);
-
-
 
 }
 
-void SegmentOLCI::RecalculateProjection(bool normalized)
+void SegmentVII::RecalculateProjection(bool normalized)
 {
 
     quint16 indexout[3];
@@ -1500,7 +931,6 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
     int map_x, map_y;
 
     bool iscolor = bandlist.at(0);
-    bool valok[3];
 
     for( int j = 0; j < this->NbrOfLines; j++)
     {
@@ -1508,8 +938,8 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
         {
             for(int k = 0; k < (iscolor ? 3 : 1); k++)
             {
-                if(normalized) pixval[k] = this->ptrbaOLCInormalized[k][j * earth_views_per_scanline + i];
-                else pixval[k] = this->ptrbaOLCI[k][j * earth_views_per_scanline + i];
+                if(normalized) pixval[k] = this->ptrbaVIInormalized[k][j * earth_views_per_scanline + i];
+                else pixval[k] = this->ptrbaVII[k][j * earth_views_per_scanline + i];
             }
 
             map_x = projectionCoordX[j * this->earth_views_per_scanline + i];
@@ -1538,7 +968,7 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
                     if(invertthissegment[1])
                     {
                         g8 = 255 - imageptrs->lut_proj_ch[1][indexout[1]]/4;
-                        g10 = 255 - imageptrs->lut_proj_ch[1][indexout[1]];
+                        g10 = 1023 - imageptrs->lut_proj_ch[1][indexout[1]];
                     }
                     else
                     {
@@ -1549,7 +979,7 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
                     if(invertthissegment[2])
                     {
                         b8 = 255 - imageptrs->lut_proj_ch[2][indexout[2]]/4;
-                        b10 = 255 - imageptrs->lut_proj_ch[2][indexout[2]];
+                        b10 = 1023 - imageptrs->lut_proj_ch[2][indexout[2]];
                     }
                     else
                     {
@@ -1557,7 +987,6 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
                         b10 = imageptrs->lut_proj_ch[2][indexout[2]];
                     }
 
-                    //rgbvalue  = qRgb(imageptrs->lut_ch[0][indexout[0]], imageptrs->lut_ch[1][indexout[1]], imageptrs->lut_ch[2][indexout[2]] );
                     rgbvalue = qRgba(r8, g8, b8, 255);
 
                 }
@@ -1566,7 +995,7 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
                     if(invertthissegment[0])
                     {
                         r8 = 255 - imageptrs->lut_proj_ch[0][indexout[0]]/4;
-                        r10 = 255 - imageptrs->lut_proj_ch[0][indexout[0]];
+                        r10 = 1023 - imageptrs->lut_proj_ch[0][indexout[0]];
                     }
                     else
                     {
@@ -1574,6 +1003,8 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
                         r10 = imageptrs->lut_proj_ch[0][indexout[0]];
                     }
 
+                    g10 = r10;
+                    b10 = r10;
                     rgbvalue = qRgba(r8, r8, r8, 255);
                 }
 
@@ -1581,22 +1012,23 @@ void SegmentOLCI::RecalculateProjection(bool normalized)
                     imageptrs->ptrimageProjection->setPixel((int)map_x, (int)map_y, rgbvalue);
                 projectionCoordValue[j * earth_views_per_scanline + i] = rgbvalue;
                 projectionCoordValueRed[j * earth_views_per_scanline + i] = r10;
-                if(iscolor)
-                {
-                    projectionCoordValueGreen[j * earth_views_per_scanline + i] = g10;
-                    projectionCoordValueBlue[j * earth_views_per_scanline + i] = b10;
-                }
-                else
-                {
-                    projectionCoordValueGreen[j * earth_views_per_scanline + i] = r10;
-                    projectionCoordValueBlue[j * earth_views_per_scanline + i] = r10;
-                }
+                projectionCoordValueGreen[j * earth_views_per_scanline + i] = g10;
+                projectionCoordValueBlue[j * earth_views_per_scanline + i] = b10;
             }
         }
     }
 
 }
-*/
+
+void SegmentVII::resetMemory()
+{
+    Segment::resetMemory();
+
+    geolatitude.reset();
+    geolongitude.reset();
+    duplicationmask.clear();
+    latlonline.clear();
+}
 
 SegmentVII::~SegmentVII()
 {

@@ -84,6 +84,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     ui->btnOverlayMeteosat->setText("Overlay On");
     ui->btnOverlayOLCI->setText("Overlay On");
+    ui->btnOverlayVII->setText("Overlay On");
     ui->btnOverlayMoon->setText("Moon On");
     ui->btnOverlayProjectionGVP->setText("Overlay On");
     ui->btnOverlayProjectionLCC->setText("Overlay On");
@@ -462,6 +463,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->cmbHistogramAVHRR->setCurrentIndex(CMB_HISTO_NONE_95);
     ui->cmbHistogramMERSI->addItems(lsthistogram);
     ui->cmbHistogramMERSI->setCurrentIndex(CMB_HISTO_NONE_95);
+    ui->cmbHistogramVII->addItem("None 95%",  CMB_HISTO_NONE_95);
+    ui->cmbHistogramVII->addItem("None 100%", CMB_HISTO_NONE_100);
+    ui->cmbHistogramVII->addItem("Equalize",  CMB_HISTO_EQUALIZE);
+    ui->cmbHistogramVII->addItem("CLAHE",     CMB_HISTO_CLAHE);
+    ui->cmbHistogramVII->setCurrentIndex(0);
 
     lsthistogram.clear();
     lsthistogram << "None 95%" << "None 100%" << "Equalize" << "Equalize Projection";
@@ -1200,7 +1206,7 @@ QList<int> FormToolbox::getVIIColorList()
              << ui->cmbVII05->currentIndex() << ui->cmbVII06->currentIndex() << ui->cmbVII07->currentIndex() << ui->cmbVII08->currentIndex()
              << ui->cmbVII09->currentIndex() << ui->cmbVII10->currentIndex() << ui->cmbVII11->currentIndex() << ui->cmbVII12->currentIndex()
              << ui->cmbVII13->currentIndex() << ui->cmbVII14->currentIndex() << ui->cmbVII15->currentIndex() << ui->cmbVII16->currentIndex()
-             << ui->cmbVII17->currentIndex() << ui->cmbVII18->currentIndex() << ui->cmbVII19->currentIndex() << ui->cmbOLCI20->currentIndex();
+             << ui->cmbVII17->currentIndex() << ui->cmbVII18->currentIndex() << ui->cmbVII19->currentIndex() << ui->cmbVII20->currentIndex();
 
     Q_ASSERT(viilist.count() == 20);
 
@@ -1214,7 +1220,7 @@ QList<bool> FormToolbox::getVIIInvertList()
              << ui->chkInverseVII05->isChecked() << ui->chkInverseVII06->isChecked() << ui->chkInverseVII07->isChecked() << ui->chkInverseVII08->isChecked()
              << ui->chkInverseVII09->isChecked() << ui->chkInverseVII10->isChecked() << ui->chkInverseVII11->isChecked() << ui->chkInverseVII12->isChecked()
              << ui->chkInverseVII13->isChecked() << ui->chkInverseVII14->isChecked() << ui->chkInverseVII15->isChecked() << ui->chkInverseVII16->isChecked()
-             << ui->chkInverseVII17->isChecked() << ui->chkInverseVII18->isChecked() << ui->chkInverseVII19->isChecked() << ui->chkInverseOLCI20->isChecked();
+             << ui->chkInverseVII17->isChecked() << ui->chkInverseVII18->isChecked() << ui->chkInverseVII19->isChecked() << ui->chkInverseVII20->isChecked();
 
     Q_ASSERT(viilist.count() == 20);
     return(viilist);
@@ -1228,6 +1234,16 @@ int FormToolbox::getOLCIHistogrammethod()
 bool FormToolbox::getOLCINormalized()
 {
     return ui->rdbOLCINormalized;
+}
+
+int FormToolbox::getVIIHistogrammethod()
+{
+    return ui->cmbHistogramVII->currentData().toInt();
+}
+
+bool FormToolbox::getVIINormalized()
+{
+    return ui->rdbVIINormalized->isChecked();
 }
 
 
@@ -1864,6 +1880,15 @@ void FormToolbox::on_btnOverlayOLCI_clicked()
 
 }
 
+void FormToolbox::on_btnOverlayVII_clicked()
+{
+    if(formimage->toggleOverlayVII())
+        ui->btnOverlayVII->setText("Overlay On");
+    else
+        ui->btnOverlayVII->setText("Overlay Off");
+
+}
+
 void FormToolbox::on_btnOverlayProjectionGVP_clicked()
 {
     if(formimage->toggleOverlayProjection())
@@ -2115,6 +2140,7 @@ void FormToolbox::setToolboxButtons(bool state)
 
     ui->btnUpdateVIIRSImage->setEnabled(state);
     ui->btnUpdateOLCIImage->setEnabled(state);
+    ui->btnUpdateVIIImage->setEnabled(state);
     ui->btnTextureVIIRS->setEnabled(state);
 
     ui->btnCreateLambert->setEnabled(state);
@@ -3301,7 +3327,10 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
         else if( ui->toolBox->currentIndex() == 2)
             imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
         else
+        {
+            this->currentProjectionType = inputProjectionType();
             imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
+        }
 
         formimage->displayImage(IMAGE_PROJECTION, true);
     }
@@ -3663,6 +3692,11 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         currentProjectionType = PROJ_MERSI;
         imageptrs->gvp->CreateMapFromMERSI(eSegmentType::SEG_MERSI, false);
     }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        currentProjectionType = PROJ_VII;
+        imageptrs->gvp->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, false, ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
     else if(ui->rdbMeteosatin->isChecked())
     {
         currentProjectionType = PROJ_GEOSTATIONARY;
@@ -3841,6 +3875,11 @@ void FormToolbox::on_btnCreateLambert_clicked()
         currentProjectionType = PROJ_MERSI;
         imageptrs->lcc->CreateMapFromMERSI(eSegmentType::SEG_MERSI, false);
     }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        currentProjectionType = PROJ_VII;
+        imageptrs->lcc->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -3980,6 +4019,11 @@ void FormToolbox::on_btnCreateStereo_clicked()
         currentProjectionType = PROJ_MERSI;
         imageptrs->sg->CreateMapFromMERSI(eSegmentType::SEG_MERSI, false);
     }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        currentProjectionType = PROJ_VII;
+        imageptrs->sg->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+    }
 
     if(ui->rdbCombine->isChecked())
         delete imageptrs->ptrimageProjectionCopy;
@@ -4026,6 +4070,17 @@ void FormToolbox::on_btnCreateOM_clicked()
             return;
         }
     }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        if(!opts.buttonMetopSGA1 || segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() == 0)
+        {
+            QMessageBox::information( this, "VII", "No selected VII segments  !" );
+            return;
+        }
+        // Initialize is handed currentProjectionType, so for VII it has to be
+        // set before the call and not only in the branch below it.
+        currentProjectionType = inputProjectionType();
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
     imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
@@ -4059,6 +4114,12 @@ void FormToolbox::on_btnCreateOM_clicked()
     {
         currentProjectionType = PROJ_AVHRR;
         imageptrs->om->CreateMapFromAVHRR(eSegmentType::SEG_METOP, ui->cmbInputAVHRRChannel->currentIndex());
+    }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        currentProjectionType = PROJ_VII;
+        imageptrs->om->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(),
+                                        ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
     }
 
     formimage->setPixmapToScene(true);
@@ -4279,6 +4340,23 @@ int FormToolbox::getTabWidgetSentinelIndex()
     return ui->tabWidgetSentinel->currentIndex();
 }
 
+// Which sensor the projection input radio buttons currently point at. The
+// create buttons each set currentProjectionType from these; the oblique
+// mercator needs the same answer when it is reached through the tool box.
+eProjectionType FormToolbox::inputProjectionType() const
+{
+    if(ui->rdbAVHRRin->isChecked())      return PROJ_AVHRR;
+    else if(ui->rdbVIIRSMin->isChecked())     return PROJ_VIIRSM;
+    else if(ui->rdbVIIRSDNBin->isChecked())   return PROJ_VIIRSDNB;
+    else if(ui->rdbOLCIefrin->isChecked())    return PROJ_OLCI_EFR;
+    else if(ui->rdbOLCIerrin->isChecked())    return PROJ_OLCI_ERR;
+    else if(ui->rdbMERSIin->isChecked())      return PROJ_MERSI;
+    else if(ui->rdbVIIin->isChecked())        return PROJ_VII;
+    else if(ui->rdbMeteosatin->isChecked())   return PROJ_GEOSTATIONARY;
+
+    return PROJ_NONE;
+}
+
 void FormToolbox::on_toolBox_currentChanged(int index)
 {
     qDebug() << QString("FormToolbox::on_toolBox_currentChanged(int index) index = %1").arg(index);
@@ -4314,6 +4392,7 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     }
     else
     {
+        currentProjectionType = inputProjectionType();
         imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
 
     }
@@ -4799,6 +4878,94 @@ void FormToolbox::on_btnUpdateOLCIImage_clicked()
             formimage->ShowOLCIerrImage(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized);
         }
     }
+}
+
+void FormToolbox::on_btnUpdateVIIImage_clicked()
+{
+    if(!comboColVIIOK())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Need color choices for 3 different bands in the VII tab.");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
+        return;
+    }
+
+    if(segs->seglmetopsga1->NbrOfSegmentsSelected() > 0)
+    {
+        ui->pbProgress->reset();
+        formimage->ShowVIIImage(getVIIHistogrammethod(), ui->rdbVIINormalized->isChecked());
+    }
+}
+
+void FormToolbox::on_cmbHistogramVII_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+
+    segs->seglmetopsga1->setHistogramMethod(getVIIHistogrammethod(), ui->rdbVIINormalized->isChecked());
+
+    if(segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() > 0)
+    {
+        segs->seglmetopsga1->ChangeHistogramMethod();
+        formimage->displayImage(IMAGE_VII, true);
+    }
+}
+
+void FormToolbox::on_rdbVIINormalized_toggled(bool checked)
+{
+    segs->seglmetopsga1->setHistogramMethod(getVIIHistogrammethod(), checked);
+
+    if(segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() > 0)
+    {
+        segs->seglmetopsga1->ChangeHistogramMethod();
+        formimage->displayImage(IMAGE_VII, true);
+    }
+}
+
+void FormToolbox::on_btnSaveAsPNG48bitsVII_clicked()
+{
+    if(segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() == 0)
+    {
+        QMessageBox::information( this, "48bit PNG VII image", "No selected VII segments !" );
+        return;
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Save image"), "./vii_image.png",
+                                                    tr("*.png"));
+    if (fileName.isEmpty())
+        return;
+
+    if(fileName.mid(fileName.length()-4) != ".png" && fileName.mid(fileName.length()-4) != ".PNG")
+        fileName.append(".png");
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    segs->seglmetopsga1->Compose48bitPNG(fileName, ui->rdbMapTo65535VII->isChecked());
+    QApplication::restoreOverrideCursor();
+}
+
+void FormToolbox::on_btnAddVIIConfig_clicked()
+{
+    QString configname = ui->leOLCIConfig_2->text().trimmed();
+    if(configname.isEmpty())
+    {
+        QMessageBox::information( this, "VII configuration", "Give the configuration a name first." );
+        return;
+    }
+
+    poi.strlConfigNameVII.append(configname);
+    poi.strlColorBandVII.append("0");
+    setVIIConfigsettings();
+    ui->comboVIIConfig->setCurrentIndex(poi.strlConfigNameVII.count() - 1);
 }
 
 void FormToolbox::on_btnUpdateMERSIImage_clicked()

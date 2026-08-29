@@ -146,6 +146,13 @@ void Segment::CalculateCornerPoints()
         delta2 = 22.1 * PIE / 180.0;  // see page 97 of Sentinel-3 User Handbook
         delta1 = 46.5 * PIE / 180.0;
     }
+    else if(segtype == SEG_METOPSGA1)
+    {
+        // VII swath = 2670 km. Measured off the tie point grid of a granule:
+        // 54.18 deg from nadir on the first pixel side, 53.85 on the last.
+        delta1 = 54.18 * PIE / 180.0;
+        delta2 = 53.85 * PIE / 180.0;
+    }
     else
     {
         delta1 = 0.0009439882 * 1023.5;
@@ -367,6 +374,8 @@ void Segment::resetMemory()
         ptrbaOLCInormalized[k].reset();
         ptrbaSLSTR[k].reset();
         ptrbaSLSTRnormalized[k].reset();
+        ptrbaVII[k].reset();
+        ptrbaVIInormalized[k].reset();
     }
     ptrbaVIIRSDNB.reset();
     ptrbaMERSI.reset();

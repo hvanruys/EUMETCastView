@@ -262,6 +262,17 @@ void LambertConformalConic::CreateMapFromOLCI(eSegmentType type, bool combine, i
 
 }
 
+void LambertConformalConic::CreateMapFromVII(eSegmentType type, bool combine, int histogrammethod, bool normalized)
+{
+    segs->seglmetopsga1->ComposeLCCProjection(0, histogrammethod, normalized);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+        segs->seglmetopsga1->SmoothVIIImage(combine);
+
+}
+
 void LambertConformalConic::CreateMapFromMERSI(eSegmentType type, bool combine)
 {
     calc_map_extents();

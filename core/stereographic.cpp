@@ -420,6 +420,17 @@ void StereoGraphic::CreateMapFromOLCI(eSegmentType type, bool combine, int histo
 
 }
 
+void StereoGraphic::CreateMapFromVII(eSegmentType type, bool combine, int histogrammethod, bool normalized)
+{
+    segs->seglmetopsga1->ComposeSGProjection(0, histogrammethod, normalized);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+        segs->seglmetopsga1->SmoothVIIImage(combine);
+
+}
+
 void StereoGraphic::CreateMapFromMERSI(eSegmentType type, bool combine)
 {
     segs->seglmersi->ComposeSGProjection(0);

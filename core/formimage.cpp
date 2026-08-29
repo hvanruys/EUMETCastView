@@ -40,6 +40,7 @@ FormImage::FormImage(QWidget *parent, AVHRRSatellite *seglist) :
     overlaymeteosat = true;
     overlayprojection = true;
     overlayolci = true;
+    overlayvii = true;
     overlaymoon = true;
 
     metopcount = 0;
@@ -88,6 +89,16 @@ bool FormImage::toggleOverlayOLCI()
         overlayolci = true;
     m_scene->update();
     return overlayolci;
+}
+
+bool FormImage::toggleOverlayVII()
+{
+    if(overlayvii)
+        overlayvii = false;
+    else
+        overlayvii = true;
+    m_scene->update();
+    return overlayvii;
 }
 
 bool FormImage::toggleOverlayGridOnOLCI()
@@ -558,7 +569,8 @@ void FormImage::MakeImage()
         colorlist = formtoolbox->getVIIColorList();
         invertlist = formtoolbox->getVIIInvertList();
         //          in Workerthread
-        segs->seglmetopsga1->ComposeVIIImage(bandlist, colorlist, invertlist);
+        segs->seglmetopsga1->ComposeVIIImage(bandlist, colorlist, invertlist,
+                                             formtoolbox->getVIIHistogrammethod(), formtoolbox->getVIINormalized());
         //          in main thread
         //            segs->seglviirsm->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
     }
@@ -997,7 +1009,7 @@ void FormImage::setPixmapToScene(bool settoolboxbuttons)
         return;
 
     case IMAGE_VII:
-        displayVIIImageInfo(SEG_MERSI);
+        displayVIIImageInfo(SEG_METOPSGA1);
         m_image = imageptrs->ptrimageVII;
         formtoolbox->setOMimagesize(imageptrs->ptrimageVII->width(), imageptrs->ptrimageVII->height());
         break;
@@ -1650,6 +1662,11 @@ void FormImage::drawOverlays(QPainter *painter)
     if(channelshown == IMAGE_OLCI && overlayolci)
     {
         this->OverlayOLCI(painter);
+    }
+
+    if(channelshown == IMAGE_VII && overlayvii)
+    {
+        this->OverlayVII(painter);
     }
 }
 
@@ -3101,6 +3118,53 @@ void FormImage::OverlayOLCI(QPainter *paint)
 
 }
 
+void FormImage::OverlayVII(QPainter *paint)
+{
+    if(imageptrs->ptrimageVII->height() == 0 || imageptrs->ptrimageVII->width() == 0)
+        return;
+
+    SegmentListVII *sl = segs->seglmetopsga1;
+    if(sl->GetSegsSelectedptr()->count() == 0)
+        return;
+
+    QList<Segment*>::iterator segsel = sl->GetSegsSelectedptr()->begin();
+    int heightinsegment = 0;
+    while ( segsel != sl->GetSegsSelectedptr()->end() )
+    {
+        SegmentVII *segm = (SegmentVII *)(*segsel);
+        paint->setPen(QColor(opts.projectionoverlaylonlatcolor));
+        QPolygon copylatlonline = segm->latlonline.translated(0, heightinsegment);
+        paint->drawPoints(copylatlonline);
+
+        heightinsegment += segm->GetNbrOfLines();
+        ++segsel;
+    }
+
+}
+
+bool FormImage::ShowVIIImage(int histogrammethod, bool normalized)
+{
+    metopsga1count = segs->seglmetopsga1->NbrOfSegmentsSelected();
+
+    qDebug() << QString("in FormImage::ShowVIIImage nbr of VII segments selected = %1").arg(metopsga1count);
+
+    if (metopsga1count == 0)
+        return false;
+
+    this->channelshown = IMAGE_VII;
+    this->kindofimage = "VII";
+    this->setSegmentType(SEG_METOPSGA1);
+
+    QList<bool> bandlist = formtoolbox->getVIIBandList();
+    QList<int> colorlist = formtoolbox->getVIIColorList();
+    QList<bool> invertlist = formtoolbox->getVIIInvertList();
+
+    segs->seglmetopsga1->ComposeVIIImage(bandlist, colorlist, invertlist, histogrammethod, normalized);
+
+    return true;
+
+}
+
 void FormImage::displayVIIRSImageInfo(eSegmentType type)
 {
     QString segtype;
@@ -3251,6 +3315,7 @@ void FormImage::displayVIIImageInfo(eSegmentType type)
 
     segtype = "VII";
     nbrselected = segs->seglmetopsga1->NbrOfSegmentsSelected();
+    long nbrofsaturatedpixels = segs->seglmetopsga1->NbrOfSaturatedPixels();
 
     txtInfo = QString("<!DOCTYPE html>"
                       "<html><head><title>Info</title></head>"
@@ -3259,7 +3324,8 @@ void FormImage::displayVIIImageInfo(eSegmentType type)
                       "<p>Segment type = %1<br>"
                       "Nbr of segments = %2<br>"
                       "Image width = %3 height = %4<br>"
-                      "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageVII->width()).arg(imageptrs->ptrimageVII->height());
+                      "Nbr of saturated pixels = %5<br>"
+                      "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageVII->width()).arg(imageptrs->ptrimageVII->height()).arg(nbrofsaturatedpixels);
     formtoolbox->writeInfoToTextEdit(txtInfo);
 }
 

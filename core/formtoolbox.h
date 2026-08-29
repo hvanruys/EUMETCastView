@@ -51,6 +51,8 @@ public:
     QList<bool> getOLCIInvertList();
     int getOLCIHistogrammethod();
     bool getOLCINormalized();
+    int getVIIHistogrammethod();
+    bool getVIINormalized();
 
     QList<bool> getMERSIBandList();
     QList<int> getMERSIColorList();
@@ -128,6 +130,7 @@ private:
     void setConfigOLCIParameters(int strlindex);
     void setConfigMERSIParameters(int strlindex);
     void setConfigVIIParameters(int strlindex);
+    eProjectionType inputProjectionType() const;
 
     bool checkSegmentDateTime();
     void setLogValue(int deg, double rad);
@@ -272,6 +275,12 @@ private slots:
     void on_spbLCCCorrY_valueChanged(int arg1);
     void on_btnUpdateVIIRSImage_clicked();
     void on_btnUpdateOLCIImage_clicked();
+    void on_btnUpdateVIIImage_clicked();
+    void on_btnOverlayVII_clicked();
+    void on_btnSaveAsPNG48bitsVII_clicked();
+    void on_btnAddVIIConfig_clicked();
+    void on_cmbHistogramVII_currentIndexChanged(int index);
+    void on_rdbVIINormalized_toggled(bool checked);
     void on_rbtnAColor_clicked();
     void on_rbtnACh1_clicked();
     void on_rbtnACh2_clicked();
