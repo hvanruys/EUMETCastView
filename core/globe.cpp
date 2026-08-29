@@ -726,7 +726,7 @@ void Globe::paintGL()
     }
 
     QFont serifFont("Times", 12, QFont::Bold);
-    painter.setPen(Qt::Key_Yellow);
+    painter.setPen(Qt::yellow);
     painter.setFont(serifFont);
 
     //AVHR_xxx_1B_M01_20130701051903Z_20130701052203Z_N_O_20130701054640Z
