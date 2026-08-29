@@ -146,6 +146,7 @@ void Options::Initialize()
     imageontextureOnVIIRS = settings.value("/window/imageontextureonviirs", true ).toBool();
     imageontextureOnOLCI = settings.value("/window/imageontextureonolci", true ).toBool();
     imageontextureOnVII = settings.value("/window/imageontextureonvii", true ).toBool();
+    viidemorthorectify = settings.value("/window/viidemorthorectify", true ).toBool();
     imageontextureOnMERSI = settings.value("/window/imageontextureonmersi", true ).toBool();
     windowvectors = settings.value("/window/windowsvectors", false ).toBool();
 
@@ -542,7 +543,8 @@ void Options::Save()
     settings.setValue("/window/imageontextureonavhrr", imageontextureOnAVHRR );
     settings.setValue("/window/imageontextureonviirs", imageontextureOnVIIRS );
     settings.setValue("/window/imageontextureonolci", imageontextureOnOLCI );
-    settings.setValue("/window/imageontextureonslstr", imageontextureOnVII );
+    settings.setValue("/window/imageontextureonvii", imageontextureOnVII );
+    settings.setValue("/window/viidemorthorectify", viidemorthorectify );
     settings.setValue("/window/imageontextureonmersi", imageontextureOnMERSI );
     settings.setValue("/window/windowsvectors", windowvectors );
 

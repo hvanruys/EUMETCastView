@@ -56,12 +56,14 @@ public:
     bool toggleOverlayMeteosat();
     bool toggleOverlayProjection();
     bool toggleOverlayOLCI();
+    bool toggleOverlayVII();
     bool toggleOverlayMoon();
     bool toggleOverlayGridOnOLCI();
 
     bool ShowVIIRSMImage();
     bool ShowVIIRSDNBImage();
     bool ShowOLCIefrImage(int histogrammethod, bool normalized);
+    bool ShowVIIImage(int histogrammethod, bool normalized);
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
     bool ShowMERSIImage(int histogrammethod, bool normalized);
     bool ShowAVHRRImage(int histogrammethod, bool normalized);
@@ -95,6 +97,7 @@ private:
 
     void OverlayProjection(QPainter *paint);
     void OverlayOLCI(QPainter *paint);
+    void OverlayVII(QPainter *paint);
     void DrawLongLat(QPainter *paint, SegmentListGeostationary *sl, int coff, int loff,
                      double cfac, double lfac, bool hrvimage);
     int geoToImagePixel(SegmentListGeostationary *sl, double lat_deg, double lon_deg,
@@ -125,6 +128,7 @@ private:
     bool overlaymeteosat;
     bool overlayprojection;
     bool overlayolci;
+    bool overlayvii;
     bool overlaymoon;
 
 

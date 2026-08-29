@@ -181,6 +181,17 @@ void GeneralVerticalPerspective::CreateMapFromOLCI(eSegmentType type, bool combi
     }
 }
 
+void GeneralVerticalPerspective::CreateMapFromVII(eSegmentType type, bool combine, int histogrammethod, bool normalized)
+{
+    segs->seglmetopsga1->ComposeGVProjection(0, histogrammethod, normalized);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+        segs->seglmetopsga1->SmoothVIIImage(combine);
+
+}
+
 void GeneralVerticalPerspective::CreateMapFromMERSI(eSegmentType type, bool combine)
 {
     segs->seglmersi->ComposeGVProjection(0);

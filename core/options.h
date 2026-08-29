@@ -220,6 +220,7 @@ public:
     bool imageontextureOnVIIRS;
     bool imageontextureOnOLCI;
     bool imageontextureOnVII;
+    bool viidemorthorectify;
     bool imageontextureOnMERSI;
     bool windowvectors;
     bool udpmessages;

@@ -72,6 +72,7 @@ set(PROJECT_SOURCES_CPP
     segmentlistolci.cpp
     segmentolci.cpp
     segmentvii.cpp
+    viil1breader.cpp
     segmentlistvii.cpp
     dialogsaveimage.cpp
     msgdataaccess.cpp

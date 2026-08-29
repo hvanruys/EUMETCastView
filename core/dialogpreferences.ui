@@ -1003,6 +1003,16 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QCheckBox" name="chkVIIDemOrthorectify">
+             <property name="toolTip">
+              <string>Shift the VII geolocation with the DEM fields carried in the product (PFS Eq. 11/12).</string>
+             </property>
+             <property name="text">
+              <string>VII DEM orthorectification</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
