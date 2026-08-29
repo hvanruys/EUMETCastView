@@ -130,6 +130,7 @@ private:
     void setConfigOLCIParameters(int strlindex);
     void setConfigMERSIParameters(int strlindex);
     void setConfigVIIParameters(int strlindex);
+    eProjectionType inputProjectionType() const;
 
     bool checkSegmentDateTime();
     void setLogValue(int deg, double rad);

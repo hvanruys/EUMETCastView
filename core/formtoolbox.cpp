@@ -3324,7 +3324,10 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
         else if( ui->toolBox->currentIndex() == 2)
             imageptrs->sg->Initialize(ui->spbSGlon->value(), ui->spbSGlat->value(), ui->spbSGScale->value(), ui->spbSGMapWidth->value(), ui->spbSGMapHeight->value(), ui->spbSGPanHorizon->value(), ui->spbSGPanVert->value());
         else
+        {
+            this->currentProjectionType = inputProjectionType();
             imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
+        }
 
         formimage->displayImage(IMAGE_PROJECTION, true);
     }
@@ -4073,7 +4076,7 @@ void FormToolbox::on_btnCreateOM_clicked()
         }
         // Initialize is handed currentProjectionType, so for VII it has to be
         // set before the call and not only in the branch below it.
-        currentProjectionType = PROJ_VII;
+        currentProjectionType = inputProjectionType();
     }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -4334,6 +4337,23 @@ int FormToolbox::getTabWidgetSentinelIndex()
     return ui->tabWidgetSentinel->currentIndex();
 }
 
+// Which sensor the projection input radio buttons currently point at. The
+// create buttons each set currentProjectionType from these; the oblique
+// mercator needs the same answer when it is reached through the tool box.
+eProjectionType FormToolbox::inputProjectionType() const
+{
+    if(ui->rdbAVHRRin->isChecked())      return PROJ_AVHRR;
+    else if(ui->rdbVIIRSMin->isChecked())     return PROJ_VIIRSM;
+    else if(ui->rdbVIIRSDNBin->isChecked())   return PROJ_VIIRSDNB;
+    else if(ui->rdbOLCIefrin->isChecked())    return PROJ_OLCI_EFR;
+    else if(ui->rdbOLCIerrin->isChecked())    return PROJ_OLCI_ERR;
+    else if(ui->rdbMERSIin->isChecked())      return PROJ_MERSI;
+    else if(ui->rdbVIIin->isChecked())        return PROJ_VII;
+    else if(ui->rdbMeteosatin->isChecked())   return PROJ_GEOSTATIONARY;
+
+    return PROJ_NONE;
+}
+
 void FormToolbox::on_toolBox_currentChanged(int index)
 {
     qDebug() << QString("FormToolbox::on_toolBox_currentChanged(int index) index = %1").arg(index);
@@ -4369,6 +4389,7 @@ void FormToolbox::on_toolBox_currentChanged(int index)
     }
     else
     {
+        currentProjectionType = inputProjectionType();
         imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
 
     }

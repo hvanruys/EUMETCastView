@@ -224,3 +224,36 @@ latitude 9.770, implying an inclination near 99.8 deg against Metop-SG A1's
 sun-synchronous 98.7 - the ~1 deg difference being the chord approximation a
 great circle makes to a ground track. The track azimuth of -158.33 deg is a
 descending pass, as expected at those latitudes.
+
+### Oblique Mercator: the first attempt did nothing
+
+Symptom: after composing a VII image, opening the Oblique Mercator page drew
+neither the country borders nor the bounding box, and put up no message either.
+
+Two causes, in series.
+
+1. `opts.bellipsoid` is set to `true` in `options.cpp` and is never read from
+   the INI or written by any control, so `ObliqueMercator::Initialize` always
+   dispatches to `InitializeEllipsoid`. `InitializeSpherical` - the one that
+   already carried a `PROJ_VII` mention, and the only one the first attempt
+   patched - never runs. `InitializeEllipsoid` ends its projtype dispatch with
+   a bare `else return`, so VII returned before the central line, the canvas
+   size or the bounding box were set, silently. Fixed by giving it the same
+   three `PROJ_VII` branches, using the OM spin boxes for the canvas as the
+   other sensors do and `GetMinMaxXBoundingBox` for the extent, since VII fills
+   `geolatitude` / `geolongitude`.
+
+2. Nothing sets `currentProjectionType` when the projection input radio
+   changes; only the create buttons do, each inline. The oblique mercator is
+   the one projection whose `Initialize` is handed that value, so reaching its
+   tool box page before pressing a create button passed whatever the previous
+   projection had left there. `FormToolbox::inputProjectionType()` now derives
+   it from the checked radio, and the two OM entry points and the OM create
+   button all use it.
+
+Checked by replaying `InitializeEllipsoid` and `omerfor` on the five granules:
+the central line (62.372, 27.797) -> (45.188, 18.479) gives an azimuth of
+16.881 deg, trips none of the three "Input data error" returns, and projects
+8352 swath-edge points with none rejected as projecting to infinity. The extent
+is 2751.4 km across track against the 2697 km swath arc measured from the tie
+grid, and 2064.8 km along track against 5 minutes at roughly 6.7 km/s.

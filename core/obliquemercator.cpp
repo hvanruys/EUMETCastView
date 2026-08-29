@@ -129,6 +129,10 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
         if(opts.buttonMetop)
             segs->seglmetop->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
     }
+    else if(projtype == PROJ_VII)
+    {
+        segs->seglmetopsga1->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+    }
     else
         return;
 
@@ -190,6 +194,11 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
             image_width = imgwidth; //imageptrs->ptrimagecomp_ch[0]->width();
             image_height = imgheight; //imageptrs->ptrimagecomp_ch[0]->height();
         }
+    }
+    else if(projtype == PROJ_VII)
+    {
+        image_width = imgwidth;
+        image_height = imgheight;
     }
 
     QPoint imagepoint(image_width, image_height);
@@ -346,6 +355,10 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
     {
         if(opts.buttonMetop)
             GetMinMaxXBoundingBoxAVHRR(SEG_METOP, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+    }
+    else if(projtype == PROJ_VII)
+    {
+        GetMinMaxXBoundingBox(SEG_METOPSGA1, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
     }
 
 
