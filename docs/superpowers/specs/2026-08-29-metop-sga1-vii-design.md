@@ -189,12 +189,14 @@ holds 110 consecutive one-minute granules and is already listed in
   consistent with terrain parallax at 66 deg observation zenith.
 - The band 1..20 name table matches the product's variable order exactly.
 
-Confirmed in the running application: composing a VII image, and the Oblique
-Mercator page drawing its borders and bounding box and then the projected
-swath over them.
+Confirmed in the running application: composing a VII image and its across
+track orientation; all four projections - GVP, LCC, SG and the Oblique
+Mercator, the last drawing its borders and bounding box and then the projected
+swath over them; and the histogram methods including CLAHE.
 
-Not verified: the GVP, LCC and SG projection buttons, the histogram methods
-including CLAHE, the overlay toggle and the 48-bit PNG export.
+Not verified: the overlay toggle that draws the graticule, and the 48-bit PNG
+export. `SegmentListVII::searchLatLon` has no caller at all, matching
+`SegmentListOLCI::searchLatLon`, which has none either.
 
 ### CLAHE had no way to be selected
 
