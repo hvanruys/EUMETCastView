@@ -124,6 +124,11 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         ui->rdbMeteosatin->setChecked(true);
         this->currentProjectionType = PROJ_GEOSTATIONARY;
     }
+    else if(opts.lastinputprojection == 7)
+    {
+        ui->rdbVIIin->setChecked(true);
+        this->currentProjectionType = PROJ_VII;
+    }
     else
     {
         ui->rdbAVHRRin->setChecked(true);
@@ -286,6 +291,7 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     setMConfigsettings();
     setOLCIefrConfigsettings();
     setMERSIConfigsettings();
+    setVIIConfigsettings();
 
     // qDebug() << QString("FormToolbox::setComboGeo(int geoindex = %1) After  poi.strlComboGeo1.at(geoindex) = %2 ").arg(geoindex).arg(poi.strlComboGeo1.at(geoindex));
     // qDebug() << QString("poi.strlComboGeo2.at(geoindex) = %1 ").arg(poi.strlComboGeo2.at(geoindex));
@@ -643,6 +649,20 @@ void FormToolbox::setOLCIefrConfigsettings()
     setConfigOLCIParameters(0); // 0 = User Defines
 
     ui->comboOLCIConfig->blockSignals(false);
+}
+
+void FormToolbox::setVIIConfigsettings()
+{
+    qDebug() << "FormToolbox::setVIIConfigsettings()";
+
+    ui->comboVIIConfig->blockSignals(true);
+    ui->comboVIIConfig->clear();
+
+    ui->comboVIIConfig->addItems(poi.strlConfigNameVII);
+
+    setConfigVIIParameters(0); // 0 = User Defines
+
+    ui->comboVIIConfig->blockSignals(false);
 }
 
 void FormToolbox::setMERSIConfigsettings()
@@ -1009,6 +1029,26 @@ void FormToolbox::setupChannelCombo()
     ui->cmbMERSI18->addItems(coloritems);
     ui->cmbMERSI19->addItems(coloritems);
 
+    ui->cmbVII01->addItems(coloritems);
+    ui->cmbVII02->addItems(coloritems);
+    ui->cmbVII03->addItems(coloritems);
+    ui->cmbVII04->addItems(coloritems);
+    ui->cmbVII05->addItems(coloritems);
+    ui->cmbVII06->addItems(coloritems);
+    ui->cmbVII07->addItems(coloritems);
+    ui->cmbVII08->addItems(coloritems);
+    ui->cmbVII09->addItems(coloritems);
+    ui->cmbVII10->addItems(coloritems);
+    ui->cmbVII11->addItems(coloritems);
+    ui->cmbVII12->addItems(coloritems);
+    ui->cmbVII13->addItems(coloritems);
+    ui->cmbVII14->addItems(coloritems);
+    ui->cmbVII15->addItems(coloritems);
+    ui->cmbVII16->addItems(coloritems);
+    ui->cmbVII17->addItems(coloritems);
+    ui->cmbVII18->addItems(coloritems);
+    ui->cmbVII19->addItems(coloritems);
+    ui->cmbVII20->addItems(coloritems);
 }
 
 void FormToolbox::setChannelComboBoxes()
@@ -1135,6 +1175,49 @@ QList<bool> FormToolbox::getOLCIInvertList()
              << ui->chkInverseOLCI21->isChecked();
     Q_ASSERT(olcilist.count() == 21);
     return(olcilist);
+}
+
+QList<bool> FormToolbox::getVIIBandList()
+{
+    QList<bool> viilist;
+    viilist << ui->rbColorVII->isChecked() << ui->rbVII01->isChecked() << ui->rbVII02->isChecked() << ui->rbVII03->isChecked()
+             << ui->rbVII04->isChecked() << ui->rbVII05->isChecked() << ui->rbVII06->isChecked() << ui->rbVII07->isChecked()
+             << ui->rbVII08->isChecked() << ui->rbVII09->isChecked() << ui->rbVII10->isChecked() << ui->rbVII11->isChecked()
+             << ui->rbVII12->isChecked() << ui->rbVII13->isChecked() << ui->rbVII14->isChecked() << ui->rbVII15->isChecked()
+             << ui->rbVII16->isChecked() << ui->rbVII17->isChecked() << ui->rbVII18->isChecked() << ui->rbVII19->isChecked()
+             << ui->rbVII20->isChecked();
+
+
+    Q_ASSERT(viilist.count() == 21);
+
+    return(viilist);
+}
+
+QList<int> FormToolbox::getVIIColorList()
+{
+    QList<int> viilist;
+    viilist << ui->cmbVII01->currentIndex() << ui->cmbVII02->currentIndex() << ui->cmbVII03->currentIndex() << ui->cmbVII04->currentIndex()
+             << ui->cmbVII05->currentIndex() << ui->cmbVII06->currentIndex() << ui->cmbVII07->currentIndex() << ui->cmbVII08->currentIndex()
+             << ui->cmbVII09->currentIndex() << ui->cmbVII10->currentIndex() << ui->cmbVII11->currentIndex() << ui->cmbVII12->currentIndex()
+             << ui->cmbVII13->currentIndex() << ui->cmbVII14->currentIndex() << ui->cmbVII15->currentIndex() << ui->cmbVII16->currentIndex()
+             << ui->cmbVII17->currentIndex() << ui->cmbVII18->currentIndex() << ui->cmbVII19->currentIndex() << ui->cmbOLCI20->currentIndex();
+
+    Q_ASSERT(viilist.count() == 20);
+
+    return(viilist);
+}
+
+QList<bool> FormToolbox::getVIIInvertList()
+{
+    QList<bool> viilist;
+    viilist << ui->chkInverseVII01->isChecked() << ui->chkInverseVII02->isChecked() << ui->chkInverseVII03->isChecked() << ui->chkInverseVII04->isChecked()
+             << ui->chkInverseVII05->isChecked() << ui->chkInverseVII06->isChecked() << ui->chkInverseVII07->isChecked() << ui->chkInverseVII08->isChecked()
+             << ui->chkInverseVII09->isChecked() << ui->chkInverseVII10->isChecked() << ui->chkInverseVII11->isChecked() << ui->chkInverseVII12->isChecked()
+             << ui->chkInverseVII13->isChecked() << ui->chkInverseVII14->isChecked() << ui->chkInverseVII15->isChecked() << ui->chkInverseVII16->isChecked()
+             << ui->chkInverseVII17->isChecked() << ui->chkInverseVII18->isChecked() << ui->chkInverseVII19->isChecked() << ui->chkInverseOLCI20->isChecked();
+
+    Q_ASSERT(viilist.count() == 20);
+    return(viilist);
 }
 
 int FormToolbox::getOLCIHistogrammethod()
@@ -1346,6 +1429,8 @@ FormToolbox::~FormToolbox()
         opts.lastinputprojection = 5;
     else if(ui->rdbMeteosatin->isChecked())
         opts.lastinputprojection = 6;
+    else if(ui->rdbVIIin->isChecked())
+        opts.lastinputprojection = 7;
     else
         opts.lastinputprojection = 0;
 
@@ -1585,6 +1670,91 @@ FormToolbox::~FormToolbox()
     poi.strlComboMERSI17.replace(0, QString("%1").arg(ui->cmbMERSI17->currentIndex()));
     poi.strlComboMERSI18.replace(0, QString("%1").arg(ui->cmbMERSI18->currentIndex()));
     poi.strlComboMERSI19.replace(0, QString("%1").arg(ui->cmbMERSI19->currentIndex()));
+
+    if(ui->rbColorVII->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("0"));
+    else if(ui->rbVII01->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("1"));
+    else if(ui->rbVII02->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("2"));
+    else if(ui->rbVII03->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("3"));
+    else if(ui->rbVII04->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("4"));
+    else if(ui->rbVII05->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("5"));
+    else if(ui->rbVII06->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("6"));
+    else if(ui->rbVII07->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("7"));
+    else if(ui->rbVII08->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("8"));
+    else if(ui->rbVII09->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("9"));
+    else if(ui->rbVII10->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("10"));
+    else if(ui->rbVII11->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("11"));
+    else if(ui->rbVII12->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("12"));
+    else if(ui->rbVII13->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("13"));
+    else if(ui->rbVII14->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("14"));
+    else if(ui->rbVII15->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("15"));
+    else if(ui->rbVII16->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("16"));
+    else if(ui->rbVII17->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("17"));
+    else if(ui->rbVII18->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("18"));
+    else if(ui->rbVII19->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("19"));
+    else if(ui->rbVII20->isChecked())
+        poi.strlColorBandVII.replace(0, QString("%1").arg("20"));
+
+    poi.strlInverseVII01.replace(0, QString("%1").arg(ui->chkInverseVII01->isChecked()));
+    poi.strlInverseVII02.replace(0, QString("%1").arg(ui->chkInverseVII02->isChecked()));
+    poi.strlInverseVII03.replace(0, QString("%1").arg(ui->chkInverseVII03->isChecked()));
+    poi.strlInverseVII04.replace(0, QString("%1").arg(ui->chkInverseVII04->isChecked()));
+    poi.strlInverseVII05.replace(0, QString("%1").arg(ui->chkInverseVII05->isChecked()));
+    poi.strlInverseVII06.replace(0, QString("%1").arg(ui->chkInverseVII06->isChecked()));
+    poi.strlInverseVII07.replace(0, QString("%1").arg(ui->chkInverseVII07->isChecked()));
+    poi.strlInverseVII08.replace(0, QString("%1").arg(ui->chkInverseVII08->isChecked()));
+    poi.strlInverseVII09.replace(0, QString("%1").arg(ui->chkInverseVII09->isChecked()));
+    poi.strlInverseVII10.replace(0, QString("%1").arg(ui->chkInverseVII10->isChecked()));
+    poi.strlInverseVII11.replace(0, QString("%1").arg(ui->chkInverseVII11->isChecked()));
+    poi.strlInverseVII12.replace(0, QString("%1").arg(ui->chkInverseVII12->isChecked()));
+    poi.strlInverseVII13.replace(0, QString("%1").arg(ui->chkInverseVII13->isChecked()));
+    poi.strlInverseVII14.replace(0, QString("%1").arg(ui->chkInverseVII14->isChecked()));
+    poi.strlInverseVII15.replace(0, QString("%1").arg(ui->chkInverseVII15->isChecked()));
+    poi.strlInverseVII16.replace(0, QString("%1").arg(ui->chkInverseVII16->isChecked()));
+    poi.strlInverseVII17.replace(0, QString("%1").arg(ui->chkInverseVII17->isChecked()));
+    poi.strlInverseVII18.replace(0, QString("%1").arg(ui->chkInverseVII18->isChecked()));
+    poi.strlInverseVII19.replace(0, QString("%1").arg(ui->chkInverseVII19->isChecked()));
+    poi.strlInverseVII20.replace(0, QString("%1").arg(ui->chkInverseVII20->isChecked()));
+
+    poi.strlComboVII01.replace(0, QString("%1").arg(ui->cmbVII01->currentIndex()));
+    poi.strlComboVII02.replace(0, QString("%1").arg(ui->cmbVII02->currentIndex()));
+    poi.strlComboVII03.replace(0, QString("%1").arg(ui->cmbVII03->currentIndex()));
+    poi.strlComboVII04.replace(0, QString("%1").arg(ui->cmbVII04->currentIndex()));
+    poi.strlComboVII05.replace(0, QString("%1").arg(ui->cmbVII05->currentIndex()));
+    poi.strlComboVII06.replace(0, QString("%1").arg(ui->cmbVII06->currentIndex()));
+    poi.strlComboVII07.replace(0, QString("%1").arg(ui->cmbVII07->currentIndex()));
+    poi.strlComboVII08.replace(0, QString("%1").arg(ui->cmbVII08->currentIndex()));
+    poi.strlComboVII09.replace(0, QString("%1").arg(ui->cmbVII09->currentIndex()));
+    poi.strlComboVII10.replace(0, QString("%1").arg(ui->cmbVII10->currentIndex()));
+    poi.strlComboVII11.replace(0, QString("%1").arg(ui->cmbVII11->currentIndex()));
+    poi.strlComboVII12.replace(0, QString("%1").arg(ui->cmbVII12->currentIndex()));
+    poi.strlComboVII13.replace(0, QString("%1").arg(ui->cmbVII13->currentIndex()));
+    poi.strlComboVII14.replace(0, QString("%1").arg(ui->cmbVII14->currentIndex()));
+    poi.strlComboVII15.replace(0, QString("%1").arg(ui->cmbVII15->currentIndex()));
+    poi.strlComboVII16.replace(0, QString("%1").arg(ui->cmbVII16->currentIndex()));
+    poi.strlComboVII17.replace(0, QString("%1").arg(ui->cmbVII17->currentIndex()));
+    poi.strlComboVII18.replace(0, QString("%1").arg(ui->cmbVII18->currentIndex()));
+    poi.strlComboVII19.replace(0, QString("%1").arg(ui->cmbVII19->currentIndex()));
+    poi.strlComboVII20.replace(0, QString("%1").arg(ui->cmbVII20->currentIndex()));
 
 
     delete ui;
@@ -2015,6 +2185,29 @@ void FormToolbox::setToolboxButtons(bool state)
     ui->rbMERSI17->setEnabled(state);
     ui->rbMERSI18->setEnabled(state);
     ui->rbMERSI19->setEnabled(state);
+
+    ui->rbColorVII->setEnabled(state);
+    //ui->rbVIIMERSI5->setEnabled(state);
+    ui->rbVII01->setEnabled(state);
+    ui->rbVII02->setEnabled(state);
+    ui->rbVII03->setEnabled(state);
+    ui->rbVII04->setEnabled(state);
+    ui->rbVII05->setEnabled(state);
+    ui->rbVII06->setEnabled(state);
+    ui->rbVII07->setEnabled(state);
+    ui->rbVII08->setEnabled(state);
+    ui->rbVII09->setEnabled(state);
+    ui->rbVII10->setEnabled(state);
+    ui->rbVII11->setEnabled(state);
+    ui->rbVII12->setEnabled(state);
+    ui->rbVII13->setEnabled(state);
+    ui->rbVII14->setEnabled(state);
+    ui->rbVII15->setEnabled(state);
+    ui->rbVII16->setEnabled(state);
+    ui->rbVII17->setEnabled(state);
+    ui->rbVII18->setEnabled(state);
+    ui->rbVII19->setEnabled(state);
+    ui->rbVII20->setEnabled(state);
 
     // if(state)
     //     QApplication::restoreOverrideCursor();
@@ -3088,7 +3281,7 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     {
         formimage->displayImage(IMAGE_MERSI, true);
     }
-    else if (index == TAB_SENTINEL) // OLCI or SLSTR
+    else if (index == TAB_SENTINEL) // OLCI
     {
         if(ui->tabWidgetSentinel->currentIndex() == 0)
             formimage->displayImage(IMAGE_OLCI, true);
@@ -4395,6 +4588,33 @@ bool FormToolbox::comboColAVHRROK()
         return false;
 }
 
+bool FormToolbox::comboColVIIOK()
+{
+    int cnt = 0;
+
+    cnt += ui->cmbVII01->currentIndex();
+    cnt += ui->cmbVII02->currentIndex();
+    cnt += ui->cmbVII03->currentIndex();
+    cnt += ui->cmbVII04->currentIndex();
+    cnt += ui->cmbVII05->currentIndex();
+    cnt += ui->cmbVII06->currentIndex();
+    cnt += ui->cmbVII07->currentIndex();
+    cnt += ui->cmbVII08->currentIndex();
+    cnt += ui->cmbVII09->currentIndex();
+    cnt += ui->cmbVII10->currentIndex();
+    cnt += ui->cmbVII11->currentIndex();
+    cnt += ui->cmbVII12->currentIndex();
+    cnt += ui->cmbVII13->currentIndex();
+    cnt += ui->cmbVII14->currentIndex();
+    cnt += ui->cmbVII15->currentIndex();
+    cnt += ui->cmbVII16->currentIndex();
+
+    if(cnt == 6)
+        return true;
+    else
+        return false;
+}
+
 bool FormToolbox::comboColVIIRSOK()
 {
     int cnt = 0;
@@ -5257,6 +5477,131 @@ void FormToolbox::setConfigMERSIParameters(int strlindex)
     ui->cmbMERSI19->setCurrentIndex(poi.strlComboMERSI19.at(strlindex).toInt());
 }
 
+void FormToolbox::setConfigVIIParameters(int strlindex)
+{
+
+    int theband = poi.strlColorBandVII.at(strlindex).toInt();
+    if( theband == 0) // is color
+    {
+        setRadioButtonsVIIToFalse();
+        ui->rbColorVII->setChecked(true);
+    }
+    else
+    {
+        ui->rbColorVII->setChecked(false);
+        setRadioButtonsVIIToFalse();
+        switch (theband)
+        {
+        case 1:
+            ui->rbVII01->setChecked(true);
+            break;
+        case 2:
+            ui->rbVII02->setChecked(true);
+            break;
+        case 3:
+            ui->rbVII03->setChecked(true);
+            break;
+        case 4:
+            ui->rbVII04->setChecked(true);
+            break;
+        case 5:
+            ui->rbVII05->setChecked(true);
+            break;
+        case 6:
+            ui->rbVII06->setChecked(true);
+            break;
+        case 7:
+            ui->rbVII07->setChecked(true);
+            break;
+        case 8:
+            ui->rbVII08->setChecked(true);
+            break;
+        case 9:
+            ui->rbVII09->setChecked(true);
+            break;
+        case 10:
+            ui->rbVII10->setChecked(true);
+            break;
+        case 11:
+            ui->rbVII11->setChecked(true);
+            break;
+        case 12:
+            ui->rbVII12->setChecked(true);
+            break;
+        case 13:
+            ui->rbVII13->setChecked(true);
+            break;
+        case 14:
+            ui->rbVII14->setChecked(true);
+            break;
+        case 15:
+            ui->rbVII15->setChecked(true);
+            break;
+        case 16:
+            ui->rbVII16->setChecked(true);
+            break;
+        case 17:
+            ui->rbVII17->setChecked(true);
+            break;
+        case 18:
+            ui->rbVII18->setChecked(true);
+            break;
+        case 19:
+            ui->rbVII19->setChecked(true);
+            break;
+        case 20:
+            ui->rbVII20->setChecked(true);
+            break;
+
+        }
+
+    }
+
+    ui->chkInverseVII01->setChecked(poi.strlInverseVII01.at(strlindex).toInt());
+    ui->chkInverseVII02->setChecked(poi.strlInverseVII02.at(strlindex).toInt());
+    ui->chkInverseVII03->setChecked(poi.strlInverseVII03.at(strlindex).toInt());
+    ui->chkInverseVII04->setChecked(poi.strlInverseVII04.at(strlindex).toInt());
+    ui->chkInverseVII05->setChecked(poi.strlInverseVII05.at(strlindex).toInt());
+    ui->chkInverseVII06->setChecked(poi.strlInverseVII06.at(strlindex).toInt());
+    ui->chkInverseVII07->setChecked(poi.strlInverseVII07.at(strlindex).toInt());
+    ui->chkInverseVII08->setChecked(poi.strlInverseVII08.at(strlindex).toInt());
+    ui->chkInverseVII09->setChecked(poi.strlInverseVII09.at(strlindex).toInt());
+    ui->chkInverseVII10->setChecked(poi.strlInverseVII10.at(strlindex).toInt());
+    ui->chkInverseVII11->setChecked(poi.strlInverseVII11.at(strlindex).toInt());
+    ui->chkInverseVII12->setChecked(poi.strlInverseVII12.at(strlindex).toInt());
+    ui->chkInverseVII13->setChecked(poi.strlInverseVII13.at(strlindex).toInt());
+    ui->chkInverseVII14->setChecked(poi.strlInverseVII14.at(strlindex).toInt());
+    ui->chkInverseVII15->setChecked(poi.strlInverseVII15.at(strlindex).toInt());
+    ui->chkInverseVII16->setChecked(poi.strlInverseVII16.at(strlindex).toInt());
+    ui->chkInverseVII17->setChecked(poi.strlInverseVII17.at(strlindex).toInt());
+    ui->chkInverseVII18->setChecked(poi.strlInverseVII18.at(strlindex).toInt());
+    ui->chkInverseVII19->setChecked(poi.strlInverseVII19.at(strlindex).toInt());
+    ui->chkInverseVII20->setChecked(poi.strlInverseVII20.at(strlindex).toInt());
+
+    ui->cmbVII01->setCurrentIndex(poi.strlComboVII01.at(strlindex).toInt());
+    ui->cmbVII02->setCurrentIndex(poi.strlComboVII02.at(strlindex).toInt());
+    ui->cmbVII03->setCurrentIndex(poi.strlComboVII03.at(strlindex).toInt());
+    ui->cmbVII04->setCurrentIndex(poi.strlComboVII04.at(strlindex).toInt());
+    ui->cmbVII05->setCurrentIndex(poi.strlComboVII05.at(strlindex).toInt());
+    ui->cmbVII06->setCurrentIndex(poi.strlComboVII06.at(strlindex).toInt());
+    ui->cmbVII07->setCurrentIndex(poi.strlComboVII07.at(strlindex).toInt());
+    ui->cmbVII08->setCurrentIndex(poi.strlComboVII08.at(strlindex).toInt());
+    ui->cmbVII09->setCurrentIndex(poi.strlComboVII09.at(strlindex).toInt());
+    ui->cmbVII10->setCurrentIndex(poi.strlComboVII10.at(strlindex).toInt());
+    ui->cmbVII11->setCurrentIndex(poi.strlComboVII11.at(strlindex).toInt());
+    ui->cmbVII12->setCurrentIndex(poi.strlComboVII12.at(strlindex).toInt());
+    ui->cmbVII13->setCurrentIndex(poi.strlComboVII13.at(strlindex).toInt());
+    ui->cmbVII14->setCurrentIndex(poi.strlComboVII14.at(strlindex).toInt());
+    ui->cmbVII15->setCurrentIndex(poi.strlComboVII15.at(strlindex).toInt());
+    ui->cmbVII16->setCurrentIndex(poi.strlComboVII16.at(strlindex).toInt());
+    ui->cmbVII17->setCurrentIndex(poi.strlComboVII17.at(strlindex).toInt());
+    ui->cmbVII18->setCurrentIndex(poi.strlComboVII18.at(strlindex).toInt());
+    ui->cmbVII19->setCurrentIndex(poi.strlComboVII19.at(strlindex).toInt());
+    ui->cmbVII20->setCurrentIndex(poi.strlComboVII20.at(strlindex).toInt());
+
+}
+
+
 void FormToolbox::setRadioButtonsOLCIefrToFalse()
 {
     ui->rbOLCI01->setChecked(false);
@@ -5282,6 +5627,29 @@ void FormToolbox::setRadioButtonsOLCIefrToFalse()
     ui->rbOLCI21->setChecked(false);
 }
 
+void FormToolbox::setRadioButtonsVIIToFalse()
+{
+    ui->rbVII01->setChecked(false);
+    ui->rbVII02->setChecked(false);
+    ui->rbVII03->setChecked(false);
+    ui->rbVII04->setChecked(false);
+    ui->rbVII05->setChecked(false);
+    ui->rbVII06->setChecked(false);
+    ui->rbVII07->setChecked(false);
+    ui->rbVII08->setChecked(false);
+    ui->rbVII09->setChecked(false);
+    ui->rbVII10->setChecked(false);
+    ui->rbVII11->setChecked(false);
+    ui->rbVII12->setChecked(false);
+    ui->rbVII13->setChecked(false);
+    ui->rbVII14->setChecked(false);
+    ui->rbVII15->setChecked(false);
+    ui->rbVII16->setChecked(false);
+    ui->rbVII17->setChecked(false);
+    ui->rbVII18->setChecked(false);
+    ui->rbVII19->setChecked(false);
+    ui->rbVII20->setChecked(false);
+}
 void FormToolbox::setRadioButtonsMERSIToFalse()
 {
     ui->rbMERSI5->setChecked(false);
@@ -5442,6 +5810,11 @@ void FormToolbox::on_btnAddPOI_clicked()
 void FormToolbox::on_comboMConfig_currentIndexChanged(int index)
 {
     setConfigMParameters(index);
+}
+
+void FormToolbox::on_comboVIIConfig_currentIndexChanged(int index)
+{
+    setConfigVIIParameters(index);
 }
 
 void FormToolbox::on_comboOLCIConfig_currentIndexChanged(int index)

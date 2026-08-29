@@ -88,6 +88,8 @@ void MapFieldCyl::paintEvent( QPaintEvent * )
 
     if (opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
         sl = segs->seglmetop;
+    else if (opts.buttonMetopSGA1 && segs->seglmetopsga1->NbrOfSegments() > 0)
+        sl = segs->seglmetop;
     else if (opts.buttonHRP && segs->seglhrp->NbrOfSegments() > 0)
         sl = segs->seglhrp;
     else if (opts.buttonVIIRSM && segs->seglviirsm->NbrOfSegments() > 0)

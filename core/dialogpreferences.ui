@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1229</width>
-    <height>944</height>
+    <width>1434</width>
+    <height>1174</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -144,12 +144,21 @@
           <normaloff>:/icons/satellite.jpg</normaloff>:/icons/satellite.jpg</iconset>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>VII Config</string>
+        </property>
+        <property name="icon">
+         <iconset resource="EUMETCastView.qrc">
+          <normaloff>:/icons/satellite.jpg</normaloff>:/icons/satellite.jpg</iconset>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>7</number>
+        <number>11</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -565,11 +574,11 @@
            </item>
            <item row="6" column="0">
             <widget class="QLabel" name="lblGshhsMask">
-             <property name="text">
-              <string>Land/sea mask</string>
-             </property>
              <property name="toolTip">
               <string>Shoreline file the Rayleigh correction rasterises its land/sea mask from. Rasterised once at startup, so a high-resolution file costs nothing per image. Falls back to Gshhs file 1 if left empty or missing.</string>
+             </property>
+             <property name="text">
+              <string>Land/sea mask</string>
              </property>
             </widget>
            </item>
@@ -988,9 +997,9 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="chkImageOnTextureSLSTR">
+            <widget class="QCheckBox" name="chkImageOnTextureVII">
              <property name="text">
-              <string>SLSTR Image on Texture</string>
+              <string>VII Image on Texture</string>
              </property>
             </widget>
            </item>
@@ -2020,6 +2029,64 @@
            </item>
            <item>
             <spacer name="horizontalSpacer_24">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pageVIIConfig">
+        <layout class="QVBoxLayout" name="verticalLayout_18">
+         <item>
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Band = Nbr of the channel ( 0 =  Color)    443, 555, ...,12020 combobox index (1 = R, 2 = G, 3 = B)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTableView" name="tbvVIIConfig"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_20">
+           <item>
+            <spacer name="horizontalSpacer_15">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnAddVIIConfig">
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnDeleteVIIConfig">
+             <property name="text">
+              <string>Delete</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_16">
              <property name="orientation">
               <enum>Qt::Orientation::Horizontal</enum>
              </property>

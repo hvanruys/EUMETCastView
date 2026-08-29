@@ -440,6 +440,10 @@ void FormImage::MakeImage()
         metopcount = segs->seglmetop->NbrOfSegmentsSelected();
         hrpcount = segs->seglhrp->NbrOfSegmentsSelected();
     }
+    else if(opts.buttonMetopSGA1)
+    {
+        metopsga1count = segs->seglmetopsga1->NbrOfSegmentsSelected();
+    }
     else if(opts.buttonVIIRSM)
     {
         viirsmcount = segs->seglviirsm->NbrOfSegmentsSelected();
@@ -484,6 +488,7 @@ void FormImage::MakeImage()
     QList<bool> invertlist;
 
     qDebug() << QString("in FormImage::ComposeImage nbr of metop segments selected = %1").arg(metopcount);
+    qDebug() << QString("in FormImage::ComposeImage nbr of metopsga1 segments selected = %1").arg(metopsga1count);
     qDebug() << QString("in FormImage::ComposeImage nbr of hrp segments selected = %1").arg(hrpcount);
 
     qDebug() << QString("in FormImage::ComposeImage nbr of viirsm segments selected = %1").arg(viirsmcount);
@@ -521,6 +526,41 @@ void FormImage::MakeImage()
         }
         else
             return;
+    }
+    else if(metopsga1count > 0 && opts.buttonMetopSGA1)
+    {
+        if(!formtoolbox->comboColVIIOK())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Need color choices for 3 different bands in the VII tab.");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+            case QMessageBox::Ok:
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        this->channelshown = IMAGE_VII;
+
+        formtoolbox->setToolboxButtons(false);
+
+        this->displayImage(IMAGE_VII, true);
+        this->kindofimage = "VII";
+        this->setSegmentType(SEG_METOPSGA1);
+        bandlist = formtoolbox->getVIIBandList();
+        colorlist = formtoolbox->getVIIColorList();
+        invertlist = formtoolbox->getVIIInvertList();
+        //          in Workerthread
+        segs->seglmetopsga1->ComposeVIIImage(bandlist, colorlist, invertlist);
+        //          in main thread
+        //            segs->seglviirsm->ComposeVIIRSImageSerial(bandlist, colorlist, invertlist);
     }
     else if(viirsmcount > 0 && opts.buttonVIIRSM)
     {
@@ -956,6 +996,11 @@ void FormImage::setPixmapToScene(bool settoolboxbuttons)
     case IMAGE_NONE:
         return;
 
+    case IMAGE_VII:
+        displayVIIImageInfo(SEG_MERSI);
+        m_image = imageptrs->ptrimageVII;
+        formtoolbox->setOMimagesize(imageptrs->ptrimageVII->width(), imageptrs->ptrimageVII->height());
+        break;
     }
 
     m_pixmap = QPixmap::fromImage(*m_image);
@@ -1221,6 +1266,23 @@ void FormImage::displayImage(eImageType channel, bool resize)
             }
             break;
 
+        case IMAGE_VII:
+            if(imageptrs->ptrimageVII->sizeInBytes() == 0)
+            {
+                QString str("No VII image");
+                int pixelsWide = fm.horizontalAdvance(str);
+                painter.drawText((pm.width() - pixelsWide)/2, pm.height()/2, str);
+                m_pixmap = pm;
+            }
+            else
+            {
+                m_image = imageptrs->ptrimageVII;
+                m_pixmap = QPixmap::fromImage(*m_image);
+                if(segmenttype == eSegmentType::SEG_METOPSGA1)
+                    displayVIIImageInfo(SEG_METOPSGA1);
+            }
+
+            break;
         }
     }
 
@@ -3180,8 +3242,25 @@ void FormImage::displayMERSIImageInfo(eSegmentType type)
                       "Image width = %3 height = %4<br>"
                       "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageMERSI->width()).arg(imageptrs->ptrimageMERSI->height());
     formtoolbox->writeInfoToTextEdit(txtInfo);
+}
 
+void FormImage::displayVIIImageInfo(eSegmentType type)
+{
+    QString segtype;
+    int nbrselected;
 
+    segtype = "VII";
+    nbrselected = segs->seglmetopsga1->NbrOfSegmentsSelected();
+
+    txtInfo = QString("<!DOCTYPE html>"
+                      "<html><head><title>Info</title></head>"
+                      "<body>"
+                      "<h4 style='color:blue'>Image Information</h4>"
+                      "<p>Segment type = %1<br>"
+                      "Nbr of segments = %2<br>"
+                      "Image width = %3 height = %4<br>"
+                      "</body></html>").arg(segtype).arg(nbrselected).arg(imageptrs->ptrimageVII->width()).arg(imageptrs->ptrimageVII->height());
+    formtoolbox->writeInfoToTextEdit(txtInfo);
 }
 
 bool FormImage::ShowVIIRSMImage()

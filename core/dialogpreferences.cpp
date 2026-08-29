@@ -116,7 +116,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->chkImageOnTextureAVHRR->setChecked(opts.imageontextureOnAVHRR);
     ui->chkImageOnTextureVIIRS->setChecked(opts.imageontextureOnVIIRS);
     ui->chkImageOnTextureOLCI->setChecked(opts.imageontextureOnOLCI);
-    ui->chkImageOnTextureSLSTR->setChecked(opts.imageontextureOnSLSTR);
+    ui->chkImageOnTextureVII->setChecked(opts.imageontextureOnVII);
     ui->chkWindowVectors->setChecked(opts.windowvectors);
     ui->chkUDPMessages->setChecked(opts.udpmessages);
 
@@ -159,9 +159,8 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     setupVIIRSMConfigTable();
     setupGeoConfigTable();
     setupOLCIefrConfigTable();
-    //setupSLSTRConfigTable();
     setupMERSIConfigTable();
-    //setupDatahubConfig();
+    setupVIIConfigTable();
 
     POItablechanged = false;
 
@@ -177,7 +176,6 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     QString htmlstring = "When checked the created OLCI ERR and EFR directories will be removed";
     ui->rdbRemoveOLCIDirs->setWhatsThis(htmlstring);
-    htmlstring = "When checked the created SLSTR directories will be removed";
     if (opts.bFciDecomp == true)
     {
         ui->lblFciDecomp->setText("The FCIDECOMP plugin was found.");
@@ -306,6 +304,26 @@ void DialogPreferences::setupVIIRSMConfigTable()
 
 }
 
+void DialogPreferences::setupVIIConfigTable()
+{
+    myVIIConfigModel = new VIIConfigModel(this);
+
+    ui->tbvVIIConfig->setModel(myVIIConfigModel);
+    ui->tbvVIIConfig->setColumnWidth(0, 100);
+
+    for(int i = 1; i < 18; i++)
+        ui->tbvVIIConfig->setColumnWidth(i, 50);
+
+    QHeaderView *hheader = ui->tbvVIIConfig->horizontalHeader();
+    hheader->setStretchLastSection(true);
+    //hheader->setMinimumSectionSize(-1);
+    //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
+
+    connect(ui->btnAddVIIConfig, SIGNAL(clicked()), this, SLOT(addVIIConfigRow()));
+    connect(ui->btnDeleteVIIConfig, SIGNAL(clicked()), this, SLOT(deleteVIIConfigRow()));
+
+}
+
 void DialogPreferences::setupGeoConfigTable()
 {
 
@@ -346,26 +364,6 @@ void DialogPreferences::setupOLCIefrConfigTable()
     connect(ui->btnDeleteOLCIefrConfig, SIGNAL(clicked()), this, SLOT(deleteOLCIefrConfigRow()));
 
 }
-
-// void DialogPreferences::setupSLSTRConfigTable()
-// {
-//     mySLSTRConfigModel = new SLSTRConfigModel(this);
-
-//     ui->tbvSLSTRConfig->setModel(mySLSTRConfigModel);
-//     ui->tbvSLSTRConfig->setColumnWidth(0, 100);
-
-//     for(int i = 1; i < 13; i++)
-//         ui->tbvSLSTRConfig->setColumnWidth(i, 50);
-
-//     QHeaderView *hheader = ui->tbvSLSTRConfig->horizontalHeader();
-//     hheader->setStretchLastSection(true);
-//     //hheader->setMinimumSectionSize(-1);
-//     //hheader->->setResizeMode(0, QHeaderView::ResizeToContents);
-
-//     connect(ui->btnAddSLSTRConfig, SIGNAL(clicked()), this, SLOT(addSLSTRConfigRow()));
-//     connect(ui->btnDeleteSLSTRConfig, SIGNAL(clicked()), this, SLOT(deleteSLSTRConfigRow()));
-
-// }
 
 void DialogPreferences::setupMERSIConfigTable()
 {
@@ -521,6 +519,16 @@ void DialogPreferences::deleteOLCIefrConfigRow()
     myOLCIefrConfigModel->removeRow(row, QModelIndex());
 }
 
+void DialogPreferences::addVIIConfigRow()
+{
+    myVIIConfigModel->insertRows(myVIIConfigModel->rowCount(), 1, QModelIndex());
+}
+
+void DialogPreferences::deleteVIIConfigRow()
+{
+    int row = ui->tbvVIIConfig->currentIndex().row();
+    myVIIConfigModel->removeRow(row, QModelIndex());
+}
 void DialogPreferences::changePage(QListWidgetItem *current, QListWidgetItem *previous)
 {
 
@@ -608,7 +616,7 @@ void DialogPreferences::dialogaccept()
     opts.imageontextureOnAVHRR = ui->chkImageOnTextureAVHRR->isChecked();
     opts.imageontextureOnVIIRS = ui->chkImageOnTextureVIIRS->isChecked();
     opts.imageontextureOnOLCI = ui->chkImageOnTextureOLCI->isChecked();
-    opts.imageontextureOnSLSTR = ui->chkImageOnTextureSLSTR->isChecked();
+    opts.imageontextureOnVII = ui->chkImageOnTextureVII->isChecked();
     opts.windowvectors = ui->chkWindowVectors->isChecked();
     opts.udpmessages = ui->chkUDPMessages->isChecked();
 
@@ -3159,227 +3167,6 @@ Qt::ItemFlags OLCIefrConfigModel::flags(const QModelIndex & /*index*/) const
 
 
 
-//-----------------------------------------------------------------
-//-----------------------------------------------------------------
-SLSTRConfigModel::SLSTRConfigModel(QObject *parent)
-    :QAbstractTableModel(parent)
-{
-
-}
-
-int SLSTRConfigModel::rowCount(const QModelIndex & /*parent*/) const
-{
-    return poi.strlConfigNameSLSTR.count();
-}
-
-int SLSTRConfigModel::columnCount(const QModelIndex & /*parent*/) const
-{
-    return 13;
-}
-
-QVariant SLSTRConfigModel::data(const QModelIndex &index, int role) const
-{
-
-    if (role == Qt::DisplayRole)
-    {
-        // switch(index.column())
-        // {
-        // case 0:
-        //     return poi.strlConfigNameSLSTR.at(index.row());
-        //     break;
-        // case 1:
-        //     return poi.strlColorBandSLSTR.at(index.row());
-        //     break;
-        // case 2:
-        //     return poi.strlComboSLSTRS1.at(index.row());
-        //     break;
-        // case 3:
-        //     return poi.strlComboSLSTRS2.at(index.row());
-        //     break;
-        // case 4:
-        //     return poi.strlComboSLSTRS3.at(index.row());
-        //     break;
-        // case 5:
-        //     return poi.strlComboSLSTRS4.at(index.row());
-        //     break;
-        // case 6:
-        //     return poi.strlComboSLSTRS5.at(index.row());
-        //     break;
-        // case 7:
-        //     return poi.strlComboSLSTRS6.at(index.row());
-        //     break;
-        // case 8:
-        //     return poi.strlComboSLSTRS7.at(index.row());
-        //     break;
-        // case 9:
-        //     return poi.strlComboSLSTRS8.at(index.row());
-        //     break;
-        // case 10:
-        //     return poi.strlComboSLSTRS9.at(index.row());
-        //     break;
-        // case 11:
-        //     return poi.strlComboSLSTRF1.at(index.row());
-        //     break;
-        // case 12:
-        //     return poi.strlComboSLSTRF2.at(index.row());
-        //     break;
-        // }
-    }
-
-    return QVariant();
-
-
-}
-
-
-
-bool SLSTRConfigModel::setData(const QModelIndex & index, const QVariant & value, int role)
-{
-    if (role == Qt::EditRole)
-    {
-        // m_gridData[index.row()][index.column()] = value.toString();
-        // switch(index.column())
-        // {
-        // case 0:
-        //     poi.strlConfigNameSLSTR.replace(index.row(), value.toString());
-        //     break;
-        // case 1:
-        //     poi.strlColorBandSLSTR.replace(index.row(), value.toString());
-        //     break;
-        // case 2:
-        //     poi.strlComboSLSTRS1.replace(index.row(), value.toString());
-        //     break;
-        // case 3:
-        //     poi.strlComboSLSTRS2.replace(index.row(), value.toString());
-        //     break;
-        // case 4:
-        //     poi.strlComboSLSTRS3.replace(index.row(), value.toString());
-        //     break;
-        // case 5:
-        //     poi.strlComboSLSTRS4.replace(index.row(), value.toString());
-        //     break;
-        // case 6:
-        //     poi.strlComboSLSTRS5.replace(index.row(), value.toString());
-        //     break;
-        // case 7:
-        //     poi.strlComboSLSTRS6.replace(index.row(), value.toString());
-        //     break;
-        // case 8:
-        //     poi.strlComboSLSTRS7.replace(index.row(), value.toString());
-        //     break;
-        // case 9:
-        //     poi.strlComboSLSTRS8.replace(index.row(), value.toString());
-        //     break;
-        // case 10:
-        //     poi.strlComboSLSTRS9.replace(index.row(), value.toString());
-        //     break;
-        // case 11:
-        //     poi.strlComboSLSTRF1.replace(index.row(), value.toString());
-        //     break;
-        // case 12:
-        //     poi.strlComboSLSTRF2.replace(index.row(), value.toString());
-        //     break;
-        // }
-
-        emit editCompleted();
-    }
-
-    return true;
-}
-
-QVariant SLSTRConfigModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (role != Qt::DisplayRole)
-        return QVariant();
-
-    if (orientation == Qt::Horizontal) {
-        switch (section) {
-        case 0:
-            return tr("Name");
-        case 1:
-            return tr("Band");
-        case 2:
-            return tr("S1");
-        case 3:
-            return tr("S2");
-        case 4:
-            return tr("S3");
-        case 5:
-            return tr("S4");
-        case 6:
-            return tr("S5");
-        case 7:
-            return tr("S6");
-        case 8:
-            return tr("S7");
-        case 9:
-            return tr("S8");
-        case 10:
-            return tr("S9");
-        case 11:
-            return tr("F1");
-        case 12:
-            return tr("F2");
-
-        default:
-            return QVariant();
-        }
-    }
-    return QVariant();
-
-}
-
-bool SLSTRConfigModel::insertRows(int position, int rows, const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    beginInsertRows(QModelIndex(), position, position+rows-1);
-
-    poi.strlConfigNameSLSTR.append( " " );
-    poi.strlColorBandSLSTR.append( "0" );
-    // poi.strlComboSLSTRS1.append( "0" );
-    // poi.strlComboSLSTRS2.append( "0" );
-    // poi.strlComboSLSTRS3.append( "0" );
-    // poi.strlComboSLSTRS4.append( "0" );
-    // poi.strlComboSLSTRS5.append( "0" );
-    // poi.strlComboSLSTRS6.append( "0" );
-    // poi.strlComboSLSTRS7.append( "0" );
-    // poi.strlComboSLSTRS8.append( "0" );
-    // poi.strlComboSLSTRS9.append( "0" );
-    // poi.strlComboSLSTRF1.append( "0" );
-    // poi.strlComboSLSTRF2.append( "0" );
-
-    // poi.strlInverseSLSTRS1.append( "0" );
-    // poi.strlInverseSLSTRS2.append( "0" );
-    // poi.strlInverseSLSTRS3.append( "0" );
-    // poi.strlInverseSLSTRS4.append( "0" );
-    // poi.strlInverseSLSTRS5.append( "0" );
-    // poi.strlInverseSLSTRS6.append( "0" );
-    // poi.strlInverseSLSTRS7.append( "0" );
-    // poi.strlInverseSLSTRS8.append( "0" );
-    // poi.strlInverseSLSTRS9.append( "0" );
-    // poi.strlInverseSLSTRF1.append( "0" );
-    // poi.strlInverseSLSTRF2.append( "0" );
-
-    endInsertRows();
-    return true;
-
-}
-
-bool SLSTRConfigModel::removeRows(int position, int rows, const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    beginRemoveRows(QModelIndex(), position, position+rows-1);
-
-    endRemoveRows();
-    return true;
-
-}
-
-Qt::ItemFlags SLSTRConfigModel::flags(const QModelIndex & /*index*/) const
-{
-    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
-}
-
 
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
@@ -3651,4 +3438,316 @@ void DialogPreferences::on_rdbCopyMTGfiles_toggled(bool checked)
 {
     opts.copyMTGfiles =checked;
 }
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+VIIConfigModel::VIIConfigModel(QObject *parent)
+    :QAbstractTableModel(parent)
+{
+    
+}
+
+int VIIConfigModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return poi.strlConfigNameOLCI.count();
+}
+
+int VIIConfigModel::columnCount(const QModelIndex & /*parent*/) const
+{
+    return 22;
+}
+
+QVariant VIIConfigModel::data(const QModelIndex &index, int role) const
+{
+    
+    if (role == Qt::DisplayRole)
+    {
+        switch(index.column())
+        {
+        case 0:
+            return poi.strlConfigNameVII.at(index.row());
+            break;
+        case 1:
+            return poi.strlColorBandVII.at(index.row());
+            break;
+        case 2:
+            return poi.strlComboVII01.at(index.row());
+            break;
+        case 3:
+            return poi.strlComboVII02.at(index.row());
+            break;
+        case 4:
+            return poi.strlComboVII03.at(index.row());
+            break;
+        case 5:
+            return poi.strlComboVII04.at(index.row());
+            break;
+        case 6:
+            return poi.strlComboVII05.at(index.row());
+            break;
+        case 7:
+            return poi.strlComboVII06.at(index.row());
+            break;
+        case 8:
+            return poi.strlComboVII07.at(index.row());
+            break;
+        case 9:
+            return poi.strlComboVII08.at(index.row());
+            break;
+        case 10:
+            return poi.strlComboVII09.at(index.row());
+            break;
+        case 11:
+            return poi.strlComboVII10.at(index.row());
+            break;
+        case 12:
+            return poi.strlComboVII11.at(index.row());
+            break;
+        case 13:
+            return poi.strlComboVII12.at(index.row());
+            break;
+        case 14:
+            return poi.strlComboVII13.at(index.row());
+            break;
+        case 15:
+            return poi.strlComboVII14.at(index.row());
+            break;
+        case 16:
+            return poi.strlComboVII15.at(index.row());
+            break;
+        case 17:
+            return poi.strlComboVII16.at(index.row());
+            break;
+        case 18:
+            return poi.strlComboVII17.at(index.row());
+            break;
+        case 19:
+            return poi.strlComboVII18.at(index.row());
+            break;
+        case 20:
+            return poi.strlComboVII19.at(index.row());
+            break;
+        case 21:
+            return poi.strlComboVII20.at(index.row());
+            break;
+        }
+    }
+    
+    return QVariant();
+    
+    
+}
+
+
+
+bool VIIConfigModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        // m_gridData[index.row()][index.column()] = value.toString();
+        switch(index.column())
+        {
+        case 0:
+            poi.strlConfigNameVII.replace(index.row(), value.toString());
+            break;
+        case 1:
+            poi.strlColorBandVII.replace(index.row(), value.toString());
+            break;
+        case 2:
+            poi.strlComboVII01.replace(index.row(), value.toString());
+            break;
+        case 3:
+            poi.strlComboVII02.replace(index.row(), value.toString());
+            break;
+        case 4:
+            poi.strlComboVII03.replace(index.row(), value.toString());
+            break;
+        case 5:
+            poi.strlComboVII04.replace(index.row(), value.toString());
+            break;
+        case 6:
+            poi.strlComboVII05.replace(index.row(), value.toString());
+            break;
+        case 7:
+            poi.strlComboVII06.replace(index.row(), value.toString());
+            break;
+        case 8:
+            poi.strlComboVII07.replace(index.row(), value.toString());
+            break;
+        case 9:
+            poi.strlComboVII08.replace(index.row(), value.toString());
+            break;
+        case 10:
+            poi.strlComboVII09.replace(index.row(), value.toString());
+            break;
+        case 11:
+            poi.strlComboVII10.replace(index.row(), value.toString());
+            break;
+        case 12:
+            poi.strlComboVII11.replace(index.row(), value.toString());
+            break;
+        case 13:
+            poi.strlComboVII12.replace(index.row(), value.toString());
+            break;
+        case 14:
+            poi.strlComboVII13.replace(index.row(), value.toString());
+            break;
+        case 15:
+            poi.strlComboVII14.replace(index.row(), value.toString());
+            break;
+        case 16:
+            poi.strlComboVII15.replace(index.row(), value.toString());
+            break;
+        case 17:
+            poi.strlComboVII16.replace(index.row(), value.toString());
+            break;
+        case 18:
+            poi.strlComboVII17.replace(index.row(), value.toString());
+            break;
+        case 19:
+            poi.strlComboVII18.replace(index.row(), value.toString());
+            break;
+        case 20:
+            poi.strlComboVII19.replace(index.row(), value.toString());
+            break;
+        case 21:
+            poi.strlComboVII20.replace(index.row(), value.toString());
+            break;
+        }
+        
+        emit editCompleted();
+    }
+    
+    return true;
+}
+
+QVariant VIIConfigModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+    
+    if (orientation == Qt::Horizontal) {
+        switch (section) {
+        case 0:
+            return tr("Name");
+        case 1:
+            return tr("Band");
+        case 2:
+            return tr("443");
+        case 3:
+            return tr("555");
+        case 4:
+            return tr("668");
+        case 5:
+            return tr("752");
+        case 6:
+            return tr("763");
+        case 7:
+            return tr("865");
+        case 8:
+            return tr("914");
+        case 9:
+            return tr("1240");
+        case 10:
+            return tr("1375");
+        case 11:
+            return tr("1630");
+        case 12:
+            return tr("2250");
+        case 13:
+            return tr("3740");
+        case 14:
+            return tr("3959");
+        case 15:
+            return tr("4050");
+        case 16:
+            return tr("6725");
+        case 17:
+            return tr("7325");
+        case 18:
+            return tr("8540");
+        case 19:
+            return tr("10690");
+        case 20:
+            return tr("12020");
+        case 21:
+            return tr("13345");
+            
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+    
+}
+
+bool VIIConfigModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginInsertRows(QModelIndex(), position, position+rows-1);
+    
+    poi.strlConfigNameVII.append( " " );
+    poi.strlColorBandVII.append( "0" );
+    poi.strlComboVII01.append( "0" );
+    poi.strlComboVII02.append( "0" );
+    poi.strlComboVII03.append( "0" );
+    poi.strlComboVII04.append( "0" );
+    poi.strlComboVII05.append( "0" );
+    poi.strlComboVII06.append( "0" );
+    poi.strlComboVII07.append( "0" );
+    poi.strlComboVII08.append( "0" );
+    poi.strlComboVII09.append( "0" );
+    poi.strlComboVII10.append( "0" );
+    poi.strlComboVII11.append( "0" );
+    poi.strlComboVII12.append( "0" );
+    poi.strlComboVII13.append( "0" );
+    poi.strlComboVII14.append( "0" );
+    poi.strlComboVII15.append( "0" );
+    poi.strlComboVII16.append( "0" );
+    poi.strlComboVII17.append( "0" );
+    poi.strlComboVII18.append( "0" );
+    poi.strlComboVII19.append( "0" );
+    poi.strlComboVII20.append( "0" );
+    
+    poi.strlInverseVII01.append( "0" );
+    poi.strlInverseVII02.append( "0" );
+    poi.strlInverseVII03.append( "0" );
+    poi.strlInverseVII04.append( "0" );
+    poi.strlInverseVII05.append( "0" );
+    poi.strlInverseVII06.append( "0" );
+    poi.strlInverseVII07.append( "0" );
+    poi.strlInverseVII08.append( "0" );
+    poi.strlInverseVII09.append( "0" );
+    poi.strlInverseVII10.append( "0" );
+    poi.strlInverseVII11.append( "0" );
+    poi.strlInverseVII12.append( "0" );
+    poi.strlInverseVII13.append( "0" );
+    poi.strlInverseVII14.append( "0" );
+    poi.strlInverseVII15.append( "0" );
+    poi.strlInverseVII16.append( "0" );
+    poi.strlInverseVII17.append( "0" );
+    poi.strlInverseVII18.append( "0" );
+    poi.strlInverseVII19.append( "0" );
+    poi.strlInverseVII20.append( "0" );
+    
+    endInsertRows();
+    return true;
+    
+}
+
+bool VIIConfigModel::removeRows(int position, int rows, const QModelIndex &index)
+{
+    Q_UNUSED(index);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
+    
+    endRemoveRows();
+    return true;
+    
+}
+
+Qt::ItemFlags VIIConfigModel::flags(const QModelIndex & /*index*/) const
+{
+    return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+}
+
 

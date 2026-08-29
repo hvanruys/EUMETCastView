@@ -92,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglmetop, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglhrp, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
     connect(seglist->seglmersi, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
+    connect(seglist->seglmetopsga1, SIGNAL(progressCounter(int)), formtoolbox, SLOT(setValueProgressBar(int)));
 
 
     connect(seglist->seglviirsdnb, SIGNAL(displayDNBGraph()), formtoolbox, SLOT(slotDisplayDNBGraph()));
@@ -131,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglolciefr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglmersi, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglmetopsga1, SIGNAL(segmentlistfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
     connect(seglist->seglmetop, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglhrp, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
@@ -144,6 +146,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(seglist->seglolciefr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglolcierr, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
     connect(seglist->seglmersi, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
+    connect(seglist->seglmetopsga1, SIGNAL(segmentprojectionfinished(bool)), formimage, SLOT(setPixmapToScene(bool)));
 
     //connect(seglist, SIGNAL(signalXMLProgress(QString, int, bool)), formglobecyl, SLOT(slotShowXMLProgress(QString, int, bool)));
 
@@ -490,6 +493,7 @@ void MainWindow::on_actionAbout_triggered()
     "<br>VIIRS images from SUOMI NPP, NOAA-20 and NOAA-21 (M-Band and Day/Night Band)"
     "<br>OLCI EFR/ERR and SLSTR from Sentinel-3A/-3B"
     "<br>MERSI from FengYun 3D"
+    "<br>VII/METimage from Metop SGA1"
     "<br><br><b>Geostationary satellites :</b>"
     "<br>XRIT from Meteosat-11, Meteosat-10, Meteosat-8"
     "<br>FCI from Meteosat-12"
@@ -613,6 +617,10 @@ void MainWindow::on_actionImage_triggered()
     else if(index == TAB_MERSI)
     {
         formimage->displayImage(IMAGE_MERSI, true); //MERSI image
+    }
+    else if(index == TAB_METIMAGE)
+    {
+        formimage->displayImage(IMAGE_VII, true); //VII image
     }
     else if(index == TAB_GEOSTATIONARY)
     {

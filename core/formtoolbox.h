@@ -41,6 +41,11 @@ public:
     QList<int> getVIIRSMColorList();
     QList<bool> getVIIRSMInvertList();
 
+    QList<bool> getVIIBandList();
+    QList<int> getVIIColorList();
+    QList<bool> getVIIInvertList();
+
+
     QList<bool> getOLCIBandList();
     QList<int> getOLCIColorList();
     QList<bool> getOLCIInvertList();
@@ -71,6 +76,7 @@ public:
     void createImageFilenamestring(QString sat, QString d, QVector<QString> spectrum);
     QString returnImageFilenamestring() { return filenamecreated; }
     bool comboColVIIRSOK();
+    bool comboColVIIOK();
     bool comboColAVHRROK();
     bool comboColOLCIOK();
     bool comboColGeoOK();
@@ -82,6 +88,7 @@ public:
     void setPOIsettings();
     void setMConfigsettings();
     void setOLCIefrConfigsettings();
+    void setVIIConfigsettings();
     void setMERSIConfigsettings();
     void setComboGeo(int geoindex);
     void setFormMovie(FormMovie *formmovie);
@@ -112,14 +119,16 @@ private:
     void setLCCParameters(int strlindex);
     void setGVPParameters(int strlindex);
     void setSGParameters(int strlindex);
-    void setConfigMParameters(int strlindex);
     void setRadioButtonsMToFalse();
     void setRadioButtonsMERSIToFalse();
+    void setRadioButtonsOLCIefrToFalse();
+    void setRadioButtonsVIIToFalse();
 
+    void setConfigMParameters(int strlindex);
     void setConfigOLCIParameters(int strlindex);
     void setConfigMERSIParameters(int strlindex);
+    void setConfigVIIParameters(int strlindex);
 
-    void setRadioButtonsOLCIefrToFalse();
     bool checkSegmentDateTime();
     void setLogValue(int deg, double rad);
     void fitCurve();
@@ -286,6 +295,7 @@ private slots:
 
     void on_comboMConfig_currentIndexChanged(int index);
     void on_comboOLCIConfig_currentIndexChanged(int index);
+    void on_comboVIIConfig_currentIndexChanged(int index);
     void on_btnAddMConfig_clicked();
 
     void on_tabWidgetVIIRS_currentChanged(int index);

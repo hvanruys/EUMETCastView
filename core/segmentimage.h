@@ -172,8 +172,8 @@ public:
     QImage *ptrimageViirsM;
     QImage *ptrimageViirsDNB;
     QImage *ptrimageOLCI;
-    QImage *ptrimageSLSTR;
     QImage *ptrimageMERSI;
+    QImage *ptrimageVII;
     eSegmentType olcitype;
 
     QImage *ptrimagebitmap;

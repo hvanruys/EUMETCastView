@@ -241,6 +241,8 @@ void Globe::mouseDownAction(int x, int y)
     QString segname;
     if(opts.buttonMetop)
         isselected = segs->seglmetop->TestForSegmentGL( x, realy, distance, m, segs->getShowAllSegments(), segname );
+    else if(opts.buttonMetopSGA1)
+        isselected = segs->seglmetopsga1->TestForSegmentGL( x, realy, distance, m, segs->getShowAllSegments(), segname );
     else if (opts.buttonHRP)
         isselected = segs->seglhrp->TestForSegmentGL( x, realy,  distance, m,  segs->getShowAllSegments(), segname );
     else if (opts.buttonVIIRSM)
@@ -619,7 +621,14 @@ void Globe::paintGL()
                                                 {
                                                     segs->seglmersi->GetFirstLastVisible(&first_julian, &last_julian);
                                                     segs->seglmersi->CalculateSunPosition(first_julian, last_julian, &sunPosition);
-                                                }
+                                                } else
+                                                    if (opts.buttonMetopSGA1 && segs->seglmetopsga1->NbrOfSegments() > 0)
+                                                    {
+                                                        segs->seglmetopsga1->GetFirstLastVisible(&first_julian, &last_julian);
+                                                        segs->seglmetopsga1->CalculateSunPosition(first_julian, last_julian, &sunPosition);
+                                                    }
+
+
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -703,6 +712,9 @@ void Globe::paintGL()
                                         else
                                             if (opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
                                                 segs->seglmersi->ShowWinvec(&painter, distance, modelview );
+                                            else
+                                                if (opts.buttonMetopSGA1 && segs->seglmetopsga1->NbrOfSegments() > 0)
+                                                    segs->seglmetopsga1->ShowWinvec(&painter, distance, modelview );
         painter.restore();
     }
 
@@ -713,8 +725,8 @@ void Globe::paintGL()
         painter.drawText(this->width() - 200, 40, framesPerSecond + " paintGL calls / s");
     }
 
-    QFont serifFont("Times", 10, QFont::Bold);
-    painter.setPen(Qt::green);
+    QFont serifFont("Times", 12, QFont::Bold);
+    painter.setPen(Qt::Key_Yellow);
     painter.setFont(serifFont);
 
     //AVHR_xxx_1B_M01_20130701051903Z_20130701052203Z_N_O_20130701054640Z
@@ -845,6 +857,18 @@ void Globe::paintGL()
         if(segmentnameselected.mid(0,4) == "FY3D")
             painter.drawText(10, this->height() - 20, "FY-3D " + segdate);
     }
+    //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+    //0         1         2         3         4         5         6         7         8         9         10
+    //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210422165742_G_D_20080223084603_20080223084703_T_B____.nc
+    else if (opts.buttonMetopSGA1 && segs->seglmetopsga1->NbrOfSegmentsSelected() > 0)
+    {
+        painter.drawText(10, this->height() - 40, "Last selected segment :");
+        QString segdate = QString("%1-%2-%3 %4:%5:%6").arg(segmentnameselected.mid(70, 4)).arg(segmentnameselected.mid(74, 2)).arg(segmentnameselected.mid(76, 2))
+                              .arg(segmentnameselected.mid(78, 2)).arg(segmentnameselected.mid(80, 2)).arg(segmentnameselected.mid(82, 2));
+
+        if(segmentnameselected.mid(28,4) == "SGA1")
+            painter.drawText(10, this->height() - 20, "SGA1 " + segdate);
+    }
 
 
     if (bSegmentNames && opts.buttonMetop && segs->seglmetop->NbrOfSegments() > 0)
@@ -890,6 +914,10 @@ void Globe::paintGL()
     else if (bSegmentNames && opts.buttonMERSI && segs->seglmersi->NbrOfSegments() > 0)
     {
         drawSegmentNames(&painter, modelview, eSegmentType::SEG_MERSI, segs->seglmersi->GetSegmentlistptr());
+    }
+    else if (bSegmentNames && opts.buttonMetopSGA1 && segs->seglmetopsga1->NbrOfSegments() > 0)
+    {
+        drawSegmentNames(&painter, modelview, eSegmentType::SEG_METOPSGA1, segs->seglmetopsga1->GetSegmentlistptr());
     }
 
 
@@ -1202,6 +1230,14 @@ void Globe::drawSegmentNames(QPainter *painter, QMatrix4x4 modelview, eSegmentTy
                 {
                     QString filename = (*segit)->fileInfo.fileName();
                     renderout = QString("%1 %2:%3").arg(filename.mid(0, 4)).arg(filename.mid(14, 2)).arg(filename.mid(16, 2));
+                }
+                //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+                //0         1         2         3         4         5         6         7         8         9         10
+                //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210422165742_G_D_20080223084603_20080223084703_T_B____.nc
+                else if(seg == eSegmentType::SEG_METOPSGA1)
+                {
+                    QString filename = (*segit)->fileInfo.fileName();
+                    renderout = QString("%1 %2:%3").arg(filename.mid(28, 4)).arg(filename.mid(78, 2)).arg(filename.mid(80, 2));
                 }
                 else
                 {

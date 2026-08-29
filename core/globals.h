@@ -58,7 +58,8 @@ enum eProjectionType
     PROJ_VIIRSDNB,
     PROJ_OLCI_EFR,
     PROJ_OLCI_ERR,
-    PROJ_MERSI
+    PROJ_MERSI,
+    PROJ_VII
 };
 
 enum class eGeoSatellite {

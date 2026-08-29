@@ -219,7 +219,7 @@ public:
     bool imageontextureOnAVHRR;
     bool imageontextureOnVIIRS;
     bool imageontextureOnOLCI;
-    bool imageontextureOnSLSTR;
+    bool imageontextureOnVII;
     bool imageontextureOnMERSI;
     bool windowvectors;
     bool udpmessages;

@@ -388,10 +388,10 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
 
     qDebug() << "ObliqueMercator::Initialize input image = " << projtype;
 
-    if(projtype != PROJ_AVHRR && projtype != PROJ_MERSI && projtype != PROJ_VIIRSM )
+    if(projtype != PROJ_AVHRR && projtype != PROJ_MERSI && projtype != PROJ_VIIRSM && projtype != PROJ_VII )
     {
         QMessageBox msgBox;
-        msgBox.setText("Only possible for MERSI and VIIRS M projections ! (Spherical)");
+        msgBox.setText("Only possible for MERSI, VIIRS M and VII projections ! (Spherical)");
         msgBox.exec();
         return;
     }
@@ -413,6 +413,11 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
     {
         if(opts.buttonMetop)
             segs->seglmetop->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+    }
+    else if(projtype == PROJ_VII)
+    {
+        // if(opts.buttonMetopSGA1)
+        //     segs->seglmetopsga1->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
     }
 
     qDebug() << "lon1_d = " << lon1_d << " lat1_d = " << lat1_d << " lon2_d = " << lon2_d << " lat2_d = " << lat2_d;

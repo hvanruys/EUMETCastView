@@ -30,8 +30,8 @@ void Poi::Initialize()
     strlSGName = POIsettings.value("/SG/strlName").value<QStringList>();
     strlConfigNameM = POIsettings.value("/MConfig/strlName").value<QStringList>();
     strlConfigNameOLCI = POIsettings.value("/OLCIConfig/strlName").value<QStringList>();
-    strlConfigNameSLSTR = POIsettings.value("/SLSTRConfig/strlName").value<QStringList>();
     strlConfigNameMERSI = POIsettings.value("/MERSIConfig/strlName").value<QStringList>();
+    strlConfigNameVII = POIsettings.value("/VIIConfig/strlName").value<QStringList>();
 
     if(strlGVPName.count() == 0)
     {
@@ -301,63 +301,6 @@ void Poi::Initialize()
         strlInverseOLCI21 = POIsettings.value("/OLCIConfig/strlInverseOLCI21").value<QStringList>();
     }
 
-    // if(strlConfigNameSLSTR.count() == 0)
-    // {
-    //     strlConfigNameSLSTR << "User defined" << "Natural Colors" << "False Colors";
-    //     strlColorBandSLSTR << "0" << "0" << "0"; // "0" = color , "1" = S1, ..
-
-    //     strlComboSLSTRS1 << "3" << "3" << "0";
-    //     strlComboSLSTRS2 << "2" << "2" << "3";
-    //     strlComboSLSTRS3 << "1" << "1" << "2";
-    //     strlComboSLSTRS4 << "0" << "0" << "0";
-    //     strlComboSLSTRS5 << "0" << "0" << "1";
-    //     strlComboSLSTRS6 << "0" << "0" << "0";
-    //     strlComboSLSTRS7 << "0" << "0" << "0";
-    //     strlComboSLSTRS8 << "0" << "0" << "0";
-    //     strlComboSLSTRS9 << "0" << "0" << "0";
-    //     strlComboSLSTRF1 << "0" << "0" << "0";
-    //     strlComboSLSTRF2 << "0" << "0" << "0";
-
-    //     strlInverseSLSTRS1 << "0" << "0" << "0";
-    //     strlInverseSLSTRS2 << "0" << "0" << "0";
-    //     strlInverseSLSTRS3 << "0" << "0" << "0";
-    //     strlInverseSLSTRS4 << "0" << "0" << "0";
-    //     strlInverseSLSTRS5 << "0" << "0" << "0";
-    //     strlInverseSLSTRS6 << "0" << "0" << "0";
-    //     strlInverseSLSTRS7 << "0" << "0" << "0";
-    //     strlInverseSLSTRS8 << "0" << "0" << "0";
-    //     strlInverseSLSTRS9 << "0" << "0" << "0";
-    //     strlInverseSLSTRF1 << "0" << "0" << "0";
-    //     strlInverseSLSTRF2 << "0" << "0" << "0";
-    // }
-    // else
-    // {
-    //     strlColorBandSLSTR = POIsettings.value("/SLSTRConfig/strlColorBandSLSTR").value<QStringList>();
-    //     strlComboSLSTRS1 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS1").value<QStringList>();
-    //     strlComboSLSTRS2 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS2").value<QStringList>();
-    //     strlComboSLSTRS3 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS3").value<QStringList>();
-    //     strlComboSLSTRS4 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS4").value<QStringList>();
-    //     strlComboSLSTRS5 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS5").value<QStringList>();
-    //     strlComboSLSTRS6 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS6").value<QStringList>();
-    //     strlComboSLSTRS7 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS7").value<QStringList>();
-    //     strlComboSLSTRS8 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS8").value<QStringList>();
-    //     strlComboSLSTRS9 = POIsettings.value("/SLSTRConfig/strlComboSLSTRS9").value<QStringList>();
-    //     strlComboSLSTRF1 = POIsettings.value("/SLSTRConfig/strlComboSLSTRF1").value<QStringList>();
-    //     strlComboSLSTRF2 = POIsettings.value("/SLSTRConfig/strlComboSLSTRF2").value<QStringList>();
-
-    //     strlInverseSLSTRS1 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS1").value<QStringList>();
-    //     strlInverseSLSTRS2 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS2").value<QStringList>();
-    //     strlInverseSLSTRS3 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS3").value<QStringList>();
-    //     strlInverseSLSTRS4 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS4").value<QStringList>();
-    //     strlInverseSLSTRS5 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS5").value<QStringList>();
-    //     strlInverseSLSTRS6 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS6").value<QStringList>();
-    //     strlInverseSLSTRS7 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS7").value<QStringList>();
-    //     strlInverseSLSTRS8 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS8").value<QStringList>();
-    //     strlInverseSLSTRS9 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRS9").value<QStringList>();
-    //     strlInverseSLSTRF1 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRF1").value<QStringList>();
-    //     strlInverseSLSTRF2 = POIsettings.value("/SLSTRConfig/strlInverseSLSTRF2").value<QStringList>();
-
-    // }
 
     strlComboGeo1 = POIsettings.value("/GeoConfig/strlComboGeo1").value<QStringList>();
 
@@ -434,41 +377,6 @@ void Poi::Initialize()
         i = 0; do { strlInverseGeo14 << "0"; i++; } while(i < countsat);
         i = 0; do { strlInverseGeo15 << "0"; i++; } while(i < countsat);
         i = 0; do { strlInverseGeo16 << "0"; i++; } while(i < countsat);
-
-
-        // strlComboGeo1 << "3" << "3" << "3" << "3" << "3" << "3" << "3" << "3" << "3" << "3" << "3" << "3";
-        // strlComboGeo2 << "2" << "2" << "2" << "2" << "2" << "2" << "2" << "2" << "2" << "2" << "2" << "2";
-        // strlComboGeo3 << "1" << "1" << "1" << "1" << "1" << "1" << "1" << "1" << "1" << "1" << "1" << "1";
-        // strlComboGeo4 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo5 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo6 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo7 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo8 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo9 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo10 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo11 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo12 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo13 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo14 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo15 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlComboGeo16 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-
-        // strlInverseGeo1 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo2 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo3 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo4 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo5 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo6 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo7 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo8 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo9 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo10 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo11 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo12 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo13 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo14 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo15 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
-        // strlInverseGeo16 << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0" << "0";
 
     }
     else
@@ -582,6 +490,101 @@ void Poi::Initialize()
         strlInverseMERSI18 = POIsettings.value("/MERSIConfig/strlInverseMERSI18").value<QStringList>();
         strlInverseMERSI19 = POIsettings.value("/MERSIConfig/strlInverseMERSI19").value<QStringList>();
     }
+
+    if(strlConfigNameVII.count() == 0)
+    {
+        strlConfigNameVII << "User defined" << "Natural Colors" << "True Colors";
+        strlColorBandVII << "0" << "0" << "0"; // "0" = color , "1" = Oa01, ..
+
+        strlComboVII01 << "0" << "0" << "0";
+        strlComboVII02 << "0" << "0" << "0";
+        strlComboVII03 << "3" << "0" << "3";
+        strlComboVII04 << "0" << "0" << "0";
+        strlComboVII05 << "0" << "0" << "0";
+        strlComboVII06 << "2" << "0" << "2";
+        strlComboVII07 << "0" << "0" << "0";
+        strlComboVII08 << "0" << "0" << "0";
+        strlComboVII09 << "0" << "3" << "0";
+        strlComboVII10 << "1" << "0" << "1";
+        strlComboVII11 << "0" << "0" << "0";
+        strlComboVII12 << "0" << "0" << "0";
+        strlComboVII13 << "0" << "0" << "0";
+        strlComboVII14 << "0" << "0" << "0";
+        strlComboVII15 << "0" << "0" << "0";
+        strlComboVII16 << "0" << "0" << "0";
+        strlComboVII17 << "0" << "2" << "0";
+        strlComboVII18 << "0" << "0" << "0";
+        strlComboVII19 << "0" << "0" << "0";
+        strlComboVII20 << "0" << "0" << "0";
+
+        strlInverseVII01 << "0" << "0" << "0";
+        strlInverseVII02 << "0" << "0" << "0";
+        strlInverseVII03 << "0" << "0" << "0";
+        strlInverseVII04 << "0" << "0" << "0";
+        strlInverseVII05 << "0" << "0" << "0";
+        strlInverseVII06 << "0" << "0" << "0";
+        strlInverseVII07 << "0" << "0" << "0";
+        strlInverseVII08 << "0" << "0" << "0";
+        strlInverseVII09 << "0" << "0" << "0";
+        strlInverseVII10 << "0" << "0" << "0";
+        strlInverseVII11 << "0" << "0" << "0";
+        strlInverseVII12 << "0" << "0" << "0";
+        strlInverseVII13 << "0" << "0" << "0";
+        strlInverseVII14 << "0" << "0" << "0";
+        strlInverseVII15 << "0" << "0" << "0";
+        strlInverseVII16 << "0" << "0" << "0";
+        strlInverseVII17 << "0" << "0" << "0";
+        strlInverseVII18 << "0" << "0" << "0";
+        strlInverseVII19 << "0" << "0" << "0";
+        strlInverseVII20 << "0" << "0" << "0";
+
+    }
+    else
+    {
+        strlColorBandVII = POIsettings.value("/VIIConfig/strlColorBandVII").value<QStringList>();
+        strlComboVII01 = POIsettings.value("/VIIConfig/strlComboVII01").value<QStringList>();
+        strlComboVII02 = POIsettings.value("/VIIConfig/strlComboVII02").value<QStringList>();
+        strlComboVII03 = POIsettings.value("/VIIConfig/strlComboVII03").value<QStringList>();
+        strlComboVII04 = POIsettings.value("/VIIConfig/strlComboVII04").value<QStringList>();
+        strlComboVII05 = POIsettings.value("/VIIConfig/strlComboVII05").value<QStringList>();
+        strlComboVII06 = POIsettings.value("/VIIConfig/strlComboVII06").value<QStringList>();
+        strlComboVII07 = POIsettings.value("/VIIConfig/strlComboVII07").value<QStringList>();
+        strlComboVII08 = POIsettings.value("/VIIConfig/strlComboVII08").value<QStringList>();
+        strlComboVII09 = POIsettings.value("/VIIConfig/strlComboVII09").value<QStringList>();
+        strlComboVII10 = POIsettings.value("/VIIConfig/strlComboVII10").value<QStringList>();
+        strlComboVII11 = POIsettings.value("/VIIConfig/strlComboVII11").value<QStringList>();
+        strlComboVII12 = POIsettings.value("/VIIConfig/strlComboVII12").value<QStringList>();
+        strlComboVII13 = POIsettings.value("/VIIConfig/strlComboVII13").value<QStringList>();
+        strlComboVII14 = POIsettings.value("/VIIConfig/strlComboVII14").value<QStringList>();
+        strlComboVII15 = POIsettings.value("/VIIConfig/strlComboVII15").value<QStringList>();
+        strlComboVII16 = POIsettings.value("/VIIConfig/strlComboVII16").value<QStringList>();
+        strlComboVII17 = POIsettings.value("/VIIConfig/strlComboVII17").value<QStringList>();
+        strlComboVII18 = POIsettings.value("/VIIConfig/strlComboVII18").value<QStringList>();
+        strlComboVII19 = POIsettings.value("/VIIConfig/strlComboVII19").value<QStringList>();
+        strlComboVII20 = POIsettings.value("/VIIConfig/strlComboVII20").value<QStringList>();
+
+        strlInverseVII01 = POIsettings.value("/VIIConfig/strlInverseVII01").value<QStringList>();
+        strlInverseVII02 = POIsettings.value("/VIIConfig/strlInverseVII02").value<QStringList>();
+        strlInverseVII03 = POIsettings.value("/VIIConfig/strlInverseVII03").value<QStringList>();
+        strlInverseVII04 = POIsettings.value("/VIIConfig/strlInverseVII04").value<QStringList>();
+        strlInverseVII05 = POIsettings.value("/VIIConfig/strlInverseVII05").value<QStringList>();
+        strlInverseVII06 = POIsettings.value("/VIIConfig/strlInverseVII06").value<QStringList>();
+        strlInverseVII07 = POIsettings.value("/VIIConfig/strlInverseVII07").value<QStringList>();
+        strlInverseVII08 = POIsettings.value("/VIIConfig/strlInverseVII08").value<QStringList>();
+        strlInverseVII09 = POIsettings.value("/VIIConfig/strlInverseVII09").value<QStringList>();
+        strlInverseVII10 = POIsettings.value("/VIIConfig/strlInverseVII10").value<QStringList>();
+        strlInverseVII11 = POIsettings.value("/VIIConfig/strlInverseVII11").value<QStringList>();
+        strlInverseVII12 = POIsettings.value("/VIIConfig/strlInverseVII12").value<QStringList>();
+        strlInverseVII13 = POIsettings.value("/VIIConfig/strlInverseVII13").value<QStringList>();
+        strlInverseVII14 = POIsettings.value("/VIIConfig/strlInverseVII14").value<QStringList>();
+        strlInverseVII15 = POIsettings.value("/VIIConfig/strlInverseVII15").value<QStringList>();
+        strlInverseVII16 = POIsettings.value("/VIIConfig/strlInverseVII16").value<QStringList>();
+        strlInverseVII17 = POIsettings.value("/VIIConfig/strlInverseVII17").value<QStringList>();
+        strlInverseVII18 = POIsettings.value("/VIIConfig/strlInverseVII18").value<QStringList>();
+        strlInverseVII19 = POIsettings.value("/VIIConfig/strlInverseVII19").value<QStringList>();
+        strlInverseVII20 = POIsettings.value("/VIIConfig/strlInverseVII20").value<QStringList>();
+    }
+
 }
 
 void Poi::FillStrlGeo(QStringList strl, QString val, int nbrgeosats)
@@ -717,8 +720,8 @@ void Poi::Save()
     POIsettings.setValue("/OLCIConfig/strlInverseOLCI20", strlInverseOLCI20);
     POIsettings.setValue("/OLCIConfig/strlInverseOLCI21", strlInverseOLCI21);
 
-    POIsettings.setValue("/SLSTRConfig/strlName", strlConfigNameSLSTR);
-    POIsettings.setValue("/SLSTRConfig/strlColorBandSLSTR", strlColorBandSLSTR);
+    // POIsettings.setValue("/SLSTRConfig/strlName", strlConfigNameSLSTR);
+    // POIsettings.setValue("/SLSTRConfig/strlColorBandSLSTR", strlColorBandSLSTR);
 
     // POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS1", strlComboSLSTRS1);
     // POIsettings.setValue("/SLSTRConfig/strlComboSLSTRS2", strlComboSLSTRS2);
@@ -813,6 +816,49 @@ void Poi::Save()
     POIsettings.setValue("/MERSIConfig/strlInverseMERSI18", strlInverseMERSI18);
     POIsettings.setValue("/MERSIConfig/strlInverseMERSI19", strlInverseMERSI19);
 
+    POIsettings.setValue("/VIIConfig/strlName", strlConfigNameVII);
+    POIsettings.setValue("/VIIConfig/strlColorBandVII", strlColorBandVII);
 
+    POIsettings.setValue("/VIIConfig/strlComboVII01", strlComboVII01);
+    POIsettings.setValue("/VIIConfig/strlComboVII02", strlComboVII02);
+    POIsettings.setValue("/VIIConfig/strlComboVII03", strlComboVII03);
+    POIsettings.setValue("/VIIConfig/strlComboVII04", strlComboVII04);
+    POIsettings.setValue("/VIIConfig/strlComboVII05", strlComboVII05);
+    POIsettings.setValue("/VIIConfig/strlComboVII06", strlComboVII06);
+    POIsettings.setValue("/VIIConfig/strlComboVII07", strlComboVII07);
+    POIsettings.setValue("/VIIConfig/strlComboVII08", strlComboVII08);
+    POIsettings.setValue("/VIIConfig/strlComboVII09", strlComboVII09);
+    POIsettings.setValue("/VIIConfig/strlComboVII10", strlComboVII10);
+    POIsettings.setValue("/VIIConfig/strlComboVII11", strlComboVII11);
+    POIsettings.setValue("/VIIConfig/strlComboVII12", strlComboVII12);
+    POIsettings.setValue("/VIIConfig/strlComboVII13", strlComboVII13);
+    POIsettings.setValue("/VIIConfig/strlComboVII14", strlComboVII14);
+    POIsettings.setValue("/VIIConfig/strlComboVII15", strlComboVII15);
+    POIsettings.setValue("/VIIConfig/strlComboVII16", strlComboVII16);
+    POIsettings.setValue("/VIIConfig/strlComboVII17", strlComboVII17);
+    POIsettings.setValue("/VIIConfig/strlComboVII18", strlComboVII18);
+    POIsettings.setValue("/VIIConfig/strlComboVII19", strlComboVII19);
+    POIsettings.setValue("/VIIConfig/strlComboVII20", strlComboVII20);
+
+    POIsettings.setValue("/VIIConfig/strlInverseVII01", strlInverseVII01);
+    POIsettings.setValue("/VIIConfig/strlInverseVII02", strlInverseVII02);
+    POIsettings.setValue("/VIIConfig/strlInverseVII03", strlInverseVII03);
+    POIsettings.setValue("/VIIConfig/strlInverseVII04", strlInverseVII04);
+    POIsettings.setValue("/VIIConfig/strlInverseVII05", strlInverseVII05);
+    POIsettings.setValue("/VIIConfig/strlInverseVII06", strlInverseVII06);
+    POIsettings.setValue("/VIIConfig/strlInverseVII07", strlInverseVII07);
+    POIsettings.setValue("/VIIConfig/strlInverseVII08", strlInverseVII08);
+    POIsettings.setValue("/VIIConfig/strlInverseVII09", strlInverseVII09);
+    POIsettings.setValue("/VIIConfig/strlInverseVII10", strlInverseVII10);
+    POIsettings.setValue("/VIIConfig/strlInverseVII11", strlInverseVII11);
+    POIsettings.setValue("/VIIConfig/strlInverseVII12", strlInverseVII12);
+    POIsettings.setValue("/VIIConfig/strlInverseVII13", strlInverseVII13);
+    POIsettings.setValue("/VIIConfig/strlInverseVII14", strlInverseVII14);
+    POIsettings.setValue("/VIIConfig/strlInverseVII15", strlInverseVII15);
+    POIsettings.setValue("/VIIConfig/strlInverseVII16", strlInverseVII16);
+    POIsettings.setValue("/VIIConfig/strlInverseVII17", strlInverseVII17);
+    POIsettings.setValue("/VIIConfig/strlInverseVII18", strlInverseVII18);
+    POIsettings.setValue("/VIIConfig/strlInverseVII19", strlInverseVII19);
+    POIsettings.setValue("/VIIConfig/strlInverseVII20", strlInverseVII20);
 }
 

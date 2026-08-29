@@ -26,11 +26,10 @@ public:
     void setupPOIGVPTable();
     void setupPOISGTable();
     void setupVIIRSMConfigTable();
+    void setupVIIConfigTable();
     void setupGeoConfigTable();
     void setupOLCIefrConfigTable();
-    //void setupSLSTRConfigTable();
     void setupMERSIConfigTable();
-    //void setupDatahubConfig();
 
     ~DialogPreferences();
 
@@ -53,6 +52,8 @@ private slots:
     void deletePOISGRow();
     void addVIIRSMConfigRow();
     void deleteVIIRSMConfigRow();
+    void addVIIConfigRow();
+    void deleteVIIConfigRow();
     void addGeoConfigRow();
     void deleteGeoConfigRow();
     void addOLCIefrConfigRow();
@@ -124,8 +125,8 @@ private:
     QAbstractTableModel *myPOIGVPModel;
     QAbstractTableModel *myPOISGModel;
     QAbstractTableModel *myVIIRSMConfigModel;
+    QAbstractTableModel *myVIIConfigModel;
     QAbstractTableModel *myOLCIefrConfigModel;
-    QAbstractTableModel *mySLSTRConfigModel;
     QAbstractTableModel *myMERSIConfigModel;
     QAbstractTableModel *myGeoConfigModel;
     QColorDialog *colordialog;
@@ -293,26 +294,6 @@ signals:
     void editCompleted();
 };
 
-class SLSTRConfigModel : public QAbstractTableModel
-{
-    Q_OBJECT
-public:
-    SLSTRConfigModel(QObject *parent);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
-    Qt::ItemFlags flags(const QModelIndex & index) const ;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
-    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
-
-private:
-
-signals:
-    void editCompleted();
-};
-
 class MERSIConfigModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -332,5 +313,27 @@ private:
 signals:
     void editCompleted();
 };
+
+class VIIConfigModel : public QAbstractTableModel
+{
+    Q_OBJECT
+public:
+    VIIConfigModel(QObject *parent);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex & index) const ;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    
+private:
+    
+signals:
+    void editCompleted();
+};
+
+
 
 #endif // DIALOGPREFERENCES_H

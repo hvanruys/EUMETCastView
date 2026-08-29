@@ -58,11 +58,12 @@ public:
     QStringList strlConfigNameOLCI;
     QStringList strlColorBandOLCI; // 0 = color , 1 = Oa01 , 2 = Oa02 , ...
 
+    QStringList strlConfigNameVII;
+    QStringList strlColorBandVII; // 0 = color , 1 = Oa01 , 2 = Oa02 , ...
+
     QStringList strlConfigNameMERSI;
     QStringList strlColorBandMERSI; // 0 = color , 1 = Band 5 , 2 = Band 6 , ...
 
-    QStringList strlConfigNameSLSTR;
-    QStringList strlColorBandSLSTR; // 0 = color , 1 = S1 , 2 = S2 , ...
 
     QStringList strlComboM1;
     QStringList strlComboM2;
@@ -142,29 +143,6 @@ public:
     QStringList strlInverseOLCI20;
     QStringList strlInverseOLCI21;
 
-    // QStringList strlComboSLSTRS1;
-    // QStringList strlComboSLSTRS2;
-    // QStringList strlComboSLSTRS3;
-    // QStringList strlComboSLSTRS4;
-    // QStringList strlComboSLSTRS5;
-    // QStringList strlComboSLSTRS6;
-    // QStringList strlComboSLSTRS7;
-    // QStringList strlComboSLSTRS8;
-    // QStringList strlComboSLSTRS9;
-    // QStringList strlComboSLSTRF1;
-    // QStringList strlComboSLSTRF2;
-
-    // QStringList strlInverseSLSTRS1;
-    // QStringList strlInverseSLSTRS2;
-    // QStringList strlInverseSLSTRS3;
-    // QStringList strlInverseSLSTRS4;
-    // QStringList strlInverseSLSTRS5;
-    // QStringList strlInverseSLSTRS6;
-    // QStringList strlInverseSLSTRS7;
-    // QStringList strlInverseSLSTRS8;
-    // QStringList strlInverseSLSTRS9;
-    // QStringList strlInverseSLSTRF1;
-    // QStringList strlInverseSLSTRF2;
 
     QStringList strlComboGeo1;
     QStringList strlComboGeo2;
@@ -231,6 +209,48 @@ public:
     QStringList strlInverseMERSI17;
     QStringList strlInverseMERSI18;
     QStringList strlInverseMERSI19;
+
+    QStringList strlComboVII01;
+    QStringList strlComboVII02;
+    QStringList strlComboVII03;
+    QStringList strlComboVII04;
+    QStringList strlComboVII05;
+    QStringList strlComboVII06;
+    QStringList strlComboVII07;
+    QStringList strlComboVII08;
+    QStringList strlComboVII09;
+    QStringList strlComboVII10;
+    QStringList strlComboVII11;
+    QStringList strlComboVII12;
+    QStringList strlComboVII13;
+    QStringList strlComboVII14;
+    QStringList strlComboVII15;
+    QStringList strlComboVII16;
+    QStringList strlComboVII17;
+    QStringList strlComboVII18;
+    QStringList strlComboVII19;
+    QStringList strlComboVII20;
+
+    QStringList strlInverseVII01;
+    QStringList strlInverseVII02;
+    QStringList strlInverseVII03;
+    QStringList strlInverseVII04;
+    QStringList strlInverseVII05;
+    QStringList strlInverseVII06;
+    QStringList strlInverseVII07;
+    QStringList strlInverseVII08;
+    QStringList strlInverseVII09;
+    QStringList strlInverseVII10;
+    QStringList strlInverseVII11;
+    QStringList strlInverseVII12;
+    QStringList strlInverseVII13;
+    QStringList strlInverseVII14;
+    QStringList strlInverseVII15;
+    QStringList strlInverseVII16;
+    QStringList strlInverseVII17;
+    QStringList strlInverseVII18;
+    QStringList strlInverseVII19;
+    QStringList strlInverseVII20;
 
 }; 
 

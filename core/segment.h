@@ -125,6 +125,8 @@ public:
     QScopedArrayPointer<qint16> ptrbaSLSTR[3];
     QScopedArrayPointer<qint16> ptrbaSLSTRnormalized[3];
     QScopedArrayPointer<quint16> ptrbaMERSI;
+    QScopedArrayPointer<quint16> ptrbaVII[3];
+    QScopedArrayPointer<quint16> ptrbaVIInormalized[3];
 
     QString line1;
     QString line2;

@@ -17,15 +17,15 @@ class SegmentVII : public Segment
 
 public:
     explicit SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent = 0);
-    // Segment *ReadSegmentInMemory();
+    Segment *ReadSegmentInMemory();
 
-    // void ComposeSegmentImage(int histogrammethod, bool normalized);
+    void ComposeSegmentImage(int histogrammethod, bool normalized);
     // void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
     // void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
     // void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
 
 
-    // void initializeMemory();
+    void initializeMemory();
     // int getEarthViewsPerScanline() { return this->earth_views_per_scanline; }
 
     // void recalculateStatsInProjection(bool normalized);
@@ -50,6 +50,8 @@ public:
 
 
 private:
+    size_t dim_len(int gid, const char *name);
+
     // void RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row );
     // void getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename, int *saturationindex);
     // void getDatasetNameFromBand(QString *datasetname, QString *variablename, int *saturationindex);

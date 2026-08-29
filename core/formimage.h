@@ -105,6 +105,7 @@ private:
     void displayVIIRSImageInfo(eSegmentType type);
     void displaySentinelImageInfo(eSegmentType type);
     void displayMERSIImageInfo(eSegmentType type);
+    void displayVIIImageInfo(eSegmentType type);
 
     mutable QImage *m_image;
     //QImage *m_image;
@@ -128,6 +129,7 @@ private:
 
 
     int metopcount;
+    int metopsga1count;
     int hrpcount;
 
     int viirsmcount;

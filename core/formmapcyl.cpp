@@ -32,6 +32,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->tabWidget->setCurrentIndex(0);
 
     ui->btnMetop->setCheckable(true);
+    ui->btnMetopSGA1 ->setCheckable(true);
     ui->btnHRP->setCheckable(true);
 
     ui->btnVIIRSM->setCheckable(true);
@@ -52,6 +53,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     hlst << "Status" << "Type" << "Date" << "Start" << "End" << "Size";
 
     SetAllButtonsToFalse();
+
+/*
     if (opts.buttonMetop)
     {
         opts.buttonMetop = true;
@@ -117,8 +120,9 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
         opts.buttonMERSI = true;
     }
 
-
+*/
     ui->btnMetop->setChecked(opts.buttonMetop);
+    ui->btnMetopSGA1->setChecked(opts.buttonMetopSGA1);
     ui->btnHRP->setChecked(opts.buttonHRP);
 
     ui->btnVIIRSM->setChecked(opts.buttonVIIRSM);
@@ -137,6 +141,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnMakeImage->setEnabled(true);
 
     connect( ui->btnMetop, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
+    connect( ui->btnMetopSGA1, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
     connect( ui->btnHRP, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ));
     connect( ui->btnMERSI, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
 
@@ -162,6 +167,7 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
 void FormMapCyl::SetAllButtonsToFalse()
 {
     opts.buttonMetop = false;
+    opts.buttonMetopSGA1 = false;
     opts.buttonHRP = false;
 
     opts.buttonVIIRSM = false;
@@ -187,6 +193,7 @@ void FormMapCyl::slotSetMapCylButtons(bool stat)
     ui->btnMakeImage->setEnabled(stat);
 
     ui->btnMetop->setEnabled(stat);
+    ui->btnMetopSGA1->setEnabled(stat);
     ui->btnHRP->setEnabled(stat);
     ui->btnVIIRSM->setEnabled(stat);
     ui->btnVIIRSDNB->setEnabled(stat);
@@ -269,10 +276,9 @@ void FormMapCyl::showSegmentCount()
     }
 
     ui->btnMetop->setText((QString(" Metop A/B/C # %1/%2 ").arg(cntselmetop).arg(cntmetop)));
-    ui->btnHRP->setText((QString(" Metop A/B/C HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
-
     ui->btnMetopSGA1->setText((QString(" Metop SGA1 # %1/%2 ").arg(cntselmetopsga1).arg(cntmetopsga1)));
 
+    ui->btnHRP->setText((QString(" Metop A/B/C HRP # %1/%2 ").arg(cntselhrp).arg(cnthrp)));
     ui->btnVIIRSM->setText((QString(" NPP VIIRS M # %1/%2 ").arg(cntselviirsm).arg(cntviirsm)));
     ui->btnVIIRSDNB->setText((QString(" NPP VIIRS DNB # %1/%2 ").arg(cntselviirsdnb).arg(cntviirsdnb)));
     ui->btnVIIRSMNOAA20->setText((QString(" NOAA-20 VIIRS M # %1/%2 ").arg(cntselviirsmnoaa20).arg(cntviirsmnoaa20)));
@@ -829,25 +835,8 @@ void FormMapCyl::on_btnVIIRSMNOAA21_clicked() // M-Bands
 
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
-
-    // segs->RemoveAllSelectedAVHRR();
-    // segs->RemoveAllSelectedOLCIefr();
-    // segs->RemoveAllSelectedOLCIerr();
-    // segs->RemoveAllSelectedSLSTR();
-    // segs->RemoveAllSelectedDatahubOLCIefr();
-    // segs->RemoveAllSelectedDatahubOLCIerr();
-    // segs->RemoveAllSelectedDatahubSLSTR();
-    // segs->RemoveAllSelectedVIIRSM();
-    // segs->RemoveAllSelectedVIIRSDNB();
-    // segs->RemoveAllSelectedVIIRSMNOAA20();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA21();
-
-    // mapcyl->update();
-    // this->showSegmentCount();
-    // this->setScrollBarMaximum();
-    // return;
 }
+
 
 void FormMapCyl::on_btnVIIRSDNBNOAA21_clicked() // DNB Bands
 {
@@ -858,23 +847,6 @@ void FormMapCyl::on_btnVIIRSDNBNOAA21_clicked() // DNB Bands
     this->RemoveAllSelected();
     this->setScrollBarMaximum();
 
-    // segs->RemoveAllSelectedAVHRR();
-    // segs->RemoveAllSelectedOLCIefr();
-    // segs->RemoveAllSelectedOLCIerr();
-    // segs->RemoveAllSelectedSLSTR();
-    // segs->RemoveAllSelectedDatahubOLCIefr();
-    // segs->RemoveAllSelectedDatahubOLCIerr();
-    // segs->RemoveAllSelectedDatahubSLSTR();
-    // segs->RemoveAllSelectedVIIRSM();
-    // segs->RemoveAllSelectedVIIRSDNB();
-    // segs->RemoveAllSelectedVIIRSMNOAA20();
-    // segs->RemoveAllSelectedVIIRSDNBNOAA20();
-    // segs->RemoveAllSelectedVIIRSMNOAA21();
-
-    // mapcyl->update();
-    // this->showSegmentCount();
-    // this->setScrollBarMaximum();
-    // return;
 }
 
 void FormMapCyl::on_btnOLCIefr_clicked()

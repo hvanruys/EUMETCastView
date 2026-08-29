@@ -21,6 +21,7 @@
 #include "segmentlistviirsdnb.h"
 #include "segmentlistolci.h"
 #include "segmentlistmersi.h"
+#include "segmentlistvii.h"
 
 #include "segmentlistgeostationary.h"
 #include "segmentimage.h"
@@ -124,7 +125,7 @@ public:
 
 private:
 
-    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *metopTle, bool *nppTle, bool *sentinel3Tle, bool *fy3dTle,
+    void InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map, bool *metopTle, bool *metopsga1Tle, bool *nppTle, bool *sentinel3Tle, bool *fy3dTle,
                      QDate seldate, int hoursbefore);
     void RemoveFromList(QList<Segment*> *sl);
     void getFilenameParameters(int geosatindex, QString filename, QString *strspectrum, QString *strdate, int *filenbr);

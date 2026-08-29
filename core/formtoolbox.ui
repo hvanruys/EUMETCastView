@@ -49,7 +49,7 @@
       <enum>QTabWidget::TabPosition::West</enum>
      </property>
      <property name="currentIndex">
-      <number>6</number>
+      <number>1</number>
      </property>
      <property name="elideMode">
       <enum>Qt::TextElideMode::ElideNone</enum>
@@ -714,42 +714,42 @@
             <item>
              <layout class="QGridLayout" name="gridLayout_8">
               <item row="9" column="6">
-               <widget class="QRadioButton" name="rbVII_12020">
+               <widget class="QRadioButton" name="rbVII19">
                 <property name="text">
                  <string>VII_12020</string>
                 </property>
                </widget>
               </item>
               <item row="4" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI04_2">
+               <widget class="QCheckBox" name="chkInverseVII04">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="5" column="6">
-               <widget class="QRadioButton" name="rbVII_6725">
+               <widget class="QRadioButton" name="rbVII15">
                 <property name="text">
                  <string>VII_6725</string>
                 </property>
                </widget>
               </item>
               <item row="3" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI03_2">
+               <widget class="QCheckBox" name="chkInverseVII03">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="1" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI11_2">
+               <widget class="QCheckBox" name="chkInverseVII11">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="7" column="5">
-               <widget class="QComboBox" name="cmbOLCI17_2">
+               <widget class="QComboBox" name="cmbVII17">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -765,14 +765,14 @@
                </widget>
               </item>
               <item row="10" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI20_2">
+               <widget class="QCheckBox" name="chkInverseVII20">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="6" column="6">
-               <widget class="QRadioButton" name="rbVII_7325">
+               <widget class="QRadioButton" name="rbVII16">
                 <property name="text">
                  <string>VII_7325</string>
                 </property>
@@ -786,14 +786,14 @@
                </widget>
               </item>
               <item row="9" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI19_2">
+               <widget class="QCheckBox" name="chkInverseVII19">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="6" column="1">
-               <widget class="QComboBox" name="cmbOLCI06_2">
+               <widget class="QComboBox" name="cmbVII06">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -809,7 +809,7 @@
                </widget>
               </item>
               <item row="8" column="6">
-               <widget class="QRadioButton" name="rbVII_10690">
+               <widget class="QRadioButton" name="rbVII18">
                 <property name="text">
                  <string>VII_10690</string>
                 </property>
@@ -823,7 +823,7 @@
                </widget>
               </item>
               <item row="4" column="5">
-               <widget class="QComboBox" name="cmbOLCI14_2">
+               <widget class="QComboBox" name="cmbVII14">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -839,14 +839,14 @@
                </widget>
               </item>
               <item row="5" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI15_2">
+               <widget class="QCheckBox" name="chkInverseVII15">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="2" column="2">
-               <widget class="QRadioButton" name="rbVII_555">
+               <widget class="QRadioButton" name="rbVII02">
                 <property name="text">
                  <string>VII_555</string>
                 </property>
@@ -866,21 +866,21 @@
                </spacer>
               </item>
               <item row="3" column="6">
-               <widget class="QRadioButton" name="rbVII_3959">
+               <widget class="QRadioButton" name="rbVII13">
                 <property name="text">
                  <string>VII_3959</string>
                 </property>
                </widget>
               </item>
               <item row="5" column="2">
-               <widget class="QRadioButton" name="rbVII_763">
+               <widget class="QRadioButton" name="rbVII05">
                 <property name="text">
                  <string>VII_763</string>
                 </property>
                </widget>
               </item>
               <item row="10" column="1">
-               <widget class="QComboBox" name="cmbOLCI10_2">
+               <widget class="QComboBox" name="cmbVII10">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -896,28 +896,28 @@
                </widget>
               </item>
               <item row="4" column="6">
-               <widget class="QRadioButton" name="rbVII_4050">
+               <widget class="QRadioButton" name="rbVII14">
                 <property name="text">
                  <string>VII_4050</string>
                 </property>
                </widget>
               </item>
               <item row="7" column="6">
-               <widget class="QRadioButton" name="rbVII_8540">
+               <widget class="QRadioButton" name="rbVII17">
                 <property name="text">
                  <string>VII_8540</string>
                 </property>
                </widget>
               </item>
               <item row="8" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI18_2">
+               <widget class="QCheckBox" name="chkInverseVII18">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="6" column="5">
-               <widget class="QComboBox" name="cmbOLCI16_2">
+               <widget class="QComboBox" name="cmbVII16">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -933,7 +933,7 @@
                </widget>
               </item>
               <item row="6" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI16_2">
+               <widget class="QCheckBox" name="chkInverseVII16">
                 <property name="text">
                  <string/>
                 </property>
@@ -954,42 +954,42 @@
                </widget>
               </item>
               <item row="10" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI10_2">
+               <widget class="QCheckBox" name="chkInverseVII10">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="2" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI02_2">
+               <widget class="QCheckBox" name="chkInverseVII02">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="6" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI06_2">
+               <widget class="QCheckBox" name="chkInverseVII06">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="3" column="2">
-               <widget class="QRadioButton" name="rbVII_668">
+               <widget class="QRadioButton" name="rbVII03">
                 <property name="text">
                  <string>VII_668</string>
                 </property>
                </widget>
               </item>
               <item row="6" column="2">
-               <widget class="QRadioButton" name="rbVII_865">
+               <widget class="QRadioButton" name="rbVII06">
                 <property name="text">
                  <string>VII_865</string>
                 </property>
                </widget>
               </item>
               <item row="9" column="1">
-               <widget class="QComboBox" name="cmbOLCI09_2">
+               <widget class="QComboBox" name="cmbVII09">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1005,14 +1005,14 @@
                </widget>
               </item>
               <item row="7" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI07_2">
+               <widget class="QCheckBox" name="chkInverseVII07">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="8" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI08_2">
+               <widget class="QCheckBox" name="chkInverseVII08">
                 <property name="text">
                  <string/>
                 </property>
@@ -1026,7 +1026,7 @@
                </widget>
               </item>
               <item row="5" column="1">
-               <widget class="QComboBox" name="cmbOLCI05_2">
+               <widget class="QComboBox" name="cmbVII05">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1042,7 +1042,7 @@
                </widget>
               </item>
               <item row="8" column="5">
-               <widget class="QComboBox" name="cmbOLCI18_2">
+               <widget class="QComboBox" name="cmbVII18">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1058,14 +1058,14 @@
                </widget>
               </item>
               <item row="2" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI12_2">
+               <widget class="QCheckBox" name="chkInverseVII12">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="1" column="5">
-               <widget class="QComboBox" name="cmbOLCI11_2">
+               <widget class="QComboBox" name="cmbVII11">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1081,14 +1081,14 @@
                </widget>
               </item>
               <item row="5" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI05_2">
+               <widget class="QCheckBox" name="chkInverseVII05">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="4" column="1">
-               <widget class="QComboBox" name="cmbOLCI04_2">
+               <widget class="QComboBox" name="cmbVII04">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1104,7 +1104,7 @@
                </widget>
               </item>
               <item row="8" column="1">
-               <widget class="QComboBox" name="cmbOLCI08_2">
+               <widget class="QComboBox" name="cmbVII08">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1120,14 +1120,14 @@
                </widget>
               </item>
               <item row="4" column="2">
-               <widget class="QRadioButton" name="rbVII_752">
+               <widget class="QRadioButton" name="rbVII04">
                 <property name="text">
                  <string>VII_752</string>
                 </property>
                </widget>
               </item>
               <item row="3" column="5">
-               <widget class="QComboBox" name="cmbOLCI13_2">
+               <widget class="QComboBox" name="cmbVII13">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1143,14 +1143,14 @@
                </widget>
               </item>
               <item row="10" column="2">
-               <widget class="QRadioButton" name="rbVII_1630">
+               <widget class="QRadioButton" name="rbVII10">
                 <property name="text">
                  <string>VII_1630</string>
                 </property>
                </widget>
               </item>
               <item row="5" column="5">
-               <widget class="QComboBox" name="cmbOLCI15_2">
+               <widget class="QComboBox" name="cmbVII15">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1166,7 +1166,7 @@
                </widget>
               </item>
               <item row="10" column="5">
-               <widget class="QComboBox" name="cmbOLCI20_2">
+               <widget class="QComboBox" name="cmbVII20">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1182,14 +1182,14 @@
                </widget>
               </item>
               <item row="1" column="2">
-               <widget class="QRadioButton" name="rbVII_443">
+               <widget class="QRadioButton" name="rbVII01">
                 <property name="text">
                  <string>VII_443</string>
                 </property>
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QComboBox" name="cmbOLCI03_2">
+               <widget class="QComboBox" name="cmbVII03">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1205,49 +1205,49 @@
                </widget>
               </item>
               <item row="10" column="6">
-               <widget class="QRadioButton" name="rbVII_13345">
+               <widget class="QRadioButton" name="rbVII20">
                 <property name="text">
                  <string>VII_13345</string>
                 </property>
                </widget>
               </item>
               <item row="3" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI13_2">
+               <widget class="QCheckBox" name="chkInverseVII13">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="4" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI14_2">
+               <widget class="QCheckBox" name="chkInverseVII14">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="7" column="4">
-               <widget class="QCheckBox" name="chkInverseOLCI17_2">
+               <widget class="QCheckBox" name="chkInverseVII17">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="9" column="2">
-               <widget class="QRadioButton" name="rbVII_1375">
+               <widget class="QRadioButton" name="rbVII09">
                 <property name="text">
                  <string>VII_1375</string>
                 </property>
                </widget>
               </item>
               <item row="2" column="6">
-               <widget class="QRadioButton" name="rbVII_3740">
+               <widget class="QRadioButton" name="rbVII12">
                 <property name="text">
                  <string>VII_3740</string>
                 </property>
                </widget>
               </item>
               <item row="2" column="5">
-               <widget class="QComboBox" name="cmbOLCI12_2">
+               <widget class="QComboBox" name="cmbVII12">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1263,7 +1263,7 @@
                </widget>
               </item>
               <item row="9" column="5">
-               <widget class="QComboBox" name="cmbOLCI19_2">
+               <widget class="QComboBox" name="cmbVII19">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1279,7 +1279,7 @@
                </widget>
               </item>
               <item row="7" column="1">
-               <widget class="QComboBox" name="cmbOLCI07_2">
+               <widget class="QComboBox" name="cmbVII07">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1295,21 +1295,21 @@
                </widget>
               </item>
               <item row="9" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI09_2">
+               <widget class="QCheckBox" name="chkInverseVII09">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QCheckBox" name="chkInverseOLCI01_2">
+               <widget class="QCheckBox" name="chkInverseVII01">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QComboBox" name="cmbOLCI02_2">
+               <widget class="QComboBox" name="cmbVII02">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1325,21 +1325,21 @@
                </widget>
               </item>
               <item row="8" column="2">
-               <widget class="QRadioButton" name="rbVII_1240">
+               <widget class="QRadioButton" name="rbVII08">
                 <property name="text">
                  <string>VII_1240</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="6">
-               <widget class="QRadioButton" name="rbVII_2250">
+               <widget class="QRadioButton" name="rbVII11">
                 <property name="text">
                  <string>VII_2250</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="cmbOLCI01_2">
+               <widget class="QComboBox" name="cmbVII01">
                 <property name="minimumSize">
                  <size>
                   <width>60</width>
@@ -1355,7 +1355,7 @@
                </widget>
               </item>
               <item row="7" column="2">
-               <widget class="QRadioButton" name="rbVII_914">
+               <widget class="QRadioButton" name="rbVII07">
                 <property name="text">
                  <string>VII_914</string>
                 </property>
@@ -6939,6 +6939,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QRadioButton" name="rdbVIIin">
+            <property name="text">
+             <string>VII/METimage</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QRadioButton" name="rdbMeteosatin">
             <property name="text">
              <string>Geostationary Image</string>
@@ -7815,7 +7822,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>615</width>
-                 <height>507</height>
+                 <height>471</height>
                 </rect>
                </property>
                <attribute name="label">

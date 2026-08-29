@@ -24,8 +24,8 @@ SegmentImage::SegmentImage()
     ptrimageViirsM = new QImage();
     ptrimageViirsDNB = new QImage();
     ptrimageOLCI = new QImage();
-    ptrimageSLSTR = new QImage();
     ptrimageMERSI = new QImage();
+    ptrimageVII = new QImage();
     ptrProjectionBrightnessTemp.reset();
 
     ptrimageRGBRecipeRed.reset(new quint8[3712 * 3712]);
@@ -760,17 +760,18 @@ void SegmentImage::DeleteImagePtrs()
         ptrimageOLCI = NULL;
     }
 
-    if(ptrimageSLSTR != NULL)
-    {
-        delete ptrimageSLSTR;
-        ptrimageSLSTR = NULL;
-    }
-
     if(ptrimageMERSI != NULL)
     {
         delete ptrimageMERSI;
         ptrimageMERSI = NULL;
     }
+
+    if(ptrimageVII != NULL)
+    {
+        delete ptrimageVII;
+        ptrimageVII = NULL;
+    }
+
 
     ResetPtrImage();
 }

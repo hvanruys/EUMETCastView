@@ -390,6 +390,11 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20250403094427_IDPFI_OPE_20250403094003_20250403094018_N_JLS_O_0059_0001.nc
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20250403102306_IDPFI_OPE_20250403102003_20250403102935_N_JLS_O_0063_0041
 
+        //HRFI
+        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20260827214414_IDPFI_OPE_20260827214003_20260827214018_N_JLS_O_0131_0001.nc
+        //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20260827212259_IDPFI_OPE_20260827212003_20260827212935_N_JLS_O_0129_0041.nc
 
         for(int i = 0; i < opts.geosatellites.count(); i++)
         {
@@ -711,6 +716,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     QString pathbefore;
 
     bool metopTle = false;
+    bool metopsga1Tle = false;
     bool nppTle = false;
     bool sentinel3Tle = false;
     bool fy3dTle = false;
@@ -805,7 +811,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
                     QMap<QString, QFileInfo> map;
 
-                    InsertToMap(fileinfolist, &map, &metopTle, &nppTle, &sentinel3Tle, &fy3dTle, seldate, 0);
+                    InsertToMap(fileinfolist, &map, &metopTle, &metopsga1Tle, &nppTle, &sentinel3Tle, &fy3dTle, seldate, 0);
 
                     if(metopTle)
                     {
@@ -819,6 +825,22 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                             QApplication::restoreOverrideCursor();
                             QMessageBox msgBox;
                             msgBox.setText("Need the Metop TLE's.");
+                            msgBox.exec();
+
+                            return;
+                        }
+                    }
+
+                    if(metopsga1Tle)
+                    {
+                        bool ok = false;
+                        Satellite *metopsga1_sat;
+                        metopsga1_sat = satellitelist.GetSatellite(65159, &ok);
+                        if (ok == false)
+                        {
+                            QApplication::restoreOverrideCursor();
+                            QMessageBox msgBox;
+                            msgBox.setText("Need the Metop SGA1 TLE's.");
                             msgBox.exec();
 
                             return;
@@ -888,7 +910,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                             segmentdir.setSorting(QDir::Name); //::Time);
                             fileinfolist = segmentdir.entryInfoList();
                             //qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(pathbefore);
-                            InsertToMap(fileinfolist, &map, &metopTle, &nppTle, &sentinel3Tle, &fy3dTle, seldate, hoursbefore);
+                            InsertToMap(fileinfolist, &map, &metopTle, &metopsga1Tle, &nppTle, &sentinel3Tle, &fy3dTle, seldate, hoursbefore);
 
                         }
                     }
@@ -991,7 +1013,7 @@ void AVHRRSatellite::ReadDirectoriesDatahub(QDate seldate)
 
     QMap<QString, QFileInfo> map;
 
-    InsertToMap(fileinfolist, &map, &booltrue, &booltrue, &booltrue, &booltrue, seldate, 0);
+    InsertToMap(fileinfolist, &map, &booltrue, &booltrue, &booltrue, &booltrue, &booltrue, seldate, 0);
 
 
 
@@ -1016,7 +1038,7 @@ void AVHRRSatellite::ReadDirectoriesDatahub(QDate seldate)
 
 
 void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFileInfo> *map,
-                                 bool *metopTle, bool *nppTle, bool *sentinel3Tle, bool *fy3dTle, QDate seldate, int hoursbefore)
+                                 bool *metopTle, bool *metopsga1Tle, bool *nppTle, bool *sentinel3Tle, bool *fy3dTle, QDate seldate, int hoursbefore)
 {
 
     QDateTime filedate;
@@ -1063,6 +1085,15 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
                 fileok = true;
 
         }
+        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+        //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210219013949_G_D_20070912084303_20070912084403_T_B____.nc
+        else if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 28, 8) == "SGA1-VII" && fileinfo.isFile())
+        {
+            *metopsga1Tle = true;
+            fileok = true;
+        }
+
         //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
         //SVDNBC_npp_d20151019_t0013359_e0015001_b20595_c20151019002104000944_eum_ops.h5
         else if ((fileinfo.fileName().mid( 0, 8) == "SVMC_npp" || fileinfo.fileName().mid( 0, 8) == "SVMC_j01" || fileinfo.fileName().mid( 0, 8) == "SVMC_j02") && fileinfo.isFile())
@@ -1333,17 +1364,18 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
                 }
             }
         }
-        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-        //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
-        //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210219013949_G_D_20070912084303_20070912084403_T_B____.nc
-        else if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 28, 8) == "SGA1-VII" && fileinfo.isFile())
-        {
-            fileok = true;
-        }
 
         if(fileok)
         {
-            *map->insert(fileinfo.fileName(), fileinfo);
+            //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+            //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+            //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210219013949_G_D_20070912084303_20070912084403_T_B____.nc
+            if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 28, 8) == "SGA1-VII" && fileinfo.isFile())
+            {
+                *map->insert(fileinfo.fileName().mid(70, 12), fileinfo);
+            }
+            else
+                *map->insert(fileinfo.fileName(), fileinfo);
         }
 
     }

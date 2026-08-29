@@ -299,6 +299,9 @@
               <property name="text">
                <string> NPP M-Band </string>
               </property>
+              <property name="checkable">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
             <item row="0" column="1">

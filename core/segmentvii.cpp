@@ -15,6 +15,26 @@ extern SatelliteList satellitelist;
 //    t->CalcOverlayLatLon(collength, rowlength);
 //}
 
+#define CHECK(expr)                                                       \
+do {                                                                  \
+        int _e = (expr);                                                  \
+        if (_e != NC_NOERR) {                                             \
+            fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__,            \
+                    nc_strerror(_e));                                     \
+            exit(EXIT_FAILURE);                                           \
+    }                                                                 \
+} while (0)
+
+typedef struct {
+    size_t nscans;    /* Nl        num_scans          */
+    size_t nd;        /* N_D       num_pixels_alt  24 */
+    size_t nlines;    /* N_ALT     num_lines      840 */
+    size_t npixels;   /* N_ACT     num_pixels    3144 */
+    size_t zact;      /* Z_ACT     zone_size_act    8 */
+    size_t zalt;      /* Z_ALT     zone_size_alt    8 */
+    size_t ntie_act;  /* N_TIE_ACT num_tie_points_act 394 */
+    size_t ntie_alt;  /* N_TIE_ALT num_tie_points_alt 4*Nl */
+} vii_geom;
 
 SegmentVII::SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
   Segment(parent)
@@ -76,140 +96,181 @@ SegmentVII::SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent) :
     this->NbrOfLines = 4091;
 
 
-    // Satellite *s3_sat;
+    Satellite *sga1_sat;
 
-    // if(fileInfo.fileName().mid(0,8) == "S3A_OL_1")  // S3A
-    //     s3_sat = satellitelist.GetSatellite(41335, &ok);
-    // else if(fileInfo.fileName().mid(0,8) == "S3B_OL_1") // S3B
-    //     s3_sat = satellitelist.GetSatellite(43437, &ok);
+    if(fileInfo.fileName().mid(28,4) == "SGA1")
+        sga1_sat = satellitelist.GetSatellite(65159, &ok);
 
-    // if(!ok)
-    // {
-    //     qInfo() << "EUMETCastView needs TLE's";
-    //     return;
-    // }
+    if(!ok)
+    {
+        qInfo() << "EUMETCastView needs TLE's for SGA1";
+        return;
+    }
 
-    // line1 = s3_sat->line1;
-    // line2 = s3_sat->line2;
+    line1 = sga1_sat->line1;
+    line2 = sga1_sat->line2;
 
-    // //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
-    // //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
-    // double epoch = line1.mid(18,14).toDouble(&ok);
-    // julian_state_vector = Julian_Date_of_Epoch(epoch);
+    //line1 = "1 33591U 09005A   11039.40718334  .00000086  00000-0  72163-4 0  8568";
+    //line2 = "2 33591  98.8157 341.8086 0013952 344.4168  15.6572 14.11126791103228";
+    double epoch = line1.mid(18,14).toDouble(&ok);
+    julian_state_vector = Julian_Date_of_Epoch(epoch);
 
-    // qtle.reset(new QTle(s3_sat->sat_name, line1, line2, QTle::wgs72));
-    // qsgp4.reset(new QSgp4( *qtle ));
+    qtle.reset(new QTle(sga1_sat->sat_name, line1, line2, QTle::wgs72));
+    qsgp4.reset(new QSgp4( *qtle ));
 
 
-    // minutes_since_state_vector = ( julian_sensing_start - julian_state_vector ) * MIN_PER_DAY; //  + (1.0/12.0) / 60.0;
-    // minutes_sensing = ( julian_sensing_end - julian_sensing_start ) * MIN_PER_DAY;
+    minutes_since_state_vector = ( julian_sensing_start - julian_state_vector ) * MIN_PER_DAY; //  + (1.0/12.0) / 60.0;
+    minutes_sensing = ( julian_sensing_end - julian_sensing_start ) * MIN_PER_DAY;
 
-    // QEci qeci;
-    // qsgp4->getPosition(minutes_since_state_vector, qeci);
-    // QGeodetic qgeo = qeci.ToGeo();
+    QEci qeci;
+    qsgp4->getPosition(minutes_since_state_vector, qeci);
+    QGeodetic qgeo = qeci.ToGeo();
 
-    // lon_start_rad = qgeo.longitude;
-    // lat_start_rad = qgeo.latitude;
+    lon_start_rad = qgeo.longitude;
+    lat_start_rad = qgeo.latitude;
 
-    // lon_start_deg = rad2deg(lon_start_rad);
-    // if (lon_start_deg > 180)
-    //     lon_start_deg = - (360 - rad2deg(lon_start_rad));
+    lon_start_deg = rad2deg(lon_start_rad);
+    if (lon_start_deg > 180)
+        lon_start_deg = - (360 - rad2deg(lon_start_rad));
 
-    // lat_start_deg = rad2deg(lat_start_rad);
+    lat_start_deg = rad2deg(lat_start_rad);
 
 
-    // double hours_since_state_vector = ( julian_sensing_start - julian_state_vector ) * HOURS_PER_DAY;
+    double hours_since_state_vector = ( julian_sensing_start - julian_state_vector ) * HOURS_PER_DAY;
 
-    // // qDebug() << QString("---> lon = %1 lat = %2  hours_since_state_vector = %3").arg(lon_start_deg).arg(lat_start_deg).arg( hours_since_state_vector);
+    // qDebug() << QString("---> lon = %1 lat = %2  hours_since_state_vector = %3").arg(lon_start_deg).arg(lat_start_deg).arg( hours_since_state_vector);
 
-    // CalculateCornerPoints();
-    // if(segtype == SEG_METOPSGA1)
-    // {
-    //     CalculateDetailCornerPoints();
-    // }
+    CalculateCornerPoints();
+    if(segtype == SEG_METOPSGA1)
+    {
+        CalculateDetailCornerPoints();
+    }
 
 }
 
-/*
-Segment *SegmentOLCI::ReadSegmentInMemory()
+size_t SegmentVII::dim_len(int gid, const char *name)
+{
+    int    dimid;
+    size_t len;
+    CHECK(nc_inq_dimid(gid, name, &dimid));   /* searches parents too */
+    CHECK(nc_inq_dimlen(gid, dimid, &len));
+    return len;
+}
+
+Segment *SegmentVII::ReadSegmentInMemory()
 {
 
-    QString fname1;
-    QString fname2;
-    QString fname3;
-    QByteArray array1;
-    QByteArray array2;
-    QByteArray array3;
-    const char* pfile1;
-    const char* pfile2;
-    const char* pfile3;
-    QString var1;
-    QString var2;
-    QString var3;
-    const char* pvar1;
-    const char* pvar2;
-    const char* pvar3;
+    // QString fname1;
+    // QString fname2;
+    // QString fname3;
+    // QByteArray array1;
+    // QByteArray array2;
+    // QByteArray array3;
+    // const char* pfile1;
+    // const char* pfile2;
+    // const char* pfile3;
+    // QString var1;
+    // QString var2;
+    // QString var3;
+    // const char* pvar1;
+    // const char* pvar2;
+    // const char* pvar3;
 
-    int retval;
-    int ncgeofileid, nctiegeofileid, ncfileid1, ncfileid2, ncfileid3;
-    int radianceid1, radianceid2, radianceid3;
-    int ncqualityflagsid, qualityflagsid;
-    float scale_factor[3], add_offset[3];
+    // int retval;
+    // int ncid;
 
+    // /* group handles: a full path is resolved in one call */
+    // int data_gid, meas_gid;
 
-    int columnsid, rowsid;
-    int tiecolumnsid, tierowsid;
-    size_t columnslength, rowslength;
-    size_t tiecolumnslength, tierowslength;
-
-    int longitudeid, latitudeid;
-    int SZAid;
-    QScopedArrayPointer<int> tieSZA;
-    QScopedArrayPointer<float> secSZA;
-
-    bool iscolorimage = this->bandlist.at(0);
-
-    QString geofile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/geo_coordinates.nc" : fileInfo.baseName() + ".SEN3/geo_coordinates.nc";
-    qDebug() << "geofile = " << geofile;
-
-    QByteArray arraygeo = geofile.toUtf8();
-    const char *pgeofile = arraygeo.constData();
-
-    qDebug() << "Starting netCDF geo_coordinates";
-    retval = nc_open(pgeofile, NC_NOWRITE, &ncgeofileid);
-    if(retval != NC_NOERR) qDebug() << "error opening geofile";
-
-    retval = nc_inq_dimid(ncgeofileid, "columns", &columnsid);
-    if(retval != NC_NOERR) qDebug() << "error reading columns id geofile";
-    retval = nc_inq_dimlen(ncgeofileid, columnsid, &columnslength);
-    if(retval != NC_NOERR) qDebug() << "error reading columns length geofile";
-
-    retval = nc_inq_dimid(ncgeofileid, "rows", &rowsid);
-    if(retval != NC_NOERR) qDebug() << "error reading rows id geofile";
-    retval = nc_inq_dimlen(ncgeofileid, rowsid, &rowslength);
-    if(retval != NC_NOERR) qDebug() << "error reading rows length geofile";
+    // int nctieviifileid, ncfileid1, ncfileid2, ncfileid3;
+    // int radianceid1, radianceid2, radianceid3;
+    // int ncqualityflagsid, qualityflagsid;
+    // float scale_factor[3], add_offset[3];
 
 
-    this->longitude.reset(new int[columnslength * rowslength]);
-    this->latitude.reset(new int[columnslength * rowslength]);
+    // int dataid;
+    // int num_scansid;
+    // int tiecolumnsid, tierowsid;
+    // size_t columnslength, rowslength;
+    // size_t tiecolumnslength, tierowslength;
+
+    // int longitudeid, latitudeid;
+    // int SZAid;
+    // QScopedArrayPointer<int> tieSZA;
+    // QScopedArrayPointer<float> secSZA;
+
+    // bool iscolorimage = this->bandlist.at(0);
+
+    int ncid;
+    QString viifile = fileInfo.absoluteFilePath();
+    QByteArray arrayvii = viifile.toUtf8();
+    const char *pviifile = arrayvii.constData();
+    qDebug() << "Starting netCDF " << viifile;
+    CHECK(nc_open(pviifile, NC_NOWRITE, &ncid));
+
+    /* group handles: a full path is resolved in one call */
+    int data_gid, meas_gid;
+    CHECK(nc_inq_grp_full_ncid(ncid, "/data", &data_gid));
+    CHECK(nc_inq_grp_full_ncid(ncid, "/data/measurement_data", &meas_gid));
+
+    // data/measurement_data -- 11 dimensions (incl. inherited)
+    //     num_scans              = 35
+    //     num_chan               = 20
+    //     num_chan_solar         = 11
+    //     num_chan_thermal       = 9
+    //     num_pixels             = 3144
+    //     num_pixels_alt         = 24
+    //     num_lines              = 840
+    //     zone_size_act          = 8
+    //     zone_size_alt          = 8
+    //     num_tie_points_act     = 394
+    //     num_tie_points_alt     = 140
 
 
-    retval = nc_inq_varid(ncgeofileid, "longitude", &longitudeid);
-    if (retval != NC_NOERR) qDebug() << "error reading longitude id";
-    retval = nc_get_var_int(ncgeofileid, longitudeid, this->longitude.data());
-    if (retval != NC_NOERR) qDebug() << "error reading longitude values";
+    int num_scans = dim_len(meas_gid, "num_scans");
+    int num_chan = dim_len(meas_gid, "num_chan");
+    int num_chan_solar = dim_len(meas_gid, "num_chan_solar");
+    int num_chan_thermal = dim_len(meas_gid, "num_chan_thermal");
+    int num_pixels = dim_len(meas_gid, "num_pixels");
+    int num_pixels_alt = dim_len(meas_gid, "num_pixels_alt");
+    int num_lines = dim_len(meas_gid, "num_lines");
+    int zone_size_act = dim_len(meas_gid, "zone_size_act");
+    int zone_size_alt = dim_len(meas_gid, "zone_size_alt");
+    int num_tie_points_act = dim_len(meas_gid, "num_tie_points_act");
+    int num_tie_points_alt = dim_len(meas_gid, "num_tie_points_alt");
 
-    retval = nc_inq_varid(ncgeofileid, "latitude", &latitudeid);
-    if (retval != NC_NOERR) qDebug() << "error reading latitude id";
-    retval = nc_get_var_int(ncgeofileid, latitudeid, this->latitude.data());
-    if (retval != NC_NOERR) qDebug() << "error reading latitude values";
+    qDebug() << "num_scans        = " << num_scans;
+    qDebug() << "num_chan         = " << num_chan;
+    qDebug() << "num_chan_solar   = " << num_chan_solar;
+    qDebug() << "num_chan_thermal = " << num_chan_thermal;
+    qDebug() << "num_pixels       = " << num_pixels;
+    qDebug() << "num_lines        = " << num_lines;
 
-    retval = nc_close(ncgeofileid);
-    if (retval != NC_NOERR) qDebug() << "error closing geofile";
+    // retval = nc_inq_dimid(ncgeofileid, "rows", &rowsid);
+    // if(retval != NC_NOERR) qDebug() << "error reading rows id geofile";
+    // retval = nc_inq_dimlen(ncgeofileid, rowsid, &rowslength);
+    // if(retval != NC_NOERR) qDebug() << "error reading rows length geofile";
+
+
+    // this->longitude.reset(new int[columnslength * rowslength]);
+    // this->latitude.reset(new int[columnslength * rowslength]);
+
+
+    // retval = nc_inq_varid(ncgeofileid, "longitude", &longitudeid);
+    // if (retval != NC_NOERR) qDebug() << "error reading longitude id";
+    // retval = nc_get_var_int(ncgeofileid, longitudeid, this->longitude.data());
+    // if (retval != NC_NOERR) qDebug() << "error reading longitude values";
+
+    // retval = nc_inq_varid(ncgeofileid, "latitude", &latitudeid);
+    // if (retval != NC_NOERR) qDebug() << "error reading latitude id";
+    // retval = nc_get_var_int(ncgeofileid, latitudeid, this->latitude.data());
+    // if (retval != NC_NOERR) qDebug() << "error reading latitude values";
+
+    CHECK(nc_close(ncid));
 
     //QFuture<void> future = QtConcurrent::run(doCalcOverlayLatLon, this, columnslength, rowslength);
     //CalcOverlayLatLon(columnslength, rowslength);
-
+/*
     // tie_geometries.nc
     QString tiegeofile = fileInfo.isDir() ? fileInfo.absoluteFilePath() + "/tie_geometries.nc" : fileInfo.baseName() + ".SEN3/tie_geometries.nc";
     QByteArray arraytiegeo = tiegeofile.toUtf8();
@@ -575,11 +636,12 @@ Segment *SegmentOLCI::ReadSegmentInMemory()
         qDebug() << QString("ptrbaOLCInormalized min_ch[2] = %1 max_ch[2] = %2").arg(stat_min_norm_ch[2]).arg(stat_max_norm_ch[2]);
     }
 
-
+*/
     return this;
 
 }
 
+/*
 // There is no difference between a linear interpolation and the Lagrange interpolation
 float SegmentOLCI::getTieValue(QScopedArrayPointer<int> *tiefile, int navpoint, int intpoint, int nbrLine) //navpoint = [0, 76] intpoint = [0, 63] nbrLine = [0, this->NbrOfLines]
 {
@@ -994,39 +1056,39 @@ void SegmentOLCI::RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row )
 
 }
 
+*/
 
-void SegmentOLCI::initializeMemory()
+void SegmentVII::initializeMemory()
 {
-    qDebug() << "Initializing OLCI memory";
+    qDebug() << "Initializing VII memory";
 
     bool color = this->bandlist.at(0);
 
     for(int k = 0; k < (color ? 3 : 1); k++)
     {
-        if(ptrbaOLCI[k].isNull())
+        if(ptrbaVII[k].isNull())
         {
-            ptrbaOLCI[k].reset(new quint16[earth_views_per_scanline * NbrOfLines]);
-            ptrbaOLCInormalized[k].reset(new quint16[earth_views_per_scanline * NbrOfLines]);
-            qDebug() << QString("Initializing OLCI memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
+            ptrbaVII[k].reset(new quint16[earth_views_per_scanline * NbrOfLines]);
+            ptrbaVIInormalized[k].reset(new quint16[earth_views_per_scanline * NbrOfLines]);
+            qDebug() << QString("Initializing VII memory earth views = %1 nbr of lines = %2").arg(earth_views_per_scanline).arg(NbrOfLines);
         }
     }
-    qDebug() << "End Initializing OLCI memory";
+    qDebug() << "End Initializing VII memory";
 
 }
 
 
-
-void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
+void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
 {
 
     QRgb *row;
     quint16 indexout[3];
 
-    qDebug() << QString("SegmentOLCI::ComposeSegmentImage() segm->startLineNbr = %1").arg(this->startLineNbr);
-    qDebug() << QString("SegmentOLCI::ComposeSegmentImage() color = %1 ").arg(bandlist.at(0));
-    qDebug() << QString("SegmentOLCI::ComposeSegmentImage() invertthissegment[0] = %1").arg(invertthissegment[0]);
-    qDebug() << QString("SegmentOLCI::ComposeSegmentImage() invertthissegment[1] = %1").arg(invertthissegment[1]);
-    qDebug() << QString("SegmentOLCI::ComposeSegmentImage() invertthissegment[2] = %1").arg(invertthissegment[2]);
+    qDebug() << QString("SegmentVII::ComposeSegmentImage() segm->startLineNbr = %1").arg(this->startLineNbr);
+    qDebug() << QString("SegmentVII::ComposeSegmentImage() color = %1 ").arg(bandlist.at(0));
+    // qDebug() << QString("SegmentVII::ComposeSegmentImage() invertthissegment[0] = %1").arg(invertthissegment[0]);
+    // qDebug() << QString("SegmentVII::ComposeSegmentImage() invertthissegment[1] = %1").arg(invertthissegment[1]);
+    // qDebug() << QString("SegmentVII::ComposeSegmentImage() invertthissegment[2] = %1").arg(invertthissegment[2]);
 
     int color[3];
     quint16 pixval[3];
@@ -1042,18 +1104,18 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
 
     for (int line = 0; line < this->NbrOfLines; line++)
     {
-        row = (QRgb*)imageptrs->ptrimageOLCI->scanLine(this->startLineNbr + line);
+        row = (QRgb*)imageptrs->ptrimageVII->scanLine(this->startLineNbr + line);
         for (int pixelx = 0; pixelx < earth_views_per_scanline; pixelx++)
         {
-            if(normalized) pixval[0] = this->ptrbaOLCInormalized[0][line * earth_views_per_scanline + pixelx];
-            else pixval[0] = this->ptrbaOLCI[0][line * earth_views_per_scanline + pixelx];
+            if(normalized) pixval[0] = this->ptrbaVIInormalized[0][line * earth_views_per_scanline + pixelx];
+            else pixval[0] = this->ptrbaVII[0][line * earth_views_per_scanline + pixelx];
 
             if(iscolor)
             {
-                if(normalized) pixval[1] = this->ptrbaOLCInormalized[1][line * earth_views_per_scanline + pixelx];
-                else pixval[1] = this->ptrbaOLCI[1][line * earth_views_per_scanline + pixelx];
-                if(normalized) pixval[2] = this->ptrbaOLCInormalized[2][line * earth_views_per_scanline + pixelx];
-                else pixval[2] = this->ptrbaOLCI[2][line * earth_views_per_scanline + pixelx];
+                if(normalized) pixval[1] = this->ptrbaVIInormalized[1][line * earth_views_per_scanline + pixelx];
+                else pixval[1] = this->ptrbaVII[1][line * earth_views_per_scanline + pixelx];
+                if(normalized) pixval[2] = this->ptrbaVIInormalized[2][line * earth_views_per_scanline + pixelx];
+                else pixval[2] = this->ptrbaVII[2][line * earth_views_per_scanline + pixelx];
             }
 
             if(opts.usesaturationmask)
@@ -1088,13 +1150,13 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
                             indexout[k] =  pixval1024[k];
                     }
 
-                    if(invertthissegment[k])
-                    {
-                        if(normalized) color[k] = 255 - imageptrs->lut_norm_ch[k][indexout[k]]/4;
-                        else color[k] = 255 - imageptrs->lut_ch[k][indexout[k]]/4;
-                    }
-                    else
-                    {
+                    // if(invertthissegment[k])
+                    // {
+                    //     if(normalized) color[k] = 255 - imageptrs->lut_norm_ch[k][indexout[k]]/4;
+                    //     else color[k] = 255 - imageptrs->lut_ch[k][indexout[k]]/4;
+                    // }
+                    // else
+                    // {
                         if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
                         {
                             color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
@@ -1104,7 +1166,7 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
                             if(normalized) color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
                             else color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
                         }
-                    }
+                    // }
                 }
 
                 row[pixelx] = qRgba(color[0], iscolor ? color[1] : color[0], iscolor ? color[2] : color[0], 255 );
@@ -1116,15 +1178,15 @@ void SegmentOLCI::ComposeSegmentImage(int histogrammethod, bool normalized)
             }
 
         }
-        if(opts.imageontextureOnOLCI && line % 2 == 0)
-        {
-            this->RenderSegmentlineInTextureOLCI( line, row );
-            opts.texture_changed = true;
-        }
+        // if(opts.imageontextureOnVII && line % 2 == 0)
+        // {
+        //     this->RenderSegmentlineInTextureVII( line, row );
+        //     opts.texture_changed = true;
+        // }
 
     }
 }
-
+/*
 
 
 void SegmentOLCI::ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized)
