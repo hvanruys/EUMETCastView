@@ -416,8 +416,7 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
     }
     else if(projtype == PROJ_VII)
     {
-        // if(opts.buttonMetopSGA1)
-        //     segs->seglmetopsga1->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
+        segs->seglmetopsga1->GetCentralCoords(&lon1_d, &lat1_d, &lon2_d, &lat2_d);
     }
 
     qDebug() << "lon1_d = " << lon1_d << " lat1_d = " << lat1_d << " lon2_d = " << lon2_d << " lat2_d = " << lat2_d;
@@ -465,6 +464,11 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
         image_width = imageptrs->ptrimageMERSI->width();
         image_height = imageptrs->ptrimageMERSI->height();
 
+    }
+    else if(projtype == PROJ_VII)
+    {
+        image_width = imageptrs->ptrimageVII->width();
+        image_height = imageptrs->ptrimageVII->height();
     }
     else if(projtype == PROJ_AVHRR)
     {
@@ -519,6 +523,10 @@ void ObliqueMercator::InitializeSpherical(eProjectionType projtype)
     } else if(projtype == PROJ_MERSI)
     {
         GetMinMaxXBoundingBox(SEG_MERSI, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
+    }
+    else if(projtype == PROJ_VII)
+    {
+        GetMinMaxXBoundingBox(SEG_METOPSGA1, &boundingbox_min_x, &boundingbox_max_x, &boundingbox_min_y, &boundingbox_max_y);
     }
     else if(projtype == PROJ_AVHRR)
     {
@@ -580,6 +588,10 @@ void ObliqueMercator::GetMinMaxXBoundingBox(eSegmentType type, double *boundingb
     else if( type == SEG_MERSI)
     {
         seglist = (SegmentList *)segs->seglmersi;
+    }
+    else if( type == SEG_METOPSGA1)
+    {
+        seglist = (SegmentList *)segs->seglmetopsga1;
     }
     else
         seglist = NULL;
@@ -856,6 +868,17 @@ void ObliqueMercator::CreateMapFromAVHRR(eSegmentType type, int inputchannel)
         if( type == SEG_METOP)
             segs->seglmetop->SmoothProjectionImageBilinear();
     }
+}
+
+void ObliqueMercator::CreateMapFromVII(eSegmentType type, bool combine, int histogrammethod, bool normalized)
+{
+    segs->seglmetopsga1->ComposeOMProjection(0, histogrammethod, normalized);
+
+    if(opts.smoothprojectiontype == 1)
+        imageptrs->SmoothProjectionImage();
+    else if(opts.smoothprojectiontype == 2)
+        segs->seglmetopsga1->SmoothVIIImage(combine);
+
 }
 
 void ObliqueMercator::CreateMapFromVIIRS(eSegmentType type, bool combine)

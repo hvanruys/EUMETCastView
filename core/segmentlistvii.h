@@ -22,6 +22,8 @@ public:
     void ComposeGVProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeLCCProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSGProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeOMProjection(int inputchannel, int histogrammethod, bool normalized);
+    void GetCentralCoords(double *startcentrallon, double *startcentrallat, double *endcentrallon, double *endcentrallat);
 
     void SmoothVIIImage(bool combine);
     void SmoothVIIImage12bits();

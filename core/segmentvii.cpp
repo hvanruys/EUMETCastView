@@ -237,10 +237,10 @@ Segment *SegmentVII::ReadSegmentInMemory()
             qDebug() << "SegmentVII::ReadSegmentInMemory no DEM orthorectification : " << reader.lastError();
     }
 
-    latitude.reset(new float[npix]);
-    longitude.reset(new float[npix]);
-    memcpy(latitude.data(), lat.constData(), npix * sizeof(float));
-    memcpy(longitude.data(), lon.constData(), npix * sizeof(float));
+    geolatitude.reset(new float[npix]);
+    geolongitude.reset(new float[npix]);
+    memcpy(geolatitude.data(), lat.constData(), npix * sizeof(float));
+    memcpy(geolongitude.data(), lon.constData(), npix * sizeof(float));
 
     CalcOverlayLatLon();
 
@@ -361,7 +361,7 @@ void SegmentVII::CalcOverlayLatLon()
 {
     latlonline.clear();
 
-    if(latitude.isNull() || longitude.isNull())
+    if(geolatitude.isNull() || geolongitude.isNull())
         return;
 
     for (int line = 1; line < NbrOfLines; line++)
@@ -369,15 +369,15 @@ void SegmentVII::CalcOverlayLatLon()
         for (int pixelx = 1; pixelx < earth_views_per_scanline; pixelx++)
         {
             const int idx = line * earth_views_per_scanline + pixelx;
-            const float lat = latitude[idx];
-            const float lon = longitude[idx];
+            const float lat = geolatitude[idx];
+            const float lon = geolongitude[idx];
             if(std::isnan(lat) || std::isnan(lon))
                 continue;
 
-            const float latleft = latitude[idx - 1];
-            const float lonleft = longitude[idx - 1];
-            const float latup = latitude[idx - earth_views_per_scanline];
-            const float lonup = longitude[idx - earth_views_per_scanline];
+            const float latleft = geolatitude[idx - 1];
+            const float lonleft = geolongitude[idx - 1];
+            const float latup = geolatitude[idx - earth_views_per_scanline];
+            const float lonup = geolongitude[idx - earth_views_per_scanline];
             if(std::isnan(latleft) || std::isnan(lonleft) || std::isnan(latup) || std::isnan(lonup))
                 continue;
 
@@ -435,8 +435,8 @@ void SegmentVII::RenderSegmentlineInTextureVII( int nbrLine, QRgb *row )
 
         if( valok[0] && (color ? valok[1] && valok[2] : true))
         {
-            flat = latitude[nbrLine * earthviews + pix];
-            flon = longitude[nbrLine * earthviews + pix];
+            flat = geolatitude[nbrLine * earthviews + pix];
+            flon = geolongitude[nbrLine * earthviews + pix];
             if(std::isnan(flat) || std::isnan(flon))
                 continue;
 
@@ -581,6 +581,50 @@ void SegmentVII::ComposeSegmentSGProjection(int inputchannel, int histogrammetho
     ComposeProjection(SG, histogrammethod, normalized);
 }
 
+void SegmentVII::ComposeSegmentOMProjection(int inputchannel, int histogrammethod, bool normalized)
+{
+    ComposeProjection(OM, histogrammethod, normalized);
+}
+
+// First and last usable centre pixel of the segment. The oblique mercator puts
+// its central line through these, so they have to follow the ground track.
+void SegmentVII::getCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat)
+{
+    *startlon = 65535.0;
+    *startlat = 65535.0;
+    *endlon = 65535.0;
+    *endlat = 65535.0;
+
+    if(geolatitude.isNull() || geolongitude.isNull())
+        return;
+
+    const int centre = earth_views_per_scanline / 2;
+
+    for(int i = 0; i < this->NbrOfLines; i++)
+    {
+        const float lo = geolongitude[i * earth_views_per_scanline + centre];
+        const float la = geolatitude[i * earth_views_per_scanline + centre];
+        if(!std::isnan(lo) && !std::isnan(la))
+        {
+            *startlon = lo;
+            *startlat = la;
+            break;
+        }
+    }
+
+    for(int i = this->NbrOfLines - 1; i >= 0; i--)
+    {
+        const float lo = geolongitude[i * earth_views_per_scanline + centre];
+        const float la = geolatitude[i * earth_views_per_scanline + centre];
+        if(!std::isnan(lo) && !std::isnan(la))
+        {
+            *endlon = lo;
+            *endlat = la;
+            break;
+        }
+    }
+}
+
 void SegmentVII::ComposeProjection(eProjections proj, int histogrammethod, bool normalized)
 {
 
@@ -635,8 +679,8 @@ void SegmentVII::ComposeProjection(eProjections proj, int histogrammethod, bool 
                 valok[2] = pixval[2] < 65535;
             }
 
-            latpos1 = latitude[i * earth_views_per_scanline + j];
-            lonpos1 = longitude[i * earth_views_per_scanline + j];
+            latpos1 = geolatitude[i * earth_views_per_scanline + j];
+            lonpos1 = geolongitude[i * earth_views_per_scanline + j];
 
             // The bow-tie overlap hands the same ground twice; keeping both
             // copies would let the duplicate overwrite the pixel that the
@@ -663,6 +707,13 @@ void SegmentVII::ComposeProjection(eProjections proj, int histogrammethod, bool 
                 else if(proj == SG) // Stereographic
                 {
                     if(imageptrs->sg->map_forward_neg_coord(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
+                    {
+                        MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
+                    }
+                }
+                else if(proj == OM) // Oblique Mercator
+                {
+                    if(imageptrs->om->map_forward(lonpos1 * PIE / 180.0, latpos1 * PIE / 180.0, map_x, map_y))
                     {
                         MapPixel( i, j, map_x, map_y, color, histogrammethod, normalized);
                     }
@@ -948,8 +999,8 @@ void SegmentVII::resetMemory()
 {
     Segment::resetMemory();
 
-    latitude.reset();
-    longitude.reset();
+    geolatitude.reset();
+    geolongitude.reset();
     duplicationmask.clear();
     latlonline.clear();
 }

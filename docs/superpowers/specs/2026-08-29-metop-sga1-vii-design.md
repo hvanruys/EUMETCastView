@@ -192,3 +192,35 @@ holds 110 consecutive one-minute granules and is already listed in
 Not verified: the GUI interactions themselves (segment selection, Update VII
 Image, the projection buttons, CLAHE, 48-bit PNG export) need a person at the
 application.
+
+## Oblique Mercator (added after the original scope)
+
+OM is a fourth projection that OLCI does not have, so it was outside the
+"OLCI parity" scope agreed above. `obliquemercator.cpp` already carried
+`PROJ_VII` through its guard clause, but the branch that fetches the central
+line was commented out because `SegmentListVII` had no `GetCentralCoords`.
+
+- `SegmentVII` now stores its reconstructed geolocation in the base class's
+  `geolatitude` / `geolongitude` rather than in members of its own. Those are
+  what `ObliqueMercator::GetMinMaxXBoundingBox` reads, and what VIIRS-M,
+  VIIRS-DNB and MERSI already use for the same purpose, so VII needed one
+  `SEG_METOPSGA1` branch there instead of a parallel bounding-box routine.
+- `SegmentVII::getCentralCoords` returns the first and last usable centre
+  pixel; `SegmentListVII::GetCentralCoords` spans them across the selection.
+  The centre column is `earth_views_per_scanline / 2`, as in VIIRS-M - the true
+  nadir column is 1576 rather than 1572, but four pixels do not matter to a
+  central line thousands of kilometres long.
+- `SegmentVII::ComposeSegmentOMProjection` plus an `OM` branch in
+  `ComposeProjection` using `imageptrs->om->map_forward`;
+  `SegmentListVII::ComposeOMProjection`; `ObliqueMercator::CreateMapFromVII`;
+  `PROJ_VII` sizing and bounding box in `ObliqueMercator::Initialize`.
+- `on_btnCreateOM_clicked` sets `currentProjectionType = PROJ_VII` in the guard
+  block, before `Initialize`, because `Initialize` is handed that value and the
+  branch that sets it for the other sensors runs afterwards.
+
+Checked on the five consecutive granules: the central line runs
+(62.372, 27.797) -> (45.188, 18.479), whose great circle has its pole at
+latitude 9.770, implying an inclination near 99.8 deg against Metop-SG A1's
+sun-synchronous 98.7 - the ~1 deg difference being the chord approximation a
+great circle makes to a ground track. The track azimuth of -158.33 deg is a
+descending pass, as expected at those latitudes.

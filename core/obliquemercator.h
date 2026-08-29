@@ -21,6 +21,7 @@ public:
 
 
     void CreateMapFromVIIRS(eSegmentType type, bool combine);
+    void CreateMapFromVII(eSegmentType type, bool combine, int histogrammethod, bool normalized);
     void CreateMapFromMERSI(eSegmentType type, bool combine);
     void CreateMapFromAVHRR(eSegmentType type, int inputchannel);
 

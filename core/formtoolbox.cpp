@@ -4064,6 +4064,17 @@ void FormToolbox::on_btnCreateOM_clicked()
             return;
         }
     }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        if(!opts.buttonMetopSGA1 || segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() == 0)
+        {
+            QMessageBox::information( this, "VII", "No selected VII segments  !" );
+            return;
+        }
+        // Initialize is handed currentProjectionType, so for VII it has to be
+        // set before the call and not only in the branch below it.
+        currentProjectionType = PROJ_VII;
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
     imageptrs->om->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, this->currentProjectionType, ui->spbOMwidth->value(), ui->spbOMheight->value());
@@ -4097,6 +4108,12 @@ void FormToolbox::on_btnCreateOM_clicked()
     {
         currentProjectionType = PROJ_AVHRR;
         imageptrs->om->CreateMapFromAVHRR(eSegmentType::SEG_METOP, ui->cmbInputAVHRRChannel->currentIndex());
+    }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        currentProjectionType = PROJ_VII;
+        imageptrs->om->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(),
+                                        ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
     }
 
     formimage->setPixmapToScene(true);

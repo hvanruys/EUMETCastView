@@ -296,10 +296,10 @@ bool SegmentListVII::searchLatLon(int mapx, int mapy, float &lon, float &lat)
         SegmentVII *segm = (SegmentVII *)(*segsel);
         if( mapy >= segm->startLineNbr && mapy < segm->endLineNbr
             && mapx >= 0 && mapx < segm->earth_views_per_scanline
-            && !segm->latitude.isNull())
+            && !segm->geolatitude.isNull())
         {
-            lat = segm->latitude[(mapy - segm->startLineNbr) * segm->earth_views_per_scanline + mapx];
-            lon = segm->longitude[(mapy - segm->startLineNbr) * segm->earth_views_per_scanline + mapx];
+            lat = segm->geolatitude[(mapy - segm->startLineNbr) * segm->earth_views_per_scanline + mapx];
+            lon = segm->geolongitude[(mapy - segm->startLineNbr) * segm->earth_views_per_scanline + mapx];
             return(true);
         }
 
@@ -1001,6 +1001,71 @@ void SegmentListVII::ComposeSGProjection(int inputchannel, int histogrammethod, 
         }
     }
 
+}
+
+void SegmentListVII::ComposeOMProjection(int inputchannel, int histogrammethod, bool normalized)
+{
+    this->histogrammethod = histogrammethod;
+    this->normalized = normalized;
+
+    qDebug() << "SegmentListVII::ComposeOMProjection()";
+    QList<Segment *>::iterator segit = segsselected.begin();
+    while ( segit != segsselected.end() )
+    {
+        (*segit)->ComposeSegmentOMProjection(inputchannel, histogrammethod, normalized);
+        emit segmentprojectionfinished(false);
+        ++segit;
+    }
+
+    if(histogrammethod == CMB_HISTO_EQUALIZE_PROJ)
+    {
+        CalculateProjectionLUT();
+        segit = segsselected.begin();
+        while ( segit != segsselected.end() )
+        {
+            ((SegmentVII *)(*segit))->RecalculateProjection(normalized);
+            emit segmentprojectionfinished(false);
+            ++segit;
+        }
+    }
+
+}
+
+// The central line of the oblique mercator runs from the centre of the first
+// selected segment to the centre of the last, so it follows the ground track.
+void SegmentListVII::GetCentralCoords(double *startcentrallon, double *startcentrallat, double *endcentrallon, double *endcentrallat)
+{
+    double slon, slat, elon, elat;
+    double save_slon = 65535.0, save_slat = 65535.0;
+    double save_elon = 65535.0, save_elat = 65535.0;
+
+    bool first = true;
+
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVII *segm = (SegmentVII *)(*segsel);
+        segm->getCentralCoords(&slon, &slat, &elon, &elat);
+
+        if(fabs(slon) <= 180.0 && fabs(slat) <= 90.0 && fabs(elon) <= 180.0 && fabs(elat) <= 90.0)
+        {
+            if(first)
+            {
+                first = false;
+                save_slon = slon;
+                save_slat = slat;
+            }
+            save_elon = elon;
+            save_elat = elat;
+        }
+
+        ++segsel;
+    }
+
+    *startcentrallon = save_slon;
+    *startcentrallat = save_slat;
+    *endcentrallon = save_elon;
+    *endcentrallat = save_elat;
 }
 
 void SegmentListVII::SmoothVIIImage(bool combine)

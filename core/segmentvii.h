@@ -24,6 +24,7 @@ public:
     void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
+    void ComposeSegmentOMProjection(int inputchannel, int histogrammethod, bool normalized);
 
 
     void initializeMemory();
@@ -50,11 +51,11 @@ public:
        from, so the lat/lon lines are all the product can offer. */
     QPolygon latlonline;
 
-    /* full resolution geolocation in degrees, longitude in -180..180,
-       reconstructed from the tie point grid */
-    QScopedArrayPointer<float> latitude;
-    QScopedArrayPointer<float> longitude;
+    /* geolatitude / geolongitude of the base class hold the full resolution
+       geolocation in degrees, longitude in -180..180, reconstructed from the
+       tie point grid. */
 
+    void getCentralCoords(double *startlon, double *startlat, double *endlon, double *endlat);
 
 private:
     void RenderSegmentlineInTextureVII( int nbrLine, QRgb *row );
