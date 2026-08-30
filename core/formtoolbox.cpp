@@ -1241,6 +1241,30 @@ int FormToolbox::getVIIHistogrammethod()
     return ui->cmbHistogramVII->currentData().toInt();
 }
 
+// A projection is built from the same radiances as the image, so it follows the
+// VII tab and the projected swath matches the picture it was made from. The
+// projection combo is not redundant though: Equalize Projection re-equalises on
+// the pixels that actually land inside the projection, which the image has no
+// equivalent of, so an explicit choice of it still wins.
+int FormToolbox::viiProjectionHistogrammethod()
+{
+    if(ui->cmbHistogramProj->currentIndex() == CMB_HISTO_EQUALIZE_PROJ)
+        return CMB_HISTO_EQUALIZE_PROJ;
+
+    const int histo = getVIIHistogrammethod();
+
+    // MapPixel colours one pixel at a time and CLAHE is a whole image
+    // operation, so there is no per-pixel CLAHE to apply here. Plain
+    // equalization is the nearest thing it can do.
+    if(histo == CMB_HISTO_CLAHE)
+    {
+        qDebug() << "VII projection : CLAHE has no per-pixel form, projecting with Equalize instead";
+        return CMB_HISTO_EQUALIZE;
+    }
+
+    return histo;
+}
+
 bool FormToolbox::getVIINormalized()
 {
     return ui->rdbVIINormalized->isChecked();
@@ -3695,7 +3719,7 @@ void FormToolbox::on_btnCreatePerspective_clicked()
     else if(ui->rdbVIIin->isChecked())
     {
         currentProjectionType = PROJ_VII;
-        imageptrs->gvp->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, false, ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+        imageptrs->gvp->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, false, viiProjectionHistogrammethod(), ui->rdbOLCIprojNormalized->isChecked());
     }
     else if(ui->rdbMeteosatin->isChecked())
     {
@@ -3878,7 +3902,7 @@ void FormToolbox::on_btnCreateLambert_clicked()
     else if(ui->rdbVIIin->isChecked())
     {
         currentProjectionType = PROJ_VII;
-        imageptrs->lcc->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+        imageptrs->lcc->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(), viiProjectionHistogrammethod(), ui->rdbOLCIprojNormalized->isChecked());
     }
 
     if(ui->rdbCombine->isChecked())
@@ -4022,7 +4046,7 @@ void FormToolbox::on_btnCreateStereo_clicked()
     else if(ui->rdbVIIin->isChecked())
     {
         currentProjectionType = PROJ_VII;
-        imageptrs->sg->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(), ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+        imageptrs->sg->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(), viiProjectionHistogrammethod(), ui->rdbOLCIprojNormalized->isChecked());
     }
 
     if(ui->rdbCombine->isChecked())
@@ -4119,7 +4143,7 @@ void FormToolbox::on_btnCreateOM_clicked()
     {
         currentProjectionType = PROJ_VII;
         imageptrs->om->CreateMapFromVII(eSegmentType::SEG_METOPSGA1, ui->rdbCombine->isChecked(),
-                                        ui->cmbHistogramProj->currentIndex(), ui->rdbOLCIprojNormalized->isChecked());
+                                        viiProjectionHistogrammethod(), ui->rdbOLCIprojNormalized->isChecked());
     }
 
     formimage->setPixmapToScene(true);

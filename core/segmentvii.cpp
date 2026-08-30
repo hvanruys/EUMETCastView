@@ -551,7 +551,7 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
                             if(normalized) indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndexNormalized[k] ) / (float)(imageptrs->maxRadianceIndexNormalized[k] - imageptrs->minRadianceIndexNormalized[k])), 0), 1023);
                             else indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 1023);
                     }
-                    else if(histogrammethod == CMB_HISTO_NONE_100) // 100%
+                    else // 100%, and any method with no stretch of its own
                     {
                             indexout[k] =  pixval1024[k];
                     }
@@ -571,6 +571,14 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
                         {
                             if(normalized) color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
                             else color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
+                        }
+                        else
+                        {
+                            // CLAHE arrives here: SegmentListVII composes a
+                            // plain stretch first and replaces the whole image
+                            // afterwards. Leaving colour unset would have been
+                            // an uninitialised read.
+                            color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
                         }
                     }
                 }
@@ -804,7 +812,7 @@ void SegmentVII::MapPixel(int lines, int views, double map_x, double map_y, bool
                     if(normalized) indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndexNormalized[k] ) / (float)(imageptrs->maxRadianceIndexNormalized[k] - imageptrs->minRadianceIndexNormalized[k])), 0), 1023);
                     else indexout[k] =  (quint16)qMin(qMax(qRound(1023.0 * (float)(pixval1024[k] - imageptrs->minRadianceIndex[k] ) / (float)(imageptrs->maxRadianceIndex[k] - imageptrs->minRadianceIndex[k])), 0), 1023);
             }
-            else if(histogrammethod == CMB_HISTO_NONE_100) // 100%
+            else // 100%, and any method with no stretch of its own
             {
                     indexout[k] =  pixval1024[k];
             }
@@ -828,6 +836,10 @@ void SegmentVII::MapPixel(int lines, int views, double map_x, double map_y, bool
                         color8[k] = 255 - (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
                     }
                 }
+                else
+                {
+                    color8[k] = 255 - (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
+                }
             }
             else
             {
@@ -847,6 +859,10 @@ void SegmentVII::MapPixel(int lines, int views, double map_x, double map_y, bool
                     {
                         color8[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
                     }
+                }
+                else
+                {
+                    color8[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
                 }
             }
         }

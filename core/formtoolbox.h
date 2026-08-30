@@ -52,6 +52,7 @@ public:
     int getOLCIHistogrammethod();
     bool getOLCINormalized();
     int getVIIHistogrammethod();
+    int viiProjectionHistogrammethod();
     bool getVIINormalized();
 
     QList<bool> getMERSIBandList();

@@ -245,7 +245,13 @@ bool SegmentListVII::ComposeVIIImageInThread(QList<bool> bandlist, QList<int> co
     while ( segsel != segsselected.end() )
     {
         SegmentVII *segm = (SegmentVII *)(*segsel);
-        segm->ComposeSegmentImage(this->histogrammethod, this->normalized);
+        // CLAHE works on the finished image, not on one segment at a time, so
+        // the segments get a plain stretch here and finishedvii runs the CLAHE
+        // pass afterwards, on the GUI thread where replacing ptrimageVII is
+        // safe. Passing CLAHE straight through left the colours unassigned.
+        segm->ComposeSegmentImage(this->histogrammethod == CMB_HISTO_CLAHE
+                                      ? CMB_HISTO_NONE_100 : this->histogrammethod,
+                                  this->normalized);
         totalprogress += deltaprogress;
         emit progressCounter(totalprogress);
         // processEvents drives the calling thread's event loop, and this thread
@@ -266,6 +272,12 @@ void SegmentListVII::finishedvii()
 
     qDebug() << "=============>SegmentListVII::finishedvii()";
     emit progressCounter(100);
+
+    // The compose worker laid down a plain stretch; the CLAHE pass replaces
+    // ptrimageVII wholesale, so it belongs here on the GUI thread.
+    if(this->histogrammethod == CMB_HISTO_CLAHE)
+        RecalculateCLAHEVII();
+
     opts.texture_changed = true;
     ptrimagebusy = false;
     delete watchervii;
