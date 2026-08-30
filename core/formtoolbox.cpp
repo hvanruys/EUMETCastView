@@ -3967,13 +3967,16 @@ void FormToolbox::on_btnCreateStereo_clicked()
         }
     }
 
-    // Keyed on the input radio button, the way on_btnCreatePerspective_clicked
-    // and on_btnCreateOM_clicked are, and first in the chain so it is reached at
-    // all. The branches below test opts.buttonXXX before the radio button, which
-    // means each of their guards is skipped whenever a satellite earlier in the
-    // chain happens to be switched on - with Metop enabled, none of the six ever
-    // runs. Only the VII branch is moved here; changing the others would alter
-    // what six sensors do about an empty selection, which is a separate call.
+    // Every branch is keyed on the input radio button, the way
+    // on_btnCreatePerspective_clicked and on_btnCreateOM_clicked are.
+    //
+    // They used to test opts.buttonXXX first and the radio button inside, which
+    // meant almost none of them ran: an if/else if chain stops at the first
+    // branch it enters, not the first that matches, so with Metop enabled the
+    // chain took the Metop branch, found rdbAVHRRin unchecked, did nothing and
+    // ended. Only the radio button says which input was actually chosen, so
+    // that is what selects the branch; whether the satellite is switched on at
+    // all is folded into the test inside.
     if(ui->rdbVIIin->isChecked())
     {
         if(!opts.buttonMetopSGA1 || !segs->SelectedVIISegments())
@@ -3982,56 +3985,55 @@ void FormToolbox::on_btnCreateStereo_clicked()
             return;
         }
     }
-    else if(opts.buttonMetop || opts.buttonHRP)
+    else if(ui->rdbAVHRRin->isChecked())
     {
-        if(ui->rdbAVHRRin->isChecked())
+        if(!(opts.buttonMetop || opts.buttonHRP) || !segs->SelectedAVHRRSegments())
         {
-            if(!segs->SelectedAVHRRSegments())
-                return;
+            QMessageBox::information( this, "AVHRR", "No selected AVHRR segments  !" );
+            return;
         }
     }
-    else if(opts.buttonVIIRSM)
+    else if(ui->rdbVIIRSMin->isChecked())
     {
-        if(ui->rdbVIIRSMin->isChecked())
+        if(!(opts.buttonVIIRSM || opts.buttonVIIRSMNOAA20 || opts.buttonVIIRSMNOAA21)
+           || !segs->SelectedVIIRSMSegments())
         {
-            if(!segs->SelectedVIIRSMSegments())
-                return;
+            QMessageBox::information( this, "VIIRS M", "No selected VIIRS M segments  !" );
+            return;
         }
     }
-    else if(opts.buttonVIIRSDNB)
+    else if(ui->rdbVIIRSDNBin->isChecked())
     {
-        if(ui->rdbVIIRSDNBin->isChecked())
+        if(!(opts.buttonVIIRSDNB || opts.buttonVIIRSDNBNOAA20 || opts.buttonVIIRSDNBNOAA21)
+           || !segs->SelectedVIIRSDNBSegments())
         {
-            if(!segs->SelectedVIIRSDNBSegments())
-                return;
+            QMessageBox::information( this, "VIIRS DNB", "No selected VIIRS DNB segments  !" );
+            return;
         }
     }
-    else if(opts.buttonOLCIefr)
+    else if(ui->rdbOLCIefrin->isChecked())
     {
-        if(ui->rdbOLCIefrin->isChecked())
+        if(!opts.buttonOLCIefr || !segs->SelectedOLCIefrSegments())
         {
-            if(!segs->SelectedOLCIefrSegments())
-                return;
+            QMessageBox::information( this, "OLCI EFR", "No selected OLCI EFR segments  !" );
+            return;
         }
-
     }
-    else if(opts.buttonOLCIerr)
+    else if(ui->rdbOLCIerrin->isChecked())
     {
-        if(ui->rdbOLCIerrin->isChecked())
+        if(!opts.buttonOLCIerr || !segs->SelectedOLCIerrSegments())
         {
-            if(!segs->SelectedOLCIerrSegments())
-                return;
+            QMessageBox::information( this, "OLCI ERR", "No selected OLCI ERR segments  !" );
+            return;
         }
-
     }
-    else if(opts.buttonMERSI)
+    else if(ui->rdbMERSIin->isChecked())
     {
-        if(ui->rdbMERSIin->isChecked())
+        if(!opts.buttonMERSI || !segs->SelectedMERSISegments())
         {
-            if(!segs->SelectedMERSISegments())
-                return;
+            QMessageBox::information( this, "MERSI", "No selected MERSI segments  !" );
+            return;
         }
-
     }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
