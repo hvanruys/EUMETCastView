@@ -655,13 +655,21 @@ void SegmentImage::SetupVIIRGBrecipes()
     //
     // Unlike SEVIRI and FCI, VII has a real green channel, so this is three
     // measured colours and not a synthesised one: 0.668 um red, 0.555 um green,
-    // 0.443 um blue. The blue is deep enough to be heavily hazed - its Rayleigh
-    // optical depth is about 0.24 against 0.05 for the red - which is why this
-    // is the one recipe here that asks for the correction.
+    // 0.443 um blue.
+    //
+    // The only recipe here that asks for the de-hazing, and it is not a close
+    // call: the blue channel's Rayleigh optical depth is 0.236 against 0.044 for
+    // the red, which over dark ground at a middling sun puts 0.094 of scattered
+    // sky into blue and 0.018 into red. That difference is the whole distance
+    // between a navy ocean and a milky one. Every other recipe here is left on
+    // top of atmosphere reflectance: that is how EUMETSAT defines the ones that
+    // are standards, and measured over a real granule the removal moves them by
+    // 4 levels of 255 at the most.
     {
         RGBRecipe r;
         r.Name = "VII True Color RGB";
         r.needsza = true;
+        r.rayleigh = true;
         RGBRecipeColor R = makeVIIColor("vii_668", false, 0.0f, 1.0f, 2.2f);
         RGBRecipeColor G = makeVIIColor("vii_555", false, 0.0f, 1.0f, 2.2f);
         RGBRecipeColor B = makeVIIColor("vii_443", false, 0.0f, 1.0f, 2.2f);
@@ -792,6 +800,17 @@ void SegmentImage::SetupVIIRGBrecipes()
     //
     // Inverted, so that high reads bright: the index measures the air above the
     // reflector, so it is smallest where the cloud is highest.
+    //
+    // Deliberately not de-hazed, and it is the recipe most sensitive to that
+    // choice - switching the removal on moves it by 36 levels of 254, a fifth of
+    // the whole distance between a high cloud and the ground. Two reasons, and
+    // they agree. Taking a modelled atmosphere off both channels before dividing
+    // removes part of the very signal the index is reading, since what it reads
+    // is the atmosphere. And the range below is measured on top of atmosphere
+    // reflectance, which that shift would carry the scene off the end of.
+    //
+    // The sun normalisation still runs and costs nothing here: it multiplies
+    // both channels by the same factor, and a ratio does not notice.
     //
     // The range is measured, not assumed. Over a granule split between deep
     // cloud and warm surface the index runs 0.10 to 0.39, and the two

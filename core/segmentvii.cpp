@@ -416,28 +416,44 @@ bool SegmentVII::ReadGeolocation(const ViiGeometry &geom)
 }
 
 /**
- * Sun-normalise and Rayleigh-correct every solar channel of a recipe, in place.
+ * Put every solar channel of a recipe into the unit it is stretched against, in
+ * place, and optionally take the molecular haze off it.
  *
- * The same chain the FCI and SEVIRI recipes use, and deliberately the same
- * constants: amplify by 1/cos(sza), subtract the modelled path reflectance, undo
- * the two-way transmittance the subtraction leaves behind, and carry the last
- * degrees before the terminator to black. What differs is only where the
- * geometry comes from - VII carries the four angles in the product, on the same
- * tie point grid as the geolocation, so none of it has to be derived from an
- * orbit model.
+ * Two separable things, and the caller decides only the second:
+ *
+ * - The sun normalisation always runs. Amplify by 1/cos(sza) and carry the last
+ *   degrees before the terminator to black. This is what turns a top of
+ *   atmosphere reflectance into the bidirectional reflectance factor every
+ *   recipe's 0..1 range is written for, so it is not optional for any of them.
+ *
+ * - The de-hazing runs when dehaze is set. Subtract the modelled Rayleigh path
+ *   reflectance and undo the two-way transmittance the subtraction leaves
+ *   behind. Worth doing only where the optical depth is large enough to see,
+ *   which among these recipes means True Color and nothing else.
+ *
+ * Both halves freeze at RayleighCorrector::SzaLimit, so past the terminator the
+ * amplification and the path reflectance keep describing the same sun.
+ *
+ * The chain and its constants are the ones the FCI and SEVIRI recipes use. What
+ * differs is only where the geometry comes from - VII carries the four angles in
+ * the product, on the same tie point grid as the geolocation, so none of it has
+ * to be derived from an orbit model.
  *
  * The path term is not tapered with solar zenith. RayleighCorrector::pathTrust
  * exists for that and is calibrated on MSG, whose bluest channel sits at an
- * optical depth of 0.054; VII's is at 0.235, near FCI's, and on FCI that taper
+ * optical depth of 0.054; VII's is at 0.236, near FCI's, and on FCI that taper
  * turned the twilight blue by leaving in the very haze it was meant to remove.
+ *
+ * saa, vza and vaa are read only when dehaze is set and are not touched
+ * otherwise; sza is always required.
  */
 void SegmentVII::ApplySolarCorrection(QList<QVector<float> > &bandbuf,
-                                      const QStringList &bandnames,
+                                      const QStringList &bandnames, bool dehaze,
                                       const QVector<float> &sza, const QVector<float> &saa,
                                       const QVector<float> &vza, const QVector<float> &vaa)
 {
-    // A brightness temperature has no molecular scattering term and has not been
-    // divided by anything, so the thermal channels sit this out.
+    // A brightness temperature is neither divided by the sun nor scattered by
+    // the air, so the thermal channels sit this out.
     // Buffer pointers are resolved here rather than in the pixel loop: indexing a
     // QList or a QVector through its mutable operator[] detaches, and the loop
     // below runs on every thread at once.
@@ -454,11 +470,14 @@ void SegmentVII::ApplySolarCorrection(QList<QVector<float> > &bandbuf,
         if(!ViiL1BReader::isSolarChannel(name))
             continue;
 
+        solarData.append(bandbuf[k].data());
+
+        if(!dehaze)
+            continue;
+
         const double lambda = ViiL1BReader::centreWavelength(name);
         const RayleighRT::Solution &s =
             RayleighRT::forTau(RayleighCorrector::opticalDepthAt(lambda));
-
-        solarData.append(bandbuf[k].data());
         solarSol.append(&s);
 
         // Longest wavelength drives the water test: water is far darker than
@@ -475,23 +494,32 @@ void SegmentVII::ApplySolarCorrection(QList<QVector<float> > &bandbuf,
     if(solarData.isEmpty())
         return;
 
-    const bool useOcean = maskLambda >= RayleighCorrector::MinWaterTestLambda;
-    if(!useOcean)
-        qWarning() << "VII Rayleigh: longest solar channel in this recipe is too blue"
-                   << "to separate water from land; sea surface not modelled";
+    bool useOcean = false;
+    bool haveGeoMask = false;
 
-    // Geography decides land from sea; brightness is then left with only the
-    // question it is good at, whether cloud is sitting on top of the sea.
-    const QString gshhsFile = viiShorelineFile();
-    const QByteArray gshhsPath = gshhsFile.toLocal8Bit();
-    const bool haveGeoMask = LandSeaMask::load(gshhsPath.constData());
-    if(!haveGeoMask)
-        qWarning() << "VII Rayleigh: no shoreline mask at" << gshhsFile
-                   << "- falling back to the brightness test, which reads dark"
-                   << "vegetation at high view angle as water";
+    if(dehaze)
+    {
+        useOcean = maskLambda >= RayleighCorrector::MinWaterTestLambda;
+        if(!useOcean)
+            qWarning() << "VII Rayleigh: longest solar channel in this recipe is too blue"
+                       << "to separate water from land; sea surface not modelled";
 
-    qDebug() << "VII Rayleigh: correcting" << solarData.size()
-             << "channels, water test on" << maskLambda << "um";
+        // Geography decides land from sea; brightness is then left with only the
+        // question it is good at, whether cloud is sitting on top of the sea.
+        const QString gshhsFile = viiShorelineFile();
+        const QByteArray gshhsPath = gshhsFile.toLocal8Bit();
+        haveGeoMask = LandSeaMask::load(gshhsPath.constData());
+        if(!haveGeoMask)
+            qWarning() << "VII Rayleigh: no shoreline mask at" << gshhsFile
+                       << "- falling back to the brightness test, which reads dark"
+                       << "vegetation at high view angle as water";
+
+        qDebug() << "VII solar correction: sun-normalising and de-hazing"
+                 << solarData.size() << "channels, water test on" << maskLambda << "um";
+    }
+    else
+        qDebug() << "VII solar correction: sun-normalising" << solarData.size()
+                 << "channels, no de-hazing asked for";
 
     const int cols = earth_views_per_scanline;
 
@@ -510,34 +538,40 @@ void SegmentVII::ApplySolarCorrection(QList<QVector<float> > &bandbuf,
             const int i = line * cols + pixelx;
 
             const float szaDeg = sza.at(i);
-            const float vzaDeg = vza.at(i);
-            if(std::isnan(szaDeg) || std::isnan(vzaDeg)
-               || std::isnan(saa.at(i)) || std::isnan(vaa.at(i)))
+            if(std::isnan(szaDeg))
                 continue;
 
-            // Relative azimuth folded into [0, 180]; the phase function is even
-            // in it.
-            float raaDeg = fmodf(saa.at(i) - vaa.at(i), 360.0f);
-            if(raaDeg < 0.0f)
-                raaDeg += 360.0f;
-            if(raaDeg > 180.0f)
-                raaDeg = 360.0f - raaDeg;
+            // The viewing geometry is only wanted by the path term, and is only
+            // read when that is going to run.
+            float vzaDeg = 0.0f;
+            float raaDeg = 0.0f;
+            if(dehaze)
+            {
+                vzaDeg = vza.at(i);
+                if(std::isnan(vzaDeg) || std::isnan(saa.at(i)) || std::isnan(vaa.at(i)))
+                    continue;
+
+                // Relative azimuth folded into [0, 180]; the phase function is
+                // even in it.
+                raaDeg = fmodf(saa.at(i) - vaa.at(i), 360.0f);
+                if(raaDeg < 0.0f)
+                    raaDeg += 360.0f;
+                if(raaDeg > 180.0f)
+                    raaDeg = 360.0f - raaDeg;
+            }
 
             // Both freeze at SzaLimit, so past the terminator the amplification
             // and the path reflectance keep describing the same sun.
             const float f = RayleighCorrector::sunZenithFactor(szaDeg);
             const float w = RayleighCorrector::twilightFade(szaDeg);
 
-            const float flat = geolatitude[i];
-            const float flon = geolongitude[i];
-            const bool geoWater = haveGeoMask && !std::isnan(flat) && !std::isnan(flon)
-                                  && LandSeaMask::isWater(flat, flon);
-
             // How watery the pixel is, decided before anything is corrected,
             // from the longest channel against a black lower boundary.
             float water = 0.0f;
-            if(useOcean && w > 0.0f && !std::isnan(maskData[i])
-               && (!haveGeoMask || geoWater))
+            if(dehaze && useOcean && w > 0.0f && !std::isnan(maskData[i])
+               && (!haveGeoMask
+                   || (!std::isnan(geolatitude[i]) && !std::isnan(geolongitude[i])
+                       && LandSeaMask::isWater(geolatitude[i], geolongitude[i]))))
             {
                 const float mb = RayleighCorrector::surfaceReflectance(
                     *maskSol, szaDeg, vzaDeg,
@@ -562,6 +596,13 @@ void SegmentVII::ApplySolarCorrection(QList<QVector<float> > &bandbuf,
                 }
 
                 const float brf = buf[i] * f;
+
+                if(!dehaze)
+                {
+                    buf[i] = w * brf;
+                    continue;
+                }
+
                 const float rho = RayleighCorrector::pathReflectance(
                     *solarSol.at(k), szaDeg, vzaDeg, raaDeg, water);
 
@@ -664,33 +705,60 @@ Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
         bandbuf.append(v);
     }
 
-    // Every recipe with a solar channel gets the correction, not only the ones
-    // that want the de-hazing for its own sake, and for the same reason the FCI
-    // path does it that way: the two halves are one chain. The recipes are
-    // stretched against sun-normalised reflectance - EUMETSAT's "0 to 100 %" is
-    // a BRF - so a recipe composed without the normalisation is not a slightly
-    // hazier picture but a systematically dark one, by the cosine of the solar
-    // zenith. Switching the option off is therefore a choice about the whole
-    // image and not about the haze, which is what its label warns.
-    if(hassolar && opts.bViiRayleigh)
+    // Every recipe with a solar channel is sun-normalised, whatever the
+    // preference says. That is not a correction but part of the unit the
+    // recipes are written in - EUMETSAT's "0 to 100 %" is a bidirectional
+    // reflectance factor - so skipping it would not make a hazier picture but
+    // one darkened by the cosine of the solar zenith, which no recipe here is
+    // stretched for.
+    //
+    // De-hazing is the optional half, and the preference governs only that.
+    // What it is worth is not a matter of taste. Measured over a granule of
+    // ocean and marine cloud, turning it on moves the finished image by this
+    // many of the 255 levels it is drawn on, on average:
+    //
+    //     True Color 10.3, Cirrus 4.3, Natural Color 1.9,
+    //     Day Land Cloud Fire 1.3, Fire Temperature 0.04
+    //
+    // which tracks the optical depth of each recipe's bluest channel: 0.236 at
+    // 0.443 um, 0.044 at 0.668, 0.0003 at 2.25. Only True Color reaches deep
+    // enough into the blue for the haze to decide anything - whether its ocean
+    // is navy or milky - and it is the only one that asks for the removal. The
+    // rest are left on top of atmosphere reflectance, which is how EUMETSAT
+    // defines the ones that are standards.
+    if(hassolar)
     {
+        const bool dehaze = rec.rayleigh && opts.bViiRayleigh;
+
+        // Without the de-hazing only the solar zenith is wanted, so the other
+        // three interpolations - a full grid each - are not paid for.
         QVector<float> sza, saa, vza, vaa;
-        if(reader.interpolateTiePointVariable(QStringLiteral("solar_zenith"), &sza)
-           && reader.interpolateTiePointVariable(QStringLiteral("solar_azimuth"), &saa, true)
-           && reader.interpolateTiePointVariable(QStringLiteral("observation_zenith"), &vza)
-           && reader.interpolateTiePointVariable(QStringLiteral("observation_azimuth"), &vaa, true))
+        bool havegeometry =
+            reader.interpolateTiePointVariable(QStringLiteral("solar_zenith"), &sza);
+
+        if(havegeometry && dehaze)
+            havegeometry =
+                reader.interpolateTiePointVariable(QStringLiteral("solar_azimuth"), &saa, true)
+                && reader.interpolateTiePointVariable(QStringLiteral("observation_zenith"), &vza)
+                && reader.interpolateTiePointVariable(QStringLiteral("observation_azimuth"), &vaa, true);
+
+        if(havegeometry)
         {
             reverseAcrossTrack(&sza, geom.nlines, geom.npixels);
-            reverseAcrossTrack(&saa, geom.nlines, geom.npixels);
-            reverseAcrossTrack(&vza, geom.nlines, geom.npixels);
-            reverseAcrossTrack(&vaa, geom.nlines, geom.npixels);
+            if(dehaze)
+            {
+                reverseAcrossTrack(&saa, geom.nlines, geom.npixels);
+                reverseAcrossTrack(&vza, geom.nlines, geom.npixels);
+                reverseAcrossTrack(&vaa, geom.nlines, geom.npixels);
+            }
 
-            ApplySolarCorrection(bandbuf, bandnames, sza, saa, vza, vaa);
+            ApplySolarCorrection(bandbuf, bandnames, dehaze, sza, saa, vza, vaa);
         }
         else
-            qWarning() << "SegmentVII::ReadSegmentRecipeInMemory no viewing geometry ("
+            qWarning() << "SegmentVII::ReadSegmentRecipeInMemory no solar geometry ("
                        << reader.lastError()
-                       << ") - composing the uncorrected reflectance";
+                       << ") - composing the reflectance as it stands, which will"
+                       << "be dark away from the subsolar point";
     }
 
     reader.close();

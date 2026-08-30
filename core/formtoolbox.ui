@@ -1584,7 +1584,7 @@
                  </font>
                 </property>
                 <property name="toolTip">
-                 <string>Remove Rayleigh (molecular) scattering from the solar channels of the recipes that ask for it. Also sun-normalises the reflectance, which brightens the image away from the subsolar point.</string>
+                 <string>Remove Rayleigh (molecular) scattering from the solar channels of the recipes that ask for it, currently True Color, where it decides whether the ocean looks navy or milky. The other recipes are deliberately left on top-of-atmosphere reflectance, which is how they are defined, and are unaffected. Sun-normalisation is not part of this switch: it is the unit the recipe stretches are written against, so it always runs.</string>
                 </property>
                 <property name="text">
                  <string>Rayleigh correction</string>

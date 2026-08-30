@@ -80,12 +80,13 @@ private:
        Common to the band and the recipe read paths. */
     bool ReadGeolocation(const ViiGeometry &geom);
 
-    /* Sun-normalise and remove the Rayleigh path reflectance from every solar
-       channel of a recipe, in place, before the colours are combined. The
-       thermal channels are left alone: a brightness temperature has no
-       molecular scattering term. */
+    /* Sun-normalise every solar channel of a recipe, in place, and with dehaze
+       also remove the Rayleigh path reflectance. The thermal channels are left
+       alone: a brightness temperature is neither divided by the sun nor
+       scattered by the air. See the definition for why only one of the two is
+       ever optional. */
     void ApplySolarCorrection(QList<QVector<float> > &bandbuf,
-                              const QStringList &bandnames,
+                              const QStringList &bandnames, bool dehaze,
                               const QVector<float> &sza, const QVector<float> &saa,
                               const QVector<float> &vza, const QVector<float> &vaa);
 
