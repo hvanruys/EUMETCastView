@@ -163,6 +163,7 @@ public:
     void SetupSEVIRIRGBrecipes();
     static int GetSpectralChannelNbr(QString channel);
     void SetupFCIRGBrecipes();
+    void SetupVIIRGBrecipes();
     int GetFCIBandIndex(const QString& bandname);
 
 
@@ -286,6 +287,7 @@ public:
 
     QList<RGBRecipe> seviri_rgbrecipes;
     QList<RGBRecipe> fci_rgbrecipes;
+    QList<RGBRecipe> vii_rgbrecipes;
 
 
 private:

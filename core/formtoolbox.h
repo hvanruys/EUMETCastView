@@ -277,6 +277,7 @@ private slots:
     void on_btnUpdateVIIRSImage_clicked();
     void on_btnUpdateOLCIImage_clicked();
     void on_btnUpdateVIIImage_clicked();
+    void on_btnVIIRecipes_clicked();
     void on_btnOverlayVII_clicked();
     void on_btnSaveAsPNG48bitsVII_clicked();
     void on_btnAddVIIConfig_clicked();

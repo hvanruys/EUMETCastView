@@ -1,4 +1,5 @@
 #include "segmentimage.h"
+#include "viil1breader.h"
 
 #include <QDebug>
 #define uiNR_OF_GREY (4096)
@@ -70,6 +71,7 @@ SegmentImage::SegmentImage()
     }
     SetupSEVIRIRGBrecipes();
     SetupFCIRGBrecipes();
+    SetupVIIRGBrecipes();
 }
 
 //void SegmentImage::SetupRGBrecipes()
@@ -596,6 +598,221 @@ void SegmentImage::SetupFCIRGBrecipes()
     }
 
 
+}
+
+// Helper: build one RGBRecipeColor for a VII channel.
+//
+// The unit follows from the channel itself - the first eleven are solar and
+// arrive as reflectance, the last nine thermal and arrive as brightness
+// temperature - so a recipe never has to say which it meant.
+static RGBRecipeColor makeVIIColor(const QString& band, bool inverse,
+                                   float from, float to, float gamma)
+{
+    const bool solar = ViiL1BReader::isSolarChannel(band);
+
+    RGBRecipeColor c;
+    c.channels.append(band);
+    c.spectral_channel_nbr.append(ViiL1BReader::channelIndex(band));
+    c.subtract.append(false);   // first entry is never subtracted from itself
+    c.inverse.append(inverse);
+    c.reflective.append(solar);
+    c.units     = solar ? SEVIRI_UNIT_REF : SEVIRI_UNIT_BT;
+    c.rangefrom = from;
+    c.rangeto   = to;
+    c.gamma     = gamma;
+    c.dimension = solar ? QString() : QStringLiteral("K");
+    return c;
+}
+
+// Append a second channel to an existing colour, for a difference or a ratio.
+static void appendVIIBand(RGBRecipeColor& c, const QString& band, bool subtract)
+{
+    c.channels.append(band);
+    c.spectral_channel_nbr.append(ViiL1BReader::channelIndex(band));
+    c.subtract.append(subtract);
+    c.inverse.append(false);
+    c.reflective.append(ViiL1BReader::isSolarChannel(band));
+}
+
+/**
+ * The RGB recipes for VII (METimage) on Metop-SG A1.
+ *
+ * Twenty channels, eleven solar and nine thermal, at 0.75 km. Two of them have
+ * no counterpart anywhere else in this program and carry two of the recipes
+ * below: the 1.375 um cirrus channel, which sits inside a water vapour
+ * absorption feature and so sees nothing but what is above the lower
+ * troposphere, and the 0.752/0.763 um pair straddling the O2-A band, whose
+ * ratio measures how much air lies above whatever reflected the light.
+ *
+ * Channel indices are the position in the product, 0..19:
+ *   443(0) 555(1) 668(2) 752(3) 763(4) 865(5) 914(6) 1240(7) 1375(8)
+ *   1630(9) 2250(10) | 3740(11) 3959(12) 4050(13) 6725(14) 7325(15)
+ *   8540(16) 10690(17) 12020(18) 13345(19)
+ */
+void SegmentImage::SetupVIIRGBrecipes()
+{
+    // 0 - True Color RGB
+    //
+    // Unlike SEVIRI and FCI, VII has a real green channel, so this is three
+    // measured colours and not a synthesised one: 0.668 um red, 0.555 um green,
+    // 0.443 um blue. The blue is deep enough to be heavily hazed - its Rayleigh
+    // optical depth is about 0.24 against 0.05 for the red - which is why this
+    // is the one recipe here that asks for the correction.
+    {
+        RGBRecipe r;
+        r.Name = "VII True Color RGB";
+        r.needsza = true;
+        RGBRecipeColor R = makeVIIColor("vii_668", false, 0.0f, 1.0f, 2.2f);
+        RGBRecipeColor G = makeVIIColor("vii_555", false, 0.0f, 1.0f, 2.2f);
+        RGBRecipeColor B = makeVIIColor("vii_443", false, 0.0f, 1.0f, 2.2f);
+        r.Colorvector << R << G << B;
+        vii_rgbrecipes.append(r);
+    }
+
+    // 1 - Natural Color RGB
+    //
+    // The EUMETSAT standard, in VII's channels: 1.63 um red, 0.865 um green,
+    // 0.668 um blue. Ice and snow are dark at 1.63 and bright in the visible so
+    // they come out cyan, water cloud stays white, and vegetation is green
+    // because it is bright in the near infrared. Defined on uncorrected
+    // reflectance, so it does not ask for the Rayleigh correction - none of its
+    // channels is blue enough for it to matter much either way.
+    {
+        RGBRecipe r;
+        r.Name = "VII Natural Color RGB";
+        r.needsza = true;
+        RGBRecipeColor R = makeVIIColor("vii_1630", false, 0.0f, 1.0f, 1.8f);
+        RGBRecipeColor G = makeVIIColor("vii_865",  false, 0.0f, 1.0f, 1.8f);
+        RGBRecipeColor B = makeVIIColor("vii_668",  false, 0.0f, 1.0f, 1.8f);
+        r.Colorvector << R << G << B;
+        vii_rgbrecipes.append(r);
+    }
+
+    // 2 - Cirrus RGB
+    //
+    // The 1.375 um channel sits in a strong water vapour absorption band. All
+    // the light that would have come back from the surface or from low cloud is
+    // absorbed on the way down and up again, so the channel is dark everywhere
+    // except where something high and thin scatters above most of the water
+    // vapour. That makes thin cirrus - which is nearly invisible in the
+    // visible channels, and is exactly what a true colour image misses - stand
+    // out on its own.
+    //
+    // Red carries it, over a near infrared and red background that keeps the
+    // scene legible. The tight red range is not an enhancement but the physics:
+    // the channel rarely exceeds a few percent reflectance, so stretching it to
+    // 1.0 like an ordinary band would leave it black. Measured over a cloud-free
+    // granule the channel sits at 0.001 to 0.004 of sun-normalised reflectance,
+    // which is the floor this has to stay dark at, and thin cirrus starts an
+    // order of magnitude above that; 0.12 with a brightening gamma puts a 0.02
+    // veil at about a third of full brightness and saturates a solid deck.
+    //
+    // Cirrus-free land therefore reads green-cyan rather than natural. That is
+    // the cost of putting a diagnostic channel in a colour gun, and this recipe
+    // is for finding cirrus, not for looking like a photograph - True Color is
+    // one entry up for that.
+    {
+        RGBRecipe r;
+        r.Name = "VII Cirrus RGB";
+        r.needsza = true;
+        RGBRecipeColor R = makeVIIColor("vii_1375", false, 0.0f, 0.12f, 1.5f);
+        RGBRecipeColor G = makeVIIColor("vii_865",  false, 0.0f, 1.0f,  1.8f);
+        RGBRecipeColor B = makeVIIColor("vii_668",  false, 0.0f, 1.0f,  1.8f);
+        r.Colorvector << R << G << B;
+        vii_rgbrecipes.append(r);
+    }
+
+    // 3 - Fire Temperature RGB
+    //
+    // The GOES/Himawari recipe, and VII carries all three channels exactly:
+    // 3.959 um brightness temperature in red, 2.25 um reflectance in green,
+    // 1.63 um reflectance in blue.
+    //
+    // Planck's law is the whole idea. A fire is a subpixel source, and how far
+    // up the spectrum it pushes radiance depends on how hot it is: a smouldering
+    // fire only lifts 3.9 um, a hotter one starts to show at 2.25, and the
+    // hottest reach 1.63 as well. So a fire runs red to yellow to white with
+    // temperature, and a cool background stays black in all three.
+    //
+    // 3.959 is the dedicated fire channel rather than 3.740, which saturates
+    // much earlier. The gamma of 0.4 on red is what pulls the last few kelvin
+    // above ambient into visible brightness.
+    {
+        RGBRecipe r;
+        r.Name = "VII Fire Temperature RGB";
+        r.needsza = true;
+        RGBRecipeColor R = makeVIIColor("vii_3959", false, 273.15f, 333.15f, 0.4f);
+        RGBRecipeColor G = makeVIIColor("vii_2250", false, 0.0f, 1.0f,  1.0f);
+        RGBRecipeColor B = makeVIIColor("vii_1630", false, 0.0f, 0.75f, 1.0f);
+        r.Colorvector << R << G << B;
+        vii_rgbrecipes.append(r);
+    }
+
+    // 4 - Day Land Cloud Fire RGB
+    //
+    // The EUMETSAT standard: 2.25 um red, 0.865 um green, 0.668 um blue, all
+    // reflectance, no gamma. A daylight land recipe that keeps burn scars and
+    // active fire visible without giving up the scene around them - vegetation
+    // green, bare ground and burnt ground red-brown, water cloud white, ice
+    // cloud cyan, and an active fire red because 2.25 is the only one of the
+    // three a fire brightens.
+    //
+    // The companion to Fire Temperature rather than a competitor: that one
+    // measures how hot, this one shows where, in a scene you can still read.
+    {
+        RGBRecipe r;
+        r.Name = "VII Day Land Cloud Fire RGB";
+        r.needsza = true;
+        RGBRecipeColor R = makeVIIColor("vii_2250", false, 0.0f, 1.0f, 1.0f);
+        RGBRecipeColor G = makeVIIColor("vii_865",  false, 0.0f, 1.0f, 1.0f);
+        RGBRecipeColor B = makeVIIColor("vii_668",  false, 0.0f, 1.0f, 1.0f);
+        r.Colorvector << R << G << B;
+        vii_rgbrecipes.append(r);
+    }
+
+    // 5 - Cloud Top Height (O2-A)
+    //
+    // (0.752 - 0.763) / (0.752 + 0.763), grey, inverted so that high is bright.
+    //
+    // 0.763 um lies inside the O2-A absorption band and 0.752 um just outside
+    // it, on the continuum. Oxygen is a fixed fraction of the atmosphere, so the
+    // depth of the absorption measures one thing only: how much air the light
+    // passed through. A reflector at sea level is seen through the whole
+    // atmosphere and absorbs strongly at 0.763; a cirrus top at 12 km has three
+    // quarters of it beneath and barely absorbs at all.
+    //
+    // What makes it worth having is what it does not depend on. It is a ratio of
+    // two channels 11 nm apart, so the surface albedo, the cloud's optical
+    // thickness and the illumination all cancel: a bright low cloud and a thin
+    // high one are told apart by height alone, which no brightness in any single
+    // channel can do. The infrared window answers the same question through
+    // temperature, and gets it wrong wherever the temperature profile is not
+    // what was assumed - over inversions, and for cirrus thin enough to let the
+    // ground through.
+    //
+    // Inverted, so that high reads bright: the index measures the air above the
+    // reflector, so it is smallest where the cloud is highest.
+    //
+    // The range is measured, not assumed. Over a granule split between deep
+    // cloud and warm surface the index runs 0.10 to 0.39, and the two
+    // populations barely meet: pixels with a 10.69 um brightness temperature
+    // below 240 K sit at a median of 0.173, those above 280 K at 0.291. 0.15 to
+    // 0.33 puts that separation across most of the scale while keeping the
+    // extremes inside it.
+    //
+    // Relative, not a calibrated pressure: a real cloud top pressure retrieval
+    // needs the instrument's spectral response and a radiative transfer model
+    // for the band. This is the raw index those start from.
+    {
+        RGBRecipe r;
+        r.Name = "VII Cloud Top Height (O2-A)";
+        r.needsza = true;
+        r.compose = RECIPE_NORMDIFF;
+        RGBRecipeColor R = makeVIIColor("vii_752", true, 0.15f, 0.33f, 1.0f);
+        appendVIIBand(R, "vii_763", true);
+        r.Colorvector << R << R << R;
+        vii_rgbrecipes.append(r);
+    }
 }
 
 int SegmentImage::GetSpectralChannelNbr(QString channel)

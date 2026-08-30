@@ -27,6 +27,16 @@ const char * const kChannels[20] = {
     "vii_7325", "vii_8540", "vii_10690", "vii_12020", "vii_13345"
 };
 
+/* The split the calibration arrays are indexed by: the first eleven channels
+   are solar, the last nine thermal. */
+constexpr int kSolarChannels   = 11;
+constexpr int kThermalChannels = 9;
+
+/* Planck constants for a radiance in W.m^-2.sr^-1.um^-1 and a wavelength in um:
+   c1 = 2hc^2, c2 = hc/k. */
+constexpr double kPlanckC1 = 1.191042e8;    /* W.um^4.m^-2.sr^-1 */
+constexpr double kPlanckC2 = 1.4387752e4;   /* um.K              */
+
 inline void geodeticToEcef(double latDeg, double lonDeg,
                            double *x, double *y, double *z)
 {
@@ -98,9 +108,17 @@ void ViiL1BReader::close()
     if (m_ncid >= 0) {
         nc_close(m_ncid);
         m_ncid = m_measGid = m_dataGid = m_flagsGid = -1;
+        m_calGid = m_satGid = -1;
     }
     m_fileName.clear();
     m_geom = ViiGeometry();
+
+    m_calRead = false;
+    m_solarIrradiance.clear();
+    m_thermalCw.clear();
+    m_thermalA.clear();
+    m_thermalB.clear();
+    m_sunEarthRatio = 1.0;
 }
 
 bool ViiL1BReader::open(const QString &path)
@@ -131,6 +149,13 @@ bool ViiL1BReader::open(const QString &path)
        usable image, it just cannot mask the bow-tie duplicates */
     if (nc_inq_grp_full_ncid(m_ncid, "/data/processing_flags", &m_flagsGid) != NC_NOERR)
         m_flagsGid = -1;
+
+    /* likewise the calibration: without it the radiances still make a picture,
+       only not one in reflectance or brightness temperature */
+    if (nc_inq_grp_full_ncid(m_ncid, "/data/calibration_data", &m_calGid) != NC_NOERR)
+        m_calGid = -1;
+    if (nc_inq_grp_full_ncid(m_ncid, "/status/satellite", &m_satGid) != NC_NOERR)
+        m_satGid = -1;
 
     if (!readGeometry()) {
         close();
@@ -212,6 +237,144 @@ QString ViiL1BReader::channelVariableName(int band)
     if (band < 1 || band > 20)
         return QString();
     return QString::fromLatin1(kChannels[band - 1]);
+}
+
+int ViiL1BReader::channelIndex(const QString &name)
+{
+    for (int i = 0; i < 20; ++i)
+        if (name == QLatin1String(kChannels[i]))
+            return i;
+    return -1;
+}
+
+double ViiL1BReader::centreWavelength(const QString &name)
+{
+    /* the name carries it: vii_443 is 0.443 um, vii_10690 is 10.690 um */
+    return channelIndex(name) < 0 ? 0.0 : name.mid(4).toDouble() / 1000.0;
+}
+
+bool ViiL1BReader::isSolarChannel(const QString &name)
+{
+    const int i = channelIndex(name);
+    return i >= 0 && i < kSolarChannels;
+}
+
+// ---------------------------------------------------------------------------
+// Calibration: radiance into reflectance and brightness temperature
+// ---------------------------------------------------------------------------
+
+bool ViiL1BReader::readCalibration()
+{
+    if (m_calRead)
+        return true;
+
+    if (m_calGid < 0) {
+        m_error = QStringLiteral("no /data/calibration_data in this product");
+        return false;
+    }
+
+    auto readArray = [this](const char *name, int n, QVector<double> *out) {
+        int varid = -1;
+        if (nc_inq_varid(m_calGid, name, &varid) != NC_NOERR)
+            return false;
+        out->resize(n);
+        return nc_get_var_double(m_calGid, varid, out->data()) == NC_NOERR;
+    };
+
+    if (!readArray("Band_averaged_solar_irradiance", kSolarChannels, &m_solarIrradiance)
+        || !readArray("channel_cw_thermal",  kThermalChannels, &m_thermalCw)
+        || !readArray("bt_conversion_a",     kThermalChannels, &m_thermalA)
+        || !readArray("bt_conversion_b",     kThermalChannels, &m_thermalB)) {
+        m_error = QStringLiteral("incomplete /data/calibration_data");
+        return false;
+    }
+
+    /* Ratio of the current earth-sun distance to the mean one. The band
+       averaged irradiance is quoted at the mean distance, so the reflectance
+       has to be scaled by its square. Missing is not fatal - it moves the
+       reflectance by at most 3.4 % over a year - so fall back to 1. */
+    m_sunEarthRatio = 1.0;
+    if (m_satGid >= 0) {
+        int varid = -1;
+        double d = 0.0;
+        if (nc_inq_varid(m_satGid, "earth_sun_distance_ratio", &varid) == NC_NOERR
+            && nc_get_var_double(m_satGid, varid, &d) == NC_NOERR
+            && d > 0.9 && d < 1.1)
+            m_sunEarthRatio = d;
+        else
+            qWarning() << "ViiL1BReader: no usable earth_sun_distance_ratio,"
+                       << "reflectance is quoted at the mean earth-sun distance";
+    }
+
+    m_calRead = true;
+    return true;
+}
+
+bool ViiL1BReader::readReflectance(const QString &name, QVector<float> *out)
+{
+    const int idx = channelIndex(name);
+    if (idx < 0 || idx >= kSolarChannels) {
+        m_error = QStringLiteral("%1 is not a solar channel").arg(name);
+        return false;
+    }
+    if (!readCalibration())
+        return false;
+
+    const double e0 = m_solarIrradiance.at(idx);
+    if (!(e0 > 0.0)) {
+        m_error = QStringLiteral("no solar irradiance for %1").arg(name);
+        return false;
+    }
+
+    if (!readFullGridVariable(name, out))
+        return false;
+
+    const double f = M_PI * m_sunEarthRatio * m_sunEarthRatio / e0;
+    float *v = out->data();
+    const int n = out->size();
+    for (int i = 0; i < n; ++i)
+        v[i] = (float)(v[i] * f);   /* NaN stays NaN */
+
+    return true;
+}
+
+bool ViiL1BReader::readBrightnessTemperature(const QString &name, QVector<float> *out)
+{
+    const int idx = channelIndex(name);
+    if (idx < kSolarChannels) {
+        m_error = QStringLiteral("%1 is not a thermal channel").arg(name);
+        return false;
+    }
+    if (!readCalibration())
+        return false;
+
+    const int t = idx - kSolarChannels;
+    const double lambda = m_thermalCw.at(t);
+    const double a      = m_thermalA.at(t);
+    const double b      = m_thermalB.at(t);
+    if (!(lambda > 0.0) || !(a > 0.0)) {
+        m_error = QStringLiteral("no usable thermal calibration for %1").arg(name);
+        return false;
+    }
+
+    if (!readFullGridVariable(name, out))
+        return false;
+
+    /* Inverse Planck for a radiance per micrometre, then the product's own
+       linear correction for the width of the channel:  T = (T_planck - B) / A. */
+    const double l5 = lambda * lambda * lambda * lambda * lambda;
+    float *v = out->data();
+    const int n = out->size();
+    for (int i = 0; i < n; ++i) {
+        const double L = v[i];
+        /* a radiance at or below zero is noise around a cold scene, not a
+           temperature; it has no inverse Planck */
+        v[i] = (L > 0.0)
+                 ? (float)((kPlanckC2 / (lambda * std::log1p(kPlanckC1 / (l5 * L))) - b) / a)
+                 : qQNaN();
+    }
+
+    return true;
 }
 
 // ---------------------------------------------------------------------------

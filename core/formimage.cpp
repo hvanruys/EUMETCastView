@@ -3165,6 +3165,26 @@ bool FormImage::ShowVIIImage(int histogrammethod, bool normalized)
 
 }
 
+// A recipe names its own channels, so unlike ShowVIIImage there is nothing to
+// collect from the band radio buttons or the colour combos.
+bool FormImage::ShowVIIRecipeImage(int recipe)
+{
+    metopsga1count = segs->seglmetopsga1->NbrOfSegmentsSelected();
+
+    qDebug() << QString("in FormImage::ShowVIIRecipeImage nbr of VII segments selected = %1").arg(metopsga1count);
+
+    if (metopsga1count == 0)
+        return false;
+
+    this->channelshown = IMAGE_VII;
+    this->kindofimage = "VII";
+    this->setSegmentType(SEG_METOPSGA1);
+
+    segs->seglmetopsga1->ComposeVIIRecipeImage(recipe);
+
+    return true;
+}
+
 void FormImage::displayVIIRSImageInfo(eSegmentType type)
 {
     QString segtype;

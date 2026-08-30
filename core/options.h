@@ -300,6 +300,14 @@ public:
     bool bSeviriRayleigh;
 
     /**
+     * Rayleigh-correct the VII recipes that ask for it, currently True Color.
+     * Its own setting again: VII's bluest channel is at 0.443 um, deeper than
+     * anything SEVIRI has and about as deep as FCI's, so it has the most haze of
+     * the three to remove.
+     */
+    bool bViiRayleigh;
+
+    /**
      * Equirectangular city-lights image for the GeoColor night side, or empty.
      *
      * Nothing suitable ships with this program - a VIIRS DNB annual composite

@@ -41,6 +41,7 @@ bool SegmentListVII::ComposeVIIImage(QList<bool> bandlist, QList<int> colorlist,
     this->invertlist = invertlist;
     this->histogrammethod = histogrammethod;
     this->normalized = normalized;
+    this->recipenbr = -1;
 
     ptrimagebusy = true;
     QApplication::setOverrideCursor(( Qt::WaitCursor));
@@ -267,6 +268,183 @@ bool SegmentListVII::ComposeVIIImageInThread(QList<bool> bandlist, QList<int> co
     return true;
 }
 
+void SegmentListVII::doComposeVIIRecipeImageInThread(SegmentListVII *t, int recipe)
+{
+    t->ComposeVIIRecipeImageInThread(recipe);
+}
+
+bool SegmentListVII::ComposeVIIRecipeImage(int recipe)
+{
+    qDebug() << QString("SegmentListVII::ComposeVIIRecipeImage(%1)").arg(recipe);
+
+    this->recipenbr = recipe;
+
+    // A recipe has no histogram to choose and nothing to sun-normalise: it laid
+    // its own stretch down while reading, and 100 % is what hands that through
+    // unchanged.
+    this->histogrammethod = CMB_HISTO_NONE_100;
+    this->normalized = false;
+
+    // The rest of the VII path asks the band list whether this is a colour
+    // image, and a recipe always is. The colour combos and the invert flags have
+    // nothing left to say, so they go in empty.
+    this->bandlist.clear();
+    this->colorlist.clear();
+    this->invertlist.clear();
+    this->bandlist << true;
+    for(int i = 0; i < 20; i++)
+    {
+        this->bandlist << false;
+        this->colorlist << 0;
+        this->invertlist << false;
+    }
+
+    ptrimagebusy = true;
+    QApplication::setOverrideCursor(( Qt::WaitCursor));
+    watchervii = new QFutureWatcher<void>(this);
+    connect(watchervii, SIGNAL(finished()), this, SLOT(finishedvii()), Qt::UniqueConnection);
+
+    QFuture<void> future = QtConcurrent::run(doComposeVIIRecipeImageInThread, this, recipe);
+    watchervii->setFuture(future);
+
+    return true;
+}
+
+bool SegmentListVII::ComposeVIIRecipeImageInThread(int recipe)
+{
+    // No QApplication calls on a QtConcurrent worker: ComposeVIIRecipeImage sets
+    // the wait cursor before starting this and finishedvii restores it.
+    progressresultready = 0;
+    this->totalnbroflines = 0;
+
+    emit progressCounter(10);
+
+    // Nothing reads these at a 100 % stretch, but a stale LUT from an earlier
+    // image must not be left where a later one could pick it up.
+    for (int i=0; i < 3; i++)
+    {
+        for (int j=0; j < 1024; j++)
+        {
+            imageptrs->lut_ch[i][j] = 0;
+            imageptrs->lut_norm_ch[i][j] = 0;
+        }
+    }
+
+    // Reset memory
+    QList<Segment*>::iterator segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        Segment *segm = (Segment *)(*segsel);
+        segm->resetMemory();
+        ++segsel;
+    }
+    segsselected.clear();
+
+    int startlinenbr = 0;
+    int totalnbrofsegments = 0;
+
+    QList<Segment*>::iterator segit = segmentlist.begin();
+    while ( segit != segmentlist.end() )
+    {
+        SegmentVII *segm = (SegmentVII *)(*segit);
+        if (segm->segmentselected)
+        {
+            segsselected.append(segm);
+            totalnbrofsegments++;
+        }
+        ++segit;
+    }
+
+    if(totalnbrofsegments == 0)
+    {
+        emit progressCounter(100);
+        return true;
+    }
+
+    int deltaprogress = 99 / (totalnbrofsegments*2);
+    int totalprogress = 0;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVII *segm = (SegmentVII *)(*segsel);
+        segm->setBandandColor(this->bandlist, this->colorlist, this->invertlist);
+        segm->ReadSegmentRecipeInMemory(recipe);
+
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+        if(segsel == segsselected.begin())
+            this->earth_views_per_scanline = segm->getEarthViewsPerScanline();
+        ++segsel;
+    }
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVII *segm = (SegmentVII *)(*segsel);
+        segm->setStartLineNbr(startlinenbr);
+        startlinenbr += segm->NbrOfLines;
+        totalnbroflines += segm->NbrOfLines;
+        ++segsel;
+    }
+
+    if(imageptrs->ptrimageVII != NULL)
+    {
+        delete imageptrs->ptrimageVII;
+        imageptrs->ptrimageVII = NULL;
+    }
+
+    imageptrs->ptrimageVII = new QImage(this->earth_views_per_scanline, totalnbroflines, QImage::Format_ARGB32);
+    qDebug() << QString("ptrimageVII created %1 x %2").arg(this->earth_views_per_scanline).arg(totalnbroflines);
+
+    // The recipe already decided what every pixel should look like, so the
+    // statistics must not be allowed to stretch it a second time. Pinned to the
+    // full scale the segments stored on, which is what makes the 100 % path in
+    // ComposeSegmentImage the identity.
+    long cnt_active_pixels = 0;
+
+    for(int k = 0; k < 3; k++)
+    {
+        this->stat_min_ch[k] = 0;
+        this->stat_max_ch[k] = 65534;
+        this->stat_min_norm_ch[k] = 0;
+        this->stat_max_norm_ch[k] = 65534;
+        imageptrs->stat_min_ch[k] = 0;
+        imageptrs->stat_max_ch[k] = 65534;
+        imageptrs->stat_min_norm_ch[k] = 0;
+        imageptrs->stat_max_norm_ch[k] = 65534;
+        imageptrs->minRadianceIndex[k] = 0;
+        imageptrs->maxRadianceIndex[k] = 1023;
+        imageptrs->minRadianceIndexNormalized[k] = 0;
+        imageptrs->maxRadianceIndexNormalized[k] = 1023;
+    }
+    imageptrs->stat_min = 0;
+    imageptrs->stat_max = 65534;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVII *segm = (SegmentVII *)(*segsel);
+        cnt_active_pixels += segm->active_pixels[0];
+        ++segsel;
+    }
+    imageptrs->active_pixels = cnt_active_pixels;
+
+    segsel = segsselected.begin();
+    while ( segsel != segsselected.end() )
+    {
+        SegmentVII *segm = (SegmentVII *)(*segsel);
+        segm->ComposeSegmentImage(CMB_HISTO_NONE_100, false);
+        totalprogress += deltaprogress;
+        emit progressCounter(totalprogress);
+        ++segsel;
+    }
+
+    qDebug() << " SegmentListVII::ComposeVIIRecipeImageInThread Finished !!";
+
+    return true;
+}
+
 void SegmentListVII::finishedvii()
 {
 
@@ -274,8 +452,9 @@ void SegmentListVII::finishedvii()
     emit progressCounter(100);
 
     // The compose worker laid down a plain stretch; the CLAHE pass replaces
-    // ptrimageVII wholesale, so it belongs here on the GUI thread.
-    if(this->histogrammethod == CMB_HISTO_CLAHE)
+    // ptrimageVII wholesale, so it belongs here on the GUI thread. A recipe
+    // never gets one: it composed the colours it meant to show.
+    if(this->recipenbr < 0 && this->histogrammethod == CMB_HISTO_CLAHE)
         RecalculateCLAHEVII();
 
     opts.texture_changed = true;
@@ -324,6 +503,13 @@ bool SegmentListVII::ChangeHistogramMethod()
 {
 
     qDebug() << "bool SegmentListVII::ChangeHistogramMethod() started";
+
+    if(recipenbr >= 0)
+    {
+        qDebug() << "SegmentListVII::ChangeHistogramMethod : the image in memory is an"
+                 << "RGB recipe, which carries its own stretch; leaving it as composed";
+        return false;
+    }
 
     progressresultready = 0;
     QApplication::setOverrideCursor( Qt::WaitCursor );

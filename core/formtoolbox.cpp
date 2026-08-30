@@ -488,6 +488,19 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
 
     setupRGBRecipeList(opts.currentgeotab);
 
+    // VII has one family of recipes and only ever shows that one, so unlike the
+    // geostationary list this one is filled here and never swapped out.
+    for(int i = 0; i < imageptrs->vii_rgbrecipes.count(); i++)
+        new QListWidgetItem(imageptrs->vii_rgbrecipes.at(i).Name, ui->lstVIIRGB);
+
+    {
+        QSignalBlocker block(ui->chkVIIRayleigh);
+        ui->chkVIIRayleigh->setChecked(opts.bViiRayleigh);
+    }
+    connect(ui->chkVIIRayleigh, &QCheckBox::toggled, this, [](bool checked) {
+        opts.bViiRayleigh = checked;
+    });
+
     rowchosen.clear();
 
     opts.globalChangeFonts(this, opts.fontsize);
@@ -4929,6 +4942,26 @@ void FormToolbox::on_btnUpdateVIIImage_clicked()
         ui->pbProgress->reset();
         formimage->ShowVIIImage(getVIIHistogrammethod(), ui->rdbVIINormalized->isChecked());
     }
+}
+
+// A recipe brings its own channels and its own stretch, so this needs nothing
+// from the band radio buttons, the colour combos or the histogram combo.
+void FormToolbox::on_btnVIIRecipes_clicked()
+{
+    if(ui->lstVIIRGB->currentRow() < 0)
+    {
+        QMessageBox::warning(this, "VII Recipe", "Please choose a recipe from the list first.");
+        return;
+    }
+
+    if(segs->seglmetopsga1->NbrOfSegmentsSelected() == 0)
+    {
+        QMessageBox::warning(this, "VII Recipe", "Please select one or more VII segments first.");
+        return;
+    }
+
+    ui->pbProgress->reset();
+    formimage->ShowVIIRecipeImage(ui->lstVIIRGB->currentRow());
 }
 
 void FormToolbox::on_cmbHistogramVII_currentIndexChanged(int index)

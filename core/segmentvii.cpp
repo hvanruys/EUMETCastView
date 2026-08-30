@@ -1,7 +1,11 @@
 #include "segmentvii.h"
 #include "segmentimage.h"
 #include "options.h"
+#include "rayleigh.h"
+#include "rayleigh_rt.h"
+#include "landseamask.h"
 #include <QDebug>
+#include <QtConcurrent>
 
 #include <algorithm>
 #include <cmath>
@@ -9,6 +13,23 @@
 extern Options opts;
 extern SegmentImage *imageptrs;
 extern SatelliteList satellitelist;
+
+// Where the land/sea mask of the Rayleigh correction comes from. The same two
+// settings, in the same order, that the geostationary recipes resolve it from:
+// the mask file if one is configured, otherwise the globe's own shoreline file.
+static QString viiShorelineFile()
+{
+    auto resolve = [](const QString &p) {
+        return (p.isEmpty() || opts.appdir_env.isEmpty()) ? p
+                                                          : opts.appdir_env + "/" + p;
+    };
+
+    QString file = resolve(opts.gshhsmask);
+    if(file.isEmpty() || !QFileInfo::exists(file))
+        file = resolve(opts.gshhsglobe1);
+
+    return file;
+}
 
 // VII scans from the port side: pixel 0 lies 90 degrees to the left of the
 // flight direction, measured the same on ascending and descending passes alike.
@@ -238,31 +259,11 @@ Segment *SegmentVII::ReadSegmentInMemory()
         }
     }
 
-    // The product only carries geolocation on the tie point grid, so every
-    // full resolution position has to be reconstructed from it.
-    QVector<float> lat, lon;
-    if(!reader.interpolateGeolocation(&lat, &lon))
+    if(!ReadGeolocation(geom))
     {
-        qCritical() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
         reader.close();
         return this;
     }
-
-    if(opts.viidemorthorectify)
-    {
-        if(!reader.orthorectify(&lat, &lon))
-            qDebug() << "SegmentVII::ReadSegmentInMemory no DEM orthorectification : " << reader.lastError();
-    }
-
-    reverseAcrossTrack(&lat, geom.nlines, geom.npixels);
-    reverseAcrossTrack(&lon, geom.nlines, geom.npixels);
-
-    geolatitude.reset(new float[npix]);
-    geolongitude.reset(new float[npix]);
-    memcpy(geolatitude.data(), lat.constData(), npix * sizeof(float));
-    memcpy(geolongitude.data(), lon.constData(), npix * sizeof(float));
-
-    CalcOverlayLatLon();
 
     // sec(SZA), the same normalization SegmentOLCI does from tie_geometries.nc
     QVector<float> sza;
@@ -284,11 +285,6 @@ Segment *SegmentVII::ReadSegmentInMemory()
         for(int i = 0; i < npix; i++)
             secSZA[i] = 1.0f;
     }
-
-    if(reader.readDuplicationMask(&duplicationmask))
-        reverseAcrossTrack(&duplicationmask, geom.nd, geom.npixels);
-    else
-        qDebug() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
 
     // Every channel is packed onto 0..65534 against its own valid range as the
     // product states it, with 65535 kept free as the no data marker. The range
@@ -378,6 +374,473 @@ Segment *SegmentVII::ReadSegmentInMemory()
 
     return this;
 
+}
+
+// Rebuild the full resolution geolocation from the tie point grid, publish it,
+// derive the graticule from it and read the bow-tie duplication mask.
+bool SegmentVII::ReadGeolocation(const ViiGeometry &geom)
+{
+    const int npix = geom.pixelCount();
+
+    // The product only carries geolocation on the tie point grid, so every
+    // full resolution position has to be reconstructed from it.
+    QVector<float> lat, lon;
+    if(!reader.interpolateGeolocation(&lat, &lon))
+    {
+        qCritical() << "SegmentVII::ReadGeolocation " << reader.lastError();
+        return false;
+    }
+
+    if(opts.viidemorthorectify)
+    {
+        if(!reader.orthorectify(&lat, &lon))
+            qDebug() << "SegmentVII::ReadGeolocation no DEM orthorectification : " << reader.lastError();
+    }
+
+    reverseAcrossTrack(&lat, geom.nlines, geom.npixels);
+    reverseAcrossTrack(&lon, geom.nlines, geom.npixels);
+
+    geolatitude.reset(new float[npix]);
+    geolongitude.reset(new float[npix]);
+    memcpy(geolatitude.data(), lat.constData(), npix * sizeof(float));
+    memcpy(geolongitude.data(), lon.constData(), npix * sizeof(float));
+
+    CalcOverlayLatLon();
+
+    if(reader.readDuplicationMask(&duplicationmask))
+        reverseAcrossTrack(&duplicationmask, geom.nd, geom.npixels);
+    else
+        qDebug() << "SegmentVII::ReadGeolocation " << reader.lastError();
+
+    return true;
+}
+
+/**
+ * Sun-normalise and Rayleigh-correct every solar channel of a recipe, in place.
+ *
+ * The same chain the FCI and SEVIRI recipes use, and deliberately the same
+ * constants: amplify by 1/cos(sza), subtract the modelled path reflectance, undo
+ * the two-way transmittance the subtraction leaves behind, and carry the last
+ * degrees before the terminator to black. What differs is only where the
+ * geometry comes from - VII carries the four angles in the product, on the same
+ * tie point grid as the geolocation, so none of it has to be derived from an
+ * orbit model.
+ *
+ * The path term is not tapered with solar zenith. RayleighCorrector::pathTrust
+ * exists for that and is calibrated on MSG, whose bluest channel sits at an
+ * optical depth of 0.054; VII's is at 0.235, near FCI's, and on FCI that taper
+ * turned the twilight blue by leaving in the very haze it was meant to remove.
+ */
+void SegmentVII::ApplySolarCorrection(QList<QVector<float> > &bandbuf,
+                                      const QStringList &bandnames,
+                                      const QVector<float> &sza, const QVector<float> &saa,
+                                      const QVector<float> &vza, const QVector<float> &vaa)
+{
+    // A brightness temperature has no molecular scattering term and has not been
+    // divided by anything, so the thermal channels sit this out.
+    // Buffer pointers are resolved here rather than in the pixel loop: indexing a
+    // QList or a QVector through its mutable operator[] detaches, and the loop
+    // below runs on every thread at once.
+    QVector<float *> solarData;
+    QVector<const RayleighRT::Solution*> solarSol;
+
+    const float *maskData  = nullptr;
+    double maskLambda = 0.0;
+    const RayleighRT::Solution *maskSol = nullptr;
+
+    for(int k = 0; k < bandnames.count(); k++)
+    {
+        const QString &name = bandnames.at(k);
+        if(!ViiL1BReader::isSolarChannel(name))
+            continue;
+
+        const double lambda = ViiL1BReader::centreWavelength(name);
+        const RayleighRT::Solution &s =
+            RayleighRT::forTau(RayleighCorrector::opticalDepthAt(lambda));
+
+        solarData.append(bandbuf[k].data());
+        solarSol.append(&s);
+
+        // Longest wavelength drives the water test: water is far darker than
+        // land toward the red, and that is the term deciding whether the sea
+        // surface reflects sky into the view.
+        if(lambda > maskLambda)
+        {
+            maskLambda = lambda;
+            maskData   = solarData.last();
+            maskSol    = &s;
+        }
+    }
+
+    if(solarData.isEmpty())
+        return;
+
+    const bool useOcean = maskLambda >= RayleighCorrector::MinWaterTestLambda;
+    if(!useOcean)
+        qWarning() << "VII Rayleigh: longest solar channel in this recipe is too blue"
+                   << "to separate water from land; sea surface not modelled";
+
+    // Geography decides land from sea; brightness is then left with only the
+    // question it is good at, whether cloud is sitting on top of the sea.
+    const QString gshhsFile = viiShorelineFile();
+    const QByteArray gshhsPath = gshhsFile.toLocal8Bit();
+    const bool haveGeoMask = LandSeaMask::load(gshhsPath.constData());
+    if(!haveGeoMask)
+        qWarning() << "VII Rayleigh: no shoreline mask at" << gshhsFile
+                   << "- falling back to the brightness test, which reads dark"
+                   << "vegetation at high view angle as water";
+
+    qDebug() << "VII Rayleigh: correcting" << solarData.size()
+             << "channels, water test on" << maskLambda << "um";
+
+    const int cols = earth_views_per_scanline;
+
+    QVector<int> lines(NbrOfLines);
+    for(int i = 0; i < NbrOfLines; i++)
+        lines[i] = i;
+
+    // This runs on a QtConcurrent worker already, so the pool is nested. That is
+    // safe - waiting on a future from inside the pool makes the waiting thread
+    // help run the remaining work rather than block on it - and it is worth
+    // doing: the correction solves a radiative transfer problem per pixel, which
+    // is by far the most expensive thing that happens to a granule.
+    QtConcurrent::blockingMap(lines, [&](int line) {
+        for(int pixelx = 0; pixelx < cols; pixelx++)
+        {
+            const int i = line * cols + pixelx;
+
+            const float szaDeg = sza.at(i);
+            const float vzaDeg = vza.at(i);
+            if(std::isnan(szaDeg) || std::isnan(vzaDeg)
+               || std::isnan(saa.at(i)) || std::isnan(vaa.at(i)))
+                continue;
+
+            // Relative azimuth folded into [0, 180]; the phase function is even
+            // in it.
+            float raaDeg = fmodf(saa.at(i) - vaa.at(i), 360.0f);
+            if(raaDeg < 0.0f)
+                raaDeg += 360.0f;
+            if(raaDeg > 180.0f)
+                raaDeg = 360.0f - raaDeg;
+
+            // Both freeze at SzaLimit, so past the terminator the amplification
+            // and the path reflectance keep describing the same sun.
+            const float f = RayleighCorrector::sunZenithFactor(szaDeg);
+            const float w = RayleighCorrector::twilightFade(szaDeg);
+
+            const float flat = geolatitude[i];
+            const float flon = geolongitude[i];
+            const bool geoWater = haveGeoMask && !std::isnan(flat) && !std::isnan(flon)
+                                  && LandSeaMask::isWater(flat, flon);
+
+            // How watery the pixel is, decided before anything is corrected,
+            // from the longest channel against a black lower boundary.
+            float water = 0.0f;
+            if(useOcean && w > 0.0f && !std::isnan(maskData[i])
+               && (!haveGeoMask || geoWater))
+            {
+                const float mb = RayleighCorrector::surfaceReflectance(
+                    *maskSol, szaDeg, vzaDeg,
+                    maskData[i] * f
+                        - RayleighCorrector::pathReflectance(
+                              *maskSol, szaDeg, vzaDeg, raaDeg));
+                water = haveGeoMask ? RayleighCorrector::cloudFreeFraction(mb)
+                                    : RayleighCorrector::waterFraction(mb);
+            }
+
+            for(int k = 0; k < solarData.size(); k++)
+            {
+                float *buf = solarData.at(k);
+
+                if(std::isnan(buf[i]))
+                    continue;
+
+                if(w == 0.0f)
+                {
+                    buf[i] = 0.0f;   // night
+                    continue;
+                }
+
+                const float brf = buf[i] * f;
+                const float rho = RayleighCorrector::pathReflectance(
+                    *solarSol.at(k), szaDeg, vzaDeg, raaDeg, water);
+
+                // Taking the path term off leaves the surface seen through the
+                // atmosphere, not the surface. Undo the two-way transmittance
+                // and the ground-to-sky bouncing to get there.
+                buf[i] = w * RayleighCorrector::surfaceReflectance(
+                    *solarSol.at(k), szaDeg, vzaDeg, brf - rho);
+            }
+        }
+    });
+}
+
+Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
+{
+    if(recipe < 0 || recipe >= imageptrs->vii_rgbrecipes.count())
+    {
+        qCritical() << "SegmentVII::ReadSegmentRecipeInMemory : no recipe" << recipe;
+        return this;
+    }
+
+    const RGBRecipe &rec = imageptrs->vii_rgbrecipes.at(recipe);
+
+    if(!reader.open(fileInfo.absoluteFilePath()))
+    {
+        qCritical() << "SegmentVII::ReadSegmentRecipeInMemory " << reader.lastError();
+        return this;
+    }
+
+    const ViiGeometry geom = reader.geometry();
+    this->earth_views_per_scanline = geom.npixels;
+    this->NbrOfLines = geom.nlines;
+    this->num_pixels_alt = geom.nd;
+
+    // A recipe is always a colour image and carries its own stretch, so no
+    // colour of it is ever inverted.
+    for(int k = 0; k < 3; k++)
+        invertthissegment[k] = false;
+
+    this->initializeMemory();
+
+    const int npix = geom.pixelCount();
+
+    // 65535 is the no-data marker; setting it up front means an error further
+    // down leaves a transparent segment instead of uninitialised memory
+    for(int k = 0; k < 3; k++)
+    {
+        for(int i = 0; i < npix; i++)
+        {
+            ptrbaVII[k][i] = 65535;
+            ptrbaVIInormalized[k][i] = 65535;
+        }
+    }
+
+    if(!ReadGeolocation(geom))
+    {
+        reader.close();
+        return this;
+    }
+
+    // Every channel the three colours name, plus the ones a composite depends on
+    // without their being a colour of their own. Named once each: True Color
+    // names three different channels, the O2-A index two, and a difference
+    // recipe would name one of its windows twice.
+    QStringList bandnames;
+    for(int ci = 0; ci < 3; ci++)
+    {
+        const RGBRecipeColor &col = rec.Colorvector.at(ci);
+        for(const QString &c : col.channels)
+            if(!bandnames.contains(c))
+                bandnames << c;
+    }
+    for(const QString &c : rec.auxchannels)
+        if(!bandnames.contains(c))
+            bandnames << c;
+
+    qDebug() << QString("SegmentVII::ReadSegmentRecipeInMemory %1 x %2 recipe '%3' channels %4")
+                .arg(earth_views_per_scanline).arg(NbrOfLines)
+                .arg(rec.Name, bandnames.join(' '));
+
+    QList<QVector<float> > bandbuf;
+    bool hassolar = false;
+
+    for(const QString &c : std::as_const(bandnames))
+    {
+        const bool solar = ViiL1BReader::isSolarChannel(c);
+        hassolar = hassolar || solar;
+
+        QVector<float> v;
+        if(!(solar ? reader.readReflectance(c, &v)
+                   : reader.readBrightnessTemperature(c, &v)))
+        {
+            qCritical() << "SegmentVII::ReadSegmentRecipeInMemory" << c
+                        << reader.lastError();
+            reader.close();
+            return this;
+        }
+
+        reverseAcrossTrack(&v, geom.nlines, geom.npixels);
+        bandbuf.append(v);
+    }
+
+    // Every recipe with a solar channel gets the correction, not only the ones
+    // that want the de-hazing for its own sake, and for the same reason the FCI
+    // path does it that way: the two halves are one chain. The recipes are
+    // stretched against sun-normalised reflectance - EUMETSAT's "0 to 100 %" is
+    // a BRF - so a recipe composed without the normalisation is not a slightly
+    // hazier picture but a systematically dark one, by the cosine of the solar
+    // zenith. Switching the option off is therefore a choice about the whole
+    // image and not about the haze, which is what its label warns.
+    if(hassolar && opts.bViiRayleigh)
+    {
+        QVector<float> sza, saa, vza, vaa;
+        if(reader.interpolateTiePointVariable(QStringLiteral("solar_zenith"), &sza)
+           && reader.interpolateTiePointVariable(QStringLiteral("solar_azimuth"), &saa, true)
+           && reader.interpolateTiePointVariable(QStringLiteral("observation_zenith"), &vza)
+           && reader.interpolateTiePointVariable(QStringLiteral("observation_azimuth"), &vaa, true))
+        {
+            reverseAcrossTrack(&sza, geom.nlines, geom.npixels);
+            reverseAcrossTrack(&saa, geom.nlines, geom.npixels);
+            reverseAcrossTrack(&vza, geom.nlines, geom.npixels);
+            reverseAcrossTrack(&vaa, geom.nlines, geom.npixels);
+
+            ApplySolarCorrection(bandbuf, bandnames, sza, saa, vza, vaa);
+        }
+        else
+            qWarning() << "SegmentVII::ReadSegmentRecipeInMemory no viewing geometry ("
+                       << reader.lastError()
+                       << ") - composing the uncorrected reflectance";
+    }
+
+    reader.close();
+
+    // Combine the channels into the three colours.
+    QVector<float> result[3];
+    for(int ci = 0; ci < 3; ci++)
+        result[ci].fill(qQNaN(), npix);
+
+    if(rec.compose == RECIPE_NORMDIFF)
+    {
+        // Smallest denominator an index is still allowed to have, in the
+        // reflectance units the channels are held in.
+        //
+        // A normalised difference is a ratio and its noise is set by the
+        // denominator alone, so the sum is the right thing to gate on. Below
+        // this there is nothing in either channel but the night side noise, and
+        // their ratio lands arbitrarily on +1 or -1 - black and white speckle
+        // over what should be an empty swath.
+        constexpr float MinIndexSignal = 0.01f;
+
+        for(int ci = 0; ci < 3; ci++)
+        {
+            const RGBRecipeColor &col = rec.Colorvector.at(ci);
+            QVector<const float *> src;
+            QVector<float> sign;
+            for(int k = 0; k < col.channels.count(); k++)
+            {
+                src.append(bandbuf.at(bandnames.indexOf(col.channels.at(k))).constData());
+                sign.append(col.subtract.at(k) ? -1.0f : 1.0f);
+            }
+
+            float *out = result[ci].data();
+            for(int i = 0; i < npix; i++)
+            {
+                float num = 0.0f, den = 0.0f;
+                bool ok = true;
+                for(int k = 0; k < src.count(); k++)
+                {
+                    const float v = src.at(k)[i];
+                    if(std::isnan(v)) { ok = false; break; }
+                    num += sign.at(k) * v;
+                    den += v;
+                }
+                out[i] = (ok && den > MinIndexSignal) ? num / den : qQNaN();
+            }
+        }
+    }
+    else
+    {
+        for(int ci = 0; ci < 3; ci++)
+        {
+            const RGBRecipeColor &col = rec.Colorvector.at(ci);
+            float *out = result[ci].data();
+
+            for(int k = 0; k < col.channels.count(); k++)
+            {
+                const float *src = bandbuf.at(bandnames.indexOf(col.channels.at(k))).constData();
+                const bool subtract = col.subtract.at(k);
+
+                for(int i = 0; i < npix; i++)
+                {
+                    if(std::isnan(src[i]))
+                    {
+                        out[i] = qQNaN();
+                        continue;
+                    }
+                    if(std::isnan(out[i]))
+                        out[i] = subtract ? -src[i] : src[i];
+                    else
+                        out[i] += subtract ? -src[i] : src[i];
+                }
+            }
+        }
+    }
+
+    bandbuf.clear();
+
+    // The recipe's own stretch. An index recipe stops one short of full scale so
+    // that 255 stays free to mean no value, and rounds rather than truncates -
+    // the number carries meaning of its own, it is not just how bright a pixel
+    // looks.
+    const float outmax = (rec.compose == RECIPE_NORMDIFF) ? 254.0f : 255.0f;
+    const float bias   = (rec.compose == RECIPE_NORMDIFF) ? 0.5f : 0.0f;
+
+    // What comes out is a brightness, but it is stored on the radiance scale the
+    // statistics are pinned to, so the compose and projection paths hand it back
+    // unchanged at a 100 % stretch instead of needing a path of their own.
+    //
+    // The factor is 4 * 65534 / 1023, not the 65534 / 255 that spans the same
+    // range, and the difference is not rounding slack. Those paths go through a
+    // 1024 level intermediate and then divide by a literal 4, so a level only
+    // survives the trip if it lands on a multiple of 4 there - and 1023 / 255 is
+    // 4.0118, not 4. Scaled the obvious way the drift reaches half a level by
+    // the middle of the range and stays there: 127 of the 256 levels come back
+    // one too bright. Scaled this way every one of the 256 is exact, at the cost
+    // of stopping at 65342 rather than 65534.
+    const double tostore = 4.0 * 65534.0 / 1023.0;
+
+    for(int i = 0; i < npix; i++)
+    {
+        if(std::isnan(result[0].at(i)) || std::isnan(result[1].at(i))
+           || std::isnan(result[2].at(i)))
+            continue;   // stays at the no-data marker set above
+
+        for(int k = 0; k < 3; k++)
+        {
+            const RGBRecipeColor &col = rec.Colorvector.at(k);
+            const float from = col.rangefrom;
+            const float to   = col.rangeto;
+
+            float val = result[k].at(i);
+            if(val < from) val = from;
+            if(val > to)   val = to;
+
+            const float norm = (to != from) ? (val - from) / (to - from) : 0.0f;
+            float gv = outmax * powf(norm, 1.0f / col.gamma);
+            if(!col.inverse.isEmpty() && col.inverse.at(0))
+                gv = outmax - gv;
+
+            const int v8 = (int)qBound(0.0f, gv + bias, outmax);
+            ptrbaVII[k][i] = (quint16)qRound(v8 * tostore);
+            ptrbaVIInormalized[k][i] = ptrbaVII[k][i];
+        }
+    }
+
+    // The recipe fixed the stretch, so the statistics must not be allowed to
+    // move it again. Pinning them to the full scale is what makes the 100 %
+    // path in ComposeSegmentImage and in the projections the identity, and it
+    // holds for every segment alike, so segments of one image stay comparable.
+    for(int k = 0; k < 3; k++)
+    {
+        stat_min_ch[k] = 0;
+        stat_max_ch[k] = 65534;
+        stat_min_norm_ch[k] = 0;
+        stat_max_norm_ch[k] = 65534;
+        active_pixels[k] = 0;
+    }
+
+    nbrsaturatedpixels = 0;
+
+    for(int k = 0; k < 3; k++)
+        for(int i = 0; i < npix; i++)
+            if(ptrbaVII[k][i] < 65535)
+                active_pixels[k]++;
+
+    qDebug() << QString("SegmentVII recipe '%1' : %2 of %3 pixels have a colour")
+                .arg(rec.Name).arg(active_pixels[0]).arg(npix);
+
+    return this;
 }
 
 // Mark every pixel where the latitude or the longitude crosses a multiple of

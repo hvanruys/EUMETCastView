@@ -83,6 +83,41 @@ public:
        the physical values of that channel can occupy. */
     bool radianceRange(const QString &name, double *lo, double *hi);
 
+    /* Position of a vii_* channel in the product, 0..19, or -1 if it names no
+       channel of this instrument. */
+    static int channelIndex(const QString &name);
+
+    /* Centre wavelength in micrometres, read off the channel name. */
+    static double centreWavelength(const QString &name);
+
+    /* The first eleven channels (vii_443 .. vii_2250) are solar, the last nine
+       (vii_3740 .. vii_13345) thermal. The product splits its calibration the
+       same way: Band_averaged_solar_irradiance holds num_chan_solar entries and
+       channel_cw_thermal / bt_conversion_a / bt_conversion_b num_chan_thermal,
+       both in channel order. */
+    static bool isSolarChannel(const QString &name);
+
+    /* Radiance out of the unit it is stored in and into the one the RGB recipes
+       are written against.
+
+       A solar channel becomes top of atmosphere reflectance,
+
+           rho = pi * L * d^2 / E0
+
+       which is deliberately not yet divided by cos(sza): the sun normalisation
+       belongs with the Rayleigh correction, which freezes it and the path
+       reflectance at the same solar angle so the two keep describing one sun.
+       A recipe composed with the correction switched off is stretched against
+       this uncorrected reflectance, as the FCI recipes are.
+
+       A thermal channel becomes brightness temperature in kelvin, through the
+       inverse Planck function at the channel centre wavelength and the
+       product's own A and B coefficients.
+
+       NaN marks no data in both, exactly as readFullGridVariable leaves it. */
+    bool readReflectance(const QString &name, QVector<float> *out);
+    bool readBrightnessTemperature(const QString &name, QVector<float> *out);
+
     /* /data/processing_flags/pixel_duplication_mask, num_pixels_alt x
        num_pixels: non-zero where the bow-tie overlap duplicates a pixel of the
        neighbouring scan. It is indexed by the line's position within its scan,
@@ -115,13 +150,26 @@ private:
     int  dimLength(const char *name, bool *ok) const;
     bool unpack(int varid, QVector<double> *values) const;
 
+    /* The calibration coefficients and the sun-earth distance, read once per
+       product on the first physical-unit request. */
+    bool readCalibration();
+
     int         m_ncid      = -1;
     int         m_measGid   = -1;
     int         m_dataGid   = -1;
     int         m_flagsGid  = -1;
+    int         m_calGid    = -1;
+    int         m_satGid    = -1;
     QString     m_fileName;
     QString     m_error;
     ViiGeometry m_geom;
+
+    bool            m_calRead = false;
+    QVector<double> m_solarIrradiance;   /* num_chan_solar,   W/(m2.um) */
+    QVector<double> m_thermalCw;         /* num_chan_thermal, um        */
+    QVector<double> m_thermalA;
+    QVector<double> m_thermalB;
+    double          m_sunEarthRatio = 1.0;
 };
 
 #endif // VIIL1BREADER_H

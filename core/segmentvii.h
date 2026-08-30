@@ -20,6 +20,20 @@ public:
     explicit SegmentVII(eSegmentType type, QFileInfo fileinfo, QObject *parent = 0);
     Segment *ReadSegmentInMemory();
 
+    /**
+     * Read the channels one RGB recipe asks for, convert them to the physical
+     * units the recipe is written in - reflectance for the solar channels,
+     * brightness temperature for the thermal ones - and lay the finished colours
+     * down in ptrbaVII.
+     *
+     * The recipe carries its own stretch, so what is stored is already the
+     * displayed brightness rather than a radiance waiting for a histogram. It is
+     * held on the radiance scale all the same, with 65535 still meaning no data,
+     * so the compose and projection paths reproduce it exactly at a 100 %
+     * stretch and nothing downstream needs to know a recipe was involved.
+     */
+    Segment *ReadSegmentRecipeInMemory(int recipe);
+
     void ComposeSegmentImage(int histogrammethod, bool normalized);
     void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
@@ -60,6 +74,21 @@ public:
 private:
     void RenderSegmentlineInTextureVII( int nbrLine, QRgb *row );
     void CalcOverlayLatLon();
+
+    /* Rebuild the full resolution geolocation from the tie point grid, publish
+       it, derive the graticule from it and read the bow-tie duplication mask.
+       Common to the band and the recipe read paths. */
+    bool ReadGeolocation(const ViiGeometry &geom);
+
+    /* Sun-normalise and remove the Rayleigh path reflectance from every solar
+       channel of a recipe, in place, before the colours are combined. The
+       thermal channels are left alone: a brightness temperature has no
+       molecular scattering term. */
+    void ApplySolarCorrection(QList<QVector<float> > &bandbuf,
+                              const QStringList &bandnames,
+                              const QVector<float> &sza, const QVector<float> &saa,
+                              const QVector<float> &vza, const QVector<float> &vaa);
+
     QString getChannelNameFromColor(int colorindex);
     QString getChannelNameFromBand();
 

@@ -64,6 +64,7 @@ public:
     bool ShowVIIRSDNBImage();
     bool ShowOLCIefrImage(int histogrammethod, bool normalized);
     bool ShowVIIImage(int histogrammethod, bool normalized);
+    bool ShowVIIRecipeImage(int recipe);
     bool ShowOLCIerrImage(int histogrammethod, bool normalized);
     bool ShowMERSIImage(int histogrammethod, bool normalized);
     bool ShowAVHRRImage(int histogrammethod, bool normalized);
