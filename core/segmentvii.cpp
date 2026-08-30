@@ -380,10 +380,12 @@ Segment *SegmentVII::ReadSegmentInMemory()
 
 }
 
-// Mark every pixel where the whole-degree part of the latitude or the longitude
-// changes, which traces the parallels and meridians across the swath.
+// Mark every pixel where the latitude or the longitude crosses a multiple of
+// graticulestep degrees, which traces the parallels and meridians across the swath.
 void SegmentVII::CalcOverlayLatLon()
 {
+    const float graticulestep = 5.0f;
+
     latlonline.clear();
 
     if(geolatitude.isNull() || geolongitude.isNull())
@@ -410,8 +412,10 @@ void SegmentVII::CalcOverlayLatLon()
             // not a meridian crossing
             const bool lonwrap = fabs(lon - lonleft) > 180.0f || fabs(lon - lonup) > 180.0f;
 
-            if(floor(lat) != floor(latleft) || floor(lat) != floor(latup)
-               || (!lonwrap && (floor(lon) != floor(lonleft) || floor(lon) != floor(lonup))))
+            if(floor(lat / graticulestep) != floor(latleft / graticulestep)
+               || floor(lat / graticulestep) != floor(latup / graticulestep)
+               || (!lonwrap && (floor(lon / graticulestep) != floor(lonleft / graticulestep)
+                                || floor(lon / graticulestep) != floor(lonup / graticulestep))))
             {
                 latlonline << QPoint(pixelx, line);
             }
