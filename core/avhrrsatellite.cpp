@@ -1736,6 +1736,15 @@ bool AVHRRSatellite::SelectedMERSISegments()
         return true;
 }
 
+bool AVHRRSatellite::SelectedVIISegments()
+{
+    qDebug() << "AVHRRSatellite::SelectedVIIegments()";
+    if(seglmetopsga1->NbrOfSegmentsSelected() == 0)
+        return false;
+    else
+        return true;
+}
+
 QStringList AVHRRSatellite::GetOverviewSegmentsMetop()
 {
 

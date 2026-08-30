@@ -57,6 +57,7 @@ public:
     bool SelectedOLCIefrSegments();
     bool SelectedOLCIerrSegments();
     bool SelectedMERSISegments();
+    bool SelectedVIISegments();
 
     void RemoveAllSelectedAVHRR();
     void RemoveAllSelectedMETIMAGE();

@@ -15,3 +15,7 @@ AppDir-ubuntu2004/
 # Reference material kept beside the source: EUMETSAT training decks, papers.
 *.ppt
 *.pdf
+
+# Claude Code session transcripts, written beside the source and kept on disk
+# only. Named <date>-<time>-<first words of the prompt>.txt
+/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]-*.txt

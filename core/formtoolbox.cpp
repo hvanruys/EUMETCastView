@@ -3668,7 +3668,15 @@ void FormToolbox::on_btnCreatePerspective_clicked()
         }
 
     }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        if(!opts.buttonMetopSGA1 || !segs->SelectedVIISegments())
+        {
+            QMessageBox::information( this, "VII", "No selected VII segments  !" );
+            return;
+        }
 
+    }
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     imageptrs->gvp->Initialize(ui->spbGVPlon->value(), ui->spbGVPlat->value(), ui->spbGVPheight->value(), ui->spbGVPscale->value(),
@@ -3847,6 +3855,23 @@ void FormToolbox::on_btnCreateLambert_clicked()
         }
 
     }
+    else if(ui->rdbVIIin->isChecked())
+    {
+        if(opts.buttonMetopSGA1)
+        {
+            if(!segs->SelectedVIISegments())
+            {
+                QMessageBox::information( this, "VII", "No selected VII segments  !" );
+                return;
+            }
+        }
+        else
+        {
+            QMessageBox::information( this, "VII", "No selected VII segments  !" );
+            return;
+        }
+
+    }
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
     imageptrs->lcc->Initialize(R_MAJOR_A_WGS84, R_MAJOR_B_WGS84, ui->spbParallel1->value(), ui->spbParallel2->value(), ui->spbCentral->value(), ui->spbLatOrigin->value(),
@@ -3993,6 +4018,16 @@ void FormToolbox::on_btnCreateStereo_clicked()
         }
 
     }
+    else if(opts.buttonMetopSGA1)
+    {
+        if(ui->rdbVIIin->isChecked())
+        {
+            if(!segs->SelectedVIISegments())
+                return;
+        }
+
+    }
+
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
