@@ -1738,7 +1738,7 @@ bool AVHRRSatellite::SelectedMERSISegments()
 
 bool AVHRRSatellite::SelectedVIISegments()
 {
-    qDebug() << "AVHRRSatellite::SelectedVIIegments()";
+    qDebug() << "AVHRRSatellite::SelectedVIISegments()";
     if(seglmetopsga1->NbrOfSegmentsSelected() == 0)
         return false;
     else

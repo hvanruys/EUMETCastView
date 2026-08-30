@@ -3967,7 +3967,22 @@ void FormToolbox::on_btnCreateStereo_clicked()
         }
     }
 
-    if(opts.buttonMetop || opts.buttonHRP)
+    // Keyed on the input radio button, the way on_btnCreatePerspective_clicked
+    // and on_btnCreateOM_clicked are, and first in the chain so it is reached at
+    // all. The branches below test opts.buttonXXX before the radio button, which
+    // means each of their guards is skipped whenever a satellite earlier in the
+    // chain happens to be switched on - with Metop enabled, none of the six ever
+    // runs. Only the VII branch is moved here; changing the others would alter
+    // what six sensors do about an empty selection, which is a separate call.
+    if(ui->rdbVIIin->isChecked())
+    {
+        if(!opts.buttonMetopSGA1 || !segs->SelectedVIISegments())
+        {
+            QMessageBox::information( this, "VII", "No selected VII segments  !" );
+            return;
+        }
+    }
+    else if(opts.buttonMetop || opts.buttonHRP)
     {
         if(ui->rdbAVHRRin->isChecked())
         {
@@ -4018,16 +4033,6 @@ void FormToolbox::on_btnCreateStereo_clicked()
         }
 
     }
-    else if(opts.buttonMetopSGA1)
-    {
-        if(ui->rdbVIIin->isChecked())
-        {
-            if(!segs->SelectedVIISegments())
-                return;
-        }
-
-    }
-
 
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
