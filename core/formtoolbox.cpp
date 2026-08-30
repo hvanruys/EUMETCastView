@@ -3611,9 +3611,9 @@ void FormToolbox::on_btnCreatePerspective_clicked()
 
     if(ui->rdbAVHRRin->isChecked())
     {
-        if(!(opts.buttonMetop || opts.buttonHRP || !segs->SelectedAVHRRSegments()))
+        if(!(opts.buttonMetop || opts.buttonHRP) || !segs->SelectedAVHRRSegments())
         {
-            QMessageBox::information( this, "AVHHR", "No selected AVHRR segments  !" );
+            QMessageBox::information( this, "AVHRR", "No selected AVHRR segments  !" );
             return;
         }
     }
