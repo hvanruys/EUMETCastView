@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <QStringView>
 
+#include <algorithm>
+
 
 template <typename T>
 struct PtrLess // public std::binary_function<bool, const T*, const T*>
@@ -937,6 +939,14 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
         msgBox.exec();
     }
 
+    // Each directory is read through its own map, which orders that directory's
+    // files on the sensing start in the filename, but the lists are filled one
+    // directory after the other. Order the VII segments on their sensing start
+    // once every directory has been read, so the list runs in sensing order end
+    // to end however many directories the granules came from.
+    std::stable_sort(slmetopsga1->begin(), slmetopsga1->end(),
+                     [](const Segment *a, const Segment *b)
+                     { return a->julian_sensing_start < b->julian_sensing_start; });
 
     QApplication::restoreOverrideCursor();
 
@@ -1091,7 +1101,18 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         else if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 28, 8) == "SGA1-VII" && fileinfo.isFile())
         {
             *metopsga1Tle = true;
-            fileok = true;
+            QDate d(fileinfo.fileName().mid( 70, 4).toInt(), fileinfo.fileName().mid( 74, 2).toInt(), fileinfo.fileName().mid( 76, 2).toInt());
+            filedate.setDate(d);
+            QTime t(fileinfo.fileName().mid( 78, 2).toInt(), fileinfo.fileName().mid( 80, 2).toInt(), 0);
+            filedate.setTime(t);
+            if(hoursbefore == 0)
+            {
+                if(d == seldate)
+                    fileok = true;
+            }
+            else if(t.hour() >= 24 - hoursbefore)
+                fileok = true;
+
         }
 
         //SVMC_npp_d20141117_t0837599_e0839241_b15833_c20141117084501709131_eum_ops
@@ -1372,7 +1393,14 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210219013949_G_D_20070912084303_20070912084403_T_B____.nc
             if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 28, 8) == "SGA1-VII" && fileinfo.isFile())
             {
-                *map->insert(fileinfo.fileName().mid(70, 12), fileinfo);
+                // Key on the whole sensing window - start, then end - and not on
+                // the minute the sensing started. Granules are a minute long but
+                // are not aligned to the minute, so two of them regularly start
+                // in the same one; a minute-wide key silently threw one of the
+                // pair away. Start and end still collide only for a genuine
+                // retransmission of the same granule, which is the one case
+                // where dropping the earlier entry is what we want.
+                *map->insert(fileinfo.fileName().mid(70, 29), fileinfo);
             }
             else
                 *map->insert(fileinfo.fileName(), fileinfo);
