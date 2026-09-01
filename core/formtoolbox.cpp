@@ -82,6 +82,12 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     else
         ui->btnTextureMERSI->setText("Texture Off");
 
+    if (opts.imageontextureOnVII)
+        ui->btnTextureVII->setText("Texture On");
+    else
+        ui->btnTextureVII->setText("Texture Off");
+
+
     ui->btnOverlayMeteosat->setText("Overlay On");
     ui->btnOverlayOLCI->setText("Overlay On");
     ui->btnOverlayVII->setText("Overlay On");
@@ -7030,5 +7036,20 @@ void FormToolbox::on_btnUpdateAVHRRImage_clicked()
 void FormToolbox::on_rdbAlphaZero_clicked()
 {
     imageptrs->alphazero = ui->rdbAlphaZero->isChecked();
+}
+
+
+void FormToolbox::on_btnTextureVII_clicked()
+{
+    if (opts.imageontextureOnVII)
+    {
+        opts.imageontextureOnVII = false;
+        ui->btnTextureVII->setText("Texture Off");
+    }
+    else
+    {
+        opts.imageontextureOnVII = true;
+        ui->btnTextureVII->setText("Texture On");
+    }
 }
 

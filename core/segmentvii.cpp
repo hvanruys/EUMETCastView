@@ -6,7 +6,7 @@
 #include "landseamask.h"
 #include <QDebug>
 #include <QtConcurrent>
-
+#include <QFile>
 #include <algorithm>
 #include <cmath>
 
@@ -211,9 +211,56 @@ bool SegmentVII::isDuplicatedPixel(int line, int pixelx) const
 
 Segment *SegmentVII::ReadSegmentInMemory()
 {
+    BZFILE* b;
+    int     bzerror;
+    int     nBuf;
+    char    buf[ 32768 ];
+
+    bool tempfileexist;
+
     bool iscolorimage = this->bandlist.at(0);
 
-    if(!reader.open(fileInfo.absoluteFilePath()))
+    QString basename = this->fileInfo.baseName() + ".nc";
+    QFile tfile(basename);
+    tempfileexist = tfile.exists();
+
+    qDebug() << QString("file %1  tempfileexist = %2").arg(basename).arg(tempfileexist);
+    qDebug() << "Segment *SegmentVII::ReadSegmentInMemory()";
+
+
+    if(this->fileInfo.completeSuffix() == "nc.bz2")
+    {
+        QFile fileout(basename);
+        fileout.open(QIODevice::WriteOnly);
+        QDataStream streamout(&fileout);
+
+
+        if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
+        {
+            qDebug() << "error in BZ2_bzopen";
+        }
+
+        bzerror = BZ_OK;
+        while ( bzerror == BZ_OK )
+        {
+            nBuf = BZ2_bzRead ( &bzerror, b, buf, 32768 );
+            if ( bzerror == BZ_OK || bzerror == BZ_STREAM_END)
+            {
+                streamout.writeRawData(buf, nBuf);
+            }
+        }
+
+        BZ2_bzclose ( b );
+
+        fileout.close();
+    }
+    else if(this->fileInfo.completeSuffix() == "nc")
+    {
+        QFile::copy(this->fileInfo.absoluteFilePath(), basename);
+    }
+
+
+    if(!reader.open(basename.toLatin1()))
     {
         qCritical() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
         return this;
@@ -618,6 +665,13 @@ void SegmentVII::ApplySolarCorrection(QList<QVector<float> > &bandbuf,
 
 Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
 {
+    BZFILE* b;
+    int     bzerror;
+    int     nBuf;
+    char    buf[ 32768 ];
+
+    bool tempfileexist;
+
     if(recipe < 0 || recipe >= imageptrs->vii_rgbrecipes.count())
     {
         qCritical() << "SegmentVII::ReadSegmentRecipeInMemory : no recipe" << recipe;
@@ -626,7 +680,46 @@ Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
 
     const RGBRecipe &rec = imageptrs->vii_rgbrecipes.at(recipe);
 
-    if(!reader.open(fileInfo.absoluteFilePath()))
+    QString basename = this->fileInfo.baseName() + ".nc";
+    QFile tfile(basename);
+    tempfileexist = tfile.exists();
+
+    qDebug() << QString("file %1  tempfileexist = %2").arg(basename).arg(tempfileexist);
+    qDebug() << "Segment *SegmentVII::ReadSegmentInMemory()";
+
+    if(this->fileInfo.completeSuffix() == "nc.bz2")
+    {
+        QFile fileout(basename);
+        fileout.open(QIODevice::WriteOnly);
+        QDataStream streamout(&fileout);
+
+
+        if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
+        {
+            qDebug() << "error in BZ2_bzopen";
+        }
+
+        bzerror = BZ_OK;
+        while ( bzerror == BZ_OK )
+        {
+            nBuf = BZ2_bzRead ( &bzerror, b, buf, 32768 );
+            if ( bzerror == BZ_OK || bzerror == BZ_STREAM_END)
+            {
+                streamout.writeRawData(buf, nBuf);
+            }
+        }
+
+        BZ2_bzclose ( b );
+
+        fileout.close();
+    }
+    else if(this->fileInfo.completeSuffix() == "nc")
+    {
+        QFile::copy(this->fileInfo.absoluteFilePath(), basename);
+    }
+
+    qDebug() << "Opening SegmentVII file : " << basename;
+    if(!reader.open(basename.toLatin1()))
     {
         qCritical() << "SegmentVII::ReadSegmentRecipeInMemory " << reader.lastError();
         return this;

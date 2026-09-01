@@ -49,7 +49,7 @@
       <enum>QTabWidget::TabPosition::West</enum>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>1</number>
      </property>
      <property name="elideMode">
       <enum>Qt::TextElideMode::ElideNone</enum>

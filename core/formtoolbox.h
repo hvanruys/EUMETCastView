@@ -381,6 +381,7 @@ private slots:
     void on_chkInverseGeo15_stateChanged(int arg1);
     void on_chkInverseGeo16_stateChanged(int arg1);
     void on_rdbAlphaZero_clicked();
+    void on_btnTextureVII_clicked();
 };
 
 

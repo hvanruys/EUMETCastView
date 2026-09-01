@@ -29,6 +29,8 @@ SegmentListVII::SegmentListVII(eSegmentType type, QObject *parent) :
     histogrammethod = 0; // 0 none , 1 equalize
     normalized = false;
     watchervii = 0;
+
+
 }
 
 bool SegmentListVII::ComposeVIIImage(QList<bool> bandlist, QList<int> colorlist, QList<bool> invertlist, int histogrammethod, bool normalized)
