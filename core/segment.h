@@ -89,8 +89,6 @@ public:
     quint16 getProjectionValueRed(int line, int pixelx);
     quint16 getProjectionValueGreen(int line, int pixelx);
     quint16 getProjectionValueBlue(int line, int pixelx);
-    int DecompressSegmentToTemp();
-    int copy_data(struct archive *ar, struct archive *aw);
     void setHistogrammethod(int histogrammethod) { this->histogrammethod = histogrammethod; }
     QList<QVector<QGeodetic>> getFootprintListptr() { return listvect; }
     int pnpolyinsegment(int testx, int testy) ;

@@ -18,6 +18,7 @@ class SegmentOLCI : public Segment
 public:
     explicit SegmentOLCI(eSegmentType type, QFileInfo fileinfo, QObject *parent = 0);
     Segment *ReadSegmentInMemory();
+    int DecompressSegmentToTemp();
 
     void ComposeSegmentImage(int histogrammethod, bool normalized);
     void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
@@ -50,6 +51,7 @@ public:
 
 
 private:
+    QString productDir() const;
     void RenderSegmentlineInTextureOLCI( int nbrLine, QRgb *row );
     void getDatasetNameFromColor(int colorindex, QString *datasetname, QString *variablename, int *saturationindex);
     void getDatasetNameFromBand(QString *datasetname, QString *variablename, int *saturationindex);

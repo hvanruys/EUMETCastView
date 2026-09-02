@@ -121,19 +121,6 @@ bool SegmentListMERSI::ComposeMERSIImageInThread(QList<bool> bandlist, QList<int
     int deltaprogress = 99 / (totalnbrofsegments*3);
     int totalprogress = 0;
 
-    if(decompressfiles)
-    {
-        segsel = segsselected.begin();
-        while ( segsel != segsselected.end() )
-        {
-            SegmentMERSI *segm = (SegmentMERSI *)(*segsel);
-            segm->DecompressSegmentToTemp();
-            totalprogress += deltaprogress;
-            emit progressCounter(totalprogress);
-            ++segsel;
-        }
-    }
-
     bool composecolor = bandlist.at(0);
 
     getIndexFromColor(1);

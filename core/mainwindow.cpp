@@ -403,21 +403,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
 //    segfile.remove();
 
 
-    QDir workingdir1(".");
+    // The OLCI products DecompressSegmentToTemp unpacked. Every one of them is
+    // a <product>.SEN3 directory in the temporary directory, whatever satellite
+    // it came from.
+    QDir workingdir1(opts.temporarydir);
     filters.clear();
-    filters << "S3A_OL_1_*" << "S3B_OL_1_*";
+    filters << "*.SEN3";
     workingdir1.setNameFilters(filters);
     workingdir1.setFilter(QDir::Dirs | QDir::NoSymLinks);
-    QStringList infolist = workingdir1.entryList();
+    QFileInfoList infolist = workingdir1.entryInfoList();
 
     if(opts.remove_OLCI_dirs)
     {
         for (int i = 0; i < infolist.size(); ++i)
         {
-            QDir deletedir(infolist.at(i));
+            QDir deletedir(infolist.at(i).absoluteFilePath());
             bool gelukt = deletedir.removeRecursively();
             if(gelukt)
-                qDebug() << "removing OLCI dir : " << infolist.at(i);
+                qDebug() << "removing OLCI dir : " << infolist.at(i).absoluteFilePath();
         }
     }
 
