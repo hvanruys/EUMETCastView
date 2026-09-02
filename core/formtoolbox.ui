@@ -49,7 +49,7 @@
       <enum>QTabWidget::TabPosition::West</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>6</number>
      </property>
      <property name="elideMode">
       <enum>Qt::TextElideMode::ElideNone</enum>
@@ -7089,7 +7089,7 @@ Also sun-normalises the reflectance, which brightens the image away from the sub
                </font>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="pageLambert">
                <property name="geometry">
@@ -8708,8 +8708,8 @@ Also sun-normalises the reflectance, which brightens the image away from the sub
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>480</width>
-                 <height>252</height>
+                 <width>615</width>
+                 <height>505</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8719,7 +8719,7 @@ Also sun-normalises the reflectance, which brightens the image away from the sub
                 <item>
                  <widget class="QLabel" name="label_70">
                   <property name="text">
-                   <string>Only possible for AVHRR(Metop), VIIRS M/DNB and MERSI</string>
+                   <string>Only possible for AVHRR, VII, VIIRS M/DNB and MERSI</string>
                   </property>
                  </widget>
                 </item>
