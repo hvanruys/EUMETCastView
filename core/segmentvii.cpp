@@ -221,10 +221,7 @@ Segment *SegmentVII::ReadSegmentInMemory()
     bool iscolorimage = this->bandlist.at(0);
 
     QString basename = this->fileInfo.baseName() + ".nc";
-    QFile tfile(basename);
-    tempfileexist = tfile.exists();
 
-    qDebug() << QString("file %1  tempfileexist = %2").arg(basename).arg(tempfileexist);
     qDebug() << "Segment *SegmentVII::ReadSegmentInMemory()";
 
     QDir dir(opts.temporarydir);
@@ -233,9 +230,23 @@ Segment *SegmentVII::ReadSegmentInMemory()
         return this;
     }
 
-    if(this->fileInfo.completeSuffix() == "nc.bz2")
+    // The same granule is unpacked again for every band, colour combination or
+    // recipe composed from it. Once it sits in the temporary directory there is
+    // nothing left to gain, so reuse it instead of decompressing a second time.
+    // A zero length file is a leftover of an aborted run, never a product, so
+    // it counts as absent.
+    const QString tempfile = dir.filePath(basename);
+    tempfileexist = QFileInfo(tempfile).size() > 0;
+
+    qDebug() << QString("file %1  tempfileexist = %2").arg(tempfile).arg(tempfileexist);
+
+    if(tempfileexist)
     {
-        QFile fileout(dir.filePath(basename));
+        // nothing to do, the decompressed granule is already there
+    }
+    else if(this->fileInfo.completeSuffix() == "nc.bz2")
+    {
+        QFile fileout(tempfile);
         if (!fileout.open(QIODevice::WriteOnly)) {
             qWarning() << "Cannot open" << fileout.fileName() << fileout.errorString();
             return this;
@@ -268,11 +279,11 @@ Segment *SegmentVII::ReadSegmentInMemory()
     }
     else if(this->fileInfo.completeSuffix() == "nc")
     {
-        QFile::copy(this->fileInfo.absoluteFilePath(), dir.filePath(basename));
+        QFile::copy(this->fileInfo.absoluteFilePath(), tempfile);
     }
 
 
-    if(!reader.open(dir.filePath(basename)))
+    if(!reader.open(tempfile))
     {
         qCritical() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
         return this;
@@ -693,11 +704,8 @@ Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
     const RGBRecipe &rec = imageptrs->vii_rgbrecipes.at(recipe);
 
     QString basename = this->fileInfo.baseName() + ".nc";
-    QFile tfile(basename);
-    tempfileexist = tfile.exists();
 
-    qDebug() << QString("file %1  tempfileexist = %2").arg(basename).arg(tempfileexist);
-    qDebug() << "Segment *SegmentVII::ReadSegmentInMemory()";
+    qDebug() << "Segment *SegmentVII::ReadSegmentRecipeInMemory()";
 
     QDir dir(opts.temporarydir);
     if (!dir.mkpath(".")) {
@@ -705,9 +713,23 @@ Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
         return this;
     }
 
-    if(this->fileInfo.completeSuffix() == "nc.bz2")
+    // The same granule is unpacked again for every band, colour combination or
+    // recipe composed from it. Once it sits in the temporary directory there is
+    // nothing left to gain, so reuse it instead of decompressing a second time.
+    // A zero length file is a leftover of an aborted run, never a product, so
+    // it counts as absent.
+    const QString tempfile = dir.filePath(basename);
+    tempfileexist = QFileInfo(tempfile).size() > 0;
+
+    qDebug() << QString("file %1  tempfileexist = %2").arg(tempfile).arg(tempfileexist);
+
+    if(tempfileexist)
     {
-        QFile fileout(dir.filePath(basename));
+        // nothing to do, the decompressed granule is already there
+    }
+    else if(this->fileInfo.completeSuffix() == "nc.bz2")
+    {
+        QFile fileout(tempfile);
         if (!fileout.open(QIODevice::WriteOnly)) {
             qWarning() << "Cannot open" << fileout.fileName() << fileout.errorString();
             return this;
@@ -736,10 +758,10 @@ Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
     }
     else if(this->fileInfo.completeSuffix() == "nc")
     {
-        QFile::copy(this->fileInfo.absoluteFilePath(), dir.filePath(basename));
+        QFile::copy(this->fileInfo.absoluteFilePath(), tempfile);
     }
 
-    if(!reader.open(dir.filePath(basename)))
+    if(!reader.open(tempfile))
     {
         qCritical() << "SegmentVII::ReadSegmentRecipeInMemory " << reader.lastError();
         return this;
