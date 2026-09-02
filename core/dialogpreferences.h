@@ -86,6 +86,7 @@ private slots:
 
     void on_btnBackImage2D_clicked();
     void on_btnBackImage3D_clicked();
+    void on_btnTemporaryDir_clicked();
 
     void on_btnMapLCCExtentColor_clicked();
     void on_btnMapGVPExtentColor_clicked();
@@ -116,6 +117,8 @@ private slots:
 
     void on_rdbDoLogging_toggled(bool checked);
     void on_rdbCopyMTGfiles_toggled(bool checked);
+
+    void on_buttonBox_accepted();
 
 private:
     Ui::DialogPreferences *ui;

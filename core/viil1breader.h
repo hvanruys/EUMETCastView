@@ -92,7 +92,7 @@ public:
 
     /* The first eleven channels (vii_443 .. vii_2250) are solar, the last nine
        (vii_3740 .. vii_13345) thermal. The product splits its calibration the
-       same way: Band_averaged_solar_irradiance holds num_chan_solar entries and
+       same way: band_averaged_solar_irradiance holds num_chan_solar entries and
        channel_cw_thermal / bt_conversion_a / bt_conversion_b num_chan_thermal,
        both in channel order. */
     static bool isSolarChannel(const QString &name);

@@ -164,6 +164,7 @@ public:
     QString segmenttype;
     QString backgroundimage2D;
     QString backgroundimage3D;
+    QString temporarydir;
     QStringList tlesources;
     QString gshhsglobe1;
     QString gshhsglobe2;
@@ -287,7 +288,7 @@ public:
     bool colormapViridis;
 
     bool remove_OLCI_dirs;
-    bool remove_SLSTR_dirs;
+    bool remove_VII_files;
     bool usesaturationmask;
     bool copyMTGfiles;
     bool bFciRayleigh;

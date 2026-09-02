@@ -227,12 +227,24 @@ Segment *SegmentVII::ReadSegmentInMemory()
     qDebug() << QString("file %1  tempfileexist = %2").arg(basename).arg(tempfileexist);
     qDebug() << "Segment *SegmentVII::ReadSegmentInMemory()";
 
+    QDir dir(opts.temporarydir);
+    if (!dir.mkpath(".")) {
+        qWarning() << "Cannot create directory" << opts.temporarydir;
+        return this;
+    }
 
     if(this->fileInfo.completeSuffix() == "nc.bz2")
     {
-        QFile fileout(basename);
-        fileout.open(QIODevice::WriteOnly);
+        QFile fileout(dir.filePath(basename));
+        if (!fileout.open(QIODevice::WriteOnly)) {
+            qWarning() << "Cannot open" << fileout.fileName() << fileout.errorString();
+            return this;
+        }
         QDataStream streamout(&fileout);
+
+        // QFile fileout(opts.temporarydir + basename);
+        // fileout.open(QIODevice::WriteOnly);
+        // QDataStream streamout(&fileout);
 
 
         if((b = BZ2_bzopen(this->fileInfo.absoluteFilePath().toLatin1(),"rb"))==NULL)
@@ -256,11 +268,11 @@ Segment *SegmentVII::ReadSegmentInMemory()
     }
     else if(this->fileInfo.completeSuffix() == "nc")
     {
-        QFile::copy(this->fileInfo.absoluteFilePath(), basename);
+        QFile::copy(this->fileInfo.absoluteFilePath(), dir.filePath(basename));
     }
 
 
-    if(!reader.open(basename.toLatin1()))
+    if(!reader.open(dir.filePath(basename)))
     {
         qCritical() << "SegmentVII::ReadSegmentInMemory " << reader.lastError();
         return this;
@@ -687,10 +699,19 @@ Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
     qDebug() << QString("file %1  tempfileexist = %2").arg(basename).arg(tempfileexist);
     qDebug() << "Segment *SegmentVII::ReadSegmentInMemory()";
 
+    QDir dir(opts.temporarydir);
+    if (!dir.mkpath(".")) {
+        qWarning() << "Cannot create directory" << opts.temporarydir;
+        return this;
+    }
+
     if(this->fileInfo.completeSuffix() == "nc.bz2")
     {
-        QFile fileout(basename);
-        fileout.open(QIODevice::WriteOnly);
+        QFile fileout(dir.filePath(basename));
+        if (!fileout.open(QIODevice::WriteOnly)) {
+            qWarning() << "Cannot open" << fileout.fileName() << fileout.errorString();
+            return this;
+        }
         QDataStream streamout(&fileout);
 
 
@@ -715,11 +736,10 @@ Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
     }
     else if(this->fileInfo.completeSuffix() == "nc")
     {
-        QFile::copy(this->fileInfo.absoluteFilePath(), basename);
+        QFile::copy(this->fileInfo.absoluteFilePath(), dir.filePath(basename));
     }
 
-    qDebug() << "Opening SegmentVII file : " << basename;
-    if(!reader.open(basename.toLatin1()))
+    if(!reader.open(dir.filePath(basename)))
     {
         qCritical() << "SegmentVII::ReadSegmentRecipeInMemory " << reader.lastError();
         return this;

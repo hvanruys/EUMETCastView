@@ -91,6 +91,7 @@ void Options::Initialize()
     stationlistlat=settings.value("/window/stationlistlat").value<QStringList>();
     backgroundimage2D=settings.value("/window/backgroundimage2D", "./images/Topography.jpg").value<QString>();
     backgroundimage3D=settings.value("/window/backgroundimage3D", "./images/NE2_50M_SR_W_4096.jpg").value<QString>();
+    temporarydir=settings.value("/window/temporarydir", ".").value<QString>();
     tlesources=settings.value("/satellite/tlesources").value<QStringList>();
 
     gshhsglobe1=settings.value("/window/gshhsglobe1", "./gshhs2_3_7/gshhs_i.b").value<QString>();
@@ -237,7 +238,7 @@ void Options::Initialize()
     colormapViridis = settings.value("/projection/colormapviridis", false ).toBool();
 
     remove_OLCI_dirs = settings.value("/parameters/removeolcidirs", false).toBool();
-    remove_SLSTR_dirs = settings.value("/parameters/removeslstrdirs", false).toBool();
+    remove_VII_files = settings.value("/parameters/removeviifiles", false).toBool();
     usesaturationmask = settings.value("/parameters/usesaturationmask", true).toBool();
     copyMTGfiles = settings.value("/parameters/copymtgfiles", false).toBool();
     bFciRayleigh = settings.value("/parameters/fcirayleigh", true).toBool();
@@ -494,6 +495,7 @@ void Options::Save()
 
     settings.setValue("/window/backgroundimage2D", backgroundimage2D );
     settings.setValue("/window/backgroundimage3D", backgroundimage3D );
+    settings.setValue("/window/temporarydir", temporarydir);
     settings.setValue("/satellite/tlesources", tlesources );
 
     settings.setValue("/window/gshhsglobe1", gshhsglobe1 );
@@ -621,7 +623,7 @@ void Options::Save()
     settings.setValue( "/projection/colormapviridis", colormapViridis);
 
     settings.setValue("/parameters/removeolcidirs", remove_OLCI_dirs);
-    settings.setValue("/parameters/removeslstrdirs", remove_SLSTR_dirs);
+    settings.setValue("/parameters/removeviifiles", remove_VII_files);
     settings.setValue("/parameters/usesaturationmask", usesaturationmask);
     settings.setValue("/parameters/copymtgfiles", copyMTGfiles);
     settings.setValue("/parameters/fcirayleigh", bFciRayleigh);

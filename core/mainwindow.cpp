@@ -421,21 +421,22 @@ void MainWindow::closeEvent(QCloseEvent *event)
         }
     }
 
-    QDir workingdir2(".");
-    filters.clear();
-    filters << "S3A_SL_1_*" << "S3B_SL_1_*";
-    workingdir2.setNameFilters(filters);
-    workingdir2.setFilter(QDir::Dirs | QDir::NoSymLinks);
-    infolist = workingdir2.entryList();
 
-    if(opts.remove_SLSTR_dirs)
+    QDir workingdir2(opts.temporarydir);
+    filters.clear();
+    filters << "W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII*";
+    workingdir2.setNameFilters(filters);
+    workingdir2.setFilter(QDir::Files);
+    fileinfolist = workingdir2.entryInfoList();
+
+    if(opts.remove_VII_files)
     {
-        for (int i = 0; i < infolist.size(); ++i)
+        for (int i = 0; i < fileinfolist.size(); ++i)
         {
-            QDir deletedir(infolist.at(i));
-            bool gelukt = deletedir.removeRecursively();
-            if(gelukt)
-                qDebug() << "removing SLSTR dir : " << infolist.at(i);
+            qDebug() << "Removing file " << fileinfolist.at(i).absoluteFilePath();
+            QFile viifile(fileinfolist.at(i).absoluteFilePath());
+            if(viifile.remove())
+                qDebug() << "removing VII files : " << fileinfolist.at(i);
         }
     }
 

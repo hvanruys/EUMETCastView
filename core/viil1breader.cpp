@@ -281,7 +281,16 @@ bool ViiL1BReader::readCalibration()
         return nc_get_var_double(m_calGid, varid, out->data()) == NC_NOERR;
     };
 
-    if (!readArray("Band_averaged_solar_irradiance", kSolarChannels, &m_solarIrradiance)
+    /* The operational product spells the solar irradiance
+       band_averaged_solar_irradiance; the pre-launch test products this reader
+       was first written against capitalise the B. It is the only variable the
+       reader needs that was renamed, so it is the only one that needs both
+       spellings - and without it no channel calibrates, solar or thermal. */
+    const bool haveSolar =
+        readArray("band_averaged_solar_irradiance", kSolarChannels, &m_solarIrradiance)
+        || readArray("Band_averaged_solar_irradiance", kSolarChannels, &m_solarIrradiance);
+
+    if (!haveSolar
         || !readArray("channel_cw_thermal",  kThermalChannels, &m_thermalCw)
         || !readArray("bt_conversion_a",     kThermalChannels, &m_thermalA)
         || !readArray("bt_conversion_b",     kThermalChannels, &m_thermalB)) {

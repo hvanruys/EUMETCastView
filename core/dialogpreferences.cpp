@@ -17,6 +17,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     ui->edtBackImage2D->setText(opts.backgroundimage2D);
     ui->edtBackImage3D->setText(opts.backgroundimage3D);
+    ui->edtTemporaryDir->setText(opts.temporarydir);
 
     ui->edtGshhsGlobe1->setText(opts.gshhsglobe1);
     ui->edtGshhsGlobe2->setText(opts.gshhsglobe2);
@@ -149,6 +150,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->rbViridis->setChecked(opts.colormapViridis);
 
     ui->rdbRemoveOLCIDirs->setChecked(opts.remove_OLCI_dirs);
+    ui->rdbRemoveVIIfiles->setChecked(opts.remove_VII_files);
     ui->rdbSaturation->setChecked(opts.usesaturationmask);
     ui->rdbCopyMTGfiles->setChecked(opts.copyMTGfiles);
 
@@ -177,6 +179,9 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     QString htmlstring = "When checked the created OLCI ERR and EFR directories will be removed";
     ui->rdbRemoveOLCIDirs->setWhatsThis(htmlstring);
+    QString htmlstring1 = "When checked the created VII files will be removed";
+    ui->rdbRemoveVIIfiles->setWhatsThis(htmlstring1);
+
     if (opts.bFciDecomp == true)
     {
         ui->lblFciDecomp->setText("The FCIDECOMP plugin was found.");
@@ -551,6 +556,7 @@ void DialogPreferences::dialogaccept()
 {
     qDebug() << "in accept";
     opts.backgroundimage2D = ui->edtBackImage2D->text();
+    opts.temporarydir = ui->edtTemporaryDir->text();
 
     if(ui->chkGray->isChecked() == false)
     {
@@ -649,6 +655,7 @@ void DialogPreferences::dialogaccept()
     opts.colormapViridis = ui->rbViridis->isChecked();
 
     opts.remove_OLCI_dirs = ui->rdbRemoveOLCIDirs->isChecked();
+    opts.remove_VII_files = ui->rdbRemoveVIIfiles->isChecked();
     opts.usesaturationmask = ui->rdbSaturation->isChecked();
     opts.copyMTGfiles = ui->rdbCopyMTGfiles->isChecked();
     // opts.productdirectory = ui->leProductDirectory->text();
@@ -925,6 +932,20 @@ void DialogPreferences::on_btnBackImage2D_clicked()
     if ( !fn2D.isEmpty() )
     {
         ui->edtBackImage2D->setText(fn2D);
+    }
+
+}
+
+void DialogPreferences::on_btnTemporaryDir_clicked()
+{
+    QString fnTemp = QFileDialog::getExistingDirectory( this,
+                                                tr("Select the temporary directory"),
+                                                QDir::currentPath(),
+                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if ( !fnTemp.isEmpty() )
+    {
+        ui->edtTemporaryDir->setText(fnTemp);
     }
 
 }
@@ -3752,4 +3773,10 @@ Qt::ItemFlags VIIConfigModel::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
 
+
+
+void DialogPreferences::on_buttonBox_accepted()
+{
+
+}
 
