@@ -2913,6 +2913,8 @@ void FormImage::OverlayProjection(QPainter *paint)
             segs->seglviirsmnoaa20->GetContourPolygon(&poly);
         else if(opts.buttonVIIRSMNOAA21)
             segs->seglviirsmnoaa21->GetContourPolygon(&poly);
+        else if(opts.buttonMetopSGA1)
+            segs->seglmetopsga1->GetContourPolygon(&poly);
         else if(opts.buttonMetop)
             segs->seglmetop->GetContourPolygonAVHRR(&poly);
 
