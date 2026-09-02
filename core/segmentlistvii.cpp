@@ -1289,10 +1289,209 @@ void SegmentListVII::SmoothVIIImage(bool combine)
     {
         SegmentVII *segm = (SegmentVII *)(*segsel);
         if(segsel != segsselected.begin())
-            BilinearBetweenSegments(segmsave, segm, combine);
+            BilinearBetweenScansSegments(segmsave, segm, combine);
         segmsave = segm;
+        // The seams first: MapCanvas overwrites, so wherever a bridge quad and
+        // an ordinary one cover the same pixel the ordinary one should win.
+        BilinearBetweenScans(segm, combine);
         BilinearInterpolation(segm, combine);
         ++segsel;
+    }
+}
+
+int SegmentListVII::lastUsableLine(SegmentVII *segm, int scanline, int nd, int pixelx)
+{
+    for(int d = nd - 1; d >= 0; d--)
+    {
+        int line = scanline + d;
+        if(segm->getProjectionX(line, pixelx) < 65528 && segm->getProjectionX(line, pixelx+1) < 65528
+                && segm->getProjectionY(line, pixelx) < 65528 && segm->getProjectionY(line, pixelx+1) < 65528)
+            return line;
+    }
+    return -1;
+}
+
+int SegmentListVII::firstUsableLine(SegmentVII *segm, int scanline, int nd, int pixelx)
+{
+    for(int d = 0; d < nd; d++)
+    {
+        int line = scanline + d;
+        if(segm->getProjectionX(line, pixelx) < 65528 && segm->getProjectionX(line, pixelx+1) < 65528
+                && segm->getProjectionY(line, pixelx) < 65528 && segm->getProjectionY(line, pixelx+1) < 65528)
+            return line;
+    }
+    return -1;
+}
+
+/*
+ * The seams inside one segment.
+ *
+ * pixel_duplication_mask blanks the bow-tie overlap at both swath edges, in a
+ * staircase that is widest on the first and last line of a scan and empty in
+ * the twelve middle ones. What is left of a scan is an hourglass, and the line
+ * that continues the ground past its edge belongs to the next scan, up to 13
+ * lines further on in the array. BilinearInterpolation pairs a line only with
+ * line + 1, so it never draws that quad and the seam stays as a gap one pixel
+ * high, as wide as the staircase step - which is what shows up along the left
+ * and right edge of an Oblique Mercator image, and deep inside a zoomed
+ * General Vertical Perspective one.
+ *
+ * The ground it spans is small: measured over a granule the two lines are
+ * 0.24 km apart on average and never more than one array step, so the quad is
+ * the same size as the ones the ordinary pass draws.
+ */
+void SegmentListVII::BilinearBetweenScans(SegmentVII *segm, bool combine)
+{
+    qDebug() << QString("====> start SegmentListVII::BilinearBetweenScans(SegmentVII *segm)");
+
+    const int nd = segm->getNumPixelsAlt();
+    if(nd <= 0)
+        return;
+
+    const int nscans = segm->NbrOfLines / nd;
+    const int earthviews = this->NbrOfEartviewsPerScanline();
+
+    long counter = 0;
+
+    for(int scan = 0; scan + 1 < nscans; scan++)
+    {
+        for(int pixelx = 0; pixelx < earthviews-1; pixelx++)
+        {
+            int linefirst = lastUsableLine(segm, scan * nd, nd, pixelx);
+            int linenext = firstUsableLine(segm, (scan + 1) * nd, nd, pixelx);
+
+            // Nothing masked in this column: the two lines are neighbours and
+            // BilinearInterpolation has already drawn the quad between them.
+            if(linefirst < 0 || linenext < 0 || linenext == linefirst + 1)
+                continue;
+
+            BridgeSeam(segm, linefirst, segm, linenext, pixelx, combine);
+            counter++;
+        }
+    }
+
+    qDebug() << QString("====> end SegmentListVII::BilinearBetweenScans(SegmentVII *segm) counter = %1").arg(counter);
+}
+
+/*
+ * The seam between two segments, which is a scan seam like any other: the last
+ * scan of one granule and the first of the next are masked exactly as two
+ * scans inside a granule are, so pairing the last line with line 0, the way
+ * SegmentList::BilinearBetweenSegments does, finds nothing but blanked pixels
+ * at the swath edges and leaves the same gap there.
+ */
+void SegmentListVII::BilinearBetweenScansSegments(SegmentVII *segmfirst, SegmentVII *segmnext, bool combine)
+{
+    qDebug() << QString("====> start SegmentListVII::BilinearBetweenScansSegments(SegmentVII *segmfirst, SegmentVII *segmnext)");
+
+    const int nd = segmfirst->getNumPixelsAlt();
+    if(nd <= 0 || segmnext->getNumPixelsAlt() != nd)
+        return;
+    // getProjectionX does not range check, and a granule shorter than one scan
+    // would send the search off the front of the array.
+    if(segmfirst->NbrOfLines < nd || segmnext->NbrOfLines < nd)
+        return;
+
+    const int earthviews = this->NbrOfEartviewsPerScanline();
+
+    long counter = 0;
+
+    for(int pixelx = 0; pixelx < earthviews-1; pixelx++)
+    {
+        int linefirst = lastUsableLine(segmfirst, segmfirst->NbrOfLines - nd, nd, pixelx);
+        int linenext = firstUsableLine(segmnext, 0, nd, pixelx);
+
+        if(linefirst < 0 || linenext < 0)
+            continue;
+
+        BridgeSeam(segmfirst, linefirst, segmnext, linenext, pixelx, combine);
+        counter++;
+    }
+
+    qDebug() << QString("====> end SegmentListVII::BilinearBetweenScansSegments(SegmentVII *segmfirst, SegmentVII *segmnext) counter = %1").arg(counter);
+}
+
+void SegmentListVII::BridgeSeam(SegmentVII *segmfirst, int linefirst, SegmentVII *segmnext, int linenext,
+                                int pixelx, bool combine)
+{
+    qint32 x11 = segmfirst->getProjectionX(linefirst, pixelx);
+    qint32 y11 = segmfirst->getProjectionY(linefirst, pixelx);
+
+    qint32 x12 = segmfirst->getProjectionX(linefirst, pixelx+1);
+    qint32 y12 = segmfirst->getProjectionY(linefirst, pixelx+1);
+
+    qint32 x21 = segmnext->getProjectionX(linenext, pixelx);
+    qint32 y21 = segmnext->getProjectionY(linenext, pixelx);
+
+    qint32 x22 = segmnext->getProjectionX(linenext, pixelx+1);
+    qint32 y22 = segmnext->getProjectionY(linenext, pixelx+1);
+
+    // The caller has already established that all four carry a coordinate; what
+    // is left to reject is a seam the two lines do not actually share, the way
+    // BilinearBetweenSegments rejects one.
+    if(abs(x11 - x21) >= 100 || abs(y11 - y21) >= 100)
+        return;
+
+    qint32 minx = Min(x11, x12, x21, x22);
+    qint32 miny = Min(y11, y12, y21, y22);
+    qint32 maxx = Max(x11, x12, x21, x22);
+    qint32 maxy = Max(y11, y12, y21, y22);
+
+    qint32 anchorX = minx;
+    qint32 anchorY = miny;
+    int dimx = maxx + 1 - minx;
+    int dimy = maxy + 1 - miny;
+
+    if( (dimx == 1 && dimy == 1) || (dimx > 50 && dimy > 50) || (dimx <= 0 || dimy <= 0) )
+        return;
+
+    QRgb rgb11 = segmfirst->getProjectionValue(linefirst, pixelx);
+    QRgb rgb12 = segmfirst->getProjectionValue(linefirst, pixelx+1);
+    QRgb rgb21 = segmnext->getProjectionValue(linenext, pixelx);
+    QRgb rgb22 = segmnext->getProjectionValue(linenext, pixelx+1);
+
+    qint32 xc11 = x11 - minx;
+    qint32 xc12 = x12 - minx;
+    qint32 xc21 = x21 - minx;
+    qint32 xc22 = x22 - minx;
+    qint32 yc11 = y11 - miny;
+    qint32 yc12 = y12 - miny;
+    qint32 yc21 = y21 - miny;
+    qint32 yc22 = y22 - miny;
+
+    QRgb *canvas;
+
+    try
+    {
+        try
+        {
+            canvas = new QRgb[dimx * dimy];
+        } catch(...)
+        {
+            qDebug() << "BridgeSeam new QRgb";
+            throw;
+        }
+
+        for(int i = 0 ; i < dimx * dimy ; i++)
+            canvas[i] = qRgba(0,0,0,0);
+
+        canvas[yc11 * dimx + xc11] = rgb11;
+        canvas[yc12 * dimx + xc12] = rgb12;
+        canvas[yc21 * dimx + xc21] = rgb21;
+        canvas[yc22 * dimx + xc22] = rgb22;
+
+        bhm_line(xc11, yc11, xc12, yc12, rgb11, rgb12, canvas, dimx);
+        bhm_line(xc12, yc12, xc22, yc22, rgb12, rgb22, canvas, dimx);
+        bhm_line(xc22, yc22, xc21, yc21, rgb22, rgb21, canvas, dimx);
+        bhm_line(xc21, yc21, xc11, yc11, rgb21, rgb11, canvas, dimx);
+
+        MapInterpolation(canvas, dimx, dimy);
+        MapCanvas(canvas, anchorX, anchorY, dimx, dimy, combine);
+
+        delete [] canvas;
+    }
+    catch(...) {
+        qDebug() << "BridgeSeam Exception occured";
     }
 }
 

@@ -44,6 +44,9 @@ public:
     void initializeMemory();
     void resetMemory();
     int getEarthViewsPerScanline() { return this->earth_views_per_scanline; }
+    /* lines per scan, 24: the bow-tie repeats with it, so the seam between two
+       scans sits every num_pixels_alt lines. */
+    int getNumPixelsAlt() const { return this->num_pixels_alt; }
 
     void recalculateStatsInProjection(bool normalized);
     void RecalculateProjection(bool normalized);

@@ -44,6 +44,13 @@ public:
 
     void SmoothVIIImage(bool combine);
     void SmoothVIIImage12bits();
+
+    /* The bow-tie overlap removed by the duplication mask leaves each scan an
+       hourglass, so across a seam the two ground-adjacent lines are up to 13
+       apart in the array and BilinearInterpolation, which only ever pairs a
+       line with the next one, cannot reach over it. These close the seam. */
+    void BilinearBetweenScans(SegmentVII *segm, bool combine);
+    void BilinearBetweenScansSegments(SegmentVII *segmfirst, SegmentVII *segmnext, bool combine);
     void setHistogramMethod(int histo, bool normal) { histogrammethod = histo; normalized = normal; }
     bool ChangeHistogramMethod();
 
@@ -56,6 +63,16 @@ public:
     bool searchLatLon(int mapx, int mapy, float &lon, float &lat);
 
 private:
+    /* One seam quad: column pixelx between line linefirst of segmfirst and line
+       linenext of segmnext. Same canvas the other two passes draw on. */
+    void BridgeSeam(SegmentVII *segmfirst, int linefirst, SegmentVII *segmnext, int linenext,
+                    int pixelx, bool combine);
+    /* Last, resp. first, line of the scan starting at scanline that carries a
+       projection coordinate for both pixelx and pixelx+1, or -1 when the
+       duplication mask left the column empty in that scan. */
+    static int lastUsableLine(SegmentVII *segm, int scanline, int nd, int pixelx);
+    static int firstUsableLine(SegmentVII *segm, int scanline, int nd, int pixelx);
+
     void CalculateLUT();
     void CalculateLUTAlt();
     void CalculateLUTFull();
