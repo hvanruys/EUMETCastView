@@ -942,88 +942,53 @@ void FormImage::setPixmapToScene(bool settoolboxbuttons)
     emit allsegmentsreceivedbuttons(settoolboxbuttons);
     emit setmapcylbuttons(true);
 
+    // Only what displayImage() below does not do. It draws the image from a
+    // switch over these same channels, placeholder included when there is no
+    // image yet, and writes the info panel - so what is left here is the
+    // Oblique Mercator image size, and clearing the info panel for a
+    // projection, where displayImage has that line commented out.
     switch(channelshown)
     {
+    case IMAGE_NONE:
+        return;
     case IMAGE_AVHRR_CH1:
-        displayAVHRRImageInfo();
-        m_image = imageptrs->ptrimagecomp_ch[0];
-        formtoolbox->setOMimagesize(m_image->width(), m_image->height());
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[0]->width(), imageptrs->ptrimagecomp_ch[0]->height());
         break;
     case IMAGE_AVHRR_CH2:
-        displayAVHRRImageInfo();
-        m_image = imageptrs->ptrimagecomp_ch[1];
-        formtoolbox->setOMimagesize(m_image->width(), m_image->height());
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[1]->width(), imageptrs->ptrimagecomp_ch[1]->height());
         break;
     case IMAGE_AVHRR_CH3:
-        displayAVHRRImageInfo();
-        m_image = imageptrs->ptrimagecomp_ch[2];
-        formtoolbox->setOMimagesize(m_image->width(), m_image->height());
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[2]->width(), imageptrs->ptrimagecomp_ch[2]->height());
         break;
     case IMAGE_AVHRR_CH4:
-        displayAVHRRImageInfo();
-        m_image = imageptrs->ptrimagecomp_ch[3];
-        formtoolbox->setOMimagesize(m_image->width(), m_image->height());
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[3]->width(), imageptrs->ptrimagecomp_ch[3]->height());
         break;
     case IMAGE_AVHRR_CH5:
-        displayAVHRRImageInfo();
-        m_image = imageptrs->ptrimagecomp_ch[4];
-        formtoolbox->setOMimagesize(m_image->width(), m_image->height());
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_ch[4]->width(), imageptrs->ptrimagecomp_ch[4]->height());
         break;
     case IMAGE_AVHRR_COL:
-        displayAVHRRImageInfo();
-        m_image = imageptrs->ptrimagecomp_col;
-        formtoolbox->setOMimagesize(m_image->width(), m_image->height());
-        break;
-    case IMAGE_AVHRR_EXPAND:
-        displayAVHRRImageInfo();
-        m_image = imageptrs->ptrexpand_col;
-        break;
-    case IMAGE_GEOSTATIONARY:
-        displayGeoImageInfo();
-        m_image = imageptrs->ptrimageGeostationary;
+        formtoolbox->setOMimagesize(imageptrs->ptrimagecomp_col->width(), imageptrs->ptrimagecomp_col->height());
         break;
     case IMAGE_PROJECTION:
         formtoolbox->writeInfoToTextEdit("");
-        m_image = imageptrs->ptrimageProjection;
         break;
     case IMAGE_VIIRSM:
-        displayVIIRSImageInfo(segmenttype);
-        m_image = imageptrs->ptrimageViirsM;
         formtoolbox->setOMimagesize(imageptrs->ptrimageViirsM->width(), imageptrs->ptrimageViirsM->height());
         break;
     case IMAGE_VIIRSDNB:
-        displayVIIRSImageInfo(segmenttype);
-        m_image = imageptrs->ptrimageViirsDNB;
         formtoolbox->setOMimagesize(imageptrs->ptrimageViirsDNB->width(), imageptrs->ptrimageViirsDNB->height());
         break;
-    case IMAGE_OLCI:
-        displaySentinelImageInfo(SEG_OLCIEFR);
-        m_image = imageptrs->ptrimageOLCI;
-        break;
     case IMAGE_MERSI:
-        displayMERSIImageInfo(SEG_MERSI);
-        m_image = imageptrs->ptrimageMERSI;
         formtoolbox->setOMimagesize(imageptrs->ptrimageMERSI->width(), imageptrs->ptrimageMERSI->height());
         break;
     case IMAGE_VII:
-        displayVIIImageInfo();
-        m_image = imageptrs->ptrimageVII;
         formtoolbox->setOMimagesize(imageptrs->ptrimageVII->width(), imageptrs->ptrimageVII->height());
         break;
-    case IMAGE_NONE:
-        return;
-
+    case IMAGE_AVHRR_EXPAND:
+    case IMAGE_GEOSTATIONARY:
+    case IMAGE_OLCI:
+        break;
     }
-
-    m_pixmap = QPixmap::fromImage(*m_image);
-    m_pixmapItem = m_scene->addPixmap(m_pixmap);
-    m_scene->setSceneRect(m_pixmap.rect());
-    this->centerOn(m_pixmapItem);
-
-    m_ViewInitialized = true;
-
-    fitWindow();
-    this->setDragMode(ScrollHandDrag);
 
     displayImage(channelshown, true);
 

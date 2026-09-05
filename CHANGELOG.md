@@ -50,7 +50,12 @@ click, and the qmake project files are gone.
   viewer on whatever it was showing before. `setPixmapToScene` ends by calling
   `displayImage(channelshown, true)`, so the scene is filled from one place, and
   selecting the METimage tab displays the VII image as the other sensor tabs
-  already did for theirs.
+  already did for theirs. Its own switch, which repeated `displayImage`'s case
+  for case, is down to what `displayImage` does not do: the Oblique Mercator
+  image size, the cleared info panel for a projection, and the early return on
+  `IMAGE_NONE`. The two disagreed here and there — the OLCI info was written for
+  `SEG_OLCIEFR` in one and for `imageptrs->olcitype` in the other — and
+  `displayImage`, running last, already had the last word.
 - **A VII colour combination using channels 17 to 20 was refused.**
   `comboColVIIOK` summed the first sixteen channel combo boxes only, so a
   selection made in the last four counted as nothing selected. All twenty count.
