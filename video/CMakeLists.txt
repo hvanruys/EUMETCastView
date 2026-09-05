@@ -36,7 +36,7 @@ if(EUMETCASTVIDEO_STANDALONE)
     # top-level CMakeLists.txt for what sharing them costs. The executable is
     # deliberately left in this build tree rather than sent to bin/, so a debug
     # build here cannot replace the bin/EUMETCastVideo that the main
-    # application spawns as "./EUMETCastVideo".
+    # application spawns from its own directory.
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
 
@@ -83,11 +83,13 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(HDF5 REQUIRED hdf5)
 pkg_check_modules(NETCDF REQUIRED netcdf)
 
-if(UNIX)
-    add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
-elseif(WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES})
-endif()
+# Deliberately not WIN32. This is a batch tool with no window of its own, and a
+# GUI subsystem application on Windows has no console to write to, so every
+# qDebug() in it - which is where it reports what it read and what it wrote -
+# was lost, and running it by hand to see why no images appeared told you
+# nothing. Nothing pops up when EUMETCastView spawns it either: QProcess passes
+# CREATE_NO_WINDOW whenever the parent has no console itself.
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${EUMETCASTVIEW_ROOT}/QSgp4")

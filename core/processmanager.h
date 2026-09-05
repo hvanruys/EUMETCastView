@@ -27,6 +27,7 @@ public:
 private:
     // void createProcess(const QString &program, const QStringList &args);
     void startNextTask();
+    void retireProcess(QProcess *proc);
 
     //QVarLengthArray<QProcess*, 256> processes;
     //QVarLengthArray<int, 256> processtatus;
@@ -34,6 +35,7 @@ private:
     QQueue<ProcessTask> taskQueue;
     QList<QProcess*> activeProcesses;
 
+    QString videoprogram;
     int maxConcurrentProcesses;
     int totalTasks = 0;
     int completedTasks = 0;
@@ -45,6 +47,7 @@ private slots:
 
 signals:
     void signalDeleteManager();
+    void signalMessage(QString msg);
 };
 
 #endif // PROCESSMANAGER_H

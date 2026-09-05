@@ -1,8 +1,19 @@
 #include "processmanager.h"
 
+#include <QCoreApplication>
+
 ProcessManager::ProcessManager(QStringList datelist, int maxConcurrent, QString shortname, QObject *parent)
-    : QObject(parent),  maxConcurrentProcesses(maxConcurrent)
+    : QObject(parent),  maxConcurrentProcesses(qMax(1, maxConcurrent))
 {
+
+    // Resolved against the directory this executable lives in, not against the
+    // working directory. "./EUMETCastVideo" only worked because the application
+    // happened to be started from its own directory: on Windows whatever starts
+    // EUMETCastView - a shortcut, QtCreator - chooses the working directory, and
+    // the relative name then points at a file that is not there. The process
+    // failed to start, which nothing reported, and tempvideo/ stayed empty.
+    // The .exe suffix is not needed; CreateProcess appends it itself.
+    videoprogram = QCoreApplication::applicationDirPath() + "/EUMETCastVideo";
 
     bool isMTG = (shortname == "MET_12" ? true : false);
     if(datelist.length() == 0)
@@ -15,7 +26,7 @@ ProcessManager::ProcessManager(QStringList datelist, int maxConcurrent, QString 
                 ProcessTask task;
                 task.taskId = i;
 
-                task.program = "./EUMETCastVideo";
+                task.program = videoprogram;
                 task.arguments = {QString("%1").arg(i), datelist.at(i)};
 
                 taskQueue.enqueue(task);
@@ -29,7 +40,7 @@ ProcessManager::ProcessManager(QStringList datelist, int maxConcurrent, QString 
             ProcessTask task;
             task.taskId = i;
 
-            task.program = "./EUMETCastVideo";
+            task.program = videoprogram;
             task.arguments = {QString("%1").arg(i), datelist.at(i)};
 
             taskQueue.enqueue(task);
@@ -44,6 +55,10 @@ ProcessManager::ProcessManager(QStringList datelist, int maxConcurrent, QString 
 
 void ProcessManager::start() {
     qDebug() << "Starting process manager...\n";
+
+    emit signalMessage(QString("Starting %1 task(s), %2 at a time : %3")
+                           .arg(totalTasks).arg(maxConcurrentProcesses).arg(videoprogram));
+
     // Fill up to max concurrent processes
     while (activeProcesses.size() < maxConcurrentProcesses && !taskQueue.isEmpty()) {
         startNextTask();
@@ -126,26 +141,14 @@ void ProcessManager::onFinished(int exitCode, QProcess::ExitStatus exitStatus) {
                         .arg(exitCode)
                         .arg(exitStatus == QProcess::NormalExit ? "Normal" : "Crashed");
 
-        completedTasks++;
-
-        // Remove from active processes
-        activeProcesses.removeOne(proc);
-        proc->deleteLater();
-
-        qDebug() << QString("Progress: %1/%2 completed, %3 running, %4 queued")
-                        .arg(completedTasks)
-                        .arg(totalTasks)
-                        .arg(activeProcesses.size())
-                        .arg(taskQueue.size());
-
-        // Start next task if available
-        if (!taskQueue.isEmpty()) {
-            startNextTask();
-        } else if (activeProcesses.isEmpty()) {
-            // All done!
-            qDebug() << "=== All tasks completed! ===";
-            emit signalDeleteManager();
+        if (exitStatus != QProcess::NormalExit || exitCode != 0) {
+            emit signalMessage(QString("Task %1 ended badly : exit code %2, %3")
+                                   .arg(taskId)
+                                   .arg(exitCode)
+                                   .arg(exitStatus == QProcess::NormalExit ? "normal exit" : "crashed"));
         }
+
+        retireProcess(proc);
     }
  }
 
@@ -156,5 +159,46 @@ void ProcessManager::onErrorOccurred(QProcess::ProcessError error) {
         qDebug() << QString("[Task %1 ERROR]: Process error occurred - %2")
                         .arg(taskId)
                         .arg(error);
+
+        emit signalMessage(QString("Task %1 : %2 (%3)")
+                               .arg(taskId)
+                               .arg(proc->errorString())
+                               .arg(proc->program()));
+
+        // A process that never started emits no finished(), so nothing else
+        // would take it out of activeProcesses: the queue stalled here, with no
+        // images written and nothing said about it. Retire it as if it had run.
+        // Queued, because on Windows this arrives from inside proc->start() -
+        // starting the next task from here would recurse once per task - while
+        // on Unix it arrives from the event loop.
+        if (error == QProcess::FailedToStart) {
+            QMetaObject::invokeMethod(this, [this, proc]{ retireProcess(proc); },
+                                      Qt::QueuedConnection);
+        }
+    }
+}
+
+// Called for a process that has run, and for one that never started. Both leave
+// the queue to be advanced and both are the last use of the QProcess.
+void ProcessManager::retireProcess(QProcess *proc) {
+    completedTasks++;
+
+    // Remove from active processes
+    activeProcesses.removeOne(proc);
+    proc->deleteLater();
+
+    qDebug() << QString("Progress: %1/%2 completed, %3 running, %4 queued")
+                    .arg(completedTasks)
+                    .arg(totalTasks)
+                    .arg(activeProcesses.size())
+                    .arg(taskQueue.size());
+
+    // Start next task if available
+    if (!taskQueue.isEmpty()) {
+        startNextTask();
+    } else if (activeProcesses.isEmpty()) {
+        // All done!
+        qDebug() << "=== All tasks completed! ===";
+        emit signalDeleteManager();
     }
 }

@@ -608,7 +608,11 @@ void VideoMaker::compileImage(QString date, int imagenbr)
 
         QString prefixstr = reader->videooutputname;
 
-        gvp->imageProjection->save("tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0')));
+        QString imagefile = "tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0'));
+        // Silence here was the whole problem: a missing tempvideo/ or an image
+        // that could not be allocated both end as save() returning false.
+        if(!gvp->imageProjection->save(imagefile))
+            sendMessages(QString("Failed to write %1 in %2").arg(imagefile).arg(QDir::currentPath()));
 
 
         delete gvp;
@@ -1156,8 +1160,12 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
 
         QString prefixstr = reader->videooutputname;
 
-        qDebug() << "Saving image " << QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0'));
-        gvp->imageProjection->save("tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0')));
+        QString imagefile = "tempvideo/" + QString(prefixstr + "%1.png").arg(imagenbr, 4, 10, QChar('0'));
+        qDebug() << "Saving image " << imagefile;
+        // Silence here was the whole problem: a missing tempvideo/ or an image
+        // that could not be allocated both end as save() returning false.
+        if(!gvp->imageProjection->save(imagefile))
+            sendMessages(QString("Failed to write %1 in %2").arg(imagefile).arg(QDir::currentPath()));
 
 
         delete gvp;

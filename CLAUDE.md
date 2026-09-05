@@ -36,6 +36,14 @@ Executables go to `bin/`, which is shared by every build tree — the last build
 to link wins, so after an AppImage container build `bin/EUMETCastView` is the
 Ubuntu 20.04 binary until you rebuild natively.
 
+`FormMovie` spawns `EUMETCastVideo` from the directory `EUMETCastView` is itself
+running from, so the two have to stay together — which `bin/` gives you. Build
+both from the top-level `CMakeLists.txt`, on Windows as well: the qmake tree is
+no substitute, `EUMETCastView.pro` names a `PublicDecompWT-2.8.1` subproject
+that has no `.pro` file and does not list `video` at all. `core/core.pro` and
+`video/video.pro` can still be opened one at a time in QtCreator, and are
+written to put their executables in the same directory.
+
 Static libraries go to `<build tree>/libs`, one set per configuration. They must
 not be shared: an archive is only re-created when it is older than its objects,
 so a shared `libs/` lets one build tree hand another its stale, wrongly-targeted

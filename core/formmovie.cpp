@@ -939,6 +939,8 @@ void FormMovie::on_btnffmpeg_clicked()
         if(list.size() == 0)
         {
             qDebug() << "The directory 'tempvideo' doesn't contains any files !";
+            writeTolistwidget(QString("No images were written to '%1/tempvideo' : no video is created.")
+                                  .arg(QDir::currentPath()));
             return;
         }
     }
@@ -1206,8 +1208,16 @@ void FormMovie::on_btnJson_clicked()
     }
 
 
+    if(datelist.isEmpty())
+    {
+        QApplication::restoreOverrideCursor();
+        writeTolistwidget("Nothing to render : the selection holds no images.");
+        return;
+    }
+
     processmanager = new ProcessManager(datelist, ui->spbProcesscount->value(), this->shortname);
     connect(this->processmanager,SIGNAL(signalDeleteManager()), this, SLOT(deleteManager()));
+    connect(this->processmanager, &ProcessManager::signalMessage, this, &FormMovie::writeTolistwidget);
 
     processmanager->start();
 
@@ -1218,7 +1228,11 @@ void FormMovie::deleteManager()
 {
     writeTolistwidget("== All processes are finished ! ==");
     qDebug() << "deleting processmanager";
-    delete this->processmanager;
+    // deleteLater(), not delete: this slot runs on a signal the manager emits
+    // about itself, and the path taken when a process never starts still has
+    // ProcessManager frames on the stack underneath it.
+    this->processmanager->deleteLater();
+    this->processmanager = nullptr;
     this->on_btnffmpeg_clicked();
 }
 
