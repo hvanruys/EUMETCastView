@@ -3339,6 +3339,10 @@ void FormToolbox::on_tabWidget_currentChanged(int index)
     {
         formimage->displayImage(currentAVHRRimage, true);
     }
+    else if (index == TAB_METIMAGE) //Metimage
+    {
+        formimage->displayImage(IMAGE_VII, true);
+    }
     else if (index == TAB_VIIRS) // VIIRS
     {
         if(ui->tabWidgetVIIRS->currentIndex() == 0)
@@ -4772,7 +4776,10 @@ bool FormToolbox::comboColVIIOK()
     cnt += ui->cmbVII14->currentIndex();
     cnt += ui->cmbVII15->currentIndex();
     cnt += ui->cmbVII16->currentIndex();
-
+    cnt += ui->cmbVII17->currentIndex();
+    cnt += ui->cmbVII18->currentIndex();
+    cnt += ui->cmbVII19->currentIndex();
+    cnt += ui->cmbVII20->currentIndex();
     if(cnt == 6)
         return true;
     else
@@ -4920,6 +4927,8 @@ void FormToolbox::on_btnUpdateVIIRSImage_clicked()
 
         ui->pbProgress->reset();
         formimage->ShowVIIRSMImage();
+        formimage->displayImage(IMAGE_VII, true);
+
     }
 }
 
@@ -4952,6 +4961,8 @@ void FormToolbox::on_btnUpdateOLCIImage_clicked()
 
             ui->pbProgress->reset();
             formimage->ShowOLCIefrImage(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized);
+            formimage->displayImage(IMAGE_OLCI, true);
+
         }
     }
     else if(opts.buttonOLCIerr)
@@ -4961,6 +4972,8 @@ void FormToolbox::on_btnUpdateOLCIImage_clicked()
 
             ui->pbProgress->reset();
             formimage->ShowOLCIerrImage(ui->cmbHistogramOLCI->currentIndex(), ui->rdbOLCINormalized);
+            formimage->displayImage(IMAGE_OLCI, true);
+
         }
     }
 }
@@ -4989,6 +5002,9 @@ void FormToolbox::on_btnUpdateVIIImage_clicked()
     {
         ui->pbProgress->reset();
         formimage->ShowVIIImage(getVIIHistogrammethod(), ui->rdbVIINormalized->isChecked());
+        formimage->displayImage(IMAGE_VII, true);
+
+
     }
 }
 
@@ -5010,6 +5026,8 @@ void FormToolbox::on_btnVIIRecipes_clicked()
 
     ui->pbProgress->reset();
     formimage->ShowVIIRecipeImage(ui->lstVIIRGB->currentRow());
+    formimage->displayImage(IMAGE_VII, true);
+
 }
 
 void FormToolbox::on_cmbHistogramVII_currentIndexChanged(int index)

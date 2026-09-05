@@ -1290,7 +1290,7 @@ void FormImage::displayImage(eImageType channel, bool resize)
             {
                 m_image = imageptrs->ptrimageVII;
                 m_pixmap = QPixmap::fromImage(*m_image);
-                if(segmenttype == eSegmentType::SEG_METOPSGA1)
+                //if(segmenttype == eSegmentType::SEG_METOPSGA1)
                     displayVIIImageInfo(SEG_METOPSGA1);
             }
 
