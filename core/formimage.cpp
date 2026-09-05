@@ -1005,14 +1005,14 @@ void FormImage::setPixmapToScene(bool settoolboxbuttons)
         m_image = imageptrs->ptrimageMERSI;
         formtoolbox->setOMimagesize(imageptrs->ptrimageMERSI->width(), imageptrs->ptrimageMERSI->height());
         break;
-    case IMAGE_NONE:
-        return;
-
     case IMAGE_VII:
         displayVIIImageInfo(SEG_METOPSGA1);
         m_image = imageptrs->ptrimageVII;
         formtoolbox->setOMimagesize(imageptrs->ptrimageVII->width(), imageptrs->ptrimageVII->height());
         break;
+    case IMAGE_NONE:
+        return;
+
     }
 
     m_pixmap = QPixmap::fromImage(*m_image);
@@ -1025,6 +1025,7 @@ void FormImage::setPixmapToScene(bool settoolboxbuttons)
     fitWindow();
     this->setDragMode(ScrollHandDrag);
 
+    displayImage(channelshown, true);
 
     QApplication::processEvents();
 

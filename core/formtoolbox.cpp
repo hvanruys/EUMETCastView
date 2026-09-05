@@ -5002,9 +5002,6 @@ void FormToolbox::on_btnUpdateVIIImage_clicked()
     {
         ui->pbProgress->reset();
         formimage->ShowVIIImage(getVIIHistogrammethod(), ui->rdbVIINormalized->isChecked());
-        formimage->displayImage(IMAGE_VII, true);
-
-
     }
 }
 
