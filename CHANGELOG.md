@@ -264,14 +264,15 @@ that land inside the projection.
   looking, and a full-disc image that could not be allocated — 11136 × 11136
   ARGB32 is 496 MB, and eight of these run at once — both end as `save()`
   returning false, which was ignored.
-- **`video/video.pro` builds the video tool again.** It listed neither
-  `videomaker.cpp` nor `jsonvideoreader.cpp`, and so not `compileImageMTG`,
-  named a `geoseglist.cpp` that no longer exists, and had no Windows
-  configuration at all. It now mirrors `core/core.pro`, down to writing its
-  executable to the directory that one writes to. The top-level
-  `EUMETCastView.pro` still cannot be used — it names a `PublicDecompWT-2.8.1`
-  subproject that has no `.pro` file — so both executables come from the
-  top-level CMake build, on Windows as well.
+
+### Build
+
+- **The qmake project files are gone**, CMake is the build on both platforms.
+  They had drifted out of use and out of date: `EUMETCastView.pro` named a
+  `PublicDecompWT-2.8.1` subproject that has no project file of its own, so it
+  could not be read at all, and did not list `video`; `video/video.pro` listed
+  neither `videomaker.cpp` nor `jsonvideoreader.cpp`, and so not
+  `compileImageMTG`, and named a `geoseglist.cpp` that no longer exists.
 
 ### Interface
 

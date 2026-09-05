@@ -38,11 +38,8 @@ Ubuntu 20.04 binary until you rebuild natively.
 
 `FormMovie` spawns `EUMETCastVideo` from the directory `EUMETCastView` is itself
 running from, so the two have to stay together — which `bin/` gives you. Build
-both from the top-level `CMakeLists.txt`, on Windows as well: the qmake tree is
-no substitute, `EUMETCastView.pro` names a `PublicDecompWT-2.8.1` subproject
-that has no `.pro` file and does not list `video` at all. `core/core.pro` and
-`video/video.pro` can still be opened one at a time in QtCreator, and are
-written to put their executables in the same directory.
+both from the top-level `CMakeLists.txt`, on Windows as well. CMake is the only
+build there is; the qmake project files are gone.
 
 Static libraries go to `<build tree>/libs`, one set per configuration. They must
 not be shared: an archive is only re-created when it is older than its objects,
