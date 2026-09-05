@@ -6,7 +6,8 @@ A viewer for the Eumetcast transmissions,EUMETSAT’s primary dissemination mech
 The Open Source program **EUMETCastView** allows you to view
 
 - AVHRR images from Metop-A, Metop-B and Metop-C.
-- VIIRS images from SUOMI-NPP, NOAA-20 and NOAA-21.
+- VIIRS images from SUOMI NPP, NOAA-20 and NOAA-21 (M-Band and Day/Night Band)
+- VII/METimage from Metop SGA1
 - OLCI EFR/ERR from Sentinel-3A
 - HRIT/LRIT images from Meteosat-11, Meteosat-10, Meteosat-9, Electro L3, FengYun 2H/2G, GOES-18, GOES-19 and Himawari-9.
 - MERSI images from FY-3D
@@ -18,25 +19,37 @@ Linux software drivers ( for VM's ) : see https://itsfoss.com/install-mesa-ubunt
 
 Compile in Linux :
 
-- sudo apt install build-essential
-			libfontconfig1
-			mesa-common-dev
-			libglu1-mesa-dev
-			qt5-default
-			cmake
-			libhdf5-dev
-			libnetcdf-dev
-			libarchive-dev
-			libfreeimage-dev
+- sudo apt install build-essential cmake \
+                   qt6-base-dev qt6-5compat-dev \
+                   libhdf5-dev libnetcdf-dev libarchive-dev libfreeimage-dev \
+                   mesa-common-dev libglu1-mesa-dev libfontconfig1
 - mkdir build
 - cd build
 - cmake ..
 - cmake --build .
 
-for building AppImage
-- cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-- make -j$(nproc)
-- make install DESTDIR=AppDir
+Building the AppImage :
+
+Both variants are scripted; don't build them by hand in build/.
+
+- ./scripts/build-appimage-container.sh — the release AppImage. Builds inside an
+  Ubuntu 20.04 container (glibc 2.31, libstdc++ 3.4.28) so it also runs on
+  distributions older than this one, in build-appimage-ubuntu2004/ and
+  AppDir-ubuntu2004/. Needs podman or docker, Qt in ~/Qt/6.9.2/gcc_64, and
+  linuxdeploy, linuxdeploy-plugin-qt and appimagetool in ~/AppImages. When it
+  finishes it reports the symbol floor of everything in the AppDir and whether
+  OpenSSL 3 was bundled.
+- ./scripts/build-appimage.sh — the same build natively, in build-appimage/ and
+  AppDir/. Quick to check, but the result only runs on systems as new as this
+  one.
+
+Both write EUMETCastView-x86_64.AppImage in the repository root; rename it for a
+release. Pass --skip-build to package the binaries already in bin/ instead of
+rebuilding.
+
+Both also link into bin/, which every build tree shares — after a container
+build bin/EUMETCastView is the Ubuntu 20.04 binary, so rebuild natively before
+running or debugging it here.
 
 Compile in Windows :
 - Install msys2
