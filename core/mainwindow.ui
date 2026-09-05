@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1072</width>
-    <height>669</height>
+    <width>1343</width>
+    <height>907</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,6 +93,9 @@
    <addaction name="actionShowToolbox"/>
   </widget>
   <action name="actionSatSelection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/satellite2.png</normaloff>:/icons/satellite2.png</iconset>
@@ -138,6 +141,9 @@
    </property>
   </action>
   <action name="actionCylindricalEquidistant">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/Equi_projection_48x48.png</normaloff>:/icons/Equi_projection_48x48.png</iconset>
@@ -150,6 +156,9 @@
    </property>
   </action>
   <action name="action3DGlobe">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/300px-Orthographic_projection_SW.png</normaloff>:/icons/300px-Orthographic_projection_SW.png</iconset>
@@ -162,6 +171,9 @@
    </property>
   </action>
   <action name="actionImage">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/image.png</normaloff>:/icons/image.png</iconset>
@@ -186,6 +198,9 @@
    </property>
   </action>
   <action name="actionShowToolbox">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/options.png</normaloff>:/icons/options.png</iconset>
@@ -198,6 +213,9 @@
    </property>
   </action>
   <action name="actionMeteosat">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/satell2.png</normaloff>:/icons/satell2.png</iconset>
@@ -267,6 +285,9 @@
    </property>
   </action>
   <action name="actionSettingsMovie">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="EUMETCastView.qrc">
      <normaloff>:/icons/movie.png</normaloff>:/icons/movie.png</iconset>

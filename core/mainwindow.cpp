@@ -307,6 +307,14 @@ MainWindow::MainWindow(QWidget *parent) :
 //    if(!QFile::exists("weather.tle"))
 //        formephem->downloadTLE();
 
+    ui->actionSatSelection->setChecked(true);
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(false);
+    ui->actionSettingsMovie->setChecked(false);
+    ui->actionShowToolbox->setChecked(false);
+
     qDebug() << "DesktopLoacation     = " << QStandardPaths::standardLocations((QStandardPaths::DesktopLocation));
     qDebug() << "DocumentsLoacation   = " << QStandardPaths::standardLocations((QStandardPaths::DocumentsLocation));
     qDebug() << "FontsLocation        = " << QStandardPaths::standardLocations((QStandardPaths::FontsLocation));
@@ -556,8 +564,14 @@ void MainWindow::setupStatusBar()
 
 void MainWindow::on_actionSatSelection_triggered()
 {
-    ui->actionSatSelection->setChecked(true);
     ui->stackedWidget->setCurrentIndex(0);
+    ui->actionSatSelection->setChecked(true);
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(false);
+    ui->actionSettingsMovie->setChecked(false);
+    ui->actionShowToolbox->setChecked(false);
 
 }
 
@@ -565,17 +579,42 @@ void MainWindow::on_actionMeteosat_triggered()
 {
     ui->stackedWidget->setCurrentIndex(1);
     formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
+    ui->actionSatSelection->setChecked(false);
+    ui->actionMeteosat->setChecked(true);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(false);
+    ui->actionSettingsMovie->setChecked(false);
+    ui->actionShowToolbox->setChecked(false);
 }
 
 void MainWindow::on_actionCylindricalEquidistant_triggered()
 {
     ui->stackedWidget->setCurrentIndex(2);
     formglobecyl->setCylOrGlobe(0);
+    ui->actionSatSelection->setChecked(false);
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(true);
+    ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(false);
+    ui->actionSettingsMovie->setChecked(false);
+    ui->actionShowToolbox->setChecked(false);
+
 
 }
 
 void MainWindow::on_action3DGlobe_triggered()
 {
+    ui->action3DGlobe->setChecked(true);
+
+    ui->actionSatSelection->setChecked(false);
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->action3DGlobe->setChecked(true);
+    ui->actionImage->setChecked(false);
+    ui->actionSettingsMovie->setChecked(false);
+    ui->actionShowToolbox->setChecked(false);
+
     if(opts.doOpenGL)
     {
         ui->stackedWidget->setCurrentIndex(2);
@@ -591,6 +630,15 @@ void MainWindow::on_action3DGlobe_triggered()
 void MainWindow::on_actionSettingsMovie_triggered()
 {
     ui->stackedWidget->setCurrentIndex(4);
+
+    ui->actionSatSelection->setChecked(false);
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(false);
+    ui->actionSettingsMovie->setChecked(true);
+    ui->actionShowToolbox->setChecked(false);
+
     formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
     formmovie->getProjectionData();
 
@@ -648,6 +696,9 @@ void MainWindow::on_actionImage_triggered()
     ui->actionMeteosat->setChecked(false);
     ui->actionCylindricalEquidistant->setChecked(false);
     ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(true);
+    ui->actionSettingsMovie->setChecked(false);
+    ui->actionShowToolbox->setChecked(false);
 
 }
 
@@ -664,6 +715,14 @@ void MainWindow::updateStatusBarCoordinate(const QString &text)
 
 void MainWindow::on_actionShowToolbox_triggered()
 {
+    ui->actionSatSelection->setChecked(false);
+    ui->actionMeteosat->setChecked(false);
+    ui->actionCylindricalEquidistant->setChecked(false);
+    ui->action3DGlobe->setChecked(false);
+    ui->actionImage->setChecked(false);
+    ui->actionSettingsMovie->setChecked(false);
+    ui->actionShowToolbox->setChecked(true);
+
     if (dockwidget->isHidden())
         dockwidget->show();
     else
