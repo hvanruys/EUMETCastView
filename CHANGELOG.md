@@ -1,5 +1,79 @@
 # Changelog
 
+## 2.1.4
+
+Making a video worked on Linux and did nothing at all on Windows. It comes down
+to one relative path, and a great deal of silence around it. Alongside that: the
+toolbar says which view is on screen, a composed image appears without a second
+click, and the qmake project files are gone.
+
+### Video tool
+
+- **The video tool was never reached on Windows.** `ProcessManager` spawned it as
+  `./EUMETCastVideo`, a name resolved against the working directory rather than
+  against the application. That works only when the program is started from its
+  own directory, which is what happens on Linux and not what happens on Windows,
+  where whatever launches EUMETCastView — a shortcut, QtCreator — chooses the
+  working directory. The child never started and `tempvideo/` stayed empty for
+  the whole run. The path now comes from
+  `QCoreApplication::applicationDirPath()`; the `.exe` suffix is not needed,
+  CreateProcess appends it when it parses the command line.
+- **None of it was visible.** A process that would not start was reported with
+  `qDebug()` only, and both executables are GUI subsystem applications on
+  Windows, which have no console for `qDebug()` to reach — every diagnostic in
+  the run was discarded. Process errors, a non-zero exit code, an empty
+  selection and an empty `tempvideo/` are now written to the traffic list, the
+  one place already being watched, and the run announces which binary it is
+  about to spawn. `EUMETCastVideo` itself is no longer built as a GUI subsystem
+  application, so running it by hand prints what it read and what it wrote;
+  nothing pops up when the GUI spawns it, because QProcess passes
+  `CREATE_NO_WINDOW` whenever the parent has no console of its own.
+- **A process that failed to start stalled the queue.** No `finished()` is
+  emitted for one, so it was never taken out of `activeProcesses` and no further
+  task was ever started: the run neither progressed nor ended. Both endings now
+  retire the process the same way. A process count of 0 — which the tooltip
+  promises means "all" — started nothing at all, and is clamped to one.
+- **`QImage::save()` is checked.** A `tempvideo/` that is not where the child is
+  looking, and a full-disc image that could not be allocated — 11136 × 11136
+  ARGB32 is 496 MB, and eight of these run at once — both end as `save()`
+  returning false, which was ignored.
+
+### Interface
+
+- **The toolbar says which view is showing.** `on_actionImage_triggered` already
+  unchecked the other view actions, but none of them were checkable in the first
+  place, so nothing marked the view on screen. All seven are checkable now, every
+  handler checks its own action and clears the rest, and the constructor sets the
+  state the application starts in.
+- **A composed image appears without a second click.** The update buttons for
+  VII, the VII recipes, VIIRS M and OLCI EFR/ERR composed the image and left the
+  viewer on whatever it was showing before. `setPixmapToScene` ends by calling
+  `displayImage(channelshown, true)`, so the scene is filled from one place, and
+  selecting the METimage tab displays the VII image as the other sensor tabs
+  already did for theirs.
+- **A VII colour combination using channels 17 to 20 was refused.**
+  `comboColVIIOK` summed the first sixteen channel combo boxes only, so a
+  selection made in the last four counted as nothing selected. All twenty count.
+- **The VII image info is written whatever was displayed before it.** The
+  `segmenttype` test in front of it was copied from the VIIRS branches, where it
+  dispatches between three satellites; VII flies on one, so the test could only
+  ever skip the call — and `ShowVIIImage` calls `displayImage` before
+  `setSegmentType`, so it did skip it on the first VII image after another
+  sensor. `displayVIIImageInfo` never read the segment type it was handed, and
+  no longer takes one.
+
+### Build
+
+- **The qmake project files are gone**, CMake is the build on both platforms.
+  They had drifted out of use and out of date: `EUMETCastView.pro` named a
+  `PublicDecompWT-2.8.1` subproject that has no project file of its own, so it
+  could not be read at all, and did not list `video`; `video/video.pro` listed
+  neither `videomaker.cpp` nor `jsonvideoreader.cpp`, and so not
+  `compileImageMTG`, and named a `geoseglist.cpp` that no longer exists.
+- Two `CMakeLists.txt.user` files are out of the repository as well. They were
+  committed before `.gitignore` learned about them, and `.gitignore` has no say
+  over a file git is already tracking.
+
 ## 2.1.3
 
 Metop-SG A1 VII (METimage) is what this release is for. `SegmentVII` used to open
@@ -236,43 +310,6 @@ that land inside the projection.
   `pkg_check_modules` leaves its results in the cache. The standalone build
   deliberately keeps its executable in its own build tree, so a debug build
   cannot replace the `bin/EUMETCastVideo` the GUI spawns.
-- **The video tool was never reached on Windows.** `ProcessManager` spawned it as
-  `./EUMETCastVideo`, a name resolved against the working directory rather than
-  against the application. That works only when the program is started from its
-  own directory, which is what happens on Linux and not what happens on Windows,
-  where whatever launches EUMETCastView — a shortcut, QtCreator — chooses the
-  working directory. The child never started and `tempvideo/` stayed empty for
-  the whole run. The path now comes from
-  `QCoreApplication::applicationDirPath()`; the `.exe` suffix is not needed,
-  CreateProcess appends it when it parses the command line.
-- **None of it was visible.** A process that would not start was reported with
-  `qDebug()` only, and both executables are GUI subsystem applications on
-  Windows, which have no console for `qDebug()` to reach — every diagnostic in
-  the run was discarded. Process errors, a non-zero exit code, an empty
-  selection and an empty `tempvideo/` are now written to the traffic list, the
-  one place already being watched, and the run announces which binary it is
-  about to spawn. `EUMETCastVideo` itself is no longer built as a GUI subsystem
-  application, so running it by hand prints what it read and what it wrote;
-  nothing pops up when the GUI spawns it, because QProcess passes
-  `CREATE_NO_WINDOW` whenever the parent has no console of its own.
-- **A process that failed to start stalled the queue.** No `finished()` is
-  emitted for one, so it was never taken out of `activeProcesses` and no further
-  task was ever started: the run neither progressed nor ended. Both endings now
-  retire the process the same way. A process count of 0 — which the tooltip
-  promises means "all" — started nothing at all, and is clamped to one.
-- **`QImage::save()` is checked.** A `tempvideo/` that is not where the child is
-  looking, and a full-disc image that could not be allocated — 11136 × 11136
-  ARGB32 is 496 MB, and eight of these run at once — both end as `save()`
-  returning false, which was ignored.
-
-### Build
-
-- **The qmake project files are gone**, CMake is the build on both platforms.
-  They had drifted out of use and out of date: `EUMETCastView.pro` named a
-  `PublicDecompWT-2.8.1` subproject that has no project file of its own, so it
-  could not be read at all, and did not list `video`; `video/video.pro` listed
-  neither `videomaker.cpp` nor `jsonvideoreader.cpp`, and so not
-  `compileImageMTG`, and named a `geoseglist.cpp` that no longer exists.
 
 ### Interface
 
