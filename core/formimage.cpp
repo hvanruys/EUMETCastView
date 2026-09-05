@@ -1006,7 +1006,7 @@ void FormImage::setPixmapToScene(bool settoolboxbuttons)
         formtoolbox->setOMimagesize(imageptrs->ptrimageMERSI->width(), imageptrs->ptrimageMERSI->height());
         break;
     case IMAGE_VII:
-        displayVIIImageInfo(SEG_METOPSGA1);
+        displayVIIImageInfo();
         m_image = imageptrs->ptrimageVII;
         formtoolbox->setOMimagesize(imageptrs->ptrimageVII->width(), imageptrs->ptrimageVII->height());
         break;
@@ -1291,8 +1291,7 @@ void FormImage::displayImage(eImageType channel, bool resize)
             {
                 m_image = imageptrs->ptrimageVII;
                 m_pixmap = QPixmap::fromImage(*m_image);
-                //if(segmenttype == eSegmentType::SEG_METOPSGA1)
-                    displayVIIImageInfo(SEG_METOPSGA1);
+                displayVIIImageInfo();
             }
 
             break;
@@ -3331,7 +3330,7 @@ void FormImage::displayMERSIImageInfo(eSegmentType type)
     formtoolbox->writeInfoToTextEdit(txtInfo);
 }
 
-void FormImage::displayVIIImageInfo(eSegmentType type)
+void FormImage::displayVIIImageInfo()
 {
     QString segtype;
     int nbrselected;

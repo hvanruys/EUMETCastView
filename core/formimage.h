@@ -109,7 +109,7 @@ private:
     void displayVIIRSImageInfo(eSegmentType type);
     void displaySentinelImageInfo(eSegmentType type);
     void displayMERSIImageInfo(eSegmentType type);
-    void displayVIIImageInfo(eSegmentType type);
+    void displayVIIImageInfo();
 
     mutable QImage *m_image;
     //QImage *m_image;
