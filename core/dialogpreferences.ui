@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2309</width>
-    <height>1326</height>
+    <width>1434</width>
+    <height>1230</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1091,13 +1091,13 @@
              </item>
              <item>
               <widget class="QSpinBox" name="spbSize3DFont">
-                <property name="minimum">
-                 <number>6</number>
-                </property>
-                <property name="maximum">
-                 <number>72</number>
-                </property>
-               </widget>
+               <property name="minimum">
+                <number>6</number>
+               </property>
+               <property name="maximum">
+                <number>72</number>
+               </property>
+              </widget>
              </item>
              <item>
               <spacer name="horizontalSpacer_17">
