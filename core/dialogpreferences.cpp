@@ -122,6 +122,9 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui->chkWindowVectors->setChecked(opts.windowvectors);
     ui->chkUDPMessages->setChecked(opts.udpmessages);
 
+    ui->cmbFont3DGlobe->setCurrentFont(QFont(opts.fontfamily3D));
+    ui->spbSize3DFont->setValue(opts.fontsize3D);
+
     ui->chkGshhs1->setChecked(opts.gshhsglobe1On);
     ui->chkGshhs2->setChecked(opts.gshhsglobe2On);
     ui->chkGshhs3->setChecked(opts.gshhsglobe3On);
@@ -640,6 +643,9 @@ void DialogPreferences::dialogaccept()
     opts.gshhsglobe2On = ui->chkGshhs2->isChecked();
     opts.gshhsglobe3On = ui->chkGshhs3->isChecked();
     opts.graytextureOn = ui->chkGray->isChecked();
+
+    opts.fontfamily3D = ui->cmbFont3DGlobe->currentFont().family();
+    opts.fontsize3D = ui->spbSize3DFont->value();
 
     opts.localdirremote = ui->ledLocalDirRemote->text();
     opts.dirremote = ui->ledDirRemote->text();

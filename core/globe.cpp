@@ -718,6 +718,15 @@ void Globe::paintGL()
         painter.restore();
     }
 
+    // Everything written on the globe from here on - the frame rate, the last
+    // selected segment, the satellite, station and segment names and the view
+    // distance - goes in the font chosen for the 3D globe. A size of 0, which an
+    // untouched spinbox writes to the ini, would draw nothing and warn once a
+    // frame, so it is held at the smallest size the preferences offer.
+    QFont globefont(opts.fontfamily3D.isEmpty() ? QString("Times") : opts.fontfamily3D,
+                    qMax(6, opts.fontsize3D), QFont::Bold);
+    painter.setFont(globefont);
+
     QString framesPerSecond;
     if (const int elapsed = m_time.elapsed()) {
         framesPerSecond.setNum(m_frames /(elapsed / 1000.0), 'f', 2);
@@ -725,9 +734,7 @@ void Globe::paintGL()
         painter.drawText(this->width() - 200, 40, framesPerSecond + " paintGL calls / s");
     }
 
-    QFont serifFont("Times", 12, QFont::Bold);
     painter.setPen(Qt::yellow);
-    painter.setFont(serifFont);
 
     //AVHR_xxx_1B_M01_20130701051903Z_20130701052203Z_N_O_20130701054640Z
     //012345678901234567890123456789012345678901234567890123456789
@@ -1749,7 +1756,7 @@ void Globe::Render3DGeoSegmentLineFBO(int heightinimage, eGeoSatellite geo)
 void Globe::drawInstructions(QPainter *painter)
 {
     QString text = " view distance = 0000000 km";
-    QFontMetrics metrics = QFontMetrics(font());
+    QFontMetrics metrics = QFontMetrics(painter->font());
     int border = qMax(4, metrics.leading());
 
     QRect rect = metrics.boundingRect(200, 200, width() - 2*border, int(height()*0.125),

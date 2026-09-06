@@ -410,6 +410,8 @@ public:
 
     int fontsize;
     bool darkmode;
+    int fontsize3D;
+    QString fontfamily3D;
 
 
 private:

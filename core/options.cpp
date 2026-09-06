@@ -265,6 +265,8 @@ void Options::Initialize()
     mainwindowstate = settings.value("/window/mainwindowstate").toByteArray();
     toolboxwidth = settings.value("/window/toolboxwidth", 500).toInt();
     fontsize = settings.value("/window/fontsize", 12).toInt();
+    fontsize3D = settings.value("/window/fontsize3D", 12).toInt();
+    fontfamily3D = settings.value("/window/fontfamily3D","").value<QString>();
     darkmode = settings.value("/window/darkmode", true).toBool();
 
 
@@ -644,6 +646,8 @@ void Options::Save()
     settings.setValue("/window/mainwindowstate", mainwindowstate);
     settings.setValue("/window/toolboxwidth", toolboxwidth);
     settings.setValue("/window/fontsize", fontsize);
+    settings.setValue("/window/fontsize3D", fontsize3D);
+    settings.setValue("/window/fontfamily3D", fontfamily3D);
     settings.setValue("/window/darkmode", darkmode);
 
     settings.setValue("/video/processcount", processcount);

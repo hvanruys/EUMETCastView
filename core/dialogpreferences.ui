@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1434</width>
-    <height>1174</height>
+    <width>2309</width>
+    <height>1326</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -158,7 +158,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="page2D">
         <property name="layoutDirection">
@@ -559,31 +559,20 @@
         </layout>
        </widget>
        <widget class="QWidget" name="page3D">
-        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <layout class="QVBoxLayout" name="verticalLayout_19">
          <item>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="3" column="0">
-            <widget class="QCheckBox" name="chkGshhs1">
-             <property name="text">
-              <string>Gshhs file 1</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QCheckBox" name="chkGshhs2">
-             <property name="text">
-              <string>Gshhs file 2</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_25">
+           <item>
             <widget class="QLabel" name="label_3">
              <property name="text">
               <string>Equirectangular texture map : </string>
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
+           <item>
+            <widget class="QLineEdit" name="edtBackImage3D"/>
+           </item>
+           <item>
             <widget class="QPushButton" name="btnBackImage3D">
              <property name="maximumSize">
               <size>
@@ -596,179 +585,14 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
-            <widget class="QLineEdit" name="edtGshhsGlobe1"/>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="lblGshhsMask">
-             <property name="toolTip">
-              <string>Shoreline file the Rayleigh correction rasterises its land/sea mask from. Rasterised once at startup, so a high-resolution file costs nothing per image. Falls back to Gshhs file 1 if left empty or missing.</string>
-             </property>
-             <property name="text">
-              <string>Land/sea mask</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="2">
-            <widget class="QLineEdit" name="edtGshhsMask"/>
-           </item>
-           <item row="6" column="3">
-            <widget class="QPushButton" name="btnGshhsMask">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="3">
-            <widget class="QPushButton" name="btnGshhsGlobe3">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLineEdit" name="edtBackImage3D"/>
-           </item>
-           <item row="5" column="0">
-            <widget class="QCheckBox" name="chkGshhs3">
-             <property name="text">
-              <string>Gshhs file 3</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="3">
-            <widget class="QPushButton" name="btnGshhsGlobe1">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="2">
-            <widget class="QLineEdit" name="edtGshhsGlobe3"/>
-           </item>
-           <item row="4" column="3">
-            <widget class="QPushButton" name="btnGshhsGlobe2">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="2">
-            <widget class="QLineEdit" name="edtGshhsGlobe2"/>
-           </item>
-           <item row="1" column="0">
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_26">
+           <item>
             <widget class="QCheckBox" name="chkGray">
              <property name="text">
               <string>Gray texture map ...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_4">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::Shape::Box</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Shadow::Plain</enum>
-             </property>
-             <property name="text">
-              <string>GSHHS Database files for 3D Globe</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QPushButton" name="btnGlobeOverlayColor1">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QPushButton" name="btnGlobeOverlayColor2">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QPushButton" name="btnGlobeOverlayColor3">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
              </property>
             </widget>
            </item>
@@ -961,102 +785,334 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QCheckBox" name="chkImageOnTextureMet">
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="3" column="3">
+            <widget class="QPushButton" name="btnGshhsGlobe1">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
-              <string>Meteosat Image on Texture</string>
+              <string>...</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="chkStations">
+           <item row="3" column="1">
+            <widget class="QPushButton" name="btnGlobeOverlayColor1">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
-              <string>Station names on (keyb n)</string>
+              <string/>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <item>
-            <widget class="QCheckBox" name="chkImageOnTextureAVHRR">
+           <item row="6" column="2">
+            <widget class="QLineEdit" name="edtGshhsMask"/>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLineEdit" name="edtGshhsGlobe1"/>
+           </item>
+           <item row="5" column="0">
+            <widget class="QCheckBox" name="chkGshhs3">
              <property name="text">
-              <string>AVHRR Image on Texture</string>
+              <string>Gshhs file 3</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="chkTexture">
+           <item row="5" column="2">
+            <widget class="QLineEdit" name="edtGshhsGlobe3"/>
+           </item>
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="chkGshhs2">
              <property name="text">
-              <string>Texture on ( keyb g )</string>
+              <string>Gshhs file 2</string>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_11">
-           <item>
-            <widget class="QCheckBox" name="chkImageOnTextureVIIRS">
+           <item row="4" column="1">
+            <widget class="QPushButton" name="btnGlobeOverlayColor2">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
-              <string>VIIRS Image on Texture</string>
+              <string/>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="chkLight">
+           <item row="2" column="2">
+            <widget class="QLabel" name="label_4">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::Shape::Box</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Shadow::Plain</enum>
+             </property>
              <property name="text">
-              <string>Lighting on (keyb p)</string>
+              <string>GSHHS Database files for 3D Globe</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_18">
-           <item>
-            <widget class="QCheckBox" name="chkImageOnTextureOLCI">
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="chkGshhs1">
              <property name="text">
-              <string>OLCI Image on Texture</string>
+              <string>Gshhs file 1</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="chkImageOnTextureVII">
-             <property name="text">
-              <string>VII Image on Texture</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="chkVIIDemOrthorectify">
+           <item row="6" column="0">
+            <widget class="QLabel" name="lblGshhsMask">
              <property name="toolTip">
-              <string>Shift the VII geolocation with the DEM fields carried in the product (PFS Eq. 11/12).</string>
+              <string>Shoreline file the Rayleigh correction rasterises its land/sea mask from. Rasterised once at startup, so a high-resolution file costs nothing per image. Falls back to Gshhs file 1 if left empty or missing.</string>
              </property>
              <property name="text">
-              <string>VII DEM orthorectification</string>
+              <string>Land/sea mask</string>
              </property>
             </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="QPushButton" name="btnGshhsGlobe2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <widget class="QPushButton" name="btnGshhsGlobe3">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QPushButton" name="btnGlobeOverlayColor3">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="3">
+            <widget class="QPushButton" name="btnGshhsMask">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
+            <widget class="QLineEdit" name="edtGshhsGlobe2"/>
            </item>
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QCheckBox" name="chkWindowVectors">
-             <property name="text">
-              <string>Window Vectors (for testing)</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QCheckBox" name="chkImageOnTextureMet">
+               <property name="text">
+                <string>Meteosat Image on Texture</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="chkStations">
+               <property name="text">
+                <string>Station names on (keyb n)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QCheckBox" name="chkSegmentNames">
-             <property name="text">
-              <string>Segment Names on (keyb t)</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QCheckBox" name="chkImageOnTextureAVHRR">
+               <property name="text">
+                <string>AVHRR Image on Texture</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="chkTexture">
+               <property name="text">
+                <string>Texture on ( keyb g )</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="QCheckBox" name="chkImageOnTextureVIIRS">
+               <property name="text">
+                <string>VIIRS Image on Texture</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="chkLight">
+               <property name="text">
+                <string>Lighting on (keyb p)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_18">
+             <item>
+              <widget class="QCheckBox" name="chkImageOnTextureOLCI">
+               <property name="text">
+                <string>OLCI Image on Texture</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="chkImageOnTextureVII">
+               <property name="text">
+                <string>VII Image on Texture</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="chkVIIDemOrthorectify">
+               <property name="toolTip">
+                <string>Shift the VII geolocation with the DEM fields carried in the product (PFS Eq. 11/12).</string>
+               </property>
+               <property name="text">
+                <string>VII DEM orthorectification</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QCheckBox" name="chkWindowVectors">
+               <property name="text">
+                <string>Window Vectors (for testing)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="chkSegmentNames">
+               <property name="text">
+                <string>Segment Names on (keyb t)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_21">
+             <item>
+              <widget class="QLabel" name="label_16">
+               <property name="text">
+                <string>Font 3D Globe :</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFontComboBox" name="cmbFont3DGlobe"/>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_17">
+               <property name="text">
+                <string>Size :</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spbSize3DFont">
+                <property name="minimum">
+                 <number>6</number>
+                </property>
+                <property name="maximum">
+                 <number>72</number>
+                </property>
+               </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_17">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
