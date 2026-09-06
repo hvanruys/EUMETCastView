@@ -2,7 +2,7 @@
 
 #include <QCoreApplication>
 
-ProcessManager::ProcessManager(QStringList datelist, int maxConcurrent, QString shortname, QObject *parent)
+ProcessManager::ProcessManager(QStringList datelist, int maxConcurrent, QString shortname, int singleimage, QObject *parent)
     : QObject(parent),  maxConcurrentProcesses(qMax(1, maxConcurrent))
 {
 
@@ -16,10 +16,22 @@ ProcessManager::ProcessManager(QStringList datelist, int maxConcurrent, QString 
     videoprogram = QCoreApplication::applicationDirPath() + "/EUMETCastVideo";
 
     bool isMTG = (shortname == "MET_12" ? true : false);
-    if(datelist.length() == 0)
+    if(datelist.length() == 0 || singleimage >= datelist.length())
         return;
 
-    if(isMTG)
+    if(singleimage >= 0)
+    {
+        // One image out of the list, under its own number : the file it writes
+        // is the one a full run would have written for that slot.
+        ProcessTask task;
+        task.taskId = singleimage;
+
+        task.program = videoprogram;
+        task.arguments = {QString("%1").arg(singleimage), datelist.at(singleimage)};
+
+        taskQueue.enqueue(task);
+    }
+    else if(isMTG)
     {
         for (int i = 0; i < datelist.length(); i++) {
             {
@@ -64,6 +76,34 @@ void ProcessManager::start() {
         startNextTask();
     }
 
+}
+
+// Give the run up : drop what is still queued and kill what is running. The
+// kills come back as finished(), so the processes are retired and the manager
+// asks to be deleted along the same path a run that ended by itself takes.
+void ProcessManager::stopAll() {
+    aborted = true;
+
+    int queued = taskQueue.size();
+    taskQueue.clear();
+
+    qDebug() << QString("Killing %1 running task(s), dropping %2 queued task(s)")
+                    .arg(activeProcesses.size()).arg(queued);
+
+    emit signalMessage(QString("Killing %1 running task(s), %2 queued task(s) dropped")
+                           .arg(activeProcesses.size()).arg(queued));
+
+    // kill() reports back through the event loop, so retireProcess() runs after
+    // this loop and activeProcesses is not changed underneath it.
+    for (QProcess *proc : activeProcesses) {
+        if (proc->state() != QProcess::NotRunning)
+            proc->kill();
+    }
+
+    // Nothing left to wait for : say so here, because retireProcess() - the only
+    // other place that does - is not going to run any more.
+    if (activeProcesses.isEmpty())
+        emit signalDeleteManager();
 }
 
 void ProcessManager::startNextTask() {
@@ -141,7 +181,7 @@ void ProcessManager::onFinished(int exitCode, QProcess::ExitStatus exitStatus) {
                         .arg(exitCode)
                         .arg(exitStatus == QProcess::NormalExit ? "Normal" : "Crashed");
 
-        if (exitStatus != QProcess::NormalExit || exitCode != 0) {
+        if (!aborted && (exitStatus != QProcess::NormalExit || exitCode != 0)) {
             emit signalMessage(QString("Task %1 ended badly : exit code %2, %3")
                                    .arg(taskId)
                                    .arg(exitCode)
@@ -160,10 +200,14 @@ void ProcessManager::onErrorOccurred(QProcess::ProcessError error) {
                         .arg(taskId)
                         .arg(error);
 
-        emit signalMessage(QString("Task %1 : %2 (%3)")
-                               .arg(taskId)
-                               .arg(proc->errorString())
-                               .arg(proc->program()));
+        // A killed process reports itself as crashed : that is what stopAll()
+        // asked for, so it is not worth a line in the traffic window.
+        if (!aborted) {
+            emit signalMessage(QString("Task %1 : %2 (%3)")
+                                   .arg(taskId)
+                                   .arg(proc->errorString())
+                                   .arg(proc->program()));
+        }
 
         // A process that never started emits no finished(), so nothing else
         // would take it out of activeProcesses: the queue stalled here, with no

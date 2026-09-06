@@ -83,6 +83,10 @@ private slots:
 
     void on_btnJson_clicked();
 
+    void on_btnRunTest_clicked();
+
+    void on_btnKillVideo_clicked();
+
     void on_rdbMeteosat_12_clicked();
 
     void on_rdbMeteosat_11_clicked();
@@ -102,6 +106,7 @@ private:
     void writeTolistwidget(QString txt);
     void listWidgets();
     QJsonObject CreateVideoJson(QString shortname);
+    QStringList prepareVideoRun();
     bool convertToJson(const QMap<int, QMap<int, QFileInfo>>& segmentlistmap, const QString& outputFilePath);
     QJsonObject getJasonObjectFromMap(const QMap<int, QMap<int, QFileInfo>>& segmentlistmap);
     QJsonObject getJasonObjectFromMap(const QMap<QString, QMap<QString, QMap< int, QFileInfo > > >& segmentlistmap);
@@ -114,7 +119,8 @@ private:
     QUdpSocket *udpSocket;
     QListWidgetItem *item;
     AVHRRSatellite *segs;
-    ProcessManager *processmanager;
+    ProcessManager *processmanager = nullptr;
+    bool testrun = false;
     QString shortname;
     int geoindex;
     QList<VideoMinMaxLat> minmaxlist;

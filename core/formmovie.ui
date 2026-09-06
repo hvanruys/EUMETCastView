@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1444</width>
-    <height>1151</height>
+    <width>1606</width>
+    <height>1203</height>
    </rect>
   </property>
   <property name="font">
@@ -844,6 +844,47 @@
               </property>
              </spacer>
             </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_32">
+              <item>
+               <widget class="QLabel" name="label_29">
+                <property name="text">
+                 <string>Run test image nbr  : </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spbTestImageNbr">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>9999</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnRunTest">
+                <property name="text">
+                 <string>Run test</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_23">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
            </layout>
           </widget>
          </item>
@@ -1287,6 +1328,13 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnKillVideo">
+             <property name="text">
+              <string>Kill Video</string>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QPushButton" name="btnffmpeg">

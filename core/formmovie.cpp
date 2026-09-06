@@ -1105,9 +1105,79 @@ void FormMovie::PopulateSelectionList(QDate seldate)
 }
 
 
+// The part of a render that a full run and a single test image have in common :
+// pick the satellite off the radio buttons, write EUMETCastVideo.json for it,
+// and hand back the timestamps the video processes are indexed by. Empty means
+// there is nothing to render, and the reason has been reported.
+QStringList FormMovie::prepareVideoRun()
+{
+    this->geoindex = 99;
+
+    QString satellite;
+    if(ui->rdbMeteosat_12->isChecked())
+        satellite = "MET_12";
+    else if(ui->rdbMeteosat_11->isChecked())
+        satellite = "MET_11";
+    else if(ui->rdbMeteosat_10->isChecked())
+        satellite = "MET_10";
+    else if(ui->rdbMeteosat_9->isChecked())
+        satellite = "MET_9";
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Select a satellite list.(MET-9/-10/-11/-12");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setIcon(QMessageBox::Warning);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Ok:
+            break;
+        default:
+            break;
+        }
+
+        return QStringList();
+    }
+
+    this->geoindex = opts.GetGeoIndex(satellite);
+    this->shortname = satellite;
+
+    QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
+    QJsonObject root = CreateVideoJson(satellite);
+    QApplication::restoreOverrideCursor();
+
+    // get datelist ("001","002", ...) from Json files
+    QStringList datelist;
+
+    if (root.contains("files") && root["files"].isObject()) {
+        QJsonObject filesObj = root["files"].toObject();
+
+        for (const QString &timestampKey : filesObj.keys()) {
+            datelist << timestampKey;
+        }
+    }
+
+    qDebug() << "datelist count = " << datelist.count();
+
+    for(int i = 0; i < datelist.count(); i++)
+    {
+        qDebug() << datelist.at(i);
+    }
+
+    if(datelist.isEmpty())
+        writeTolistwidget("Nothing to render : the selection holds no images.");
+
+    return datelist;
+}
+
 void FormMovie::on_btnJson_clicked()
 {
-    QApplication::setOverrideCursor( Qt::WaitCursor ); // this might take time
+    if(this->processmanager != nullptr)
+    {
+        writeTolistwidget("A render is still busy : kill it first.");
+        return;
+    }
 
     QDir temp;
     temp.mkdir("tempvideo");
@@ -1141,99 +1211,90 @@ void FormMovie::on_btnJson_clicked()
             file.remove();
     }
 
-
-    this->geoindex = 99;
-
-    QJsonObject root;
-    if(ui->rdbMeteosat_12->isChecked())
-    {
-        this->geoindex = opts.GetGeoIndex("MET_12");
-        this->shortname = "MET_12";
-        root = CreateVideoJson("MET_12");
-    }
-    else if(ui->rdbMeteosat_11->isChecked())
-    {
-        this->geoindex = opts.GetGeoIndex("MET_11");
-        this->shortname = "MET_11";
-        root = CreateVideoJson("MET_11");
-    }
-    else if(ui->rdbMeteosat_10->isChecked())
-    {
-        this->geoindex = opts.GetGeoIndex("MET_10");
-        this->shortname = "MET_10";
-        root = CreateVideoJson("MET_10");
-    }
-    else if(ui->rdbMeteosat_9->isChecked())
-    {
-        this->geoindex = opts.GetGeoIndex("MET_9");
-        this->shortname = "MET_9";
-        root = CreateVideoJson("MET_9");
-    }
-    else
-    {
-        QApplication::restoreOverrideCursor();
-        QMessageBox msgBox;
-        msgBox.setText("Select a satellite list.(MET-9/-10/-11/-12");
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.setIcon(QMessageBox::Warning);
-        int ret = msgBox.exec();
-
-        switch (ret) {
-        case QMessageBox::Ok:
-            break;
-        default:
-            break;
-        }
-
-        return;
-    }
-
-    // get datelist ("001","002", ...) from Json files
-    //QStringList datelist = segs->GetDatestampsList(geoindex);
-    QStringList datelist;
-
-    if (root.contains("files") && root["files"].isObject()) {
-        QJsonObject filesObj = root["files"].toObject();
-
-        for (const QString &timestampKey : filesObj.keys()) {
-            datelist << timestampKey;
-        }
-    }
-
-    qDebug() << "datelist count = " << datelist.count();
-
-    for(int i = 0; i < datelist.count(); i++)
-    {
-        qDebug() << datelist.at(i);
-    }
-
-
+    QStringList datelist = prepareVideoRun();
     if(datelist.isEmpty())
-    {
-        QApplication::restoreOverrideCursor();
-        writeTolistwidget("Nothing to render : the selection holds no images.");
         return;
-    }
+
+    this->testrun = false;
 
     processmanager = new ProcessManager(datelist, ui->spbProcesscount->value(), this->shortname);
     connect(this->processmanager,SIGNAL(signalDeleteManager()), this, SLOT(deleteManager()));
     connect(this->processmanager, &ProcessManager::signalMessage, this, &FormMovie::writeTolistwidget);
 
     processmanager->start();
+}
 
-    QApplication::restoreOverrideCursor();
+// One image out of the selection, to see what the settings on this form give
+// before spending a full run on them. tempvideo is left alone : the test image
+// takes the place of the frame with the same number, so a single bad frame can
+// be rendered again without redoing the others.
+void FormMovie::on_btnRunTest_clicked()
+{
+    if(this->processmanager != nullptr)
+    {
+        writeTolistwidget("A render is still busy : kill it first.");
+        return;
+    }
+
+    QDir temp;
+    temp.mkdir("tempvideo");
+    temp.mkdir("tempimages");
+
+    QStringList datelist = prepareVideoRun();
+    if(datelist.isEmpty())
+        return;
+
+    int imagenbr = ui->spbTestImageNbr->value();
+
+    if(imagenbr >= datelist.count())
+    {
+        writeTolistwidget(QString("There is no image %1 : the selection holds %2 image(s), numbered 0 to %3.")
+                              .arg(imagenbr)
+                              .arg(datelist.count())
+                              .arg(datelist.count() - 1));
+        return;
+    }
+
+    this->testrun = true;
+
+    processmanager = new ProcessManager(datelist, 1, this->shortname, imagenbr);
+    connect(this->processmanager,SIGNAL(signalDeleteManager()), this, SLOT(deleteManager()));
+    connect(this->processmanager, &ProcessManager::signalMessage, this, &FormMovie::writeTolistwidget);
+
+    writeTolistwidget(QString("Rendering test image %1 : %2").arg(imagenbr).arg(datelist.at(imagenbr)));
+
+    processmanager->start();
+}
+
+void FormMovie::on_btnKillVideo_clicked()
+{
+    if(this->processmanager == nullptr)
+    {
+        writeTolistwidget("Nothing to kill : no EUMETCastVideo process is running.");
+        return;
+    }
+
+    // stopAll() can finish the manager off from here - through
+    // signalDeleteManager - so processmanager may not be touched afterwards.
+    this->processmanager->stopAll();
 }
 
 void FormMovie::deleteManager()
 {
-    writeTolistwidget("== All processes are finished ! ==");
+    bool killed = this->processmanager->wasAborted();
+
+    writeTolistwidget(killed ? "== All processes are killed ! ==" : "== All processes are finished ! ==");
     qDebug() << "deleting processmanager";
     // deleteLater(), not delete: this slot runs on a signal the manager emits
     // about itself, and the path taken when a process never starts still has
     // ProcessManager frames on the stack underneath it.
     this->processmanager->deleteLater();
     this->processmanager = nullptr;
-    this->on_btnffmpeg_clicked();
+
+    // A killed run leaves part of the frames behind and a test run leaves one :
+    // neither is a set of images to hand to ffmpeg.
+    if(!killed && !this->testrun)
+        this->on_btnffmpeg_clicked();
 }
 
 QJsonObject FormMovie::CreateVideoJson(QString shortname)

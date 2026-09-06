@@ -19,8 +19,13 @@ class ProcessManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProcessManager(QStringList datelist, int maxConcurrent = 10, QString shortname = "MET_12", QObject *parent = nullptr);
+    // singleimage < 0 renders the whole datelist. Anything else renders that one
+    // entry only, keeping its position in the list as its image number, so a
+    // test image lands on the frame a full run would have written there.
+    explicit ProcessManager(QStringList datelist, int maxConcurrent = 10, QString shortname = "MET_12", int singleimage = -1, QObject *parent = nullptr);
     void start();
+    void stopAll();
+    bool wasAborted() const { return aborted; }
 
     ~ProcessManager();
 
@@ -32,6 +37,7 @@ private:
     //QVarLengthArray<QProcess*, 256> processes;
     //QVarLengthArray<int, 256> processtatus;
     int finishedCount = 0;
+    bool aborted = false;
     QQueue<ProcessTask> taskQueue;
     QList<QProcess*> activeProcesses;
 
