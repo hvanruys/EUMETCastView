@@ -1229,8 +1229,23 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
     {
         ptrimageGeoNight = new QImage(this->mtg_total_number_of_columns[3], this->total_rows[3], QImage::Format_ARGB32);
         if(ptrimageGeoNight->isNull())
-            sendMessages(QString("No night image of %1 x %2 could be allocated")
-                             .arg(this->mtg_total_number_of_columns[3]).arg(this->total_rows[3]));
+        {
+            // CalculateImageMTG reads a row out of this for every pixel it
+            // writes, so there is no composing without it.
+            sendMessages(QString("Image %1 : no night image of %2 x %3 could be allocated, nothing is written")
+                             .arg(imagenbr).arg(this->mtg_total_number_of_columns[3]).arg(this->total_rows[3]));
+
+            for(int i = 0; i < nbrofcolors; i++)
+            {
+                for(int j = 0; j < vec.length(); j++)
+                {
+                    delete [] this->ptrMTG[i][vec[j] - 1];
+                    this->ptrMTG[i][vec[j] - 1] = nullptr;
+                }
+            }
+
+            return;
+        }
 
         QColor nuts(0,0,0, 255);  //(alphazero == true ? 0 : 255 ));
         ptrimageGeoNight->fill(nuts);
@@ -1510,7 +1525,17 @@ void VideoMaker::CalculateImageMTG(int findex)
 
             if(this->reader->spectrum.at(3).length() > 0)
             {
-                row_col_night = (QRgb*)this->ptrimageGeoNight->scanLine(line/2);
+                // The night image is half the height of the day image, and the
+                // day image does not always hold an even number of rows : the
+                // MTG chunks are 279 and 278 rows about turn, so six of them
+                // come to 1671 rows against the 835 of the infrared. line/2 is
+                // then 835 on the last line, one row past an image that holds
+                // 835 of them, and the row read there is 22 kB off the end of
+                // the allocation. The heap of one machine absorbs that and the
+                // next answers with an access violation. The last day line
+                // takes the last night row, which is what half of it means.
+                int nightline = qMin(line / 2, this->ptrimageGeoNight->height() - 1);
+                row_col_night = (QRgb*)this->ptrimageGeoNight->scanLine(nightline);
                 pixelout[3] = row_col_night[(int)(pixelx/2)];
             }
 
