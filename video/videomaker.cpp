@@ -987,6 +987,8 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
         }
     }
 
+    qDebug() << "All the netCDF files are read, the chunks that came in are" << vec;
+
     if(vec.isEmpty())
     {
         sendMessages(QString("Image %1 : not one chunk could be read, no image is written").arg(imagenbr));
@@ -1019,6 +1021,8 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
 
         qDebug() << QString("findex ==> vec[%1] = %2").arg(i).arg(vec.at(i));
     }
+
+    qDebug() << "Start the min/max over" << vec.length() << "chunks";
 
     for(int i = 0; i < vec.length(); i++)
     {
@@ -1054,6 +1058,8 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
 
     }
 
+
+    qDebug() << "Start the histograms over" << vec.length() << "chunks";
 
     for(int i = 0; i < vec.length(); i++)
     {
@@ -1245,10 +1251,14 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
         tot_rest_rows[colorindex] = this->total_rows[colorindex];
     }
 
+    qDebug() << "Start composing the image over" << vec.length() << "chunks";
+
     for(int i = 0; i < vec.length(); i++)
     {
         this->CalculateImageMTG(vec.at(i));
     }
+
+    qDebug() << "The image is composed";
 
     //this->ptrimageGeostationary->save("ptrimagegeo.png");
 
@@ -1261,10 +1271,36 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
     if(reader->projectiontype == "GVP")
     {
         // GeneralVerticalPerspective(JsonVideoReader *reader = 0, VideoMaker *video = 0, QImage *imGeostationary = 0, QObject *parent = 0);
+        qDebug() << QString("Creating the GVP projection of %1 x %2").arg(reader->videowidth).arg(reader->videoheight);
+
         GeneralVerticalPerspective *gvp = new GeneralVerticalPerspective(reader, this, ptrimageGeostationary);
 
+        if(gvp->imageProjection == nullptr || gvp->imageProjection->isNull())
+        {
+            sendMessages(QString("Image %1 : no projection of %2 x %3 could be allocated, nothing is written")
+                             .arg(imagenbr).arg(reader->videowidth).arg(reader->videoheight));
+            delete gvp;
+
+            for(int i = 0; i < nbrofcolors; i++)
+            {
+                for(int j = 0; j < vec.length(); j++)
+                {
+                    delete [] this->ptrMTG[i][vec[j] - 1];
+                    this->ptrMTG[i][vec[j] - 1] = nullptr;
+                }
+            }
+
+            return;
+        }
+
         QPainter painter(gvp->imageProjection);
+
+        qDebug() << QString("Start CreateMapFromGeoStationary from row %1 (last chunk %2 of %3)")
+                        .arg(mtg_end_position_row[0][vec.at(vec.length() - 1) - 1]).arg(vec.at(vec.length() - 1)).arg(vec.length());
+
         gvp->CreateMapFromGeoStationary(&painter, mtg_end_position_row[0][vec.at(vec.length() - 1) - 1],0,0,0,0,0,0,0);
+
+        qDebug() << "CreateMapFromGeoStationary is done";
 
         if(reader->boverlaydate)
         {
@@ -1285,6 +1321,8 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
         }
 
         painter.end();
+
+        qDebug() << "The overlays are drawn";
 
         QString prefixstr = reader->videooutputname;
 

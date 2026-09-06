@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "videolog.h"
+
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -37,7 +39,14 @@ void RenamePNGFiles()
 
 int main(int argc, char *argv[]) {
 
+    // Before the QGuiApplication, so that what Qt says on the way up is kept as
+    // well. argv[1] is the image number : it is what keeps the log of one of
+    // the processes running next to each other apart from the next.
+    VideoLog::install(argc > 1 ? QString::fromLocal8Bit(argv[1]) : QString());
+
     QGuiApplication app(argc, argv);
+
+    VideoLog::writeEnvironment(app.arguments());
 
     QStringList arglist = app.arguments();
     QString timestamp = "";

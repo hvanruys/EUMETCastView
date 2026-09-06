@@ -71,6 +71,8 @@ set(PROJECT_SOURCES
 	jsonvideoreader.h
 	videomaker.cpp
 	videomaker.h
+	videolog.cpp
+	videolog.h
 )
 
 find_package(Qt6 REQUIRED Core Gui Widgets Xml Concurrent Network PrintSupport)
