@@ -6,6 +6,8 @@
 //#include "rssvideo.h"
 #include "videomaker.h"
 
+#include <memory>
+
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -51,12 +53,15 @@ int main(int argc, char *argv[]) {
     // timestamp = "YYYYMMDDhhmm" for MET_11/10/9
     // arglist => "89" "090" for MET_12
     // arglist => "50" "202511081320"
-    VideoMaker video("EUMETCastVideo.json", timestamp);
+    // On the heap, not on the stack : a VideoMaker is 1.29 MB - mtg_histogram
+    // alone is 1.25 MB of it - and a MinGW executable reserves 2 MB of stack,
+    // where this and the frames underneath it came to about 1.5 MB.
+    auto video = std::make_unique<VideoMaker>("EUMETCastVideo.json", timestamp);
 
-    if(video.reader->shortname == "MET_12")
-        video.compileImageMTG(timestamp, imagenbrstr.toInt());
+    if(video->reader->shortname == "MET_12")
+        video->compileImageMTG(timestamp, imagenbrstr.toInt());
     else
-        video.compileImage(timestamp, imagenbrstr.toInt());
+        video->compileImage(timestamp, imagenbrstr.toInt());
 
     //         QString datestr = datelist.at(0).mid(0, 8);
 
