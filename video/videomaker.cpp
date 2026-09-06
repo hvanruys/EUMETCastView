@@ -783,6 +783,10 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
     QByteArray ba;
 
 
+    // How many of the four spectrum entries this image is made of. It is asked
+    // for often enough below to be worth a name.
+    const int nbrofcolors = (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1);
+
      for(int j = 0; j < this->reader->segmentspathlist.size(); j++)
     {
         if(this->reader->segmentspathlist.at(j).contains("BODY"))
@@ -795,10 +799,24 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
             int ind = ncfile.indexOf(".nc");
             int findex = ncfile.mid(ind - 4, 4).toInt();
 
-            this->vec.append(findex);
+            // findex indexes 40 wide arrays, so a name that does not end in a
+            // chunk number of its own would write next to them.
+            if(findex < 1 || findex > 40)
+            {
+                sendMessages(QString("No chunk number in %1 : the file is skipped").arg(ncfile));
+                continue;
+            }
 
             retval = nc_open(pncfile, NC_NOWRITE, &ncfileid);
-            if(retval != NC_NOERR) qDebug() << "error opening netCDF file " << this->reader->segmentspathlist.at(j);
+            if(retval != NC_NOERR)
+            {
+                // Reading on with an ncfileid that was never set left every
+                // value taken from the file unset as well, and the row counts,
+                // the buffer sizes and the height of the image were then built
+                // out of whatever the stack held. Skip the chunk instead.
+                sendMessages(QString("Could not open %1 : %2").arg(ncfile).arg(nc_strerror(retval)));
+                continue;
+            }
 
             retval = nc_inq(ncfileid, &ndimsp, &nvarsp, &ngattsp, &unlimdimidp);
             if(retval != NC_NOERR) qDebug() << "error nc_inq " << this->reader->segmentspathlist.at(j);
@@ -815,7 +833,9 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
             retval = nc_inq_ncid(ncfileid, "data", &grp_data);
             if(retval != NC_NOERR) qDebug() << "error opening data group";
 
-            for(int i = 0; i < (this->reader->daykindofimage == "VIS_IR Color" ? (this->reader->spectrum.at(3).length() > 0 ? 4 : 3) : 1); i++)
+            bool chunkok = (retval == NC_NOERR);
+
+            for(int i = 0; i < nbrofcolors && chunkok; i++)
             {
                 qDebug() << "reading radiance from channel i = " << i << " spectrum = " << this->reader->spectrum.at(i);
 
@@ -823,32 +843,57 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
                 ba = strspectrum.toLocal8Bit();
                 const char *c_channel = ba.data();
                 retval = nc_inq_ncid(grp_data, c_channel, &grp_spectrum);
-                if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum;
+                if(retval != NC_NOERR)
+                {
+                    sendMessages(QString("No %1 in %2 : %3").arg(strspectrum).arg(ncfile).arg(nc_strerror(retval)));
+                    chunkok = false;
+                    break;
+                }
 
                 retval = nc_inq_ncid(grp_spectrum, "measured", &grp_measured);
-                if(retval != NC_NOERR) qDebug() << "error opening " << strspectrum << "/measured";
+                if(retval != NC_NOERR)
+                {
+                    sendMessages(QString("No %1/measured in %2 : %3").arg(strspectrum).arg(ncfile).arg(nc_strerror(retval)));
+                    chunkok = false;
+                    break;
+                }
 
+                // Read into these first : a read that fails leaves them as they
+                // were, and the extent of the chunk may not be built out of it.
+                start_position_row = 0;
+                start_position_column = 0;
+                end_position_row = 0;
+                end_position_column = 0;
 
-                if ((retval = nc_inq_varid(grp_measured, "start_position_row", &varid)))
-                    ERR(retval);
-                if ((retval = nc_get_var_ushort(grp_measured, varid, &start_position_row)))
-                    ERR(retval);
+                const char *positions[4] = { "start_position_row", "start_position_column",
+                                             "end_position_row", "end_position_column" };
+                ushort *positionvalues[4] = { &start_position_row, &start_position_column,
+                                              &end_position_row, &end_position_column };
 
-                if ((retval = nc_inq_varid(grp_measured, "start_position_column", &varid)))
-                    ERR(retval);
-                if ((retval = nc_get_var_ushort(grp_measured, varid, &start_position_column)))
-                    ERR(retval);
+                for(int p = 0; p < 4 && chunkok; p++)
+                {
+                    if ((retval = nc_inq_varid(grp_measured, positions[p], &varid)) != NC_NOERR ||
+                        (retval = nc_get_var_ushort(grp_measured, varid, positionvalues[p])) != NC_NOERR)
+                    {
+                        ERR(retval);
+                        sendMessages(QString("Could not read %1 of %2 from %3 : %4")
+                                         .arg(positions[p]).arg(strspectrum).arg(ncfile).arg(nc_strerror(retval)));
+                        chunkok = false;
+                    }
+                }
 
-                if ((retval = nc_inq_varid(grp_measured, "end_position_row", &varid)))
-                    ERR(retval);
-                if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_row)))
-                    ERR(retval);
+                if(!chunkok)
+                    break;
 
-                if ((retval = nc_inq_varid(grp_measured, "end_position_column", &varid)))
-                    ERR(retval);
-                if ((retval = nc_get_var_ushort(grp_measured, varid, &end_position_column)))
-                    ERR(retval);
-
+                if(start_position_row < 1 || end_position_row < start_position_row ||
+                   start_position_column < 1 || end_position_column < start_position_column)
+                {
+                    sendMessages(QString("Chunk %1 of %2 covers rows %3 to %4 and columns %5 to %6 : the file is skipped")
+                                     .arg(findex).arg(strspectrum).arg(start_position_row).arg(end_position_row)
+                                     .arg(start_position_column).arg(end_position_column));
+                    chunkok = false;
+                    break;
+                }
 
                 retval = nc_get_att_ushort(grp_measured, varid, "_FillValue", &fillvalue[i]);
                 if (retval != NC_NOERR) qDebug() << "error reading _FillValue";
@@ -876,16 +921,58 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
                 this->ptrMTG[i][findex - 1] = new quint16[mtg_nbr_of_rows[i][findex - 1] * mtg_nbr_of_columns[i][findex - 1]];
 
                 retval = nc_inq_varid(grp_measured, "effective_radiance", &varid);
-                if(retval != NC_NOERR) qDebug() << "error opening effective radiance from channel " << strspectrum << "/measured";
-
+                if(retval != NC_NOERR)
+                {
+                    sendMessages(QString("No effective_radiance of %1 in %2 : %3").arg(strspectrum).arg(ncfile).arg(nc_strerror(retval)));
+                    chunkok = false;
+                    break;
+                }
 
                 retval = nc_get_var_ushort(grp_measured, varid, this->ptrMTG[i][findex - 1]);
-                if(retval != NC_NOERR) qDebug() << "error reading effective radiance from channel " << strspectrum << "/measured" << " findex = " << findex << " error = " << retval;
+                if(retval != NC_NOERR)
+                {
+                    // The buffer holds nothing that may be read : every pixel of
+                    // it would come off the heap as it was found.
+                    qDebug() << "error reading effective radiance from channel " << strspectrum << "/measured" << " findex = " << findex << " error = " << retval;
+                    sendMessages(QString("Could not read the radiance of %1 from %2 : %3").arg(strspectrum).arg(ncfile).arg(nc_strerror(retval)));
+                    chunkok = false;
+                    break;
+                }
             }
             retval = nc_close(ncfileid);
             if (retval != NC_NOERR) qDebug() << "error closing file " << ncfile;
 
+            if(chunkok)
+            {
+                this->vec.append(findex);
+            }
+            else
+            {
+                // Nothing of a chunk that did not read through may be left
+                // behind : a start position of 0 is what every loop below reads
+                // as a chunk that is not part of the selection.
+                for(int i = 0; i < nbrofcolors; i++)
+                {
+                    delete [] this->ptrMTG[i][findex - 1];
+                    this->ptrMTG[i][findex - 1] = nullptr;
+
+                    this->mtg_start_position_row[i][findex - 1] = 0;
+                    this->mtg_end_position_row[i][findex - 1] = 0;
+                    this->mtg_start_position_column[i][findex - 1] = 0;
+                    this->mtg_end_position_column[i][findex - 1] = 0;
+                    this->mtg_nbr_of_rows[i][findex - 1] = 0;
+                    this->mtg_nbr_of_columns[i][findex - 1] = 0;
+                }
+
+                sendMessages(QString("Chunk %1 is left out of image %2").arg(findex).arg(imagenbr));
+            }
         }
+    }
+
+    if(vec.isEmpty())
+    {
+        sendMessages(QString("Image %1 : not one chunk could be read, no image is written").arg(imagenbr));
+        return;
     }
 
     for(int i = 0; i < (this->reader->spectrum.at(3).length() > 0 ? 4 : 3); i++)
@@ -1057,6 +1144,25 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
 
     this->InitializeImageGeostationary(this->mtg_total_number_of_columns[0], this->total_rows[0]);
 
+    if(ptrimageGeostationary == nullptr || ptrimageGeostationary->isNull())
+    {
+        // Everything below scans this image line by line. Going on without it
+        // is what turned a picture that would not fit in memory into a crash.
+        sendMessages(QString("Image %1 : no image of %2 x %3 could be allocated, nothing is written")
+                         .arg(imagenbr).arg(this->mtg_total_number_of_columns[0]).arg(this->total_rows[0]));
+
+        for(int i = 0; i < nbrofcolors; i++)
+        {
+            for(int j = 0; j < vec.length(); j++)
+            {
+                delete [] this->ptrMTG[i][vec[j] - 1];
+                this->ptrMTG[i][vec[j] - 1] = nullptr;
+            }
+        }
+
+        return;
+    }
+
     this->COFF = this->mtg_total_number_of_columns[0] == 11136 ? this->reader->coffhrv : this->reader->coff;
     this->LOFF = this->mtg_total_number_of_columns[0] == 11136 ? this->reader->loffhrv : this->reader->loff;
     this->CFAC = this->mtg_total_number_of_columns[0] == 11136 ? this->reader->cfachrv : this->reader->cfac;
@@ -1098,6 +1204,10 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
     if(this->reader->spectrum.at(3).length() > 0)
     {
         ptrimageGeoNight = new QImage(this->mtg_total_number_of_columns[3], this->total_rows[3], QImage::Format_ARGB32);
+        if(ptrimageGeoNight->isNull())
+            sendMessages(QString("No night image of %1 x %2 could be allocated")
+                             .arg(this->mtg_total_number_of_columns[3]).arg(this->total_rows[3]));
+
         QColor nuts(0,0,0, 255);  //(alphazero == true ? 0 : 255 ));
         ptrimageGeoNight->fill(nuts);
 
@@ -1220,6 +1330,8 @@ void VideoMaker::CalculateImageMTG(int findex)
     double gammafactor = 1023 / pow(1023, gamma);
 
     im = this->ptrimageGeostationary;
+    if(im == nullptr || im->isNull())
+        return;
 
     Vector3 solar_vector;
     Vector3 vel;
@@ -1690,6 +1802,8 @@ void VideoMaker::CalculateImageMTGNight(int findex)
     QRgb *row_col;
 
     im = this->ptrimageGeoNight;
+    if(im == nullptr || im->isNull())
+        return;
 
     double gamma = this->reader->gamma;
     double gammafactor = 1023 / pow(1023, gamma);
@@ -1884,6 +1998,14 @@ void VideoMaker::InitializeImageGeostationary( int imagewidth, int imageheight) 
     qDebug() << QString("width %1  height %2 alphazero = %3").arg(imagewidth).arg(imageheight).arg(alphazero);
 
     ptrimageGeostationary = new QImage(imagewidth, imageheight, QImage::Format_ARGB32);
+    if(ptrimageGeostationary->isNull())
+    {
+        // QImage says so by staying null - it does not throw - and every
+        // scanLine() taken off it afterwards is a read of address zero.
+        sendMessages(QString("No image of %1 x %2 could be allocated").arg(imagewidth).arg(imageheight));
+        return;
+    }
+
     QColor nuts(0,0,0, 255);  //(alphazero == true ? 0 : 255 ));
     ptrimageGeostationary->fill(nuts);
 

@@ -76,53 +76,61 @@ private:
     void getTimeFromIndex(int index, QString *strtime);
 
 
-    double A1, B1, A2, B2, A3, B3;
-    double d_x1, d_x2, d_x3, d_x4, d_y1, d_y2, d_y3, d_y4;
+    // All of these start at zero. A VideoMaker is a megabyte and a half of
+    // object standing on the stack of main(), and the MTG path reads a number
+    // of them before anything writes them : the chunks that are not in the
+    // selection keep a start position of 0, total_rows is summed with +=, and
+    // InitializeImageGeostationary deletes ptrimageGeostationary before it
+    // assigns it. Linux happened to hand out a stack of zeroes, so they read as
+    // the values meant; Windows did not, and the image then took its height,
+    // its rows and a pointer to delete from whatever stood there.
+    double A1 = 0.0, B1 = 0.0, A2 = 0.0, B2 = 0.0, A3 = 0.0, B3 = 0.0;
+    double d_x1 = 0.0, d_x2 = 0.0, d_x3 = 0.0, d_x4 = 0.0, d_y1 = 0.0, d_y2 = 0.0, d_y3 = 0.0, d_y4 = 0.0;
 
-    quint16 mtg_total_number_of_rows[4];
-    quint16 mtg_total_number_of_columns[4];
+    quint16 mtg_total_number_of_rows[4] = {};
+    quint16 mtg_total_number_of_columns[4] = {};
 
-    int mtg_start_position_row[4][40];
-    int mtg_end_position_row[4][40];
-    int mtg_start_position_column[4][40];
-    int mtg_end_position_column[4][40];
-    int mtg_total_rows_per_segment[4][40];
+    int mtg_start_position_row[4][40] = {};
+    int mtg_end_position_row[4][40] = {};
+    int mtg_start_position_column[4][40] = {};
+    int mtg_end_position_column[4][40] = {};
+    int mtg_total_rows_per_segment[4][40] = {};
 
-    int mtg_nbr_of_rows[4][40];
-    int mtg_nbr_of_columns[4][40];
+    int mtg_nbr_of_rows[4][40] = {};
+    int mtg_nbr_of_columns[4][40] = {};
 
-    quint16 mtg_stat_min[4][40];
-    quint16 mtg_stat_max[4][40];
-    long mtg_active_pixels[4][40];
+    quint16 mtg_stat_min[4][40] = {};
+    quint16 mtg_stat_max[4][40] = {};
+    long mtg_active_pixels[4][40] = {};
 
-    quint16 mtg_histogram[4][40][4096];
+    quint16 mtg_histogram[4][40][4096] = {};
 
-    quint16 *ptrMTG[4][40];
+    quint16 *ptrMTG[4][40] = {};
 
-    int histogrammethod;
-    quint16 fillvalue[4];
-    quint16 stat_min[5];
-    quint16 stat_max[5];
+    int histogrammethod = 0;   // CMB_HISTO_NONE_95, the stretch the video is made with
+    quint16 fillvalue[4] = {};
+    quint16 stat_min[5] = {};
+    quint16 stat_max[5] = {};
 
-    long active_pixels[5];
+    long active_pixels[5] = {};
 
-    int minRadianceIndex[5];
-    int maxRadianceIndex[5];
-    quint16 lut_mtg[4][4096];
-    QImage *ptrimageGeostationary;
+    int minRadianceIndex[5] = {};
+    int maxRadianceIndex[5] = {};
+    quint16 lut_mtg[4][4096] = {};
+    QImage *ptrimageGeostationary = nullptr;
 //    QScopedArrayPointer<quint16> ptrimageGeoNight;
-    QImage *ptrimageGeoNight;
-    bool alphazero;
+    QImage *ptrimageGeoNight = nullptr;
+    bool alphazero = false;
 
-    double COFF;
-    double LOFF;
-    double CFAC;
-    double LFAC;
+    double COFF = 0.0;
+    double LOFF = 0.0;
+    double CFAC = 0.0;
+    double LFAC = 0.0;
 
-    int total_rows[4];
+    int total_rows[4] = {};
 
-    int tot_rows[4];
-    int tot_rest_rows[4];
+    int tot_rows[4] = {};
+    int tot_rest_rows[4] = {};
     QList<int> vec;
 
 
