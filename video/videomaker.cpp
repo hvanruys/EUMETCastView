@@ -1457,9 +1457,28 @@ void VideoMaker::CalculateImageMTG(int findex)
             "  this->mtg_total_rows_per_segment[" << i << "][findex - 1] = " << this->mtg_total_rows_per_segment[i][findex - 1];
     }
 
+    // Whether there is a night channel at all does not change from pixel to
+    // pixel either, and it is asked for twice in the loop below.
+    const bool hasnight = this->reader->spectrum.at(3).length() > 0;
+
     for(int line = tot_rest_rows[0] - 1; line >= this->total_rows[0] - tot_rows[0]; line--)
     {
         row_col = (QRgb*)im->scanLine(line);
+
+        if(hasnight)
+        {
+            // The night image is half the height of the day image, and the day
+            // image does not always hold an even number of rows : the MTG
+            // chunks are 279 and 278 rows about turn, so six of them come to
+            // 1671 rows against the 835 of the infrared. line/2 is then 835 on
+            // the last line, one row past an image that holds 835 of them, and
+            // the row read there is 22 kB off the end of the allocation. The
+            // heap of one machine absorbs that and the next answers with an
+            // access violation. The last day line takes the last night row,
+            // which is what half of it means.
+            int nightline = qMin(line / 2, this->ptrimageGeoNight->height() - 1);
+            row_col_night = (QRgb*)this->ptrimageGeoNight->scanLine(nightline);
+        }
 
         for (int pixelx = this->mtg_start_position_column[0][findex-1] - 1; pixelx < this->mtg_end_position_column[0][findex-1]; pixelx++)
         {
@@ -1523,21 +1542,8 @@ void VideoMaker::CalculateImageMTG(int findex)
             //                                            opts.geosatellites[geoindex].imageheighthrv0 - 1 - line, coff, loff, cfac, lfac, &latitude, &longitude);
 
 
-            if(this->reader->spectrum.at(3).length() > 0)
-            {
-                // The night image is half the height of the day image, and the
-                // day image does not always hold an even number of rows : the
-                // MTG chunks are 279 and 278 rows about turn, so six of them
-                // come to 1671 rows against the 835 of the infrared. line/2 is
-                // then 835 on the last line, one row past an image that holds
-                // 835 of them, and the row read there is 22 kB off the end of
-                // the allocation. The heap of one machine absorbs that and the
-                // next answers with an access violation. The last day line
-                // takes the last night row, which is what half of it means.
-                int nightline = qMin(line / 2, this->ptrimageGeoNight->height() - 1);
-                row_col_night = (QRgb*)this->ptrimageGeoNight->scanLine(nightline);
+            if(hasnight)
                 pixelout[3] = row_col_night[(int)(pixelx/2)];
-            }
 
             if(this->reader->daykindofimage == "VIS_IR")
             {
@@ -1555,7 +1561,7 @@ void VideoMaker::CalculateImageMTG(int findex)
             }
             else if(this->reader->daykindofimage == "VIS_IR Color")
             {
-                if(this->reader->spectrum.at(3).length() > 0)
+                if(hasnight)
                 {
                     if(pixelout[3] != this->fillvalue[3])
                     {
