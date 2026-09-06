@@ -13,6 +13,8 @@
 #include <qelapsedtimer.h>
 #include <qpainter.h>
 
+#include <cstdlib>
+
 #ifdef _WIN32
 #include <hdf5.h>
 #else
@@ -704,6 +706,18 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
     QStringList spectrumlist = this->reader->spectrum;
 
     sendMessages(QString("Start compileImageMTG nbr %1 with timestamp = %2 ; nbr of segments = %3").arg(imagenbr).arg(timestamp).arg(this->reader->segmentspathlist.size()));
+
+    // Filter 32018 is FCIDECOMP, the one that unpacks the JPEG-LS the FCI
+    // radiances are stored in. EUMETCastView reads them without it - when the
+    // filter is missing it takes the chunk raw and decodes it itself - but
+    // there is no such path here : every radiance read below fails instead, and
+    // one line naming the reason beats the same error once per chunk.
+    if(H5Zfilter_avail(32018) <= 0)
+    {
+        const char *pluginpath = getenv("HDF5_PLUGIN_PATH");
+        sendMessages(QString("The FCIDECOMP filter is not available : HDF5_PLUGIN_PATH = %1")
+                         .arg(pluginpath == nullptr ? QString("not set") : QString::fromLocal8Bit(pluginpath)));
+    }
 
 
     qDebug() << "Start compileImageMTG length segmentspathlist = " << this->reader->segmentspathlist.size();
