@@ -3,9 +3,13 @@
 ## 2.1.4
 
 Making a video worked on Linux and did nothing at all on Windows. It comes down
-to one relative path, and a great deal of silence around it. Alongside that: the
-toolbar says which view is on screen, a composed image appears without a second
-click, and the qmake project files are gone.
+to one relative path, and a great deal of silence around it — and behind that, an
+EUMETCastVideo that started and then died halfway through an MTG image, on a
+stack it never initialised and a row it read past the end of. Both executables
+write a logfile of their own now, which is what the silence was. Alongside that:
+Kill and Test on the movie form, the toolbar says which view is on screen, a
+composed image appears without a second click, and the qmake project files are
+gone.
 
 ### Video tool
 
@@ -37,9 +41,117 @@ click, and the qmake project files are gone.
   looking, and a full-disc image that could not be allocated — 11136 × 11136
   ARGB32 is 496 MB, and eight of these run at once — both end as `save()`
   returning false, which was ignored.
+- **EUMETCastVideo died halfway through an MTG image, and differently on every
+  run.** A `VideoMaker` is a megabyte and a half of object that `main()` put on
+  the stack, and nothing initialised it. The MTG path then read a set of its
+  members before anything wrote them: `total_rows` was summed with `+=` from
+  whatever it started as, the loop over all 40 chunks read
+  `mtg_start_position_row` for the ones that are not in the selection,
+  `InitializeImageGeostationary` deleted `ptrimageGeostationary` before it
+  assigned it, and `histogrammethod` was never set anywhere at all. Which stack
+  the object landed on decided what all of that meant, and that depends on the
+  environment block, the path and the arguments — so it came out right for one
+  image and not for the next, and Windows lost the toss more often. They are
+  initialised in the header now, and the object is built on the heap: 1.25 MB of
+  its 1351600 bytes is `mtg_histogram`, and a MinGW executable reserves 2 MB of
+  stack against Linux' 8 MB, so the object and the frames underneath it ran at
+  about 1.5 MB of the 2 MB before `compileImage` did anything. Clamped with
+  `ulimit -s`, the image was composed at 1600K and segfaulted at 1500K before;
+  it is composed at 250K and segfaults at 200K now.
+- **Nothing that read a chunk from netCDF checked its return.** A file that would
+  not open left the `ncfileid` unset, and the four position values, the row
+  counts, the size of the buffer and the height of the image were then built out
+  of the stack in the same way. Every read is checked now, a chunk that does not
+  come in complete is dropped with a message over the udp socket — a zero start
+  position is what every loop below already reads as a chunk that is not there —
+  and an image with no chunk left writes nothing instead of composing from an
+  empty list. The image composed into is checked for having been allocated as
+  well: `QImage` reports an allocation it could not make by staying null rather
+  than by throwing, and every `scanLine()` taken off that is a read of address
+  zero.
+- **The night row ran off the end of the night image.** `CalculateImageMTG`
+  takes the night pixel from `scanLine(line/2)` of an image half the height of
+  the day image, and the day image does not always hold an even number of rows:
+  the MTG chunks are 279 and 278 rows about turn, so the six of them in a
+  selection come to 1671 rows, against 835 for the infrared at half the
+  resolution. The first line composed is 1670, `line/2` is 835, and an image of
+  835 rows ends at 834 — `scanLine(835)` is 22 kB past the end of the
+  allocation. Linux hands back heap and composes the image; Windows answers with
+  0xC0000005 on the first line of the first chunk, which is where the log
+  stopped. The last day line takes the last night row now, which is what half of
+  it means anyway, and the night image is checked for having been allocated,
+  since every pixel written reads a row out of it.
+
+### Logging
+
+- **EUMETCastVideo writes `templogs/EUMETCastVideo_<image number>.log`.** It is a
+  console application, but QProcess starts it with `CREATE_NO_WINDOW` when the
+  parent has no console of its own, so on Windows everything it said through
+  `qDebug()` was thrown away — and what it says is the only account there is of
+  what it read and where it stopped. One file per process, so the ones running
+  next to each other do not write over one another, and every line is flushed as
+  it is written: the point of the file is that the last line in it is where the
+  process was standing when it went. It opens with the arguments, the working
+  and application directories, and the versions of Qt, netCDF and HDF5 that were
+  actually loaded, with `PATH` and `HDF5_PLUGIN_PATH` behind them — the same
+  executable composes an image under QtCreator and crashes when it is started
+  from a bat file, and that is what a different set of dll's on `PATH` looks
+  like. `compileImageMTG` says which phase it is in as well — the chunks that
+  came in, the min/max, the histograms, the compose, the projection, the save —
+  so a log that stops says where.
+- **EUMETCastView writes `logging.txt`.** `-l` opened the file and wrote nothing
+  into it: the handler that would have filled it is commented out, and the
+  `myMessageOutput` standing next to it was never installed either. `ViewLog` is
+  for EUMETCastView what the above is for EUMETCastVideo — installed before the
+  `QApplication`, so that what Qt itself says on the way up is kept, flushed line
+  by line, and chained onto the handler that was there, so stderr and the abort
+  at the end of a `qFatal` keep doing what they did. Only `-l` or `--logging`
+  turns it on; `/debugging/dologging` in the ini does not, and `opts.doLogging`
+  follows what was actually done, so the box in the preferences shows the run
+  rather than the setting. That box switches the file on and off while the
+  application runs now, and switching it back on appends instead of emptying what
+  was logged before it. It was a lone auto-exclusive radio button, which can be
+  switched on and never off again, so it is the checkbox it always read as.
+- **A missing FCIDECOMP filter is named.** Filter 32018 unpacks the JPEG-LS the
+  FCI radiances are stored in. EUMETCastView does not need it — `mainwindow.cpp`
+  asks `H5Zfilter_avail` for it, and when the answer is no,
+  `segmentlistgeostationary` takes the chunk raw and decodes it itself.
+  EUMETCastVideo has no such path: it reads `effective_radiance` through
+  `nc_get_var_ushort`, which wants the filter. So an `HDF5_PLUGIN_PATH` that does
+  not hold the plugin broke the video and left the program it was started from
+  composing the same files perfectly, which does not read as a missing plugin at
+  all. It is asked for once now, at the start of `compileImageMTG`, and named
+  either way with the path it was looked for on.
 
 ### Interface
 
+- **Kill and Test on the movie form.** `btnKillVideo` gives the run up:
+  `ProcessManager::stopAll()` clears the task queue, so nothing new is spawned,
+  and kills every `EUMETCastVideo` it started. The kills come back as
+  `finished()`, so the processes retire along the path a run that ends by itself
+  takes, and `deleteManager` reads `wasAborted()` to leave ffmpeg alone — an
+  aborted run leaves part of the frames in `tempvideo/`, which is not a set of
+  images to make a video out of. `btnRunTest` renders a single image, to see what
+  the settings on the form give before spending a full run on them: it is queued
+  under its own number, so the file it writes is the one a full run would have
+  written for that slot, and a single bad frame can be rendered again without
+  redoing the others. `processmanager` was never initialised, so clicking Kill
+  before a render had run would have used whatever was on the stack; it is
+  `nullptr` now, and both buttons refuse to start a second manager over a live
+  one. `spbTestImageNbr` counts from 0 and up to 9999 — the QSpinBox default of
+  99 puts frames 100 to 143 of an MTG day out of reach.
+- **The 3D globe text follows the preferences.** The globe wrote everything in
+  `QFont("Times", 12, Bold)`, built in `paintGL` and set on the painter the whole
+  overlay is drawn with. The frame rate, the last selected segment, the
+  satellite, station and segment names and the view distance now come from
+  `fontfamily3D` and `fontsize3D`, so they follow `cmbFont3DGlobe` and
+  `spbSize3DFont` on the 3D page of the preferences, and `paintGL` ends in
+  `update()`, so a change shows on the next frame. `drawInstructions` measured
+  its text rect with the widget font while drawing it with the painter font; the
+  two were both 12pt-ish, so it did not show, and with a size to choose it would
+  — it measures the font it writes in now. `spbSize3DFont` had no range of its
+  own and so could write a point size of 0 to the ini, which draws nothing and
+  warns once a frame; it goes from 6 to 72.
 - **The toolbar says which view is showing.** `on_actionImage_triggered` already
   unchecked the other view actions, but none of them were checkable in the first
   place, so nothing marked the view on screen. All seven are checkable now, every
