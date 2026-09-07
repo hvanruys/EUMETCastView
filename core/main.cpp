@@ -9,6 +9,7 @@
 #include "poi.h"
 #include "gshhsdata.h"
 #include "satellite.h"
+#include "viewlog.h"
 
 //#include <stdexcept>
 
@@ -25,8 +26,6 @@ Options opts;
 Poi poi;
 SegmentImage *imageptrs;
 gshhsData *gshhsdata;
-QFile loggingFile;
-QTextStream outlogging(&loggingFile);
 QNetworkAccessManager networkaccessmanager;
 SatelliteList satellitelist;
 
@@ -34,66 +33,6 @@ bool ptrimagebusy;
 
 // Every now and then a masterpiece like this comes out, and the world is gifted with a few hours of hope for the human race,
 // before dropping back into it's usual chaos.
-
-void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    QByteArray localMsg = msg.toLocal8Bit();
-    switch (type) {
-    case QtDebugMsg:
-        fprintf(stdout, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        break;
-    case QtInfoMsg:
-        fprintf(stdout, "Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        break;
-    case QtWarningMsg:
-        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        break;
-    case QtCriticalMsg:
-        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        break;
-    case QtFatalMsg:
-        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-        abort();
-    }
-
-    fflush(stderr);
-    fflush(stdout);
-}
-
-// void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-// {
-
-//     QString strout = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ");
-//     switch (type) {
-//     case QtDebugMsg:
-//         strout += "Debug: " + msg + "\n";
-//         break;
-//     case QtInfoMsg:
-//         strout += "Info: " + msg + "\n";
-//         break;
-//     case QtWarningMsg:
-//         strout += "Warning: " + msg + "\n";
-//         break;
-//     case QtCriticalMsg:
-//         strout += "Critical: " + msg + "\n";
-//         break;
-//     case QtFatalMsg:
-//         strout += "Fatal: " + msg + "\n";
-//         outlogging << strout;
-//         fprintf(stderr, "%s", strout.toStdString().c_str());
-//         abort();
-//     }
-
-//     if(opts.doLogging)
-//     {
-//         outlogging << strout;
-//         outlogging.flush();
-//     }
-
-//     fprintf(stderr, "%s", strout.toStdString().c_str());
-
-// }
-
 
 int main(int argc, char *argv[])
 {
@@ -104,7 +43,13 @@ int main(int argc, char *argv[])
 
     QCoreApplication::addLibraryPath(".");
 
+    // Before the QApplication, so that what Qt itself says on the way up is
+    // kept as well. It only does something when -l or --logging is there.
+    ViewLog::install(argc, argv);
+
     QApplication app(argc, argv);
+
+    ViewLog::writeEnvironment(app.arguments());
 
     QStringList styles = QStyleFactory::keys();
 
@@ -114,19 +59,10 @@ int main(int argc, char *argv[])
     opts.Initialize();
     poi.Initialize();
 
-    if (QCoreApplication::arguments().contains(QStringLiteral("--logging")) ||
-        QCoreApplication::arguments().contains(QStringLiteral("-l")) )
-        opts.doLogging = true;
-
-    //qInstallMessageHandler(myMessageOutput);
-
-    if(opts.doLogging)
-    {
-        loggingFile.setFileName("logging.txt");
-        if (!loggingFile.open(QIODevice::WriteOnly | QIODevice::Text))
-            return 0;
-        //qInstallMessageHandler(myMessageOutput);
-    }
+    // The command line decides, not the ini file : a run started without -l
+    // writes no log, whatever /debugging/dologging was left at. This only tells
+    // the rest of the application what ViewLog::install() already did.
+    opts.doLogging = ViewLog::isActive();
 
     if (QCoreApplication::arguments().contains(QStringLiteral("--noopengl")) ||
         QCoreApplication::arguments().contains(QStringLiteral("-nogl")) )

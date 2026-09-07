@@ -1424,7 +1424,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QRadioButton" name="rdbDoLogging">
+              <widget class="QCheckBox" name="chkDoLogging">
                <property name="text">
                 <string>Create logging file 'logging.txt'</string>
                </property>

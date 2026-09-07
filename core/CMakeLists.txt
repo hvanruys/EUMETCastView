@@ -85,6 +85,7 @@ set(PROJECT_SOURCES_CPP
     moon.cpp
     processmanager.cpp
     processmanager.h
+    viewlog.cpp
     mainwindow.ui
     dialogpreferences.ui
     formephem.ui

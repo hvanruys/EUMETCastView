@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include "segmentimage.h"
 #include "poi.h"
+#include "viewlog.h"
 
 extern SegmentImage *imageptrs;
 extern Options opts;
@@ -196,7 +197,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
         ui->lblFciDecomp->setStyleSheet("QLabel { color: red; }");
     }
 
-    ui->rdbDoLogging->setChecked(opts.doLogging);
+    ui->chkDoLogging->setChecked(ViewLog::isActive());
 
     opts.globalChangeFonts(this, opts.fontsize);
 
@@ -3458,9 +3459,16 @@ Qt::ItemFlags MERSIConfigModel::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
 
-void DialogPreferences::on_rdbDoLogging_toggled(bool checked)
+void DialogPreferences::on_chkDoLogging_toggled(bool checked)
 {
-    opts.doLogging = checked;
+    // Straight away, not at the next start : the box is there to catch what the
+    // application is doing now. opts.doLogging follows what actually happened,
+    // which is not the same thing when the file could not be opened.
+    ViewLog::setActive(checked);
+    opts.doLogging = ViewLog::isActive();
+
+    if (checked && !opts.doLogging)
+        ui->chkDoLogging->setChecked(false);
 }
 
 void DialogPreferences::on_rdbCopyMTGfiles_toggled(bool checked)

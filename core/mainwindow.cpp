@@ -2,6 +2,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "viewlog.h"
 
 #ifdef _WIN32
 #include <hdf5.h>
@@ -13,8 +14,6 @@
 extern Options opts;
 extern Poi poi;
 extern SegmentImage *imageptrs;
-extern QFile loggingFile;
-extern QTextStream outlogging;
 extern SatelliteList satellitelist;
 class SegmentListGeostationary;
 
@@ -467,9 +466,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 MainWindow::~MainWindow()
 {
     qDebug() << "================closing MainWindow================";
-    outlogging.flush();
-    loggingFile.close();
-    qInstallMessageHandler(nullptr);
+
+    // The last thing that happens : from here on the messages go back to where
+    // they went before the logfile was opened.
+    ViewLog::shutdown();
 
 }
 
