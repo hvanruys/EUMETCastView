@@ -728,7 +728,14 @@ void VideoMaker::compileImageMTG(QString timestamp, int imagenbr)
     qDebug() << "Spectrum vector count = " << this->reader->spectrum.count() << " kindofimage = " << this->reader->daykindofimage;
 
     if(this->reader->segmentspathlist.size() == 0)
+    {
+        // An entry the form left empty on purpose : nothing was received for
+        // this cycle. It is here for the frame number, and the frame itself is
+        // copied from the one before it once every process is back.
+        sendMessages(QString("Image %1 : the json holds no file for timestamp %2, nothing is composed")
+                         .arg(imagenbr).arg(timestamp));
         return;
+    }
 
 
     QElapsedTimer timer;

@@ -1,4 +1,5 @@
 #include "formmovie.h"
+#include "videogapfiller.h"
 #include "generalverticalperspective.h"
 #include "poi.h"
 #include "ui_formmovie.h"
@@ -489,13 +490,26 @@ void FormMovie::on_btnffmpeg_clicked()
     writeTolistwidget("Starting creating video with FFMPEG");
     QString datevideo = this->selectiondate.toString("yyyyMMdd");
 
-
-    QString inputimagename = QString("tempvideo/%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_" + this->shortname + "_%04d.png" : "PROJ_" + this->shortname + "_%04d.png");
-    QString outputvideoname = QString("%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_"  + this->shortname + "_" + datevideo:
-                                                    "PROJ_" + this->shortname + "_" + datevideo) + ".mp4";
-
+    QString frameprefix = QString(ui->chkHRV->isChecked() ? "PROJHRV_" : "PROJ_") + this->shortname + "_";
+    QString inputimagename = "tempvideo/" + frameprefix + "%04d.png";
+    QString outputvideoname = frameprefix + datevideo + ".mp4";
 
     QCoreApplication::processEvents();
+
+    // A frame that was not composed - a cycle that was not received, a chunk
+    // that could not be read, a process that died - is a number ffmpeg does not
+    // find, and it stops at the first one. The holes are filled with the frame
+    // before them here, in front of the listing below, so that what is counted
+    // is what ffmpeg is going to be handed.
+    QStringList framereport;
+    int framesfilled = fillMissingFrames("tempvideo", frameprefix, framereport);
+
+    for(const QString &line : std::as_const(framereport))
+        writeTolistwidget(line);
+
+    if(framesfilled > 0)
+        writeTolistwidget(QString("%1 frame(s) were missing and are copies of the frame before them.")
+                              .arg(framesfilled));
 
     QDir dir("tempvideo");
     dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
@@ -997,6 +1011,20 @@ QJsonObject FormMovie::CreateVideoJson(QString shortname)
         //     qDebug() << w;
         // }
         filteredmap = filterByKeys(segs->segmentlistmapgeomtgi1, allowedsegments);
+
+        // A chunk that was not received does not leave a band out of the image :
+        // compileImageMTG adds up the rows of the chunks that did come in, so
+        // everything under the hole moves up and is navigated as the wrong
+        // latitude. The same chunk of the cycle before covers the same band of
+        // the disc, so it puts those rows back, ten minutes stale. A cycle that
+        // was not received at all is kept in the numbering as an empty entry and
+        // filled in as a frame after the render.
+        QStringList chunkreport;
+        filteredmap = fillMTGChunkGaps(filteredmap, allowedsegments, chunkreport);
+
+        for(const QString &line : std::as_const(chunkreport))
+            writeTolistwidget(line);
+
         rootObject["files"] = getJasonObjectFromMap(filteredmap);
     }
     else if(shortname == "MET_11")

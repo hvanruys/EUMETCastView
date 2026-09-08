@@ -85,6 +85,8 @@ set(PROJECT_SOURCES_CPP
     moon.cpp
     processmanager.cpp
     processmanager.h
+    videogapfiller.cpp
+    videogapfiller.h
     viewlog.cpp
     mainwindow.ui
     dialogpreferences.ui
@@ -240,6 +242,14 @@ if(BUILD_TESTS)
         "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/QSgp4")
     target_link_libraries(fcinav_test Qt6::Core Qt6::Gui)
     set_target_properties(fcinav_test PROPERTIES
+        AUTOMOC OFF
+        AUTOUIC OFF
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
+    add_executable(videogapfiller_test videogapfiller_test.cpp videogapfiller.cpp)
+    target_include_directories(videogapfiller_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(videogapfiller_test Qt6::Core)
+    set_target_properties(videogapfiller_test PROPERTIES
         AUTOMOC OFF
         AUTOUIC OFF
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
