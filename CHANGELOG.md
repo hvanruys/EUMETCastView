@@ -1,5 +1,65 @@
 # Changelog
 
+## 2.1.5
+
+Everything here is the last step of making a video, the point where the frames
+are on disk and ffmpeg is handed them. Two separate things stopped a video being
+made at all — one of them on every single run — and the third is the holes a day
+of MTG arrives with, which cut the video short at the first of them.
+
+### Making a video
+
+- **ffmpeg was pointed at frames that were never written.** The movie form held
+  two mappings from the satellite radio buttons to a short name and they
+  disagreed. `prepareVideoRun()` answers `MET_12`, which goes into
+  `EUMETCastVideo.json` as the shortname and comes back out of it as
+  `videooutputname` `PROJ_MET_12_`, so the video processes write
+  `tempvideo/PROJ_MET_12_0000.png` and up; `on_btnffmpeg_clicked()` answered
+  `MET12` and built `tempvideo/PROJ_MET12_%04d.png` out of it. ffmpeg said
+  "Could find no file with path ... and index in the range 0-4" and stopped
+  there, on a directory holding 144 frames. It was not only the button:
+  `deleteManager()` calls it as soon as a render comes back, so a full run
+  rendered every frame and then ended without a video. `selectedSatellite()` is
+  that mapping, once, and both callers ask it. The mp4 is
+  `PROJ_MET_12_<date>.mp4` now rather than `PROJ_MET12_<date>.mp4`, which is
+  what the frames and the json were already saying.
+- **A hole in the frame numbering ended the video at the hole.** A frame that was
+  never composed — a cycle that was not received, a chunk that would not read, a
+  process that died — leaves a number ffmpeg does not find, and the image2
+  demuxer stops at the first one: 144 frames on disk with 0020 missing encode as
+  a 20 frame video. Every number missing between the lowest and the highest frame
+  present is now written as a copy of the last real frame before it, in front of
+  the listing the ffmpeg button takes, so what is counted is what ffmpeg gets. A
+  run of holes all copy that one frame rather than a copy of a copy. Only between
+  them: image2 looks for its own start index, and a run that stopped early is a
+  shorter video, not a broken one, so padding its tail with thirty copies of one
+  frame would be worse than leaving it. Every frame filled in is named in the
+  traffic list, and the frame carries the date overlay of the cycle it was copied
+  from, so the clock stands still for it rather than advancing.
+- **A chunk that was not received moved everything under it.** It does not leave
+  a band out of the image: `compileImageMTG` stacks the chunks that did come in
+  and adds up their rows, so everything below the hole moves up and is navigated
+  as the wrong latitude. Chunk *n* covers a fixed band of the disc, so the same
+  chunk of a neighbouring cycle puts those rows back, ten minutes stale, and the
+  geometry is right again. This is done where `EUMETCastVideo.json` is written,
+  so what the video processes are handed is already whole: every cycle from the
+  first of the selection to the last gets an entry, and every entry every chunk
+  the projection asks for, taken from the nearest cycle that has it — the one
+  before by preference, the one after only for a hole in the first cycle.
+  Sources are looked for in the selection as it was received and never in what
+  was just filled in, so a run of holes all name the same real file. A cycle
+  received not at all becomes an entry holding nothing: it is there for the frame
+  number it takes, so the frames keep step with the clock, and the frame itself
+  is filled in after the render.
+- **A cycle with no files composed nothing, in silence.** `compileImageMTG`
+  returned on an empty file list without a word, which is what an empty entry
+  now hands it. It says which timestamp and why.
+- **The commented out XML writer is gone.** `on_btnCreateXML_clicked()` wrote the
+  `EUMETCastVideo.xml` that `CreateVideoJson` replaced, and had been left in
+  place as 439 lines of comment in front of everything the form does.
+  `XmlVideoReader` is untouched and still built into EUMETCastVideo, so a hand
+  written xml keeps working.
+
 ## 2.1.4
 
 Making a video worked on Linux and did nothing at all on Windows. It comes down
