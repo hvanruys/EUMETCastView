@@ -106,6 +106,7 @@ private:
     void writeTolistwidget(QString txt);
     void listWidgets();
     QJsonObject CreateVideoJson(QString shortname);
+    QString selectedSatellite();
     QStringList prepareVideoRun();
     bool convertToJson(const QMap<int, QMap<int, QFileInfo>>& segmentlistmap, const QString& outputFilePath);
     QJsonObject getJasonObjectFromMap(const QMap<int, QMap<int, QFileInfo>>& segmentlistmap);

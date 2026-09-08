@@ -476,6 +476,16 @@ void FormMovie::on_btnClear_clicked()
 
 void FormMovie::on_btnffmpeg_clicked()
 {
+    // selectedSatellite() and not a spelling of its own : the frames ffmpeg is
+    // about to be pointed at are named after the one this form wrote into
+    // EUMETCastVideo.json.
+    this->shortname = selectedSatellite();
+    if(this->shortname.isEmpty())
+    {
+        writeTolistwidget("One of the input satellite radiobuttons must be set");
+        return;
+    }
+
     writeTolistwidget("Starting creating video with FFMPEG");
     QString datevideo = this->selectiondate.toString("yyyyMMdd");
 
@@ -484,19 +494,21 @@ void FormMovie::on_btnffmpeg_clicked()
     QString outputvideoname = QString("%1").arg(ui->chkHRV->isChecked() ? "PROJHRV_"  + this->shortname + "_" + datevideo:
                                                     "PROJ_" + this->shortname + "_" + datevideo) + ".mp4";
 
+
+    QCoreApplication::processEvents();
+
+    QDir dir("tempvideo");
+    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+
+    QFileInfoList list = dir.entryInfoList();
+
     QProcess process;
     process.setProgram("ffmpeg");
 
     writeTolistwidget(QString("=== Start creation video %1 ! ===").arg(outputvideoname));
 
-    QCoreApplication::processEvents();
-
     if(opts.ffmpeg_options.contains("-i INPUTFILES"))
     {
-        QDir dir("tempvideo");
-        dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-
-        QFileInfoList list = dir.entryInfoList();
         if(list.size() == 0)
         {
             qDebug() << "The directory 'tempvideo' doesn't contains any files !";
@@ -666,6 +678,25 @@ void FormMovie::PopulateSelectionList(QDate seldate)
 }
 
 
+// The satellite the form is set to, in the one spelling the whole video path
+// uses : it goes into EUMETCastVideo.json as the shortname, and from there into
+// the names of the frames the video processes write - which is what ffmpeg is
+// handed afterwards. An empty string means no radio button is set ; reporting
+// that is left to the caller, they do it differently.
+QString FormMovie::selectedSatellite()
+{
+    if(ui->rdbMeteosat_12->isChecked())
+        return "MET_12";
+    else if(ui->rdbMeteosat_11->isChecked())
+        return "MET_11";
+    else if(ui->rdbMeteosat_10->isChecked())
+        return "MET_10";
+    else if(ui->rdbMeteosat_9->isChecked())
+        return "MET_9";
+
+    return QString();
+}
+
 // The part of a render that a full run and a single test image have in common :
 // pick the satellite off the radio buttons, write EUMETCastVideo.json for it,
 // and hand back the timestamps the video processes are indexed by. Empty means
@@ -674,16 +705,8 @@ QStringList FormMovie::prepareVideoRun()
 {
     this->geoindex = 99;
 
-    QString satellite;
-    if(ui->rdbMeteosat_12->isChecked())
-        satellite = "MET_12";
-    else if(ui->rdbMeteosat_11->isChecked())
-        satellite = "MET_11";
-    else if(ui->rdbMeteosat_10->isChecked())
-        satellite = "MET_10";
-    else if(ui->rdbMeteosat_9->isChecked())
-        satellite = "MET_9";
-    else
+    QString satellite = selectedSatellite();
+    if(satellite.isEmpty())
     {
         QMessageBox msgBox;
         msgBox.setText("Select a satellite list.(MET-9/-10/-11/-12");
