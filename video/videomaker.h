@@ -103,7 +103,14 @@ private:
     quint16 mtg_stat_max[4][40] = {};
     long mtg_active_pixels[4][40] = {};
 
-    quint16 mtg_histogram[4][40][4096] = {};
+    // Millions of pixels of one chunk can land in a single bin, so the bins have
+    // to be wider than the 65535 a quint16 counts to. The night side is the case
+    // that bites an animation : with the disc dark, a whole FDHSI solar channel
+    // collapses into three or four bins, and the wrap threw away 96 % of the
+    // counts. That skews the cumulative LUT and with it the 95 % stretch the
+    // video is made with, worst at the terminator and fading as the day fills
+    // the disc - so the day side drifts in brightness across the sequence.
+    quint32 mtg_histogram[4][40][4096] = {};
 
     quint16 *ptrMTG[4][40] = {};
 
