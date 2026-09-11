@@ -6809,6 +6809,24 @@ Also sun-normalises the reflectance, which brightens the image away from the sub
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="chkSharpenHRFI">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Sharpen the finished composite to 0.5 km with the Meteosat-12 HRFI vis_06.</string>
+                </property>
+                <property name="text">
+                 <string>Sharpen with HRFI</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="btnRecipes">
                 <property name="font">
                  <font>

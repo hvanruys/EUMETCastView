@@ -100,6 +100,19 @@ public:
     void setupChannelGeoCombo(int geoindex);
     void setupRGBRecipeList(int geoindex);
 
+    /**
+     * Enable or disable the HRFI sharpen box for what is currently selected.
+     *
+     * Three things have to hold : the tab is Meteosat-12 FDHSI, the recipe
+     * produces something that can be sharpened, and the slot has HRFI chunks on
+     * disk. The first two change with the tab and the list, the third with the
+     * row, so this is called from all three.
+     */
+    void updateSharpenHRFIState();
+
+    /** HRFI BODY chunks on disk for a repeat cycle, 0 to 40. */
+    int hrfiChunksAvailable(int filenbr) const;
+
     QStringList getRowchosen() { return rowchosen; }
     eProjectionType currentProjectionType;
 

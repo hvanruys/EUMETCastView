@@ -492,6 +492,16 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
             opts.bSeviriRayleigh = checked;
     });
 
+    connect(ui->chkSharpenHRFI, &QCheckBox::toggled, this, [this](bool checked) {
+        opts.bFciSharpenHRFI = checked;
+    });
+
+    // Whether a recipe can be sharpened at all depends on which one it is, so
+    // the box has to be judged again when the selection moves.
+    connect(ui->lstRGB, &QListWidget::currentRowChanged, this, [this](int) {
+        updateSharpenHRFIState();
+    });
+
     setupRGBRecipeList(opts.currentgeotab);
 
     // VII has one family of recipes and only ever shows that one, so unlike the
@@ -801,6 +811,66 @@ void FormToolbox::setupRGBRecipeList(int geoindex)
     QSignalBlocker block(ui->chkGeoRayleigh);
     ui->chkGeoRayleigh->setChecked(recipefamily == RECIPE_FCI ? opts.bFciRayleigh :
                                    recipefamily == RECIPE_SEVIRI ? opts.bSeviriRayleigh : false);
+
+    QSignalBlocker blocksharpen(ui->chkSharpenHRFI);
+    ui->chkSharpenHRFI->setChecked(opts.bFciSharpenHRFI);
+    updateSharpenHRFIState();
+}
+
+int FormToolbox::hrfiChunksAvailable(int filenbr) const
+{
+    if(segs == nullptr || filenbr <= 0)
+        return 0;
+
+    const QMap<int, QFileInfo> chunks = segs->segmentlistmapgeomtgi1_hrfi.value(filenbr);
+
+    // Sequence 41 is the TRAIL, which carries no imagery.
+    int n = 0;
+    for(auto it = chunks.constBegin(); it != chunks.constEnd(); ++it)
+        if(it.key() >= 1 && it.key() <= 40)
+            n++;
+
+    return n;
+}
+
+void FormToolbox::updateSharpenHRFIState()
+{
+    const QString base = QStringLiteral(
+        "Sharpen the finished composite to 0.5 km with the Meteosat-12 HRFI vis_06.\n");
+
+    if(recipefamily != RECIPE_FCI)
+    {
+        ui->chkSharpenHRFI->setEnabled(false);
+        ui->chkSharpenHRFI->setToolTip(base + "Only Meteosat-12 FDHSI composites can be sharpened.");
+        return;
+    }
+
+    const int row = ui->lstRGB->currentRow();
+    if(row >= 0 && row < imageptrs->fci_rgbrecipes.count()
+       && !fciRecipeIsSharpenable(imageptrs->fci_rgbrecipes.at(row)))
+    {
+        ui->chkSharpenHRFI->setEnabled(false);
+        ui->chkSharpenHRFI->setToolTip(
+            base + imageptrs->fci_rgbrecipes.at(row).Name
+                 + " is not drawn on the 1 km solar grid, so there is nothing to sharpen.");
+        return;
+    }
+
+    // rowchosen is the selected row of the geostationary tree, whose second
+    // column is the repeat cycle. It can still belong to another satellite
+    // right after a tab change, until a row is clicked; the compose path checks
+    // for itself, so the worst case is a box offered one click too early.
+    const int filenbr = (rowchosen.count() > 1) ? rowchosen.at(1).toInt() : 0;
+    const int n = hrfiChunksAvailable(filenbr);
+
+    ui->chkSharpenHRFI->setEnabled(n > 0);
+    if(n == 0)
+        ui->chkSharpenHRFI->setToolTip(base + "No HRFI chunks received for this slot.");
+    else if(n < 40)
+        ui->chkSharpenHRFI->setToolTip(
+            base + QString("%1 of 40 HRFI chunks received - the rest stays at 1 km.").arg(n));
+    else
+        ui->chkSharpenHRFI->setToolTip(base + "All 40 HRFI chunks received for this slot.");
 }
 
 void FormToolbox::setupChannelGeoCombo(int geoindex)
@@ -1978,6 +2048,7 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
 
     this->setButtons(geoindex, false);
     this->setComboGeo(geoindex);
+    this->updateSharpenHRFIState();
 
     bool hrv = (opts.geosatellites.at(geoindex).spectrumhrv.length() > 0 ? true : false);
 

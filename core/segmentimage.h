@@ -125,6 +125,38 @@ struct RGBRecipe {
   QVector<RGBRecipeColor> Colorvector;
 };
 
+/**
+ * Whether the HRFI sharpener can be applied to what a recipe produces.
+ *
+ * It scales a drawn brightness by a vis_06 ratio, so it needs a picture on the
+ * 1 km solar grid. A recipe that names an infrared band composes at 2 km, where
+ * there is nothing for a 0.5 km numerator to divide into, and an index is a
+ * datum rather than a brightness - scaling one would be meaningless. GeoColor
+ * asks for two infrared windows but is forced onto the 1 km grid anyway, so it
+ * is the one exception to the band test.
+ *
+ * Mirrors the outRes rule in ComposeGeoRGBRecipeMTGInThread : band index 8 and
+ * up is infrared.
+ */
+inline bool fciRecipeIsSharpenable(const RGBRecipe &rec)
+{
+    if (rec.compose == RECIPE_NORMDIFF)
+        return false;
+    if (rec.compose == RECIPE_GEOCOLOR)
+        return true;
+
+    for (const RGBRecipeColor &col : rec.Colorvector)
+        for (int nbr : col.spectral_channel_nbr)
+            if (nbr >= 8)
+                return false;
+
+    for (int nbr : rec.auxbands)
+        if (nbr >= 8)
+            return false;
+
+    return true;
+}
+
 enum MapReturn
 {
     MAPOK = 0,

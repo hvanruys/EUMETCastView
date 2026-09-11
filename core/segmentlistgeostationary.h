@@ -31,6 +31,24 @@ typedef struct {
 // A reference to an incomplete type is all the declarations below need.
 struct RGBRecipe;
 
+// One channel of one FCI chunk as it comes out of the file : the rows it covers
+// in that channel's own grid, 1-based and inclusive, the calibration that turns
+// its counts into radiance, and the counts themselves. The HRFI sharpener reads
+// a chunk at a time rather than holding a 0.5 km disc, so it needs the band of
+// the disc a chunk represents and not only its pixels.
+struct FciChunkRead {
+    int startRow = 0;
+    int endRow   = 0;
+    int rows     = 0;
+    int cols     = 0;
+    float scale  = 1.0f;
+    float offset = 0.0f;
+    quint16 fill = 65535;
+    QVector<quint16> dn;
+
+    bool isValid() const { return rows > 0 && cols > 0 && dn.size() >= (qsizetype)rows * cols; }
+};
+
 
 class SegmentListGeostationary : public QObject
 {
@@ -89,6 +107,33 @@ public:
     void CalculateImageMTGConcurrentAlt(int index);
     void CalculateImageMTGConcurrentNight(int index);
 
+
+    /**
+     * Replace the composed geostationary image with a 0.5 km version of itself,
+     * sharpened by the HRFI vis_06.
+     *
+     * Post-pass, on the finished composite rather than inside it : every band
+     * stays on the grid it was composed on, so the recipe machinery, the solar
+     * correction and their memory cost are all untouched, and any recipe made
+     * mostly of solar bands can be sharpened by the same code.
+     *
+     * @param hrfiDir      directory the HRFI chunks of this slot live in
+     * @param hrfiFiles    those chunks, BODY and TRAIL alike; TRAIL is skipped
+     * @param displayGamma the gamma the recipe drew its colours with, needed to
+     *                     apply a linear radiance ratio to a gamma-encoded image
+     * @return false, leaving the image alone, if the slot cannot be sharpened
+     */
+    bool sharpenGeoImageWithHRFI(const QString &hrfiDir, const QStringList &hrfiFiles,
+                                 float displayGamma);
+
+    /**
+     * The HRFI chunks of the slot being composed, for the sharpener.
+     *
+     * Set alongside setThreadParametersnetCDF and empty when the slot has none,
+     * which is what turns the sharpening off for that image.
+     */
+    void setHRFISegments(const QString &dir, const QStringList &files)
+    { hrfiimagepath = dir; hrfisegmentfilelist = files; }
 
     void ComposeGeoRGBRecipe(int recipe, QString tex);
     void ComposeGeoRGBRecipeInThread(int recipe);
@@ -219,6 +264,17 @@ private:
     void equalizeHistogram(quint16* pdata, int width, int height, int max_val);
     void equalizeHistogram(quint16* pdata, int width, int height, int colorindex, quint16 fillvalue, int max_val);
 
+    FciChunkRead readFCIChunk(const QString &path, const QString &band);
+
+    /**
+     * Sharpen the composite in place if this recipe and this slot allow it.
+     *
+     * Called on the way out of the recipe compose, before the finished image is
+     * published : anything that runs on signalcomposefinished takes a pointer to
+     * ptrimageGeostationary, and sharpening replaces that image.
+     */
+    void maybeSharpenWithHRFI(const RGBRecipe &rec);
+
     int read_charls_compressed_ushort(const char *filename, const char *dataset_path, int ncid, int varid, ushort *data);
     int read_compressed_chunks_hdf5(const char* filename, const char* dataset_path,
                                     void *data, const size_t* dims, int ndims,
@@ -249,6 +305,8 @@ private:
 
     QStringList segmentfilelist;
     QStringList segmentfilelisthrv;
+    QStringList hrfisegmentfilelist;
+    QString hrfiimagepath;
     QVector<QString> spectrumvector;
     QVector<bool> inversevector;
     int histogrammethod;

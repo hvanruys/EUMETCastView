@@ -293,6 +293,11 @@ public:
     bool copyMTGfiles;
     bool bFciRayleigh;
 
+    // Sharpen a finished FCI composite to 0.5 km with the HRFI vis_06. Off by
+    // default : it needs the HRFI files of the same slot, which not every
+    // reception has, and it quadruples the size of the image it produces.
+    bool bFciSharpenHRFI;
+
     /**
      * Rayleigh-correct the SEVIRI recipes that ask for it, currently Natural
      * Colours. Separate from bFciRayleigh: SEVIRI has no blue channel, so there

@@ -1444,6 +1444,23 @@ void FormGeostationary::slotCreateFCIRGBrecipe(int recipe)
     QVector<bool>    dummyInverse  = { false, false, false, false };
     sl->setThreadParametersnetCDF(llVIS_IR, dummySpectrum, dummyInverse, CMB_HISTO_NONE_95, false);
 
+    // The HRFI chunks of the same slot, for the sharpener. Handing them over
+    // before the compose rather than sharpening after it is deliberate :
+    // signalcomposefinished makes FormImage take a pointer to the composed
+    // image, and sharpening replaces that image, so it has to happen while the
+    // compose still owns it. An empty list simply leaves the sharpening off.
+    QStringList llHRFI;
+    QString hrfidir;
+    const int hrfiindex = opts.GetGeoIndex("MET_12_HRFI");
+    if(opts.bFciSharpenHRFI && hrfiindex >= 0)
+    {
+        hrfidir = segs->seglgeo.at(hrfiindex)->getImagePath();
+        llHRFI = this->getGeostationarySegmentsMTG(hrfiindex, "VIS_IR", hrfidir, filenbr);
+        if(llHRFI.isEmpty())
+            qInfo() << "HRFI sharpening asked for, but no HRFI segments for slot" << filenbr;
+    }
+    sl->setHRFISegments(hrfidir, llHRFI);
+
     formtoolbox->setProgressMaximum(100);
     sl->ComposeGeoRGBRecipeMTG(recipe, tex);
 }

@@ -10620,6 +10620,329 @@ static void readFCISegment(const FCISegmentRead &seg,
         QFile::remove(localCopy);
 }
 
+/**
+ * Read one channel out of one FCI chunk file.
+ *
+ * A chunk carries only the rows it scanned, so what comes back is the band of
+ * the disc it covers, 1-based and inclusive in that channel's own grid, with
+ * the calibration needed to turn its counts into radiance. Decoding takes the
+ * same two paths the compose does : the FCIDECOMP plugin when HDF5 has it, and
+ * the CharLS fallback when it does not.
+ */
+FciChunkRead SegmentListGeostationary::readFCIChunk(const QString &path, const QString &band)
+{
+    FciChunkRead out;
+
+    QByteArray baPath = path.toUtf8();
+    const char *cpath = baPath.constData();
+
+    int ncid;
+    if (nc_open(cpath, NC_NOWRITE, &ncid) != NC_NOERR) {
+        qWarning() << "HRFI sharpen: cannot open" << path;
+        return out;
+    }
+
+    const QString strmeasured = "/data/" + band + "/measured";
+    QByteArray baMeas = strmeasured.toLocal8Bit();
+    int grp;
+    if (nc_inq_grp_full_ncid(ncid, baMeas.constData(), &grp) != NC_NOERR) {
+        nc_close(ncid);
+        return out;
+    }
+
+    int varid;
+    if (nc_inq_varid(grp, "effective_radiance", &varid) != NC_NOERR) {
+        nc_close(ncid);
+        return out;
+    }
+
+    nc_get_att_float(grp, varid, "scale_factor", &out.scale);
+    nc_get_att_float(grp, varid, "add_offset", &out.offset);
+    nc_get_att_ushort(grp, varid, "_FillValue", &out.fill);
+
+    ushort sr = 0, er = 0;
+    int vid;
+    bool posok =
+        nc_inq_varid(grp, "start_position_row", &vid) == NC_NOERR &&
+        nc_get_var_ushort(grp, vid, &sr) == NC_NOERR &&
+        nc_inq_varid(grp, "end_position_row", &vid) == NC_NOERR &&
+        nc_get_var_ushort(grp, vid, &er) == NC_NOERR;
+    if (!posok || er < sr) {
+        nc_close(ncid);
+        return out;
+    }
+
+    // Size the buffer from the variable rather than from the row positions. The
+    // two agree on a full disc, but the array is what is about to be written
+    // into and a mismatch there is an overrun rather than a wrong picture.
+    int ndims = 0, dimids[NC_MAX_VAR_DIMS];
+    if (nc_inq_var(grp, varid, nullptr, nullptr, &ndims, dimids, nullptr) != NC_NOERR || ndims != 2) {
+        nc_close(ncid);
+        return out;
+    }
+    size_t dims[2] = { 0, 0 };
+    nc_inq_dimlen(grp, dimids[0], &dims[0]);
+    nc_inq_dimlen(grp, dimids[1], &dims[1]);
+    if (dims[0] == 0 || dims[1] == 0) {
+        nc_close(ncid);
+        return out;
+    }
+
+    out.dn.resize((qsizetype)dims[0] * dims[1]);
+
+    const QString strrad = strmeasured + "/effective_radiance";
+    QByteArray baRad = strrad.toLocal8Bit();
+
+    int rc;
+    if (opts.bFciDecomp)
+        rc = nc_get_var_ushort(grp, varid, out.dn.data());
+    else
+        rc = read_charls_compressed_ushort(cpath, baRad.constData(), grp, varid, out.dn.data());
+
+    nc_close(ncid);
+
+    if (rc != NC_NOERR) {
+        qWarning() << "HRFI sharpen: cannot read" << band << "from" << path;
+        out.dn.clear();
+        return out;
+    }
+
+    out.startRow = sr;
+    out.endRow   = er;
+    out.rows     = (int)dims[0];
+    out.cols     = (int)dims[1];
+    return out;
+}
+
+/*
+ * Sharpening a finished composite with the HRFI vis_06.
+ *
+ * vis_06_hr is vis_06 : the two carry the same central wavelength, the same
+ * spectral width and - measured on the files - the same scale_factor,
+ * add_offset and solar irradiance, differing only in sampling distance, 500 m
+ * against 1000. So the ratio of the two is a pure resolution term with no
+ * spectral mismatch behind it : nothing to unmix, no colour shift to correct,
+ * and no strength to choose. Scale each colour of the composite by it and the
+ * result is the composite it would have been on a finer grid, to the extent one
+ * band can say so.
+ *
+ * The ratio is formed on radiance, and the image it multiplies is not radiance
+ * but a gamma-encoded brightness - the compose writes outmax * norm^(1/gamma).
+ * Scaling the reflectance by k therefore scales the drawn value by k^(1/gamma),
+ * which is what displayGamma is for. Applying k raw to a gamma 2.2 image would
+ * exaggerate every edge by more than a factor of two.
+ */
+
+// Radiance below which the denominator is noise rather than signal, in the
+// mW.m-2.sr-1.(cm-1)-1 the files hold.
+//
+// FCI puts zero radiance at count 204 and quantises 3.39e-4 of reflectance per
+// count. The night side is that zero plus a count or two of noise, and dividing
+// by it gives an arbitrary ratio that would paint speckle across the unlit half
+// of the disc. The darkest genuinely sunlit pixel of a real disc sits near 0.015
+// reflectance, about 44 counts, and the gap between the two is wide enough that
+// the threshold hardly matters as long as it is inside it : 0.1 is 14 counts,
+// five times the night noise and a third of the darkest daylight.
+static constexpr float SharpenMinRadiance = 0.1f;
+
+// How far one 0.5 km sample is allowed to depart from the 1 km mean it sits in.
+// Four contiguous samples averaging to their own mean cannot honestly differ
+// from it by more than a factor of four, and in practice a coastline or a cloud
+// edge is the extreme case. The clamp is there for the pixels just above the
+// noise floor, where a small denominator can still throw a large ratio.
+static constexpr float SharpenMinRatio = 0.25f;
+static constexpr float SharpenMaxRatio = 4.0f;
+
+void SegmentListGeostationary::maybeSharpenWithHRFI(const RGBRecipe &rec)
+{
+    if (!opts.bFciSharpenHRFI)
+        return;
+
+    if (hrfisegmentfilelist.isEmpty()) {
+        qInfo() << "HRFI sharpen: asked for, but no HRFI chunks for this slot -"
+                << "the image is the plain 1 km composite";
+        return;
+    }
+
+    if (!fciRecipeIsSharpenable(rec)) {
+        qInfo() << "HRFI sharpen: asked for, but" << rec.Name
+                << "is not drawn on the 1 km solar grid - nothing to sharpen";
+        return;
+    }
+
+    // Every colour of a solar recipe shares one gamma, so one number is enough.
+    const float gamma = rec.Colorvector.isEmpty() ? 2.2f : rec.Colorvector.at(0).gamma;
+    sharpenGeoImageWithHRFI(hrfiimagepath, hrfisegmentfilelist, gamma);
+}
+
+bool SegmentListGeostationary::sharpenGeoImageWithHRFI(const QString &hrfiDir,
+                                                       const QStringList &hrfiFiles,
+                                                       float displayGamma)
+{
+    QImage *current = imageptrs->ptrimageGeostationary;
+    if (current == nullptr || current->isNull()) {
+        qWarning() << "HRFI sharpen: no composed image";
+        return false;
+    }
+
+    const int loRes = current->width();
+    if (current->height() != loRes || loRes != 11136) {
+        qWarning() << "HRFI sharpen: the composite is" << current->width() << "x"
+                   << current->height() << "- only the 1 km FDHSI grid can be sharpened";
+        return false;
+    }
+    const int hiRes = 2 * loRes;
+
+    QElapsedTimer timer;
+    timer.start();
+    emit progressCounter(2);
+
+    // The composite has to survive being replaced by its own sharpened version,
+    // and at 11136 that copy is 496 MB against the 1.98 GB of the output.
+    const QImage composite = current->copy();
+
+    // ---- the denominator : FDHSI vis_06 on the grid the composite was drawn on
+    //
+    // Held as counts, indexed by image row so the composite and it are in the
+    // same orientation and nothing has to be flipped per pixel later.
+    QVector<quint16> lo((qsizetype)loRes * loRes, (quint16)65535);
+    float loScale = 1.0f, loOffset = 0.0f;
+    quint16 loFill = 65535;
+    bool loCalRead = false;
+    int loChunks = 0;
+
+    for (const QString &fname : segmentfilelist) {
+        if (!fname.contains("BODY"))
+            continue;
+
+        const FciChunkRead c = readFCIChunk(getImagePath() + "/" + fname, "vis_06");
+        if (!c.isValid() || c.cols != loRes)
+            continue;
+
+        if (!loCalRead) {
+            loScale = c.scale;
+            loOffset = c.offset;
+            loFill = c.fill;
+            loCalRead = true;
+        }
+
+        for (int l = 0; l < c.rows; l++) {
+            const int imgRow = loRes - (c.startRow + l);
+            if (imgRow < 0 || imgRow >= loRes)
+                continue;
+            memcpy(lo.data() + (qsizetype)imgRow * loRes,
+                   c.dn.constData() + (qsizetype)l * c.cols,
+                   (size_t)loRes * sizeof(quint16));
+        }
+        loChunks++;
+        emit progressCounter(2 + (28 * loChunks) / 40);
+    }
+
+    if (!loCalRead) {
+        qWarning() << "HRFI sharpen: no FDHSI vis_06 to divide by";
+        return false;
+    }
+
+    // ---- the output, written a chunk of the numerator at a time ------------
+    imageptrs->InitializeImageGeostationary(hiRes, hiRes);
+    QImage *out = imageptrs->ptrimageGeostationary;
+
+    const float invGamma = (displayGamma > 0.0f) ? 1.0f / displayGamma : 1.0f;
+
+    QAtomicInteger<qint64> nSharpened(0);
+    QAtomicInteger<qint64> nFloored(0);
+    QAtomicInteger<qint64> nClamped(0);
+
+    int hiChunks = 0;
+    for (const QString &fname : hrfiFiles) {
+        if (!fname.contains("BODY"))
+            continue;
+
+        const FciChunkRead c = readFCIChunk(hrfiDir + "/" + fname, "vis_06_hr");
+        if (!c.isValid() || c.cols != hiRes)
+            continue;
+
+        QVector<int> rowsOfChunk(c.rows);
+        for (int l = 0; l < c.rows; l++)
+            rowsOfChunk[l] = l;
+
+        QtConcurrent::blockingMap(rowsOfChunk, [&](const int &l) {
+            const int imgRow = hiRes - (c.startRow + l);
+            if (imgRow < 0 || imgRow >= hiRes)
+                return;
+
+            const QRgb *srcRow = (const QRgb *)composite.constScanLine(imgRow / 2);
+            const quint16 *loRow = lo.constData() + (qsizetype)(imgRow / 2) * loRes;
+            const quint16 *hiRow = c.dn.constData() + (qsizetype)l * c.cols;
+            QRgb *dstRow = (QRgb *)out->scanLine(imgRow);
+
+            qint64 sharpened = 0, floored = 0, clamped = 0;
+
+            for (int x = 0; x < hiRes; x++) {
+                const QRgb base = srcRow[x / 2];
+
+                const quint16 dnHi = hiRow[x];
+                const quint16 dnLo = loRow[x / 2];
+
+                if (dnHi == c.fill || dnLo == loFill) {
+                    dstRow[x] = base;
+                    continue;
+                }
+
+                const float lLo = dnLo * loScale + loOffset;
+                if (lLo <= SharpenMinRadiance) {
+                    // Night, or the dark edge of the terminator. Nothing to
+                    // divide by, so the pixel keeps the 1 km value it had - the
+                    // composite is simply doubled up there, which is what it
+                    // already looked like.
+                    dstRow[x] = base;
+                    floored++;
+                    continue;
+                }
+
+                const float lHi = dnHi * c.scale + c.offset;
+                float k = lHi / lLo;
+                if (k < SharpenMinRatio || k > SharpenMaxRatio) {
+                    k = qBound(SharpenMinRatio, k, SharpenMaxRatio);
+                    clamped++;
+                }
+
+                const float kDisplay = powf(k, invGamma);
+                dstRow[x] = qRgb(qBound(0, qRound(qRed(base)   * kDisplay), 255),
+                                 qBound(0, qRound(qGreen(base) * kDisplay), 255),
+                                 qBound(0, qRound(qBlue(base)  * kDisplay), 255));
+                sharpened++;
+            }
+
+            nSharpened.fetchAndAddRelaxed(sharpened);
+            nFloored.fetchAndAddRelaxed(floored);
+            nClamped.fetchAndAddRelaxed(clamped);
+        });
+
+        hiChunks++;
+        emit progressCounter(30 + (68 * hiChunks) / 40);
+    }
+
+    if (hiChunks == 0) {
+        qWarning() << "HRFI sharpen: no HRFI vis_06_hr chunks were read";
+        return false;
+    }
+
+    const qint64 sharpened = nSharpened.loadRelaxed();
+    const qint64 floored   = nFloored.loadRelaxed();
+    const qint64 clamped   = nClamped.loadRelaxed();
+
+    qDebug() << QString("HRFI sharpen: %1 of 40 FDHSI chunks, %2 of 40 HRFI, %3 ms")
+                .arg(loChunks).arg(hiChunks).arg(timer.elapsed());
+    qDebug() << QString("HRFI sharpen: %1 pixels sharpened, %2 below the noise floor, "
+                        "%3 ratio clamped (%4 %)")
+                .arg(sharpened).arg(floored).arg(clamped)
+                .arg(sharpened > 0 ? 100.0 * clamped / sharpened : 0.0, 0, 'f', 3);
+
+    emit progressCounter(100);
+    return true;
+}
+
 void SegmentListGeostationary::ComposeGeoRGBRecipeMTG(int recipe, QString tex)
 {
     this->tex = tex;
@@ -10955,6 +11278,8 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
 
         for (int i = 0; i < nBands; i++) { delete[] bandBuf[i]; bandBuf[i] = nullptr; }
 
+        maybeSharpenWithHRFI(rec);
+
         emit signalcomposefinished(kindofimage, geoindex);
         emit progressCounter(100);
         return;
@@ -11141,6 +11466,8 @@ void SegmentListGeostationary::ComposeGeoRGBRecipeMTGInThread(int recipe)
     }
 
     for (int ci = 0; ci < 3; ci++) { delete[] result[ci]; result[ci] = nullptr; }
+
+    maybeSharpenWithHRFI(rec);
 
     emit signalcomposefinished(kindofimage, geoindex);
     emit progressCounter(100);
