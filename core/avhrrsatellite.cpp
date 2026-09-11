@@ -720,6 +720,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     }
 
     segmentlistmapgeomtgi1.clear();
+    segmentlistmapgeomtgi1_hrfi.clear();
 
     qDebug() << QString("End clearing segments");
 

@@ -370,6 +370,14 @@ void FormGeostationary::PopulateTree(QDate seldate)
     qDebug() << "FormGeostationary::PopulateTree() selection date = " << seldate.toString();
 
 
+    // Empty every tab before filling any of them. Each Populate function returns
+    // early when its satellite has no segments, and it used to return before
+    // clearing, so a reload that no longer covers a satellite left the previous
+    // load's list sitting in its tab - readable, selectable, and pointing at
+    // files the reload had decided were not part of the selection.
+    for(int i = 0; i < geotreewidgetlist.count(); i++)
+        geotreewidgetlist.at(i)->clear();
+
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
         if(opts.geosatellites.at(i).shortname != "MET_12" && opts.geosatellites.at(i).shortname != "MET_12_HRFI" )
