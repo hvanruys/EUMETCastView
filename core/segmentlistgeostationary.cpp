@@ -97,6 +97,25 @@ extern Options opts;
 extern SegmentImage *imageptrs;
 extern gshhsData *gshhsdata;
 
+/**
+ * Full disc size of the FCI reference grid an L1c channel group is sampled on.
+ *
+ * The channel's own name says which grid it belongs to. HRFI names carry the
+ * "_hr" suffix and sample one step finer than FDHSI : 0.5 km for its two solar
+ * channels and 1 km for its two infrared ones, against FDHSI's 1 km and 2 km.
+ * Within either product it is the solar channels - vis_ and nir_ - that get the
+ * finer of the two grids.
+ */
+static int fciGridSize(const QString &group)
+{
+    bool solar = group.startsWith("vis_") || group.startsWith("nir_");
+
+    if(group.endsWith("_hr"))
+        return solar ? 22272 : 11136;
+
+    return solar ? 11136 : 5568;
+}
+
 namespace {
 
 /**
@@ -306,7 +325,7 @@ void SegmentListGeostationary::setGeoSatellite(int geoindex)
     }
     else if(str_GeoSatellite == "MET_12_HRFI")
     {
-        this->m_GeoSatellite = eGeoSatellite::MET_12;
+        this->m_GeoSatellite = eGeoSatellite::MET_12_HRFI;
     }
 }
 
@@ -2714,54 +2733,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     trailfilefound = false;
     if(trailfilefound == false)
     {
-        QString groupnames[16];
-        int rows[16];
-        int columns[16];
-
-        groupnames[0] =  "vis_04";
-        groupnames[1] =  "vis_05";
-        groupnames[2] =  "vis_06";
-        groupnames[3] =  "vis_08";
-        groupnames[4] =  "vis_09";
-        groupnames[5] =  "nir_13";
-        groupnames[6] =  "nir_16";
-        groupnames[7] =  "nir_22";
-        groupnames[8] =  "ir_38";
-        groupnames[9] =  "wv_63";
-        groupnames[10] =  "wv_73";
-        groupnames[11] =  "ir_87";
-        groupnames[12] =  "ir_97";
-        groupnames[13] =  "ir_105";
-        groupnames[14] =  "ir_123";
-        groupnames[15] =  "ir_133";
-
-        rows[0] =  11136;  columns[0] =  11136;
-        rows[1] =  11136;  columns[1] =  11136;
-        rows[2] =  11136;  columns[2] =  11136;
-        rows[3] =  11136;  columns[3] =  11136;
-        rows[4] =  11136;  columns[4] =  11136;
-        rows[5] =  11136;  columns[5] =  11136;
-        rows[6] =  11136;  columns[6] =  11136;
-        rows[7] =  11136;  columns[7] =  11136;
-        rows[8] =  5568;  columns[8] =  5568;
-        rows[9] =  5568;  columns[9] =  5568;
-        rows[10] =  5568;  columns[10] =  5568;
-        rows[11] =  5568;  columns[11] =  5568;
-        rows[12] =  5568;  columns[12] =  5568;
-        rows[13] =  5568;  columns[13] =  5568;
-        rows[14] =  5568;  columns[14] =  5568;
-        rows[15] =  5568;  columns[15] =  5568;
-
         for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
         {
-            for(int j = 0; j < 16; j++ )
-            {
-                if(this->spectrumvector.at(i) == groupnames[j])
-                {
-                    imageptrs->mtg_total_number_of_columns[i] = columns[j];
-                    imageptrs->mtg_total_number_of_rows[i] = rows[j];
-                }
-            }
+            int grid = fciGridSize(this->spectrumvector.at(i));
+            imageptrs->mtg_total_number_of_columns[i] = grid;
+            imageptrs->mtg_total_number_of_rows[i] = grid;
         }
     }
 
@@ -3177,10 +3153,13 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
     else
         imageptrs->InitializeImageGeostationary(imageptrs->mtg_total_number_of_columns[0], imageptrs->mtg_total_number_of_rows[0]);
 
-    this->COFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
-    this->LOFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
-    this->CFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
-    this->LFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
+    // The band decides which of the product's two grids the image sits on : the
+    // solar channels land on the finer one, which the settings call the hrv pair.
+    bool finegrid = imageptrs->mtg_total_number_of_columns[0] == opts.geosatellites.at(geoindex).imagewidthhrv0;
+    this->COFF = finegrid ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+    this->LOFF = finegrid ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+    this->CFAC = finegrid ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+    this->LFAC = finegrid ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
 
     emit this->progressCounter(progcounter += 10);
 
@@ -3190,7 +3169,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThread1()
 
     if(this->spectrumvector.at(3).length() > 0)
     {
-        imageptrs->ptrimageGeoNight.reset(new quint16[ 5568 * 5568 ]);
+        const int nightgrid = imageptrs->mtg_total_number_of_columns[3];
+        imageptrs->ptrimageGeoNight.reset(new quint16[ (size_t)nightgrid * nightgrid ]);
 
 #ifdef CONC
         auto callbackMethod1 = std::bind(this->concurrentImageMTGNight, this, std::placeholders::_1);
@@ -3345,54 +3325,11 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
     trailfilefound = false;
     if(trailfilefound == false)
     {
-        QString groupnames[16];
-        int rows[16];
-        int columns[16];
-
-        groupnames[0] =  "vis_04";
-        groupnames[1] =  "vis_05";
-        groupnames[2] =  "vis_06";
-        groupnames[3] =  "vis_08";
-        groupnames[4] =  "vis_09";
-        groupnames[5] =  "nir_13";
-        groupnames[6] =  "nir_16";
-        groupnames[7] =  "nir_22";
-        groupnames[8] =  "ir_38";
-        groupnames[9] =  "wv_63";
-        groupnames[10] =  "wv_73";
-        groupnames[11] =  "ir_87";
-        groupnames[12] =  "ir_97";
-        groupnames[13] =  "ir_105";
-        groupnames[14] =  "ir_123";
-        groupnames[15] =  "ir_133";
-
-        rows[0] =  11136;  columns[0] =  11136;
-        rows[1] =  11136;  columns[1] =  11136;
-        rows[2] =  11136;  columns[2] =  11136;
-        rows[3] =  11136;  columns[3] =  11136;
-        rows[4] =  11136;  columns[4] =  11136;
-        rows[5] =  11136;  columns[5] =  11136;
-        rows[6] =  11136;  columns[6] =  11136;
-        rows[7] =  11136;  columns[7] =  11136;
-        rows[8] =  5568;  columns[8] =  5568;
-        rows[9] =  5568;  columns[9] =  5568;
-        rows[10] =  5568;  columns[10] =  5568;
-        rows[11] =  5568;  columns[11] =  5568;
-        rows[12] =  5568;  columns[12] =  5568;
-        rows[13] =  5568;  columns[13] =  5568;
-        rows[14] =  5568;  columns[14] =  5568;
-        rows[15] =  5568;  columns[15] =  5568;
-
         for(int i = 0; i < (kindofimage == "VIS_IR Color" ? (this->spectrumvector.at(3).length() > 0 ? 4 : 3) : 1); i++)
         {
-            for(int j = 0; j < 16; j++ )
-            {
-                if(this->spectrumvector.at(i) == groupnames[j])
-                {
-                    imageptrs->mtg_total_number_of_columns[i] = columns[j];
-                    imageptrs->mtg_total_number_of_rows[i] = rows[j];
-                }
-            }
+            int grid = fciGridSize(this->spectrumvector.at(i));
+            imageptrs->mtg_total_number_of_columns[i] = grid;
+            imageptrs->mtg_total_number_of_rows[i] = grid;
         }
     }
 
@@ -3614,10 +3551,13 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
     else
         imageptrs->InitializeImageGeostationary(imageptrs->mtg_total_number_of_columns[0], imageptrs->mtg_total_number_of_rows[0]);
 
-    this->COFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
-    this->LOFF = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
-    this->CFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
-    this->LFAC = imageptrs->mtg_total_number_of_columns[0] == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
+    // The band decides which of the product's two grids the image sits on : the
+    // solar channels land on the finer one, which the settings call the hrv pair.
+    bool finegrid = imageptrs->mtg_total_number_of_columns[0] == opts.geosatellites.at(geoindex).imagewidthhrv0;
+    this->COFF = finegrid ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+    this->LOFF = finegrid ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+    this->CFAC = finegrid ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+    this->LFAC = finegrid ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
 
     emit this->progressCounter(progcounter += 10);
 
@@ -3627,7 +3567,8 @@ void SegmentListGeostationary::ComposeSegmentImagenetCDFMTGInThreadConcurrent()
 
     if(this->spectrumvector.at(3).length() > 0)
     {
-        imageptrs->ptrimageGeoNight.reset(new quint16[ 5568 * 5568 ]);
+        const int nightgrid = imageptrs->mtg_total_number_of_columns[3];
+        imageptrs->ptrimageGeoNight.reset(new quint16[ (size_t)nightgrid * nightgrid ]);
 
 #ifdef CONC
         auto cbImageNight = std::bind(this->concurrentImageMTGNight, this, std::placeholders::_1);
@@ -4441,7 +4382,7 @@ void SegmentListGeostationary::CalculateImageMTGConcurrent(int index)
 
             if(this->spectrumvector.at(3).length() > 0)
             {
-                pixelout[3] = imageptrs->ptrimageGeoNight[5568 * (line/2) + (int)(pixelx/2)];
+                pixelout[3] = imageptrs->ptrimageGeoNight[(size_t)imageptrs->mtg_total_number_of_columns[3] * (line/2) + (int)(pixelx/2)];
             }
 
             if(this->kindofimage == "VIS_IR")
@@ -4601,7 +4542,7 @@ void SegmentListGeostationary::CalculateImageMTGConcurrentNight(int index)
                     }
 
                     pixelout = quint16(this->inversevector[3] ? (255 - pixelout) : pixelout);
-                    imageptrs->ptrimageGeoNight[line * 5568 + pixelx] = pixelout;
+                    imageptrs->ptrimageGeoNight[(size_t)line * imageptrs->mtg_total_number_of_columns[3] + pixelx] = pixelout;
                 }
 
             }

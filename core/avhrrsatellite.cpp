@@ -404,7 +404,6 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             //qDebug() << fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length() ) << "???" << opts.geosatellites.at(i).searchstring;
             //qDebug() << opts.geosatellites.at(i).fullname;
-            QString thestring = fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length());
             if(fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == "MTI1+FCI-1C-RRAD-FDHSI")
             {
                 QString strdate;
@@ -430,8 +429,7 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                 }
                 // qDebug() << "A " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " << QString("%1").arg(seqnbr) << QString("%1").arg(filenbr);
             }
-//            else if(fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == "MTI1+FCI-1C-RRAD-HRFI")
-            else if(fileInfo.baseName().contains("MTI1+FCI-1C-RRAD-HRFI"))
+            else if(fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == "MTI1+FCI-1C-RRAD-HRFI")
             {
                 QString strdate;
                 int filenbr, seqnbr;
@@ -1004,6 +1002,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     for(int i = 0; i < opts.geosatellites.length(); i++)
         totgeosegments += segmentlistmapgeo.at(i).size();
     totgeosegments += segmentlistmapgeomtgi1.size();
+    totgeosegments += segmentlistmapgeomtgi1_hrfi.size();
     QString strtot = QString("Total segments = %1").arg(slmetop->count()+slmetopsga1->count()+slhrp->count()+slviirsm->count()
                         +slolciefr->count()+slolcierr->count()+slmersi->count() + totgeosegments);
     emit signalResetProgressbar(1, strtot);

@@ -1731,12 +1731,16 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
     cfac = hrvimage ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
     lfac = hrvimage ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
 
-    if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
+    if(isMTGFCI(sl->getGeoSatellite()))
     {
-        coff = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
-        loff = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
-        cfac = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
-        lfac = m_image->width() == 11136 ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
+        // An FCI band is composed on either of the two grids its product uses,
+        // and which one only shows in the image it produced : the finer grid is
+        // the hrv pair for FDHSI and HRFI alike.
+        bool finegrid = m_image->width() == opts.geosatellites.at(geoindex).imagewidthhrv0;
+        coff = finegrid ? opts.geosatellites.at(geoindex).coffhrv : opts.geosatellites.at(geoindex).coff;
+        loff = finegrid ? opts.geosatellites.at(geoindex).loffhrv : opts.geosatellites.at(geoindex).loff;
+        cfac = finegrid ? opts.geosatellites.at(geoindex).cfachrv : opts.geosatellites.at(geoindex).cfac;
+        lfac = finegrid ? opts.geosatellites.at(geoindex).lfachrv : opts.geosatellites.at(geoindex).lfac;
     }
 
     this->DrawLongLat(paint, sl, coff, loff, cfac, lfac, hrvimage);
@@ -1748,6 +1752,8 @@ void FormImage::OverlayGeostationary(QPainter *paint, SegmentListGeostationary *
         factor = 2.0;
     else if(m_image->width() == 11136)
         factor = 1.0;
+    else if(m_image->width() == 22272) // HRFI vis_06 / nir_22, on the 0.5 km grid
+        factor = 0.5;
     else if(m_image->width() == 2288) // FY
         factor = 1.0;
     else if(m_image->width() == 9152) // FY - VIS
@@ -1811,7 +1817,7 @@ int FormImage::geoToImagePixel(SegmentListGeostationary *sl, double lat_deg, dou
 {
     pixgeoConversion pixconv;
 
-    if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
+    if(isMTGFCI(sl->getGeoSatellite()))
     {
         int grid_row;
         if(pixconv.geocoord2pixcoordFCI(sl->geosatlon, lat_deg, lon_deg, col, &grid_row,

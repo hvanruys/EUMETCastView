@@ -417,7 +417,7 @@ void GeneralVerticalPerspective::CreateMapFromGeoStationary()
                         }
                     }
                 }
-                else if(sl->getGeoSatellite() == eGeoSatellite::MET_12)
+                else if(isMTGFCI(sl->getGeoSatellite()))
                 {
                     // Use FCI-specific WGS-84 projection (matches setupGshhs overlay path)
                     int save_row;

@@ -260,7 +260,11 @@ public:
     quint16 mtg_total_number_of_rows[4];
     quint16 mtg_total_number_of_columns[4];
 
-    quint16 mtg_histogram[4][40][4096];
+    // A 0.5 km HRFI segment holds 12.4 million pixels and real FCI imagery piles
+    // millions of them into one bin - dark ocean, or the saturated top of the
+    // range - so the per segment bins have to be wider than the 65535 a quint16
+    // counts to. FDHSI overflowed this too, one chunk of it per segment.
+    quint32 mtg_histogram[4][40][4096];
 
 
     quint16 *ptrHRV[24];

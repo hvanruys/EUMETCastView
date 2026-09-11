@@ -1652,10 +1652,14 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[1].searchstring = "MTI1+FCI-1C-RRAD-HRFI";
     geosatellites[1].indexsearchstring = 32;
     geosatellites[1].filepattern = "W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI*";
-    geosatellites[1].imagewidth = 5568;
-    geosatellites[1].imageheight = 5568;
-    geosatellites[1].imagewidthhrv0 = 11136;
-    geosatellites[1].imageheighthrv0 = 11136;
+    // HRFI samples one step finer than FDHSI : its two infrared channels sit on
+    // the 1 km reference grid and its two solar ones on the 0.5 km grid, where
+    // FDHSI uses 2 km and 1 km. So imagewidth is the infrared full disc and
+    // imagewidthhrv0 the solar one, the same roles they play for FDHSI.
+    geosatellites[1].imagewidth = 11136;
+    geosatellites[1].imageheight = 11136;
+    geosatellites[1].imagewidthhrv0 = 22272;
+    geosatellites[1].imageheighthrv0 = 22272;
     geosatellites[1].imagewidthhrv1 = 22272;
     geosatellites[1].imageheighthrv1 = 22272;
 
@@ -1673,7 +1677,10 @@ void Options::CreateGeoSatelliteIni()
     geosatellites[1].indexdatehrv = 0;
     geosatellites[1].lengthdatehrv = 0;
 
-    geosatellites[1].color = true;
+    // No colour composite for HRFI : four bands on two different grids, of which
+    // only two are solar, make no combination worth offering. btnGeoColor reads
+    // this flag, so the button stays greyed out on the HRFI tab.
+    geosatellites[1].color = false;
     geosatellites[1].colorhrv = false;
     geosatellites[1].maxsegments = 41;
     geosatellites[1].maxsegmentshrv = 0;
@@ -1688,17 +1695,19 @@ void Options::CreateGeoSatelliteIni()
 
     geosatellites[1].prologfile = false;
     geosatellites[1].epilogfile = false;
-    geosatellites[1].coff = 2784;
-    geosatellites[1].loff = 2784;
-    geosatellites[1].cfac = 1172050000.;
-    geosatellites[1].lfac = 1172050000.;
-    geosatellites[1].coffhrv = 5568;
-    geosatellites[1].loffhrv = 5568;
-    geosatellites[1].cfachrv = 1172050000. * 2;
-    geosatellites[1].lfachrv = 1172050000. * 2;
+    // One step finer than FDHSI again : 1 km for coff/cfac, 0.5 km for the hrv pair.
+    geosatellites[1].coff = 5568;
+    geosatellites[1].loff = 5568;
+    geosatellites[1].cfac = 1172050000. * 2;
+    geosatellites[1].lfac = 1172050000. * 2;
+    geosatellites[1].coffhrv = 11136;
+    geosatellites[1].loffhrv = 11136;
+    geosatellites[1].cfachrv = 1172050000. * 4;
+    geosatellites[1].lfachrv = 1172050000. * 4;
 
 
-    geosatellites[1].spectrumlist << "vis_06" << "nir_22" << "ir_38" << "ir_105";
+    // The netCDF group names, which is what the reader looks the channels up by.
+    geosatellites[1].spectrumlist << "vis_06_hr" << "nir_22_hr" << "ir_38_hr" << "ir_105_hr";
     geosatellites[1].spectrumvalueslist << "0.64" << "2.25" << "3.80" << "10.5";
 
     settingsgeo.beginWriteArray("geos");

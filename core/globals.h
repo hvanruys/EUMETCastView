@@ -77,6 +77,14 @@ enum class eGeoSatellite {
     NOGEO = 11
 };
 
+// Meteosat-12 disseminates two FCI products, FDHSI and HRFI. They differ only in
+// their channel set and their sampling distance, and share one grid definition,
+// so everything that navigates or projects the FCI grid has to treat them alike.
+inline bool isMTGFCI(eGeoSatellite sat)
+{
+    return sat == eGeoSatellite::MET_12 || sat == eGeoSatellite::MET_12_HRFI;
+}
+
 enum class ePolarSatellite {
     Metop_A,
     Metop_B,

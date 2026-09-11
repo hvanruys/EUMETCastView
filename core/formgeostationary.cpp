@@ -55,7 +55,7 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
 
 void FormGeostationary::newGeoTab(int geoindex)
 {
-    if(!(opts.geosatellites.at(geoindex).shortname != "MET_12" || opts.geosatellites.at(geoindex).shortname != "MET_12_HRFI"))
+    if(opts.geosatellites.at(geoindex).shortname != "MET_12" && opts.geosatellites.at(geoindex).shortname != "MET_12_HRFI")
     {
         QWidget *mywidget = new QWidget();
         ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(geoindex).fullname + " : " + QString("%1").arg(opts.geosatellites.at(geoindex).longitude) + "°");
@@ -284,7 +284,10 @@ QStringList FormGeostationary::getGeostationarySegmentsMTG(int geoindex, const Q
 {
     QStringList outlist;
     QMap<int, QMap< int, QFileInfo > > mapmtgi1;
-    mapmtgi1 = segs->segmentlistmapgeomtgi1;
+    if(opts.geosatellites.at(geoindex).shortname == "MET_12_HRFI")
+        mapmtgi1 = segs->segmentlistmapgeomtgi1_hrfi;
+    else
+        mapmtgi1 = segs->segmentlistmapgeomtgi1;
 
     QMap< int, QFileInfo > mapfilenbr;
     mapfilenbr = mapmtgi1.value(filenbr);
