@@ -296,15 +296,15 @@ void SegmentListGeostationary::setGeoSatellite(int geoindex)
     {
         this->m_GeoSatellite = eGeoSatellite::GOES_19;
     }
-    // else if(str_GeoSatellite == "GOES_17")
-    // {
-    //     this->m_GeoSatellite = eGeoSatellite::GOES_17;
-    // }
     else if(str_GeoSatellite == "H9")
     {
         this->m_GeoSatellite = eGeoSatellite::H9;
     }
     else if(str_GeoSatellite == "MET_12")
+    {
+        this->m_GeoSatellite = eGeoSatellite::MET_12;
+    }
+    else if(str_GeoSatellite == "MET_12_HRFI")
     {
         this->m_GeoSatellite = eGeoSatellite::MET_12;
     }

@@ -121,6 +121,7 @@ public:
     QList<SegmentListGeostationary *> seglgeo;
     QList<QMap<QString, QMap<QString, QMap< int, QFileInfo > > > > segmentlistmapgeo;
     QMap<int, QMap< int, QFileInfo > > segmentlistmapgeomtgi1;
+    QMap<int, QMap< int, QFileInfo > > segmentlistmapgeomtgi1_hrfi;
     QDate selectiondate;
 
 

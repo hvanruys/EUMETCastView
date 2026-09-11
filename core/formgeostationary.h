@@ -44,7 +44,7 @@ private:
     QStringList getGeostationarySegments(int geoindex, const QString imagetype, const QString filepath, QVector<QString> spectrumvector, QString filepattern);
     QStringList getGeostationarySegmentsMTG(int geoindex, const QString imagetype, const QString filepath, int filenbr);
     void PopulateTreeGeo(int geoindex);
-    void PopulateTreeGeoMTGI1(int geoindex);
+    void PopulateTreeGeoMTGI1(int geoindex, QString which);
 
     void CreateGeoImageXRIT(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector, int histogrammethod);
     void CreateGeoImageHDF(SegmentListGeostationary *sl, QString type, QString tex, QVector<QString> spectrumvector, QVector<bool> inversevector);

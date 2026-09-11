@@ -55,7 +55,7 @@ FormGeostationary::FormGeostationary(QWidget *parent, AVHRRSatellite *seglist) :
 
 void FormGeostationary::newGeoTab(int geoindex)
 {
-    if(opts.geosatellites.at(geoindex).shortname != "MET_12")
+    if(!(opts.geosatellites.at(geoindex).shortname != "MET_12" || opts.geosatellites.at(geoindex).shortname != "MET_12_HRFI"))
     {
         QWidget *mywidget = new QWidget();
         ui->tabGeostationary->addTab(mywidget,opts.geosatellites.at(geoindex).fullname + " : " + QString("%1").arg(opts.geosatellites.at(geoindex).longitude) + "°");
@@ -369,15 +369,17 @@ void FormGeostationary::PopulateTree(QDate seldate)
 
     for(int i = 0; i < opts.geosatellites.count(); i++)
     {
-        if(opts.geosatellites.at(i).shortname != "MET_12")
+        if(opts.geosatellites.at(i).shortname != "MET_12" && opts.geosatellites.at(i).shortname != "MET_12_HRFI" )
             PopulateTreeGeo(i);
         else if(opts.geosatellites.at(i).shortname == "MET_12")
-            PopulateTreeGeoMTGI1(i);
+            PopulateTreeGeoMTGI1(i, "MET_12");
+        else if(opts.geosatellites.at(i).shortname == "MET_12_HRFI")
+            PopulateTreeGeoMTGI1(i, "MET_12_HRFI");
     }
 
 }
 
-void FormGeostationary::PopulateTreeGeoMTGI1(int tabindex)
+void FormGeostationary::PopulateTreeGeoMTGI1(int tabindex, QString which)
 {
 
     int filenbr;// 1 --> 144
@@ -389,7 +391,10 @@ void FormGeostationary::PopulateTreeGeoMTGI1(int tabindex)
     bool seqok;
 
     QMap<int, QMap< int, QFileInfo > > mapmtgi1;
-    mapmtgi1 = segs->segmentlistmapgeomtgi1;
+    if(which == "MET_12")
+        mapmtgi1 = segs->segmentlistmapgeomtgi1;
+    else
+        mapmtgi1 = segs->segmentlistmapgeomtgi1_hrfi;
 
     if(mapmtgi1.empty())
         return;
@@ -712,7 +717,7 @@ void FormGeostationary::slotCreateGeoImage(QString type, QVector<QString> spectr
 
     //geoindex = sl->getGeoSatelliteIndex();
 
-    if(opts.geosatellites.at(geoindex).shortname == "MET_12") {
+    if(opts.geosatellites.at(geoindex).shortname == "MET_12" || opts.geosatellites.at(geoindex).shortname == "MET_12_HRFI") {
         CreateGeoImageMTG(type, spectrumvector, inversevector, histogrammethod, pseudocolor, tex + ";" + tex1, geoindex);
     }
     else {
@@ -1312,9 +1317,9 @@ void FormGeostationary::SelectGeoWidgetItem(int geoindex, QTreeWidgetItem *item,
 
     qDebug() << "FormGeostationary::SelectGeoWidgetItem";
 
-    for(int i = 0; i < opts.geosatellites.count(); i++)
-        if(opts.geosatellites.at(i).shortname != "MET_12")
-            setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
+    // for(int i = 0; i < opts.geosatellites.count(); i++)
+    //     if(opts.geosatellites.at(i).shortname != "MET_12")
+    //         setTreeWidget( geotreewidgetlist.at(i), i == geoindex ? true : false);
 
     qDebug() << opts.geosatellites.at(geoindex).shortname + " " + (*item).text(0);
 

@@ -156,6 +156,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
     for (int i = 0; i < fileinfolist.size(); ++i)
     {
         fileInfo = fileinfolist.at(i);
+        //qDebug() << fileInfo.fileName();
+
         counter++;
 
         if (fileInfo.fileName().mid( 0, 8) == "AVHR_xxx" && fileInfo.fileName().mid( 67, 4) == ".bz2" && fileInfo.isFile())   // bas/EPS-10 and hvs-1/E1H-EPS-10
@@ -402,7 +404,8 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
         {
             //qDebug() << fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length() ) << "???" << opts.geosatellites.at(i).searchstring;
             //qDebug() << opts.geosatellites.at(i).fullname;
-            if(fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == "MTI1+FCI-1C-RRAD")
+            QString thestring = fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length());
+            if(fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == "MTI1+FCI-1C-RRAD-FDHSI")
             {
                 QString strdate;
                 int filenbr, seqnbr;
@@ -426,6 +429,31 @@ void AVHRRSatellite::AddSegmentsToList(QFileInfoList fileinfolist)
                     segmentlistmapgeomtgi1.insert(filenbr, hashseqnbr);
                 }
                 // qDebug() << "A " << opts.geosatellites.at(i).shortname << " " << fileInfo.absoluteFilePath() << " " << strdate << " " << QString("%1").arg(seqnbr) << QString("%1").arg(filenbr);
+            }
+//            else if(fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length()) == "MTI1+FCI-1C-RRAD-HRFI")
+            else if(fileInfo.baseName().contains("MTI1+FCI-1C-RRAD-HRFI"))
+            {
+                QString strdate;
+                int filenbr, seqnbr;
+
+                getFilenameParametersMTGI1(fileInfo.fileName(), &strdate, &filenbr, &seqnbr);
+
+                seglgeo.at(i)->setImagePath(fileInfo.absolutePath());
+
+                QMap<int, QFileInfo> hashseqnbr;
+                QMap<int, QMap<int, QFileInfo> > hashfilenbr;
+
+                if (segmentlistmapgeomtgi1_hrfi.contains(filenbr))
+                {
+                    hashseqnbr = segmentlistmapgeomtgi1_hrfi.value(filenbr);
+                    hashseqnbr.insert(seqnbr, fileInfo);
+                    segmentlistmapgeomtgi1_hrfi.insert(filenbr, hashseqnbr);
+                }
+                else
+                {
+                    hashseqnbr.insert( seqnbr, fileInfo );
+                    segmentlistmapgeomtgi1_hrfi.insert(filenbr, hashseqnbr);
+                }
             }
             else if((fileInfo.fileName().mid( opts.geosatellites.at(i).indexsearchstring, opts.geosatellites.at(i).searchstring.length())
                      == opts.geosatellites.at(i).searchstring) && fileInfo.isFile())
@@ -792,9 +820,6 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
                     //     QApplication::processEvents();
                     // }
 
-                    //qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(*its);
-                    //for(int i= 0; i < fileinfolist.size(); i++)
-                    //    qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
 
                     QString yeardir = seldate.toString("yyyyMMdd").mid(0, 4);
                     QString monthdir = seldate.toString("yyyyMMdd").mid(4, 2);
@@ -804,10 +829,14 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
                     if(segmentdir.cd( thepathYYYYMMDD ))
                     {
-                        segmentdir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+                        segmentdir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
                         segmentdir.setSorting(QDir::Name); //::Time);
                         fileinfolist.append(segmentdir.entryInfoList());
                         //qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(thepathYYYYMMDD);
+                        // qDebug() << QString("fileinfolist.size = %1 in subdir %2").arg(fileinfolist.size()).arg(*its);
+                        // for(int i= 0; i < fileinfolist.size(); i++)
+                        //     qDebug() << "list = " << fileinfolist.at(i).absoluteFilePath();
+
                     }
 
 
@@ -919,7 +948,7 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
 
 
                     fileinfolist = map.values();
-                    //for(int i = 0; i < fileinfolist.count(); i++)
+                    // for(int i = 0; i < fileinfolist.count(); i++)
                     //    qDebug() << "map values = " << fileinfolist.at(i).absoluteFilePath();
 
 
@@ -964,16 +993,19 @@ void AVHRRSatellite::ReadDirectories(QDate seldate, int hoursbefore)
     qDebug() << QString("Count segmentlistmersi = %1").arg(slmersi->count());
 
     for(int i = 0; i < opts.geosatellites.length(); i++)
-        if(opts.geosatellites.at(i).shortname != "MET_12")
+    {
+        if(opts.geosatellites.at(i).shortname != "MET_12" && opts.geosatellites.at(i).shortname != "MET_12_HRFI")
             qDebug() << QString( "Nbr of items in segmentlistmapgeo %1 = %2").arg(opts.geosatellites.at(i).shortname).arg(segmentlistmapgeo[0].size());
+    }
     qDebug() << QString( "Nbr of items in segmentlistmapgeomtgi1 MTG_12 = %1").arg(segmentlistmapgeomtgi1.size());
+    qDebug() << QString( "Nbr of items in segmentlistmapgeomtgi1_hrfi MTG_12 HTFI= %1").arg(segmentlistmapgeomtgi1_hrfi.size());
 
     int totgeosegments = 0;
     for(int i = 0; i < opts.geosatellites.length(); i++)
         totgeosegments += segmentlistmapgeo.at(i).size();
     totgeosegments += segmentlistmapgeomtgi1.size();
-    QString strtot = QString("Total segments = %1").arg(slmetop->count()+slhrp->count()+slviirsm->count()
-                                                        +slolciefr->count()+slolcierr->count()+slmersi->count() + totgeosegments);
+    QString strtot = QString("Total segments = %1").arg(slmetop->count()+slmetopsga1->count()+slhrp->count()+slviirsm->count()
+                        +slolciefr->count()+slolcierr->count()+slmersi->count() + totgeosegments);
     emit signalResetProgressbar(1, strtot);
     emit signalShowSegmentCount();
 }
@@ -1058,7 +1090,6 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
     foreach (const QFileInfo &fileinfo, fileinfolist)
     {
         fileok = false;
-
         //AVHR_xxx_1B_M01_20130701051903Z_20130701052203Z_N_O_20130701054640Z
         //AVHR_GAC_1B_N19_20130701041003Z_20130701041303Z_N_O_20130701054958Z
         //AVHR_HRP_00_M02_20130701060200Z_20130701060300Z_N_O_20130701061314Z
@@ -1347,43 +1378,33 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL---NC4E_C_EUMT_20170920114422_GTT_DEV_20170920113008_20170920113922_N_JLS_T_0070_0041.nc
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20231127115648_IDPFI_OPE_20231127115154_20231127115249_N_JLS_C_0072_0012.nc
         //W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-FDHSI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20231127112342_IDPFI_OPE_20231127112007_20231127112924_N_JLS_C_0069_0041.nc
-         else if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 32, 8) == "MTI1+FCI" && fileinfo.isFile())
+        else if (fileinfo.baseName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.baseName().mid( 32, 22) == "MTI1+FCI-1C-RRAD-FDHSI")
         {
-            if(fileinfo.fileName().contains("DIS", Qt::CaseInsensitive))
-            {
-                if(fileinfo.fileName().contains("BODY", Qt::CaseInsensitive))
-                {
-                    QDate d(fileinfo.fileName().mid( 110, 4).toInt(), fileinfo.fileName().mid( 114, 2).toInt(), fileinfo.fileName().mid( 116, 2).toInt());
-                    QTime t(fileinfo.fileName().mid( 118, 2).toInt(), fileinfo.fileName().mid( 120, 2).toInt(), 0);
-                    if(d == seldate)
-                        fileok = true;
-                }
-                else if(fileinfo.fileName().contains("TRAIL", Qt::CaseInsensitive))
-                {
-                    QDate d(fileinfo.fileName().mid( 111, 4).toInt(), fileinfo.fileName().mid( 115, 2).toInt(), fileinfo.fileName().mid( 117, 2).toInt());
-                    QTime t(fileinfo.fileName().mid( 119, 2).toInt(), fileinfo.fileName().mid( 121, 2).toInt(), 0);
-                    if(d == seldate)
-                        fileok = true;
-                }
+            QString strdate;
+            int filenbr;
+            int seqnbr;
+            this->getFilenameParametersMTGI1(fileinfo.fileName(), &strdate, &filenbr, &seqnbr);
+            QDate d(strdate.mid(0,4).toInt(), strdate.mid(4,2).toInt(), strdate.mid(6,2).toInt());
+            QTime t(strdate.mid(8,2).toInt(), strdate.mid(10,2).toInt());
+            if(d == seldate)
+                fileok = true;
 
-            }
-            else
-            {
-                if(fileinfo.fileName().contains("BODY", Qt::CaseInsensitive))
-                {
-                    QDate d(fileinfo.fileName().mid( 105, 4).toInt(), fileinfo.fileName().mid( 109, 2).toInt(), fileinfo.fileName().mid( 111, 2).toInt());
-                    QTime t(fileinfo.fileName().mid( 113, 2).toInt(), fileinfo.fileName().mid( 115, 2).toInt(), 0);
-                    if(d == seldate)
-                        fileok = true;
-                }
-                else if(fileinfo.fileName().contains("TRAIL", Qt::CaseInsensitive))
-                {
-                    QDate d(fileinfo.fileName().mid( 106, 4).toInt(), fileinfo.fileName().mid( 110, 2).toInt(), fileinfo.fileName().mid( 112, 2).toInt());
-                    QTime t(fileinfo.fileName().mid( 114, 2).toInt(), fileinfo.fileName().mid( 116, 2).toInt(), 0);
-                    if(d == seldate)
-                        fileok = true;
-                }
-            }
+        }
+        //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
+        // W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-BODY--DIS-NC4E_C_EUMT_20260829000421_IDPFI_OPE_20260829000003_20260829000018_N_JLS_O_0001_0001
+        // W_XX-EUMETSAT-Darmstadt,IMG+SAT,MTI1+FCI-1C-RRAD-HRFI-FD--CHK-TRAIL--DIS-NC4E_C_EUMT_20260829000301_IDPFI_OPE_20260829000003_20260829000935_N_JLS_O_0001_0041
+        else if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 32, 21) == "MTI1+FCI-1C-RRAD-HRFI")
+        {
+            QString strdate;
+            int filenbr;
+            int seqnbr;
+            this->getFilenameParametersMTGI1(fileinfo.fileName(), &strdate, &filenbr, &seqnbr);
+            QDate d(strdate.mid(0,4).toInt(), strdate.mid(4,2).toInt(), strdate.mid(6,2).toInt());
+            QTime t(strdate.mid(8,2).toInt(), strdate.mid(10,2).toInt());
+            if(d == seldate)
+                fileok = true;
+
         }
 
         if(fileok)
@@ -1391,7 +1412,7 @@ void AVHRRSatellite::InsertToMap(QFileInfoList fileinfolist, QMap<QString, QFile
             //0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             //          1         2         3         4         5         6         7         8         9         10        11        12        13        14        15
             //W_XX-EUMETSAT-Darmstadt,SAT,SGA1-VII-1B-RAD_C_EUMT_20210219013949_G_D_20070912084303_20070912084403_T_B____.nc
-            if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 28, 8) == "SGA1-VII" && fileinfo.isFile())
+            if (fileinfo.fileName().mid( 0, 13) == "W_XX-EUMETSAT" && fileinfo.fileName().mid( 28, 8) == "SGA1-VII")
             {
                 // Key on the whole sensing window - start, then end - and not on
                 // the minute the sensing started. Granules are a minute long but
@@ -1897,6 +1918,8 @@ QStringList AVHRRSatellite::GetOverviewSegmentsGeo(int geoindex)
     QStringList strlist;
     if(opts.geosatellites.at(geoindex).shortname == "MET_12")
         strlist << seglgeo.at(geoindex)->getImagePath() << QString(opts.geosatellites.at(geoindex).shortname) << QString("(# %1)").arg(this->segmentlistmapgeomtgi1.count());
+    else if(opts.geosatellites.at(geoindex).shortname == "MET_12_HRFI")
+        strlist << seglgeo.at(geoindex)->getImagePath() << QString(opts.geosatellites.at(geoindex).shortname) << QString("(# %1)").arg(this->segmentlistmapgeomtgi1_hrfi.count());
     else
         strlist << seglgeo.at(geoindex)->getImagePath() << QString(opts.geosatellites.at(geoindex).shortname) << QString("(# %1)").arg(this->segmentlistmapgeo.at(geoindex).count());
 
@@ -1932,7 +1955,22 @@ QStringList AVHRRSatellite::GetDatestampsList(int geoindex)
             }
         }
     }
-    else
+    else if(opts.geosatellites.at(geoindex).shortname == "MET_12_HRFI")
+    {
+        if(segmentlistmapgeomtgi1_hrfi.count() > 0)
+        {
+            for (auto i = segmentlistmapgeomtgi1_hrfi.cbegin(), end = segmentlistmapgeomtgi1_hrfi.cend(); i != end; ++i)
+            {
+                int ii = i.key();
+                int totmin = (i.key() - 1) * 10;
+                int hour = (totmin - (totmin % 60))/60;
+                int min = totmin - (hour * 60);
+                //qDebug() << "hour = " << hour << " min = " << min;
+                //strlist << QString("%1%2%3%4%5").arg(yeardir).arg(monthdir).arg(daydir).arg(hour, 2, 10, QChar('0')).arg(min, 2, 10, QChar('0'));
+                strlist << QString("%1").arg(ii, 3, 10, QChar('0'));
+            }
+        }
+    }else
     {
         // QList<QMap<QString, QMap<QString, QMap< int, QFileInfo > > > > segmentlistmapgeo;
         if(segmentlistmapgeo.count() > 0)

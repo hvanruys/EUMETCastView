@@ -889,7 +889,7 @@ void FormToolbox::setupChannelGeoCombo(int geoindex)
         ui->comboGeo16->setCurrentIndex(geo16);
 
     }
-    else if(opts.GetGeoIndex("MET_12") == geoindex)
+    else if(opts.GetGeoIndex("MET_12") == geoindex || opts.GetGeoIndex("MET_12_HRFI") == geoindex)
     {
         ui->comboGeo1->addItems(coloritems);
         ui->comboGeo2->addItems(coloritems);
@@ -1993,7 +1993,7 @@ void FormToolbox::geostationarysegmentsChosen(int geoindex, QStringList tex)
             ui->cmbHRVtype->setEnabled(true);
     }
 
-    if(opts.geosatellites.at(geoindex).shortname != "MET_12")
+    if(!(opts.geosatellites.at(geoindex).shortname == "MET_12" || opts.geosatellites.at(geoindex).shortname == "MET_12_HRFI"))
     {
         for(int i = 0; i < opts.geosatellites.at(geoindex).spectrumlist.count(); i++)
         {
@@ -3178,7 +3178,7 @@ void FormToolbox::onButtonColorHRV(QString type)
             }
         }
     }
-    else if(opts.GetGeoIndex("MET_12") == geoindex)
+    else if(opts.GetGeoIndex("MET_12") == geoindex || opts.GetGeoIndex("MET_12_HRFI") == geoindex)
     {
         if(ui->comboGeo1->currentIndex() > 0)
         {
