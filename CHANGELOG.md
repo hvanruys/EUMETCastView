@@ -1,5 +1,88 @@
 # Changelog
 
+## 2.1.6
+
+Meteosat-12 sends two FCI products and EUMETCastView only ever read one of them.
+HRFI is the other : four channels sampled one step finer than FDHSI, two of them
+on the 0.5 km reference grid. It gets its own tab and its own band buttons, and
+because its vis_06 is FDHSI's vis_06 at double sampling, it also sharpens an
+FDHSI composite to 0.5 km.
+
+### Meteosat-12 HRFI
+
+- **The HRFI settings were FDHSI's, copied across.** HRFI samples one step finer
+  - 0.5 km for vis_06 and nir_22, 1 km for ir_38 and ir_105, against FDHSI's
+  1 km and 2 km - so every grid constant was half what it should be. The channel
+  names were the FDHSI spellings too, and since the reader opens
+  `/data/<name>/measured`, `vis_06` does not exist in an HRFI file and the
+  compose returned before it had read anything. `spectrumlist` is the netCDF
+  group names now, `imagewidth` is the infrared full disc and `imagewidthhrv0`
+  the solar one, and `coff`/`cfac` with `coffhrv`/`cfachrv` are the 1 km and
+  0.5 km pair. Clicking one of the four band buttons composes that band.
+- **Two tables of sixteen FDHSI channel names are gone.** `fciGridSize()` reads
+  the grid off the channel's own name : the `_hr` suffix is HRFI, and within
+  either product `vis_` and `nir_` get the finer of its two grids. The
+  `== 11136 ? coffhrv : coff` tests became `== imagewidthhrv0`, so the
+  navigation constants follow the satellite rather than a literal.
+- **Three things laid down with the groundwork did not work.** `newGeoTab` tested
+  `!(a != X || a != Y)`, false whatever `a` is, so every geostationary tab was
+  being built as a 41 column MTG tree. `getGeostationarySegmentsMTG` read the
+  FDHSI map whichever tab asked it. And an HRFI file was matched with
+  `baseName().contains()`, true on every iteration of the satellite loop, so it
+  set the FDHSI list's image path as well as its own.
+- **No colour composite on the HRFI tab.** Four bands on two grids, of which only
+  two are solar, make no combination worth offering, so `btnGeoColor` is off
+  there.
+
+### Sharpening FDHSI with HRFI
+
+- **An FDHSI composite can be sharpened to 0.5 km.** A checkbox beside the recipe
+  list, off by default. `vis_06_hr` is `vis_06` : same central wavelength, same
+  spectral width, and the same `scale_factor`, `add_offset` and solar irradiance
+  in the files, differing only in sampling distance. So the ratio of the two is a
+  pure resolution term with no spectral mismatch behind it - nothing to unmix, no
+  colour shift to correct, and no strength to choose. True Color and Natural
+  Colors come out at 22272 square instead of 11136, with the mean of the disc
+  preserved to a fifth of a display level.
+- **It is a pass over the finished composite, not a change inside it.** Every
+  band stays on the grid it was composed on, so the recipe machinery, the solar
+  correction and their memory cost are untouched, and any recipe drawn on the
+  1 km solar grid is sharpened by the same code. Composing at 0.5 km instead
+  would have cost about 22 GB for one image against the 2.7 GB this adds. It runs
+  before `signalcomposefinished`, because anything listening to that takes a
+  pointer to the image the sharpener is about to replace.
+- **The box greys itself out when it cannot help.** Not the FDHSI tab, a slot
+  with no HRFI chunks, or a recipe that is not drawn on the 1 km solar grid - a
+  2 km one has nothing for a 0.5 km numerator to divide into, and an index is a
+  datum rather than a brightness. The tooltip says which, and how many of the 40
+  HRFI chunks arrived; what is missing simply stays at 1 km.
+- **Night is left alone.** FCI puts zero radiance at count 204, and on the unlit
+  half both bands hold that zero plus a count or two of noise, whose ratio is
+  arbitrary and would paint speckle across the disc. Below a floor of 0.1 the
+  pixel keeps the 1 km value it had, which is what that part of the disc already
+  looked like. At the 05:00 terminator 234 of 370 million pixels take that path
+  and the boundary is invisible.
+
+### Fixed
+
+- **The histogram bins overflowed.** `mtg_histogram` counted into a `quint16`,
+  and one chunk of one band can put millions of pixels into a single bin. A
+  0.5 km HRFI chunk holds 12.4 million pixels and bin 204 - dark ocean - takes
+  4.18 million of them. EUMETCastVideo had it worse : on the night side a whole
+  FDHSI solar channel collapses into three or four bins, and at 2026-09-02 00:00
+  the wrap threw away 96 % of the counts, which skews the cumulative LUT and with
+  it the 95 % stretch the video is made with. In a finished video that reads as
+  the day side drifting in brightness across the sequence, worst at the
+  terminator and gone by midday. Both are `quint32` now.
+- **A reloaded list kept the satellites the reload had dropped.**
+  `segmentlistmapgeomtgi1_hrfi` was never emptied in `ReadDirectories`, so a
+  second load merged into the first : two loads of different days gave one tab
+  holding both. And both `PopulateTree` helpers return early when their satellite
+  has no segments, and returned before clearing, so the tab kept the previous
+  load's list on screen - readable, selectable, and pointing at files the reload
+  had decided were not part of the selection. Every tab is emptied before any is
+  filled now.
+
 ## 2.1.5
 
 Everything here is the last step of making a video, the point where the frames
