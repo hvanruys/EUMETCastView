@@ -20,7 +20,9 @@ extern Options opts;
 // pool issued from a global-pool worker makes progress only while that pool
 // still has a free thread, which one or two cores do not guarantee. No CLAHE
 // task waits on anything, so a private pool cannot deadlock however many
-// callers block on it. Idle threads expire after 30 s.
+// callers block on it - which is why nothing that runs on this pool may
+// call CLAHE or CLAHELab, or otherwise block on the pool. Idle threads
+// expire after 30 s.
 static QThreadPool *clahePool()
 {
     static QThreadPool *pool = []
@@ -1516,9 +1518,16 @@ int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned 
 // one extra conversion per pixel in exchange for 2 instead of 26 bytes of
 // temporaries per pixel. Both passes run one scanline per task on the
 // kernel's own pool (see clahePool).
-// Returns what CLAHE returns; on an error the image is left as it was.
+// Returns what CLAHE returns, or -9 for a null or non-32-bit image; on an
+// error the image is left as it was.
 int SegmentImage::CLAHELab (QImage *image, unsigned int uiNrX, unsigned int uiNrY, float fCliplimit)
 {
+    if (image->isNull() || (image->format() != QImage::Format_ARGB32 && image->format() != QImage::Format_RGB32))
+    {
+        qDebug() << Q_FUNC_INFO << "needs a non-null ARGB32/RGB32 image; got format" << image->format();
+        return -9;	  /* outside CLAHE's -1 .. -8 */
+    }
+
     const int width = image->width();
     const int height = image->height();
     const size_t npix = (size_t)width * height;
