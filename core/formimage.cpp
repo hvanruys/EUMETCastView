@@ -3637,7 +3637,7 @@ void FormImage::recalculateCLAHEMeteosat1()
 
     formtoolbox->setProgressValue(100);
 
-    if(sl->getKindofImage() != "HRV" && sl->getKindofImage() != "HRV Color")
+    if(ret == 0 && sl->getKindofImage() != "HRV" && sl->getKindofImage() != "HRV Color")
         if(opts.imageontextureOnMet)
             emit render3dgeo(sl->getGeoSatelliteIndex());
 

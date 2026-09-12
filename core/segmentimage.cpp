@@ -1522,9 +1522,12 @@ int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned 
 // error the image is left as it was.
 int SegmentImage::CLAHELab (QImage *image, unsigned int uiNrX, unsigned int uiNrY, float fCliplimit)
 {
-    if (image->isNull() || (image->format() != QImage::Format_ARGB32 && image->format() != QImage::Format_RGB32))
+    /* By format, not depth: RGBA8888 and RGBX8888 are 32-bit too but not in
+       QRgb byte order, and a premultiplied image would put Lab on premultiplied
+       values. The caller can convertTo(Format_ARGB32) first. */
+    if (image == nullptr || image->isNull() || (image->format() != QImage::Format_ARGB32 && image->format() != QImage::Format_RGB32))
     {
-        qDebug() << Q_FUNC_INFO << "needs a non-null ARGB32/RGB32 image; got format" << image->format();
+        qDebug() << Q_FUNC_INFO << "needs a non-null ARGB32/RGB32 image; got" << (image ? image->format() : QImage::Format_Invalid);
         return -9;	  /* outside CLAHE's -1 .. -8 */
     }
 
