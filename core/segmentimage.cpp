@@ -2,6 +2,8 @@
 #include "viil1breader.h"
 
 #include <QDebug>
+#include <QThread>
+#include <QThreadPool>
 #include <QtConcurrent/QtConcurrent>
 #include <numeric>
 #define uiNR_OF_GREY (4096)
@@ -10,6 +12,23 @@ const unsigned int uiMAX_REG_X = 16;	  /* max. # contextual regions in x-directi
 const unsigned int uiMAX_REG_Y = 16;	  /* max. # contextual regions in y-direction */
 
 extern Options opts;
+
+// The CLAHE kernel's own pool. CLAHE is reached from QtConcurrent::run workers
+// on the compose paths (XRIT, OLCI, VII); in Qt 6 a blockingMap on the global
+// pool issued from a global-pool worker makes progress only while that pool
+// still has a free thread, which one or two cores do not guarantee. No CLAHE
+// task waits on anything, so a private pool cannot deadlock however many
+// callers block on it. Idle threads expire after 30 s.
+static QThreadPool *clahePool()
+{
+    static QThreadPool *pool = []
+    {
+        QThreadPool *p = new QThreadPool;
+        p->setMaxThreadCount(qMax(2, QThread::idealThreadCount()));
+        return p;
+    }();
+    return pool;
+}
 
 SegmentImage::SegmentImage()
 {
@@ -1423,7 +1442,7 @@ int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned 
        only its own uiNrBins slot of pulMapArray, so they are independent. */
     QVector<int> regions(uiNrX * uiNrY);
     std::iota(regions.begin(), regions.end(), 0);
-    QtConcurrent::blockingMap(regions, [&](int region)
+    QtConcurrent::blockingMap(clahePool(), regions, [&](int region)
     {
         const unsigned int uiX = region % uiNrX;
         const unsigned int uiY = region / uiNrX;
@@ -1435,45 +1454,46 @@ int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned 
     });
 
     qDebug() << "Interpolate greylevel mappings to get CLAHE image";
-    /* One task per block of the (uiNrX+1) x (uiNrY+1) interpolation grid. The
-       border blocks are half a region wide, so a block's origin follows from
-       its index; the serial code walked a running pointer instead, which for
-       an odd region size came up one pixel short per block row. Every block
-       writes only its own pixels and the mappings are read-only by now. */
+    /* One task per block of the (uiNrX+1) x (uiNrY+1) interpolation grid. A
+       block's origin follows from its index: the border blocks are half a
+       region wide, the last one taking the remainder when the region size is
+       odd, so the grid covers the whole image. Every block writes only its
+       own pixels and the mappings are read-only by now. */
     QVector<int> blocks((uiNrX + 1) * (uiNrY + 1));
     std::iota(blocks.begin(), blocks.end(), 0);
-    QtConcurrent::blockingMap(blocks, [&](int block)
+    QtConcurrent::blockingMap(clahePool(), blocks, [&](int block)
     {
         const unsigned int uiX = block % (uiNrX + 1);
         const unsigned int uiY = block / (uiNrX + 1);
+        const unsigned int uiX0 = (uiX == 0 ? 0 : (uiXSize >> 1) + (uiX - 1) * uiXSize); /* origin of the block */
+        const unsigned int uiY0 = (uiY == 0 ? 0 : (uiYSize >> 1) + (uiY - 1) * uiYSize);
         unsigned int uiSubX, uiSubY;	  /* size of the block */
         unsigned int uiXL, uiXR, uiYU, uiYB;  /* the four regions it interpolates between */
-        unsigned int uiX0, uiY0;	  /* its origin in the image */
 
         if (uiY == 0)       /* special case: top row */
         {
-            uiSubY = uiYSize >> 1;  uiYU = 0; uiYB = 0; uiY0 = 0;
+            uiSubY = uiYSize >> 1;  uiYU = 0; uiYB = 0;
         }
         else if (uiY == uiNrY)				  /* special case: bottom row */
         {
-            uiSubY = uiYSize >> 1;	uiYU = uiNrY-1;	 uiYB = uiYU; uiY0 = (uiYSize >> 1) + (uiY - 1) * uiYSize;
+            uiSubY = uiYSize - (uiYSize >> 1);	uiYU = uiNrY-1;	 uiYB = uiYU;
         }
         else						  /* default values */
         {
-            uiSubY = uiYSize; uiYU = uiY - 1; uiYB = uiYU + 1; uiY0 = (uiYSize >> 1) + (uiY - 1) * uiYSize;
+            uiSubY = uiYSize; uiYU = uiY - 1; uiYB = uiYU + 1;
         }
 
         if (uiX == 0)				  /* special case: left column */
         {
-            uiSubX = uiXSize >> 1; uiXL = 0; uiXR = 0; uiX0 = 0;
+            uiSubX = uiXSize >> 1; uiXL = 0; uiXR = 0;
         }
         else if (uiX == uiNrX)			  /* special case: right column */
         {
-            uiSubX = uiXSize >> 1;  uiXL = uiNrX - 1; uiXR = uiXL; uiX0 = (uiXSize >> 1) + (uiX - 1) * uiXSize;
+            uiSubX = uiXSize - (uiXSize >> 1);  uiXL = uiNrX - 1; uiXR = uiXL;
         }
         else					  /* default values */
         {
-            uiSubX = uiXSize; uiXL = uiX - 1; uiXR = uiXL + 1; uiX0 = (uiXSize >> 1) + (uiX - 1) * uiXSize;
+            uiSubX = uiXSize; uiXL = uiX - 1; uiXR = uiXL + 1;
         }
 
         unsigned long *pulLU = &pulMapArray[uiNrBins * (uiYU * uiNrX + uiXL)];
