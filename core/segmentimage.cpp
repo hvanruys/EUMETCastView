@@ -1,5 +1,7 @@
 #include "segmentimage.h"
 #include "viil1breader.h"
+#include "ColorSpace.h"
+#include "Conversion.h"
 
 #include <QDebug>
 #include <QThread>
@@ -1505,6 +1507,108 @@ int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned 
 
     free(pulMapArray);					  /* free space for histograms */
     return 0;						  /* return status OK */
+}
+
+// CLAHE on the lightness of an RGB image: every pixel goes to CIE Lab, the
+// 8-bit L plane is equalised with CLAHE, and the pixel is rebuilt from the new
+// L and its own a and b. Only the L plane is kept between the two passes;
+// a and b are recomputed from the untouched pixel on the way back, which is
+// one extra conversion per pixel in exchange for 2 instead of 26 bytes of
+// temporaries per pixel. Both passes run one scanline per task on the
+// kernel's own pool (see clahePool).
+// Returns what CLAHE returns; on an error the image is left as it was.
+int SegmentImage::CLAHELab (QImage *image, unsigned int uiNrX, unsigned int uiNrY, float fCliplimit)
+{
+    const int width = image->width();
+    const int height = image->height();
+    const size_t npix = (size_t)width * height;
+
+    // One detach here, on the calling thread; the workers index from the
+    // base pointer. scanLine() from several threads races on the detach
+    // bookkeeping.
+    uchar *base = image->bits();
+    const qsizetype bpl = image->bytesPerLine();
+
+    qDebug() << Q_FUNC_INFO << "image width = " << width << " height = " << height << " npix = " << npix;
+
+    ushort *pixelsL = new ushort[npix];
+
+    QVector<int> lines(height);
+    std::iota(lines.begin(), lines.end(), 0);
+
+    QtConcurrent::blockingMap(clahePool(), lines, [&](int line)
+    {
+        const QRgb *row_col = (const QRgb *)(base + line * bpl);
+        ushort *rowL = pixelsL + (size_t)line * width;
+        ColorSpace::Rgb srcColor;
+        ColorSpace::Lab dstColor;
+        for (int pixelx = 0; pixelx < width; pixelx++)
+        {
+            const QRgb c = row_col[pixelx];
+            srcColor.r = qRed(c);
+            srcColor.g = qGreen(c);
+            srcColor.b = qBlue(c);
+
+            srcColor.To<ColorSpace::Lab>(&dstColor);
+
+            double l = dstColor.l;
+            l = (l < 0.0 ? 0.0 : l);
+            l = (l > 100.0 ? 100.0 : l);
+            ushort L = (ushort)qRound(l * 255.0 / 100.0);
+            rowL[pixelx] = (L > 255 ? 255 : L);
+        }
+    });
+
+    int ret = CLAHE(pixelsL, width, height, 0, 255, uiNrX, uiNrY, 256, fCliplimit);
+    if (ret != 0)
+    {
+        qDebug() << Q_FUNC_INFO << "CLAHE returned" << ret << "; image left unchanged";
+        delete [] pixelsL;
+        return ret;
+    }
+
+    QtConcurrent::blockingMap(clahePool(), lines, [&](int line)
+    {
+        QRgb *row_col = (QRgb *)(base + line * bpl);
+        const ushort *rowL = pixelsL + (size_t)line * width;
+        ColorSpace::Rgb srcColor;
+        ColorSpace::Lab lab;
+        ColorSpace::Rgb dstColor;
+        for (int pixelx = 0; pixelx < width; pixelx++)
+        {
+            const QRgb c = row_col[pixelx];
+            srcColor.r = qRed(c);
+            srcColor.g = qGreen(c);
+            srcColor.b = qBlue(c);
+
+            srcColor.To<ColorSpace::Lab>(&lab);
+
+            lab.a = (lab.a < -128.0 ? -128.0 : lab.a);
+            lab.a = (lab.a > 128.0 ? 128.0 : lab.a);
+            lab.b = (lab.b < -128.0 ? -128.0 : lab.b);
+            lab.b = (lab.b > 128.0 ? 128.0 : lab.b);
+
+            double l = (double)(rowL[pixelx] * 100.0 / 255.0);
+            l = (l > 100.0 ? 100.0 : l);
+            l = (l < 0.0 ? 0.0 : l);
+            lab.l = l;
+
+            lab.To<ColorSpace::Rgb>(&dstColor);
+
+            dstColor.r = (dstColor.r > 255.0 ? 255.0 : dstColor.r);
+            dstColor.g = (dstColor.g > 255.0 ? 255.0 : dstColor.g);
+            dstColor.b = (dstColor.b > 255.0 ? 255.0 : dstColor.b);
+
+            dstColor.r = (dstColor.r < 0.0 ? 0.0 : dstColor.r);
+            dstColor.g = (dstColor.g < 0.0 ? 0.0 : dstColor.g);
+            dstColor.b = (dstColor.b < 0.0 ? 0.0 : dstColor.b);
+
+            row_col[pixelx] = qRgb((int)dstColor.r, (int)dstColor.g, (int)dstColor.b);
+        }
+    });
+
+    delete [] pixelsL;
+    return 0;
 }
 
 void  SegmentImage::ClipHistogram (unsigned long* pulHistogram, unsigned int

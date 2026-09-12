@@ -185,6 +185,7 @@ public:
     int CLAHE (unsigned short *pImage, unsigned int uiXRes, unsigned int uiYRes,
          unsigned short Min, unsigned short Max, unsigned int uiNrX, unsigned int uiNrY,
               unsigned int uiNrBins, float fCliplimit);
+    int CLAHELab (QImage *image, unsigned int uiNrX, unsigned int uiNrY, float fCliplimit);
     void SmoothProjectionImage();
     void showHistogram(QImage *ptr);
     qint32 Min(const qint32 v11, const qint32 v12, const qint32 v21, const qint32 v22);
