@@ -7,6 +7,7 @@
 #include "moon.h"
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QMessageBox>
 #include <QPrintDialog>
 #include <QFileDialog>
@@ -3617,23 +3618,6 @@ void FormImage::recalculateCLAHEGeo()
 
 void FormImage::recalculateCLAHEMeteosat1()
 {
-    QRgb *row_col;
-    quint16 cred, cgreen, cblue;
-    QRgb c;
-
-    double *L;
-    double *a;
-    double *b;
-
-    double Lu;
-    double a_lab;
-    double b_lab;
-    size_t npix;
-
-    ushort *pixelsL;
-
-    uint numberOfBytes;
-
     SegmentListGeostationary *sl;
 
     sl = segs->getActiveSegmentList();
@@ -3642,120 +3626,16 @@ void FormImage::recalculateCLAHEMeteosat1()
 
     formtoolbox->setProgressValue(10);
 
+    // Himawari-9's 5500 px disc is not a multiple of 16; the kernel wants
+    // whole regions.
+    const unsigned int regions = (sl->getGeoSatellite() == eGeoSatellite::H9 ? 10 : 16);
 
-    int width = imageptrs->ptrimageGeostationary->width();
-    int height = imageptrs->ptrimageGeostationary->height();
-    npix = width*height;
-    numberOfBytes = static_cast<uint>(imageptrs->ptrimageGeostationary->sizeInBytes());
-
-    L = new double[width*height];
-    a = new double[width*height];
-    b = new double[width*height];
-
-
-    qDebug() << Q_FUNC_INFO << "image width = " << width << " height = " << height << " numberofbytes = " << numberOfBytes << " npix = " << npix;
-
-    ColorSpace::Rgb srcColor;
-    ColorSpace::Lab dstColor;
-
-
-    for (int line = height - 1; line >= 0; line--)
-    {
-        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
-        for (int pixelx = 0; pixelx < width; pixelx++)
-        {
-            c = row_col[pixelx];
-            srcColor.r = qRed(c);
-            srcColor.g = qGreen(c);
-            srcColor.b = qBlue(c);
-
-            srcColor.To<ColorSpace::Lab>(&dstColor);
-
-            dstColor.l = (dstColor.l < 0.0 ? 0.0 : dstColor.l);
-            dstColor.l = (dstColor.l > 100.0 ? 100.0 : dstColor.l);
-            dstColor.a = (dstColor.a < -128.0 ? -128.0 : dstColor.a);
-            dstColor.a = (dstColor.a > 128.0 ? 128.0 : dstColor.a);
-            dstColor.b = (dstColor.b < -128.0 ? -128.0 : dstColor.b);
-            dstColor.b = (dstColor.b > 128.0 ? 128.0 : dstColor.b);
-            L[line * width + pixelx] = dstColor.l;
-            a[line * width + pixelx] = dstColor.a;
-            b[line * width + pixelx] = dstColor.b;
-
-        }
-    }
-
-    formtoolbox->setProgressValue(30);
-
-    pixelsL = new ushort[npix];
-
-    for (int line = height - 1; line >= 0; line--)
-    {
-        for (int pixelx = 0; pixelx < width; pixelx++)
-        {
-            pixelsL[line * width + pixelx] = (ushort)qRound(L[line * width + pixelx] * 255.0 / 100.0);
-            pixelsL[line * width + pixelx] = (pixelsL[line * width + pixelx] > 255 ? 255 : pixelsL[line * width + pixelx]);
-            pixelsL[line * width + pixelx] = (pixelsL[line * width + pixelx] > 255 ? 255 : pixelsL[line * width + pixelx]);
-
-        }
-    }
-
-    formtoolbox->setProgressValue(60);
-
-    if(sl->getGeoSatellite() == eGeoSatellite::H9)
-        imageptrs->CLAHE(pixelsL, width, height, 0, 255, 10, 10, 256, opts.clahecliplimit);
-    else
-        imageptrs->CLAHE(pixelsL, width, height, 0, 255, 16, 16, 256, opts.clahecliplimit);
-
-    for (int line = height - 1; line >= 0; line--)
-    {
-        for (int pixelx = 0; pixelx < width; pixelx++)
-        {
-            L[line * width + pixelx] = (double)(pixelsL[line * width + pixelx] * 100.0 / 255.0);
-            L[line * width + pixelx] = (L[line * width + pixelx] > 100.0 ? 100.0 : L[line * width + pixelx]);
-            L[line * width + pixelx] = (L[line * width + pixelx] < 0.0 ? 0.0 : L[line * width + pixelx]);
-        }
-    }
-
-    formtoolbox->setProgressValue(80);
-
-
-    ColorSpace::Lab srcColor1;
-    ColorSpace::Rgb dstColor1;
-
-    for (int line = height - 1; line >= 0; line--)
-    {
-        row_col = (QRgb*)imageptrs->ptrimageGeostationary->scanLine(line);
-        for (int pixelx = 0; pixelx < width; pixelx++)
-        {
-            Lu = L[line * width + pixelx];
-            a_lab = a[line * width + pixelx];
-            b_lab = b[line * width + pixelx];
-            srcColor1.l = Lu;
-            srcColor1.a = a_lab;
-            srcColor1.b = b_lab;
-
-            srcColor1.To<ColorSpace::Rgb>(&dstColor1);
-
-            dstColor1.r = (dstColor1.r > 255.0 ? 255.0 : dstColor1.r);
-            dstColor1.g = (dstColor1.g > 255.0 ? 255.0 : dstColor1.g);
-            dstColor1.b = (dstColor1.b > 255.0 ? 255.0 : dstColor1.b);
-
-            dstColor1.r = (dstColor1.r < 0.0 ? 0.0 : dstColor1.r);
-            dstColor1.g = (dstColor1.g < 0.0 ? 0.0 : dstColor1.g);
-            dstColor1.b = (dstColor1.b < 0.0 ? 0.0 : dstColor1.b);
-
-
-            row_col[pixelx] = qRgb((int)dstColor1.r, (int)dstColor1.g, (int)dstColor1.b);
-        }
-    }
+    QElapsedTimer timer;
+    timer.start();
+    int ret = imageptrs->CLAHELab(imageptrs->ptrimageGeostationary, regions, regions, opts.clahecliplimit);
+    qDebug() << Q_FUNC_INFO << "CLAHELab returned" << ret << "in" << timer.elapsed() << "ms";
 
     formtoolbox->setProgressValue(100);
-
-    delete [] pixelsL;
-
-    delete [] L;
-    delete [] a;
-    delete [] b;
 
     if(sl->getKindofImage() != "HRV" && sl->getKindofImage() != "HRV Color")
         if(opts.imageontextureOnMet)
