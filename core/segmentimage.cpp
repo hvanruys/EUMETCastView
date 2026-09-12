@@ -2,6 +2,8 @@
 #include "viil1breader.h"
 
 #include <QDebug>
+#include <QtConcurrent/QtConcurrent>
+#include <numeric>
 #define uiNR_OF_GREY (4096)
 
 const unsigned int uiMAX_REG_X = 16;	  /* max. # contextual regions in x-direction */
@@ -1388,15 +1390,10 @@ int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned 
  * image. A clip limit smaller than 1 results in standard (non-contrast limited) AHE.
  */
 {
-
-    unsigned int uiX, uiY;		  /* counters */
-    unsigned int uiXSize, uiYSize, uiSubX, uiSubY; /* size of context. reg. and subimages */
-    unsigned int uiXL, uiXR, uiYU, uiYB;  /* auxiliary variables interpolation routine */
+    unsigned int uiXSize, uiYSize;	  /* size of contextual regions */
     unsigned long ulClipLimit, ulNrPixels;/* clip limit and region pixel count */
-    unsigned short* pImPointer;		   /* pointer to image */
     unsigned short aLUT[uiNR_OF_GREY];	    /* lookup table used for scaling of input image */
-    unsigned long* pulHist, *pulMapArray; /* pointer to histogram and mappings*/
-    unsigned long* pulLU, *pulLB, *pulRU, *pulRB; /* auxiliary pointers interpolation */
+    unsigned long* pulMapArray;		   /* pointer to mappings */
 
     if (uiNrX > uiMAX_REG_X) return -1;	   /* # of regions x-direction too large */
     if (uiNrY > uiMAX_REG_Y) return -2;	   /* # of regions y-direction too large */
@@ -1420,65 +1417,71 @@ int  SegmentImage::CLAHE (unsigned short* pImage, unsigned int uiXRes, unsigned 
     }
     else ulClipLimit = 1UL<<14;		  /* Large value, do not clip (AHE) */
     MakeLut(aLUT, Min, Max, uiNrBins);	  /* Make lookup table for mapping of greyvalues */
+
     qDebug() << "Calculate greylevel mappings for each contextual region";
-    for (uiY = 0, pImPointer = pImage; uiY < uiNrY; uiY++)
+    /* One task per contextual region. Each reads only its own tile and writes
+       only its own uiNrBins slot of pulMapArray, so they are independent. */
+    QVector<int> regions(uiNrX * uiNrY);
+    std::iota(regions.begin(), regions.end(), 0);
+    QtConcurrent::blockingMap(regions, [&](int region)
     {
-        for (uiX = 0; uiX < uiNrX; uiX++, pImPointer += uiXSize)
-        {
-            pulHist = &pulMapArray[uiNrBins * (uiY * uiNrX + uiX)];
-            MakeHistogram(pImPointer,uiXRes,uiXSize,uiYSize,pulHist,uiNrBins,aLUT);
-            ClipHistogram(pulHist, uiNrBins, ulClipLimit);
-            MapHistogram(pulHist, Min, Max, uiNrBins, ulNrPixels);
-        }
-        pImPointer += (uiYSize - 1) * uiXRes;		  /* skip lines, set pointer */
-    }
+        const unsigned int uiX = region % uiNrX;
+        const unsigned int uiY = region / uiNrX;
+        unsigned short *pImPointer = pImage + (size_t)uiY * uiYSize * uiXRes + (size_t)uiX * uiXSize;
+        unsigned long *pulHist = &pulMapArray[uiNrBins * region];
+        MakeHistogram(pImPointer,uiXRes,uiXSize,uiYSize,pulHist,uiNrBins,aLUT);
+        ClipHistogram(pulHist, uiNrBins, ulClipLimit);
+        MapHistogram(pulHist, Min, Max, uiNrBins, ulNrPixels);
+    });
 
     qDebug() << "Interpolate greylevel mappings to get CLAHE image";
-    for (pImPointer = pImage, uiY = 0; uiY <= uiNrY; uiY++)
+    /* One task per block of the (uiNrX+1) x (uiNrY+1) interpolation grid. The
+       border blocks are half a region wide, so a block's origin follows from
+       its index; the serial code walked a running pointer instead, which for
+       an odd region size came up one pixel short per block row. Every block
+       writes only its own pixels and the mappings are read-only by now. */
+    QVector<int> blocks((uiNrX + 1) * (uiNrY + 1));
+    std::iota(blocks.begin(), blocks.end(), 0);
+    QtConcurrent::blockingMap(blocks, [&](int block)
     {
+        const unsigned int uiX = block % (uiNrX + 1);
+        const unsigned int uiY = block / (uiNrX + 1);
+        unsigned int uiSubX, uiSubY;	  /* size of the block */
+        unsigned int uiXL, uiXR, uiYU, uiYB;  /* the four regions it interpolates between */
+        unsigned int uiX0, uiY0;	  /* its origin in the image */
+
         if (uiY == 0)       /* special case: top row */
         {
-            uiSubY = uiYSize >> 1;  uiYU = 0; uiYB = 0;
+            uiSubY = uiYSize >> 1;  uiYU = 0; uiYB = 0; uiY0 = 0;
         }
-        else
+        else if (uiY == uiNrY)				  /* special case: bottom row */
         {
-            if (uiY == uiNrY)				  /* special case: bottom row */
-            {
-                uiSubY = uiYSize >> 1;	uiYU = uiNrY-1;	 uiYB = uiYU;
-            }
-            else
-                {					  /* default values */
-                    uiSubY = uiYSize; uiYU = uiY - 1; uiYB = uiYU + 1;
-                }
+            uiSubY = uiYSize >> 1;	uiYU = uiNrY-1;	 uiYB = uiYU; uiY0 = (uiYSize >> 1) + (uiY - 1) * uiYSize;
+        }
+        else						  /* default values */
+        {
+            uiSubY = uiYSize; uiYU = uiY - 1; uiYB = uiYU + 1; uiY0 = (uiYSize >> 1) + (uiY - 1) * uiYSize;
         }
 
-        for (uiX = 0; uiX <= uiNrX; uiX++)
+        if (uiX == 0)				  /* special case: left column */
         {
-            if (uiX == 0)				  /* special case: left column */
-            {
-                uiSubX = uiXSize >> 1; uiXL = 0; uiXR = 0;
-            }
-            else
-                {
-                    if (uiX == uiNrX)			  /* special case: right column */
-                    {
-                        uiSubX = uiXSize >> 1;  uiXL = uiNrX - 1; uiXR = uiXL;
-                    }
-                    else
-                        {					  /* default values */
-                            uiSubX = uiXSize; uiXL = uiX - 1; uiXR = uiXL + 1;
-                        }
-                }
-
-            pulLU = &pulMapArray[uiNrBins * (uiYU * uiNrX + uiXL)];
-            pulRU = &pulMapArray[uiNrBins * (uiYU * uiNrX + uiXR)];
-            pulLB = &pulMapArray[uiNrBins * (uiYB * uiNrX + uiXL)];
-            pulRB = &pulMapArray[uiNrBins * (uiYB * uiNrX + uiXR)];
-            Interpolate(pImPointer,uiXRes,pulLU,pulRU,pulLB,pulRB,uiSubX,uiSubY,aLUT);
-            pImPointer += uiSubX;			  /* set pointer on next matrix */
+            uiSubX = uiXSize >> 1; uiXL = 0; uiXR = 0; uiX0 = 0;
         }
-        pImPointer += (uiSubY - 1) * uiXRes;
-    }
+        else if (uiX == uiNrX)			  /* special case: right column */
+        {
+            uiSubX = uiXSize >> 1;  uiXL = uiNrX - 1; uiXR = uiXL; uiX0 = (uiXSize >> 1) + (uiX - 1) * uiXSize;
+        }
+        else					  /* default values */
+        {
+            uiSubX = uiXSize; uiXL = uiX - 1; uiXR = uiXL + 1; uiX0 = (uiXSize >> 1) + (uiX - 1) * uiXSize;
+        }
+
+        unsigned long *pulLU = &pulMapArray[uiNrBins * (uiYU * uiNrX + uiXL)];
+        unsigned long *pulRU = &pulMapArray[uiNrBins * (uiYU * uiNrX + uiXR)];
+        unsigned long *pulLB = &pulMapArray[uiNrBins * (uiYB * uiNrX + uiXL)];
+        unsigned long *pulRB = &pulMapArray[uiNrBins * (uiYB * uiNrX + uiXR)];
+        Interpolate(pImage + (size_t)uiY0 * uiXRes + uiX0, uiXRes, pulLU, pulRU, pulLB, pulRB, uiSubX, uiSubY, aLUT);
+    });
 
     free(pulMapArray);					  /* free space for histograms */
     return 0;						  /* return status OK */
