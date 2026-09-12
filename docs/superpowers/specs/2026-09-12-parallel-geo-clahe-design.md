@@ -78,7 +78,8 @@ above: the interpolation grid is skewed by up to `uiNrY` pixels at the
 bottom, one column per block row is mapped twice and the last columns of a
 block row's final line are mapped with the row below's weights. GOES
 (5424/16 = 339), MSG RSS (1392/16 = 87), HRV RSS (2320/16 = 145) and OLCI
-(4688/16 = 293) are affected today. The explicit block origin puts every
+(4688/16 = 293), FY-2 (2288/16 = 143) and VII (3144/8 = 393) are affected
+today. The explicit block origin puts every
 block where the region grid says it belongs, and the last border block in
 each direction takes the remainder (`uiXSize - (uiXSize>>1)` instead of
 `uiXSize>>1`) so the grid covers the whole image — a border block
@@ -101,9 +102,10 @@ int CLAHELab(QImage *image, unsigned int uiNrX, unsigned int uiNrY, float fClipl
 ```
 
 It holds the RGB → L → CLAHE → RGB work that `recalculateCLAHEMeteosat1` does
-today, and returns what `CLAHE` returns (0, or its negative error code, in
-which case the image is left as it was — the L pass has not written anything
-back yet).
+today, and returns what `CLAHE` returns (0, or its negative error code), or
+-9 for a null pointer, a null image or a format other than ARGB32/RGB32 —
+the scanline arithmetic assumes `QRgb` pixels. On any error the image is
+left as it was: the L pass has not written anything back yet.
 
 `FormImage::recalculateCLAHEMeteosat1` becomes the GUI wrapper it really is:
 
@@ -112,7 +114,7 @@ sl = active segment list; set wait cursor; progress 10
 imageptrs->CLAHELab(imageptrs->ptrimageGeostationary,
                     H9 ? 10 : 16, H9 ? 10 : 16, opts.clahecliplimit)
 progress 100
-render3dgeo unless HRV / HRV Color (as now)
+render3dgeo unless HRV / HRV Color (as now), and only when CLAHELab returned 0
 restore cursor
 ```
 
@@ -151,8 +153,8 @@ bit-identical to today's. Temporaries: HRFI ~250 MB instead of ~3.2 GB, the
   waits — the calling thread does not run tasks (that was Qt 5) — so a
   `blockingMap` on the global pool issued from a global-pool worker makes
   progress only while the pool still has a free thread. `CLAHE` is reached
-  from `QtConcurrent::run` workers on the XRIT, OLCI and VII compose paths;
-  on a one- or two-core machine those composes would hang. No CLAHE task
+  from a `QtConcurrent::run` worker on the XRIT compose path; with every
+  global-pool thread occupied that compose would hang. No CLAHE task
   ever waits on another, so a private pool cannot deadlock however many
   callers block on it.
 - The button path itself is unchanged: `CLAHELab` is called from the GUI

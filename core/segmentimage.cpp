@@ -15,10 +15,10 @@ const unsigned int uiMAX_REG_Y = 16;	  /* max. # contextual regions in y-directi
 
 extern Options opts;
 
-// The CLAHE kernel's own pool. CLAHE is reached from QtConcurrent::run workers
-// on the compose paths (XRIT, OLCI, VII); in Qt 6 a blockingMap on the global
-// pool issued from a global-pool worker makes progress only while that pool
-// still has a free thread, which one or two cores do not guarantee. No CLAHE
+// The CLAHE kernel's own pool. CLAHE is reached from a QtConcurrent::run
+// worker on the XRIT compose path; in Qt 6 a blockingMap on the global pool
+// issued from a global-pool worker makes progress only while that pool still
+// has a thread to spare, which a small core count does not guarantee. No CLAHE
 // task waits on anything, so a private pool cannot deadlock however many
 // callers block on it - which is why nothing that runs on this pool may
 // call CLAHE or CLAHELab, or otherwise block on the pool. Idle threads
