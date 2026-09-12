@@ -69,8 +69,19 @@ compose (`concurrentMinMaxMTG`, `concurrentLUTGeoMTG`, …):
   are read-only by then.
 
 Integer arithmetic is untouched, so the result is bit-identical to the serial
-kernel regardless of thread count or scheduling. 256 and 289 tasks spread
-well over any core count; no `#ifdef CONC` switch — that define is local to
+kernel regardless of thread count or scheduling — for even region sizes,
+which every FCI, MSG full-disc, Himawari and FY image has. The serial
+kernel's running pointer advances by `2*(uiXSize>>1) + (uiNrX-1)*uiXSize`
+per block row, one pixel short of `uiXRes` when `uiXSize` is odd, so on
+those images each block row starts one pixel further left than the one
+above: the interpolation grid is skewed by up to `uiNrY` pixels at the
+bottom, one column per block row is mapped twice and the last columns of a
+block row's final line are mapped with the row below's weights. GOES
+(5424/16 = 339), MSG RSS (1392/16 = 87), HRV RSS (2320/16 = 145) and OLCI
+(4688/16 = 293) are affected today. The explicit block origin puts every
+block where the region grid says it belongs, so those images come out
+slightly different, and correct. 256 and 289 tasks spread well over any
+core count; no `#ifdef CONC` switch — that define is local to
 `segmentlistgeostationary.cpp` and the kernel has no debugging need for a
 serial fallback.
 
@@ -156,7 +167,9 @@ links the application's own objects, the technique documented in
   equality with the new code:
   - kernel: 5568×5568 `ushort` gradient + noise, ranges 0–255 and 0–1023,
     regions 16×16 and 10×10 (5500×5500 for the latter), clip limits 1.0
-    (the early-return path), 3.0 and 6.9 (the OLCI value);
+    (the early-return path), 3.0 and 6.9 (the OLCI value) — asserted equal;
+    plus one odd-region case, 5424×5424 at 16×16 (GOES), where the serial
+    kernel's drift makes a difference expected: reported, not asserted;
   - pipeline: 5568×5568 `QImage` (`Format_ARGB32`) gradient + colour noise,
     with a band of alpha-0 black pixels the way a space-filled disc has,
     against the reference loops.
