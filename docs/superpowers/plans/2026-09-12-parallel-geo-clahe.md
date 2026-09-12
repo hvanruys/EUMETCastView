@@ -30,7 +30,7 @@ The probe directory is **not** a git repository; nothing there is committed. The
 - The application build tree is the Ninja debug one: `cmake --build /home/hugo/EUMETCastTools/EUMETCastView/build/Desktop_Qt_6_9_2-Debug`. It builds both `EUMETCastView` and `EUMETCastVideo` and links into the shared `bin/`.
 - **Rebuild the application before rebuilding the probe**, every time. The probe links the application's `.o` files; stale ones link fine and then test code that no longer exists.
 - The probe runs from anywhere (`SegmentImage`'s constructor reads no INI), but it needs `QT_QPA_PLATFORM=offscreen` because it is a `QApplication`.
-- Everything is compiled at `-O0` (debug tree), so timings are relative, not absolute.
+- The "debug" tree compiles the application sources with a trailing `-O2` (an interface compile option from `PublicDecompWT-2.8.1/CMakeLists.txt`; last `-O` wins), and `build.sh` now reads the same `FLAGS` from `build.ninja`, so probe and application code are optimised alike and the probe's ref/new timings compare like with like.
 
 ---
 
@@ -924,7 +924,8 @@ In `core/segmentimage.cpp`, insert directly after the closing `}` of `CLAHE` (be
 // L and its own a and b. Only the L plane is kept between the two passes;
 // a and b are recomputed from the untouched pixel on the way back, which is
 // one extra conversion per pixel in exchange for 2 instead of 26 bytes of
-// temporaries per pixel. Both passes run one scanline per task.
+// temporaries per pixel. Both passes run one scanline per task on the
+// kernel's own pool (see clahePool).
 // Returns what CLAHE returns; on an error the image is left as it was.
 int SegmentImage::CLAHELab (QImage *image, unsigned int uiNrX, unsigned int uiNrY, float fCliplimit)
 {
@@ -945,7 +946,7 @@ int SegmentImage::CLAHELab (QImage *image, unsigned int uiNrX, unsigned int uiNr
     QVector<int> lines(height);
     std::iota(lines.begin(), lines.end(), 0);
 
-    QtConcurrent::blockingMap(lines, [&](int line)
+    QtConcurrent::blockingMap(clahePool(), lines, [&](int line)
     {
         const QRgb *row_col = (const QRgb *)(base + line * bpl);
         ushort *rowL = pixelsL + (size_t)line * width;
@@ -976,7 +977,7 @@ int SegmentImage::CLAHELab (QImage *image, unsigned int uiNrX, unsigned int uiNr
         return ret;
     }
 
-    QtConcurrent::blockingMap(lines, [&](int line)
+    QtConcurrent::blockingMap(clahePool(), lines, [&](int line)
     {
         QRgb *row_col = (QRgb *)(base + line * bpl);
         const ushort *rowL = pixelsL + (size_t)line * width;

@@ -79,7 +79,12 @@ bottom, one column per block row is mapped twice and the last columns of a
 block row's final line are mapped with the row below's weights. GOES
 (5424/16 = 339), MSG RSS (1392/16 = 87), HRV RSS (2320/16 = 145) and OLCI
 (4688/16 = 293) are affected today. The explicit block origin puts every
-block where the region grid says it belongs, so those images come out
+block where the region grid says it belongs, and the last border block in
+each direction takes the remainder (`uiXSize - (uiXSize>>1)` instead of
+`uiXSize>>1`) so the grid covers the whole image — a border block
+interpolates between two identical mappings, so widening it gives the
+extra column its correct value and changes no other pixel, and for even
+sizes the two expressions are equal. Those odd-size images come out
 slightly different, and correct. 256 and 289 tasks spread well over any
 core count; no `#ifdef CONC` switch — that define is local to
 `segmentlistgeostationary.cpp` and the kernel has no debugging need for a
@@ -139,10 +144,21 @@ bit-identical to today's. Temporaries: HRFI ~250 MB instead of ~3.2 GB, the
 
 ### 4. Threading details
 
-- `blockingMap` runs on the global `QThreadPool` and the calling thread; it
-  is called from the GUI thread as today, so the button flow,
-  `slotUpdateGeosat` and the wait cursor are unchanged. Moving the work to a
-  worker thread with a `QFutureWatcher` is out of scope.
+- Both `CLAHE` and `CLAHELab` run their `blockingMap` calls on a private
+  `QThreadPool` (`clahePool()` in `segmentimage.cpp`, `max(2,
+  idealThreadCount)` threads, idle threads expire after 30 s), not on the
+  global pool. In Qt 6 `blockingMap` queues its engine on the pool and
+  waits — the calling thread does not run tasks (that was Qt 5) — so a
+  `blockingMap` on the global pool issued from a global-pool worker makes
+  progress only while the pool still has a free thread. `CLAHE` is reached
+  from `QtConcurrent::run` workers on the XRIT, OLCI and VII compose paths;
+  on a one- or two-core machine those composes would hang. No CLAHE task
+  ever waits on another, so a private pool cannot deadlock however many
+  callers block on it.
+- The button path itself is unchanged: `CLAHELab` is called from the GUI
+  thread as today, so the button flow, `slotUpdateGeosat` and the wait
+  cursor stay as they are. Moving the work to a worker thread with a
+  `QFutureWatcher` is out of scope.
 - Scanline pointers come from a `bits()` base plus `bytesPerLine()`, fetched
   once on the calling thread before each parallel pass. `QImage::scanLine()`
   from worker threads is not safe: it goes through the detach bookkeeping,
@@ -167,9 +183,16 @@ links the application's own objects, the technique documented in
   equality with the new code:
   - kernel: 5568×5568 `ushort` gradient + noise, ranges 0–255 and 0–1023,
     regions 16×16 and 10×10 (5500×5500 for the latter), clip limits 1.0
-    (the early-return path), 3.0 and 6.9 (the OLCI value) — asserted equal;
-    plus one odd-region case, 5424×5424 at 16×16 (GOES), where the serial
-    kernel's drift makes a difference expected: reported, not asserted;
+    (the early-return path), 3.0 and 6.9 (the OLCI value), plus two
+    non-square cases with `nrx != nry` (3712×1392 at 16×8, 5568×2784 at
+    16×12) that would expose an X/Y transposition — all asserted equal to
+    the serial reference. One odd-region case, 5424×5424 at 16×16 (GOES),
+    where the serial kernel's drift makes a difference expected: the
+    difference is reported, not asserted. What every case asserts instead
+    is an edge property: the synthetic input's last column repeats the one
+    before it and its last row the one above, and because a border block
+    interpolates between identical mappings, the output must repeat them
+    too — a kernel that never reaches the last column or row fails it;
   - pipeline: 5568×5568 `QImage` (`Format_ARGB32`) gradient + colour noise,
     with a band of alpha-0 black pixels the way a space-filled disc has,
     against the reference loops.
