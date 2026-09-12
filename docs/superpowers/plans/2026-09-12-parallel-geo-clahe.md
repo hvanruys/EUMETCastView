@@ -1147,8 +1147,8 @@ Let the geostationary CLAHE button call SegmentImage::CLAHELab
 
 recalculateCLAHEMeteosat1 is now the GUI wrapper it was around the pixel
 work: cursor, progress, the 10x10 choice for Himawari-9, the globe
-texture. The intermediate progress values go; the GUI thread is inside
-the work and never painted them.
+texture. The intermediate progress values go: CLAHELab has no progress
+hook, and the work is now short enough that the bar has little to report.
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GqDgDRLPZLRcQJDETQ1pQz

@@ -116,8 +116,8 @@ render3dgeo unless HRV / HRV Color (as now)
 restore cursor
 ```
 
-The intermediate progress values 30/60/80 go: the GUI thread is inside the
-work and never repaints them.
+The intermediate progress values 30/60/80 go: `CLAHELab` has no progress
+hook, and the work is now short enough that the bar has little to report.
 
 The point of the split is that the pixel work is callable from a no-GUI probe
 (section 5). `recalculateCLAHEGeo`, its commented-out MTG dispatch, and the
