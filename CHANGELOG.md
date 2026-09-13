@@ -1,5 +1,91 @@
 # Changelog
 
+## 2.1.7
+
+Two things. The CLAHE button on the geostationary tab now runs on every core
+and keeps a fraction of the memory it used to, which is what it takes to
+equalise a Meteosat-12 image — and on the way a drift in the kernel that has
+skewed every image with an odd region size came out. And the banding that
+METimage leaves over sunglint, a sawtooth at the scan period in every VII image
+and projection, can be taken out at read time.
+
+### Geostationary CLAHE
+
+- **The button runs on every core and keeps a fiftieth of the memory.** Both
+  phases of the Zuiderveld kernel are independent per contextual region and per
+  interpolation block, so each is a `QtConcurrent::blockingMap` now; the Lab
+  round trip around it is one task per scanline. On a 5568² FDHSI image the
+  button went from 3.5 s to 0.26 s here, the kernel alone from 73 ms to 9 ms,
+  with output byte for byte what it was. The three `double` planes of L, a and
+  b are gone : only the 8-bit L plane lives between the passes, and a and b are
+  recomputed from the untouched pixel on the way back. Temporaries drop from 26
+  to 2 bytes per pixel — HRFI from 3.2 GB to 250 MB, the 0.5 km sharpened
+  composite from 13 GB to 1 GB, which is what makes CLAHE on that one possible
+  at all. Every path that calls `SegmentImage::CLAHE` — the polar images, the
+  recipes — gets the parallel kernel with it.
+- **The kernel skewed every image whose region size is odd.** The serial code
+  walked a running pointer through the image and advanced it by one pixel less
+  than the row width per block row whenever the region size was odd, so each
+  row of blocks started one pixel further left than the one above. By the
+  bottom of the image the interpolation grid was 16 pixels off, one column per
+  block row was mapped twice and the last columns of a block row's final line
+  were mapped with the weights of the row below. GOES (5424/16 = 339), MSG RSS
+  (87), HRV RSS (145), OLCI (293), FY-2 (143) and VII (393) all had it. A block's
+  origin is computed from its index now, and the last border block in each
+  direction takes the remainder, so those images are equalised to their last
+  column and row. Even sizes — every FCI, MSG full disc, Himawari image — come
+  out unchanged.
+- **The kernel has a pool of its own.** Qt 6's `blockingMap` does not run its
+  engine on the calling thread — that was Qt 5 — so a kernel reached from a
+  compose worker on the global pool could only make progress while that pool
+  still had a thread to spare, and the XRIT compose does reach it from a
+  `QtConcurrent::run` worker. With every global thread busy the compose would
+  hang. On a private pool no CLAHE task ever waits on another, so nothing can.
+- **The pixel work lives next to the kernel.** `SegmentImage::CLAHELab` is the
+  RGB → L → CLAHE → RGB pipeline that `recalculateCLAHEMeteosat1` used to do
+  inline, and that function is now the GUI wrapper it was around it : cursor,
+  progress, the 10×10 regions Himawari-9's 5500 px disc needs, the globe
+  texture. It refuses a null pointer, a null image or anything but a 32-bit
+  format with -9 — the scanline arithmetic assumes four bytes per pixel — and
+  leaves the image untouched on any error, after which the globe upload is
+  skipped rather than fed a picture that did not change. The intermediate
+  progress steps are gone : there is no hook for them and little left to report.
+  Both the kernel and the pipeline are asserted byte-identical to verbatim
+  copies of the code they replaced, on synthetic images, by a probe outside the
+  repository.
+
+### Metop-SG VII
+
+- **The scan banding over sunglint can be taken out.** The 24 detectors of a
+  METimage scan look along track under angles 0.83 degrees apart, and over
+  glint the sea answers that with a brightness that climbs through the scan and
+  drops back at the next one : a sawtooth at the scan period, up to 10 % of the
+  signal, in every image and projection. It is not the bow-tie — the
+  duplication mask removes that — and not a calibration difference between the
+  detectors : it is a clean ramp, only over sea, only in the glint half of the
+  swath, and it is in the L1B radiances as they arrive. Filtering it out of the
+  finished picture does not work : a comb of notches in the 2D spectrum, at the
+  period measured to the pixel and ten harmonics deep, left two thirds of it in
+  place while moving cloud pixels by up to 56 levels and ringing at the swath
+  border, because the seams tilt, the period jitters with the projection and
+  the amplitude follows the scene. So it is measured and removed in sensor
+  geometry, where the detector of every line is known exactly, before the
+  channels are packed or combined. Per band of 64 columns the ramp is the median
+  over the granule of the within-scan slope less the scene's own along-track
+  gradient, the latter read off the neighbouring scan means and the
+  detector-to-scan ground spacing from the geolocation, and a band keeps its
+  ramp only when the estimate stands four standard errors from zero, which is
+  what silences cloud texture. The correction scales with the square root of
+  the pixel's brightness in the reddest channel of the image relative to the
+  band's typical — the same over ordinary sea, half in a cloud shadow, and
+  capped so a cloud, which has no glint, gets no more than the sea would. On two
+  granules of Mediterranean glint the step at the seams went from -3.2 to +0.07
+  levels in red and green and from -5.5 to -1.6 in blue, whose ramp is the same
+  in reflectance but sits on the steep end of the gamma curve; clouds and land
+  move by at most one level, and it costs 45 ms per channel per granule. The
+  **Destripe scans** box next to Rayleigh correction on the VII tab, off by
+  default, for the single bands and the RGB recipes alike.
+
 ## 2.1.6
 
 Meteosat-12 sends two FCI products and EUMETCastView only ever read one of them.
