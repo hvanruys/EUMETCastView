@@ -314,6 +314,14 @@ public:
     bool bViiRayleigh;
 
     /**
+     * Take the within-scan brightness ramp out of the VII solar channels
+     * before they are composed - the sawtooth the 24 detectors leave over
+     * sunglint. See SegmentVII::DestripeScans. The "Destripe scans" box on
+     * the VII tab; off by default while it is being evaluated.
+     */
+    bool bViiDestripe;
+
+    /**
      * Equirectangular city-lights image for the GeoColor night side, or empty.
      *
      * Nothing suitable ships with this program - a VIIRS DNB annual composite

@@ -1600,6 +1600,26 @@ stretches are written against, so it always runs.</string>
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="chkVIIDestripe">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Remove the scan banding over sunglint: the 24 detectors of a scan look along track
+under slightly different angles, and glint answers with a brightness ramp that
+resets every scan - a sawtooth at the scan period in every image and projection.
+The ramp is measured in each granule and taken out of the solar channels before
+they are composed, for the single bands and the RGB recipes alike. Clouds and
+land carry no such ramp and are left alone.</string>
+                </property>
+                <property name="text">
+                 <string>Destripe scans</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="btnVIIRecipes">
                 <property name="font">
                  <font>

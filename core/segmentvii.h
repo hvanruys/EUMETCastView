@@ -96,6 +96,24 @@ private:
     QString getChannelNameFromColor(int colorindex);
     QString getChannelNameFromBand();
 
+    /* Take the within-scan brightness ramp - the sawtooth the 24 detectors
+       leave over sunglint - out of one solar channel on the full grid, in
+       place. proxy is the channel whose brightness measures the glint, the
+       reddest one at hand, or v itself. Needs the geolocation and the
+       duplication mask, so it runs after ReadGeolocation, and on the same
+       across-track orientation as they are. name is only for the log. See
+       the definition. */
+    void DestripeScans(QVector<float> *v, const QVector<float> *proxy, const QString &name) const;
+
+    /* Columns pooled into one ramp estimate. Wide enough for the median to
+       outvote clouds and coasts, narrow enough to follow the glint across the
+       swath; the estimate is interpolated between band centres anyway. */
+    static constexpr int DestripeBand = 64;
+
+    /* A band's ramp is used when it is at least this many standard errors
+       from zero. Glint clears it by a wide margin, cloud texture does not. */
+    static constexpr double DestripeSigma = 4.0;
+
     void ComposeProjection(eProjections proj, int histogrammethod, bool normalized);
     void MapPixel(int lines, int views, double map_x, double map_y, bool iscolor, int histogrammethod, bool normalized);
     bool invertthissegment[3];

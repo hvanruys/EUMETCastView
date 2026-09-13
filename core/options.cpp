@@ -245,6 +245,7 @@ void Options::Initialize()
     bFciSharpenHRFI = settings.value("/parameters/fcisharpenhrfi", false).toBool();
     bSeviriRayleigh = settings.value("/parameters/seviriRayleigh", true).toBool();
     bViiRayleigh = settings.value("/parameters/viirayleigh", true).toBool();
+    bViiDestripe = settings.value("/parameters/viidestripe", false).toBool();
     fcinightlights = settings.value("/parameters/fcinightlights", "").value<QString>();
 
     checkStringListValues();
@@ -633,6 +634,7 @@ void Options::Save()
     settings.setValue("/parameters/fcisharpenhrfi", bFciSharpenHRFI);
     settings.setValue("/parameters/seviriRayleigh", bSeviriRayleigh);
     settings.setValue("/parameters/viirayleigh", bViiRayleigh);
+    settings.setValue("/parameters/viidestripe", bViiDestripe);
     settings.setValue("/parameters/fcinightlights", fcinightlights);
 
     settings.setValue("/datahub/datahubuser", datahubuser);

@@ -517,6 +517,14 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
         opts.bViiRayleigh = checked;
     });
 
+    {
+        QSignalBlocker block(ui->chkVIIDestripe);
+        ui->chkVIIDestripe->setChecked(opts.bViiDestripe);
+    }
+    connect(ui->chkVIIDestripe, &QCheckBox::toggled, this, [](bool checked) {
+        opts.bViiDestripe = checked;
+    });
+
     rowchosen.clear();
 
     opts.globalChangeFonts(this, opts.fontsize);

@@ -209,6 +209,275 @@ bool SegmentVII::isDuplicatedPixel(int line, int pixelx) const
     return duplicationmask.at((line % num_pixels_alt) * earth_views_per_scanline + pixelx) != 0;
 }
 
+/**
+ * Take the within-scan brightness ramp out of one solar channel, in place.
+ *
+ * The 24 detectors of a scan look along track under 24 slightly different
+ * angles, 0.83 degrees from the first to the last, and over sunglint the sea
+ * answers that angle: its brightness climbs through the scan and drops back
+ * at the next one. Measured on a granule of Mediterranean glint it is a clean
+ * ramp in the detector index - 0.07 levels rms off a straight line over a
+ * ramp of 5 - of up to 10 % of the signal, and it crosses every projection
+ * as a sawtooth at the scan period. It is not the geometric bow-tie, which the
+ * duplication mask deals with, and not a calibration difference between the
+ * detectors, which would have some shape other than a ramp and be the same
+ * over land, where this is absent.
+ *
+ * Which detector made a line is known here exactly, line % nd, and no
+ * projection keeps that, so this is where it is taken out. The ramp is the
+ * glint's, and how much of it a pixel carries follows how much glint it
+ * holds - only slowly: measured on one scene it is about the same over the
+ * whole run of ordinary sea in a band, half of that in a cloud shadow at 40 %
+ * of the brightness, and nothing on a cloud. The model is
+ *
+ *     L(scan s, detector k, column c) = T + A(c) * w * (k - (nd - 1) / 2)
+ *     w = min(1, sqrt(P / S(c)))
+ *
+ * with T the scene and A the ramp per detector step of a typical pixel. P is
+ * the pixel's brightness in the proxy channel and S the typical brightness
+ * of the band in it. The proxy stands in for the amount of glint: the reddest
+ * channel a recipe has, whose sea holds the least of anything else. The
+ * channel's own brightness would do for red, but the de-hazed blue sea sits
+ * at nothing, and a ratio to nothing says nothing - which is also why the
+ * sea in the blue carries a ramp larger than itself. The square root is
+ * empirical and sits between the two models that are wrong in opposite ways:
+ * a constant ramp paints an inverted sawtooth into every cloud shadow, a
+ * proportional one leaves half the sawtooth on any sea darker than typical.
+ * Capped at 1 so a cloud, with no glint of its own, gets no more than the
+ * sea would - under a level of 255 on it.
+ *
+ * What separates A from the scene's own along-track gradient is that inside
+ * a scan the brightness moves by both per detector step, while between the
+ * centres of the scans on either side it moves by the gradient alone. So for
+ * every scan and column
+ *
+ *     A = (slope within the scan - f * (M(s+1) - M(s-1)) / (2 nd)) / w
+ *
+ * with M the scan mean and f the ground spacing of the detectors relative to
+ * that of the scans, read off the geolocation: 1 at nadir and growing toward
+ * the edges as the footprint stretches. The median over DestripeBand columns
+ * and all the scans of the granule leaves clouds and coasts in the minority.
+ * Duplicated pixels stay out of the estimate, they look at the neighbouring
+ * scan's ground, but are corrected like every other line: same detector.
+ *
+ * The ramp is centred on the scan, so the scan mean stays where it was and
+ * every line ends up as if seen from the middle of the scan.
+ */
+void SegmentVII::DestripeScans(QVector<float> *v, const QVector<float> *proxy, const QString &name) const
+{
+    const int nd = num_pixels_alt;
+    const int cols = earth_views_per_scanline;
+    const int ns = nd > 0 ? NbrOfLines / nd : 0;
+    const qsizetype npix = (qsizetype)NbrOfLines * cols;
+
+    // Three scans are the least the centred gradient can be taken over.
+    if(ns < 3 || cols <= 0 || v->size() < npix || proxy->size() < npix
+       || geolatitude.isNull() || geolongitude.isNull())
+        return;
+
+    float *L = v->data();
+    const float *P = proxy->constData();
+    const double kmid = (nd - 1) / 2.0;
+
+    // Scan means, one per scan and column, over the lines the estimate may
+    // use. NaN where fewer than half of them are there to be averaged.
+    auto scanMeans = [&](const float *buf) {
+        QVector<double> M((qsizetype)ns * cols, qQNaN());
+        for(int s = 0; s < ns; s++)
+        {
+            for(int c = 0; c < cols; c++)
+            {
+                double sum = 0.0;
+                int n = 0;
+                for(int k = 0; k < nd; k++)
+                {
+                    if(isDuplicatedPixel(k, c))
+                        continue;
+                    const float val = buf[(qsizetype)(s * nd + k) * cols + c];
+                    if(std::isfinite(val))
+                    {
+                        sum += val;
+                        n++;
+                    }
+                }
+                if(n >= nd / 2)
+                    M[(qsizetype)s * cols + c] = sum / n;
+            }
+        }
+        return M;
+    };
+    const QVector<double> M = scanMeans(L);
+    const QVector<double> MP = P == L ? M : scanMeans(P);
+
+    // Ground distance between two pixels of one column, in degrees of arc on
+    // a locally flat earth: only ratios of it are used, and both legs of every
+    // ratio lie within a few scans of each other.
+    auto groundDistance = [&](int line1, int line2, int c) -> double {
+        const qsizetype i1 = (qsizetype)line1 * cols + c;
+        const qsizetype i2 = (qsizetype)line2 * cols + c;
+        const double lat1 = geolatitude[i1], lat2 = geolatitude[i2];
+        double dlon = geolongitude[i2] - geolongitude[i1];
+        if(dlon > 180.0) dlon -= 360.0;
+        else if(dlon < -180.0) dlon += 360.0;
+        const double dx = dlon * cos((lat1 + lat2) * 0.5 * PIE / 180.0);
+        const double dy = lat2 - lat1;
+        return sqrt(dx * dx + dy * dy);
+    };
+
+    auto median = [](QVector<double> &x) -> double {
+        std::nth_element(x.begin(), x.begin() + x.size() / 2, x.end());
+        return x.at(x.size() / 2);
+    };
+
+    const int nbands = (cols + DestripeBand - 1) / DestripeBand;
+    QVector<double> A(nbands, 0.0);
+    QVector<double> S(nbands, 0.0);
+    QVector<double> centre(nbands, 0.0);
+
+    // Fewer samples than this and a band keeps its ramp: with 64 columns and a
+    // granule of 35 scans it is a tenth of what a clear band offers.
+    const int MinSamples = 200;
+
+    QVector<double> ramps, means, ratios;
+    ramps.reserve((qsizetype)ns * DestripeBand);
+    means.reserve((qsizetype)ns * DestripeBand);
+    ratios.reserve((qsizetype)ns * DestripeBand);
+
+    for(int b = 0; b < nbands; b++)
+    {
+        const int c0 = b * DestripeBand;
+        const int c1 = qMin(cols, c0 + DestripeBand);
+        centre[b] = (c0 + c1 - 1) / 2.0;
+        ramps.clear();
+        means.clear();
+        ratios.clear();
+
+        for(int s = 1; s < ns - 1; s++)
+        {
+            for(int c = c0; c < c1; c++)
+            {
+                const double Mprev = M[(qsizetype)(s - 1) * cols + c];
+                const double Mnext = M[(qsizetype)(s + 1) * cols + c];
+                const double Mproxy = MP[(qsizetype)s * cols + c];
+                if(!std::isfinite(Mprev) || !std::isfinite(Mnext) || !std::isfinite(Mproxy))
+                    continue;
+
+                // Least squares slope of brightness against detector index
+                // over the lines of this scan that count.
+                int n = 0, kfirst = -1, klast = -1;
+                double sk = 0.0, sl = 0.0, skk = 0.0, skl = 0.0;
+                for(int k = 0; k < nd; k++)
+                {
+                    if(isDuplicatedPixel(k, c))
+                        continue;
+                    const float val = L[(qsizetype)(s * nd + k) * cols + c];
+                    if(!std::isfinite(val))
+                        continue;
+                    n++;
+                    sk += k;
+                    sl += val;
+                    skk += (double)k * k;
+                    skl += k * (double)val;
+                    if(kfirst < 0)
+                        kfirst = k;
+                    klast = k;
+                }
+                if(n < nd / 2 || klast - kfirst < nd / 2)
+                    continue;
+                const double den = n * skk - sk * sk;
+                if(den <= 0.0)
+                    continue;
+                const double slope = (n * skl - sk * sl) / den;
+
+                // Detector ground spacing over scan ground spacing, both per
+                // nominal line.
+                const double din = groundDistance(s * nd + kfirst, s * nd + klast, c) / (klast - kfirst);
+                const double dscan = groundDistance((s - 1) * nd + nd / 2, (s + 1) * nd + nd / 2, c) / (2.0 * nd);
+                if(!(dscan > 0.0) || !std::isfinite(din))
+                    continue;
+
+                const double g = (Mnext - Mprev) / (2.0 * nd);
+                ramps.append(slope - (din / dscan) * g);
+                means.append(Mproxy);
+            }
+        }
+
+        if(ramps.size() < MinSamples)
+            continue;
+
+        // The band's typical brightness in the proxy, then every sample's
+        // ramp brought to what a typical pixel would show. Pixels far darker
+        // than typical stay out: theirs is mostly noise over a small weight.
+        QVector<double> sorted = means;
+        S[b] = median(sorted);
+        if(!(S[b] > 0.0))
+            continue;
+        for(qsizetype i = 0; i < ramps.size(); i++)
+            if(means.at(i) >= 0.1 * S[b])
+                ratios.append(ramps.at(i) / qMin(1.0, sqrt(means.at(i) / S[b])));
+        if(ratios.size() < MinSamples)
+            continue;
+
+        // A band of cloud has ramps of either sign by the hundred and a
+        // median that is only their noise. Its scatter says so: the median
+        // is kept when it stands clear of its own standard error, taken
+        // from the median absolute deviation as 1.2533 * 1.4826 * MAD / sqrt(n).
+        const double med = median(ratios);
+        for(double &r : ratios)
+            r = fabs(r - med);
+        const double se = 1.858 * median(ratios) / sqrt((double)ratios.size());
+        if(fabs(med) >= DestripeSigma * se)
+            A[b] = med;
+    }
+
+    int worst = 0;
+    for(int b = 1; b < nbands; b++)
+        if(fabs(A[b]) > fabs(A[worst]))
+            worst = b;
+    qDebug() << QString("VII destripe %1: ramp up to %2 across a scan, columns %3..%4")
+                .arg(name).arg(fabs(A[worst]) * (nd - 1), 0, 'g', 3)
+                .arg(worst * DestripeBand).arg(qMin(cols, (worst + 1) * DestripeBand) - 1);
+
+    // Interpolate the estimates between band centres so the correction has
+    // no steps of its own, and take the ramp out of every line.
+    QVector<float> acol(cols), scol(cols);
+    int b = 0;
+    for(int c = 0; c < cols; c++)
+    {
+        double t = 0.0;
+        if(c <= centre[0])
+            b = 0;
+        else if(c >= centre[nbands - 1])
+            b = nbands - 1;
+        else
+        {
+            while(centre[b + 1] < c)
+                b++;
+            t = (c - centre[b]) / (centre[b + 1] - centre[b]);
+        }
+        const int b1 = qMin(b + 1, nbands - 1);
+        acol[c] = A[b] + t * (A[b1] - A[b]);
+        scol[c] = S[b] + t * (S[b1] - S[b]);
+    }
+
+    for(int line = 0; line < ns * nd; line++)
+    {
+        const double ramp = (line % nd) - kmid;
+        float *row = L + (qsizetype)line * cols;
+        const float *prow = P + (qsizetype)line * cols;
+        for(int c = 0; c < cols; c++)
+        {
+            // w is taken at the observed proxy rather than the scene's: the
+            // two differ by the ramp itself, a few percent, which the square
+            // root halves again.
+            const float p = prow[c];
+            if(!std::isfinite(row[c]) || !(p > 0.0f) || !(scol[c] > 0.0f))
+                continue;
+            row[c] -= acol[c] * ramp * qMin(1.0, sqrt(p / scol[c]));
+        }
+    }
+}
+
 Segment *SegmentVII::ReadSegmentInMemory()
 {
     BZFILE* b;
@@ -373,6 +642,9 @@ Segment *SegmentVII::ReadSegmentInMemory()
         }
 
         reverseAcrossTrack(&rad, geom.nlines, geom.npixels);
+
+        if(opts.bViiDestripe && ViiL1BReader::isSolarChannel(channel[k]))
+            DestripeScans(&rad, &rad, channel[k]);
 
         const double scale = 65534.0 / (radmax - radmin);
 
@@ -894,6 +1166,28 @@ Segment *SegmentVII::ReadSegmentRecipeInMemory(int recipe)
                        << reader.lastError()
                        << ") - composing the reflectance as it stands, which will"
                        << "be dark away from the subsolar point";
+
+        // After the correction, so the ramp is measured and removed in the
+        // unit the recipe is stretched in. Both halves of the correction vary
+        // smoothly across the lines, so a ramp going in comes out a ramp. The
+        // reddest channel is every channel's measure of glint, and goes first
+        // so the others read it clean.
+        if(opts.bViiDestripe)
+        {
+            int proxy = -1;
+            for(int k = 0; k < bandnames.count(); k++)
+                if(ViiL1BReader::isSolarChannel(bandnames.at(k))
+                   && (proxy < 0 || ViiL1BReader::centreWavelength(bandnames.at(k))
+                                    > ViiL1BReader::centreWavelength(bandnames.at(proxy))))
+                    proxy = k;
+            if(proxy >= 0)
+            {
+                DestripeScans(&bandbuf[proxy], &bandbuf[proxy], bandnames.at(proxy));
+                for(int k = 0; k < bandnames.count(); k++)
+                    if(k != proxy && ViiL1BReader::isSolarChannel(bandnames.at(k)))
+                        DestripeScans(&bandbuf[k], &bandbuf[proxy], bandnames.at(k));
+            }
+        }
     }
 
     reader.close();
