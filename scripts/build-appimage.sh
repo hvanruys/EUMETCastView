@@ -89,6 +89,12 @@ fi
 if [ "$SKIP_BUILD" -eq 0 ]; then
     echo "==> Configuring ($BUILD_DIR)"
     cmake -S "$REPO_ROOT" -B "$BUILD_DIR" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
+    # Every build tree links into the one bin/, so a binary that another tree
+    # linked more recently - the native build after the container's, or the
+    # other way round - is newer than this tree's objects, looks up to date to
+    # make, and would be packaged as if it were ours. Take the two away so this
+    # tree has to link them again; a link is seconds.
+    rm -f "$BIN_DIR/EUMETCastView" "$BIN_DIR/EUMETCastVideo"
     echo "==> Building"
     cmake --build "$BUILD_DIR" -j"$(nproc)"
 else
@@ -100,6 +106,22 @@ if [ ! -x "$BIN_DIR/EUMETCastView" ] || [ ! -x "$BIN_DIR/EUMETCastVideo" ]; then
     echo "  (EUMETCastView and EUMETCastVideo must both exist and be executable)" >&2
     exit 1
 fi
+
+# A binary linked on the other side of the container boundary asks for
+# libraries this side does not have - the native build's libnetcdf.so.19
+# against Ubuntu 20.04's .so.15 - and linuxdeploy reports that only as
+# "Could not find dependency". Ask ldd first. This also catches the case the
+# rm above cannot: another build linking into bin/ while this one runs.
+for exe in EUMETCastView EUMETCastVideo; do
+    if ldd "$BIN_DIR/$exe" | grep -q 'not found'; then
+        echo "$BIN_DIR/$exe needs libraries this environment does not have:" >&2
+        ldd "$BIN_DIR/$exe" | grep 'not found' >&2
+        echo "  Every build tree links into bin/, so it was linked by another one -" >&2
+        echo "  most likely a build that ran while this one was running. Run one" >&2
+        echo "  AppImage build at a time; rerunning this script relinks it." >&2
+        exit 1
+    fi
+done
 
 # --- Assemble AppDir --------------------------------------------------------
 
