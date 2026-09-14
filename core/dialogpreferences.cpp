@@ -3459,11 +3459,16 @@ Qt::ItemFlags MERSIConfigModel::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
 }
 
-void DialogPreferences::on_chkDoLogging_toggled(bool checked)
+void DialogPreferences::on_chkDoLogging_clicked(bool checked)
 {
-    // Straight away, not at the next start : the box is there to catch what the
-    // application is doing now. opts.doLogging follows what actually happened,
+    // Straight away, and at the next start : the box catches what the
+    // application is doing now, and opts.doLogging is saved at exit so the run
+    // after this one starts the same way. It follows what actually happened,
     // which is not the same thing when the file could not be opened.
+    //
+    // clicked, not toggled : the constructor sets the box to what the run is
+    // doing, and a run started with -l must not become the preference just
+    // because the preferences were opened.
     ViewLog::setActive(checked);
     opts.doLogging = ViewLog::isActive();
 

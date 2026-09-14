@@ -44,7 +44,11 @@ int main(int argc, char *argv[])
     QCoreApplication::addLibraryPath(".");
 
     // Before the QApplication, so that what Qt itself says on the way up is
-    // kept as well. It only does something when -l or --logging is there.
+    // kept as well. -l or --logging switches it on for this run; without them
+    // it does what the box in the preferences was left at. That box is
+    // opts.doLogging, read from the ini further down and written back at exit,
+    // and -l does not touch it : a run with it does not turn the box on for
+    // the next one, only a click in the preferences does.
     ViewLog::install(argc, argv);
 
     QApplication app(argc, argv);
@@ -58,11 +62,6 @@ int main(int argc, char *argv[])
 
     opts.Initialize();
     poi.Initialize();
-
-    // The command line decides, not the ini file : a run started without -l
-    // writes no log, whatever /debugging/dologging was left at. This only tells
-    // the rest of the application what ViewLog::install() already did.
-    opts.doLogging = ViewLog::isActive();
 
     if (QCoreApplication::arguments().contains(QStringLiteral("--noopengl")) ||
         QCoreApplication::arguments().contains(QStringLiteral("-nogl")) )

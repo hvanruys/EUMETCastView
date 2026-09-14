@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QSettings>
 #include <QTextStream>
 
 #include <cstdlib>
@@ -52,6 +53,17 @@ namespace
         return false;
     }
 
+    // What the box in the preferences was left at : /debugging/dologging in
+    // EUMETCastView.ini, the same key Options reads and writes back at exit.
+    // Read here rather than through Options because this runs before the
+    // QApplication, and Options::Initialize() long after it. The ini sits in
+    // the working directory, next to where the logfile goes.
+    bool preferred()
+    {
+        QSettings settings(QStringLiteral("EUMETCastView.ini"), QSettings::IniFormat);
+        return settings.value(QStringLiteral("/debugging/dologging"), false).toBool();
+    }
+
     void handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
     {
         {
@@ -72,8 +84,8 @@ namespace
                 // Line by line, not when the buffer happens to fill : the image
                 // composition runs in threads and does not always come back, so
                 // the last line in the file has to be where it stopped. Nothing
-                // is written at all unless -l was asked for, which is what pays
-                // for the flushing.
+                // is written at all unless logging was asked for, which is what
+                // pays for the flushing.
                 logstream.flush();
                 logfile.flush();
             }
@@ -138,7 +150,10 @@ namespace
 
 void ViewLog::install(int argc, char *argv[])
 {
-    if (wanted(argc, argv))
+    // The command line is for this run, the preference for every run : -l
+    // switches it on without touching what is saved, and a run started
+    // without it does what the box was left at.
+    if (wanted(argc, argv) || preferred())
         startLogging();
 }
 

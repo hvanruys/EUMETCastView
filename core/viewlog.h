@@ -6,8 +6,9 @@
 
 // Everything EUMETCastView says through qDebug(), qWarning(), qCritical() and
 // qFatal() written to a file of its own - but only when -l or --logging is on
-// the command line, or when it is switched on afterwards in the preferences.
-// Without either nothing is installed, no file is opened and every message goes
+// the command line, when the box in the preferences was left ticked at the
+// last exit, or when it is switched on afterwards in the preferences. Without
+// any of these nothing is installed, no file is opened and every message goes
 // exactly where it went before.
 //
 // On Windows the application is built for the GUI subsystem and so has no
@@ -17,13 +18,16 @@
 namespace ViewLog
 {
     // Opens logging.txt in the working directory and sends the message stream
-    // there, if -l or --logging is among the arguments. Call it before the
-    // QApplication, so that what Qt itself says on the way up is kept.
+    // there, if -l or --logging is among the arguments or /debugging/dologging
+    // in EUMETCastView.ini - next to it, in the same directory - is true. Call
+    // it before the QApplication, so that what Qt itself says on the way up is
+    // kept.
     void install(int argc, char *argv[]);
 
     // Switches the logfile on and off while the application runs, which is what
     // the checkbox in the preferences does. Switching it on again appends to
-    // the file rather than emptying it.
+    // the file rather than emptying it. Whether it is on at the next start is
+    // Options' business : opts.doLogging goes back into the ini at exit.
     void setActive(bool on);
 
     // True when the messages are going to the file at this moment.

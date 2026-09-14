@@ -2,12 +2,14 @@
 
 ## 2.1.7
 
-Two things. The CLAHE button on the geostationary tab now runs on every core
+Three things. The CLAHE button on the geostationary tab now runs on every core
 and keeps a fraction of the memory it used to, which is what it takes to
 equalise a Meteosat-12 image — and on the way a drift in the kernel that has
-skewed every image with an odd region size came out. And the banding that
-METimage leaves over sunglint, a sawtooth at the scan period in every VII image
-and projection, can be taken out at read time.
+skewed every image with an odd region size came out. The banding that METimage
+leaves over sunglint, a sawtooth at the scan period in every VII image and
+projection, can be taken out at read time. And the logging box in the
+preferences stays ticked from one run to the next, which is how an AppImage
+started from the desktop gets a `logging.txt` at all.
 
 ### Geostationary CLAHE
 
@@ -85,6 +87,24 @@ and projection, can be taken out at read time.
   move by at most one level, and it costs 45 ms per channel per granule. The
   **Destripe scans** box next to Rayleigh correction on the VII tab, off by
   default, for the single bands and the RGB recipes alike.
+
+### Logging
+
+- **The logging box sticks.** Since 2.1.4 only `-l` on the command line opened
+  `logging.txt`; the box in the preferences switched the file on and off for
+  the run, and `/debugging/dologging` in the ini was overwritten at exit with
+  whatever the run had done, so it never decided anything. An AppImage started
+  from the file manager has no command line, and so no way to log at all. Now
+  the box is the preference : `ViewLog::install()` reads the key from
+  `EUMETCastView.ini` in the working directory — next to where the logfile goes,
+  and before the `QApplication`, so what Qt says on the way up is kept as it is
+  with `-l` — and a run without `-l` does what the box was left at. `-l` is for
+  the run it is on : it opens the file without turning the box on for the next
+  one, and only a click on the box changes what is saved, which is why the slot
+  moved from `toggled` to `clicked` — the dialog sets the box to what the run is
+  doing when it opens, and that must not count. Verified with the `viewlog.cpp`
+  probe, four ways, and with the built application started headless from a
+  directory holding only the ini.
 
 ## 2.1.6
 
