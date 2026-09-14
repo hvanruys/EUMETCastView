@@ -86,6 +86,7 @@ private slots:
     void on_actionImage_triggered();
 
     void on_actionShowToolbox_triggered();
+    void on_actionShowSidePanel_triggered(bool checked);
 
     void on_actionCreatePNG_triggered();
     void on_actionSettingsMovie_triggered();

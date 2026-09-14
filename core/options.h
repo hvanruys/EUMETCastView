@@ -136,6 +136,9 @@ public:
     bool buttonRealTime;
     bool buttonShowAllSegments;
     bool buttonPhong;
+    // The column of buttons next to the map and the globe, hidden and shown
+    // from the main toolbar.
+    bool sidePanelOn;
     int nbrofvisiblesegments;
     int realminutesshown;
     int nbrofhours;

@@ -289,6 +289,14 @@ MainWindow::MainWindow(QWidget *parent) :
     restoreState(opts.mainwindowstate);
     //restoreDockWidget(dockwidget);
 
+    // The two buttons in the main toolbar say what is shown. The toolbox one
+    // follows the dock - restoreState() has just decided whether it is up, and
+    // the dock's own close button hides it without going through the action -
+    // and the map panel one what FormMapCyl read from the ini.
+    ui->actionShowToolbox->setChecked(!dockwidget->isHidden());
+    connect(dockwidget, &QDockWidget::visibilityChanged, ui->actionShowToolbox, &QAction::setChecked);
+    ui->actionShowSidePanel->setChecked(formglobecyl->isSidePanelVisible());
+
     ui->toolBar->setVisible(true);
     ui->mainToolBar->setVisible(true);
 
@@ -312,7 +320,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->action3DGlobe->setChecked(false);
     ui->actionImage->setChecked(false);
     ui->actionSettingsMovie->setChecked(false);
-    ui->actionShowToolbox->setChecked(false);
 
     qDebug() << "DesktopLoacation     = " << QStandardPaths::standardLocations((QStandardPaths::DesktopLocation));
     qDebug() << "DocumentsLoacation   = " << QStandardPaths::standardLocations((QStandardPaths::DocumentsLocation));
@@ -571,7 +578,6 @@ void MainWindow::on_actionSatSelection_triggered()
     ui->action3DGlobe->setChecked(false);
     ui->actionImage->setChecked(false);
     ui->actionSettingsMovie->setChecked(false);
-    ui->actionShowToolbox->setChecked(false);
 
 }
 
@@ -585,7 +591,6 @@ void MainWindow::on_actionMeteosat_triggered()
     ui->action3DGlobe->setChecked(false);
     ui->actionImage->setChecked(false);
     ui->actionSettingsMovie->setChecked(false);
-    ui->actionShowToolbox->setChecked(false);
 }
 
 void MainWindow::on_actionCylindricalEquidistant_triggered()
@@ -598,7 +603,6 @@ void MainWindow::on_actionCylindricalEquidistant_triggered()
     ui->action3DGlobe->setChecked(false);
     ui->actionImage->setChecked(false);
     ui->actionSettingsMovie->setChecked(false);
-    ui->actionShowToolbox->setChecked(false);
 
 
 }
@@ -613,7 +617,6 @@ void MainWindow::on_action3DGlobe_triggered()
     ui->action3DGlobe->setChecked(true);
     ui->actionImage->setChecked(false);
     ui->actionSettingsMovie->setChecked(false);
-    ui->actionShowToolbox->setChecked(false);
 
     if(opts.doOpenGL)
     {
@@ -637,7 +640,6 @@ void MainWindow::on_actionSettingsMovie_triggered()
     ui->action3DGlobe->setChecked(false);
     ui->actionImage->setChecked(false);
     ui->actionSettingsMovie->setChecked(true);
-    ui->actionShowToolbox->setChecked(false);
 
     formtoolbox->setTabWidgetIndex(TAB_GEOSTATIONARY);
     formmovie->getProjectionData();
@@ -698,7 +700,6 @@ void MainWindow::on_actionImage_triggered()
     ui->action3DGlobe->setChecked(false);
     ui->actionImage->setChecked(true);
     ui->actionSettingsMovie->setChecked(false);
-    ui->actionShowToolbox->setChecked(false);
 
 }
 
@@ -715,19 +716,18 @@ void MainWindow::updateStatusBarCoordinate(const QString &text)
 
 void MainWindow::on_actionShowToolbox_triggered()
 {
-    ui->actionSatSelection->setChecked(false);
-    ui->actionMeteosat->setChecked(false);
-    ui->actionCylindricalEquidistant->setChecked(false);
-    ui->action3DGlobe->setChecked(false);
-    ui->actionImage->setChecked(false);
-    ui->actionSettingsMovie->setChecked(false);
-    ui->actionShowToolbox->setChecked(true);
-
+    // The action's checked state follows the dock through visibilityChanged,
+    // so the button is right whichever way the dock went - this, or its own
+    // close button.
     if (dockwidget->isHidden())
         dockwidget->show();
     else
         dockwidget->hide();
+}
 
+void MainWindow::on_actionShowSidePanel_triggered(bool checked)
+{
+    formglobecyl->setSidePanelVisible(checked);
 }
 
 void MainWindow::on_actionCreatePNG_triggered()

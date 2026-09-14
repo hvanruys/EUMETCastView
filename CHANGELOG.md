@@ -9,8 +9,10 @@ skewed every image with an odd region size came out. The banding that METimage
 leaves over sunglint, a sawtooth at the scan period in every VII image and
 projection, can be taken out at read time. And the logging box in the
 preferences stays ticked from one run to the next, which is how an AppImage
-started from the desktop gets a `logging.txt` at all. A small one besides :
-the Preferences dialog opens as small as it can, in the top left corner.
+started from the desktop gets a `logging.txt` at all. Two small ones besides :
+the Preferences dialog opens as small as it can, in the top left corner, and
+the main toolbar has buttons to hide the toolbox and the column of buttons
+next to the map and the globe.
 
 ### Geostationary CLAHE
 
@@ -118,6 +120,25 @@ the Preferences dialog opens as small as it can, in the top left corner.
   is remembered between runs : every open is the minimum. Checked with a probe
   that links the application's objects and opens the real dialog under a parent
   window headless.
+
+### Main toolbar
+
+- **The map panel can be hidden.** The column to the right of the cylindrical
+  map and the globe — the sensor tabs and the Clear Texture … Show All Segments
+  buttons — is wrapped in a widget now, and a new button in the main toolbar,
+  *Show Map Panel*, hides and shows it; hidden, the map or globe takes its width
+  to the pixel. Whether it is hidden is `/window/sidepanelon` in the ini, so it
+  comes back the way it was left.
+- **The toolbox button is in the main toolbar too**, next to it, and it means
+  what it shows now : checked while the toolbox is up. It used to be unchecked
+  by every view switch and to uncheck every view button when clicked, so it
+  read "checked" only until the next click anywhere; it follows the dock's
+  `visibilityChanged` instead, so the dock's own close button unchecks it as
+  well, and the view buttons keep their radio behaviour among themselves.
+  Checked headless with a probe that drives the real `MainWindow` through the
+  actions : the panel's width goes to the map and comes back, the buttons track
+  the dock and the panel through every way of hiding them, the ini round trip,
+  and a window built with the panel hidden in the ini starts that way.
 
 ## 2.1.6
 

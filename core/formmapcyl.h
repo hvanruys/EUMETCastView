@@ -31,6 +31,12 @@ public:
     void setCylOrGlobe(int ind);
     bool CheckUserAndPassword();
 
+    // The column of buttons to the right of the map and the globe : hidden,
+    // the map or globe takes its width. What is set here is what
+    // /window/sidepanelon in the ini says at the next start.
+    void setSidePanelVisible(bool on);
+    bool isSidePanelVisible() const;
+
 private:
     Ui::FormMapCyl *ui;
     AVHRRSatellite *segs;

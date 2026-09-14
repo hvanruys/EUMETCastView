@@ -36,6 +36,7 @@ void Options::Initialize()
     buttonRealTime=settings.value("/window/buttonrealtime", true ).toBool();
     buttonPhong=settings.value("/window/buttonphong", false ).toBool();
     buttonShowAllSegments=settings.value("/window/buttonshowallsegments", false ).toBool();
+    sidePanelOn=settings.value("/window/sidepanelon", true ).toBool();
     nbrofvisiblesegments=settings.value("/segments/nbrofvisiblesegments", 10).toInt();
     nbrofhours=settings.value("/segments/nbrofhours", 0).toInt();
 
@@ -480,6 +481,7 @@ void Options::Save()
     settings.setValue( "/window/buttonrealtime", buttonRealTime );
     settings.setValue( "/window/buttonphong", buttonPhong );
     settings.setValue( "/window/buttonshowallsegments", buttonShowAllSegments );
+    settings.setValue( "/window/sidepanelon", sidePanelOn );
 
     settings.setValue( "/observer/longitude", obslon );
     settings.setValue( "/observer/latitude", obslat );

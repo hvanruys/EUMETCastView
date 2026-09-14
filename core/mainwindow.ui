@@ -57,6 +57,9 @@
    <addaction name="actionNormalSize"/>
    <addaction name="actionFitWindow"/>
    <addaction name="separator"/>
+   <addaction name="actionShowToolbox"/>
+   <addaction name="actionShowSidePanel"/>
+   <addaction name="separator"/>
    <addaction name="actionWhatsthis"/>
    <addaction name="separator"/>
    <addaction name="actionFonts_plus"/>
@@ -210,6 +213,21 @@
    </property>
    <property name="toolTip">
     <string>Toggle Toolbox</string>
+   </property>
+  </action>
+  <action name="actionShowSidePanel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="EUMETCastView.qrc">
+     <normaloff>:/icons/sidepanel.png</normaloff>:/icons/sidepanel.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Map Panel</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the buttons next to the map and globe</string>
    </property>
   </action>
   <action name="actionMeteosat">

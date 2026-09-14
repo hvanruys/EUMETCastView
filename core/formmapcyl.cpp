@@ -138,6 +138,8 @@ FormMapCyl::FormMapCyl(QWidget *parent, MapFieldCyl *p_mapcyl, Globe *p_globe, F
     ui->btnPhong->setChecked(opts.buttonPhong);
     ui->btnAllSegments->setChecked(opts.buttonShowAllSegments);
 
+    ui->sidePanel->setVisible(opts.sidePanelOn);
+
     ui->btnMakeImage->setEnabled(true);
 
     connect( ui->btnMetop, SIGNAL( clicked() ), formtoolbox, SLOT( setChannelComboBoxes() ) );
@@ -220,6 +222,17 @@ void FormMapCyl::keyPressEvent(QKeyEvent *event)
         globe->keyPressEvent(event);
     }
 }
+void FormMapCyl::setSidePanelVisible(bool on)
+{
+    ui->sidePanel->setVisible(on);
+    opts.sidePanelOn = on;
+}
+
+bool FormMapCyl::isSidePanelVisible() const
+{
+    return !ui->sidePanel->isHidden();
+}
+
 void FormMapCyl::setCylOrGlobe(int ind)
 {
     ui->stackedWidget->setCurrentIndex(ind);
