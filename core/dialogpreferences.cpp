@@ -201,6 +201,16 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
 
     opts.globalChangeFonts(this, opts.fontsize);
 
+    // As small as the layout allows and in the top left corner of the main
+    // window, so it covers as little of the image as possible while a setting
+    // is tried out. setupUi() resized it to the geometry saved in the .ui
+    // file, well above the minimum; and a QDialog with a parent centres itself
+    // on it when shown, unless it was moved beforehand - move() sets WA_Moved,
+    // which is what QDialog checks. After the fonts, because the hints are
+    // only right once the dialog draws with the fonts it will draw with.
+    resize(minimumSizeHint());
+    if (parent != nullptr)
+        move(parent->mapToGlobal(QPoint(0, 0)));
 }
 
 DialogPreferences::~DialogPreferences()

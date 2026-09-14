@@ -9,7 +9,8 @@ skewed every image with an odd region size came out. The banding that METimage
 leaves over sunglint, a sawtooth at the scan period in every VII image and
 projection, can be taken out at read time. And the logging box in the
 preferences stays ticked from one run to the next, which is how an AppImage
-started from the desktop gets a `logging.txt` at all.
+started from the desktop gets a `logging.txt` at all. A small one besides :
+the Preferences dialog opens as small as it can, in the top left corner.
 
 ### Geostationary CLAHE
 
@@ -105,6 +106,18 @@ started from the desktop gets a `logging.txt` at all.
   doing when it opens, and that must not count. Verified with the `viewlog.cpp`
   probe, four ways, and with the built application started headless from a
   directory holding only the ini.
+
+### Preferences
+
+- **The dialog opens at its minimum, top left.** `setupUi()` resized it to the
+  1434×1230 saved in the `.ui` file and `QDialog` centred it on the main window,
+  so it sat over most of the image. It now opens at the smallest size its layout
+  allows — 1088×909 at 12 pt, the 3D page being the tallest of the twelve and
+  the MERSI page the widest — with its frame at the top left corner of the main
+  window's client area, and can be dragged larger from there as before. Nothing
+  is remembered between runs : every open is the minimum. Checked with a probe
+  that links the application's objects and opens the real dialog under a parent
+  window headless.
 
 ## 2.1.6
 
