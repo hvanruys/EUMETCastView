@@ -12,6 +12,7 @@
 #include <QPrintDialog>
 #include <QFileDialog>
 #include <QWheelEvent>
+#include <QMouseEvent>
 #include <QtMath>
 #include <QGenericMatrix>
 
@@ -27,7 +28,7 @@ extern SatelliteList SatelliteList;
 //connect(ui->hslRed, SIGNAL(valueChanged(int)), sm, SLOT(setRedValue(int)));
 
 FormImage::FormImage(QWidget *parent, AVHRRSatellite *seglist) :
-    QGraphicsView(parent), m_rotateAngle(0), m_ViewInitialized(false)
+    QGraphicsView(parent), m_rotateAngle(0), m_ViewInitialized(false), m_handScrolling(false)
 {
     m_scene = new QGraphicsScene(this);
     this->setScene(m_scene);
@@ -348,6 +349,30 @@ void FormImage::wheelEvent(QWheelEvent *event)
 
     this->setWindowTitle();
     event->accept();
+}
+
+// The overlay is recomputed on every repaint, and a hand drag repaints on
+// every mouse move, so it is left out while the left button is down and
+// drawn once more when the button goes up. Only a left press on a
+// ScrollHandDrag view starts a drag, so only that sets the flag; any left
+// release clears it, whatever the drag mode has become in the meantime.
+void FormImage::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton && dragMode() == ScrollHandDrag)
+        m_handScrolling = true;
+
+    QGraphicsView::mousePressEvent(event);
+}
+
+void FormImage::mouseReleaseEvent(QMouseEvent *event)
+{
+    QGraphicsView::mouseReleaseEvent(event);
+
+    if(event->button() == Qt::LeftButton && m_handScrolling)
+    {
+        m_handScrolling = false;
+        viewport()->update();
+    }
 }
 
 void FormImage::zoomIn()
@@ -1522,6 +1547,9 @@ void FormImage::drawForeground(QPainter *painter, const QRectF &rect)
         return;
 
     if(m_image->isNull())
+        return;
+
+    if(m_handScrolling)
         return;
 
     drawOverlays(painter);

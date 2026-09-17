@@ -118,6 +118,7 @@ private:
     QGraphicsScene *m_scene;
     int m_rotateAngle;
     bool m_ViewInitialized;
+    bool m_handScrolling;     // left button down in ScrollHandDrag: no overlay until it is released
     QString m_fileName;
     FormImage *formimage;
     FormToolbox *formtoolbox;
@@ -168,6 +169,8 @@ public slots:
 protected:
     virtual void wheelEvent(QWheelEvent * event);
     virtual void resizeEvent(QResizeEvent * event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void drawForeground(QPainter *painter, const QRectF &rect);
 
 signals:
