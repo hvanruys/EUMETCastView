@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>725</width>
-    <height>1496</height>
+    <height>1474</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -49,7 +49,7 @@
       <enum>QTabWidget::TabPosition::West</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>6</number>
      </property>
      <property name="elideMode">
       <enum>Qt::TextElideMode::ElideNone</enum>
@@ -1534,6 +1534,18 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="label_64">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>METimage recipes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QFrame" name="frame_4">
          <property name="enabled">
           <bool>true</bool>
@@ -1546,92 +1558,76 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_28">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_29">
+           <widget class="QListWidget" name="lstVIIRGB">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_104">
             <item>
-             <widget class="QListWidget" name="lstVIIRGB">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>50</height>
-               </size>
-              </property>
+             <widget class="QCheckBox" name="chkVIIRayleigh">
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
                </font>
               </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_104">
-              <item>
-               <widget class="QLabel" name="label_64">
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>METimage recipes</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkVIIRayleigh">
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Remove Rayleigh (molecular) scattering from the solar channels of the recipes that ask for it,
+              <property name="toolTip">
+               <string>Remove Rayleigh (molecular) scattering from the solar channels of the recipes that ask for it,
 currently True Color, where it decides whether the ocean looks navy or milky. 
 The other recipes are deliberately left on top-of-atmosphere reflectance, 
 which is how they are defined, and are unaffected. 
 Sun-normalisation is not part of this switch: it is the unit the recipe 
 stretches are written against, so it always runs.</string>
-                </property>
-                <property name="text">
-                 <string>Rayleigh correction</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="chkVIIDestripe">
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Remove the scan banding over sunglint: the 24 detectors of a scan look along track
+              </property>
+              <property name="text">
+               <string>Rayleigh correction</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="chkVIIDestripe">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string>Remove the scan banding over sunglint: the 24 detectors of a scan look along track
 under slightly different angles, and glint answers with a brightness ramp that
 resets every scan - a sawtooth at the scan period in every image and projection.
 The ramp is measured in each granule and taken out of the solar channels before
 they are composed, for the single bands and the RGB recipes alike. Clouds and
 land carry no such ramp and are left alone.</string>
-                </property>
-                <property name="text">
-                 <string>Destripe scans</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btnVIIRecipes">
-                <property name="font">
-                 <font>
-                  <pointsize>14</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Make RGB recipe</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+              </property>
+              <property name="text">
+               <string>Destripe scans</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnVIIRecipes">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Make RGB recipe</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1648,7 +1644,7 @@ land carry no such ramp and are left alone.</string>
        <item>
         <widget class="QTabWidget" name="tabWidgetVIIRS">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tabVIIRSM">
           <attribute name="title">
@@ -6781,6 +6777,13 @@ land carry no such ramp and are left alone.</string>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
+             <widget class="QLabel" name="lblTitleRecipes">
+              <property name="text">
+               <string>Meteosat/Seviri recipes</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QListWidget" name="lstRGB">
               <property name="minimumSize">
                <size>
@@ -6797,18 +6800,6 @@ land carry no such ramp and are left alone.</string>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_103">
-              <item>
-               <widget class="QLabel" name="label_63">
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Meteosat/Seviri recipes</string>
-                </property>
-               </widget>
-              </item>
               <item>
                <widget class="QCheckBox" name="chkGeoRayleigh">
                 <property name="font">
@@ -8747,7 +8738,7 @@ Also sun-normalises the reflectance, which brightens the image away from the sub
                  <x>0</x>
                  <y>0</y>
                  <width>615</width>
-                 <height>505</height>
+                 <height>497</height>
                 </rect>
                </property>
                <attribute name="label">

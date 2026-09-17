@@ -800,17 +800,17 @@ void FormToolbox::setupRGBRecipeList(int geoindex)
         for(int i = 0; i < imageptrs->fci_rgbrecipes.count(); i++)
             new QListWidgetItem(imageptrs->fci_rgbrecipes.at(i).Name, ui->lstRGB);
 
-        ui->label_63->setText("MTG/FCI recipes");
+        ui->lblTitleRecipes->setText("MTG/FCI recipes");
     }
     else if(recipefamily == RECIPE_SEVIRI)
     {
         for(int i = 0; i < imageptrs->seviri_rgbrecipes.count(); i++)
             new QListWidgetItem(imageptrs->seviri_rgbrecipes.at(i).Name, ui->lstRGB);
 
-        ui->label_63->setText("Meteosat/Seviri recipes");
+        ui->lblTitleRecipes->setText("Meteosat/Seviri recipes");
     }
     else
-        ui->label_63->setText("No RGB recipes for this satellite");
+        ui->lblTitleRecipes->setText("No RGB recipes for this satellite");
 
     ui->btnRecipes->setEnabled(recipefamily != RECIPE_NONE);
 
