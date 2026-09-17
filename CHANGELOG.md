@@ -1,5 +1,50 @@
 # Changelog
 
+## 2.1.8
+
+A small one. Dragging the image with the overlay on no longer stalls on every
+mouse move, the recipe lists on the VII and geostationary tabs are laid out
+with their title on top, and the AppImage build can no longer package a binary
+another build tree linked.
+
+### Image view
+
+- **The overlay is left out while the image is being dragged.** The image view
+  repaints on every mouse move of a hand drag, and every repaint recomputed
+  the whole overlay from scratch — for a projection, one `map_forward` per
+  shoreline vertex of all three GSHHS files, which on the Oblique Mercator made
+  the drag crawl. A left press in grab mode now sets a flag, `drawForeground`
+  skips the overlay while it is set, and the release clears it and repaints
+  the viewport once, so the overlay comes back at the new position. It applies
+  to every overlay that goes through `drawForeground` — the four projections,
+  the geostationary grid with its header text, OLCI and VII. The right and
+  middle buttons, a right click during the drag, and the PNG save, which draws
+  the overlay by its own call, are untouched. Pinned by a probe that drives
+  the real `FormImage` headless with synthetic mouse events and counts what
+  the foreground paints, fifteen cases.
+
+### Toolbox
+
+- **The recipe titles sit above their lists.** On the VII tab the "METimage
+  recipes" label was in the row of check boxes under the list; it heads the
+  tab now, the list below it, the Rayleigh, destripe and Make-recipe controls
+  in one row under that. The geostationary tab has the same shape, and its
+  title label is named `lblTitleRecipes` rather than `label_63`, since
+  `setupRGBRecipeList` writes the recipe family into it.
+
+### Build
+
+- **The AppImage build links its own binaries and checks them before
+  packaging.** Every build tree links into the one `bin/`, so a binary another
+  tree linked more recently — the native build finishing while the container
+  one was running — was newer than the container tree's objects, passed for
+  up to date and was packaged as if it were ours; inside Ubuntu 20.04 that
+  surfaced as linuxdeploy's "Could not find dependency: libnetcdf.so.19", and
+  rerunning did not help because make saw nothing to relink. The script
+  removes the two executables before building, so its own tree has to link
+  them, and asks `ldd` for anything "not found" before it assembles the
+  AppDir, which names the cause in place of linuxdeploy's message.
+
 ## 2.1.7
 
 Three things. The CLAHE button on the geostationary tab now runs on every core
