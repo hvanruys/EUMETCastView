@@ -44,191 +44,35 @@ How it drives the mouse: `QMouseEvent`s sent with `QApplication::sendEvent` to t
 
 **Files:**
 - Create: `/home/hugo/EUMETCastTools/viiprobes/dragprobe.cpp`
-- Modify: `/home/hugo/EUMETCastTools/viiprobes/build.sh:44,50`
+- Modify: `/home/hugo/EUMETCastTools/viiprobes/build.sh:40,49`
 
-- [ ] **Step 1: Write the probe**
+- [x] **Step 1: Write the probe**
 
-`/home/hugo/EUMETCastTools/viiprobes/dragprobe.cpp`:
+`/home/hugo/EUMETCastTools/viiprobes/dragprobe.cpp` — the file as it exists is
+the reference; it was written from this plan and then corrected in review:
 
-```cpp
-// Probe: FormImage leaves its overlay out while the image is hand-dragged
-// with the left mouse button, and draws it again on release. Links the
-// application's own objects, so the mousePressEvent / mouseReleaseEvent /
-// drawForeground under test are exactly what the image view runs.
-//
-//   cd EUMETCastView/bin
-//   QT_QPA_PLATFORM=offscreen /home/hugo/EUMETCastTools/viiprobes/dragprobe
-//
-// Exit status 0 when every case holds.
+- `FormImage::OverlayProjection` dereferences `formtoolbox` (via
+  `GridOnProjLCC/GVP/SG/OM()`) for every `opts.currenttoolbox` 0..3, so the
+  plan's premise that the projection path touches no `FormToolbox` was wrong.
+  The probe builds a real `FormToolbox` on a real `FormGeostationary`, wired
+  as `MainWindow` does it.
+- `FormToolbox`'s constructor selects toolbox page `opts.currenttoolbox`
+  (`formtoolbox.cpp:311`); the slot re-initialises that projection from the
+  INI and calls `displayImage`. So `opts.currenttoolbox = 2` is set *before*
+  the toolbox is built (any other page would call `Initialize` on a null
+  `lcc/gvp/om`) and the probe's own `sg->Initialize(0, 50, 1, 800, 600, 0, 0)`
+  runs *after* it, immediately before `displayImage` (until then `m_image`
+  points at the image `Initialize` deletes).
+- A private `countPainted(bool foreground)` backs `overlayPixels()`
+  (`drawForeground`, the gated path) and `saveOverlayPixels()`
+  (`drawOverlays`, the PNG-save path that must stay ungated).
+- Three extra cases: a right click during a left drag must not restore the
+  overlay; a left release with the pointer outside the view restores it; the
+  drawOverlays path still draws while the left button is held.
 
-#include <QApplication>
-#include <QImage>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QDebug>
-#include <QFile>
-#include <QTextStream>
-#include <QNetworkAccessManager>
-#include <QMutex>
+15 checks in all.
 
-#include "options.h"
-#include "segmentimage.h"
-#include "gshhsdata.h"
-#include "satellite.h"
-#include "poi.h"
-#include "avhrrsatellite.h"
-#include "stereographic.h"
-#include "formimage.h"
-
-QMutex g_mutex;
-Options opts;
-Poi poi;
-SegmentImage *imageptrs;
-gshhsData *gshhsdata;
-QFile loggingFile;
-QTextStream outlogging(&loggingFile);
-QNetworkAccessManager networkaccessmanager;
-SatelliteList satellitelist;
-bool ptrimagebusy;
-
-// The view under test. drawForeground is protected; this paints it into an
-// image of the probe's own and counts what came out.
-class DragProbe : public FormImage
-{
-public:
-    explicit DragProbe(AVHRRSatellite *segs) : FormImage(nullptr, segs) {}
-
-    // Pixels drawForeground paints into a transparent image the size of the
-    // projection. 0 means no overlay.
-    int overlayPixels()
-    {
-        QImage img(imageptrs->ptrimageProjection->size(), QImage::Format_ARGB32);
-        img.fill(Qt::transparent);
-        QPainter p(&img);
-        drawForeground(&p, img.rect());
-        p.end();
-        int n = 0;
-        for(int y = 0; y < img.height(); y++)
-            for(int x = 0; x < img.width(); x++)
-                if(qAlpha(img.pixel(x, y)) != 0)
-                    n++;
-        return n;
-    }
-};
-
-// Counts the paint events the viewport gets, to see that a release
-// repaints it.
-class PaintCounter : public QObject
-{
-public:
-    int paints = 0;
-protected:
-    bool eventFilter(QObject *, QEvent *e) override
-    {
-        if(e->type() == QEvent::Paint)
-            paints++;
-        return false;
-    }
-};
-
-// A mouse event delivered to w the way the window system would deliver it.
-static void mouse(QWidget *w, QEvent::Type type, Qt::MouseButton button, Qt::MouseButtons held, const QPoint &pos)
-{
-    QMouseEvent ev(type, pos, w->mapToGlobal(pos), button, held, Qt::NoModifier);
-    QApplication::sendEvent(w, &ev);
-}
-
-static int failures = 0;
-static void check(bool ok, const char *what)
-{
-    qInfo() << (ok ? "ok  " : "FAIL") << what;
-    if(!ok)
-        failures++;
-}
-
-int main(int argc, char *argv[])
-{
-    ptrimagebusy = false;
-    qputenv("HDF5_DISABLE_VERSION_CHECK", QByteArray("1"));
-    QApplication app(argc, argv);
-
-    opts.Initialize();
-    poi.Initialize();
-    satellitelist.Initialize();
-
-    imageptrs = new SegmentImage();
-    gshhsdata = new gshhsData();
-
-    AVHRRSatellite *segs = new AVHRRSatellite();
-
-    // A stereographic projection centred on 50N 0E, 800 x 600: Initialize
-    // allocates ptrimageProjection at that size. The observer cross that
-    // OverlayProjection draws goes to the centre, so something is drawn
-    // even if no shoreline file was found.
-    imageptrs->sg = new StereoGraphic(nullptr, segs);
-    imageptrs->sg->Initialize(0.0, 50.0, 1.0, 800, 600, 0, 0);
-    opts.currenttoolbox = 2;    // SG
-    opts.obslat = 50.0;
-    opts.obslon = 0.0;
-
-    DragProbe view(segs);
-    view.resize(400, 300);
-    view.show();
-    view.displayImage(IMAGE_PROJECTION, true);   // m_image, m_ViewInitialized, ScrollHandDrag
-    QApplication::processEvents();
-
-    QWidget *vp = view.viewport();
-    PaintCounter counter;
-    vp->installEventFilter(&counter);
-    const QPoint a(100, 100), b(140, 120);
-
-    const int baseline = view.overlayPixels();
-    qInfo() << "overlay pixels with no button held :" << baseline;
-    check(baseline > 0, "overlay is drawn before any mouse button");
-    check(view.dragMode() == QGraphicsView::ScrollHandDrag, "view is in ScrollHandDrag after displayImage");
-
-    // The case this probe exists for.
-    mouse(vp, QEvent::MouseButtonPress, Qt::LeftButton, Qt::LeftButton, a);
-    check(view.overlayPixels() == 0, "left button held: overlay not drawn");
-    mouse(vp, QEvent::MouseMove, Qt::NoButton, Qt::LeftButton, b);
-    check(view.overlayPixels() == 0, "left button held, after a move: overlay still not drawn");
-
-    QApplication::processEvents();      // flush the repaints the move itself caused
-    counter.paints = 0;
-    mouse(vp, QEvent::MouseButtonRelease, Qt::LeftButton, Qt::NoButton, b);
-    check(view.overlayPixels() == baseline, "left button released: overlay drawn again");
-    QApplication::processEvents();
-    check(counter.paints >= 1, "left button released: viewport repainted");
-
-    // Other buttons leave it alone.
-    mouse(vp, QEvent::MouseButtonPress, Qt::RightButton, Qt::RightButton, a);
-    check(view.overlayPixels() == baseline, "right button held: overlay drawn");
-    mouse(vp, QEvent::MouseButtonRelease, Qt::RightButton, Qt::NoButton, a);
-    mouse(vp, QEvent::MouseButtonPress, Qt::MiddleButton, Qt::MiddleButton, a);
-    check(view.overlayPixels() == baseline, "middle button held: overlay drawn");
-    mouse(vp, QEvent::MouseButtonRelease, Qt::MiddleButton, Qt::NoButton, a);
-
-    // NoDrag: a left press starts no drag, so there is nothing to hide.
-    view.setDragMode(QGraphicsView::NoDrag);
-    mouse(vp, QEvent::MouseButtonPress, Qt::LeftButton, Qt::LeftButton, a);
-    check(view.overlayPixels() == baseline, "NoDrag, left button held: overlay drawn");
-    mouse(vp, QEvent::MouseButtonRelease, Qt::LeftButton, Qt::NoButton, a);
-    view.setDragMode(QGraphicsView::ScrollHandDrag);
-
-    // Drag mode dropped mid-drag (an image recomposed under the mouse): the
-    // release still brings the overlay back.
-    mouse(vp, QEvent::MouseButtonPress, Qt::LeftButton, Qt::LeftButton, a);
-    check(view.overlayPixels() == 0, "left button held (second drag): overlay not drawn");
-    view.setDragMode(QGraphicsView::NoDrag);
-    mouse(vp, QEvent::MouseButtonRelease, Qt::LeftButton, Qt::NoButton, b);
-    check(view.overlayPixels() == baseline, "left button released after the drag mode changed: overlay drawn again");
-
-    qInfo() << (failures ? "FAILED" : "PASSED") << "-" << failures << "failure(s)";
-    return failures ? 1 : 0;
-}
-```
-
-- [ ] **Step 2: Add the probe to `build.sh`**
+- [x] **Step 2: Add the probe to `build.sh`**
 
 In `/home/hugo/EUMETCastTools/viiprobes/build.sh`, the loop and the closing echo:
 
@@ -240,7 +84,7 @@ for probe in viitex_probe viitex_probe2 claheprobe viiom_probe dragprobe; do
 echo "done: $HERE/viitex_probe $HERE/viitex_probe2 $HERE/claheprobe $HERE/viiom_probe $HERE/dragprobe"
 ```
 
-- [ ] **Step 3: Build the application (so the objects are current), then the probe**
+- [x] **Step 3: Build the application (so the objects are current), then the probe**
 
 Run:
 ```bash
@@ -249,13 +93,17 @@ cmake --build /home/hugo/EUMETCastTools/EUMETCastView/build/Desktop_Qt_6_9_2-Deb
 ```
 Expected: the application build ends with `Linking CXX executable ../bin/EUMETCastView` (or `ninja: no work to do.`), and `build.sh` prints `compiling dragprobe`, `linking   dragprobe`, then the `done:` line. No compile errors: everything the probe uses (`FormImage::displayImage`, `dragMode()`, `viewport()`, `drawForeground` from a subclass) already exists.
 
-- [ ] **Step 4: Run it — it must fail on the "not drawn" cases**
+- [x] **Step 4: Run it — it must fail on the "not drawn" cases**
 
 Run:
 ```bash
 cd /home/hugo/EUMETCastTools/EUMETCastView/bin && QT_QPA_PLATFORM=offscreen /home/hugo/EUMETCastTools/viiprobes/dragprobe 2>&1 | grep -E '^(ok|FAIL|"?PASSED|"?FAILED|overlay pixels)'
 ```
-Expected: `overlay pixels with no button held :` a positive number; `ok` for "overlay is drawn before any mouse button", "view is in ScrollHandDrag", "overlay drawn again", "right", "middle", "NoDrag"; **`FAIL`** for the three lines "left button held: overlay not drawn", "left button held, after a move: overlay still not drawn" and "left button held (second drag): overlay not drawn"; the last line `FAILED - 3 failure(s)` (4 if "viewport repainted" also fails — today nothing asks for a repaint on release, so that one is allowed to fail here too).
+Expected, and what was seen: `overlay pixels with no button held : 48364`;
+`FAIL` for the five "overlay not drawn" cases (held, after a move, right
+click during the drag, second drag, third drag) and for "viewport
+repainted" (nothing asks for a repaint on release today); `ok` for the other
+nine; `FAILED - 6 failure(s)`, exit status 1.
 
 If instead "overlay is drawn before any mouse button" fails with `overlay pixels ... : 0`, the probe was not run from `bin/`: `opts.Initialize()` found no INI, and `m_image` or the projection is empty. Fix the working directory, not the probe.
 
@@ -269,7 +117,7 @@ No commit: the probe directory is not under git.
 - Modify: `core/formimage.h:119-121` (private members) and `core/formimage.h:168-171` (protected overrides)
 - Modify: `core/formimage.cpp:14` (include), `core/formimage.cpp:29-30` (constructor), after `core/formimage.cpp:321-351` (`wheelEvent`), `core/formimage.cpp:1513-1527` (`drawForeground`)
 
-- [ ] **Step 1: Declare the flag and the overrides**
+- [x] **Step 1: Declare the flag and the overrides**
 
 In `core/formimage.h`, the private members read today:
 
@@ -308,7 +156,7 @@ protected:
     virtual void drawForeground(QPainter *painter, const QRectF &rect);
 ```
 
-- [ ] **Step 2: Initialise the flag**
+- [x] **Step 2: Initialise the flag**
 
 In `core/formimage.cpp`, the constructor's initialiser list, today:
 
@@ -326,7 +174,7 @@ FormImage::FormImage(QWidget *parent, AVHRRSatellite *seglist) :
 
 (`m_handScrolling` is declared right after `m_ViewInitialized`, so the list stays in declaration order.)
 
-- [ ] **Step 3: Add the include and the two overrides**
+- [x] **Step 3: Add the include and the two overrides**
 
 In `core/formimage.cpp`, after `#include <QWheelEvent>` add:
 
@@ -362,7 +210,7 @@ void FormImage::mouseReleaseEvent(QMouseEvent *event)
 }
 ```
 
-- [ ] **Step 4: Gate `drawForeground`**
+- [x] **Step 4: Gate `drawForeground`**
 
 In `core/formimage.cpp`, `FormImage::drawForeground` today:
 
@@ -387,7 +235,7 @@ becomes:
 
 `savePNGImage` calls `drawOverlays` directly and is deliberately left alone.
 
-- [ ] **Step 5: Build the application, then the probe**
+- [x] **Step 5: Build the application, then the probe**
 
 Run:
 ```bash
@@ -396,17 +244,17 @@ cmake --build /home/hugo/EUMETCastTools/EUMETCastView/build/Desktop_Qt_6_9_2-Deb
 ```
 Expected: no `error` lines; both `Linking CXX executable ../bin/EUMETCastView` and `../bin/EUMETCastVideo` (the video tool does not compile `formimage.cpp`, so it only relinks if anything shared changed); `build.sh` ends with its `done:` line.
 
-- [ ] **Step 6: Run the probe — every case passes**
+- [x] **Step 6: Run the probe — every case passes**
 
 Run:
 ```bash
 cd /home/hugo/EUMETCastTools/EUMETCastView/bin && QT_QPA_PLATFORM=offscreen /home/hugo/EUMETCastTools/viiprobes/dragprobe 2>&1 | grep -E '^(ok|FAIL|"?PASSED|"?FAILED|overlay pixels)'
 ```
-Expected: every line `ok`, the last line `PASSED - 0 failure(s)`, exit status 0.
+Expected, and what was seen: all 15 lines `ok`, the last line `PASSED - 0 failure(s)`, exit status 0.
 
 If everything passes except "left button released: viewport repainted", the offscreen platform delivered no paint event for the `update()`; confirm the repaint in the application in Task 3 (the overlay coming back on release *is* that repaint) before deciding the check is wrong. Do not weaken the check without that.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd /home/hugo/EUMETCastTools/EUMETCastView
@@ -433,7 +281,7 @@ The probe covers the flag and the gate; the feel of the drag and the overlay com
 **Files:**
 - Modify: `/home/hugo/EUMETCastTools/viiprobes/README.md` (append a section after the `viiom_probe` one)
 
-- [ ] **Step 1: Run the application from the debug build**
+- [x] **Step 1: Run the application from the debug build**
 
 The debug tree linked last in Task 2, so `bin/EUMETCastView` is that binary. It runs from `bin/`, where the INI is:
 
@@ -443,7 +291,7 @@ cd /home/hugo/EUMETCastTools/EUMETCastView/bin && ./EUMETCastView
 
 (This needs the real display; if the session cannot open one, hand the checklist below to the user and say so.)
 
-- [ ] **Step 2: Walk the spec's checklist**
+- [x] **Step 2: Walk the spec's checklist**
 
 On a projection image (OM, since that is where it was noticed; any of the four will do) with the Overlay button reading "Overlay On":
 
@@ -457,7 +305,7 @@ On a projection image (OM, since that is where it was noticed; any of the four w
 
 Any item that does not behave this way is a defect in Task 2, not in the checklist — go back, do not commit around it.
 
-- [ ] **Step 3: Document the probe**
+- [x] **Step 3: Document the probe**
 
 Append to `/home/hugo/EUMETCastTools/viiprobes/README.md`, after the `viiom_probe` section:
 
