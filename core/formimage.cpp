@@ -202,6 +202,15 @@ void FormImage::originalSize()
 
     this->setDragMode(ScrollHandDrag);
     this->resetTransform();
+    // An identity transform puts one image pixel on one *logical* pixel, and
+    // the window system then blows a logical pixel up by the device pixel
+    // ratio : on a 4K screen scaled 1.25 a 3840 x 2160 projection covered
+    // 4800 x 2700 screen pixels while the title still said 100 %. Divide the
+    // ratio back out here - normal size means one image pixel on one screen
+    // pixel, whatever the screen is scaled by.
+    const qreal dpr = this->devicePixelRatioF();
+    if(dpr > 0.0)
+        this->scale(1.0 / dpr, 1.0 / dpr);
     this->centerOn(m_pixmapItem);
     this->setWindowTitle();
 }
@@ -209,7 +218,11 @@ void FormImage::originalSize()
 void FormImage::setWindowTitle()
 {
     QTransform transf = this->transform();
-    int zoomfactor = (int)(transf.m11()*100);
+    // What the screen shows, not what the transform holds : a scene unit is
+    // one image pixel, and it lands on devicePixelRatio screen pixels. Rounded
+    // rather than truncated - 1.15 * 100 is 114.99999 in doubles, and after
+    // the ratio is divided out normal size lands just either side of 100.
+    int zoomfactor = qRound(transf.m11() * this->devicePixelRatioF() * 100.0);
     QString title = QString("EUMETCast Viewer ( %1 %)").arg(zoomfactor);
     emit signalMainWindowTitleChanged(title);
 
