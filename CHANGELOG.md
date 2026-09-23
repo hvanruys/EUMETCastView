@@ -5,8 +5,9 @@
 An Oblique Mercator projection of a pass over the South Pole is no longer torn
 in two and squashed into a strip. The Inv boxes on the METimage tab now work
 under every histogram method: CLAHE used to ignore them, and None 95% and None
-100% showed an inverted Equalize instead of themselves. The VII CLAHE clip
-limit has a slider of its own. And "normal size" in the image view is one image
+100% showed an inverted Equalize instead of themselves. Saturated VII pixels
+show white instead of as a black hole. The VII CLAHE clip limit has a slider of
+its own. And "normal size" in the image view is one image
 pixel per screen pixel again on a scaled display.
 
 ### Projections
@@ -26,6 +27,16 @@ pixel per screen pixel again on a scaled display.
 
 ### Metop-SG VII
 
+- **Saturated pixels are white, not a black hole.** Over a bright enough
+  target the solar channels climb past the channel's `valid_max` onto a
+  plateau — the detector saturates — and the reader dropped every count above
+  `valid_max` as no data, which the image leaves transparent. The brightest
+  spot in the granule came out black with a white rim, in every solar band.
+  Those counts are held at `valid_max` now, the brightest value the channel
+  shows; the fill value, which also lies above it, still marks missing data.
+  Bands and recipes both read through the same function, so both are fixed.
+  In the granule that showed it, vii_668 went from 2 415 missing pixels to
+  none. Granules without saturation compose exactly as before.
 - **CLAHE follows the Inv boxes.** CLAHE is a whole-image pass: it throws away
   the image the segments composed and rebuilds it from the radiances, and that
   rebuild never read the invert flags, so a ticked Inv box left the CLAHE
