@@ -2,9 +2,12 @@
 
 ## 2.1.9
 
-Two fixes. An Oblique Mercator projection of a pass over the South Pole is no
-longer torn in two and squashed into a strip, and "normal size" in the image
-view is one image pixel per screen pixel again on a scaled display.
+An Oblique Mercator projection of a pass over the South Pole is no longer torn
+in two and squashed into a strip. The Inv boxes on the METimage tab now work
+under every histogram method: CLAHE used to ignore them, and None 95% and None
+100% showed an inverted Equalize instead of themselves. The VII CLAHE clip
+limit has a slider of its own. And "normal size" in the image view is one image
+pixel per screen pixel again on a scaled display.
 
 ### Projections
 
@@ -20,6 +23,28 @@ view is one image pixel per screen pixel again on a scaled display.
   4 107 km one; a North Pole pass comes out byte for byte as before. The fix is
   in the projection itself, so VII, VIIRS M and DNB, MERSI and AVHRR all have
   it, and so do the overlays drawn on it.
+
+### Metop-SG VII
+
+- **CLAHE follows the Inv boxes.** CLAHE is a whole-image pass: it throws away
+  the image the segments composed and rebuilds it from the radiances, and that
+  rebuild never read the invert flags, so a ticked Inv box left the CLAHE
+  image as it was. Each inverted channel is now turned over after the pass.
+  Pixels without data stay transparent, as they are under the other methods —
+  inverted they would otherwise have come out white.
+- **None 95% and None 100% invert as themselves.** An inverted channel took its
+  colour from the equalize table whatever the method, so ticking Inv under
+  None 95% or None 100% showed an inverted Equalize. Each method now picks its
+  colour first and the Inv box turns that over, the way the projections
+  already did it. Inverted Equalize moves by at most one grey level: the old
+  path truncated where the plain one rounds, so it was never exactly the plain
+  image turned over.
+- **A slider for the CLAHE clip limit.** Under the Histogram matching combo,
+  from 1.0 to 10.0 like the geostationary and AVHRR ones, enabled only while
+  CLAHE is selected; it re-runs the pass when a drag is released, or at once
+  on a click or a key. The limit used to be a fixed 6.9, which is where the
+  slider starts, so nothing changes until it is moved. It is kept in the INI
+  as `clahecliplimitvii`, apart from the limit the other two sliders share.
 
 ### Image view
 
