@@ -1516,31 +1516,25 @@ void SegmentVII::ComposeSegmentImage(int histogrammethod, bool normalized)
                             indexout[k] =  pixval1024[k];
                     }
 
-                    if(invertthissegment[k])
+                    if(histogrammethod == CMB_HISTO_EQUALIZE)
                     {
-                        if(normalized) color[k] = 255 - imageptrs->lut_norm_ch[k][indexout[k]]/4;
-                        else color[k] = 255 - imageptrs->lut_ch[k][indexout[k]]/4;
+                        if(normalized) color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
+                        else color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
                     }
                     else
                     {
-                        if(histogrammethod == CMB_HISTO_NONE_95 || histogrammethod == CMB_HISTO_NONE_100)
-                        {
-                            color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
-                        }
-                        else if(histogrammethod == CMB_HISTO_EQUALIZE)
-                        {
-                            if(normalized) color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_norm_ch[k][pixval1024[k]]/4), 0), 255);
-                            else color[k] = (quint16)qMin(qMax(qRound((float)imageptrs->lut_ch[k][pixval1024[k]]/4), 0), 255);
-                        }
-                        else
-                        {
-                            // CLAHE arrives here: SegmentListVII composes a
-                            // plain stretch first and replaces the whole image
-                            // afterwards. Leaving colour unset would have been
-                            // an uninitialised read.
-                            color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
-                        }
+                        // None 95% and None 100% show the stretch itself. CLAHE
+                        // arrives here too: SegmentListVII composes a plain
+                        // stretch first and replaces the whole image afterwards.
+                        color[k] = (quint16)qMin(qMax(qRound((float)indexout[k]/4), 0), 255);
                     }
+
+                    // Inverting comes after the method, so every method inverts
+                    // its own image. It used to look the inverted colour up in
+                    // the equalize LUT whatever the method, which turned an
+                    // inverted None 95% or None 100% into an inverted Equalize.
+                    if(invertthissegment[k])
+                        color[k] = 255 - color[k];
                 }
 
                 row[pixelx] = qRgba(color[0], iscolor ? color[1] : color[0], iscolor ? color[2] : color[0], 255 );
