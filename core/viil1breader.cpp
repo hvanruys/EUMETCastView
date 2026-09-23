@@ -465,9 +465,16 @@ bool ViiL1BReader::readFullGridVariable(const QString &name,
     const double *r = raw.constData();
     for (int i = 0; i < raw.size(); ++i) {
         const bool bad = (hasFill && r[i] == fill)
-                      || (hasMin  && r[i] <  vmin)
-                      || (hasMax  && r[i] >  vmax);
-        o[i] = bad ? qQNaN() : static_cast<float>(r[i] * scale + offset);
+                      || (hasMin  && r[i] <  vmin);
+        /* A count above valid_max is a saturated detector, not missing data:
+           over a bright enough target the solar channels climb smoothly past
+           it onto a plateau (vii_668 on 2026-09-23 07:48: 15199, 19375, 21733,
+           then ~21850 across the spot). Dropping those as no data punched a
+           black hole into the brightest part of the image; they are held at
+           valid_max instead, the brightest value the channel can show. The
+           fill value lies above valid_max too, so it has to be tested first. */
+        const double count = (hasMax && r[i] > vmax) ? vmax : r[i];
+        o[i] = bad ? qQNaN() : static_cast<float>(count * scale + offset);
     }
     return true;
 }

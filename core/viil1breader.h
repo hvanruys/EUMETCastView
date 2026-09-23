@@ -74,7 +74,8 @@ public:
 
     /* Read a packed variable and apply Equation 1
        (value = packed * scale_factor + add_offset).
-       _FillValue and, when requested, out-of-valid-range samples become NaN. */
+       _FillValue and, when requested, samples below valid_min become NaN;
+       samples above valid_max are saturated and are held at valid_max. */
     bool readTiePointVariable(const QString &name, QVector<double> *out);
     bool readFullGridVariable(const QString &name, QVector<float> *out,
                               bool applyValidRange = true);
