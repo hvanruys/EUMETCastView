@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.1.9
+
+Two fixes. An Oblique Mercator projection of a pass over the South Pole is no
+longer torn in two and squashed into a strip, and "normal size" in the image
+view is one image pixel per screen pixel again on a scaled display.
+
+### Projections
+
+- **An Oblique Mercator pass over the South Pole stays in one piece.**
+  `omerfor` gets the distance along the central line from an `atan`, so it
+  jumps by one whole period of the line — about 40 000 km — and with the
+  two-point definition the jump sits at the southern end of the line. A pass
+  that reached the southern turning point was cut in two, its halves a period
+  apart, and the bounding box stretched the canvas round the whole line; a
+  pass over the North Pole never came near the jump, which is why those were
+  right. The coordinate is now wrapped to within half a period of the middle
+  of the pass. Ten VII granules over 81.3° S went from a 40 186 km canvas to a
+  4 107 km one; a North Pole pass comes out byte for byte as before. The fix is
+  in the projection itself, so VII, VIIRS M and DNB, MERSI and AVHRR all have
+  it, and so do the overlays drawn on it.
+
+### Image view
+
+- **Normal size is one image pixel per screen pixel.** `originalSize` only
+  reset the view transform, which puts an image pixel on a logical pixel — and
+  on a display scaled by 125 % Qt hands the application a device pixel ratio
+  of 1.25, so "normal size" was really 125 %. It now divides that ratio back
+  out, and the percentage in the title follows, rounded rather than truncated.
+
 ## 2.1.8
 
 A small one. Dragging the image with the overlay on no longer stalls on every
