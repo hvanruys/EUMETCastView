@@ -267,6 +267,7 @@ public:
     int smoothprojectiontype;
     bool gridonprojection;
     float clahecliplimit;
+    float clahecliplimitVII;
 
     int dnbsblowerlimit;
     int dnbsbupperlimit;

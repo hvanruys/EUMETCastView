@@ -223,6 +223,7 @@ void Options::Initialize()
     yawcorrection = settings.value("/parameters/yawcorrection", 0.0).toDouble();
 
     clahecliplimit = settings.value("/parameters/clahecliplimit", 1.0).toFloat();
+    clahecliplimitVII = settings.value("/parameters/clahecliplimitvii", 6.9).toFloat();
 
     lastinputprojection = settings.value("/window/lastinputprojection", 0 ).toInt();
     lastVIIRSband = settings.value("/window/viirsband", 0 ).toInt();
@@ -619,6 +620,7 @@ void Options::Save()
 
     settings.setValue("/parameters/yawcorrection", yawcorrection);
     settings.setValue("/parameters/clahecliplimit", clahecliplimit);
+    settings.setValue("/parameters/clahecliplimitvii", clahecliplimitVII);
 
     settings.setValue( "/window/lastinputprojection", lastinputprojection );
     settings.setValue( "/window/viirsband", lastVIIRSband);

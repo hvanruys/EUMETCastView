@@ -679,6 +679,7 @@ void SegmentListVII::RecalculateCLAHEVII()
 
     for(int k = 0; k < 3; k++)
         pixels[k] = new quint16[npix];
+    QVector<bool> valid(npix, false);
 
     // CLAHE works on a 0..1023 range, so the packed radiances have to be
     // stretched into it rather than clipped - at 16 bits a clip would leave
@@ -692,11 +693,13 @@ void SegmentListVII::RecalculateCLAHEVII()
         {
             for(int j = 0; j < width; j++)
             {
+                bool valok = true;
                 for(int k = 0; k < (iscolor ? 3 : 1); k++)
                 {
                     const quint16 raw = normalized
                         ? segm->ptrbaVIInormalized[k][i * width + j]
                         : segm->ptrbaVII[k][i * width + j];
+                    valok = valok && raw < 65535;
                     const long lo = normalized ? imageptrs->stat_min_norm_ch[k] : imageptrs->stat_min_ch[k];
                     const long hi = normalized ? imageptrs->stat_max_norm_ch[k] : imageptrs->stat_max_ch[k];
                     quint16 out = 0;
@@ -704,6 +707,7 @@ void SegmentListVII::RecalculateCLAHEVII()
                         out = (quint16)qBound(0, qRound(1023.0 * (double)(raw - lo) / (double)(hi - lo)), 1023);
                     pixels[k][(size_t)(lineoffset + i) * width + j] = out;
                 }
+                valid[(size_t)(lineoffset + i) * width + j] = valok;
             }
         }
         lineoffset += segm->GetNbrOfLines();
@@ -715,21 +719,37 @@ void SegmentListVII::RecalculateCLAHEVII()
     // nothing to say why.
     for(int k = 0; k < (iscolor ? 3 : 1); k++)
     {
-        const int ret = imageptrs->CLAHE(pixels[k], width, nbroflinesreduced, 0, 1024, kClaheRegionsX, kClaheRegionsY, 256, 6.9);
+        const int ret = imageptrs->CLAHE(pixels[k], width, nbroflinesreduced, 0, 1024, kClaheRegionsX, kClaheRegionsY, 256, opts.clahecliplimitVII);
         if(ret != 0)
             qWarning() << QString("SegmentListVII::RecalculateCLAHEVII : CLAHE refused channel %1 with %2 for %3 x %4")
                           .arg(k).arg(ret).arg(width).arg(nbroflinesreduced);
     }
+
+    // The Inv boxes, which ComposeSegmentImage applies per pixel. Every
+    // segment is composed with the same bands, so the first one speaks for all.
+    bool invert[3] = { false, false, false };
+    if(!segsselected.isEmpty())
+        for(int k = 0; k < 3; k++)
+            invert[k] = ((SegmentVII *)segsselected.first())->isInverted(k);
 
     for (int line = 0; line < nbroflinesreduced; line++)
     {
         row = (QRgb*)imageptrs->ptrimageVII->scanLine(line);
         for (int pixelx = 0; pixelx < width; pixelx++)
         {
+            // No data stays transparent, as in the other methods - inverted it
+            // would otherwise come out white.
+            if(!valid[(size_t)line * width + pixelx])
+            {
+                row[pixelx] = qRgba(0, 0, 0, 0);
+                continue;
+            }
             for(int k = 0; k < (iscolor ? 3 : 1); k++)
             {
                 pixval[k] = pixels[k][(size_t)line * width + pixelx] / 4;
                 pixval[k] = pixval[k] > 255 ? 255 : pixval[k];
+                if(invert[k])
+                    pixval[k] = 255 - pixval[k];
             }
             row[pixelx] = qRgba(pixval[0], iscolor ? pixval[1] : pixval[0], iscolor ? pixval[2] : pixval[0], 255 );
         }

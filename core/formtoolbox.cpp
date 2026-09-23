@@ -326,6 +326,14 @@ FormToolbox::FormToolbox(QWidget *parent, FormImage *p_formimage, FormGeostation
     ui->lblCLAHEAVHRR->setText(QString("%1").arg(double(opts.clahecliplimit), 0, 'f', 1));
     ui->sliCLAHEAVHRR->setSliderPosition(opts.clahecliplimit * 10);
 
+    {
+        QSignalBlocker blocker(ui->sliCLAHEVII);
+        ui->sliCLAHEVII->setValue(qRound(opts.clahecliplimitVII * 10));
+    }
+    ui->lblCLAHEVII->setText(QString("%1").arg(double(opts.clahecliplimitVII), 0, 'f', 1));
+    // Enabled or not by on_cmbHistogramVII_currentIndexChanged, which the
+    // first addItem below fires.
+
 
     ui->sbCentreBand->blockSignals(true);
 
@@ -5110,7 +5118,31 @@ void FormToolbox::on_cmbHistogramVII_currentIndexChanged(int index)
 {
     Q_UNUSED(index)
 
+    ui->sliCLAHEVII->setEnabled(getVIIHistogrammethod() == CMB_HISTO_CLAHE);
     segs->seglmetopsga1->setHistogramMethod(getVIIHistogrammethod(), ui->rdbVIINormalized->isChecked());
+
+    if(segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() > 0)
+    {
+        segs->seglmetopsga1->ChangeHistogramMethod();
+        formimage->displayImage(IMAGE_VII, true);
+    }
+}
+
+void FormToolbox::on_sliCLAHEVII_valueChanged(int value)
+{
+    opts.clahecliplimitVII = float(value)/10;
+    ui->lblCLAHEVII->setText(QString("%1").arg(double(opts.clahecliplimitVII), 0, 'f', 1));
+
+    // A drag recomputes once, on release; a click on the groove or a key
+    // press moves the slider without one.
+    if(!ui->sliCLAHEVII->isSliderDown())
+        on_sliCLAHEVII_sliderReleased();
+}
+
+void FormToolbox::on_sliCLAHEVII_sliderReleased()
+{
+    if(getVIIHistogrammethod() != CMB_HISTO_CLAHE)
+        return;
 
     if(segs->seglmetopsga1->NbrOfSegmentsSelectedinMemory() > 0)
     {

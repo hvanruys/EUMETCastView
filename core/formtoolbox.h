@@ -295,6 +295,8 @@ private slots:
     void on_btnSaveAsPNG48bitsVII_clicked();
     void on_btnAddVIIConfig_clicked();
     void on_cmbHistogramVII_currentIndexChanged(int index);
+    void on_sliCLAHEVII_valueChanged(int value);
+    void on_sliCLAHEVII_sliderReleased();
     void on_rdbVIINormalized_toggled(bool checked);
     void on_rbtnAColor_clicked();
     void on_rbtnACh1_clicked();

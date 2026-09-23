@@ -1490,6 +1490,55 @@
             </layout>
            </item>
            <item>
+            <layout class="QHBoxLayout" name="horizontalLayoutCLAHEVII">
+             <item>
+              <widget class="QLabel" name="lblCLAHEVIITitle">
+               <property name="text">
+                <string>CLAHE clip limit :</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="sliCLAHEVII">
+               <property name="toolTip">
+                <string>Contrast limit of the CLAHE histogram matching. Higher gives more local contrast, and more noise.</string>
+               </property>
+               <property name="minimum">
+                <number>10</number>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="singleStep">
+                <number>1</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::TickPosition::TicksAbove</enum>
+               </property>
+               <property name="tickInterval">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="lblCLAHEVII">
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>6.9</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_90">
              <item>
               <widget class="QPushButton" name="btnSaveAsPNG48bitsVII">

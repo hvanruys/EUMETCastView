@@ -35,6 +35,7 @@ public:
     Segment *ReadSegmentRecipeInMemory(int recipe);
 
     void ComposeSegmentImage(int histogrammethod, bool normalized);
+    bool isInverted(int colorindex) const { return invertthissegment[colorindex]; }
     void ComposeSegmentGVProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSegmentLCCProjection(int inputchannel, int histogrammethod, bool normalized);
     void ComposeSegmentSGProjection(int inputchannel, int histogrammethod, bool normalized);
