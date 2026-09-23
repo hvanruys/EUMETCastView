@@ -63,6 +63,8 @@ private:
     double el,u;
     double singam,cosgam;
     double sinaz,cosaz;
+    double us_period;	/* length of the whole central line	*/
+    double us_centre;	/* us of the middle of the pass		*/
 
     // spherical
     double lon_p1, lat_p1;

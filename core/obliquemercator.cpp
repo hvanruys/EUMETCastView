@@ -23,6 +23,8 @@ ObliqueMercator::ObliqueMercator(QObject *parent, AVHRRSatellite *seglist) :
     image_width = 0;
     image_height = 0;
     ellipsoid = true;
+    us_period = 0;
+    us_centre = 0;
 
     qDebug() << QString("constructor ObliqueMercator");
 }
@@ -322,6 +324,19 @@ void ObliqueMercator::InitializeEllipsoid(double r_maj, double r_min, eProjectio
 
     double map_x_1, map_y_1;
     double map_x_2, map_y_2;
+
+    // us runs along the central line, which closes on itself: omerfor gets it
+    // from an atan and so jumps by one whole period somewhere on the line - at
+    // its southern end, for these passes. A pass over the South Pole used to
+    // straddle that jump, its two halves landing a period apart and the bounding
+    // box stretching round the whole line. omerfor now wraps us to within half
+    // a period of us_centre; centre it on the middle of the pass, found the
+    // short way round from one central point to the other.
+    us_period = TWOPI * al / bl;
+    us_centre = 0;
+    omerfor(lon1_r, lat1_r, &map_x_1, &map_y_1);
+    omerfor(lon2_r, lat2_r, &map_x_2, &map_y_2);
+    us_centre = map_y_1 + remainder(map_y_2 - map_y_1, us_period) / 2;
 
     omerfor(lon1_r, lat1_r, &map_x_1, &map_y_1);
     qDebug() << "For central 1 : map_x_1 =" << map_x_1 << " map_y_1 = " << map_y_1;
@@ -1009,6 +1024,8 @@ bool ObliqueMercator::omerfor(double lon, double lat, double *x, double *y)
     }
     vs = .5 * al * log((1.0 - ul)/(1.0 + ul)) / bl;
     us = us - u;
+    if (us_period > 0)
+        us = us_centre + remainder(us - us_centre, us_period);
 
     //2D Rotation over angle = azimuth
     //    *x = false_easting + vs * cosaz + us * sinaz;
